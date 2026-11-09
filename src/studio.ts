@@ -112,6 +112,7 @@ export class FhStudio extends LitElement {
             return html`<button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
               <span class="av">${renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true })}</span>${it[1]}
               ${locked ? html`<span class="lock">🔒 ${it[2]}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
+              ${this.kid.favourites?.includes(it[0]) && locked ? html`<span class="new" style="background:var(--kid)">♥</span>` : nothing}
             </button>`;
           })}
         </div>

@@ -122,7 +122,7 @@ export class FhKid extends LitElement {
     try { const s = localStorage.getItem(this._seenKey); seen = s === null ? null : Number(s); } catch { /* */ }
     if (seen === null || life < seen) { try { localStorage.setItem(this._seenKey, String(life)); } catch { /* */ } return; }
     const fresh = unlocksBetween(seen, life);
-    if (fresh.length) { this._celebrate = fresh; this._confetti++; }
+    if (fresh.length) { const f = this.kid.favourites ?? []; this._celebrate = [...fresh].sort((a, b) => Number(f.includes(b.id)) - Number(f.includes(a.id))); this._confetti++; }
     else if (life !== seen) { try { localStorage.setItem(this._seenKey, String(life)); } catch { /* */ } }
   }
   private _closeCelebrate(open: boolean): void {
