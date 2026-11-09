@@ -14,11 +14,12 @@ interface Pic { title: string; url: string; id?: string }
 export class FhDoodle extends LitElement {
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
-    .tools { width: 96px; flex-shrink: 0; border-radius: 28px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; overflow: auto; }
+    .tools { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }
+    .tools .sep { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
     .ink { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); transition: transform .2s cubic-bezier(.2,1.4,.4,1); flex-shrink: 0; }
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .rainbow { background: conic-gradient(#e63946, #fcbf49, #2a9d8f, #118ab2, #7b2cbf, #e63946); }
-    .size { width: 56px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .size { width: 50px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .size[aria-pressed='true'] { background: var(--chip-strong); }
     .size i { border-radius: 50%; background: var(--ink); display: block; }
     .paper { flex: 1; min-width: 0; border-radius: 28px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
@@ -183,7 +184,7 @@ export class FhDoodle extends LitElement {
       <section class="glass tools" aria-label="Brushes">
         ${INKS.map((c) => html`<button class="ink tap" style="background:${c}" aria-label="Colour" aria-pressed=${String(!this._erase && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; }}></button>`)}
         <button class="ink tap rainbow" aria-label="Rainbow" aria-pressed=${String(!this._erase && this._ink === 'rainbow')} @click=${() => { this._ink = 'rainbow'; this._erase = false; }}></button>
-        <span style="height:1px;width:50px;background:var(--track);margin:4px 0;flex-shrink:0"></span>
+        <span class="sep"></span>
         ${SIZES.map((s) => html`<button class="size tap" aria-label="Brush ${s}" aria-pressed=${String(this._size === s)} @click=${() => { this._size = s; }}><i style="width:${Math.min(s, 22)}px;height:${Math.min(s, 22)}px"></i></button>`)}
         <button class="size tap" aria-label="Eraser" aria-pressed=${String(this._erase)} @click=${() => { this._erase = !this._erase; }} style="font-size:22px">🧽</button>
       </section>
