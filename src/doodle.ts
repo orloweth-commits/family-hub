@@ -9,7 +9,8 @@ const LOCAL_KEY = 'family-hub-fridge';
 const ROOT = 'media-source://media_source/local/.';
 
 interface Pic { title: string; url: string; id?: string }
-interface Stroke { ink: string; size: number; erase: boolean; hue: number; pts: [number, number, number, number, number][] }
+interface Stroke { ink: string; size: number; erase: boolean; hue: number; pts: [number, number, number, number, number][]; stamp?: string }
+const STAMPS = ['🦖', '🐉', '🚚', '⭐', '❤️', '🌈', '🏄', '🎺'];
 
 /** Doodle pad with undo, rainbow brush, chalkboard mode and a shared "fridge" gallery. */
 export class FhDoodle extends LitElement {
@@ -41,11 +42,14 @@ export class FhDoodle extends LitElement {
     .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet .4s cubic-bezier(.2,1.2,.3,1); }
   `];
 
-  static properties = { hass: { attribute: false }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
+  static properties = { hass: { attribute: false }, artists: { attribute: false }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
     _blank: { state: true }, _pics: { state: true }, _view: { state: true }, _msg: { state: true }, _stick: { state: true } };
   hass?: Hass;
   private _ink = INKS[0];
   private _size = 10;
+  artists: string[] = [];
+  private _stamp = '';
+  private _artist = '';
   private _erase = false;
   private _chalk = false;
   private _blank = true;
@@ -89,6 +93,10 @@ export class FhDoodle extends LitElement {
   private _down(e: PointerEvent): void {
     this._canvas!.setPointerCapture(e.pointerId);
     this._last = this._pt(e);
+    if (this._stamp) {
+      const st: Stroke = { ink: '', size: this._size, erase: false, hue: 0, pts: [[this._last.x, this._last.y, 0, 0, 0]], stamp: this._stamp };
+      this._strokes.push(st); this._drawStamp(st); this._blank = false; this._last = null; return;
+    }
     this._cur = { ink: this._ink, size: this._size, erase: this._erase, hue: this._hue, pts: [] };
     this._strokes.push(this._cur);
     if (this._strokes.length > 400) this._strokes.splice(0, this._strokes.length - 400);
@@ -117,11 +125,18 @@ export class FhDoodle extends LitElement {
     else ctx.strokeStyle = st.ink === 'rainbow' ? '#000' : st.ink;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx + 0.01, by); ctx.stroke();
   }
+  private _drawStamp(st: Stroke): void {
+    const ctx = this._ctx!, dpr = window.devicePixelRatio || 1, [x, y] = st.pts[0];
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.font = `${(30 + st.size * 3) * dpr}px system-ui, "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(st.stamp!, x, y);
+  }
   private _redraw(): void {
     const c = this._canvas!, ctx = this._ctx!;
     ctx.clearRect(0, 0, c.width, c.height);
     const from = this._strokes.lastIndexOf(null) + 1;
-    for (const st of this._strokes.slice(from)) if (st) st.pts.forEach((q, i) => this._draw(st, q[0], q[1], q[2], q[3], q[4], i + 1));
+    for (const st of this._strokes.slice(from)) if (st) { if (st.stamp) this._drawStamp(st); else st.pts.forEach((q, i) => this._draw(st, q[0], q[1], q[2], q[3], q[4], i + 1)); }
     this._blank = !this._strokes.slice(from).length;
   }
 
@@ -157,7 +172,7 @@ export class FhDoodle extends LitElement {
       try {
         const fd = new FormData();
         fd.append('media_content_id', ROOT);
-        fd.append('file', new File([blob], `doodle-${stamp}.png`, { type: 'image/png' }));
+        fd.append('file', new File([blob], `doodle-${stamp}${this._artist ? `-${this._artist.toLowerCase()}` : ''}.png`, { type: 'image/png' }));
         const r = await this.hass.fetchWithAuth('/api/media_source/local_source/upload', { method: 'POST', body: fd });
         shared = r.ok;
       } catch { shared = false; }
@@ -166,7 +181,7 @@ export class FhDoodle extends LitElement {
       const url = await new Promise<string>((res) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result)); fr.readAsDataURL(blob); });
       try {
         const list: Pic[] = JSON.parse(localStorage.getItem(LOCAL_KEY) ?? '[]');
-        list.unshift({ title: `doodle-${stamp}`, url });
+        list.unshift({ title: `doodle-${stamp}${this._artist ? `-${this._artist.toLowerCase()}` : ''}`, url });
         localStorage.setItem(LOCAL_KEY, JSON.stringify(list.slice(0, 8)));
       } catch { this._say('The fridge is full – clear a few doodles'); return; }
     }
@@ -194,8 +209,10 @@ export class FhDoodle extends LitElement {
   render(): TemplateResult {
     return html`
       <section class="glass tools" aria-label="Brushes">
-        ${INKS.map((c) => html`<button class="ink tap" style="background:${c}" aria-label="Colour" aria-pressed=${String(!this._erase && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; }}></button>`)}
-        <button class="ink tap rainbow" aria-label="Rainbow" aria-pressed=${String(!this._erase && this._ink === 'rainbow')} @click=${() => { this._ink = 'rainbow'; this._erase = false; }}></button>
+        ${INKS.map((c) => html`<button class="ink tap" style="background:${c}" aria-label="Colour" aria-pressed=${String(!this._erase && !this._stamp && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; this._stamp = ''; }}></button>`)}
+        <button class="ink tap rainbow" aria-label="Rainbow" aria-pressed=${String(!this._erase && !this._stamp && this._ink === 'rainbow')} @click=${() => { this._ink = 'rainbow'; this._erase = false; this._stamp = ''; }}></button>
+        <span class="sep"></span>
+        ${STAMPS.map((st) => html`<button class="size tap" style="font-size:26px" aria-label="Stamp" aria-pressed=${String(this._stamp === st)} @click=${() => { this._stamp = this._stamp === st ? '' : st; this._erase = false; }}>${st}</button>`)}
         <span class="sep"></span>
         ${SIZES.map((s) => html`<button class="size tap" aria-label="Brush ${s}" aria-pressed=${String(this._size === s)} @click=${() => { this._size = s; }}><i style="width:${Math.min(s, 22)}px;height:${Math.min(s, 22)}px"></i></button>`)}
         <button class="size tap" aria-label="Eraser" aria-pressed=${String(this._erase)} @click=${() => { this._erase = !this._erase; }} style="font-size:22px">🧽</button>
@@ -210,12 +227,13 @@ export class FhDoodle extends LitElement {
           <button class="pill tap" @click=${() => this._clear()}>${icon('close', 18)}Clear</button>
           <button class="pill tap" @click=${() => { this._chalk = !this._chalk; if (this._chalk && this._ink === INKS[0]) this._ink = '#ffffff'; else if (!this._chalk && this._ink === '#ffffff') this._ink = INKS[0]; }}>${icon(this._chalk ? 'sun' : 'moon', 18)}${this._chalk ? 'Paper' : 'Chalkboard'}</button>
           <span style="flex:1"></span>
+          ${this.artists.length ? html`<span class="muted" style="font-size:13px;font-weight:700">Artist</span>${this.artists.map((a) => html`<button class="pill tap" style=${this._artist === a ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => { this._artist = this._artist === a ? '' : a; }}>${a}</button>`)}` : ''}
           <button class="pill tap primary" style="height:48px;padding:0 20px;font-size:16px" @click=${() => this._toFridge()}>${icon('star', 18)}Stick it on the fridge</button>
         </div>
       </section>
       <section class="glass fridge" aria-label="The fridge">
         <span class="label">The fridge</span>
-        ${this._pics.length ? html`<div class="pics">${this._pics.map((p) => html`<button class="pic tap" aria-label="View doodle" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}></button>`)}</div>`
+        ${this._pics.length ? html`<div class="pics">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<button class="pic tap" aria-label="View doodle" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span style="position:absolute;bottom:-8px;right:-4px;background:var(--chip-strong);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800;text-transform:capitalize">${by}</span>` : ''}</button>`; })}</div>`
           : html`<span class="muted" style="font-size:14px">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}

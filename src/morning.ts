@@ -26,8 +26,8 @@ export class FhMorning extends LitElement {
     .step.done { background: color-mix(in srgb, var(--ok) 22%, var(--chip)); text-decoration: line-through; color: var(--ink3); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: 700; }
-    .ev { display: flex; gap: 10px; font-size: 15px; font-weight: 600; }
-    .ev .t { width: 72px; color: var(--ink2); flex-shrink: 0; }
+    .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: 600; }
+    .mev2 .t { width: 72px; color: var(--ink2); flex-shrink: 0; }
     @keyframes pulse { 50% { opacity: .55; } }
     ${unsafeCSS(avatarCss)}
   `];
@@ -65,7 +65,8 @@ export class FhMorning extends LitElement {
 
   private _bring(k: KidConfig, evs: CalEvent[]): string[] {
     const out = new Set<string>(k.bring?.[DOW[this._now.getDay()]] ?? []);
-    const text = evs.map((e) => e.title.toLowerCase()).join(' | ');
+    // family events only count when they mention this child by name
+    const text = evs.filter((e) => e.who === k.name || e.title.toLowerCase().includes(k.name.toLowerCase())).map((e) => e.title.toLowerCase()).join(' | ');
     for (const r of this.rules) {
       if (r.kid && r.kid !== k.name) continue;
       if (new RegExp(r.match, 'i').test(text)) out.add(r.item);
@@ -101,7 +102,7 @@ export class FhMorning extends LitElement {
               <div class="steps">${steps.map((c) => html`<span class="step ${c.status === 'completed' ? 'done' : ''}">${picFor(c.summary)} ${c.summary}</span>`)}</div>` : nothing}
             ${bring.length ? html`<span class="label">Bring</span><div class="bring">${bring.map((b) => html`<span>${b}</span>`)}</div>` : nothing}
             <span class="label">Today</span>
-            ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="ev"><span class="t">${ev.allDay ? 'All day' : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
+            ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="mev2"><span class="t">${ev.allDay ? 'All day' : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
               : html`<span class="muted" style="font-size:14px">Just school today</span>`}
           </button>`;
         })}

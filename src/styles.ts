@@ -7,7 +7,7 @@ export const styles = css`
   h1, h2, .display { font-family: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif; letter-spacing: -0.025em; margin: 0; }
 
   .fh {
-    position: relative; overflow: hidden;
+    position: relative; overflow: hidden; overflow: clip;
     height: calc(100vh - var(--header-height, 0px)); min-height: 640px;
     padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;
     font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink);

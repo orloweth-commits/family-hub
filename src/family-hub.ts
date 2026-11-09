@@ -256,8 +256,8 @@ export class FamilyHubCard extends LitElement {
     if (i < 0) return isSchoolDay(d, terms, this._config.public_holidays) ? 'School day' : 'Holidays';
     const start = new Date(`${terms[i][0]}T00:00:00`);
     const wk = Math.floor((startOfWeek(d).getTime() - startOfWeek(start).getTime()) / (7 * 86_400_000)) + 1;
-    const year = terms.filter(([a]) => a.slice(0, 4) === terms[i][0].slice(0, 4));
-    return `Term ${year.findIndex((t) => t[0] === terms[i][0]) + 1}, week ${wk}`;
+    const m = start.getMonth(); // WA terms start Feb, Apr, Jul, Oct
+    return `Term ${m <= 2 ? 1 : m <= 5 ? 2 : m <= 8 ? 3 : 4}, week ${wk}`;
   }
 
   // ---------- timer, alarm, meds ----------
@@ -271,7 +271,11 @@ export class FamilyHubCard extends LitElement {
   private _addTimer(min: number): void { this.hass?.callService('script', 'fh_timer_add', { minutes: min }); sfx('tap'); }
   private _checkAlarm(): void {
     const m = panelMsg(this.hass);
-    if (m?.alarm && m.ts && m.ts !== this._alarmSeen && Date.now() / 1000 - m.ts < 120) { this._alarmSeen = m.ts; this._alarm = m.ts; sfx('alarm'); }
+    if (m?.alarm && m.ts && m.ts !== this._alarmSeen && Date.now() / 1000 - m.ts < 120) {
+      this._alarmSeen = m.ts; this._alarm = m.ts; sfx('alarm');
+      let n = 0;
+      const rep = window.setInterval(() => { if (!this._alarm || ++n > 12) { clearInterval(rep); this._alarm = 0; return; } sfx('alarm'); }, 5000);
+    }
   }
   private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean } {
     const st = this.hass?.states[`input_datetime.fh_med_${id}`];
@@ -391,7 +395,7 @@ export class FamilyHubCard extends LitElement {
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}></fh-music>`;
-      case 'doodle': return html`<fh-doodle .hass=${this.hass}></fh-doodle>`;
+      case 'doodle': return html`<fh-doodle .hass=${this.hass} .artists=${(c.kids ?? []).map((k) => k.name)}></fh-doodle>`;
       case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
         .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
@@ -424,7 +428,8 @@ export class FamilyHubCard extends LitElement {
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title));
     if (next) {
       const mins = Math.round((next.start.getTime() - now) / 60000);
-      chips.push(html`<span class="cap"><span class="dot" style="background:${slotVar(next.colour)}"></span>${next.title} · ${mins < 60 ? `in ${mins} min` : fmtTime(next.start)}</span>`);
+      const when = mins < 60 ? `in ${mins} min` : `${sameDay(next.start, new Date()) ? '' : 'Tomorrow '}${fmtTime(next.start)}`;
+      chips.push(html`<span class="cap"><span class="dot" style="background:${slotVar(next.colour)}"></span>${next.title} · ${when}</span>`);
     }
     const m = c.music_player ? this.hass?.states[c.music_player] : undefined;
     if (m?.state === 'playing' && this._page !== 'music') chips.push(html`<button class="cap tap" @click=${() => { this._page = 'music'; }}>♪ ${m.attributes.media_title ?? 'Playing'}</button>`);
@@ -461,7 +466,7 @@ export class FamilyHubCard extends LitElement {
                 return html`<span class="avatar" title="${p.name} – ${home ? 'home' : 'away'}" style="width:32px;height:32px;font-size:13px;background:${slotVar(p.colour)};opacity:${home ? 1 : 0.35}">${p.name[0]}</span>`;
               })}
             </div>` : nothing}
-          <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('megaphone', 22)}</button>
+          <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>
           <button class="glass tap round" style="width:52px;height:52px" aria-label="Themes" @click=${() => { this._sheet = 'themes'; }}>${icon('palette')}</button>
           ${c.babysitter ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
           <button class="glass tap round" style="width:52px;height:52px" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
@@ -513,7 +518,7 @@ export class FamilyHubCard extends LitElement {
       ${days.map((d) => {
         const evs = this._eventsOn(d), isToday = sameDay(d, today);
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
-        const max = isToday ? 5 : 4;
+        const max = 4;
         return html`<div class="col ${isToday ? 'today' : ''}">
           <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
           ${pub.slice(0, max).map((e) => this._evCard(e))}
@@ -663,7 +668,7 @@ export class FamilyHubCard extends LitElement {
   }
   private _medsBody(): TemplateResult {
     const parents = this._config.parents ?? (this._config.people ?? []).map((p) => p.name);
-    return html`${this._sheetHead('Medication', 'Only shown to grown-ups who open this.')}
+    return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.')}
       ${(this._config.meds ?? []).map((m) => {
         const s = this._medStatus(m.id, m.time);
         return html`<div class="card" style="background:var(--chip);border-radius:20px">

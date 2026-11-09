@@ -8,7 +8,7 @@ import {
 import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
-import { bedtimeFor, changed, daySlot, parseChore, say, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { bedtimeFor, hm, changed, daySlot, parseChore, say, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import './pin';
 
@@ -22,6 +22,7 @@ const PICS: [RegExp, string][] = [
   [/scooter/i, '🛴'], [/swim/i, '🏊'], [/dog|cat|pet|feed/i, '🐾'], [/water|plant/i, '🪴'], [/bin|rubbish/i, '🗑️'], [/dishwasher/i, '🍽️']
 ];
 export const picFor = (s: string): string => PICS.find(([re]) => re.test(s))?.[1] ?? '⭐';
+const t12 = (s: string): string => { const m = hm(s), h = Math.floor(m / 60) % 24; return `${h % 12 || 12}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
 const SLOT_NAME: Record<Slot, string> = { am: 'Morning', after: 'After school', bed: 'Bedtime', any: 'Any time' };
 const FEELINGS: [string, string][] = [['😄', 'great'], ['🙂', 'good'], ['😐', 'okay'], ['😟', 'worried'], ['😢', 'sad']];
 const UNDO_MS = 10 * 60_000;
@@ -69,9 +70,11 @@ export class FhKid extends LitElement {
     .pic.done .e { transform: scale(.85) rotate(-8deg); opacity: .6; }
     .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; animation: avPop .4s cubic-bezier(.2,1.4,.4,1); }
     .stars { color: #f5b301; font-size: 20px; letter-spacing: 2px; }
-    .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
-    .rw { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; background: var(--chip); }
-    .rw .n { flex: 1; font-size: 15px; font-weight: 600; }
+    .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
+    .side::-webkit-scrollbar { display: none; }
+    .side > .card { flex-shrink: 0; }
+    .rw { display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; border-radius: 14px; background: var(--chip); }
+    .rw .n { flex: 1; font-size: 15px; font-weight: 600; line-height: 1.2; }
     .rw button { height: 38px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 700; background: var(--primary); color: var(--on-primary); white-space: nowrap; }
     .rw button.save { background: var(--track); color: var(--ink2); }
     .jar { display: flex; align-items: center; gap: 12px; }
@@ -370,7 +373,7 @@ export class FhKid extends LitElement {
         <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
           <span class="muted" style="font-size:13px;font-weight:600;text-align:right">${li.need - li.into} more to ${li.nextRank}</span></div>
         <div class="stats">
-          <div class="stat"><b>${pts || '–'}</b><span>${pts ? 'points to spend' : 'Ready to start'}</span></div>
+          <div class="stat"><b>${pts || '✨'}</b><span>${pts ? 'points to spend' : 'Ready to start'}</span></div>
           <div class="stat"><span>Good days</span><div class="dots">${[...w].map((c, i) => html`<button aria-label="${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}${c === 'O' ? ', day off' : ''}" class="${c === 'G' || (i === todayIdx && goodToday) ? 'g' : c === 'O' ? 'o' : ''} ${i === todayIdx ? 't' : ''}" @click=${() => this._dayOff(i)}></button>`)}</div>
             <span>${goodCount >= 5 ? 'Full week ⭐' : `${goodCount} this week`}</span></div>
         </div>`}
@@ -405,7 +408,7 @@ export class FhKid extends LitElement {
     const done = visible.filter((c) => c.status === 'completed').length, total = visible.length;
     const left = total - done;
     const C = 2 * Math.PI * 22, frac = total ? done / total : 0;
-    const sub = this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${bt}` : 'All set for bed. Sleep well 🌙')
+    const sub = this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${t12(bt)}` : 'All set for bed. Sleep well 🌙')
       : left ? `${left} left ${slot === 'am' ? 'this morning' : slot === 'after' ? 'this afternoon' : 'tonight'}` : 'All done – fresh start tomorrow';
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
@@ -455,14 +458,14 @@ export class FhKid extends LitElement {
       ${list.map((r) => {
         const ok = have >= r.cost;
         return html`<div class="rw"><span style="font-size:24px">${r.icon ?? '🎁'}</span><span class="n">${r.name}</span>
-          <button class="tap ${ok ? '' : 'save'}" @click=${() => this._redeem(r)}>${this._jack ? `${'★'.repeat(Math.max(1, Math.round(r.cost / st)))}` : ok ? `${r.cost}` : `${r.cost - have} to go`}</button></div>`;
+          <button class="tap ${ok ? '' : 'save'}" @click=${() => this._redeem(r)}>${this._jack ? (Math.round(r.cost / st) > 5 ? `${Math.round(r.cost / st)} ★` : '★'.repeat(Math.max(1, Math.round(r.cost / st)))) : ok ? `${r.cost}` : `${r.cost - have} to go`}</button></div>`;
       })}
     </section>`;
   }
 
   private _windCard(): TemplateResult {
     return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:600">The shop opens again in the morning 🌙</span>
-      <span class="muted" style="font-size:13px">Bedtime ${bedtimeFor(this.kid.bedtime, this._now)}</span></section>`;
+      <span class="muted" style="font-size:13px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
   }
 
   private _jar(): TemplateResult {
@@ -494,7 +497,7 @@ export class FhKid extends LitElement {
       if (this._jack) return `${n} sleep${n > 1 ? 's' : ''}`;
       return n === 1 ? 'Tomorrow' : fmtDow(d);
     };
-    return html`<section class="glass card" style="flex:1;min-height:0;overflow:hidden" aria-label="${this.kid.name}’s week">
+    return html`<section class="glass card" aria-label="${this.kid.name}’s week">
       <span class="label">${this._jack ? 'Coming up' : `${this.kid.name}’s week`}</span>
       ${evs.length ? evs.map((e) => html`<div class="wk"><span class="d">${label(e.start)}</span>
         <span style="flex:1;font-weight:600;display:flex;gap:6px;align-items:baseline"><span class="dot" style="width:8px;height:8px;background:${e.family ? 'var(--p-family)' : 'var(--kid)'}"></span>

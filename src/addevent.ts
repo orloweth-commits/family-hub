@@ -14,13 +14,13 @@ const ymd = (d: Date): string => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${
 export class FhAddEvent extends LitElement {
   static styles = [styles, css`
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
-    .box { width: min(1100px, 94%); border-radius: 30px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
-    .field { flex: 1; height: 58px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: 600; color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    .box { width: min(1100px, 94%); max-height: 96%; overflow-y: auto; border-radius: 30px; padding: 16px 20px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
+    .field { flex: 1; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: 600; color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chips button { height: 42px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .chips button { height: 40px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
-    .row { display: flex; gap: 7px; justify-content: center; }
-    .key { width: 58px; height: 54px; border-radius: 12px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 22px; font-weight: 500; }
+    .row { display: flex; gap: 6px; justify-content: center; }
+    .key { width: 56px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 22px; font-weight: 500; }
     .key:active { transform: scale(.92); }
   `];
   static properties = { hass: { attribute: false }, calendars: { attribute: false }, defaultCal: {}, _t: { state: true }, _day: { state: true }, _time: { state: true }, _dur: { state: true }, _cal: { state: true }, _busy: { state: true }, _err: { state: true }, _caps: { state: true } };
@@ -76,7 +76,7 @@ export class FhAddEvent extends LitElement {
       <div class="chips">${TIMES.map((t) => html`<button class="tap" aria-pressed=${String(this._time === t)} @click=${() => { this._time = t; }}>${t === 'All day' ? t : new Date(2000, 0, 1, Number(t.slice(0, 2)), Number(t.slice(3))).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }).replace(' ', '').toLowerCase()}</button>`)}
         ${this._time !== 'All day' ? [30, 60, 90, 120].map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${m < 60 ? `${m} min` : `${m / 60} hr`}</button>`) : ''}</div>
       <div class="chips">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="dot" style="background:${slotVar(c.colour)}"></span>${c.name ?? c.entity}</button>`)}</div>
-      <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px">
+      <div style="display:flex;flex-direction:column;gap:6px">
         ${ROWS.map((r, i) => html`<div class="row">${i === 2 ? html`<button class="key tap" style="width:84px;font-size:16px" @click=${() => { this._caps = !this._caps; }}>${this._caps ? '⇧ ABC' : '⇧ abc'}</button>` : ''}${[...r].map((k) => html`<button class="key tap" @click=${() => this._key(k)}>${this._caps ? k.toUpperCase() : k}</button>`)}${i === 2 ? html`<button class="key tap" style="width:84px" aria-label="Delete" @click=${() => this._key('del')}>⌫</button>` : ''}</div>`)}
         <div class="row"><button class="key tap" style="width:420px;font-size:16px" @click=${() => this._key(' ')}>space</button></div>
       </div>
