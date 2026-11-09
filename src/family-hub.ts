@@ -76,6 +76,7 @@ export class FamilyHubCard extends LitElement {
   private _page: Page = 'planner';
   private _kid = 0;
   private _photo = '';
+  private _musicFocus = '';
   private _photos: string[] = [];
   private _photoIdx = 0;
   private _photoTimer?: number;
@@ -277,8 +278,8 @@ export class FamilyHubCard extends LitElement {
         const fam = (c.calendars ?? []).filter((x) => x.colour === 'family').map((x) => x.entity);
         return html`<fh-kid .hass=${this.hass} .kid=${k} .familyCalendars=${fam} .pin=${c.parent_pin ?? ''} .reminders=${c.reminders ?? ''}></fh-kid>`;
       }
-      case 'home': return html`<fh-home .hass=${this.hass} .pin=${c.parent_pin ?? ''} .hideScripts=${c.announce_script ? [c.announce_script] : []}></fh-home>`;
-      case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${c.music_player ?? ''}></fh-music>`;
+      case 'home': return html`<fh-home .hass=${this.hass} .pin=${c.parent_pin ?? ''} .hideScripts=${c.announce_script ? [c.announce_script] : []} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
+      case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}></fh-music>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass}></fh-doodle>`;
       default: break;
     }

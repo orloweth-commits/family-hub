@@ -207,7 +207,7 @@ export class FhKid extends LitElement {
   private _hero(life: number, look: Look): TemplateResult {
     const e = this._e, h = this.hass!;
     const lv = level(life), xp = life % 100;
-    const nx = nextUnlock(life), from = prevThreshold(life);
+    const nx = nextUnlock(life, this.kid.favourites), from = prevThreshold(life);
     const pct = nx ? Math.round(((life - from) / (nx.req - from)) * 100) : 100;
     const streak = num(h, e.streak);
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
@@ -264,7 +264,7 @@ export class FhKid extends LitElement {
   }
 
   private _week(): TemplateResult {
-    const today = new Date(), evs = this._events.slice(0, 7);
+    const today = new Date(), evs = this._events.filter((e) => e.allDay || e.start.getTime() > today.getTime() - 3_600_000).slice(0, 7);
     return html`<section class="glass card" style="flex:1;min-height:0;overflow:hidden" aria-label="${this.kid.name}’s week">
       <span class="label">${this.kid.name}’s week</span>
       ${evs.length ? evs.map((e) => html`<div class="wk"><span class="d">${sameDay(e.start, today) ? 'Today' : sameDay(e.start, addDays(today, 1)) ? 'Tomorrow' : fmtDow(e.start)}</span>

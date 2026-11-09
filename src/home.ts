@@ -14,8 +14,8 @@ export class FhHome extends LitElement {
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .rooms { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
-    .rgrid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; align-content: start; }
-    .room { border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .5s ease, background .5s ease; }
+    .rgrid { flex: 1; min-height: 0; overflow: auto; columns: 3 250px; column-gap: 12px; }
+    .room { break-inside: avoid; margin-bottom: 12px; border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .5s ease, background .5s ease; }
     .room.lit { background: color-mix(in srgb, #ffd166 22%, var(--chip)); box-shadow: 0 0 0 1px color-mix(in srgb, #ffb703 40%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; }
     .rh h2 { flex: 1; font-size: 19px; font-weight: 800; }
@@ -63,7 +63,7 @@ export class FhHome extends LitElement {
 
   private _toggle(e: HassEntity): void {
     const dom = e.entity_id.split('.')[0];
-    if (dom === 'media_player') this.hass!.callService('media_player', 'media_play_pause', { entity_id: e.entity_id });
+    if (dom === 'media_player') this.dispatchEvent(new CustomEvent('music', { detail: e.entity_id }));
     else if (dom === 'lock') this._guard(() => this.hass!.callService('lock', e.state === 'locked' ? 'unlock' : 'lock', { entity_id: e.entity_id }));
     else this.hass!.callService('homeassistant', 'toggle', { entity_id: e.entity_id });
   }
@@ -79,7 +79,7 @@ export class FhHome extends LitElement {
   private _name(e: HassEntity, room: string): string {
     const n: string = e.attributes.friendly_name ?? e.entity_id;
     const stripped = n.replace(new RegExp(`^${room.replace(/[^\w ]/g, '.')}\\s*`, 'i'), '');
-    return stripped.length > 2 ? stripped : n;
+    return stripped.length > 2 && !/^room\b/i.test(stripped) ? stripped : n;
   }
   private _ic(e: HassEntity): string {
     const d = e.entity_id.split('.')[0];

@@ -35,6 +35,8 @@ export interface KidConfig {
   theme?: ThemeId;
   /** starting look, e.g. "h=quiff;hc=e3b85c" */
   look?: string;
+  /** catalogue item ids this kid loves – shown first as the next unlock */
+  favourites?: string[];
 }
 export interface StationConfig { name: string; match?: string; id?: string }
 export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }

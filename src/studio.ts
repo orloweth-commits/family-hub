@@ -81,7 +81,7 @@ export class FhStudio extends LitElement {
 
   render(): TemplateResult {
     const cat = CATALOGUE.find((c) => c.id === this._tab) ?? CATALOGUE[0];
-    const nx = nextUnlock(this.life), from = prevThreshold(this.life);
+    const nx = nextUnlock(this.life, this.kid.favourites), from = prevThreshold(this.life);
     const dirty = !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">

@@ -58,7 +58,12 @@ export const ALL_UNLOCKS: Unlock[] = CATALOGUE.flatMap((c) => [
 ]).sort((a, b) => a.req - b.req);
 
 export const unlocksBetween = (from: number, to: number): Unlock[] => ALL_UNLOCKS.filter((u) => u.req > from && u.req <= to);
-export const nextUnlock = (life: number): Unlock | undefined => ALL_UNLOCKS.find((u) => u.req > life);
+export const nextUnlock = (life: number, favs: string[] = []): Unlock | undefined => {
+  const first = ALL_UNLOCKS.find((u) => u.req > life);
+  if (!first) return undefined;
+  const fav = ALL_UNLOCKS.filter((u) => u.req > life && favs.includes(u.id)).sort((a, b) => a.req - b.req)[0];
+  return fav && fav.req <= first.req + 50 ? fav : first;
+};
 export const prevThreshold = (life: number): number => ALL_UNLOCKS.filter((u) => u.req <= life).reduce((m, u) => Math.max(m, u.req), 0);
 export const level = (life: number): number => Math.floor(life / 100) + 1;
 
