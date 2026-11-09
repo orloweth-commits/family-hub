@@ -2560,8 +2560,8 @@ const Ao = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], yt = class yt exte
   }
   /** A child's own events today (their calendar, or family events that name them). */
   _own(t) {
-    const i = t.name.toLowerCase();
-    return this.events.filter((a) => y(a.start, this._now) && (a.who === t.name || a.title.toLowerCase().includes(i)));
+    const i = t.name.toLowerCase(), a = this.privateWords.map((o) => o.toLowerCase());
+    return this.events.filter((o) => y(o.start, this._now) && !a.some((s) => o.title.toLowerCase().includes(s)) && (o.who === t.name || o.title.toLowerCase().includes(i)));
   }
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   _leave(t) {

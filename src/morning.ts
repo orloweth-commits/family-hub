@@ -81,7 +81,8 @@ export class FhMorning extends LitElement {
   /** A child's own events today (their calendar, or family events that name them). */
   private _own(k: KidConfig): CalEvent[] {
     const n = k.name.toLowerCase();
-    return this.events.filter((ev) => sameDay(ev.start, this._now) && (ev.who === k.name || ev.title.toLowerCase().includes(n)));
+    const priv = this.privateWords.map((w) => w.toLowerCase());
+    return this.events.filter((ev) => sameDay(ev.start, this._now) && !priv.some((w) => ev.title.toLowerCase().includes(w)) && (ev.who === k.name || ev.title.toLowerCase().includes(n)));
   }
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   private _leave(k: KidConfig): { at: number; why: string } {
