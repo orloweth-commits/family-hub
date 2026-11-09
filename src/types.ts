@@ -85,7 +85,7 @@ export interface FamilyHubConfig {
   parents?: string[];
   school_terms?: [string, string][];
   public_holidays?: string[];
-  morning?: { start?: string; end?: string; leave_by?: string };
+  morning?: { start?: string; end?: string; leave_by?: string; /** minutes to leave before a child's first morning event */ travel?: number };
   bring_rules?: BringRule[];
   jar?: { target?: number; reward?: string; script?: string };
   /** lights switched by "All on" (defaults to every light) */

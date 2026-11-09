@@ -400,7 +400,7 @@ export class FamilyHubCard extends LitElement {
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}></fh-music>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass} .artists=${(c.kids ?? []).map((k) => k.name)}></fh-doodle>`;
       case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
-        .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
+        .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
     }
     return html`${this._planner()}${this._aside()}`;
