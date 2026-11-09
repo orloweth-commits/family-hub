@@ -17,14 +17,14 @@ export interface Hass {
   fetchWithAuth?: (path: string, init?: RequestInit) => Promise<Response>;
   areas?: Record<string, { area_id: string; name: string; icon?: string | null }>;
   devices?: Record<string, { id: string; area_id?: string | null; name?: string | null; name_by_user?: string | null }>;
-  entities?: Record<string, { entity_id: string; device_id?: string | null; area_id?: string | null; hidden?: boolean; entity_category?: string | null; name?: string | null }>;
+  entities?: Record<string, { entity_id: string; device_id?: string | null; area_id?: string | null; hidden?: boolean; entity_category?: string | null; name?: string | null; labels?: string[] }>;
 }
 
 /** Colour slot: 1–5 map to --p-1…--p-5 in every theme, 'family' to --p-family. */
 export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
-export interface RewardConfig { name: string; cost: number; icon?: string }
+export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean }
 export interface KidConfig {
   name: string; colour: ColourSlot;
   /** to-do list of chores; each item's description holds its points, e.g. "+10" */
@@ -37,7 +37,21 @@ export interface KidConfig {
   look?: string;
   /** catalogue item ids this kid loves – shown first as the next unlock */
   favourites?: string[];
+  /** school-night bedtime, e.g. "19:00" (+30 min on Fri/Sat) */
+  bedtime?: string;
+  /** signature sound: clarinet | trumpet | roar */
+  sound?: string;
+  /** guaranteed one-to-one time, never purchasable, e.g. "Sat 10:00 with Dad" */
+  special_time?: string;
+  /** things to bring, by weekday (mon..fri) */
+  bring?: Record<string, string[]>;
+  /** age band for avatar proportions: kid | mid | teen */
+  age?: 'kid' | 'mid' | 'teen';
+  /** points per star for pre-readers (stars = points / star) */
+  star?: number;
 }
+export interface MedConfig { id: string; label: string; time: string; who?: string }
+export interface BringRule { match: string; item: string; kid?: string }
 export interface StationConfig { name: string; match?: string; id?: string }
 export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }
 export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
@@ -64,6 +78,23 @@ export interface FamilyHubConfig {
   photos?: string;
   photo_minutes?: number;
   idle_seconds?: number;
+  /** calendar events containing these words are shown only as a discreet chip */
+  private?: string[];
+  meds?: MedConfig[];
+  /** grown-ups who can give meds / approve */
+  parents?: string[];
+  school_terms?: [string, string][];
+  public_holidays?: string[];
+  morning?: { start?: string; end?: string; leave_by?: string };
+  bring_rules?: BringRule[];
+  jar?: { target?: number; reward?: string; script?: string };
+  /** lights switched by "All on" (defaults to every light) */
+  all_on?: string[];
+  quiet?: { start?: string; end?: string };
+  babysitter?: { title?: string; lines?: string[] };
+  home_hide?: string[];
+  /** calendar used by the quick-add sheet */
+  add_calendar?: string;
 }
 
 export interface CalEvent {
@@ -84,7 +115,8 @@ export const kidEntities = (k: KidConfig) => {
   return {
     chores: k.chores ?? `todo.${s}_chores`, points: k.points ?? `input_number.${s}_points`,
     lifetime: k.lifetime ?? `input_number.${s}_lifetime_points`, streak: k.streak ?? `input_number.${s}_streak`,
-    avatar: k.avatar ?? `input_text.${s}_avatar`, calendar: k.calendar ?? `calendar.${s}`
+    avatar: k.avatar ?? `input_text.${s}_avatar`, calendar: k.calendar ?? `calendar.${s}`,
+    week: `input_text.${s}_week`, goal: `input_text.${s}_goal`, grow: `input_number.${s}_grow`, slug: s
   };
 };
 export const num = (hass: Hass | undefined, id: string): number => {

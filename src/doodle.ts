@@ -9,6 +9,7 @@ const LOCAL_KEY = 'family-hub-fridge';
 const ROOT = 'media-source://media_source/local/.';
 
 interface Pic { title: string; url: string; id?: string }
+interface Stroke { ink: string; size: number; erase: boolean; hue: number; pts: [number, number, number, number, number][] }
 
 /** Doodle pad with undo, rainbow brush, chalkboard mode and a shared "fridge" gallery. */
 export class FhDoodle extends LitElement {
@@ -52,7 +53,8 @@ export class FhDoodle extends LitElement {
   private _view = '';
   private _msg = '';
   private _stick = false;
-  private _undo: ImageData[] = [];
+  private _strokes: (Stroke | null)[] = [];
+  private _cur: Stroke | null = null;
   private _ctx?: CanvasRenderingContext2D;
   private _canvas?: HTMLCanvasElement;
   private _ro?: ResizeObserver;
@@ -86,40 +88,50 @@ export class FhDoodle extends LitElement {
   }
   private _down(e: PointerEvent): void {
     this._canvas!.setPointerCapture(e.pointerId);
-    const c = this._canvas!;
-    this._undo.push(this._ctx!.getImageData(0, 0, c.width, c.height));
-    if (this._undo.length > 25) this._undo.shift();
     this._last = this._pt(e);
-    this._stroke(this._last, this._last, e.pressure);
+    this._cur = { ink: this._ink, size: this._size, erase: this._erase, hue: this._hue, pts: [] };
+    this._strokes.push(this._cur);
+    if (this._strokes.length > 400) this._strokes.splice(0, this._strokes.length - 400);
+    this._seg(this._cur, this._last, this._last, e.pressure);
     this._blank = false;
   }
   private _move(e: PointerEvent): void {
-    if (!this._last) return;
+    if (!this._last || !this._cur) return;
     const evs = (e as any).getCoalescedEvents?.() as PointerEvent[] | undefined;
-    for (const ev of evs?.length ? evs : [e]) { const p = this._pt(ev); this._stroke(this._last!, p, ev.pressure); this._last = p; }
+    for (const ev of evs?.length ? evs : [e]) { const p = this._pt(ev); this._seg(this._cur, this._last!, p, ev.pressure); this._last = p; }
   }
-  private _up(): void { this._last = null; }
+  private _up(): void { this._last = null; this._cur = null; }
 
-  private _stroke(a: { x: number; y: number }, b: { x: number; y: number }, pressure: number): void {
+  /** Draw one segment and record it, so undo can replay strokes instead of keeping bitmaps. */
+  private _seg(st: Stroke, a: { x: number; y: number }, b: { x: number; y: number }, pressure: number): void {
+    st.pts.push([a.x, a.y, b.x, b.y, pressure]);
+    this._draw(st, a.x, a.y, b.x, b.y, pressure, st.pts.length);
+  }
+  private _draw(st: Stroke, ax: number, ay: number, bx: number, by: number, pressure: number, n: number): void {
     const ctx = this._ctx!, dpr = window.devicePixelRatio || 1;
     const p = pressure > 0 && pressure !== 0.5 ? 0.6 + pressure : 1;
-    ctx.globalCompositeOperation = this._erase ? 'destination-out' : 'source-over';
+    ctx.globalCompositeOperation = st.erase ? 'destination-out' : 'source-over';
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.lineWidth = (this._erase ? this._size * 2.4 : this._size) * dpr * p;
-    if (this._ink === 'rainbow' && !this._erase) { this._hue = (this._hue + 4) % 360; ctx.strokeStyle = `hsl(${this._hue} 90% 55%)`; }
-    else ctx.strokeStyle = this._ink === 'rainbow' ? '#000' : this._ink;
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x + 0.01, b.y); ctx.stroke();
+    ctx.lineWidth = (st.erase ? st.size * 2.4 : st.size) * dpr * p;
+    if (st.ink === 'rainbow' && !st.erase) { const h = (st.hue + n * 4) % 360; this._hue = h; ctx.strokeStyle = `hsl(${h} 90% 55%)`; }
+    else ctx.strokeStyle = st.ink === 'rainbow' ? '#000' : st.ink;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx + 0.01, by); ctx.stroke();
+  }
+  private _redraw(): void {
+    const c = this._canvas!, ctx = this._ctx!;
+    ctx.clearRect(0, 0, c.width, c.height);
+    const from = this._strokes.lastIndexOf(null) + 1;
+    for (const st of this._strokes.slice(from)) if (st) st.pts.forEach((q, i) => this._draw(st, q[0], q[1], q[2], q[3], q[4], i + 1));
+    this._blank = !this._strokes.slice(from).length;
   }
 
   private _undoOne(): void {
-    const d = this._undo.pop();
-    if (d) this._ctx!.putImageData(d, 0, 0);
-    if (!this._undo.length) this._blank = true;
+    this._strokes.pop();
+    this._redraw();
   }
   private _clear(): void {
-    const c = this._canvas!;
-    this._undo.push(this._ctx!.getImageData(0, 0, c.width, c.height));
-    this._ctx!.clearRect(0, 0, c.width, c.height);
+    if (!this._blank) this._strokes.push(null);
+    this._ctx!.clearRect(0, 0, this._canvas!.width, this._canvas!.height);
     this._blank = true;
   }
 
@@ -159,7 +171,7 @@ export class FhDoodle extends LitElement {
       } catch { this._say('The fridge is full – clear a few doodles'); return; }
     }
     this._say(shared ? 'Stuck on the fridge!' : 'Stuck on this panel’s fridge');
-    this._clear(); this._undo = [];
+    this._clear(); this._strokes = [];
     this._loadFridge();
   }
 

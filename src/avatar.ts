@@ -26,46 +26,62 @@ export const decodeLook = (raw: string | undefined, fallback: Partial<Look> = {}
 };
 
 /* ---------------- catalogue: [id, label, lifetime points needed] ---------------- */
-export type Item = [string, string, number];
-export interface Category { id: string; label: string; key: keyof Look; crop: 'head' | 'full'; items: Item[]; swatch?: { key: keyof Look; label: string; items: Item[] } }
+/** [id, label, lifetime points needed, optional Growing-milestone count (surprise unlock)] */
+export type Item = [string, string, number, number?];
+export interface Category { id: string; label: string; emoji: string; key: keyof Look; crop: 'head' | 'full'; items: Item[]; swatch?: { key: keyof Look; label: string; items: Item[] } }
 
 export const CATALOGUE: Category[] = [
-  { id: 'hair', label: 'Hair', key: 'hair', crop: 'head',
-    items: [['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 150], ['mohawk', 'Mohawk', 450], ['mullet', 'Mullet', 650]],
-    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#2a1d16', 'Dark brown', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 300], ['#e2559b', 'Hot pink', 600], ['#22c55e', 'Slime green', 800]] } },
-  { id: 'face', label: 'Face', key: 'eyes', crop: 'head',
+  { id: 'hair', emoji: '💇', label: 'Hair', key: 'hair', crop: 'head',
+    items: [['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 300], ['mohawk', 'Mohawk', 1100], ['mullet', 'Mullet', 1600]],
+    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#2a1d16', 'Dark brown', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
+  { id: 'face', emoji: '🙂', label: 'Face', key: 'eyes', crop: 'head',
     items: [['eyes:normal', 'Bright eyes', 0], ['eyes:happy', 'Happy eyes', 0], ['eyes:wink', 'Wink', 0], ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0]],
     swatch: { key: 'skin', label: 'Skin', items: [['#f6d9c2', 'Skin 1', 0], ['#f1c7a5', 'Skin 2', 0], ['#e0ac84', 'Skin 3', 0], ['#c98b5e', 'Skin 4', 0], ['#8d5a3b', 'Skin 5', 0], ['#5c3a24', 'Skin 6', 0]] } },
-  { id: 'hats', label: 'Hats', key: 'hat', crop: 'head',
-    items: [['none', 'No hat', 0], ['cap', 'Cap', 0], ['backcap', 'Backwards cap', 50], ['beanie', 'Beanie', 100], ['swimcap', 'Swim cap', 100], ['bucket', 'Bucket hat', 150], ['dinohood', 'Dino hood', 200], ['headphones', 'Headphones', 250], ['wizard', 'Wizard hat', 350], ['akubra', 'Akubra', 600], ['crown', 'Crown', 900], ['helmet', 'Space helmet', 1200]] },
-  { id: 'eyewear', label: 'Sunnies', key: 'eyewear', crop: 'head',
-    items: [['none', 'None', 0], ['round', 'Round sunnies', 50], ['swim', 'Swim goggles', 100], ['aviator', 'Aviators', 300], ['shutter', 'Shutter shades', 450], ['ski', 'Ski goggles', 500], ['star', 'Star sunnies', 700]] },
-  { id: 'tops', label: 'Tops', key: 'top', crop: 'full',
-    items: [['tee', 'T-shirt', 0], ['hoodie', 'Hoodie', 100], ['polo', 'Tennis polo', 150], ['rashie', 'Rashie', 150], ['band', 'Band jacket', 250], ['footy', 'Footy jumper', 400], ['wetsuit', 'Wetsuit', 550], ['astro', 'Space suit', 1200]],
+  { id: 'hats', emoji: '🧢', label: 'Hats', key: 'hat', crop: 'head',
+    items: [['none', 'No hat', 0], ['cap', 'Cap', 0], ['backcap', 'Backwards cap', 60], ['beanie', 'Beanie', 150], ['swimcap', 'Swim cap', 200], ['bucket', 'Bucket hat', 300], ['dinohood', 'Dino hood', 400], ['headphones', 'Headphones', 550], ['knight', 'Knight helm', 750], ['wizard', 'Wizard hat', 900], ['akubra', 'Akubra', 1300], ['crown', 'Crown', 2200], ['helmet', 'Space helmet', 3000]] },
+  { id: 'eyewear', emoji: '🕶️', label: 'Sunnies', key: 'eyewear', crop: 'head',
+    items: [['none', 'None', 0], ['round', 'Round sunnies', 50], ['zinc', 'Zinc stripe', 100], ['swim', 'Swim goggles', 200], ['aviator', 'Aviators', 650], ['shutter', 'Shutter shades', 1000], ['ski', 'Ski goggles', 1200], ['star', 'Star sunnies', 1700]] },
+  { id: 'tops', emoji: '👕', label: 'Tops', key: 'top', crop: 'full',
+    items: [['tee', 'T-shirt', 0], ['hoodie', 'Hoodie', 200], ['island', 'Island shirt', 250], ['polo', 'Tennis polo', 300], ['rashie', 'Rashie', 300], ['band', 'Band jacket', 0, 20], ['cloak', 'Hooded cloak', 650], ['footy', 'Footy jumper', 900], ['wetsuit', 'Wetsuit', 1200], ['armour', 'Battle armour', 1800], ['astro', 'Space suit', 3000]],
     swatch: { key: 'topColour', label: 'Colour', items: [['#0b5fa5', 'Blue', 0], ['#0f766e', 'Teal', 0], ['#16a34a', 'Green', 0], ['#c2410c', 'Orange', 0], ['#be185d', 'Pink', 0], ['#6d28d9', 'Purple', 0], ['#334155', 'Charcoal', 0], ['#f5b301', 'Yellow', 0]] } },
-  { id: 'gear', label: 'Gear', key: 'gear', crop: 'full',
-    items: [['none', 'Nothing', 0], ['trumpet', 'Trumpet', 50], ['clarinet', 'Clarinet', 50], ['books', 'Book stack', 50], ['racquet', 'Tennis racquet', 100], ['truck', 'Toy truck', 100], ['scooter', 'Scooter', 150], ['bat', 'Cricket bat', 200], ['miniature', 'Painted miniature', 250], ['footy', 'Footy', 300], ['surfboard', 'Surfboard', 350], ['skateboard', 'Skateboard', 400]] },
-  { id: 'buddy', label: 'Buddies', key: 'buddy', crop: 'full',
-    items: [['none', 'No buddy', 0], ['owl', 'Book owl', 200], ['dino', 'Dinosaur', 250], ['turtle', 'Turtle', 300], ['dragon', 'Dragon', 500]] },
-  { id: 'scene', label: 'Scenes', key: 'scene', crop: 'full',
-    items: [['plain', 'Sky', 0], ['beach', 'Beach', 0], ['pool', 'Pool', 100], ['court', 'Tennis court', 100], ['library', 'Library', 150], ['sunset', 'Sunset', 200], ['reef', 'Reef', 250], ['volcano', 'Dino valley', 300], ['stadium', 'Stadium', 400], ['castle', 'Castle', 450], ['space', 'Space', 600]] }
+  { id: 'gear', emoji: '🎺', label: 'Gear', key: 'gear', crop: 'full',
+    items: [['none', 'Nothing', 0], ['trumpet', 'Trumpet', 0, 5], ['clarinet', 'Clarinet', 0, 5], ['books', 'Book stack', 0, 5], ['racquet', 'Tennis racquet', 150], ['truck', 'Toy truck', 100], ['scooter', 'Scooter', 250], ['bat', 'Cricket bat', 450], ['miniature', 'Painted miniature', 500], ['footy', 'Footy', 700], ['surfboard', 'Surfboard', 850], ['skateboard', 'Skateboard', 1000]] },
+  { id: 'buddy', emoji: '🐉', label: 'Buddies', key: 'buddy', crop: 'full',
+    items: [['none', 'No buddy', 0], ['quokka', 'Quokka', 350], ['owl', 'Book owl', 0, 15], ['dino', 'Dinosaur', 500], ['turtle', 'Turtle', 700], ['raven', 'Raven', 950], ['dragon', 'Dragon', 1400]] },
+  { id: 'scene', emoji: '🏝️', label: 'Scenes', key: 'scene', crop: 'full',
+    items: [['plain', 'Sky', 0], ['beach', 'Beach', 0], ['pool', 'Pool', 200], ['court', 'Tennis court', 200], ['library', 'Library', 0, 10], ['rottnest', 'Rottnest', 400], ['sunset', 'Sunset', 500], ['reef', 'Reef', 600], ['volcano', 'Dino valley', 750], ['stadium', 'Stadium', 1000], ['castle', 'Castle', 1100], ['forge', 'Forge', 1500], ['space', 'Space', 2000]] }
 ];
 
 export interface Unlock { cat: Category; id: string; label: string; req: number; swatch?: boolean }
 export const ALL_UNLOCKS: Unlock[] = CATALOGUE.flatMap((c) => [
-  ...c.items.filter((i) => i[2] > 0).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[2] })),
+  ...c.items.filter((i) => i[2] > 0 && !i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[2] })),
   ...(c.swatch?.items.filter((i) => i[2] > 0).map((i) => ({ cat: c, id: i[0], label: `${i[1]} ${c.id === 'hair' ? 'hair' : ''}`.trim(), req: i[2], swatch: true })) ?? [])
 ]).sort((a, b) => a.req - b.req);
 
 export const unlocksBetween = (from: number, to: number): Unlock[] => ALL_UNLOCKS.filter((u) => u.req > from && u.req <= to);
-export const nextUnlock = (life: number, favs: string[] = []): Unlock | undefined => {
+/** Growing-milestone surprises, unlocked by count of practice/reading/homework logs. */
+export const GROW_UNLOCKS: Unlock[] = CATALOGUE.flatMap((c) => c.items.filter((i) => i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[3]! })));
+export const growBetween = (from: number, to: number): Unlock[] => GROW_UNLOCKS.filter((u) => u.req > from && u.req <= to);
+export const isUnlocked = (it: Item, life: number, grow: number): boolean => it[3] ? grow >= it[3] : life >= it[2];
+
+/** Levels on a curve: level n costs 100 + 50(n-1) points. Named ranks, two levels each. */
+const RANKS = ['Explorer', 'Ranger', 'Navigator', 'Captain', 'Commander', 'Admiral', 'Legend', 'Mythic', 'Cosmic'];
+export interface LevelInfo { level: number; rank: string; into: number; need: number; nextRank: string }
+export const levelInfo = (life: number): LevelInfo => {
+  let lv = 1, base = 0, cost = 100;
+  while (life >= base + cost) { base += cost; lv++; cost = 100 + 50 * (lv - 1); }
+  const r = Math.min(RANKS.length - 1, Math.floor((lv - 1) / 2));
+  return { level: lv, rank: `${RANKS[r]}${(lv - 1) % 2 ? ' II' : ''}`, into: life - base, need: cost, nextRank: lv % 2 ? `${RANKS[r]} II` : RANKS[Math.min(RANKS.length - 1, r + 1)] };
+};
+export const nextUnlock = (life: number, favs: string[] = [], goal?: string): Unlock | undefined => {
+  if (goal) { const g = ALL_UNLOCKS.find((u) => u.id === goal && u.req > life); if (g) return g; }
   const first = ALL_UNLOCKS.find((u) => u.req > life);
   if (!first) return undefined;
   const fav = ALL_UNLOCKS.filter((u) => u.req > life && favs.includes(u.id)).sort((a, b) => a.req - b.req)[0];
-  return fav && fav.req <= first.req + 50 ? fav : first;
+  return fav && fav.req <= first.req + 100 ? fav : first;
 };
 export const prevThreshold = (life: number): number => ALL_UNLOCKS.filter((u) => u.req <= life).reduce((m, u) => Math.max(m, u.req), 0);
-export const level = (life: number): number => Math.floor(life / 100) + 1;
+export const level = (life: number): number => levelInfo(life).level;
 
 /** Apply an item (or "eyes:happy" style face item, or a swatch colour) to a look. */
 export const applyItem = (look: Look, cat: Category, id: string, swatch = false): Look => {
@@ -99,9 +115,11 @@ const SCENES: Record<string, L> = {
   volcano: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#fde68a"></rect><path d="M110 150 L150 40 L170 40 L200 150 Z" fill="#57534e"></path><path d="M150 40 L170 40 L164 70 L156 60 Z" fill="#f97316"></path><circle cx="162" cy="24" r="10" fill="#a8a29e" opacity=".7"></circle><rect y="150" width="200" height="90" fill="#65a30d"></rect><path d="M0 170 C20 150 30 170 40 160 C50 150 60 170 70 158" fill="none" stroke="#3f6212" stroke-width="5"></path></g>`,
   stadium: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#1e293b"></rect><rect y="160" width="200" height="80" fill="#16a34a"></rect><rect y="196" width="200" height="6" fill="#86efac"></rect><circle cx="28" cy="28" r="10" fill="#fff7c2"></circle><circle cx="172" cy="28" r="10" fill="#fff7c2"></circle><rect x="26" y="38" width="4" height="122" fill="#64748b"></rect><rect x="170" y="38" width="4" height="122" fill="#64748b"></rect></g>`,
   castle: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#c7d2fe"></rect><rect x="20" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="146" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="20" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="34" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="46" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="146" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="158" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="172" y="60" width="8" height="12" fill="#94a3b8"></rect><path d="M162 60 V30 L180 38 L162 46" fill="#dc2626" stroke="#475569" stroke-width="2"></path><rect y="190" width="200" height="50" fill="#4d7c0f"></rect></g>`,
+  rottnest: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#7dd3fc"></rect><rect y="140" width="200" height="50" fill="#22d3ee"></rect><rect y="152" width="200" height="38" fill="#0ea5e9"></rect><path d="M0 190 C40 176 70 184 100 180 C140 174 170 182 200 176 L200 240 L0 240 Z" fill="#fde7b0"></path><rect x="150" y="96" width="10" height="46" fill="#f5f5f4"></rect><path d="M146 96 L164 96 L155 84 Z" fill="#dc2626"></path><circle cx="40" cy="40" r="14" fill="#fde047"></circle></g>`,
+  forge: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#292524"></rect><rect y="180" width="200" height="60" fill="#44403c"></rect><path d="M120 180 L130 130 L190 130 L200 180 Z" fill="#57534e"></path><ellipse cx="160" cy="150" rx="22" ry="10" fill="#f97316" class="av-flame"></ellipse><ellipse cx="160" cy="146" rx="12" ry="6" fill="#fde047" class="av-flame"></ellipse><rect x="18" y="40" width="40" height="26" rx="3" fill="#78716c"></rect><rect x="24" y="66" width="6" height="40" fill="#78716c"></rect>${[[30, 20], [80, 30], [176, 24]].map(([x, y]) => svg`<circle cx=${x} cy=${y} r="2" fill="#fb923c"></circle>`)}</g>`,
   space: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#14163a"></rect><circle cx="38" cy="48" r="16" fill="#f0a35e"></circle><ellipse cx="38" cy="48" rx="27" ry="6" fill="none" stroke="#ffd7a8" stroke-width="2.5"></ellipse>${[[150, 30], [176, 74], [120, 18], [20, 120], [182, 140], [70, 22], [14, 190]].map(([x, y]) => svg`<circle cx=${x} cy=${y} r="1.6" fill="#fff"></circle>`)}</g>`
 };
-const TINT: Record<string, string> = { plain: '#dbeafe', beach: '#9fd8f5', pool: '#38bdf8', court: '#2563eb', library: '#7c2d12', sunset: '#f7a35c', reef: '#1aa3b8', volcano: '#fde68a', stadium: '#16a34a', castle: '#c7d2fe', space: '#14163a' };
+const TINT: Record<string, string> = { rottnest: '#7dd3fc', forge: '#57534e', plain: '#dbeafe', beach: '#9fd8f5', pool: '#38bdf8', court: '#2563eb', library: '#7c2d12', sunset: '#f7a35c', reef: '#1aa3b8', volcano: '#fde68a', stadium: '#16a34a', castle: '#c7d2fe', space: '#14163a' };
 
 const GEAR_BEHIND: Record<string, L> = {
   surfboard: () => svg`<g class="av-pop d6"><g transform="rotate(-16 158 150)"><ellipse cx="158" cy="150" rx="17" ry="82" fill="#f97316"></ellipse><rect x="155" y="70" width="6" height="160" fill="#fff" opacity=".85"></rect></g></g>`,
@@ -119,6 +137,8 @@ const GEAR_FRONT: Record<string, L> = {
   miniature: () => svg`<g class="av-pop d6"><ellipse cx="160" cy="232" rx="20" ry="5" fill="#334155"></ellipse><path d="M150 230 L152 202 L168 202 L170 230 Z" fill="#7c3aed"></path><path d="M146 206 L154 206 L154 222 L146 222 Z" fill="#b91c1c" stroke="#fde68a" stroke-width="1.5"></path><circle cx="160" cy="194" r="9" fill="#9ca3af"></circle><rect x="153" y="192" width="14" height="3" fill="#1f2937"></rect><rect x="170" y="176" width="3" height="40" fill="#e5e7eb"></rect><rect x="166" y="206" width="11" height="3" fill="#a16207"></rect></g>`
 };
 const BUDDY: Record<string, L> = {
+  quokka: () => svg`<g class="av-pop d6"><ellipse cx="32" cy="214" rx="20" ry="22" fill="#a16207"></ellipse><ellipse cx="32" cy="220" rx="11" ry="13" fill="#d6b88a"></ellipse><circle cx="32" cy="186" r="14" fill="#a16207"></circle><circle cx="22" cy="176" r="5" fill="#a16207"></circle><circle cx="42" cy="176" r="5" fill="#a16207"></circle><circle cx="27" cy="184" r="2" fill="#111"></circle><circle cx="37" cy="184" r="2" fill="#111"></circle><ellipse cx="32" cy="191" rx="4" ry="3" fill="#3f2a14"></ellipse><path d="M27 195 Q32 200 37 195" fill="none" stroke="#3f2a14" stroke-width="1.6"></path></g>`,
+  raven: () => svg`<g class="av-pop d6"><ellipse cx="32" cy="210" rx="16" ry="22" fill="#111827"></ellipse><circle cx="34" cy="184" r="11" fill="#111827"></circle><path d="M43 184 L58 188 L43 191 Z" fill="#78716c"></path><circle cx="37" cy="181" r="2.2" fill="#fbbf24"></circle><path d="M18 204 C6 214 10 230 20 232 Z" fill="#1f2937"></path><path d="M26 230 L22 240 M36 230 L38 240" stroke="#78716c" stroke-width="2.5"></path></g>`,
   owl: () => svg`<g class="av-pop d6"><ellipse cx="30" cy="206" rx="20" ry="24" fill="#a16207"></ellipse><ellipse cx="30" cy="212" rx="12" ry="14" fill="#fde68a"></ellipse><circle cx="22" cy="196" r="7" fill="#fff"></circle><circle cx="38" cy="196" r="7" fill="#fff"></circle><circle cx="22" cy="196" r="3" fill="#111"></circle><circle cx="38" cy="196" r="3" fill="#111"></circle><path d="M27 203 L33 203 L30 208 Z" fill="#f97316"></path><path d="M12 184 L18 176 L22 186 M48 184 L42 176 L38 186" fill="#a16207"></path></g>`,
   dino: () => svg`<g class="av-pop d6"><path d="M6 236 L18 202 C22 184 38 176 52 182 L66 166 C76 160 86 166 82 176 L72 186 C76 200 72 216 60 224 L60 238 L50 238 L48 228 L32 228 L30 238 L20 238 Z" fill="#0d9488"></path><circle cx="74" cy="171" r="2.4" fill="#111"></circle><path d="M30 186 L36 176 L40 186 M42 182 L48 172 L52 182" fill="#5eead4"></path><path d="M66 192 L58 198" stroke="#0f766e" stroke-width="3" stroke-linecap="round"></path></g>`,
   turtle: () => svg`<g class="av-pop d6"><ellipse cx="34" cy="220" rx="26" ry="15" fill="#16a34a"></ellipse><path d="M14 220 L54 220 M24 208 L28 232 M44 208 L40 232" stroke="#14532d" stroke-width="2"></path><circle cx="64" cy="216" r="8" fill="#4ade80"></circle><circle cx="66" cy="214" r="1.8" fill="#111"></circle><ellipse cx="16" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse><ellipse cx="50" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse></g>`,
@@ -142,6 +162,9 @@ const HAIR: Record<string, L> = {
   mullet: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`
 };
 const TOPS: Record<string, L> = {
+  island: (l) => svg`<g class="av-pop d1"><path d=${BODY} fill=${l.topColour}></path>${[[60, 200], [96, 214], [130, 196], [146, 224], [74, 228], [112, 186]].map(([x, y]) => svg`<circle cx=${x} cy=${y} r="6" fill="#fde047" opacity=".9"></circle><circle cx=${x} cy=${y} r="2.5" fill="#f97316"></circle>`)}<path d="M84 168 L100 190 L116 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
+  cloak: (l) => svg`<g class="av-pop d1"><path d="M22 240 C26 186 56 150 100 150 C144 150 174 186 178 240 Z" fill="#1f2937"></path><path d=${BODY} fill=${l.topColour}></path><path d="M100 166 L100 240" stroke="#111827" stroke-width="3"></path><circle cx="100" cy="176" r="5" fill="#d4af37"></circle></g>`,
+  armour: () => svg`<g class="av-pop d1"><path d=${BODY} fill="#64748b"></path><path d="M60 182 C80 172 120 172 140 182 L134 230 L66 230 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"></path><path d="M100 178 L100 230" stroke="#475569" stroke-width="2"></path><circle cx="48" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><circle cx="152" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><path d="M86 200 L100 192 L114 200 L100 212 Z" fill="#b91c1c"></path></g>`,
   tee: (l) => svg`<g class="av-pop d1"><path d=${BODY} fill=${l.topColour}></path><path d="M84 168 Q100 182 116 168" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-linecap="round"></path></g>`,
   hoodie: (l) => svg`<g class="av-pop d1"><path d=${BODY} fill=${l.topColour}></path><path d="M66 174 Q100 146 134 174 Q100 194 66 174 Z" fill="rgba(0,0,0,.22)"></path><path d="M92 182 L90 206 M108 182 L110 206" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><rect x="74" y="212" width="52" height="22" rx="8" fill="rgba(0,0,0,.12)"></rect></g>`,
   polo: (l) => svg`<g class="av-pop d1"><path d=${BODY} fill="#f8fafc"></path><path d="M80 168 L100 186 L120 168 L114 164 L100 176 L86 164 Z" fill=${l.topColour}></path><circle cx="100" cy="194" r="2" fill="#94a3b8"></circle><circle cx="100" cy="204" r="2" fill="#94a3b8"></circle><path d="M44 214 L60 210" stroke=${l.topColour} stroke-width="4"></path></g>`,
@@ -163,6 +186,7 @@ const MOUTH: Record<string, L> = {
   wow: () => svg`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 };
 const EYEWEAR: Record<string, L> = {
+  zinc: () => svg`<g class="av-pop d5"><path d="M93 104 Q100 100 107 104 L105 118 Q100 121 95 118 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"></path><path d="M70 112 L80 110 M120 110 L130 112" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"></path></g>`,
   round: () => svg`<g class="av-pop d5"><circle cx="84" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><circle cx="116" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><path d="M95 103 Q100 99 105 103" fill="none" stroke="#111" stroke-width="2.5"></path><path d="M79 99 L84 96" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
   swim: () => svg`<g class="av-pop d5"><path d="M52 102 H148" stroke="#0ea5e9" stroke-width="4"></path><ellipse cx="84" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><ellipse cx="116" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><path d="M95 104 H105" stroke="#0369a1" stroke-width="3"></path></g>`,
   aviator: () => svg`<g class="av-pop d5"><path d="M71 97 H97 Q97 118 84 118 Q71 118 71 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M103 97 H129 Q129 118 116 118 Q103 118 103 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M97 99 H103 M60 99 H71 M129 99 H140" stroke="#c9a227" stroke-width="2.2"></path></g>`,
@@ -171,6 +195,7 @@ const EYEWEAR: Record<string, L> = {
   star: () => svg`<g class="av-pop d5" fill="#ff4fa3" stroke="#be185d" stroke-width="2" stroke-linejoin="round"><path d=${star(84, 104, 13)}></path><path d=${star(116, 104, 13)}></path><path d="M95 104 H105" stroke-width="2.5"></path></g>`
 };
 const HATS: Record<string, L> = {
+  knight: () => svg`<g class="av-pop d5"><path d="M52 112 C48 60 72 40 100 40 C128 40 152 60 148 112 L140 112 L140 98 L60 98 L60 112 Z" fill="#94a3b8" stroke="#475569" stroke-width="2.5"></path><rect x="96" y="40" width="8" height="58" fill="#64748b"></rect><path d="M100 40 C96 22 112 16 120 24 C110 26 104 32 104 40 Z" fill="#b91c1c"></path></g>`,
   cap: () => svg`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#d62d20"></path><path d="M100 84 L170 90 C168 99 150 99 100 93 Z" fill="#b91c1c"></path></g>`,
   backcap: () => svg`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#2563eb"></path><path d="M58 86 L30 80 C30 72 44 70 58 76 Z" fill="#1d4ed8"></path><rect x="122" y="70" width="18" height="10" rx="4" fill="#bfdbfe"></rect></g>`,
   beanie: () => svg`<g class="av-pop d5"><path d="M53 94 C53 56 76 43 100 43 C124 43 147 56 147 94 Z" fill="#0f766e"></path><rect x="50" y="84" width="100" height="14" rx="7" fill="#115e59"></rect><circle cx="100" cy="40" r="9" fill="#f5b301"></circle></g>`,
@@ -184,32 +209,40 @@ const HATS: Record<string, L> = {
   helmet: () => svg`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
 
-export interface AvatarOpts { size?: number; crop?: 'full' | 'head'; still?: boolean; label?: string; jump?: number; }
+export interface AvatarOpts { size?: number; crop?: 'full' | 'head'; still?: boolean; label?: string; jump?: number; age?: 'kid' | 'mid' | 'teen'; ring?: string }
 
 /** Render an avatar as inline SVG. Each item is its own template, so swapping an item re-mounts it and replays its pop-in. */
 export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   const size = o.size ?? 200, head = o.crop === 'head';
   const w = size, h = head ? size : Math.round(size * 1.2);
   const jumpCls = o.jump ? (o.jump % 2 ? 'av-jump-a' : 'av-jump-b') : '';
+  const age = o.age ?? 'mid';
+  // younger: bigger head, smaller body; teen: slightly narrower face and longer neck
+  const headT = age === 'kid' ? 'translate(100 104) scale(1.1) translate(-100 -104)' : age === 'teen' ? 'translate(100 100) scale(0.95 1.02) translate(-100 -100)' : '';
+  const brows = age !== 'kid' ? svg`<g class="av-pop d4" stroke=${look.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${age === 'teen' ? 'M76 92 L91 90' : 'M77 93 Q84 89 91 92'}></path><path d=${age === 'teen' ? 'M109 90 L124 92' : 'M109 92 Q116 89 123 93'}></path></g>` : nothing;
   return html`<span class="avwrap ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${head ? '36 28 128 128' : '0 0 200 240'} width=${w} height=${h} role="img" aria-label=${o.label ?? 'Avatar'}
       style="display:block;overflow:hidden;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`}">
       ${head ? svg`<circle cx="100" cy="92" r="64" fill=${TINT[look.scene] ?? TINT.plain}></circle>` : (SCENES[look.scene] ?? SCENES.plain)(look)}
+      ${o.ring && head ? svg`<circle cx="100" cy="92" r="60" fill="none" stroke=${o.ring} stroke-width="7"></circle>` : nothing}
       <g class=${o.still ? '' : 'av-bob'}>
         ${!head && GEAR_BEHIND[look.gear] ? GEAR_BEHIND[look.gear](look) : nothing}
         ${HAIR_BEHIND[look.hair] ? HAIR_BEHIND[look.hair](look) : nothing}
         ${(TOPS[look.top] ?? TOPS.tee)(look)}
+        <rect x="88" y=${age === 'teen' ? 130 : 136} width="24" height=${age === 'teen' ? 40 : 34} rx="10" fill=${look.skin}></rect>
+        <g transform=${headT}>
         <g class="av-pop d2">
-          <rect x="88" y="136" width="24" height="34" rx="10" fill=${look.skin}></rect>
           <circle cx="57" cy="104" r="9" fill=${look.skin}></circle><circle cx="143" cy="104" r="9" fill=${look.skin}></circle>
           <circle cx="100" cy="100" r="44" fill=${look.skin}></circle>
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
-        <g class="av-blink">${(EYES[look.eyes] ?? EYES.normal)(look)}</g>
+        <g class=${o.still ? '' : 'av-blink'}>${(EYES[look.eyes] ?? EYES.normal)(look)}</g>
+        ${brows}
         ${(MOUTH[look.mouth] ?? MOUTH.smile)(look)}
         ${(HAIR[look.hair] ?? HAIR.short)(look)}
         ${EYEWEAR[look.eyewear] ? EYEWEAR[look.eyewear](look) : nothing}
         ${HATS[look.hat] ? HATS[look.hat](look) : nothing}
+        </g>
         ${!head && GEAR_FRONT[look.gear] ? GEAR_FRONT[look.gear](look) : nothing}
         ${!head && BUDDY[look.buddy] ? BUDDY[look.buddy](look) : nothing}
       </g>

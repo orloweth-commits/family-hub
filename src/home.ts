@@ -37,10 +37,12 @@ export class FhHome extends LitElement {
     .alist { flex: 1; min-height: 0; overflow: auto; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true } };
   hass?: Hass;
   pin = '';
   hideScripts: string[] = [];
+  hide: string[] = [];
+  private _all = false;
   private _unlocked = 0;
   private _askPin: (() => void) | null = null;
   private _went = '';
@@ -51,7 +53,7 @@ export class FhHome extends LitElement {
     const by = new Map<string, HassEntity[]>();
     for (const [id, reg] of Object.entries(h.entities ?? {})) {
       const dom = id.split('.')[0];
-      if (!CONTROL.includes(dom) || reg.hidden || reg.entity_category) continue;
+      if (!CONTROL.includes(dom) || reg.hidden || reg.entity_category || this.hide.includes(id)) continue;
       const st = h.states[id];
       if (!st || st.state === 'unavailable') continue;
       const area = reg.area_id ?? (reg.device_id ? h.devices?.[reg.device_id]?.area_id : null);
@@ -72,7 +74,8 @@ export class FhHome extends LitElement {
     if (ids.length) this.hass!.callService('light', on ? 'turn_on' : 'turn_off', { entity_id: ids });
   }
   private _guard(fn: () => void): void {
-    if (!this.pin || Date.now() < this._unlocked) { fn(); return; }
+    if (!this.pin) { this.dispatchEvent(new CustomEvent('say', { detail: 'Set a parent PIN to change this from the panel.' })); return; }
+    if (Date.now() < this._unlocked) { fn(); return; }
     this._askPin = fn;
   }
 
@@ -83,15 +86,16 @@ export class FhHome extends LitElement {
   }
   private _ic(e: HassEntity): string {
     const d = e.entity_id.split('.')[0];
-    return d === 'light' ? 'bulb' : d === 'media_player' ? 'music' : d === 'lock' ? 'home' : 'bulb';
+    return d === 'light' ? 'bulb' : d === 'media_player' ? 'music' : d === 'lock' ? 'home' : d === 'switch' ? 'bulb' : 'home';
   }
 
   render(): TemplateResult | typeof nothing {
     if (!this.hass) return nothing;
     const h = this.hass, rooms = this._rooms();
-    const scripts = Object.values(h.states).filter((s) => s.entity_id.startsWith('script.') && !this.hideScripts.includes(s.entity_id));
-    const autos = Object.values(h.states).filter((s) => s.entity_id.startsWith('automation.'));
-    const litCount = Object.values(h.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length;
+    const labelled = (id: string): boolean => !!h.entities?.[id]?.labels?.includes('family_hub');
+    const scripts = Object.values(h.states).filter((s) => s.entity_id.startsWith('script.') && !this.hideScripts.includes(s.entity_id) && labelled(s.entity_id));
+    const autos = Object.values(h.states).filter((s) => s.entity_id.startsWith('automation.') && (this._all || labelled(s.entity_id)));
+    const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     return html`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 style="font-size:26px;font-weight:800">Home</h1>
@@ -118,20 +122,21 @@ export class FhHome extends LitElement {
             <button class="scene tap ${this._went === 'on' ? 'go' : ''}" @click=${() => { this.hass!.callService('light', 'turn_on', { entity_id: 'all' }); this._went = 'on'; }}>${icon('bulb', 20)}All on</button>
             <button class="scene tap ${this._went === 'off' ? 'go' : ''}" @click=${() => { this.hass!.callService('light', 'turn_off', { entity_id: 'all' }); this._went = 'off'; }}>${icon('bulbOff', 20)}All off</button>
             ${scripts.map((s) => html`<button class="scene tap ${this._went === s.entity_id ? 'go' : ''}" @click=${() => { this.hass!.callService('script', 'turn_on', { entity_id: s.entity_id }); this._went = s.entity_id; }}>
-              ${icon(/bed|night/i.test(s.entity_id) ? 'moon' : /movie|tv/i.test(s.entity_id) ? 'music' : 'star', 20)}${s.attributes.friendly_name ?? s.entity_id}</button>`)}
+              ${/movie|tv/i.test(s.entity_id) ? html`<span style="font-size:20px">🍿</span>` : /bed|night/i.test(s.entity_id) ? icon('moon', 20) : icon('star', 20)}${s.attributes.friendly_name ?? s.entity_id}</button>`)}
           </div>
         </section>
         <section class="glass card" style="flex:1;min-height:0" aria-label="Automations">
-          <div style="display:flex;align-items:center"><span class="label" style="flex:1">Automations</span>${this.pin ? html`<span class="muted" style="font-size:12px">${Date.now() < this._unlocked ? 'Unlocked' : '🔒 PIN to change'}</span>` : nothing}</div>
+          <div style="display:flex;align-items:center"><span class="label" style="flex:1">Automations</span>
+            <button class="pill tap" style="height:34px;font-size:13px" @click=${() => { if (this._all) { this._all = false; return; } this._guard(() => { this._all = true; }); }}>${this._all ? 'Hide' : '🔒 Grown-ups'}</button></div>
           <div class="alist">
             ${autos.length ? autos.map((a) => html`<div class="auto"><span style="flex:1">${a.attributes.friendly_name ?? a.entity_id}</span>
               <button class="sw tap" role="switch" aria-label=${a.attributes.friendly_name ?? a.entity_id} aria-checked=${String(a.state === 'on')}
                 @click=${() => this._guard(() => this.hass!.callService('automation', a.state === 'on' ? 'turn_off' : 'turn_on', { entity_id: a.entity_id }))}></button></div>`)
-              : html`<span class="muted" style="font-size:14px">No automations yet.</span>`}
+              : html`<span class="muted" style="font-size:14px">Household automations are in the grown-ups section.</span>`}
           </div>
         </section>
       </div>
-      ${this._askPin ? html`<fh-pin .pin=${this.pin} @ok=${() => { const f = this._askPin!; this._askPin = null; this._unlocked = Date.now() + 5 * 60_000; f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
+      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { const f = this._askPin!; this._askPin = null; this._unlocked = Date.now() + 5 * 60_000; f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
   }
 }
 if (!customElements.get('fh-home')) customElements.define('fh-home', FhHome);

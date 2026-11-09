@@ -4,6 +4,9 @@ import { icon, solid } from './icons';
 import type { Hass, HassEntity, StationConfig } from './types';
 
 type Tab = 'rooms' | 'radio' | 'apple' | 'spotify';
+/** Survives page switches: radio lookup is a 1,500-row browse, so do it once per session. */
+const CACHE: { thumbs: Record<string, string>; res: Record<string, string>; key: string } = { thumbs: {}, res: {}, key: '' };
+const LAST: Record<string, string> = {};
 const DEFAULT_STATIONS: StationConfig[] = [{ name: 'ABC Kids listen', match: 'ABC Kids listen' }, { name: 'ABC Jazz', match: 'ABC Jazz' }];
 
 /** Music: every speaker in the house, a focused "now playing" hero, and local radio. */
@@ -23,7 +26,7 @@ export class FhMusic extends LitElement {
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
     .tabs { display: flex; gap: 6px; }
     .tabs button { height: 42px; padding: 0 18px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: 600; }
-    .tabs button[aria-pressed='true'] { background: var(--ink); color: var(--chip-strong); }
+    .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
     .room { border-radius: 20px; background: var(--chip); padding: 12px; display: flex; gap: 12px; align-items: center; text-align: left; }
     .room[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
@@ -70,6 +73,8 @@ export class FhMusic extends LitElement {
   }
 
   private async _loadRadio(): Promise<void> {
+    const key = this.source + JSON.stringify(this.stations);
+    if (CACHE.key === key) { this._thumbs = CACHE.thumbs; this._resolved = CACHE.res; return; }
     if (this._loaded || !this.hass) return;
     this._loaded = true;
     try {
@@ -81,6 +86,7 @@ export class FhMusic extends LitElement {
         if (hit) { res[st.name] = hit.media_content_id; if (hit.thumbnail) thumbs[st.name] = hit.thumbnail; } else if (want) res[st.name] = want;
       }
       this._thumbs = thumbs; this._resolved = res;
+      Object.assign(CACHE, { thumbs, res, key });
     } catch (e) { console.warn('Family Hub: radio browse failed', e); this._loaded = false; }
   }
 
@@ -93,7 +99,7 @@ export class FhMusic extends LitElement {
     if (!p) return;
     if (!id) { this._say(`Couldn’t find ${st.name} – check the station list`); return; }
     this.hass!.callService('media_player', 'play_media', { entity_id: p.entity_id, media_content_id: id, media_content_type: 'music' })
-      .then(() => this._say(`${st.name} on ${p.attributes.friendly_name}`))
+      .then(() => { LAST[p.entity_id] = st.name; this.requestUpdate(); this._say(`${st.name} on ${p.attributes.friendly_name}`); })
       .catch((e: any) => this._say(`${p.attributes.friendly_name} couldn’t play that: ${e?.message ?? 'error'}`));
   }
 
@@ -105,6 +111,7 @@ export class FhMusic extends LitElement {
         <div style="display:flex;align-items:center;gap:12px"><h1 style="flex:1;font-size:26px;font-weight:800">Music</h1>
           <div class="tabs" role="tablist">${([['rooms', 'Speakers'], ['radio', 'Radio'], ['apple', 'Apple Music'], ['spotify', 'Spotify']] as [Tab, string][])
             .map(([id, l]) => html`<button class="tap" role="tab" aria-pressed=${String(this._tab === id)} @click=${() => { this._tab = id; if (id === 'radio') this._loadRadio(); }}>${l}</button>`)}</div></div>
+        ${this._tab === 'radio' && !Object.keys(this._resolved).length ? html`<span class="muted" style="font-size:13px">Tuning in…</span>` : nothing}
         ${this._tab === 'rooms' ? this._rooms() : this._tab === 'radio' ? this._radio() : this._soon(this._tab)}
       </section>
       ${this._msg ? html`<div class="toast" role="status">${this._msg}</div>` : nothing}`;
@@ -146,12 +153,12 @@ export class FhMusic extends LitElement {
   }
 
   private _radio(): TemplateResult {
-    const nowTitle = String(this._cur?.attributes.media_title ?? '').toLowerCase();
+    const cur = this._cur, playingName = cur && cur.state === 'playing' ? LAST[cur.entity_id] : '';
     return html`<span class="muted" style="font-size:13px">Tap a station to play it on <b>${this._cur?.attributes.friendly_name ?? 'a speaker'}</b>. Pick a different speaker in the Speakers tab.</span>
       <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">${this._stations.map((s) => {
-        const th = this._thumbs[s.name], on = !!nowTitle && nowTitle.includes(s.name.toLowerCase().split(' ')[0]);
+        const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
-          <span class="img" style=${th ? `--art:url(${th})` : ''}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
+          <span class="img" style=${th ? `--art:url(${th})` : `background:linear-gradient(135deg, var(--p-${(s.name.length % 5) + 1}), var(--primary));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
       })}</div>`;
   }
 

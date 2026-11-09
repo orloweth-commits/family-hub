@@ -17,5 +17,9 @@ export const THEMES: ThemeDef[] = [
   { id: 'space', name: 'Space Mission', tagline: 'Dark mode – blast off', bg: BG.space, vars: { '--ink': '#f4f6ff', '--ink2': '#c9cdf0', '--ink3': '#a3a9d6', '--glass': 'rgba(22,24,58,0.55)', '--glass-line': 'rgba(255,255,255,0.14)', '--shadow': '0 12px 32px rgba(0,0,0,0.35)', '--chip': 'rgba(255,255,255,0.12)', '--chip-strong': 'rgba(255,255,255,0.22)', '--chip-soft': 'rgba(255,255,255,0.07)', '--chip-faint': 'rgba(255,255,255,0.03)', '--track': 'rgba(255,255,255,0.18)', '--primary': '#ffd166', '--on-primary': '#1a1640', '--accent': '#ffd166', '--ok': '#4ade80', '--p-1': '#7aa2ff', '--p-2': '#ff8fab', '--p-3': '#ffb86b', '--p-4': '#6ee7b7', '--p-5': '#c4a1ff', '--p-family': '#cbd5e1', '--on-person': '#14123a' } },
 ];
 
+/** Person colours stay the same in every theme so each child is always recognisable. */
+const PEOPLE: Record<string, string> = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0d9488', '--p-4': '#ea580c', '--p-5': '#7c3aed', '--on-person': '#ffffff' };
+for (const t of THEMES) Object.assign(t.vars, PEOPLE);
+
 export const themeById = (id: string): ThemeDef => THEMES.find((t) => t.id === id) ?? THEMES[0];
 export const themeStyle = (t: ThemeDef): string => Object.entries(t.vars).map(([k, v]) => `${k}:${v}`).join(';') + `;--bg:url(${t.bg})`;

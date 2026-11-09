@@ -7,18 +7,19 @@ interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'com
 
 /** Keyword → aisle. Generic grocery words only; first match wins. */
 const AISLES: [string, string, string][] = [
-  ['Fruit & veg', '--p-4', 'apple|banana|avocado|orange|lemon|lime|grape|berr|melon|mango|pear|peach|kiwi|tomato|potato|onion|garlic|carrot|lettuce|spinach|broccoli|cauli|capsicum|cucumber|zucchini|mushroom|herb|coriander|basil|salad|corn|pumpkin|celery|ginger|fruit|veg'],
+  ['Frozen', '--p-1', 'frozen|ice cream|icecream|ice block|icy pole|frozen peas|ice'],
+  ['Household', '--p-5', 'dishwasher tablet|tablet|detergent|soap|shampoo|conditioner|toothpaste|paper towel|tissue|toilet|foil|cling wrap|glad wrap|baking paper|bin liner|bag|clean|spray|sponge|nappy|nappies|wipes|battery|batteries'],
+  ['Pantry', '--p-3', 'peanut butter|pasta|rice|flour|sugar|oil|sauce|cereal|weet-bix|weetbix|oats|coffee|tea|honey|jam|vegemite|peanut|stock|spice|salt|pepper|noodle|bean|lentil|tin|can|biscuit|cracker|chip|snack|chocolate|nut|muesli'],
+  ['Fruit & veg', '--p-4', 'watermelon|apple|banana|avocado|orange|lemon|lime|grape|berr|melon|mango|pear|peach|kiwi|tomato|potato|onion|garlic|carrot|lettuce|spinach|broccoli|cauli|capsicum|cucumber|zucchini|mushroom|herb|coriander|basil|salad|corn|pumpkin|celery|ginger|fruit|veg'],
   ['Dairy & eggs', '--p-1', 'milk|cheese|yoghurt|yogurt|butter|cream|egg|custard'],
   ['Bakery', '--accent', 'bread|sourdough|roll|wrap|bagel|muffin|croissant|bun|loaf|tortilla|crumpet'],
   ['Meat & fish', '--p-2', 'chicken|beef|lamb|pork|mince|sausage|bacon|ham|steak|fish|salmon|prawn|tuna|turkey|meat'],
-  ['Pantry', '--p-3', 'pasta|rice|flour|sugar|oil|sauce|cereal|oats|coffee|tea|honey|jam|vegemite|peanut|stock|spice|salt|pepper|noodle|bean|lentil|tin|can|biscuit|cracker|chip|snack|chocolate|nut|muesli'],
-  ['Frozen', '--p-1', 'frozen|ice cream|peas|ice'],
-  ['Drinks', '--p-4', 'juice|water|soft drink|soda|cordial|beer|wine|kombucha'],
-  ['Household', '--p-5', 'tablet|detergent|soap|shampoo|conditioner|toothpaste|paper|tissue|toilet|foil|wrap|bag|clean|spray|sponge|nappy|wipes|battery|bin liner']
+  ['Drinks', '--p-4', 'juice|water|soft drink|soda|cordial|beer|wine|kombucha']
 ];
+const AISLE_RE = AISLES.map(([a, c, w]) => [a, c, new RegExp(`\\b(${w})`)] as const);
 export const aisleOf = (name: string): [string, string] => {
   const n = name.toLowerCase();
-  for (const [aisle, colour, words] of AISLES) if (new RegExp(`\\b(${words})`).test(n)) return [aisle, colour];
+  for (const [aisle, colour, re] of AISLE_RE) if (re.test(n)) return [aisle, colour];
   return ['Other', '--p-family'];
 };
 
