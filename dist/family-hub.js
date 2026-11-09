@@ -22,7 +22,7 @@ let Ii = class {
     return this.cssText;
   }
 };
-const B = (e) => new Ii(typeof e == "string" ? e : e + "", void 0, ii), b = (e, ...t) => {
+const B = (e) => new Ii(typeof e == "string" ? e : e + "", void 0, ii), k = (e, ...t) => {
   const i = e.length === 1 ? e[0] : t.reduce((a, o, s) => a + ((p) => {
     if (p._$cssResult$ === !0) return p.cssText;
     if (typeof p == "number") return p;
@@ -262,7 +262,7 @@ D.elementStyles = [], D.shadowRootOptions = { mode: "open" }, D[pt("elementPrope
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const ai = globalThis, Ui = (e) => e, ut = ai.trustedTypes, ci = ut ? ut.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, Di = "$lit$", G = `lit$${Math.random().toFixed(9).slice(2)}$`, Pi = "?" + G, ha = `<${Pi}>`, J = document, nt = () => J.createComment(""), Kt = (e) => e === null || typeof e != "object" && typeof e != "function", oi = Array.isArray, qa = (e) => oi(e) || typeof e?.[Symbol.iterator] == "function", jt = `[ 	
+const ai = globalThis, Ui = (e) => e, St = ai.trustedTypes, ci = St ? St.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, Di = "$lit$", G = `lit$${Math.random().toFixed(9).slice(2)}$`, Pi = "?" + G, ha = `<${Pi}>`, J = document, nt = () => J.createComment(""), Kt = (e) => e === null || typeof e != "object" && typeof e != "function", oi = Array.isArray, qa = (e) => oi(e) || typeof e?.[Symbol.iterator] == "function", jt = `[ 	
 \f\r]`, tt = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mi = /-->/g, Ai = />/g, z = RegExp(`>|${jt}(?:([^\\s"'>=/]+)(${jt}*=${jt}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), hi = /'/g, qi = /"/g, Oi = /^(?:script|style|textarea|title)$/i, Hi = (e) => (t, ...i) => ({ _$litType$: e, strings: t, values: i }), r = Hi(1), U = Hi(2), E = Symbol.for("lit-noChange"), K = Symbol.for("lit-nothing"), di = /* @__PURE__ */ new WeakMap(), Z = J.createTreeWalker(J, 129);
 function Ei(e, t) {
@@ -294,13 +294,13 @@ class Ut {
     for (; (o = Z.nextNode()) !== null && n.length < l; ) {
       if (o.nodeType === 1) {
         if (o.hasAttributes()) for (const m of o.getAttributeNames()) if (m.endsWith(Di)) {
-          const d = A[p++], V = o.getAttribute(m).split(G), y = /([.?@])?(.*)/.exec(d);
-          n.push({ type: 1, index: s, name: y[2], strings: V, ctor: y[1] === "." ? Fa : y[1] === "?" ? Sa : y[1] === "@" ? ua : Ct }), o.removeAttribute(m);
+          const d = A[p++], V = o.getAttribute(m).split(G), N = /([.?@])?(.*)/.exec(d);
+          n.push({ type: 1, index: s, name: N[2], strings: V, ctor: N[1] === "." ? Fa : N[1] === "?" ? ua : N[1] === "@" ? Sa : Ct }), o.removeAttribute(m);
         } else m.startsWith(G) && (n.push({ type: 6, index: s }), o.removeAttribute(m));
         if (Oi.test(o.tagName)) {
           const m = o.textContent.split(G), d = m.length - 1;
           if (d > 0) {
-            o.textContent = ut ? ut.emptyScript : "";
+            o.textContent = St ? St.emptyScript : "";
             for (let V = 0; V < d; V++) o.append(m[V], nt()), Z.nextNode(), n.push({ type: 2, index: ++s });
             o.append(m[d], nt());
           }
@@ -444,7 +444,7 @@ class Fa extends Ct {
     this.element[this.name] = t === K ? void 0 : t;
   }
 }
-class Sa extends Ct {
+class ua extends Ct {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -452,7 +452,7 @@ class Sa extends Ct {
     this.element.toggleAttribute(this.name, !!t && t !== K);
   }
 }
-class ua extends Ct {
+class Sa extends Ct {
   constructor(t, i, a, o, s) {
     super(t, i, a, o, s), this.type = 5;
   }
@@ -527,7 +527,7 @@ const Ta = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQEB
   { id: "space", name: "Space Mission", tagline: "Dark mode – blast off", bg: it.space, vars: { "--ink": "#f4f6ff", "--ink2": "#c9cdf0", "--ink3": "#a3a9d6", "--glass": "rgba(22,24,58,0.55)", "--glass-line": "rgba(255,255,255,0.14)", "--shadow": "0 12px 32px rgba(0,0,0,0.35)", "--chip": "rgba(255,255,255,0.12)", "--chip-strong": "rgba(255,255,255,0.22)", "--chip-soft": "rgba(255,255,255,0.07)", "--chip-faint": "rgba(255,255,255,0.03)", "--track": "rgba(255,255,255,0.18)", "--primary": "#ffd166", "--on-primary": "#1a1640", "--accent": "#ffd166", "--ok": "#4ade80", "--p-1": "#7aa2ff", "--p-2": "#ff8fab", "--p-3": "#ffb86b", "--p-4": "#6ee7b7", "--p-5": "#c4a1ff", "--p-family": "#cbd5e1", "--on-person": "#14123a" } }
 ], ya = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0d9488", "--p-4": "#ea580c", "--p-5": "#7c3aed", "--on-person": "#ffffff" };
 for (const e of ct) Object.assign(e.vars, ya);
-const Ri = (e) => ct.find((t) => t.id === e) ?? ct[0], Gt = (e) => Object.entries(e.vars).map(([t, i]) => `${t}:${i}`).join(";") + `;--bg:url(${e.bg})`, W = b`
+const Ri = (e) => ct.find((t) => t.id === e) ?? ct[0], Gt = (e) => Object.entries(e.vars).map(([t, i]) => `${t}:${i}`).join(";") + `;--bg:url(${e.bg})`, y = k`
   :host { display: block; height: 100%; }
   * { box-sizing: border-box; }
   button { font: inherit; color: inherit; border: 0; background: transparent; cursor: pointer; padding: 0; }
@@ -696,7 +696,7 @@ const Ri = (e) => ct.find((t) => t.id === e) ?? ct[0], Gt = (e) => Object.entrie
   pause: "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z",
   prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
   next: "M16 6h2v12h-2zM4 6v12l10.5-6z"
-}, q = (e, t = 22) => r`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px">${U`<path d=${Ma[e] ?? ""}></path>`}</svg>`, v = (e, t = 22) => r`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${U`<path d=${Ca[e] ?? ""}></path>`}</svg>`, wa = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", u = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, ja = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), w = (e) => {
+}, q = (e, t = 22) => r`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px">${U`<path d=${Ma[e] ?? ""}></path>`}</svg>`, v = (e, t = 22) => r`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${U`<path d=${Ca[e] ?? ""}></path>`}</svg>`, wa = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", S = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, ja = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), w = (e) => {
   const t = ja(e.name);
   return {
     chores: e.chores ?? `todo.${t}_chores`,
@@ -812,7 +812,7 @@ const Ri = (e) => ct.find((t) => t.id === e) ?? ct[0], Gt = (e) => Object.entrie
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted" style="font-size:15px;font-weight:600;flex:1">Send the list to</span>
           ${this.recipients.map((o) => r`<button class="who glass tap" @click=${() => this._send(o)}>
-            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${u(o.colour)}">${o.name[0]}</span>${o.name}</button>`)}
+            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${S(o.colour)}">${o.name[0]}</span>${o.name}</button>`)}
           ${this.recipients.length ? K : r`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>`}
         </div>
         <div style="display:flex;gap:10px;align-items:center">
@@ -854,7 +854,7 @@ const Ri = (e) => ct.find((t) => t.id === e) ?? ct[0], Gt = (e) => Object.entrie
     </button>`;
   }
 };
-Vt.styles = [W, b`
+Vt.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
     .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
     .items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
@@ -1053,7 +1053,7 @@ const Ba = Za(class extends va {
     a.push(`${(e + Math.cos(s) * p).toFixed(1)} ${(t + Math.sin(s) * p).toFixed(1)}`);
   }
   return `M${a.join(" L")} Z`;
-}, N = "M30 240 C32 190 62 166 100 166 C138 166 168 190 170 240 Z", Fi = {
+}, f = "M30 240 C32 190 62 166 100 166 C138 166 168 190 170 240 Z", Fi = {
   plain: () => U`<g class="av-pop"><rect width="200" height="240" fill="#dbeafe"></rect><circle cx="100" cy="120" r="82" fill="#bfdbfe"></circle></g>`,
   beach: () => U`<g class="av-pop"><rect width="200" height="240" fill="#9fd8f5"></rect><circle cx="162" cy="46" r="18" fill="#ffd166"></circle><rect y="150" width="200" height="40" fill="#3a9ad9"></rect><rect y="168" width="200" height="4" fill="#bfe6f7"></rect><rect y="190" width="200" height="50" fill="#f1d39b"></rect></g>`,
   pool: () => U`<g class="av-pop"><rect width="200" height="240" fill="#38bdf8"></rect><rect y="40" width="200" height="6" fill="#e0f2fe"></rect><rect y="100" width="200" height="6" fill="#e0f2fe"></rect><rect y="160" width="200" height="6" fill="#e0f2fe"></rect><rect y="70" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="130" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="190" width="200" height="4" fill="#ef4444" opacity=".7"></rect></g>`,
@@ -1067,7 +1067,7 @@ const Ba = Za(class extends va {
   rottnest: () => U`<g class="av-pop"><rect width="200" height="240" fill="#7dd3fc"></rect><rect y="140" width="200" height="50" fill="#22d3ee"></rect><rect y="152" width="200" height="38" fill="#0ea5e9"></rect><path d="M0 190 C40 176 70 184 100 180 C140 174 170 182 200 176 L200 240 L0 240 Z" fill="#fde7b0"></path><rect x="150" y="96" width="10" height="46" fill="#f5f5f4"></rect><path d="M146 96 L164 96 L155 84 Z" fill="#dc2626"></path><circle cx="40" cy="40" r="14" fill="#fde047"></circle></g>`,
   forge: () => U`<g class="av-pop"><rect width="200" height="240" fill="#292524"></rect><rect y="180" width="200" height="60" fill="#44403c"></rect><path d="M120 180 L130 130 L190 130 L200 180 Z" fill="#57534e"></path><ellipse cx="160" cy="150" rx="22" ry="10" fill="#f97316" class="av-flame"></ellipse><ellipse cx="160" cy="146" rx="12" ry="6" fill="#fde047" class="av-flame"></ellipse><rect x="18" y="40" width="40" height="26" rx="3" fill="#78716c"></rect><rect x="24" y="66" width="6" height="40" fill="#78716c"></rect>${[[30, 20], [80, 30], [176, 24]].map(([e, t]) => U`<circle cx=${e} cy=${t} r="2" fill="#fb923c"></circle>`)}</g>`,
   space: () => U`<g class="av-pop"><rect width="200" height="240" fill="#14163a"></rect><circle cx="38" cy="48" r="16" fill="#f0a35e"></circle><ellipse cx="38" cy="48" rx="27" ry="6" fill="none" stroke="#ffd7a8" stroke-width="2.5"></ellipse>${[[150, 30], [176, 74], [120, 18], [20, 120], [182, 140], [70, 22], [14, 190]].map(([e, t]) => U`<circle cx=${e} cy=${t} r="1.6" fill="#fff"></circle>`)}</g>`
-}, Si = { rottnest: "#7dd3fc", forge: "#57534e", plain: "#dbeafe", beach: "#9fd8f5", pool: "#38bdf8", court: "#2563eb", library: "#7c2d12", sunset: "#f7a35c", reef: "#1aa3b8", volcano: "#fde68a", stadium: "#16a34a", castle: "#c7d2fe", space: "#14163a" }, ui = {
+}, ui = { rottnest: "#7dd3fc", forge: "#57534e", plain: "#dbeafe", beach: "#9fd8f5", pool: "#38bdf8", court: "#2563eb", library: "#7c2d12", sunset: "#f7a35c", reef: "#1aa3b8", volcano: "#fde68a", stadium: "#16a34a", castle: "#c7d2fe", space: "#14163a" }, Si = {
   surfboard: () => U`<g class="av-pop d6"><g transform="rotate(-16 158 150)"><ellipse cx="158" cy="150" rx="17" ry="82" fill="#f97316"></ellipse><rect x="155" y="70" width="6" height="160" fill="#fff" opacity=".85"></rect></g></g>`,
   skateboard: () => U`<g class="av-pop d6"><g transform="rotate(18 40 160)"><rect x="30" y="90" width="22" height="124" rx="11" fill="#7c3aed"></rect><rect x="34" y="98" width="14" height="108" rx="7" fill="#a78bfa"></rect><circle cx="28" cy="112" r="5" fill="#f5b301"></circle><circle cx="54" cy="112" r="5" fill="#f5b301"></circle><circle cx="28" cy="192" r="5" fill="#f5b301"></circle><circle cx="54" cy="192" r="5" fill="#f5b301"></circle></g></g>`,
   bat: () => U`<g class="av-pop d6"><g transform="rotate(-24 160 150)"><rect x="152" y="70" width="8" height="40" rx="3" fill="#7c4a1e"></rect><rect x="146" y="106" width="20" height="104" rx="6" fill="#f3d9a4" stroke="#c9a46a" stroke-width="2"></rect></g></g>`,
@@ -1103,17 +1103,17 @@ const Ba = Za(class extends va {
   mohawk: (e) => U`<g class="av-pop d3" fill=${e.hairColour}><path opacity=".45" d="M60 94 C62 72 80 62 100 62 C120 62 138 72 140 94 C130 84 116 80 100 80 C84 80 70 84 60 94 Z"></path><path d="M88 82 L90 40 L100 24 L110 40 L112 82 Z"></path></g>`,
   mullet: (e) => U`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`
 }, Ti = {
-  island: (e) => U`<g class="av-pop d1"><path d=${N} fill=${e.topColour}></path>${[[60, 200], [96, 214], [130, 196], [146, 224], [74, 228], [112, 186]].map(([t, i]) => U`<circle cx=${t} cy=${i} r="6" fill="#fde047" opacity=".9"></circle><circle cx=${t} cy=${i} r="2.5" fill="#f97316"></circle>`)}<path d="M84 168 L100 190 L116 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
-  cloak: (e) => U`<g class="av-pop d1"><path d="M22 240 C26 186 56 150 100 150 C144 150 174 186 178 240 Z" fill="#1f2937"></path><path d=${N} fill=${e.topColour}></path><path d="M100 166 L100 240" stroke="#111827" stroke-width="3"></path><circle cx="100" cy="176" r="5" fill="#d4af37"></circle></g>`,
-  armour: () => U`<g class="av-pop d1"><path d=${N} fill="#64748b"></path><path d="M60 182 C80 172 120 172 140 182 L134 230 L66 230 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"></path><path d="M100 178 L100 230" stroke="#475569" stroke-width="2"></path><circle cx="48" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><circle cx="152" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><path d="M86 200 L100 192 L114 200 L100 212 Z" fill="#b91c1c"></path></g>`,
-  tee: (e) => U`<g class="av-pop d1"><path d=${N} fill=${e.topColour}></path><path d="M84 168 Q100 182 116 168" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-linecap="round"></path></g>`,
-  hoodie: (e) => U`<g class="av-pop d1"><path d=${N} fill=${e.topColour}></path><path d="M66 174 Q100 146 134 174 Q100 194 66 174 Z" fill="rgba(0,0,0,.22)"></path><path d="M92 182 L90 206 M108 182 L110 206" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><rect x="74" y="212" width="52" height="22" rx="8" fill="rgba(0,0,0,.12)"></rect></g>`,
-  polo: (e) => U`<g class="av-pop d1"><path d=${N} fill="#f8fafc"></path><path d="M80 168 L100 186 L120 168 L114 164 L100 176 L86 164 Z" fill=${e.topColour}></path><circle cx="100" cy="194" r="2" fill="#94a3b8"></circle><circle cx="100" cy="204" r="2" fill="#94a3b8"></circle><path d="M44 214 L60 210" stroke=${e.topColour} stroke-width="4"></path></g>`,
-  rashie: (e) => U`<g class="av-pop d1"><path d=${N} fill=${e.topColour}></path><path d="M40 216 C70 200 130 200 160 216" fill="none" stroke="#fff" stroke-width="5" opacity=".8"></path><path d="M90 168 L100 176 L110 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
-  band: (e) => U`<g class="av-pop d1"><path d=${N} fill="#7f1d1d"></path><rect x="92" y="170" width="16" height="70" fill="#991b1b"></rect>${[184, 198, 212, 226].map((t) => U`<circle cx="88" cy=${t} r="3" fill="#facc15"></circle><circle cx="112" cy=${t} r="3" fill="#facc15"></circle>`)}<path d="M50 196 L70 182 M150 196 L130 182" stroke="#facc15" stroke-width="4" stroke-linecap="round"></path></g>`,
-  footy: () => U`<g class="av-pop d1"><clipPath id="fhBody"><path d=${N}></path></clipPath><g clip-path="url(#fhBody)"><rect y="160" width="200" height="80" fill="#1e3a8a"></rect><rect y="186" width="200" height="12" fill="#f5b301"></rect><rect y="210" width="200" height="12" fill="#f5b301"></rect></g><path d="M84 168 Q100 180 116 168" fill="none" stroke="#f5b301" stroke-width="4" stroke-linecap="round"></path></g>`,
-  wetsuit: () => U`<g class="av-pop d1"><path d=${N} fill="#111827"></path><path d="M40 240 C44 204 58 186 72 180 L78 240 Z" fill="#0ea5e9"></path><path d="M160 240 C156 204 142 186 128 180 L122 240 Z" fill="#0ea5e9"></path></g>`,
-  astro: () => U`<g class="av-pop d1"><path d=${N} fill="#e5e7eb"></path><rect x="78" y="196" width="44" height="30" rx="6" fill="#cbd5e1"></rect><circle cx="90" cy="211" r="4" fill="#ef4444"></circle><circle cx="104" cy="211" r="4" fill="#22c55e"></circle><rect x="112" y="207" width="6" height="8" rx="2" fill="#3b82f6"></rect></g>`
+  island: (e) => U`<g class="av-pop d1"><path d=${f} fill=${e.topColour}></path>${[[60, 200], [96, 214], [130, 196], [146, 224], [74, 228], [112, 186]].map(([t, i]) => U`<circle cx=${t} cy=${i} r="6" fill="#fde047" opacity=".9"></circle><circle cx=${t} cy=${i} r="2.5" fill="#f97316"></circle>`)}<path d="M84 168 L100 190 L116 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
+  cloak: (e) => U`<g class="av-pop d1"><path d="M22 240 C26 186 56 150 100 150 C144 150 174 186 178 240 Z" fill="#1f2937"></path><path d=${f} fill=${e.topColour}></path><path d="M100 166 L100 240" stroke="#111827" stroke-width="3"></path><circle cx="100" cy="176" r="5" fill="#d4af37"></circle></g>`,
+  armour: () => U`<g class="av-pop d1"><path d=${f} fill="#64748b"></path><path d="M60 182 C80 172 120 172 140 182 L134 230 L66 230 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"></path><path d="M100 178 L100 230" stroke="#475569" stroke-width="2"></path><circle cx="48" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><circle cx="152" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><path d="M86 200 L100 192 L114 200 L100 212 Z" fill="#b91c1c"></path></g>`,
+  tee: (e) => U`<g class="av-pop d1"><path d=${f} fill=${e.topColour}></path><path d="M84 168 Q100 182 116 168" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-linecap="round"></path></g>`,
+  hoodie: (e) => U`<g class="av-pop d1"><path d=${f} fill=${e.topColour}></path><path d="M66 174 Q100 146 134 174 Q100 194 66 174 Z" fill="rgba(0,0,0,.22)"></path><path d="M92 182 L90 206 M108 182 L110 206" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><rect x="74" y="212" width="52" height="22" rx="8" fill="rgba(0,0,0,.12)"></rect></g>`,
+  polo: (e) => U`<g class="av-pop d1"><path d=${f} fill="#f8fafc"></path><path d="M80 168 L100 186 L120 168 L114 164 L100 176 L86 164 Z" fill=${e.topColour}></path><circle cx="100" cy="194" r="2" fill="#94a3b8"></circle><circle cx="100" cy="204" r="2" fill="#94a3b8"></circle><path d="M44 214 L60 210" stroke=${e.topColour} stroke-width="4"></path></g>`,
+  rashie: (e) => U`<g class="av-pop d1"><path d=${f} fill=${e.topColour}></path><path d="M40 216 C70 200 130 200 160 216" fill="none" stroke="#fff" stroke-width="5" opacity=".8"></path><path d="M90 168 L100 176 L110 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
+  band: (e) => U`<g class="av-pop d1"><path d=${f} fill="#7f1d1d"></path><rect x="92" y="170" width="16" height="70" fill="#991b1b"></rect>${[184, 198, 212, 226].map((t) => U`<circle cx="88" cy=${t} r="3" fill="#facc15"></circle><circle cx="112" cy=${t} r="3" fill="#facc15"></circle>`)}<path d="M50 196 L70 182 M150 196 L130 182" stroke="#facc15" stroke-width="4" stroke-linecap="round"></path></g>`,
+  footy: () => U`<g class="av-pop d1"><clipPath id="fhBody"><path d=${f}></path></clipPath><g clip-path="url(#fhBody)"><rect y="160" width="200" height="80" fill="#1e3a8a"></rect><rect y="186" width="200" height="12" fill="#f5b301"></rect><rect y="210" width="200" height="12" fill="#f5b301"></rect></g><path d="M84 168 Q100 180 116 168" fill="none" stroke="#f5b301" stroke-width="4" stroke-linecap="round"></path></g>`,
+  wetsuit: () => U`<g class="av-pop d1"><path d=${f} fill="#111827"></path><path d="M40 240 C44 204 58 186 72 180 L78 240 Z" fill="#0ea5e9"></path><path d="M160 240 C156 204 142 186 128 180 L122 240 Z" fill="#0ea5e9"></path></g>`,
+  astro: () => U`<g class="av-pop d1"><path d=${f} fill="#e5e7eb"></path><rect x="78" y="196" width="44" height="30" rx="6" fill="#cbd5e1"></rect><circle cx="90" cy="211" r="4" fill="#ef4444"></circle><circle cx="104" cy="211" r="4" fill="#22c55e"></circle><rect x="112" y="207" width="6" height="8" rx="2" fill="#3b82f6"></rect></g>`
 }, bi = {
   normal: () => U`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><ellipse cx="116" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><circle cx="118" cy="101.5" r="1.6" fill="#fff"></circle></g>`,
   happy: () => U`<g class="av-pop d4" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"><path d="M77 106 Q84 97 91 106"></path><path d="M109 106 Q116 97 123 106"></path></g>`,
@@ -1150,10 +1150,10 @@ function Q(e, t = {}) {
   return r`<span class="avwrap ${p}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${a ? "36 28 128 128" : "0 0 200 240"} width=${o} height=${s} role="img" aria-label=${t.label ?? "Avatar"}
       style="display:block;overflow:hidden;border-radius:${a ? "50%" : `${Math.round(i * 0.12)}px`}">
-      ${a ? U`<circle cx="100" cy="92" r="64" fill=${Si[e.scene] ?? Si.plain}></circle>` : (Fi[e.scene] ?? Fi.plain)(e)}
+      ${a ? U`<circle cx="100" cy="92" r="64" fill=${ui[e.scene] ?? ui.plain}></circle>` : (Fi[e.scene] ?? Fi.plain)(e)}
       ${t.ring && a ? U`<circle cx="100" cy="92" r="60" fill="none" stroke=${t.ring} stroke-width="7"></circle>` : K}
       <g class=${t.still ? "" : "av-bob"}>
-        ${!a && ui[e.gear] ? ui[e.gear](e) : K}
+        ${!a && Si[e.gear] ? Si[e.gear](e) : K}
         ${Ni[e.hair] ? Ni[e.hair](e) : K}
         ${(Ti[e.top] ?? Ti.tee)(e)}
         <rect x="88" y=${l === "teen" ? 130 : 136} width="24" height=${l === "teen" ? 40 : 34} rx="10" fill=${e.skin}></rect>
@@ -1215,10 +1215,10 @@ const wt = `
   @keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
   .xp { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
   .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .8s cubic-bezier(.2,.8,.2,1); }
-`, k = (e) => new Date(e.getFullYear(), e.getMonth(), e.getDate()), F = (e, t) => new Date(e.getFullYear(), e.getMonth(), e.getDate() + t), C = (e, t) => e.getFullYear() === t.getFullYear() && e.getMonth() === t.getMonth() && e.getDate() === t.getDate(), st = (e) => {
-  const t = k(e), i = (t.getDay() + 6) % 7;
+`, x = (e) => new Date(e.getFullYear(), e.getMonth(), e.getDate()), F = (e, t) => new Date(e.getFullYear(), e.getMonth(), e.getDate() + t), C = (e, t) => e.getFullYear() === t.getFullYear() && e.getMonth() === t.getMonth() && e.getDate() === t.getDate(), st = (e) => {
+  const t = x(e), i = (t.getDay() + 6) % 7;
   return F(t, -i);
-}, yi = (e) => st(new Date(e.getFullYear(), e.getMonth(), 1)), Y = "en-AU", f = (e) => e.toLocaleTimeString(Y, { hour: "numeric", minute: "2-digit", hour12: !0 }).replace(/\s?([ap])\.?m\.?/i, " $1m").toLowerCase(), Mi = (e) => {
+}, yi = (e) => st(new Date(e.getFullYear(), e.getMonth(), 1)), Y = "en-AU", T = (e) => e.toLocaleTimeString(Y, { hour: "numeric", minute: "2-digit", hour12: !0 }).replace(/\s?([ap])\.?m\.?/i, " $1m").toLowerCase(), Mi = (e) => {
   const t = e.getHours();
   return { hm: `${t % 12 || 12}:${String(e.getMinutes()).padStart(2, "0")}`, ampm: t < 12 ? "am" : "pm" };
 }, Ci = (e) => e.toLocaleDateString(Y, { weekday: "long", day: "numeric", month: "long" }), Oa = (e) => e.toLocaleDateString(Y, { weekday: "short", day: "numeric", month: "short" }), lt = (e) => e.toLocaleDateString(Y, { weekday: "short" }), Ha = (e, t) => e.getMonth() === t.getMonth() ? `${e.getDate()} – ${t.getDate()} ${t.toLocaleDateString(Y, { month: "long" })}` : `${e.getDate()} ${e.toLocaleDateString(Y, { month: "short" })} – ${t.getDate()} ${t.toLocaleDateString(Y, { month: "short" })}`, Ea = (e) => {
@@ -1233,17 +1233,17 @@ const wt = `
 }, ea = (e) => {
   const t = e.description ?? "", i = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), a = i ? Number(i[1]) : 0, o = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || a ? "job" : "routine", s = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", p = /(\d+)\s*min/i.exec(`${e.summary} ${t}`);
   return { ...e, lane: o, slot: s, pts: o === "grow" ? 0 : a, minutes: p ? Number(p[1]) : 0 };
-}, x = (e) => {
+}, W = (e) => {
   const [t, i] = e.split(":").map(Number);
   return t * 60 + (i || 0);
 }, At = (e = /* @__PURE__ */ new Date()) => e.getHours() * 60 + e.getMinutes(), ji = (e = "20:00", t = /* @__PURE__ */ new Date()) => {
   const i = At(t);
-  return i < 720 ? "am" : i >= x(e) - 60 ? "bed" : "after";
+  return i < 720 ? "am" : i >= W(e) - 60 ? "bed" : "after";
 }, Ft = (e, t = /* @__PURE__ */ new Date()) => {
-  const i = x(e ?? "20:00") + ([5, 6].includes(t.getDay()) ? 30 : 0);
+  const i = W(e ?? "20:00") + ([5, 6].includes(t.getDay()) ? 30 : 0);
   return `${Math.floor(i / 60)}:${String(i % 60).padStart(2, "0")}`;
 }, _a = (e, t = /* @__PURE__ */ new Date()) => {
-  const i = At(t), a = x(Ft(e, t));
+  const i = At(t), a = W(Ft(e, t));
   return i >= a - 60 || i < 300;
 }, si = (e, t, i) => {
   if (!e || !t) return !0;
@@ -1255,7 +1255,7 @@ const wt = `
   const o = Bt(e);
   return i.includes(o) ? !1 : !t.length || t.some(([s, p]) => o >= s && o <= p);
 }, Lt = (e = /* @__PURE__ */ new Date(), t = "19:30", i = "07:00") => {
-  const a = At(e), o = x(t), s = x(i);
+  const a = At(e), o = W(t), s = W(i);
   return o <= s ? a >= o && a < s : a >= o || a < s;
 };
 let et = null, pi = !1;
@@ -1273,7 +1273,7 @@ const $a = (e) => {
   if (!p) return;
   const l = p.createOscillator(), n = p.createGain();
   l.type = a, l.frequency.setValueAtTime(e, p.currentTime + t), s && l.frequency.exponentialRampToValueAtTime(s, p.currentTime + t + i), n.gain.setValueAtTime(1e-4, p.currentTime + t), n.gain.exponentialRampToValueAtTime(o, p.currentTime + t + 0.015), n.gain.exponentialRampToValueAtTime(1e-4, p.currentTime + t + i), l.connect(n).connect(p.destination), l.start(p.currentTime + t), l.stop(p.currentTime + t + i + 0.05);
-}, S = (e) => {
+}, u = (e) => {
   switch (e) {
     case "tap":
       R(660, 0, 0.06, "triangle", 0.08);
@@ -1315,7 +1315,7 @@ const $a = (e) => {
   }
 };
 let X;
-const T = (e) => {
+const b = (e) => {
   if (!(pi || !("speechSynthesis" in window)))
     try {
       if (X === void 0) {
@@ -1358,20 +1358,20 @@ const T = (e) => {
     if (!at(i, this.life, this.grow)) {
       if (this._shake = `${t.id}:${i[0]}`, setTimeout(() => {
         this._shake = "";
-      }, 460), S("locked"), this._jack) {
-        T("Not yet! Keep collecting stars.");
+      }, 460), u("locked"), this._jack) {
+        b("Not yet! Keep collecting stars.");
         return;
       }
       i[3] ? this._say(`${i[1]} is a surprise – keep practising and reading!`) : this._say(`${i[1]} is ${i[2] - this.life} away. Tap ♥ to make it your goal.`);
       return;
     }
-    S("tap"), this._jack && T(i[1]), this._draft = O(this.d, t, i[0], a), this._jump++;
+    u("tap"), this._jack && b(i[1]), this._draft = O(this.d, t, i[0], a), this._jump++;
   }
   _setGoal(t) {
     const i = w(this.kid).goal;
     if (!this.hass?.states[i]) return;
     const a = this._goal === t[0] ? "" : t[0];
-    this.hass.callService("input_text", "set_value", { entity_id: i, value: a }), S("coin"), this._say(a ? `Saving for ${t[1]} ♥` : "Goal cleared");
+    this.hass.callService("input_text", "set_value", { entity_id: i, value: a }), u("coin"), this._say(a ? `Saving for ${t[1]} ♥` : "Goal cleared");
   }
   _random() {
     let t = { ...this.d };
@@ -1402,7 +1402,7 @@ const T = (e) => {
   }
   render() {
     const t = P.find((p) => p.id === this._tab) ?? P[0], i = ta(this.life, this.kid.favourites, this._goal || void 0), a = ia(this.life), o = !!this._draft && zt(this._draft) !== zt(this.look), s = (p) => p > 0 && p <= this.life && p > this.life - 100;
-    return r`<div style="display:contents;--kid:${u(this.kid.colour)}">
+    return r`<div style="display:contents;--kid:${S(this.kid.colour)}">
       <section class="glass stage">
         <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${q("left", 18)}</button>
@@ -1424,7 +1424,7 @@ const T = (e) => {
       </section>
       <section class="glass shelf">
         <div class="tabs" role="tablist">${P.map((p) => r`<button class="tap" role="tab" aria-label=${p.label} aria-pressed=${String(p.id === this._tab)} style=${this._jack ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
-      this._tab = p.id, S("tap"), this._jack && T(p.label);
+      this._tab = p.id, u("tap"), this._jack && b(p.label);
     }}>${this._jack ? p.emoji : r`${p.emoji} ${p.label}`}</button>`)}</div>
         ${t.swatch ? r`<div class="sw"><span class="label" style="width:60px">${t.swatch.label}</span>
           ${t.swatch.items.map((p) => {
@@ -1451,7 +1451,7 @@ const T = (e) => {
     </div>`;
   }
 };
-gt.styles = [W, b`
+gt.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
     .stage::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
@@ -1511,7 +1511,7 @@ const Nt = class Nt extends g {
     </div>`;
   }
 };
-Nt.styles = [W, b`
+Nt.styles = [y, k`
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); }
     .pad { border-radius: 32px; padding: 24px 28px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
     .dots { display: flex; gap: 14px; height: 20px; }
@@ -1545,8 +1545,8 @@ const io = [
   [/water|plant/i, "🪴"],
   [/bin|rubbish/i, "🗑️"],
   [/dishwasher/i, "🍽️"]
-], St = (e) => io.find(([t]) => t.test(e))?.[1] ?? "⭐", Li = (e) => {
-  const t = x(e), i = Math.floor(t / 60) % 24;
+], ut = (e) => io.find(([t]) => t.test(e))?.[1] ?? "⭐", Li = (e) => {
+  const t = W(e), i = Math.floor(t / 60) % 24;
   return `${i % 12 || 12}:${String(t % 60).padStart(2, "0")} ${i < 12 ? "am" : "pm"}`;
 }, Zi = { am: "Morning", after: "After school", bed: "Bedtime", any: "Any time" }, ao = [["😄", "great"], ["🙂", "good"], ["😐", "okay"], ["😟", "worried"], ["😢", "sad"]], oo = 10 * 6e4, eo = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], j = (e, t) => {
   try {
@@ -1628,7 +1628,7 @@ const io = [
     const p = [...Ia(o, t), ...Xa(s, i)];
     if (p.length) {
       const l = this.kid.favourites ?? [];
-      this._celebrate = [...p].sort((n, c) => Number(l.includes(c.id)) - Number(l.includes(n.id))), this._confetti++, this._sound("unlock"), this._jack && T(`Wow Jack! You unlocked ${p[0].label}!`);
+      this._celebrate = [...p].sort((n, c) => Number(l.includes(c.id)) - Number(l.includes(n.id))), this._confetti++, this._sound("unlock"), this._jack && b(`Wow Jack! You unlocked ${p[0].label}!`);
     }
   }
   _closeCelebrate(t) {
@@ -1637,7 +1637,7 @@ const io = [
   }
   async _loadWeek() {
     if (!this.hass) return;
-    const t = k(/* @__PURE__ */ new Date()), i = F(t, 8), a = this.kid.name, o = [{ id: this._e.calendar, family: !1 }, ...this.familyCalendars.map((l) => ({ id: l, family: !0 }))].filter((l) => this.hass.states[l.id]), s = [], p = this.privateWords.map((l) => l.toLowerCase());
+    const t = x(/* @__PURE__ */ new Date()), i = F(t, 8), a = this.kid.name, o = [{ id: this._e.calendar, family: !1 }, ...this.familyCalendars.map((l) => ({ id: l, family: !0 }))].filter((l) => this.hass.states[l.id]), s = [], p = this.privateWords.map((l) => l.toLowerCase());
     await Promise.all(o.map(async (l) => {
       try {
         const n = await this.hass.callApi("GET", `calendars/${l.id}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(i.toISOString())}`);
@@ -1651,7 +1651,7 @@ const io = [
   }
   /* ---------------- ticking ---------------- */
   _sound(t) {
-    !this.quiet && !this._wind ? S(t) : t === "tick" && S("tap");
+    !this.quiet && !this._wind ? u(t) : t === "tick" && u("tap");
   }
   _award(t, i) {
     const a = { kid: this._e.slug, points: i * t.pts, lifetime: !0, jar: t.lane === "job" ? i : 0, grow: t.lane === "grow" ? i : 0, reason: `${i > 0 ? "" : "un-ticked "}${t.summary}` };
@@ -1679,7 +1679,7 @@ const io = [
       const s = Date.now(), p = t.lane === "grow" ? "🌱" : t.pts ? this._jack ? "★".repeat(Math.max(1, Math.round(t.pts / this._star))) : `+${t.pts}` : "✓";
       this._bursts = [...this._bursts, { id: s, text: p }], setTimeout(() => {
         this._bursts = this._bursts.filter((l) => l.id !== s);
-      }, 1300), this._jack && T(`${t.summary}. Done! ${t.pts ? "Here’s a star!" : ""}`), this._maybeAllDone();
+      }, 1300), this._jack && b(`${t.summary}. Done! ${t.pts ? "Here’s a star!" : ""}`), this._maybeAllDone();
     } catch (s) {
       console.warn("Family Hub: chore update failed", s), this._chores = o, this._say("Couldn’t save that one – try again");
     } finally {
@@ -1693,7 +1693,7 @@ const io = [
     if (j(s, !1)) return;
     M(s, !0);
     const p = this.kid.name;
-    this._wind || (this._confetti++, this._sound(this.kid.sound ?? "done"), setTimeout(() => this._sound("done"), 700)), this._jack && T(t === "am" ? `You did your whole morning, ${p}!` : t === "bed" ? `All ready for bed, ${p}. Sleep well!` : `All done, ${p}!`), this._say(t === "bed" ? `All set for bed, ${p}. Sleep well.` : [`All done, ${p}. You stuck with it today.`, `That’s everything, ${p}. Nice and steady.`, `Legend effort, ${p}.`][Math.floor(Math.random() * 3)]);
+    this._wind || (this._confetti++, this._sound(this.kid.sound ?? "done"), setTimeout(() => this._sound("done"), 700)), this._jack && b(t === "am" ? `You did your whole morning, ${p}!` : t === "bed" ? `All ready for bed, ${p}. Sleep well!` : `All done, ${p}!`), this._say(t === "bed" ? `All set for bed, ${p}. Sleep well.` : [`All done, ${p}. You stuck with it today.`, `That’s everything, ${p}. Nice and steady.`, `Legend effort, ${p}.`][Math.floor(Math.random() * 3)]);
   }
   /* ---------------- practice timer ---------------- */
   _startPractice(t) {
@@ -1712,7 +1712,7 @@ const io = [
   _redeem(t, i = !1) {
     const a = L(this.hass, this._e.points);
     if (a < t.cost) {
-      this._sound("locked"), this._jack && T(`Not yet! ${Math.ceil((t.cost - a) / this._star)} more stars for ${t.name}.`), this._say(`Saving up: ${this._jack ? `${Math.ceil((t.cost - a) / this._star)} more stars` : `${t.cost - a} to go`}. You’ll get there.`);
+      this._sound("locked"), this._jack && b(`Not yet! ${Math.ceil((t.cost - a) / this._star)} more stars for ${t.name}.`), this._say(`Saving up: ${this._jack ? `${Math.ceil((t.cost - a) / this._star)} more stars` : `${t.cost - a} to go`}. You’ll get there.`);
       return;
     }
     const o = t.approve ?? t.cost >= 60;
@@ -1720,10 +1720,10 @@ const io = [
       this._pinAsk = { reason: `${this.kid.name}: ${t.name}?`, run: () => this._redeem(t, !0) };
       return;
     }
-    this.hass.callService("script", "fh_add_points", { kid: this._e.slug, points: -t.cost, lifetime: !1, reason: `reward: ${t.name}` }), this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${o && !this.pin ? " · needs a grown-up OK" : ""}` }, { entity_id: this.owed }), this._confetti++, this._jump++, this._sound("unlock"), this._jack && T(`Yay! ${t.name}!`), this._say(o ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`);
+    this.hass.callService("script", "fh_add_points", { kid: this._e.slug, points: -t.cost, lifetime: !1, reason: `reward: ${t.name}` }), this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${o && !this.pin ? " · needs a grown-up OK" : ""}` }, { entity_id: this.owed }), this._confetti++, this._jump++, this._sound("unlock"), this._jack && b(`Yay! ${t.name}!`), this._say(o ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`);
   }
   _feelPick(t) {
-    this._feel = t, this._sound("tap"), this._jack && T("Thanks for telling me. Want a hug?");
+    this._feel = t, this._sound("tap"), this._jack && b("Thanks for telling me. Want a hug?");
   }
   _feelReply(t) {
     t === "chat" && this.hass?.callService("persistent_notification", "create", { title: `${this.kid.name} would like a chat`, message: `${this.kid.name} said he’s feeling ${this._feel} and would like a chat later.`, notification_id: `fh_chat_${this._e.slug}` }), this._say(t === "hug" ? "Go find a grown-up for a big hug 🤗" : t === "chat" ? "A grown-up will come and chat soon." : "Good to know. Thanks for sharing."), this._feel = "";
@@ -1751,7 +1751,7 @@ const io = [
       this._studio = !1, this._jump++;
     }}></fh-studio>`;
     const t = this._e, i = this.hass, a = !i.states[t.points] || !i.states[t.chores];
-    return r`<div style="display:contents;--kid:${u(this.kid.colour)}">
+    return r`<div style="display:contents;--kid:${S(this.kid.colour)}">
       ${this._hero()}
       ${a ? r`<section class="glass jobs"><div class="empty"><h2 style="font-size:22px">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${t.chores}</b> and <b>${t.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
@@ -1769,10 +1769,10 @@ const io = [
     </div>`;
   }
   _hero() {
-    const t = this._e, i = this.hass, a = this._life, o = this._look, s = L(i, t.points), p = Da(a), l = i.states[t.goal]?.state, n = ta(a, this.kid.favourites, l && l !== "unknown" ? l : void 0), c = ia(a), A = n ? Math.max(4, Math.round((a - c) / Math.max(1, n.req - c) * 100)) : 100, m = (i.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), d = (this._now.getDay() + 6) % 7, V = this._goodToday(), y = [...m].filter((h, I) => h === "G" || I === d && V).length;
+    const t = this._e, i = this.hass, a = this._life, o = this._look, s = L(i, t.points), p = Da(a), l = i.states[t.goal]?.state, n = ta(a, this.kid.favourites, l && l !== "unknown" ? l : void 0), c = ia(a), A = n ? Math.max(4, Math.round((a - c) / Math.max(1, n.req - c) * 100)) : 100, m = (i.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), d = (this._now.getDay() + 6) % 7, V = this._goodToday(), N = [...m].filter((h, I) => h === "G" || I === d && V).length;
     return r`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap" style="position:relative" aria-label="Make ${this.kid.name} jump" @click=${() => {
-      this._jump++, this._sound(this.kid.sound ?? "tap"), this._jack && T(`Hi Jack! You have ${Math.floor(s / this._star)} stars.`);
+      this._jump++, this._sound(this.kid.sound ?? "tap"), this._jack && b(`Hi Jack! You have ${Math.floor(s / this._star)} stars.`);
     }}>
         ${Q(o, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age })}</button>
       <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._jack ? K : r`<span class="rank">${p.rank}</span>`}</div>
@@ -1785,7 +1785,7 @@ const io = [
         <div class="stats">
           <div class="stat"><b>${s || "✨"}</b><span>${s ? "points to spend" : "Ready to start"}</span></div>
           <div class="stat"><span>Good days</span><div class="dots">${[...m].map((h, I) => r`<button aria-label="${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][I]}${h === "O" ? ", day off" : ""}" class="${h === "G" || I === d && V ? "g" : h === "O" ? "o" : ""} ${I === d ? "t" : ""}" @click=${() => this._dayOff(I)}></button>`)}</div>
-            <span>${y >= 5 ? "Full week ⭐" : `${y} this week`}</span></div>
+            <span>${N >= 5 ? "Full week ⭐" : `${N} this week`}</span></div>
         </div>`}
       ${this._wind ? r`<div class="next"><span style="font-size:13px;font-weight:700;padding:6px">🌙 Studio opens in the morning</span></div>` : n ? r`<div class="next">
         <span class="shimmer" style="border-radius:50%;line-height:0">${Q(O(o, n.cat, n.id, n.swatch), { size: 46, crop: "head", still: !0, age: this.kid.age })}</span>
@@ -1804,12 +1804,12 @@ const io = [
     return t.length + i.length > 0 && a === o && (i.length === 0 || s >= Math.min(2, i.length));
   }
   _jobs() {
-    const t = Ft(this.kid.bedtime, this._now), i = ji(t, this._now), a = this._chores, o = a.filter((h) => h.lane === "routine" && (h.slot === i || h.slot === "any" && !this._wind)), s = this._wind ? [] : a.filter((h) => h.lane === "job" && (h.slot === "any" || h.slot === i || i === "after" && h.slot === "am")), p = this._wind ? a.filter((h) => h.lane === "grow" && h.slot === "bed") : a.filter((h) => h.lane === "grow" && h.slot !== "bed" || h.lane === "grow" && i === "bed"), l = a.filter((h) => h.lane === "routine" && h.slot !== i && h.slot !== "any" && (i === "am" || i === "after" && h.slot === "bed")), n = [...o, ...s, ...p], c = n.filter((h) => h.status === "completed").length, A = n.length, m = A - c, d = 2 * Math.PI * 22, V = A ? c / A : 0, y = this._wind ? m ? `Bedtime jobs: ${m} left · bed at ${Li(t)}` : "All set for bed. Sleep well 🌙" : m ? `${m} left ${i === "am" ? "this morning" : i === "after" ? "this afternoon" : "tonight"}` : "All done – fresh start tomorrow";
+    const t = Ft(this.kid.bedtime, this._now), i = ji(t, this._now), a = this._chores, o = a.filter((h) => h.lane === "routine" && (h.slot === i || h.slot === "any" && !this._wind)), s = this._wind ? [] : a.filter((h) => h.lane === "job" && (h.slot === "any" || h.slot === i || i === "after" && h.slot === "am")), p = this._wind ? a.filter((h) => h.lane === "grow" && h.slot === "bed") : a.filter((h) => h.lane === "grow" && h.slot !== "bed" || h.lane === "grow" && i === "bed"), l = a.filter((h) => h.lane === "routine" && h.slot !== i && h.slot !== "any" && (i === "am" || i === "after" && h.slot === "bed")), n = [...o, ...s, ...p], c = n.filter((h) => h.status === "completed").length, A = n.length, m = A - c, d = 2 * Math.PI * 22, V = A ? c / A : 0, N = this._wind ? m ? `Bedtime jobs: ${m} left · bed at ${Li(t)}` : "All set for bed. Sleep well 🌙" : m ? `${m} left ${i === "am" ? "this morning" : i === "after" ? "this afternoon" : "tonight"}` : "All done – fresh start tomorrow";
     return r`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 style="font-size:26px;font-weight:800">${this._wind ? "Wind down" : this._jack ? i === "am" ? "My morning" : i === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
-          <span class="muted" style="font-size:14px;font-weight:600">${y}</span></div>
-        ${this._jack ? r`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => T(o.filter((h) => h.status !== "completed").map((h) => h.summary).join(". ") || "All done! Great job!")}>🔊</button>` : K}
+          <span class="muted" style="font-size:14px;font-weight:600">${N}</span></div>
+        ${this._jack ? r`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => b(o.filter((h) => h.status !== "completed").map((h) => h.summary).join(". ") || "All done! Great job!")}>🔊</button>` : K}
         <div class="ring" aria-label="${c} of ${A} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
           <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${d} stroke-dashoffset=${d * (1 - V)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${c}/${A}</b></div>
       </div>
@@ -1818,7 +1818,7 @@ const io = [
             ${o.length ? r`<div class="sec"><h2>${Zi[i]} routine</h2><span>just what we do</span></div>${o.map((h) => this._row(h))}` : K}
             ${s.length ? r`<div class="sec"><h2>Family jobs</h2><span>earn points · fill the jar</span></div>${s.map((h) => this._row(h))}` : K}
             ${p.length ? r`<div class="sec"><h2>Growing</h2><span>for you – surprises along the way</span></div>${p.map((h) => this._row(h))}` : K}`}
-        ${l.length && !this._wind ? r`<div class="later"><span>Later: ${Zi[l[0].slot]} (${l.length})</span><span>${l.map((h) => this._jack ? St(h.summary) : "").join(" ")}</span></div>` : K}
+        ${l.length && !this._wind ? r`<div class="later"><span>Later: ${Zi[l[0].slot]} (${l.length})</span><span>${l.map((h) => this._jack ? ut(h.summary) : "").join(" ")}</span></div>` : K}
         ${n.length ? K : r`<div class="wind"><span style="font-size:44px">🌤️</span><span>Nothing right now. Enjoy!</span></div>`}
       </div>
     </section>`;
@@ -1828,7 +1828,7 @@ const io = [
     return r`<div class="job ${i ? "done" : ""}" style="padding-right:10px">
       <button class="tap" style="display:flex;align-items:center;gap:14px;flex:1;text-align:left;min-height:34px" aria-pressed=${String(i)} @click=${() => this._toggle(t)}>
         <span class="box">${i ? "✓" : ""}</span>
-        ${this.kid.mode === "mixed" ? r`<span style="font-size:28px">${St(t.summary)}</span>` : K}
+        ${this.kid.mode === "mixed" ? r`<span style="font-size:28px">${ut(t.summary)}</span>` : K}
         <span class="t">${t.summary}</span></button>
       ${t.lane === "grow" && t.minutes && !i ? a ? r`<button class="play tap" @click=${() => this._stopPractice()}>⏸ ${Math.floor(o / 6e4)}:${String(Math.floor(o % 6e4 / 1e3)).padStart(2, "0")}</button>` : r`<button class="play tap" aria-label="Start ${t.minutes} minute timer" @click=${() => this._startPractice(t)}>▶ ${t.minutes} min</button>` : K}
       ${t.lane === "job" ? r`<span class="plus">+${t.pts}</span>` : t.lane === "grow" && (i || !t.minutes) ? r`<span class="plus grow">🌱</span>` : K}
@@ -1837,7 +1837,7 @@ const io = [
   _pic(t) {
     const i = t.status === "completed", a = Math.max(1, Math.round(t.pts / this._star));
     return r`<button class="pic tap ${i ? "done" : ""}" aria-pressed=${String(i)} @click=${() => this._toggle(t)}>
-      <span class="e">${St(t.summary)}</span><span style="font-size:17px;font-weight:700;text-align:center">${t.summary}</span>
+      <span class="e">${ut(t.summary)}</span><span style="font-size:17px;font-weight:700;text-align:center">${t.summary}</span>
       ${t.pts ? r`<span class="stars">${"★".repeat(a)}</span>` : K}${i ? r`<span class="tick">✓</span>` : K}</button>`;
   }
   _rewards() {
@@ -1873,16 +1873,16 @@ const io = [
     </section>`;
   }
   _week() {
-    const t = /* @__PURE__ */ new Date(), i = this._events.filter((o) => o.allDay ? o.start >= k(t) : o.start.getTime() > t.getTime() - 36e5).slice(0, 5), a = (o) => {
+    const t = /* @__PURE__ */ new Date(), i = this._events.filter((o) => o.allDay ? o.start >= x(t) : o.start.getTime() > t.getTime() - 36e5).slice(0, 5), a = (o) => {
       if (C(o, t)) return "Today";
-      const s = Math.round((k(o).getTime() - k(t).getTime()) / 864e5);
+      const s = Math.round((x(o).getTime() - x(t).getTime()) / 864e5);
       return this._jack ? `${s} sleep${s > 1 ? "s" : ""}` : s === 1 ? "Tomorrow" : lt(o);
     };
     return r`<section class="glass card" aria-label="${this.kid.name}’s week">
       <span class="label">${this._jack ? "Coming up" : `${this.kid.name}’s week`}</span>
       ${i.length ? i.map((o) => r`<div class="wk"><span class="d">${a(o.start)}</span>
         <span style="flex:1;font-weight:600;display:flex;gap:6px;align-items:baseline"><span class="dot" style="width:8px;height:8px;background:${o.family ? "var(--p-family)" : "var(--kid)"}"></span>
-          <span>${o.title}${o.allDay ? "" : r` <span class="muted" style="font-weight:500">· ${f(o.start)}</span>`}</span></span></div>`) : r`<span class="muted" style="font-size:14px">Nothing on this week.</span>`}
+          <span>${o.title}${o.allDay ? "" : r` <span class="muted" style="font-weight:500">· ${T(o.start)}</span>`}</span></span></div>`) : r`<span class="muted" style="font-size:14px">Nothing on this week.</span>`}
     </section>`;
   }
   _celebration() {
@@ -1901,7 +1901,7 @@ const io = [
     </div>`;
   }
 };
-ft.styles = [W, b`
+ft.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
@@ -2095,7 +2095,7 @@ const po = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     }}></fh-pin>` : K}`;
   }
 };
-Tt.styles = [W, b`
+Tt.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .rooms { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
     .rgrid { flex: 1; min-height: 0; overflow: auto; columns: 3 250px; column-gap: 12px; }
@@ -2245,7 +2245,7 @@ const qt = { thumbs: {}, res: {}, key: "" }, vi = {}, lo = [{ name: "ABC Kids li
     </div>`;
   }
 };
-bt.styles = [W, b`
+bt.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; color: #fff; background: #111; }
     .hero .bg { position: absolute; inset: -40px; background: var(--art) center / cover; filter: blur(40px) saturate(160%) brightness(.65); transform: scale(1.2); transition: background .6s; }
@@ -2478,7 +2478,7 @@ const dt = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
       ${this._msg ? r`<div class="toast" role="status">${this._msg}</div>` : K}`;
   }
 };
-kt.styles = [W, b`
+kt.styles = [y, k`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .tools { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }
     .tools .sep { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
@@ -2560,31 +2560,31 @@ const Uo = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], xt = class xt exte
   }
   render() {
     if (!this.hass) return K;
-    const t = x(this.leaveBy) - At(this._now), i = this._now, a = this.privateWords.map((o) => o.toLowerCase());
+    const t = W(this.leaveBy) - At(this._now), i = this._now, a = this.privateWords.map((o) => o.toLowerCase());
     return r`
       <section class="glass top">
         <div style="flex:1"><h1 style="font-size:28px;font-weight:800">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:600">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
         <div style="text-align:right"><div class="leave ${t <= 10 && t > -15 ? "soon" : ""}">${t > 0 ? `${t} min` : t > -15 ? "Time to go!" : "Have a great day"}</div>
-          <span class="muted" style="font-size:14px;font-weight:600">${t > 0 ? `until we leave at ${f(new Date((/* @__PURE__ */ new Date()).setHours(Math.floor(x(this.leaveBy) / 60), x(this.leaveBy) % 60, 0)))}` : ""}</span></div>
+          <span class="muted" style="font-size:14px;font-weight:600">${t > 0 ? `until we leave at ${T(new Date((/* @__PURE__ */ new Date()).setHours(Math.floor(W(this.leaveBy) / 60), W(this.leaveBy) % 60, 0)))}` : ""}</span></div>
       </section>
       <div class="cols" style="--n:${this.kids.length}">
         ${this.kids.map((o) => {
       const s = w(o), p = $(this.hass.states[s.avatar]?.state, o.look ? $(o.look) : {}), l = (this._items[o.name] ?? []).filter((m) => m.lane === "routine" && m.slot === "am"), n = l.filter((m) => m.status === "completed").length, c = this.events.filter((m) => C(m.start, i) && !a.some((d) => m.title.toLowerCase().includes(d)) && (m.who === o.name || m.colour === "family" || m.title.toLowerCase().includes(o.name.toLowerCase()))), A = this._bring(o, c);
-      return r`<button class="glass col tap" style="--kid:${u(o.colour)}" @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: o.name }))}>
-            <div class="who">${Q(p, { size: 56, crop: "head", still: !0, age: o.age, ring: u(o.colour) })}<h2>${o.name}</h2>
+      return r`<button class="glass col tap" style="--kid:${S(o.colour)}" @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: o.name }))}>
+            <div class="who">${Q(p, { size: 56, crop: "head", still: !0, age: o.age, ring: S(o.colour) })}<h2>${o.name}</h2>
               <span style="font-size:15px;font-weight:800">${l.length ? n === l.length ? "✅ Ready" : `${n}/${l.length}` : ""}</span></div>
             ${l.length ? r`<div class="bar"><div style="width:${n / l.length * 100}%"></div></div>
-              <div class="steps">${l.map((m) => r`<span class="step ${m.status === "completed" ? "done" : ""}">${St(m.summary)} ${m.summary}</span>`)}</div>` : K}
+              <div class="steps">${l.map((m) => r`<span class="step ${m.status === "completed" ? "done" : ""}">${ut(m.summary)} ${m.summary}</span>`)}</div>` : K}
             ${A.length ? r`<span class="label">Bring</span><div class="bring">${A.map((m) => r`<span>${m}</span>`)}</div>` : K}
             <span class="label">Today</span>
-            ${c.length ? c.slice(0, 4).map((m) => r`<div class="mev2"><span class="t">${m.allDay ? "All day" : f(m.start)}</span><span>${m.title}</span></div>`) : r`<span class="muted" style="font-size:14px">Just school today</span>`}
+            ${c.length ? c.slice(0, 4).map((m) => r`<div class="mev2"><span class="t">${m.allDay ? "All day" : T(m.start)}</span><span>${m.title}</span></div>`) : r`<span class="muted" style="font-size:14px">Just school today</span>`}
           </button>`;
     })}
       </div>`;
   }
 };
-xt.styles = [W, b`
+xt.styles = [y, k`
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
     .top { border-radius: 26px; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }
     .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -2639,7 +2639,7 @@ const co = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], mo = ["All day", "07:00", "08
       this._err = "Add a title first";
       return;
     }
-    const i = F(k(/* @__PURE__ */ new Date()), this._day), a = { summary: this._t.trim() };
+    const i = F(x(/* @__PURE__ */ new Date()), this._day), a = { summary: this._t.trim() };
     if (this._time === "All day")
       a.start_date = Bi(i), a.end_date = Bi(F(i, 1));
     else {
@@ -2656,7 +2656,7 @@ const co = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], mo = ["All day", "07:00", "08
     }
   }
   render() {
-    const t = k(/* @__PURE__ */ new Date()), i = this._cal || this.defaultCal || this.calendars[0]?.entity;
+    const t = x(/* @__PURE__ */ new Date()), i = this._cal || this.defaultCal || this.calendars[0]?.entity;
     return r`<div class="glass box" role="dialog" aria-label="Add to the calendar" @click=${(a) => a.stopPropagation()}>
       <div style="display:flex;gap:10px;align-items:center">
         <h2 style="font-size:24px;font-weight:800">Add to the calendar</h2><span style="flex:1"></span>
@@ -2677,7 +2677,7 @@ const co = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], mo = ["All day", "07:00", "08
     }}>${a < 60 ? `${a} min` : `${a / 60} hr`}</button>`) : ""}</div>
       <div class="chips">${this.calendars.map((a) => r`<button class="tap" aria-pressed=${String(i === a.entity)} @click=${() => {
       this._cal = a.entity;
-    }}><span class="dot" style="background:${u(a.colour)}"></span>${a.name ?? a.entity}</button>`)}</div>
+    }}><span class="dot" style="background:${S(a.colour)}"></span>${a.name ?? a.entity}</button>`)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${co.map((a, o) => r`<div class="row">${o === 2 ? r`<button class="key tap" style="width:84px;font-size:16px" @click=${() => {
       this._caps = !this._caps;
@@ -2687,7 +2687,7 @@ const co = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], mo = ["All day", "07:00", "08
     </div>`;
   }
 };
-Wt.styles = [W, b`
+Wt.styles = [y, k`
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
     .box { width: min(1100px, 94%); max-height: 96%; overflow-y: auto; border-radius: 30px; padding: 16px 20px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
     .field { flex: 1; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: 600; color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
@@ -2724,7 +2724,7 @@ function qo() {
 }
 const yt = class yt extends g {
   constructor() {
-    super(...arguments), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._wx = {}, this._reminders = [], this._awakeUntil = 0, this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._undo = null, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._touched = () => {
+    super(...arguments), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._wx = {}, this._reminders = [], this._awakeUntil = 0, this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._undo = null, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._touched = () => {
       this._lastTouch = Date.now(), this._idle && (this._idle = !1);
     };
   }
@@ -2796,7 +2796,7 @@ const yt = class yt extends g {
   // ---------- data ----------
   _range() {
     if (this._view === "day") {
-      const i = k(this._anchor);
+      const i = x(this._anchor);
       return [i, F(i, 1)];
     }
     if (this._view === "month") {
@@ -2816,7 +2816,7 @@ const yt = class yt extends g {
     }), this._loadWeather(), this._loadReminders(), (o || !this._soon.length) && this._loadSoon(), this._config.photos && !this._photos.length && !this._photoTimer && this._loadPhotos();
   }
   async _loadSoon() {
-    const t = k(/* @__PURE__ */ new Date()), i = await this._loadEvents(t, F(t, 3), !0);
+    const t = x(/* @__PURE__ */ new Date()), i = await this._loadEvents(t, F(t, 3), !0);
     i && (this._soon = i);
   }
   async _loadPhotos() {
@@ -2849,17 +2849,18 @@ const yt = class yt extends g {
     const o = this._config.calendars ?? [];
     if (!o.length || !this.hass) return [];
     const s = a ? 0 : ++this._fetchGen, p = [];
-    return await Promise.all(o.map(async (l) => {
+    let l = 0;
+    return await Promise.all(o.map(async (n) => {
       try {
-        const n = await this.hass.callApi("GET", `calendars/${l.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(i.toISOString())}`), c = l.name ?? this.hass.states[l.entity]?.attributes.friendly_name ?? l.entity;
-        for (const A of n) {
-          const m = !!A.start?.date, d = m ? /* @__PURE__ */ new Date(`${A.start.date}T00:00:00`) : new Date(A.start.dateTime), V = m ? /* @__PURE__ */ new Date(`${A.end.date}T00:00:00`) : new Date(A.end.dateTime);
-          p.push({ title: A.summary ?? "(busy)", start: d, end: V, allDay: m, colour: l.colour, who: c });
+        const c = await this.hass.callApi("GET", `calendars/${n.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(i.toISOString())}`), A = n.name ?? this.hass.states[n.entity]?.attributes.friendly_name ?? n.entity;
+        for (const m of c) {
+          const d = !!m.start?.date, V = d ? /* @__PURE__ */ new Date(`${m.start.date}T00:00:00`) : new Date(m.start.dateTime), N = d ? /* @__PURE__ */ new Date(`${m.end.date}T00:00:00`) : new Date(m.end.dateTime);
+          p.push({ title: m.summary ?? "(busy)", start: V, end: N, allDay: d, colour: n.colour, who: A });
         }
-      } catch (n) {
-        console.warn("Family Hub: calendar fetch failed", l.entity, n);
+      } catch (c) {
+        l++, console.warn("Family Hub: calendar fetch failed", n.entity, c);
       }
-    })), !a && s !== this._fetchGen ? null : (p.sort((l, n) => Number(n.allDay) - Number(l.allDay) || l.start.getTime() - n.start.getTime()), p);
+    })), this._calError = l === o.length, !a && s !== this._fetchGen ? null : (p.sort((n, c) => Number(c.allDay) - Number(n.allDay) || n.start.getTime() - c.start.getTime()), p);
   }
   async _loadWeather() {
     const t = this._config.weather;
@@ -2889,7 +2890,7 @@ const yt = class yt extends g {
     return (this._config.private ?? []).some((a) => i.includes(a.toLowerCase()));
   }
   _eventsOn(t, i = this._events) {
-    const a = k(t), o = F(a, 1);
+    const a = x(t), o = F(a, 1);
     return i.filter((s) => s.start < o && s.end > a && !(s.allDay && s.end.getTime() === a.getTime()));
   }
   _morningWindow(t = /* @__PURE__ */ new Date()) {
@@ -2914,30 +2915,30 @@ const yt = class yt extends g {
     return null;
   }
   _addTimer(t) {
-    this.hass?.callService("script", "fh_timer_add", { minutes: t }), S("tap");
+    this.hass?.callService("script", "fh_timer_add", { minutes: t }), u("tap");
   }
   _checkAlarm() {
     const t = zi(this.hass);
     if (t?.alarm && t.ts && t.ts !== this._alarmSeen && Date.now() / 1e3 - t.ts < 120) {
-      this._alarmSeen = t.ts, this._alarm = t.ts, S("alarm");
+      this._alarmSeen = t.ts, this._alarm = t.ts, u("alarm");
       let i = 0;
       const a = window.setInterval(() => {
         if (!this._alarm || ++i > 12) {
           clearInterval(a), this._alarm = 0;
           return;
         }
-        S("alarm");
+        u("alarm");
       }, 5e3);
     }
   }
   _medStatus(t, i) {
-    const a = this.hass?.states[`input_datetime.fh_med_${t}`], o = a?.attributes.timestamp ? new Date(a.attributes.timestamp * 1e3) : null, s = o && C(o, /* @__PURE__ */ new Date()) ? o : null, p = At(this._now), l = x(i);
+    const a = this.hass?.states[`input_datetime.fh_med_${t}`], o = a?.attributes.timestamp ? new Date(a.attributes.timestamp * 1e3) : null, s = o && C(o, /* @__PURE__ */ new Date()) ? o : null, p = At(this._now), l = W(i);
     return { given: s, by: this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", due: !s && p >= l - 60, late: !s && p > l + 45 };
   }
   _giveMed(t, i) {
     const a = this.hass;
     a.callService("input_datetime", "set_datetime", { entity_id: `input_datetime.fh_med_${t}`, timestamp: Math.floor(Date.now() / 1e3) }), a.callService("input_text", "set_value", { entity_id: `input_text.fh_med_${t}_by`, value: i }), a.callService("persistent_notification", "dismiss", { notification_id: `fh_meds_${t.split("_").pop()}` }).catch(() => {
-    }), S("tick"), this._say(`Logged – given by ${i}`);
+    }), u("tick"), this._say(`Logged – given by ${i}`);
   }
   // ---------- actions ----------
   _say(t, i = 2600) {
@@ -2946,7 +2947,7 @@ const yt = class yt extends g {
     }, i);
   }
   _setTheme(t) {
-    this._theme = t, S("tap");
+    this._theme = t, u("tap");
     try {
       localStorage.setItem(Ji, t);
     } catch {
@@ -2958,7 +2959,7 @@ const yt = class yt extends g {
   }
   _allOn() {
     const t = this._config.all_on;
-    this.hass?.callService("light", "turn_on", { entity_id: t?.length ? t : "all" }), S("tap"), this._say(t?.length ? "Living areas on" : "All lights on");
+    this.hass?.callService("light", "turn_on", { entity_id: t?.length ? t : "all" }), u("tap"), this._say(t?.length ? "Living areas on" : "All lights on");
   }
   _allOff() {
     const t = Object.values(this.hass?.states ?? {}).filter((i) => i.entity_id.startsWith("light.") && i.state === "on").map((i) => i.entity_id);
@@ -2966,7 +2967,7 @@ const yt = class yt extends g {
       this._say("Everything’s already off");
       return;
     }
-    this.hass?.callService("light", "turn_off", { entity_id: t }), S("untick"), this._undo = { ids: t, until: Date.now() + 1e4 };
+    this.hass?.callService("light", "turn_off", { entity_id: t }), u("untick"), this._undo = { ids: t, until: Date.now() + 1e4 };
   }
   _undoOff() {
     this._undo && (this.hass?.callService("light", "turn_on", { entity_id: this._undo.ids }), this._undo = null, this._say("Back on"));
@@ -2976,7 +2977,7 @@ const yt = class yt extends g {
       this._say("Already called – give them a minute");
       return;
     }
-    S("tap");
+    u("tap");
     const t = window.setTimeout(() => this._dinnerGo(), 3e3);
     this._dinner = { at: Date.now() + 3e3, timer: t };
   }
@@ -2990,7 +2991,7 @@ const yt = class yt extends g {
       this._say("Set announce_script in the card settings");
       return;
     }
-    this.hass.callService("script", "turn_on", { entity_id: t }), this._dinnerCooldown = Date.now() + 6e4, S("done"), this._say("Calling everyone for dinner 🍽️");
+    this.hass.callService("script", "turn_on", { entity_id: t }), this._dinnerCooldown = Date.now() + 6e4, u("done"), this._say("Calling everyone for dinner 🍽️");
   }
   _media(t) {
     const i = this._config.music_player;
@@ -3072,12 +3073,12 @@ const yt = class yt extends g {
         this._sheet = "meds";
       }}>💊 ${c.late ? "Overdue" : "Due"} ${n.time}</button>`) : c.given && this._now.getHours() < 12 && i.push(r`<button class="cap tap ok" @click=${() => {
         this._sheet = "meds";
-      }}>💊 ✓ ${f(c.given)}</button>`);
+      }}>💊 ✓ ${T(c.given)}</button>`);
     }
     const s = Date.now(), p = this._soon.find((n) => !n.allDay && n.start.getTime() > s && n.start.getTime() - s < 12 * 36e5 && !this._private(n.title));
     if (p) {
-      const n = Math.round((p.start.getTime() - s) / 6e4), c = n < 60 ? `in ${n} min` : `${C(p.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${f(p.start)}`;
-      i.push(r`<span class="cap"><span class="dot" style="background:${u(p.colour)}"></span>${p.title} · ${c}</span>`);
+      const n = Math.round((p.start.getTime() - s) / 6e4), c = n < 60 ? `in ${n} min` : `${C(p.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${T(p.start)}`;
+      i.push(r`<span class="cap"><span class="dot" style="background:${S(p.colour)}"></span>${p.title} · ${c}</span>`);
     }
     const l = t.music_player ? this.hass?.states[t.music_player] : void 0;
     return l?.state === "playing" && this._page !== "music" && i.push(r`<button class="cap tap" @click=${() => {
@@ -3108,7 +3109,7 @@ const yt = class yt extends g {
             <div class="glass presence" aria-label="Who is home">
               ${t.people.map((n) => {
       const c = n.entity ? i?.states[n.entity]?.state === "home" : !0;
-      return r`<span class="avatar" title="${n.name} – ${c ? "home" : "away"}" style="width:32px;height:32px;font-size:13px;background:${u(n.colour)};opacity:${c ? 1 : 0.35}">${n.name[0]}</span>`;
+      return r`<span class="avatar" title="${n.name} – ${c ? "home" : "away"}" style="width:32px;height:32px;font-size:13px;background:${S(n.colour)};opacity:${c ? 1 : 0.35}">${n.name[0]}</span>`;
     })}
             </div>` : K}
           <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${q("mic", 22)}</button>
@@ -3150,13 +3151,16 @@ const yt = class yt extends g {
     }}>${p[0].toUpperCase() + p.slice(1)}</button>`)}
           </div>
         </div>
-        ${s.length ? r`<div class="legend">${s.map((p) => r`<span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:${u(p.colour)}"></span>${p.name ?? this.hass?.states[p.entity]?.attributes.friendly_name ?? p.entity}</span>`)}</div>` : K}
+        ${s.length ? r`<div class="legend">${s.map((p) => r`<span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:${S(p.colour)}"></span>${p.name ?? this.hass?.states[p.entity]?.attributes.friendly_name ?? p.entity}</span>`)}</div>` : K}
+        ${this._calError ? r`<button class="pill tap" style="background:#fee2e2;color:#7f1d1d;align-self:flex-start" @click=${() => {
+      location.reload();
+    }}>Calendars couldn’t load – tap to reload</button>` : K}
         ${s.length ? t === "week" ? this._week(i) : t === "day" ? this._day(i) : this._month() : r`<div class="empty"><span style="color:var(--accent)">${q("calendar", 40)}</span><h2 style="font-size:22px">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
       </section>`;
   }
   _evCard(t) {
-    return this._private(t.title) ? r`<div class="ev priv"><span class="t">${t.allDay ? "" : f(t.start)}</span><span>💊</span></div>` : r`<div class="ev" style="--c:${u(t.colour)}">
-      <span class="t">${t.allDay ? "All day" : f(t.start)}</span>
+    return this._private(t.title) ? r`<div class="ev priv"><span class="t">${t.allDay ? "" : T(t.start)}</span><span>💊</span></div>` : r`<div class="ev" style="--c:${S(t.colour)}">
+      <span class="t">${t.allDay ? "All day" : T(t.start)}</span>
       <span class="n">${t.title}</span>
       <span class="w">${t.who}</span>
     </div>`;
@@ -3179,9 +3183,9 @@ const yt = class yt extends g {
   _day(t) {
     const i = this._eventsOn(t);
     return r`<div class="daylist fade">
-      ${i.length ? i.map((a) => this._private(a.title) ? r`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:600" class="muted">${a.allDay ? "All day" : f(a.start)}</span><span style="font-size:18px">💊 Private</span></div>` : r`
-        <div class="dayrow" style="background:color-mix(in srgb, ${u(a.colour)} 22%, transparent);border-left:6px solid ${u(a.colour)}">
-          <span style="width:90px;font-size:16px;font-weight:700" class="muted">${a.allDay ? "All day" : f(a.start)}</span>
+      ${i.length ? i.map((a) => this._private(a.title) ? r`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:600" class="muted">${a.allDay ? "All day" : T(a.start)}</span><span style="font-size:18px">💊 Private</span></div>` : r`
+        <div class="dayrow" style="background:color-mix(in srgb, ${S(a.colour)} 22%, transparent);border-left:6px solid ${S(a.colour)}">
+          <span style="width:90px;font-size:16px;font-weight:700" class="muted">${a.allDay ? "All day" : T(a.start)}</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:20px;font-weight:700">${a.title}</span>
           <span class="muted" style="font-size:14px;font-weight:600">${a.who}</span></span>
         </div>`) : r`<div class="empty"><h2 style="font-size:22px">Nothing on</h2><span>A free day!</span></div>`}
@@ -3198,7 +3202,7 @@ const yt = class yt extends g {
         this._anchor = o, this._view = "day";
       }}>
             <span style="font-size:14px;font-weight:700">${o.getDate()}</span>
-            ${s.slice(0, 2).map((l) => r`<span class="mev"><span class="dot" style="width:7px;height:7px;background:${u(l.colour)}"></span>${l.title}</span>`)}
+            ${s.slice(0, 2).map((l) => r`<span class="mev"><span class="dot" style="width:7px;height:7px;background:${S(l.colour)}"></span>${l.title}</span>`)}
             ${s.length > 2 ? r`<span class="mev muted">+${s.length - 2}</span>` : K}
           </button>`;
     })}
@@ -3243,15 +3247,15 @@ const yt = class yt extends g {
   }
   _dock() {
     const t = (a, o, s, p = !1) => r`<button class="item tap" aria-current=${p ? "page" : "false"} @click=${() => {
-      S("tap"), s();
+      u("tap"), s();
     }}>${q(a, 26)}${o}</button>`, i = this._config.kids ?? [];
     return r`<nav class="glass dock" aria-label="Main">
       ${i.map((a, o) => {
       const s = w(a), p = this.hass?.states[s.avatar]?.state, l = p || a.look ? $(p, a.look ? $(a.look) : {}) : null, n = this._page === "kid" && this._kid === o;
-      return r`<button class="item kidbtn tap" style="--kidc:${u(a.colour)}" aria-current=${n ? "page" : "false"} @click=${() => {
-        S("tap"), this._kid = o, this._page = "kid";
+      return r`<button class="item kidbtn tap" style="--kidc:${S(a.colour)}" aria-current=${n ? "page" : "false"} @click=${() => {
+        u("tap"), this._kid = o, this._page = "kid";
       }}>
-          <span class="avatar" style="width:44px;height:44px;background:${u(a.colour)}">${l ? Q(l, { size: 44, crop: "head", still: !0, label: a.name, age: a.age, ring: u(a.colour) }) : a.name[0]}</span>${a.name}</button>`;
+          <span class="avatar" style="width:44px;height:44px;background:${S(a.colour)}">${l ? Q(l, { size: 44, crop: "head", still: !0, label: a.name, age: a.age, ring: S(a.colour) }) : a.name[0]}</span>${a.name}</button>`;
     })}
       ${i.length ? r`<span class="sep" aria-hidden="true"></span>` : K}
       ${this._morningWindow() ? t("sun", "Morning", () => {
@@ -3338,7 +3342,7 @@ const yt = class yt extends g {
       return r`<div class="card" style="background:var(--chip);border-radius:20px">
           <div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">💊</span>
             <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:18px">${i.who ? `${i.who} – ` : ""}${i.label}</b><span class="muted">Due ${i.time}</span></span>
-            <b style="font-size:16px;color:${a.given ? "var(--ok)" : a.late ? "#dc2626" : "var(--ink2)"}">${a.given ? `✓ ${f(a.given)}${a.by ? ` · ${a.by}` : ""}` : a.late ? "Overdue" : "Not yet"}</b></div>
+            <b style="font-size:16px;color:${a.given ? "var(--ok)" : a.late ? "#dc2626" : "var(--ink2)"}">${a.given ? `✓ ${T(a.given)}${a.by ? ` · ${a.by}` : ""}` : a.late ? "Overdue" : "Not yet"}</b></div>
           ${a.given ? K : r`<div style="display:flex;gap:10px;flex-wrap:wrap">${t.map((o) => r`<button class="pill tap primary" style="height:50px;padding:0 20px;font-size:16px" @click=${() => this._giveMed(i.id, o)}>Given by ${o}</button>`)}</div>`}
         </div>`;
     })}`;
@@ -3367,14 +3371,14 @@ const yt = class yt extends g {
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${s.length ? r`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
           <span style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.8">${a ? "Today" : "Tomorrow"}</span>
-          ${s.map((n) => r`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${n.allDay ? "All day" : f(n.start)}</span>${n.title}</div>`)}
+          ${s.map((n) => r`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${n.allDay ? "All day" : T(n.start)}</span>${n.title}</div>`)}
         </div>` : r`<span></span>`}
         <span class="breathe" style="font-size:16px;opacity:.7">Tap anywhere to wake</span>
       </div>
     </button>`;
   }
 };
-yt.styles = [W, b`${B(wt)}`], yt.properties = {
+yt.styles = [y, k`${B(wt)}`], yt.properties = {
   hass: { attribute: !1 },
   _config: { state: !0 },
   _view: { state: !0 },
@@ -3392,6 +3396,7 @@ yt.styles = [W, b`${B(wt)}`], yt.properties = {
   _page: { state: !0 },
   _kid: { state: !0 },
   _photo: { state: !0 },
+  _calError: { state: !0 },
   _idle: { state: !0 },
   _undo: { state: !0 },
   _dinner: { state: !0 },

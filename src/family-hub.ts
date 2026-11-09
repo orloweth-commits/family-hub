@@ -45,7 +45,7 @@ export class FamilyHubCard extends LitElement {
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _theme: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
-    _photo: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
+    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
   };
 
   hass?: Hass;
@@ -72,6 +72,7 @@ export class FamilyHubCard extends LitElement {
   private _photoTimer?: number;
   private _lastTouch = Date.now();
   private _idle = false;
+  private _calError = false;
   private _undo: { ids: string[]; until: number } | null = null;
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
@@ -202,6 +203,7 @@ export class FamilyHubCard extends LitElement {
     if (!cals.length || !this.hass) return [];
     const gen = soon ? 0 : ++this._fetchGen;
     const out: CalEvent[] = [];
+    let failed = 0;
     await Promise.all(cals.map(async (c) => {
       try {
         const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
@@ -212,8 +214,9 @@ export class FamilyHubCard extends LitElement {
           const end = allDay ? new Date(`${r.end.date}T00:00:00`) : new Date(r.end.dateTime);
           out.push({ title: r.summary ?? '(busy)', start, end, allDay, colour: c.colour, who });
         }
-      } catch (e) { console.warn('Family Hub: calendar fetch failed', c.entity, e); }
+      } catch (e) { failed++; console.warn('Family Hub: calendar fetch failed', c.entity, e); }
     }));
+    this._calError = failed === cals.length;
     if (!soon && gen !== this._fetchGen) return null; // a newer request won
     out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.start.getTime() - y.start.getTime());
     return out;
@@ -496,6 +499,7 @@ export class FamilyHubCard extends LitElement {
           </div>
         </div>
         ${cals.length ? html`<div class="legend">${cals.map((c) => html`<span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:${slotVar(c.colour)}"></span>${c.name ?? this.hass?.states[c.entity]?.attributes.friendly_name ?? c.entity}</span>`)}</div>` : nothing}
+        ${this._calError ? html`<button class="pill tap" style="background:#fee2e2;color:#7f1d1d;align-self:flex-start" @click=${() => { location.reload(); }}>Calendars couldn’t load – tap to reload</button>` : nothing}
         ${!cals.length ? html`<div class="empty"><span style="color:var(--accent)">${icon('calendar', 40)}</span><h2 style="font-size:22px">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`
           : v === 'week' ? this._week(a) : v === 'day' ? this._day(a) : this._month()}
       </section>`;
