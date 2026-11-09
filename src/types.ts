@@ -14,13 +14,29 @@ export interface Hass {
   callWS<T>(msg: Record<string, unknown>): Promise<T>;
   services?: Record<string, Record<string, unknown>>;
   connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => void> };
+  fetchWithAuth?: (path: string, init?: RequestInit) => Promise<Response>;
+  areas?: Record<string, { area_id: string; name: string; icon?: string | null }>;
+  devices?: Record<string, { id: string; area_id?: string | null; name?: string | null; name_by_user?: string | null }>;
+  entities?: Record<string, { entity_id: string; device_id?: string | null; area_id?: string | null; hidden?: boolean; entity_category?: string | null; name?: string | null }>;
 }
 
 /** Colour slot: 1–5 map to --p-1…--p-5 in every theme, 'family' to --p-family. */
 export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
-export interface KidConfig { name: string; colour: ColourSlot }
+export interface RewardConfig { name: string; cost: number; icon?: string }
+export interface KidConfig {
+  name: string; colour: ColourSlot;
+  /** to-do list of chores; each item's description holds its points, e.g. "+10" */
+  chores?: string; points?: string; lifetime?: string; streak?: string; avatar?: string; calendar?: string;
+  /** picture = big icons and stars (pre-readers), mixed, or text */
+  mode?: 'picture' | 'mixed' | 'text';
+  rewards?: RewardConfig[];
+  theme?: ThemeId;
+  /** starting look, e.g. "h=quiff;hc=e3b85c" */
+  look?: string;
+}
+export interface StationConfig { name: string; match?: string; id?: string }
 export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }
 export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
 
@@ -39,6 +55,13 @@ export interface FamilyHubConfig {
   grocery_usuals?: string[];
   grocery_recipients?: GroceryRecipient[];
   night?: { start: string; end: string };
+  parent_pin?: string;
+  music_players?: string[];
+  radio?: (string | StationConfig)[];
+  radio_source?: string;
+  photos?: string;
+  photo_minutes?: number;
+  idle_seconds?: number;
 }
 
 export interface CalEvent {
@@ -51,3 +74,18 @@ export interface CalEvent {
 }
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);
+
+const slug = (n: string): string => n.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+/** Kid entity ids, defaulting to <name>_points etc. */
+export const kidEntities = (k: KidConfig) => {
+  const s = slug(k.name);
+  return {
+    chores: k.chores ?? `todo.${s}_chores`, points: k.points ?? `input_number.${s}_points`,
+    lifetime: k.lifetime ?? `input_number.${s}_lifetime_points`, streak: k.streak ?? `input_number.${s}_streak`,
+    avatar: k.avatar ?? `input_text.${s}_avatar`, calendar: k.calendar ?? `calendar.${s}`
+  };
+};
+export const num = (hass: Hass | undefined, id: string): number => {
+  const v = Number(hass?.states[id]?.state);
+  return Number.isFinite(v) ? v : 0;
+};

@@ -1,17 +1,22 @@
-import { LitElement, html, nothing, type PropertyValues, type TemplateResult } from 'lit';
+import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
 import './groceries';
+import './kid';
+import './home';
+import './music';
+import './doodle';
+import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
-import { slotVar, type CalEvent, type FamilyHubConfig, type Hass } from './types';
+import { kidEntities, slotVar, type CalEvent, type FamilyHubConfig, type Hass } from './types';
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtMonthYear, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek
 } from './dates';
 
 type View = 'day' | 'week' | 'month';
-type Page = 'planner' | 'groceries';
-const VERSION = '0.2.0';
+type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home';
+const VERSION = '0.3.0';
 const THEME_KEY = 'family-hub-theme';
 
 function loadFonts(): void {
@@ -24,7 +29,10 @@ function loadFonts(): void {
 }
 
 export class FamilyHubCard extends LitElement {
-  static styles = styles;
+  static styles = [styles, css`${unsafeCSS(avatarCss)}
+    .kid[aria-current='true'] { background: var(--chip-strong); box-shadow: 0 0 0 2px var(--kidc); }
+    .kid .avatar { overflow: hidden; }
+  `];
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
@@ -43,7 +51,9 @@ export class FamilyHubCard extends LitElement {
     _timerLabel: { state: true },
     _awakeUntil: { state: true },
     _nightManual: { state: true },
-    _page: { state: true }
+    _page: { state: true },
+    _kid: { state: true },
+    _photo: { state: true }
   };
 
   hass?: Hass;
@@ -64,6 +74,12 @@ export class FamilyHubCard extends LitElement {
   private _awakeUntil = 0;
   private _nightManual = false;
   private _page: Page = 'planner';
+  private _kid = 0;
+  private _photo = '';
+  private _photos: string[] = [];
+  private _photoIdx = 0;
+  private _photoTimer?: number;
+  private _lastTouch = Date.now();
   private _tick?: number;
   private _poll?: number;
   private _fetchedKey = '';
@@ -84,13 +100,22 @@ export class FamilyHubCard extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
     loadFonts();
-    this._tick = window.setInterval(() => { this._now = new Date(); }, 15_000);
+    this._tick = window.setInterval(() => { this._now = new Date(); this._idleCheck(); }, 15_000);
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); }, 5 * 60_000);
+    this.addEventListener('pointerdown', this._touched, { capture: true });
+  }
+  private _touched = (): void => { this._lastTouch = Date.now(); };
+  private _idleCheck(): void {
+    const idle = (this._config?.idle_seconds ?? 180) * 1000;
+    if (idle > 0 && this._page !== 'planner' && Date.now() - this._lastTouch > idle) { this._page = 'planner'; this._view = 'week'; this._anchor = new Date(); }
   }
   disconnectedCallback(): void {
     super.disconnectedCallback();
     clearInterval(this._tick);
     clearInterval(this._poll);
+    clearInterval(this._photoTimer);
+    this._photoTimer = undefined;
+    this.removeEventListener('pointerdown', this._touched, { capture: true });
   }
 
   protected updated(changed: PropertyValues): void {
@@ -113,6 +138,28 @@ export class FamilyHubCard extends LitElement {
     this._loadEvents(a, b);
     this._loadWeather();
     this._loadReminders();
+    if (this._config.photos && !this._photos.length && !this._photoTimer) this._loadPhotos();
+  }
+
+  private async _loadPhotos(): Promise<void> {
+    const h = this.hass!, root = this._config.photos!;
+    this._photoTimer = window.setInterval(() => this._nextPhoto(), (this._config.photo_minutes ?? 10) * 60_000);
+    try {
+      const r = await h.callWS<{ children: { media_content_id: string; media_class: string }[] }>({ type: 'media_source/browse_media', media_content_id: root });
+      this._photos = r.children.filter((c) => c.media_class === 'image').map((c) => c.media_content_id);
+      for (let i = this._photos.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [this._photos[i], this._photos[j]] = [this._photos[j], this._photos[i]]; }
+      this._nextPhoto();
+    } catch (e) { console.warn('Family Hub: photo folder not found', root, e); }
+  }
+  private async _nextPhoto(): Promise<void> {
+    if (!this._photos.length || !this.hass) return;
+    const id = this._photos[this._photoIdx++ % this._photos.length];
+    try {
+      const r = await this.hass.callWS<{ url: string }>({ type: 'media_source/resolve_media', media_content_id: id });
+      const img = new Image();
+      img.onload = () => { this._photo = r.url; };
+      img.src = r.url;
+    } catch { /* skip */ }
   }
 
   private async _loadEvents(a: Date, b: Date): Promise<void> {
@@ -200,15 +247,15 @@ export class FamilyHubCard extends LitElement {
   // ---------- render ----------
   render(): TemplateResult | typeof nothing {
     if (!this._config) return nothing;
-    const theme = themeById(this._theme);
+    const kid = this._page === 'kid' ? this._config.kids?.[this._kid] : undefined;
+    const theme = themeById(kid?.theme ?? this._theme);
     const night = this._isNight();
+    const bg = this._photo ? `;--bg:url('${this._photo}')` : '';
     return html`
-      <div class="fh" style=${themeStyle(theme)}>
+      <div class="fh" style=${themeStyle(theme) + bg}>
         ${this._header()}
         <div class="body">
-          ${this._page === 'groceries'
-            ? html`<fh-groceries .hass=${this.hass} .entity=${this._config.groceries ?? 'todo.shopping_list'} .usuals=${this._config.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${this._config.grocery_recipients ?? []}></fh-groceries>`
-            : html`${this._planner()}${this._aside()}`}
+          ${this._body()}
         </div>
         ${this._dock()}
         ${this._showThemes ? this._themeSheet() : nothing}
@@ -217,6 +264,25 @@ export class FamilyHubCard extends LitElement {
         ${this._flash === 2 ? html`<div class="flash"></div>` : nothing}
         ${night ? this._night() : nothing}
       </div>`;
+  }
+
+  private _body(): TemplateResult {
+    const c = this._config;
+    switch (this._page) {
+      case 'groceries':
+        return html`<fh-groceries .hass=${this.hass} .entity=${c.groceries ?? 'todo.shopping_list'} .usuals=${c.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${c.grocery_recipients ?? []}></fh-groceries>`;
+      case 'kid': {
+        const k = c.kids?.[this._kid];
+        if (!k) break;
+        const fam = (c.calendars ?? []).filter((x) => x.colour === 'family').map((x) => x.entity);
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .familyCalendars=${fam} .pin=${c.parent_pin ?? ''} .reminders=${c.reminders ?? ''}></fh-kid>`;
+      }
+      case 'home': return html`<fh-home .hass=${this.hass} .pin=${c.parent_pin ?? ''} .hideScripts=${c.announce_script ? [c.announce_script] : []}></fh-home>`;
+      case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${c.music_player ?? ''}></fh-music>`;
+      case 'doodle': return html`<fh-doodle .hass=${this.hass}></fh-doodle>`;
+      default: break;
+    }
+    return html`${this._planner()}${this._aside()}`;
   }
 
   private _isNight(): boolean {
@@ -239,10 +305,14 @@ export class FamilyHubCard extends LitElement {
         </div>
         ${(c.kids ?? []).length ? html`
           <nav class="glass kids" aria-label="Children">
-            ${c.kids!.map((k) => html`
-              <button class="kid tap" type="button" @click=${() => this._say(`${k.name}’s screen is coming in the next update`)}>
-                <span class="avatar" style="width:36px;height:36px;background:${slotVar(k.colour)}">${k.name[0]}</span>${k.name}
-              </button>`)}
+            ${c.kids!.map((k, i) => {
+              const look = h?.states[kidEntities(k).avatar] || k.look ? decodeLook(h?.states[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {}) : null;
+              const on = this._page === 'kid' && this._kid === i;
+              return html`
+              <button class="kid tap" type="button" style="--kidc:${slotVar(k.colour)}" aria-current=${String(on)} @click=${() => { this._kid = i; this._page = on ? 'planner' : 'kid'; }}>
+                <span class="avatar" style="width:36px;height:36px;background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 36, crop: 'head', still: true, label: k.name }) : k.name[0]}</span>${k.name}
+              </button>`;
+            })}
           </nav>` : nothing}
         <div class="right">
           ${w ? html`
@@ -385,15 +455,14 @@ export class FamilyHubCard extends LitElement {
   }
 
   private _dock(): TemplateResult {
-    const soon = (n: string) => () => this._say(`${n} is coming in the next update`);
     const item = (ic: string, label: string, on?: () => void, current = false) =>
       html`<button class="item tap" aria-current=${current ? 'page' : 'false'} @click=${on ?? (() => undefined)}>${icon(ic, 24)}${label}</button>`;
     return html`<nav class="glass dock" aria-label="Main">
       ${item('calendar', 'Planner', () => { this._page = 'planner'; }, this._page === 'planner')}
       ${item('cart', 'Groceries', () => { this._page = 'groceries'; }, this._page === 'groceries')}
-      ${item('pencil', 'Doodle', soon('The doodle pad'))}
-      ${item('music', 'Music', soon('Music'))}
-      ${item('home', 'Home', soon('The Home screen'))}
+      ${item('pencil', 'Doodle', () => { this._page = 'doodle'; }, this._page === 'doodle')}
+      ${item('music', 'Music', () => { this._page = 'music'; }, this._page === 'music')}
+      ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep" aria-hidden="true"></span>
       <button class="item tap" @click=${() => this._lights(true)}><span style="color:var(--accent)">${icon('bulb', 24)}</span>All on</button>
       <button class="item tap" @click=${() => this._lights(false)}>${icon('bulbOff', 24)}All off</button>

@@ -1,0 +1,124 @@
+import { LitElement, html, css, unsafeCSS, nothing, type TemplateResult } from 'lit';
+import { styles } from './styles';
+import { icon } from './icons';
+import { avatarCss, applyItem, CATALOGUE, encodeLook, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
+import { confetti, fxCss } from './fx';
+import { kidEntities, slotVar, type Hass, type KidConfig } from './types';
+
+/** Avatar Studio: try on everything, locked items show what they need. */
+export class FhStudio extends LitElement {
+  static styles = [styles, css`
+    :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
+    .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
+    .stage::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
+    .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tabs button { height: 40px; padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 600; }
+    .tabs button[aria-pressed='true'] { background: var(--ink); color: var(--chip-strong); }
+    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; padding: 4px; }
+    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 12px; font-weight: 700; text-align: center; }
+    .tile[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--chip-strong); }
+    .tile.locked .av { filter: grayscale(1) brightness(.85); opacity: .55; }
+    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(15,15,20,.78); color: #fff; font-size: 11px; font-weight: 800; }
+    .sw { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .sw button { width: 36px; height: 36px; border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
+    .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
+    .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
+    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 800; }
+    ${unsafeCSS(avatarCss)}
+    ${unsafeCSS(fxCss)}
+  `];
+
+  static properties = { hass: { attribute: false }, kid: { attribute: false }, look: { attribute: false }, life: { type: Number },
+    _draft: { state: true }, _tab: { state: true }, _shake: { state: true }, _msg: { state: true }, _jump: { state: true }, _confetti: { state: true } };
+
+  hass?: Hass;
+  kid!: KidConfig;
+  look!: Look;
+  life = 0;
+  private _draft?: Look;
+  private _tab = 'hair';
+  private _shake = '';
+  private _msg = '';
+  private _jump = 0;
+  private _confetti = 0;
+  private _t?: number;
+
+  private get d(): Look { return this._draft ?? this.look; }
+  private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 2200); }
+
+  private _pick(cat: Category, it: Item, swatch = false): void {
+    if (it[2] > this.life) {
+      this._shake = `${cat.id}:${it[0]}`; setTimeout(() => { this._shake = ''; }, 460);
+      this._say(`${it[1]} unlocks at ${it[2]} points – ${it[2] - this.life} to go!`);
+      return;
+    }
+    this._draft = applyItem(this.d, cat, it[0], swatch);
+    this._jump++;
+  }
+
+  private _random(): void {
+    let l = { ...this.d };
+    for (const c of CATALOGUE) {
+      if (c.id === 'face') continue;
+      const ok = c.items.filter((i) => i[2] <= this.life);
+      const it = ok[Math.floor(Math.random() * ok.length)];
+      if (it) l = applyItem(l, c, it[0]);
+      if (c.swatch && c.swatch.key !== 'skin') { const s = c.swatch.items.filter((i) => i[2] <= this.life); l = applyItem(l, c, s[Math.floor(Math.random() * s.length)][0], true); }
+    }
+    this._draft = l; this._jump++;
+  }
+
+  private async _save(): Promise<void> {
+    const id = kidEntities(this.kid).avatar;
+    if (this.hass?.states[id]) {
+      try { await this.hass.callService('input_text', 'set_value', { entity_id: id, value: encodeLook(this.d) }); }
+      catch { this._say('Couldn’t save – try again'); return; }
+    } else { this._say(`Create ${id} in Home Assistant to save looks`); return; }
+    this._confetti++;
+    setTimeout(() => this.dispatchEvent(new CustomEvent('close')), 900);
+  }
+
+  render(): TemplateResult {
+    const cat = CATALOGUE.find((c) => c.id === this._tab) ?? CATALOGUE[0];
+    const nx = nextUnlock(this.life), from = prevThreshold(this.life);
+    const dirty = !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
+    const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
+    return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
+      <section class="glass stage">
+        <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
+          <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('left', 18)}</button>
+          <h1 style="flex:1;font-size:24px;font-weight:800">${this.kid.name}’s studio</h1>
+          <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${icon('shuffle', 18)}</button>
+        </div>
+        <button class="tap" style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 250, jump: this._jump })}</button>
+        ${nx ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:13px;font-weight:700">Next unlock: ${nx.label} <span class="muted">· ${nx.req - this.life} pts to go</span></span>
+          <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
+        <div style="display:flex;gap:10px;width:100%;margin-top:auto;z-index:1">
+          <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
+          <button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>
+        </div>
+      </section>
+      <section class="glass shelf">
+        <div class="tabs" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-pressed=${String(c.id === this._tab)} @click=${() => { this._tab = c.id; }}>${c.label}</button>`)}</div>
+        ${cat.swatch ? html`<div class="sw"><span class="label" style="width:60px">${cat.swatch.label}</span>
+          ${cat.swatch.items.map((s) => { const locked = s[2] > this.life; return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
+            title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
+            style="background:${s[0]}" @click=${() => this._pick(cat, s, true)}></button>`; })}</div>` : nothing}
+        <div class="grid">
+          ${cat.items.map((it) => {
+            const locked = it[2] > this.life, worn = isWorn(this.d, cat, it[0]);
+            return html`<button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
+              <span class="av">${renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true })}</span>${it[1]}
+              ${locked ? html`<span class="lock">🔒 ${it[2]}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
+            </button>`;
+          })}
+        </div>
+      </section>
+      ${this._confetti ? confetti(this._confetti, 50) : nothing}
+      ${this._msg ? html`<div class="toast" role="status">${this._msg}</div>` : nothing}
+    </div>`;
+  }
+}
+if (!customElements.get('fh-studio')) customElements.define('fh-studio', FhStudio);
