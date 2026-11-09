@@ -1,6 +1,7 @@
 import { LitElement, html, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
+import './groceries';
 import { icon, solid, weatherIcon } from './icons';
 import { slotVar, type CalEvent, type FamilyHubConfig, type Hass } from './types';
 import {
@@ -9,7 +10,8 @@ import {
 } from './dates';
 
 type View = 'day' | 'week' | 'month';
-const VERSION = '0.1.0';
+type Page = 'planner' | 'groceries';
+const VERSION = '0.2.0';
 const THEME_KEY = 'family-hub-theme';
 
 function loadFonts(): void {
@@ -40,7 +42,8 @@ export class FamilyHubCard extends LitElement {
     _timerEnd: { state: true },
     _timerLabel: { state: true },
     _awakeUntil: { state: true },
-    _nightManual: { state: true }
+    _nightManual: { state: true },
+    _page: { state: true }
   };
 
   hass?: Hass;
@@ -60,6 +63,7 @@ export class FamilyHubCard extends LitElement {
   private _timerLabel = 'Timer';
   private _awakeUntil = 0;
   private _nightManual = false;
+  private _page: Page = 'planner';
   private _tick?: number;
   private _poll?: number;
   private _fetchedKey = '';
@@ -202,8 +206,9 @@ export class FamilyHubCard extends LitElement {
       <div class="fh" style=${themeStyle(theme)}>
         ${this._header()}
         <div class="body">
-          ${this._planner()}
-          ${this._aside()}
+          ${this._page === 'groceries'
+            ? html`<fh-groceries .hass=${this.hass} .entity=${this._config.groceries ?? 'todo.shopping_list'} .usuals=${this._config.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${this._config.grocery_recipients ?? []}></fh-groceries>`
+            : html`${this._planner()}${this._aside()}`}
         </div>
         ${this._dock()}
         ${this._showThemes ? this._themeSheet() : nothing}
@@ -384,8 +389,8 @@ export class FamilyHubCard extends LitElement {
     const item = (ic: string, label: string, on?: () => void, current = false) =>
       html`<button class="item tap" aria-current=${current ? 'page' : 'false'} @click=${on ?? (() => undefined)}>${icon(ic, 24)}${label}</button>`;
     return html`<nav class="glass dock" aria-label="Main">
-      ${item('calendar', 'Planner', undefined, true)}
-      ${item('cart', 'Groceries', soon('Groceries'))}
+      ${item('calendar', 'Planner', () => { this._page = 'planner'; }, this._page === 'planner')}
+      ${item('cart', 'Groceries', () => { this._page = 'groceries'; }, this._page === 'groceries')}
       ${item('pencil', 'Doodle', soon('The doodle pad'))}
       ${item('music', 'Music', soon('Music'))}
       ${item('home', 'Home', soon('The Home screen'))}

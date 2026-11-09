@@ -12,6 +12,8 @@ export interface Hass {
   callService(domain: string, service: string, data?: Record<string, unknown>, target?: Record<string, unknown>): Promise<unknown>;
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
   callWS<T>(msg: Record<string, unknown>): Promise<T>;
+  services?: Record<string, Record<string, unknown>>;
+  connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => void> };
 }
 
 /** Colour slot: 1–5 map to --p-1…--p-5 in every theme, 'family' to --p-family. */
@@ -19,6 +21,7 @@ export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
 export interface KidConfig { name: string; colour: ColourSlot }
+export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }
 export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
 
 export interface FamilyHubConfig {
@@ -32,6 +35,9 @@ export interface FamilyHubConfig {
   music_player?: string;
   reminders?: string;
   announce_script?: string;
+  groceries?: string;
+  grocery_usuals?: string[];
+  grocery_recipients?: GroceryRecipient[];
   night?: { start: string; end: string };
 }
 
