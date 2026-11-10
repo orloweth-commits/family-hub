@@ -58,6 +58,19 @@ kids:
     favourites: [skateboard, footy]   # shown first as the next unlock
 parent_pin: "1234"            # optional: guards rewards, locks and automations
 music_players: [media_player.kitchen, media_player.lounge]
+music_map:                    # optional: the house as the Music page draws it, top floor first
+  - name: Upstairs
+    rooms:
+      - { name: Main bedroom, player: media_player.bedroom, size: 2 }
+      - { name: Kids’ room, player: media_player.kids_room, kids: [Riley] }   # quiet after that child’s bedtime
+  - name: Downstairs
+    rooms:
+      - name: Kitchen and lounge                 # one open room, two speakers
+        zones:
+          - { name: Kitchen, player: media_player.kitchen }
+          - { name: Lounge, player: media_player.lounge }
+      - { stairs: true }
+      - { name: Office, player: media_player.office }
 radio:                        # names to match, or { name, id } with a Radio Browser station uuid
   - ABC Jazz
 radio_source: media-source://radio_browser/country/AU

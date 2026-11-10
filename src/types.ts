@@ -26,6 +26,11 @@ export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
 export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean }
+/** A speaker's patch of an open-plan room. */
+export interface MapZoneConfig { name?: string; player: string }
+/** A room on the Music page's house view. `zones` splits one open room between speakers; `kids` makes it a bedroom that goes quiet at their bedtime; `stairs` draws a stairwell. */
+export interface MapRoomConfig { name?: string; player?: string; zones?: MapZoneConfig[]; size?: number; kids?: string[]; stairs?: boolean }
+export interface MapFloorConfig { name?: string; rooms: MapRoomConfig[] }
 export interface KidConfig {
   name: string; colour: ColourSlot;
   /** this child's own speaker (default: the room whose name contains theirs) and the song for timed jobs tagged @song */
@@ -95,6 +100,8 @@ export interface FamilyHubConfig {
   night?: { start: string; end: string };
   parent_pin?: string;
   music_players?: string[];
+  /** the house as the Music page draws it: floors from the top down, rooms left to right (without it, one room per speaker) */
+  music_map?: MapFloorConfig[];
   /** song or playlist (name or URI) for timed jobs tagged @song, and how long the Music page's sleep timer runs */
   tidy_song?: string; music_sleep_minutes?: number;
   radio?: (string | StationConfig)[];
