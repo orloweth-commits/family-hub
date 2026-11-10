@@ -35,11 +35,11 @@ export interface Category { id: string; label: string; emoji: string; key: keyof
 
 export const CATALOGUE: Category[] = [
   { id: 'hair', emoji: '💇', label: 'Hair', key: 'hair', crop: 'head',
-    items: [['fringe', 'Side fringe', 0], ['crop', 'Textured crop', 0], ['mop', 'Messy mop', 0], ['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 300], ['mohawk', 'Mohawk', 1100], ['mullet', 'Mullet', 1600]],
-    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#3a2a1f', 'Deep brown', 0], ['#2a1d16', 'Dark brown', 0], ['#a87445', 'Golden brown', 0], ['#b38b55', 'Dirty blond', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
+    items: [['fringe', 'Side fringe', 0], ['styled', 'Styled spikes', 0], ['crop', 'Textured crop', 0], ['mop', 'Messy mop', 0], ['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 300], ['mohawk', 'Mohawk', 1100], ['mullet', 'Mullet', 1600]],
+    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#3a2a1f', 'Deep brown', 0], ['#2a1d16', 'Dark brown', 0], ['#a87445', 'Golden brown', 0], ['#b38b55', 'Dirty blond', 0], ['#c49a5c', 'Golden blond', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
   { id: 'face', emoji: '🙂', label: 'Face', key: 'eyes', crop: 'head',
     items: [['eyes:normal', 'Bright eyes', 0], ['eyes:happy', 'Happy eyes', 0], ['eyes:wink', 'Wink', 0], ['eyeColour:#5b8db8', 'Blue eyes', 0], ['eyeColour:#6b7f86', 'Grey-blue eyes', 0], ['eyeColour:#7a6a3a', 'Hazel eyes', 0], ['eyeColour:#6b4428', 'Brown eyes', 0], ['eyeColour:none', 'Cartoon eyes', 0],
-      ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0], ['freckles:yes', 'Freckles', 0], ['freckles:no', 'No freckles', 0]],
+      ['mouth:smile', 'Smile', 0], ['mouth:cheeky', 'Cheeky grin', 0], ['mouth:grin', 'Big grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0], ['freckles:yes', 'Freckles', 0], ['freckles:no', 'No freckles', 0]],
     swatch: { key: 'skin', label: 'Skin', items: [['#f6d9c2', 'Skin 1', 0], ['#f1c7a5', 'Skin 2', 0], ['#e0ac84', 'Skin 3', 0], ['#c98b5e', 'Skin 4', 0], ['#8d5a3b', 'Skin 5', 0], ['#5c3a24', 'Skin 6', 0]] } },
   { id: 'hats', emoji: '🧢', label: 'Hats', key: 'hat', crop: 'head',
     items: [['none', 'No hat', 0], ['cap', 'Cap', 0], ['backcap', 'Backwards cap', 60], ['beanie', 'Beanie', 150], ['swimcap', 'Swim cap', 200], ['bucket', 'Bucket hat', 300], ['dinohood', 'Dino hood', 400], ['headphones', 'Headphones', 550], ['knight', 'Knight helm', 750], ['wizard', 'Wizard hat', 900], ['akubra', 'Akubra', 1300], ['crown', 'Crown', 2200], ['helmet', 'Space helmet', 3000]] },
@@ -158,6 +158,10 @@ const HAIR: Record<string, L> = {
   fringe: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
     <path fill=${l.hairColour} d="M60 90 C68 79 84 73 104 75 C96 80 90 85 86 89 C77 89 68 89 60 90 Z" opacity=".9"></path>
     ${shine('M72 62 C84 53 100 51 116 54')}<path d="M92 86 C98 80 108 76 120 76" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2" stroke-linecap="round"></path></g>`,
+  styled: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} opacity=".5" d="M56 104 C55 90 57 80 63 74 L68 96 Z M144 104 C145 90 143 80 137 74 L132 96 Z"></path>
+    <path fill=${l.hairColour} d="M60 89 C59 74 66 63 77 57 Q76 50 80 45 Q84 51 87 54 Q88 45 94 40 Q96 48 98 52 Q102 42 109 38 Q109 47 110 52 Q115 44 123 42 Q120 49 121 55 Q127 51 133 52 Q129 57 130 61 C137 68 141 77 140 89 C132 80 118 76 100 76 C82 76 68 80 60 89 Z"></path>
+    <path d="M80 68 Q85 60 90 52 M96 66 Q100 57 105 47 M111 66 Q115 58 120 50 M123 70 Q127 64 131 58" fill="none" stroke="rgba(0,0,0,.13)" stroke-width="2" stroke-linecap="round"></path>
+    ${shine('M82 63 C90 55 100 50 112 48')}</g>`,
   crop: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
     <path fill=${l.hairColour} d="M60 90 C59 71 72 58 87 54 Q90 47 94 47 Q97 51 99 53 Q102 45 106 45 Q109 50 111 53 Q115 48 119 48 Q121 53 121 56 L129 55 C139 63 142 75 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
     <path d="M80 66 Q84 61 88 59 M98 63 Q101 58 104 56 M114 63 Q118 59 122 58" fill="none" stroke="rgba(0,0,0,.14)" stroke-width="2" stroke-linecap="round"></path>${shine('M80 60 C92 54 106 52 120 56')}</g>`,
@@ -196,6 +200,7 @@ const EYES: Record<string, L> = {
 };
 const MOUTH: Record<string, L> = {
   smile: () => svg`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
+  cheeky: () => svg`<g class="av-pop d4"><path d="M86 119 Q100 134 114 119 Q100 122.5 86 119 Z" fill="#5b2a22"></path><path d="M89.5 120 Q100 122.4 110.5 120 L109.5 123 Q100 124.6 90.5 123 Z" fill="#fffaf0"></path><path d="M93 129.5 Q100 132 107 129.5" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".6"></path></g>`,
   grin: () => svg`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
   smirk: () => svg`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => svg`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
