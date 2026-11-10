@@ -8,20 +8,23 @@ import { svg, html, nothing, type SVGTemplateResult, type TemplateResult } from 
 export interface Look {
   skin: string; hair: string; hairColour: string; eyes: string; mouth: string;
   hat: string; eyewear: string; top: string; topColour: string; gear: string; buddy: string; scene: string;
+  /** iris colour; 'none' keeps the classic dark cartoon eyes */
+  eyeColour: string; freckles: string; mole: string;
 }
 
 export const DEFAULT_LOOK: Look = {
   skin: '#f1c7a5', hair: 'short', hairColour: '#5a3825', eyes: 'normal', mouth: 'smile',
-  hat: 'none', eyewear: 'none', top: 'tee', topColour: '#0b5fa5', gear: 'none', buddy: 'none', scene: 'plain'
+  hat: 'none', eyewear: 'none', top: 'tee', topColour: '#0b5fa5', gear: 'none', buddy: 'none', scene: 'plain',
+  eyeColour: 'none', freckles: 'no', mole: 'no'
 };
 
-const KEYS: [keyof Look, string][] = [['skin', 's'], ['hair', 'h'], ['hairColour', 'hc'], ['eyes', 'e'], ['mouth', 'm'], ['hat', 'a'], ['eyewear', 'u'], ['top', 't'], ['topColour', 'tc'], ['gear', 'g'], ['buddy', 'b'], ['scene', 'sc']];
+const KEYS: [keyof Look, string][] = [['skin', 's'], ['hair', 'h'], ['hairColour', 'hc'], ['eyes', 'e'], ['mouth', 'm'], ['hat', 'a'], ['eyewear', 'u'], ['top', 't'], ['topColour', 'tc'], ['gear', 'g'], ['buddy', 'b'], ['scene', 'sc'], ['eyeColour', 'ec'], ['freckles', 'fr'], ['mole', 'mo']];
 export const encodeLook = (l: Look): string => KEYS.map(([k, s]) => `${s}=${String(l[k]).replace('#', '')}`).join(';');
 export const decodeLook = (raw: string | undefined, fallback: Partial<Look> = {}): Look => {
   const out: Look = { ...DEFAULT_LOOK, ...fallback };
   if (!raw || raw === 'unknown' || !raw.includes('=')) return out;
   const map = Object.fromEntries(raw.split(';').map((p) => p.split('=')));
-  for (const [k, s] of KEYS) if (map[s]) (out as any)[k] = /colour|skin/i.test(k) ? `#${map[s]}` : map[s];
+  for (const [k, s] of KEYS) if (map[s]) (out as any)[k] = /colour|skin/i.test(k) && /^[0-9a-f]{3,8}$/i.test(map[s]) ? `#${map[s]}` : map[s];
   return out;
 };
 
@@ -32,10 +35,11 @@ export interface Category { id: string; label: string; emoji: string; key: keyof
 
 export const CATALOGUE: Category[] = [
   { id: 'hair', emoji: '💇', label: 'Hair', key: 'hair', crop: 'head',
-    items: [['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 300], ['mohawk', 'Mohawk', 1100], ['mullet', 'Mullet', 1600]],
-    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#2a1d16', 'Dark brown', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
+    items: [['fringe', 'Side fringe', 0], ['crop', 'Textured crop', 0], ['mop', 'Messy mop', 0], ['short', 'Short', 0], ['quiff', 'Styled quiff', 0], ['swept', 'Swept', 0], ['pageboy', 'Page boy', 0], ['spiky', 'Spiky', 0], ['curly', 'Curly', 0], ['buzz', 'Buzz cut', 0], ['surfer', 'Surfer', 300], ['mohawk', 'Mohawk', 1100], ['mullet', 'Mullet', 1600]],
+    swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#3a2a1f', 'Deep brown', 0], ['#2a1d16', 'Dark brown', 0], ['#a87445', 'Golden brown', 0], ['#b38b55', 'Dirty blond', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
   { id: 'face', emoji: '🙂', label: 'Face', key: 'eyes', crop: 'head',
-    items: [['eyes:normal', 'Bright eyes', 0], ['eyes:happy', 'Happy eyes', 0], ['eyes:wink', 'Wink', 0], ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0]],
+    items: [['eyes:normal', 'Bright eyes', 0], ['eyes:happy', 'Happy eyes', 0], ['eyes:wink', 'Wink', 0], ['eyeColour:#5b8db8', 'Blue eyes', 0], ['eyeColour:#6b7f86', 'Grey-blue eyes', 0], ['eyeColour:#7a6a3a', 'Hazel eyes', 0], ['eyeColour:#6b4428', 'Brown eyes', 0], ['eyeColour:none', 'Cartoon eyes', 0],
+      ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:gap', 'Gap-tooth grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0], ['freckles:yes', 'Freckles', 0], ['freckles:no', 'No freckles', 0]],
     swatch: { key: 'skin', label: 'Skin', items: [['#f6d9c2', 'Skin 1', 0], ['#f1c7a5', 'Skin 2', 0], ['#e0ac84', 'Skin 3', 0], ['#c98b5e', 'Skin 4', 0], ['#8d5a3b', 'Skin 5', 0], ['#5c3a24', 'Skin 6', 0]] } },
   { id: 'hats', emoji: '🧢', label: 'Hats', key: 'hat', crop: 'head',
     items: [['none', 'No hat', 0], ['cap', 'Cap', 0], ['backcap', 'Backwards cap', 60], ['beanie', 'Beanie', 150], ['swimcap', 'Swim cap', 200], ['bucket', 'Bucket hat', 300], ['dinohood', 'Dino hood', 400], ['headphones', 'Headphones', 550], ['knight', 'Knight helm', 750], ['wizard', 'Wizard hat', 900], ['akubra', 'Akubra', 1300], ['crown', 'Crown', 2200], ['helmet', 'Space helmet', 3000]] },
@@ -43,7 +47,7 @@ export const CATALOGUE: Category[] = [
     items: [['none', 'None', 0], ['round', 'Round sunnies', 50], ['zinc', 'Zinc stripe', 100], ['swim', 'Swim goggles', 200], ['aviator', 'Aviators', 650], ['shutter', 'Shutter shades', 1000], ['ski', 'Ski goggles', 1200], ['star', 'Star sunnies', 1700]] },
   { id: 'tops', emoji: '👕', label: 'Tops', key: 'top', crop: 'full',
     items: [['tee', 'T-shirt', 0], ['hoodie', 'Hoodie', 200], ['island', 'Island shirt', 250], ['polo', 'Tennis polo', 300], ['rashie', 'Rashie', 300], ['band', 'Band jacket', 0, 20], ['cloak', 'Hooded cloak', 650], ['footy', 'Footy jumper', 900], ['wetsuit', 'Wetsuit', 1200], ['armour', 'Battle armour', 1800], ['astro', 'Space suit', 3000]],
-    swatch: { key: 'topColour', label: 'Colour', items: [['#0b5fa5', 'Blue', 0], ['#0f766e', 'Teal', 0], ['#16a34a', 'Green', 0], ['#c2410c', 'Orange', 0], ['#be185d', 'Pink', 0], ['#6d28d9', 'Purple', 0], ['#334155', 'Charcoal', 0], ['#f5b301', 'Yellow', 0]] } },
+    swatch: { key: 'topColour', label: 'Colour', items: [['#0b5fa5', 'Blue', 0], ['#1d4ed8', 'Royal blue', 0], ['#38bdf8', 'Sky blue', 0], ['#1e293b', 'Navy', 0], ['#0f766e', 'Teal', 0], ['#16a34a', 'Green', 0], ['#c2410c', 'Orange', 0], ['#be185d', 'Pink', 0], ['#6d28d9', 'Purple', 0], ['#334155', 'Charcoal', 0], ['#f5b301', 'Yellow', 0]] } },
   { id: 'gear', emoji: '🎺', label: 'Gear', key: 'gear', crop: 'full',
     items: [['none', 'Nothing', 0], ['trumpet', 'Trumpet', 0, 5], ['clarinet', 'Clarinet', 0, 5], ['books', 'Book stack', 0, 5], ['racquet', 'Tennis racquet', 150], ['truck', 'Toy truck', 100], ['scooter', 'Scooter', 250], ['bat', 'Cricket bat', 450], ['miniature', 'Painted miniature', 500], ['footy', 'Footy', 700], ['surfboard', 'Surfboard', 850], ['skateboard', 'Skateboard', 1000]] },
   { id: 'buddy', emoji: '🐉', label: 'Buddies', key: 'buddy', crop: 'full',
@@ -149,7 +153,17 @@ const HAIR_BEHIND: Record<string, L> = {
   surfer: (l) => svg`<g class="av-pop d3" fill=${l.hairColour}><path d="M52 98 C46 136 52 162 66 166 L74 108 Z"></path><path d="M148 98 C154 136 148 162 134 166 L126 108 Z"></path></g>`,
   pageboy: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M52 92 C48 120 50 140 58 148 L142 148 C150 140 152 120 148 92 Z"></path>`
 };
+const shine = (d: string): SVGTemplateResult => svg`<path d=${d} fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5" stroke-linecap="round"></path>`;
 const HAIR: Record<string, L> = {
+  fringe: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
+    <path fill=${l.hairColour} d="M62 92 C70 80 86 74 104 76 C96 82 90 88 86 92 C78 92 70 92 62 92 Z" opacity=".9"></path>
+    ${shine('M72 62 C84 53 100 51 116 54')}<path d="M92 86 C98 80 108 76 120 76" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2" stroke-linecap="round"></path></g>`,
+  crop: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
+    <path fill=${l.hairColour} d="M60 90 C59 70 72 56 88 52 L92 42 L99 51 L105 40 L111 50 L119 43 L122 54 L131 52 C140 62 142 74 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
+    <path d="M78 66 L86 58 M96 62 L102 52 M112 62 L118 54 M126 68 L132 62" stroke="rgba(0,0,0,.16)" stroke-width="2.2" stroke-linecap="round"></path>${shine('M80 60 C92 54 106 52 120 56')}</g>`,
+  mop: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} d="M51 106 C45 70 66 44 98 42 C131 40 155 64 149 106 C145 97 141 92 136 89 L133 97 C128 86 117 80 104 82 C92 80 81 84 71 91 L67 99 C61 96 55 99 51 106 Z"></path>
+    <path fill=${l.hairColour} d="M82 48 L76 30 L92 42 Z M100 44 L104 24 L112 42 Z M118 46 L132 32 L128 52 Z M66 58 L54 48 L64 66 Z"></path>
+    <path d="M84 84 C88 76 94 72 100 72 M110 82 C114 76 120 74 126 76" fill="none" stroke="rgba(0,0,0,.15)" stroke-width="2" stroke-linecap="round"></path>${shine('M74 58 C86 50 102 48 118 52')}</g>`,
   short: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
   quiff: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M56 98 C55 66 70 54 88 52 C92 32 126 26 142 44 C132 44 124 48 121 55 C138 62 146 76 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
   swept: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M55 100 C52 64 76 48 104 48 C132 48 150 66 145 100 C140 86 130 78 118 76 C100 73 82 84 64 70 C61 80 58 90 55 100 Z"></path>`,
@@ -174,14 +188,16 @@ const TOPS: Record<string, L> = {
   wetsuit: () => svg`<g class="av-pop d1"><path d=${BODY} fill="#111827"></path><path d="M40 240 C44 204 58 186 72 180 L78 240 Z" fill="#0ea5e9"></path><path d="M160 240 C156 204 142 186 128 180 L122 240 Z" fill="#0ea5e9"></path></g>`,
   astro: () => svg`<g class="av-pop d1"><path d=${BODY} fill="#e5e7eb"></path><rect x="78" y="196" width="44" height="30" rx="6" fill="#cbd5e1"></rect><circle cx="90" cy="211" r="4" fill="#ef4444"></circle><circle cx="104" cy="211" r="4" fill="#22c55e"></circle><rect x="112" y="207" width="6" height="8" rx="2" fill="#3b82f6"></rect></g>`
 };
+const iris = (c: string, x: number): SVGTemplateResult => svg`<ellipse cx=${x} cy="104" rx="5.2" ry="6.2" fill="#fff"></ellipse><circle cx=${x} cy="104.6" r="4.4" fill=${c}></circle><circle cx=${x} cy="104.6" r="2.2" fill="#141414"></circle><circle cx=${x + 1.6} cy="102.6" r="1.3" fill="#fff"></circle>`;
 const EYES: Record<string, L> = {
-  normal: () => svg`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><ellipse cx="116" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><circle cx="118" cy="101.5" r="1.6" fill="#fff"></circle></g>`,
+  normal: (l) => l.eyeColour && l.eyeColour !== 'none' ? svg`<g class="av-pop d4">${iris(l.eyeColour, 84)}${iris(l.eyeColour, 116)}</g>` : svg`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><ellipse cx="116" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><circle cx="118" cy="101.5" r="1.6" fill="#fff"></circle></g>`,
   happy: () => svg`<g class="av-pop d4" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"><path d="M77 106 Q84 97 91 106"></path><path d="M109 106 Q116 97 123 106"></path></g>`,
-  wink: () => svg`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><path d="M109 105 Q116 99 123 105" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"></path></g>`
+  wink: (l) => svg`<g class="av-pop d4">${l.eyeColour && l.eyeColour !== 'none' ? iris(l.eyeColour, 84) : svg`<ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle>`}<path d="M109 105 Q116 99 123 105" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"></path></g>`
 };
 const MOUTH: Record<string, L> = {
   smile: () => svg`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   grin: () => svg`<g class="av-pop d4"><path d="M85 119 Q100 138 115 119 Z" fill="#3b1f14"></path><path d="M88 120 L112 120 L110.5 124 L89.5 124 Z" fill="#fff"></path></g>`,
+  gap: () => svg`<g class="av-pop d4"><path d="M84 118 Q100 140 116 118 Z" fill="#5b2a22"></path><path d="M92 119 L99 119 L99 126 Q95.5 127.5 92 126 Z M101 119 L108 119 L108 126 Q104.5 127.5 101 126 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
   smirk: () => svg`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => svg`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 };
@@ -238,6 +254,8 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
         </g>
         <g class=${o.still ? '' : 'av-blink'}>${(EYES[look.eyes] ?? EYES.normal)(look)}</g>
         ${brows}
+        ${look.freckles === 'yes' ? svg`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([x, y]) => svg`<circle cx=${x} cy=${y} r="1.15"></circle>`)}</g>` : nothing}
+        ${look.mole === 'yes' ? svg`<circle cx="87" cy="121" r="1.5" fill="#6b4532"></circle>` : nothing}
         ${(MOUTH[look.mouth] ?? MOUTH.smile)(look)}
         ${(HAIR[look.hair] ?? HAIR.short)(look)}
         ${EYEWEAR[look.eyewear] ? EYEWEAR[look.eyewear](look) : nothing}
