@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &long=1, &night=1, &studio=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|list, &long=1, &night=1, &studio=1). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -114,7 +114,9 @@ const hass = {
 };
 const el = document.createElement('family-hub-card');
 el.setConfig({
-  type: 'custom:family-hub-card', family_name: 'everyone', weather: 'weather.home', music_player: 'media_player.lounge', reminders: 'todo.reminders', groceries: 'todo.shopping_list',
+  type: 'custom:family-hub-card', family_name: 'everyone',
+  music_map: [{ name: 'Upstairs', rooms: [{ name: 'Alex’s room', player: 'media_player.alexs_homepod', size: 2 }, { name: 'Riley’s room', player: 'media_player.rileys_homepod', kids: ['Riley'] }, { name: 'Charlie’s room', player: 'media_player.charlies_homepod', kids: ['Charlie', 'Max'] }] },
+    { name: 'Downstairs', rooms: [{ name: 'Kitchen and lounge', zones: [{ name: 'Kitchen', player: 'media_player.kitchen' }, { name: 'Lounge', player: 'media_player.lounge_room_sonos' }] }, { stairs: true }, { name: 'Office', player: 'media_player.office' }] }], weather: 'weather.home', music_player: 'media_player.lounge', reminders: 'todo.reminders', groceries: 'todo.shopping_list',
   people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
   kids: [
     { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }] },
@@ -135,6 +137,7 @@ else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
 if (q.get('sheet')) el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;
+if (q.get('mview')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) m._view = q.get('mview'); }
 if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
 window.__ready = true;
