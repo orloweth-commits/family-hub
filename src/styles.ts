@@ -203,5 +203,45 @@ export const styles = css`
   :host([data-shape='tall']) .dock .sep { margin: 0 3px; }
   :host([data-shape='tall']) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+  /* phones: one column that scrolls, with the dock fixed along the bottom. Nothing here applies to any other screen. */
+  :host([data-phone]) { height: auto; }
+  :host([data-phone]) .fh { height: auto; min-height: calc((100vh - var(--header-height, 0px)) / var(--z, 1)); overflow: visible; padding: 12px 12px 92px; gap: 12px; }
+  :host([data-phone]) header { min-height: 0; gap: 8px; }
+  :host([data-phone]) .clock { min-width: 0; flex: 1 1 auto; }
+  :host([data-phone]) .clock .hm { font-size: 42px; }
+  :host([data-phone]) .right { flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex: 1 1 auto; }
+  :host([data-phone]) .right > button { width: 44px !important; height: 44px !important; }
+  :host([data-phone]) .weather { padding: 6px 12px; }
+  :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
+  :host([data-phone]) header { flex-wrap: wrap; }
+  :host([data-phone]) .capsule { height: auto; min-height: 0; }
+  :host([data-phone]) .cap { max-width: 100%; height: 42px; font-size: 14px; }
+  :host([data-phone]) .body { flex: none; }
+  :host([data-phone]) .planner { padding: 14px 12px; border-radius: 22px; }
+  :host([data-phone]) .bar { gap: 8px; }
+  :host([data-phone]) .bar > div:first-child { min-width: 0; flex: 1 1 100%; }
+  :host([data-phone]) .seg { flex: 1 1 100%; }
+  :host([data-phone]) .seg button { flex: 1; min-width: 0; }
+  :host([data-phone]) .legend { gap: 6px 10px; font-size: 12px; }
+  :host([data-phone]) .week { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; min-height: 400px; }
+  :host([data-phone]) .week .col { flex: 0 0 47%; scroll-snap-align: start; }
+  :host([data-phone]) .daylist { overflow: visible; flex: none; display: flex !important; }
+  :host([data-phone]) .dayrow { gap: 10px; padding: 10px 12px; }
+  :host([data-phone]) .dayrow > span:first-child { width: 64px !important; font-size: 14px !important; }
+  :host([data-phone]) .month { min-height: 380px; }
+  :host([data-phone]) .cell .mev { font-size: 0; gap: 0; }
+  :host([data-phone]) aside { flex-direction: column; }
+  :host([data-phone]) nav.dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 9; max-width: none; overflow-x: auto; justify-content: flex-start; padding: 6px; border-radius: 22px; scrollbar-width: none; }
+  :host([data-phone]) nav.dock::-webkit-scrollbar { display: none; }
+  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 12px; }
+  :host([data-phone]) .scrim, :host([data-phone]) .night, :host([data-phone]) .alarm { position: fixed; }
+  :host([data-phone]) .sheet { width: 94%; max-height: 84vh; overflow-y: auto; padding: 18px 16px; border-radius: 24px; }
+  :host([data-phone]) .themes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :host([data-phone]) .toast { position: fixed; bottom: 96px; max-width: 90%; text-align: center; border-radius: 20px; }
+  :host([data-phone]) .night { padding: 32px 24px; }
+  :host([data-phone]) .night .big { font-size: 92px; }
+  :host([data-phone]) .night .nclock { flex-direction: column; align-items: flex-start; gap: 16px; }
+  :host([data-phone]) .keys { display: none; }
+
   ${lookCss}
 `;

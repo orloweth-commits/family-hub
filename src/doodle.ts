@@ -28,6 +28,11 @@ export class FhDoodle extends LitElement {
     :host([data-shape='tall']) .brushes .rule { display: none; }
     :host([data-shape='tall']) .gallery { width: auto; max-height: 260px; }
     :host([data-shape='tall']) .snaps { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    :host([data-phone]) { flex: none; }
+    :host([data-phone]) .easel { min-height: 440px; }
+    :host([data-phone]) .hint { font-size: 22px; text-align: center; padding: 0 20px; }
+    :host([data-phone]) .acts { flex-wrap: wrap; }
+    :host([data-phone]) .view { position: fixed; border-radius: 0; }
     .brushes .rule { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
     .ink { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); transition: transform .2s cubic-bezier(.2,1.4,.4,1); flex-shrink: 0; }
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }

@@ -5,7 +5,7 @@ import { icon } from './icons';
 import { addDays, fmtDow, startOfDay } from './dates';
 import { slotVar, type CalendarConfig, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { shortNames } from './util';
+import { getShape, shortNames } from './util';
 
 const TIMES = ['All day', '07:00', '08:00', '09:00', '10:00', '12:00', '15:00', '15:30', '16:00', '17:00', '18:00', '19:00'];
 const pad = (n: number): string => String(n).padStart(2, '0');
@@ -17,6 +17,9 @@ export class FhAddEvent extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, keysCss, css`
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
+    :host([data-phone]) { position: fixed; align-items: flex-start; padding-top: 12px; }
+    :host([data-phone]) .box { width: 96%; max-height: 88vh; padding: 14px; }
+    :host([data-phone]) .keys { display: none; }
     .box { width: min(1100px, 94%); max-height: 96%; overflow-y: auto; border-radius: 30px; padding: 16px 20px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
     .field { flex: 1; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -65,7 +68,7 @@ export class FhAddEvent extends LitElement {
       <div style="display:flex;gap:10px;align-items:center">
         <h2 class="t-head">Add to the calendar</h2><span style="flex:1"></span>
         <button class="round tap" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 18)}</button></div>
-      <div style="display:flex;gap:10px"><input class="field" inputmode="none" aria-label="What’s on" placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; }}>
+      <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="What’s on" placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; }}>
         <button class="pill tap primary" style="height:58px;padding:0 24px;font-size:17px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button></div>
       ${this._err ? html`<span style="color:#dc2626;font-weight:var(--w-semi, 600)">${this._err}</span>` : ''}
       <div class="chips">${Array.from({ length: 8 }, (_, i) => html`<button class="tap" aria-pressed=${String(this._day === i)} @click=${() => { this._day = i; }}>${i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${fmtDow(addDays(today, i))} ${addDays(today, i).getDate()}`}</button>`)}</div>

@@ -31,6 +31,10 @@ export class FhHome extends LitElement {
     :host([data-shape='tall']) .rgrid { columns: 3 220px; }
     :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
     :host([data-shape='tall']) .side > section { flex: 1 1 0; min-width: 0; }
+    :host([data-phone]) { flex: none; }
+    :host([data-phone]) .rooms { padding: 14px; border-radius: 22px; }
+    :host([data-phone]) .rgrid { columns: 1 !important; overflow: visible; flex: none; }
+    :host([data-phone]) .side { flex-direction: column; }
     .room { break-inside: avoid; margin-bottom: 12px; border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .5s ease, background .5s ease; }
     .room.lit { background: color-mix(in srgb, #ffd166 22%, var(--chip)); box-shadow: 0 0 0 1px color-mix(in srgb, #ffb703 40%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; }
