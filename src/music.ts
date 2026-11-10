@@ -268,6 +268,48 @@ export class FhMusic extends LitElement {
     .puck.fly { margin: -42px 0 0 -42px; width: 84px; height: 84px; bottom: auto; pointer-events: none; z-index: 5; animation: lift .18s ease-out; box-shadow: 0 20px 32px -8px rgba(0,0,0,.6); }
     @keyframes lift { from { transform: scale(.7); } }
     .acts .pill[data-hot] { box-shadow: 0 0 0 4px var(--accent); }
+    /* the map with its shelf: records to carry to a room, and somewhere to drop music for the whole house */
+    .maprow { flex: 1; min-height: 0; display: flex; gap: 12px; }
+    .maprow > .map { min-width: 0; }
+    .mshelf { flex: 0 0 clamp(236px, 25%, 310px); min-width: 0; border-radius: 22px; background: var(--chip); padding: 12px; display: flex; flex-direction: column; gap: 10px; user-select: none; -webkit-user-select: none; }
+    .shead { display: flex; align-items: center; justify-content: flex-start; gap: 4px; flex-wrap: wrap; }
+    .shead b { flex: 1 1 100%; min-width: 0; font-size: 12px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .swho { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .swho i { width: 34px; height: 34px; border-radius: 50%; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform .22s cubic-bezier(.2,1.4,.4,1); }
+    .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
+    .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
+    .srec { width: min(100%, calc(var(--row) - 30px)); min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
+    .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
+    .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
+    .srec[data-lifted] .puck.onshelf { opacity: .3; }
+    .srec span { max-width: 100%; height: 26px; font-size: 11.5px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 13px; font-weight: var(--w-bold, 700); }
+    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background .2s, border-color .2s, transform .2s cubic-bezier(.2,1.4,.4,1); }
+    .wholeh b { display: block; font-size: 14.5px; font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wholeh[data-open] { border-color: var(--primary); animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .wholeh[data-hot] { border-style: solid; border-color: var(--primary); background: color-mix(in srgb, var(--primary) 22%, transparent); transform: scale(1.03); animation: none; }
+    /* each room's speaker: louder music sends its ripples further */
+    .zspk { position: absolute; right: 30px; top: 28px; width: 0; height: 0; pointer-events: none; }
+    .zspk i { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; box-sizing: border-box; border: 2.5px solid var(--c); opacity: 0; }
+    .zspk b { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--chip-strong); }
+    .mzone[data-playing] .zspk i { animation: zrip 2.4s ease-out infinite; animation-iteration-count: var(--loops, infinite); }
+    .mzone[data-playing] .zspk i + i { animation-delay: -1.2s; }
+    @keyframes zrip { from { transform: scale(.5); opacity: .85; } to { transform: scale(var(--amp, 1.8)); opacity: 0; } }
+    /* while something is being carried, every room shows where it can land */
+    .land { position: absolute; left: 50%; top: 60%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; box-sizing: border-box; border: 2.5px dashed var(--c); pointer-events: none; animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .mzone[data-hot] .land { border-style: solid; background: color-mix(in srgb, var(--c) 28%, transparent); }
+    @keyframes landp { from { transform: scale(.94); } to { transform: scale(1.06); } }
+    :host([data-phone]) .maprow, :host([data-shape='tall']) .maprow { flex-direction: column; }
+    :host([data-phone]) .maprow { flex: none; }
+    :host([data-phone]) .mshelf, :host([data-shape='tall']) .mshelf { flex: none; }
+    :host([data-phone]) .srecs, :host([data-shape='tall']) .srecs { flex: none; container-type: normal; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); --row: 126px; }
+    /* on a tall screen the shelf is a strip under the house: whose shelf, the records, the whole house */
+    :host([data-shape='tall']:not([data-phone])) .mshelf { flex-direction: row; align-items: center; gap: 14px; }
+    :host([data-shape='tall']:not([data-phone])) .shead { flex: 0 0 108px; }
+    :host([data-shape='tall']:not([data-phone])) .srecs { flex: 1 1 0; min-width: 0; }
+    :host([data-shape='tall']:not([data-phone])) .snone { flex-direction: row; text-align: left; }
+    :host([data-shape='tall']:not([data-phone])) .wholeh { flex: 0 0 176px; align-self: stretch; }
     :host([data-phone]) .map { flex: none; }
     :host([data-phone]) .map:not(.snug) .floor { flex: none; flex-wrap: wrap; }
     :host([data-phone]) .map:not(.snug) .mroom { flex: var(--size, 1) 1 calc(var(--size, 1) * 140px); height: 150px; }
@@ -441,6 +483,8 @@ export class FhMusic extends LitElement {
     if (this._mix(p).includes(id)) this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id });
     else this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`));
   }
+  /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
+  private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', run); else run(); }
   private _everywhere(on: boolean, p = this._cur): void {
     if (!p) return;
     if (on) this.hass!.callService('media_player', 'join', { group_members: this._list.map((x) => x.entity_id).filter((id) => id !== p.entity_id) }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t group every room: ${e?.message ?? 'error'}`));
@@ -473,7 +517,7 @@ export class FhMusic extends LitElement {
     })));
     const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
     const frac = dur ? Math.min(1, ((Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) / dur) : 0;
-    if (this._mode === 'cables' && !this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
+    if (!this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
     return { rooms, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); }); },
       leave: (id) => { this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id }); },
@@ -481,7 +525,7 @@ export class FhMusic extends LitElement {
       now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit),
       toggle: (id) => { if (id === cur?.entity_id) return; if (mix.includes(id)) this._join(id); else this._gentle(id, () => { if (curLead) this._join(id); else this._focus = id; }); },
-      focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._everywhere(true),
+      focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._wholeHouse(() => this._everywhere(true)),
       carry: (e, id) => { const p = this.hass!.states[id]; if (p) this._carryDown(e, { lead: p }); },
       carryItem: (e, m) => this._carryDown(e, { item: m }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
   }
@@ -540,8 +584,7 @@ export class FhMusic extends LitElement {
     const art = String(lead?.attributes.entity_picture ?? item?.img ?? '');
     const under = (x: number, y: number): string => {
       const inside = (n: Element): boolean => { const r = n.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
-      const all = lead ? this.renderRoot.querySelector('[data-drop="all"]') : null;
-      if (all && inside(all)) return 'all';
+      if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(inside)) return 'all';
       return [...this.renderRoot.querySelectorAll<HTMLElement>('[data-zone]')].find(inside)?.dataset.zone ?? '';
     };
     const move = (m: PointerEvent): void => {
@@ -555,9 +598,10 @@ export class FhMusic extends LitElement {
       if (!d) { if (lead) { this._focus = lead.entity_id; this._svc('media_play_pause', {}, lead.entity_id); } return; } // a record that was only tapped is played by its click
       this._carried = Date.now();
       const to = d.over && d.over !== 'all' ? this.hass!.states[d.over] : undefined;
-      if (lead && d.over === 'all') { this._focus = lead.entity_id; this._everywhere(true, lead); }
+      if (lead && d.over === 'all') this._wholeHouse(() => { this._focus = lead.entity_id; this._everywhere(true, lead); });
+      else if (item && d.over === 'all') this._wholeHouse(() => { const room = this._cur; if (room) { this._shelfPlay(item, room); this._everywhere(true, room); } });
       else if (lead && to && to.entity_id !== lead.entity_id) this._gentle(to.entity_id, () => this._move(to, lead));
-      else if (item && to) this._gentle(to.entity_id, () => { this._focus = to.entity_id; this._start(item, 'play', false, to); });
+      else if (item && to) this._gentle(to.entity_id, () => { this._focus = to.entity_id; this._shelfPlay(item, to); });
     };
     el.setPointerCapture(e.pointerId); el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }
@@ -582,6 +626,8 @@ export class FhMusic extends LitElement {
       const art = lead?.attributes.entity_picture ? `--art:url(${lead.attributes.entity_picture})` : '';
       return html`<div class="mzone" data-zone=${id} ?data-focus=${focus} ?data-live=${!!lead} ?data-playing=${playing} ?data-asleep=${asleep} ?data-hot=${drag?.over === id && drag.from !== id} style=${colour} @pointerdown=${(e: PointerEvent) => this._volDown(e, p)}>
         ${lead && vol !== null ? html`<span class="pool" style="height:${Math.max(6, vol) * POOL}%"></span>` : nothing}
+        ${lead ? html`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (vol ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${focus ? html`<b></b>` : nothing}</span>` : nothing}
+        ${drag && lead?.entity_id !== id ? html`<span class="land" aria-hidden="true"></span>` : nothing}
         <button class="zname tap" aria-pressed=${String(focus)} aria-label="${z.name}: ${what}${vol !== null ? `, volume ${vol}` : ''}" @click=${() => { this._focus = id; }}><b>${asleep ? '☾ ' : ''}${z.name}</b><span>${what}${lead && vol !== null ? ` · ${vol}` : ''}</span></button>
         ${focus ? nothing : html`<button class="join tap" aria-pressed=${String(inmix)} aria-label="${inmix ? 'Remove' : 'Add'} ${z.name} ${inmix ? 'from' : 'to'} the music" @click=${() => { if (inmix) this._join(id); else this._gentle(id, () => this._join(id)); }}>${inmix ? '✓' : '＋'}</button>`}
         ${vol !== null ? html`<button class="grab" role="slider" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol} style="bottom:${Math.max(6, vol) * POOL}%" @keydown=${(e: KeyboardEvent) => this._volKey(e, p)}><i></i></button>` : nothing}
@@ -589,9 +635,29 @@ export class FhMusic extends LitElement {
           @pointerdown=${(e: PointerEvent) => this._carryDown(e, { lead })} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._focus = id; this._svc('media_play_pause', {}, id); } }}></span>` : nothing}
       </div>`;
     };
-    return html`<div class="map" data-fits>
+    return html`<div class="maprow"><div class="map" data-fits>
       ${floors.map((f) => html`<div class="floor">${floors.length > 1 ? html`<span class="flabel">${f.name}</span>` : nothing}
         ${f.rooms.map((r) => r.stairs ? html`<div class="mstairs" role="img" aria-label="Stairs"></div>` : html`<div class="mroom" style="--size:${r.size}" role="group" aria-label=${r.name}>${r.zones.map((z) => zone(z, r.asleep))}</div>`)}</div>`)}
+    </div>${this._sideShelf()}</div>`;
+  }
+  /** Beside the house: a shelf of records to tap or carry to a room, and a place to drop music for the whole house. */
+  private _sideShelf(): TemplateResult {
+    const ma = hasMa(this.hass!), cur = this._cur, drag = this._carry;
+    if (ma && !this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
+    const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime);
+    const all = this._items[this._shelf] ?? [], list = wind ? all.filter((x) => x.calm) : all, MAX = 9, show = list.length > MAX ? list.slice(0, MAX - 1) : list, short = shortNames(this._shelfNames), cols = list.length <= 4 ? 2 : 3;
+    const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
+    const tap = (m: ShelfItem): void => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); };
+    return html`<div class="mshelf" role="group" aria-label="Shelf">
+      ${ma ? html`<div class="shead"><b>${wind ? '🌙 ' : ''}${this._shelf === 'Family' ? 'Family shelf' : `${this._shelf}’s shelf`}</b>
+          ${this._shelfNames.map((n) => html`<button class="swho tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} aria-label=${n === 'Family' ? 'Family shelf' : `${n}’s shelf`} @click=${() => { this._shelf = n; }}><i>${short[n] ?? n[0]}</i></button>`)}</div>
+        ${show.length ? html`<div class="srecs" style="--cols:${cols};--rows:${Math.ceil(Math.min(list.length, MAX) / cols)}">${show.map((m, i) => html`<button class="srec tap" ?data-lifted=${drag?.item === m} aria-label="${m.name}. Tap to play in ${this._name(cur)}, or drag it onto a room."
+              @pointerdown=${(e: PointerEvent) => this._carryDown(e, { item: m })} @click=${() => tap(m)}>
+              <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i><span>${m.name}</span></button>`)}
+            ${list.length > MAX ? html`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => { this._tab = 'shelves'; }}>＋${list.length - show.length}<span>more</span></button>` : nothing}</div>`
+          : html`<div class="snone">${icon('sleeve', 34)}<span>${wind ? 'Nothing calm pinned yet.' : 'Nothing pinned yet.'}<br>Search for music, then tap Pin.</span></div>`}` : html`<span style="flex:1"></span>`}
+      <button class="wholeh tap" data-drop="all" ?data-open=${!!drag} ?data-hot=${drag?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>
+        ${icon('home', 26)}<span><b>Whole house</b><span>${drag ? 'Drop it here' : 'Drop music here'}</span></span></button>
     </div>`;
   }
 
@@ -613,9 +679,9 @@ export class FhMusic extends LitElement {
   }
   /** Where a tapped record plays: the room picked on the little house, else the child's own speaker, else the room in focus. */
   private _shelfRoom(kid?: KidConfig): HassEntity | undefined { return (this._shelfTo ? this.hass!.states[this._shelfTo] : undefined) ?? (kid && kidSpeaker(this.hass!, kid, this._list)) ?? this._cur; }
-  private _shelfPlay(m: ShelfItem): void {
+  private _shelfPlay(m: ShelfItem, to?: HassEntity): void {
     const kid = this.kids.find((k) => k.name === this._shelf);
-    const room = this._shelfRoom(kid);
+    const room = to ?? this._shelfRoom(kid);
     this._start(m, 'play', false, room);
     // at wind-down a child's shelf plays quietly towards sleep
     if (kid && room && windDown(kid.bedtime)) { if (sleepIn(this.hass!, room.entity_id, this.sleepMinutes)) window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); }
@@ -739,13 +805,13 @@ export class FhMusic extends LitElement {
     const mode = this._mode, house = mode !== 'list', view = VIEWS.find((v) => v.id === mode)!;
     return html`${this._viewAsk ? viewPicker(mode, (v) => { this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; }, () => { this._viewAsk = false; }) : nothing}<div class="acts">
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
-        <button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._everywhere(true)}>Everywhere</button>
+        ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
         <span class="soft hint" style="flex:1">${viewHint(mode, getLook(), this.theme)}</span>
         ${mode !== 'list' && cur ? html`<div class="nowbar"><button class="nthumb tap" aria-pressed=${String(this._peek)} aria-label=${this._peek ? 'Hide the player' : 'Show the full player'} style=${cur.attributes.entity_picture ? `--art:url(${cur.attributes.entity_picture})` : ''} @click=${() => { this._peek = !this._peek; }}></button>
           <span class="ntx"><b>${cur.attributes.media_title ?? 'Nothing playing'}</b><span>${this._name(cur)}</span></span>
           <button class="round tap" aria-label="Previous" @click=${() => this._svc('media_previous_track')}>${solid('prev', 24)}</button>
-          <button class="round tap ngo" aria-label=${cur.state === 'playing' ? 'Pause' : 'Play'} @click=${() => this._svc('media_play_pause')}>${solid(cur.state === 'playing' ? 'pause' : 'play', 26)}</button>
+          <button class="round tap ngo primary" aria-label=${cur.state === 'playing' ? 'Pause' : 'Play'} @click=${() => this._svc('media_play_pause')}>${solid(cur.state === 'playing' ? 'pause' : 'play', 26)}</button>
           <button class="round tap" aria-label="Next" @click=${() => this._svc('media_next_track')}>${solid('next', 24)}</button></div>` : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>

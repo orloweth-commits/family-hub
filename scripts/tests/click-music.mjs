@@ -25,9 +25,21 @@ const M = (page) => page.locator('fh-music');
   const puck = await M(p).locator('.mzone[data-zone="media_player.kitchen"] .puck').boundingBox(), lounge = await box('media_player.lounge_room_sonos');
   await drag(puck.x + puck.width / 2, puck.y + puck.height / 2, lounge.x + lounge.width / 2, lounge.y + lounge.height / 2);
   console.log('house move:', await calls(p, /transfer_queue/), '| puck now in:', await M(p).locator('.mzone[data-playing] .puck').evaluateAll((n) => n.map((x) => x.parentElement.dataset.zone).join(',')));
-  const pk2 = await M(p).locator('.mzone[data-zone="media_player.lounge_room_sonos"] .puck').boundingBox(), all = await M(p).getByRole('button', { name: 'Everywhere' }).boundingBox();
+  const pk2 = await M(p).locator('.mzone[data-zone="media_player.lounge_room_sonos"] .puck').boundingBox(), all = await M(p).locator('.wholeh').boundingBox();
   await drag(pk2.x + pk2.width / 2, pk2.y + pk2.height / 2, all.x + all.width / 2, all.y + all.height / 2);
   console.log('house everywhere:', (await calls(p, /media_player\.join/)).split(' || ').pop().slice(0, 160));
+  // the shelf beside the house: a record to a room, a record to the whole house, a tap plays in the room in focus, ripples where music plays
+  await p.evaluate(() => { window.__calls.length = 0; });
+  const sr = async (i) => { const b = await M(p).locator('.mshelf .srec').nth(i).boundingBox(); return [b.x + b.width / 2, b.y + b.width / 2]; };
+  const of = await box('media_player.office'); let s0 = await sr(0);
+  await drag(s0[0], s0[1], of.x + of.width / 2, of.y + of.height * .6);
+  console.log('shelf records:', await M(p).locator('.mshelf .srec').count(), '| record to a room:', (await calls(p, /music_assistant\.play_media/)).split(' || ').pop());
+  const wh = await M(p).locator('.wholeh').boundingBox(); s0 = await sr(1); await p.evaluate(() => { window.__calls.length = 0; });
+  await drag(s0[0], s0[1], wh.x + wh.width / 2, wh.y + wh.height / 2);
+  console.log('record to the whole house:', (await calls(p, /music_assistant\.play_media/)).slice(0, 90), '+', (await calls(p, /media_player\.join/)).slice(0, 40));
+  await p.waitForTimeout(450); await p.evaluate(() => { window.__calls.length = 0; }); await M(p).locator('.mshelf .srec').nth(2).click(); await p.waitForTimeout(300);
+  console.log('shelf tap:', (await calls(p, /play_media/)).slice(0, 90), '| ripples:', await M(p).locator('.mzone[data-playing] .zspk').count());
+  await M(p).getByRole('button', { name: 'Max’s shelf' }).click(); await p.waitForTimeout(300); console.log('Max’s shelf on the map:', await M(p).locator('.mshelf .srec').count());
   // shelves: carry a record from the crate to a room on the little house
   await M(p).getByRole('tab', { name: 'Shelves' }).click(); await p.waitForTimeout(600);
   const rec = await M(p).locator('.crate .st').first().boundingBox(), off = await M(p).locator('.mz[data-zone="media_player.office"]').boundingBox();
@@ -80,6 +92,9 @@ const M = (page) => page.locator('fh-music');
   console.log('asleep rooms at 20:10:', await M(n).locator('.mzone[data-asleep]').count());
   await M(n).getByRole('button', { name: /Add Riley’s room to the music/ }).click(); await n.waitForTimeout(300);
   console.log('bedroom asks first:', await M(n).locator('fh-pin').count() === 1, '| no join yet:', !(await calls(n, /media_player\.join/)));
+  await M(n).locator('fh-pin').getByRole('button', { name: /Cancel|Close/ }).first().click().catch(() => {}); await n.waitForTimeout(200);
+  await M(n).locator('.wholeh').click(); await n.waitForTimeout(300);
+  console.log('whole house asks first at night:', await M(n).locator('fh-pin').count() === 1, '| no join yet:', !(await calls(n, /media_player\.join/)));
   await n.close();
 }
 let page = await open('look=glass&page=music&mview=list');

@@ -60,7 +60,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'night', 'nart'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
-    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck',
+    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
       'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
@@ -421,6 +421,8 @@ const FRIDGE = `
   @F .pool { background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
   @F .mzone[data-playing] .pool { animation: scribble .7s steps(2, jump-none) infinite; animation-iteration-count: var(--loops, infinite); }
   @F .puck { border-color: var(--magnet); box-shadow: 0 4px 0 #b9b2a2, 0 6px 8px rgba(0,0,0,.25); }
+  @F .mshelf { background: var(--note); border-radius: 4px; transform: rotate(.5deg); box-shadow: 0 5px 8px rgba(0,0,0,.16); }
+  @F .wholeh { border-radius: 6px; border-color: var(--ink2); }
   @F .viewbtn { border-radius: 6px; background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
   @F .vcard { border-radius: 4px; background: var(--note); box-shadow: 0 3px 5px rgba(0,0,0,.16); }
   @F .vcard[aria-pressed='true'] { background: var(--primary); }
@@ -643,6 +645,8 @@ const ORBIT = `
   @O .pool::before { display: none; }
   @O .mzone[data-playing] .pool { animation: breathe 3.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @O .puck { border: 1.5px solid var(--ink); box-shadow: none; }
+  @O .mshelf { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @O .wholeh { border-width: 1.5px; border-color: var(--ctl-line); }
   @O .viewbtn { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .vcard { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .vcard[aria-pressed='true'] { background: var(--primary); }
