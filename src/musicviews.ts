@@ -11,7 +11,7 @@ import type { ShelfItem } from './ma';
 
 export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
 export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
-  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Drag the music to a room. Slide up or down for volume.' },
+  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Drag the music or a record to a room. Slide up or down for volume.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob', hint: 'Drag round a room’s arc for volume. Tap the arc to add or drop the room.' },
   { id: 'desk', name: 'Desk', icon: 'desk', about: 'A fader for every room', hint: 'Slide a fader for volume. The lamp adds the room to the music.' },
