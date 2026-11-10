@@ -38,7 +38,7 @@ const M = (page) => page.locator('fh-music');
   await M(p).getByRole('button', { name: 'Close search' }).count().then((c) => console.log('search closed by default:', c === 0));
   await p.close();
   // the other ways of seeing the rooms: each one changes a volume by dragging, and adds a room
-  for (const [view, grab, add] of [['dial', '.darc[data-zone="media_player.kitchen"] .dknob', null], ['desk', '.strip[data-zone="media_player.kitchen"] .fcap', /Add Office to the music/], ['cables', '.cab[data-zone="media_player.kitchen"] .cone', /Add Office to the music/], ['scene', '.actor[data-zone="media_player.kitchen"] > svg', null]]) {
+  for (const [view, grab, add] of [['dial', '.darc[data-zone="media_player.kitchen"] .dknob', null], ['desk', '.strip[data-zone="media_player.kitchen"] .fcap', /Add Office to the music/], ['cables', '.cab[data-zone="media_player.kitchen"] .cone', /Add Office to the music/], ['scene', '.actor[data-zone="media_player.kitchen"] .agrab', null]]) {
     const v = await open('look=glass&page=music&mview=' + view); await v.evaluate(() => { (window.__calls ||= []).length = 0; });
     const g = await M(v).locator(grab).boundingBox(), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
     await v.mouse.move(cx, cy); await v.mouse.down(); await v.mouse.move(cx + (view === 'dial' ? -14 : 0), cy - 20, { steps: 4 }); await v.mouse.move(cx + (view === 'dial' ? -30 : 0), cy - (view === 'dial' ? 30 : 44), { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
@@ -49,7 +49,22 @@ const M = (page) => page.locator('fh-music');
     await v.keyboard.press('ArrowDown'); await v.waitForTimeout(200); out += ` | key: ${(await calls(v, /volume_set/)).split(' || ').pop().slice(-28)}`;
     const box = await M(v).locator('.body').evaluate((e) => [...e.querySelectorAll('.bigdial, .desk, .rig, .vscene')].map((x) => { const r = x.getBoundingClientRect(), b = e.getBoundingClientRect(); return r.bottom <= b.bottom + 1 && r.height > 120; })[0]);
     console.log(out, '| fits:', box);
-    if (view === 'scene') { const pk = await M(v).locator('.puck.spot').boundingBox(), to = await M(v).locator('.actor[data-zone="media_player.lounge_room_sonos"]').boundingBox();
+    if (view === 'scene') {
+      // bring two rooms together to share the music, pull one away to stop it
+      const mid = async (id) => { const b = await M(v).locator(`.actor[data-zone="${id}"] > svg`).boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2]; };
+      const haul = async (from, to) => { await v.mouse.move(...from); await v.mouse.down(); await v.mouse.move((from[0] + to[0]) / 2, (from[1] + to[1]) / 2, { steps: 5 }); await v.mouse.move(...to, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(900); };
+      await v.evaluate(() => { window.__calls.length = 0; });
+      const al = await mid('media_player.alexs_homepod'), ki = await mid('media_player.kitchen'); await haul(al, [ki[0] + 30, ki[1] + 10]);
+      console.log('scene together:', (await calls(v, /media_player\.join/)).slice(0, 110));
+      const al2 = await mid('media_player.alexs_homepod'), sb = await M(v).locator('.vscene').boundingBox(); await haul(al2, [sb.x + sb.width - 60, sb.y + 50]);
+      console.log('scene apart:', (await calls(v, /media_player\.unjoin/)).slice(0, 70));
+      const sp = await open('look=glass&theme=space&page=music&mview=scene'); await sp.evaluate(() => { (window.__calls ||= []).length = 0; });
+      const centre = await M(sp).locator('.core').boundingBox(), pl = await M(sp).locator('.actor.planet[data-zone="media_player.office"] > svg').boundingBox(), stage = await M(sp).locator('.vscene').boundingBox();
+      const cx = centre.x + centre.width / 2, cy = centre.y + centre.height / 2, from = [pl.x + pl.width / 2, pl.y + pl.height / 2], on = [cx - stage.height * 0.36, cy];
+      await sp.mouse.move(...from); await sp.mouse.down(); await sp.mouse.move((from[0] + on[0]) / 2, (from[1] + on[1]) / 2, { steps: 5 }); await sp.mouse.move(...on, { steps: 5 }); await sp.mouse.up(); await sp.waitForTimeout(600);
+      console.log('orbit join:', (await calls(sp, /media_player\.join/)).slice(0, 110), '| rings:', await M(sp).locator('.ring').count(), '| moving:', await M(sp).locator('.arm[data-moving]').count());
+      await sp.close();
+      const pk = await M(v).locator('.puck.spot').boundingBox(), to = await M(v).locator('.actor[data-zone="media_player.lounge_room_sonos"]').boundingBox();
       await v.mouse.move(pk.x + 30, pk.y + 30); await v.mouse.down(); await v.mouse.move(pk.x + 120, pk.y + 100, { steps: 4 }); await v.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
       console.log('scene carry:', await calls(v, /transfer_queue/)); }
     if (view === 'desk') { const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);

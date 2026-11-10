@@ -27,7 +27,7 @@ export const styles = css`
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
   .fh > header, .fh > .body, .fh > nav { position: relative; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
-  .fh[data-calm] { --loops: 1; --tilt: 0; }
+  .fh[data-calm] { --loops: 1; --tilt: 0; --motion: paused; }
   .fh.idle *, .fh.idle::after { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; } }
   .glass {
