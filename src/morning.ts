@@ -28,23 +28,23 @@ export class FhMorning extends LitElement {
     @keyframes starpop { from { transform: scale(.2) rotate(-40deg); } to { transform: none; } }
     .teambar { width: 100%; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
     .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; transition: width .6s; }
-    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
     .leave.go { animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-10px) rotate(-2deg); } 70% { transform: translateY(0) rotate(1deg); } }
     .cols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
     .col { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .who { display: flex; align-items: center; gap: 12px; }
-    .who h2 { font-size: 24px; font-weight: 800; flex: 1; }
-    .nextstep { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); font-size: 20px; font-weight: 700; min-height: 64px; }
+    .who h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; }
+    .nextstep { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); font-size: 20px; font-weight: var(--w-bold, 700); min-height: 64px; }
     .nextstep .e { font-size: 38px; line-height: 1; }
-    .nextstep small { display: block; font-size: 13px; font-weight: 700; color: var(--ink2); }
+    .nextstep small { display: block; font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); }
     .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
-    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: 700; }
-    .go { font-size: 15px; font-weight: 800; padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
+    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .go { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
     .go.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
     .go.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
-    .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: 600; }
+    .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
     .mev2 .t { width: 72px; color: var(--ink2); flex-shrink: 0; }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
@@ -137,16 +137,16 @@ export class FhMorning extends LitElement {
     const team = this._team(), ready = team.total > 0 && team.done === team.total;
     return html`
       <section class="glass top">
-        <div style="flex:1"><h1 style="font-size:28px;font-weight:800">Out the door</h1>
-          <span class="muted" style="font-size:15px;font-weight:600">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
+        <div style="flex:1"><h1 class="t-title">Out the door</h1>
+          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
         ${team.total ? html`<div class="team" role="img" aria-label="Team morning: ${team.done} of ${team.total} done">
           ${team.total <= 18 ? html`<div class="stars">${Array.from({ length: team.total }, (_, i) => html`<i class=${i < team.done ? 'on' : ''}>★</i>`)}</div>`
             : html`<div class="teambar"><div style="width:${(team.done / team.total) * 100}%"></div></div>`}
-          <span style="font-size:15px;font-weight:700">${ready ? 'Everyone’s ready – go team! 🎉' : 'Team morning: every job done adds a star'}</span></div>` : nothing}
+          <span style="font-size:15px;font-weight:var(--w-bold, 700)">${ready ? 'Everyone’s ready – go team! 🎉' : 'Team morning: every job done adds a star'}</span></div>` : nothing}
         <div style="display:flex;align-items:center;gap:14px;justify-content:flex-end;flex:1">
           ${left > 0 ? lookArt(getLook(), 'timer', { frac: Math.min(1, left / 60), size: 64 }) : nothing}
           <div style="text-align:right"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
-            <span class="muted" style="font-size:14px;font-weight:600">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
+            <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
       </section>
       <div class="cols" style="--n:${this.kids.length}">
         ${this.kids.map((k) => {

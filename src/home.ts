@@ -20,18 +20,18 @@ export class FhHome extends LitElement {
     .room { break-inside: avoid; margin-bottom: 12px; border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .5s ease, background .5s ease; }
     .room.lit { background: color-mix(in srgb, #ffd166 22%, var(--chip)); box-shadow: 0 0 0 1px color-mix(in srgb, #ffb703 40%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; }
-    .rh h2 { flex: 1; font-size: 19px; font-weight: 800; }
+    .rh h2 { flex: 1; font-size: 19px; font-weight: var(--w-heavy, 800); }
     .dev { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
     .dev .ic { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: all .3s; }
     .dev.on .ic { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
-    .dev .n { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .dev .s { font-size: 12px; color: var(--ink2); font-weight: 600; text-transform: capitalize; }
+    .dev .n { flex: 1; font-size: 14px; font-weight: var(--w-semi, 600); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dev .s { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); text-transform: capitalize; }
     .side { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
     .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .scene { height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 0 12px; font-size: 14px; font-weight: 700; text-align: left; }
+    .scene { height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 0 12px; font-size: 14px; font-weight: var(--w-bold, 700); text-align: left; }
     .scene.go { animation: go .8s ease; }
     @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(1.04); } }
-    .auto { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-size: 14px; font-weight: 600; }
+    .auto { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-size: 14px; font-weight: var(--w-semi, 600); }
     .sw { width: 50px; height: 30px; border-radius: 15px; background: var(--track); position: relative; flex-shrink: 0; transition: background .25s; }
     .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
     .sw[aria-checked='true'] { background: var(--ok); }
@@ -100,7 +100,7 @@ export class FhHome extends LitElement {
     const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     return html`
       <section class="glass rooms" aria-label="Rooms">
-        <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 style="font-size:26px;font-weight:800">Home</h1>
+        <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           <span class="muted" style="font-size:13px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} rooms</span></div></div>
         <div class="rgrid">
           ${rooms.map((r) => {

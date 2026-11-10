@@ -7,8 +7,9 @@ import type { Hass } from './types';
 export type Lane = 'routine' | 'job' | 'grow';
 export type Slot = 'am' | 'after' | 'bed' | 'any';
 export interface Chore { uid: string; summary: string; status: 'needs_action' | 'completed'; description?: string }
-export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number }
+export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number; /** a picture chosen for this job: an emoji at the start of its name, or @icon:🦷 in its description */ pic?: string }
 
+const LEAD_PIC = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u;
 /** Description tokens: "+10 @job @after", "@routine @am", "@grow @bed". Untagged items with points are jobs. */
 export const parseChore = (c: Chore): ParsedChore => {
   const d = c.description ?? '';
@@ -17,7 +18,8 @@ export const parseChore = (c: Chore): ParsedChore => {
   const lane: Lane = /@grow/.test(d) ? 'grow' : /@routine/.test(d) ? 'routine' : /@job/.test(d) || pts ? 'job' : 'routine';
   const slot: Slot = /@am/.test(d) ? 'am' : /@after/.test(d) ? 'after' : /@bed/.test(d) ? 'bed' : 'any';
   const mins = /(\d+)\s*min/i.exec(`${c.summary} ${d}`);
-  return { ...c, lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
+  const lead = LEAD_PIC.exec(c.summary), tagged = /@icon[:=]\s*(\S+)/.exec(d);
+  return { ...c, summary: lead ? c.summary.slice(lead[0].length) : c.summary, pic: tagged?.[1] ?? lead?.[1], lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
 };
 
 export const hm = (s: string): number => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
@@ -45,6 +47,23 @@ export const changed = (a: Hass | undefined, b: Hass | undefined, ids: Iterable<
   if (!a || !b) return true;
   for (const id of ids) if (a.states[id] !== b.states[id]) return true;
   return false;
+};
+
+/** Shortest label that tells each name apart: "W", "H", and "Ju" / "Ja" when two start alike. */
+export const shortNames = (names: string[]): Record<string, string> => {
+  const out: Record<string, string> = {}, uniq = [...new Set(names.filter(Boolean))];
+  for (const n of uniq) {
+    let len = 1;
+    while (len < Math.min(3, n.length) && uniq.some((o) => o !== n && o.slice(0, len).toLowerCase() === n.slice(0, len).toLowerCase())) len++;
+    out[n] = n[0].toUpperCase() + n.slice(1, len).toLowerCase();
+  }
+  return out;
+};
+
+/** Marks a scrolling box with data-more while there is more below, so it can fade its bottom edge. */
+export const scrollCue = (x: Event | Element): void => {
+  const el = (x instanceof Event ? x.currentTarget : x) as HTMLElement | null;
+  if (el) el.toggleAttribute('data-more', el.scrollHeight - el.scrollTop - el.clientHeight > 6);
 };
 
 export const pinOk = (pin: unknown, typed: string): boolean => pin !== undefined && pin !== null && String(pin) === typed;

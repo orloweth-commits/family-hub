@@ -3,6 +3,8 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
+import { keyboard, keysCss, typeKey } from './keys';
+import { scrollCue } from './util';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -24,11 +26,10 @@ export const aisleOf = (name: string): [string, string] => {
   return ['Other', '--p-family'];
 };
 
-const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 
 export class FhGroceries extends LitElement {
   readonly lookCtl = new LookController(this);
-  static styles = [styles, css`
+  static styles = [styles, keysCss, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
     .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
     .items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
@@ -36,18 +37,15 @@ export class FhGroceries extends LitElement {
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink3); }
     .done .box { background: var(--ok); border-color: var(--ok); color: #fff; }
     .done .txt { color: var(--ink3); text-decoration: line-through; }
-    .txt { flex: 1; font-size: 17px; font-weight: 600; }
-    .tag { font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .txt { flex: 1; font-size: 17px; font-weight: var(--w-semi, 600); }
+    .tag { font-size: 12px; font-weight: var(--w-bold, 700); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
-    .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: 600; color: var(--ink);
+    .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field::placeholder { color: var(--ink3); font-weight: 500; }
-    .keys { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; }
-    .krow { display: flex; gap: 8px; justify-content: center; }
-    .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform .1s ease; }
-    .key:active { transform: scale(.92); background: var(--chip); }
-    .chip { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 600; }
-    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
+    .keys { flex: 1; justify-content: flex-end; }
+    .chip { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
   `];
 
   static properties = {
@@ -57,6 +55,7 @@ export class FhGroceries extends LitElement {
     recipients: { attribute: false },
     _items: { state: true },
     _typed: { state: true },
+    _caps: { state: true },
     _toast: { state: true }
   };
 
@@ -66,6 +65,7 @@ export class FhGroceries extends LitElement {
   recipients: GroceryRecipient[] = [];
   private _items: TodoItem[] = [];
   private _typed = '';
+  private _caps = true;
   private _toast = '';
   private _unsub?: () => void;
   private _subFor = '';
@@ -75,6 +75,7 @@ export class FhGroceries extends LitElement {
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
+    this.renderRoot.querySelectorAll('.scrolly').forEach(scrollCue);
   }
 
   private async _subscribe(): Promise<void> {
@@ -93,9 +94,9 @@ export class FhGroceries extends LitElement {
     const n = name.trim();
     if (!n || !this.hass) return;
     const nice = n.charAt(0).toUpperCase() + n.slice(1);
-    if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; return; }
+    if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
     this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity });
-    this._typed = '';
+    this._typed = ''; this._caps = true;
   }
   private _toggle(i: TodoItem): void {
     this.hass?.callService('todo', 'update_item', { item: i.uid, status: i.status === 'completed' ? 'needs_action' : 'completed' }, { entity_id: this.entity });
@@ -121,14 +122,14 @@ export class FhGroceries extends LitElement {
     return html`
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
-          <h1 style="font-size:26px;font-weight:800">Groceries</h1>
-          <span class="muted" style="font-size:14px;font-weight:600">${open.length} to buy</span>
+          <h1 class="t-title">Groceries</h1>
+          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${open.length} to buy</span>
         </div>
-        <div class="items">
+        <div class="items scrolly" @scroll=${scrollCue}>
           ${sorted.map((i) => this._row(i))}
           ${done.length ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
             <span class="label">In the trolley</span>
-            <button class="tap muted" style="font-size:13px;font-weight:700" @click=${() => this._clearDone()}>Clear ${done.length}</button></div>
+            <button class="tap muted" style="font-size:13px;font-weight:var(--w-bold, 700)" @click=${() => this._clearDone()}>Clear ${done.length}</button></div>
             ${done.map((i) => this._row(i))}` : nothing}
           ${!this._items.length ? html`<div class="empty"><span style="color:var(--accent)">${icon('cart', 40)}</span><span>Nothing on the list yet</span></div>` : nothing}
         </div>
@@ -137,7 +138,7 @@ export class FhGroceries extends LitElement {
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:15px;font-weight:600;flex:1">Send the list to</span>
+          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1">Send the list to</span>
           ${this.recipients.map((r) => html`<button class="who glass tap" @click=${() => this._send(r)}>
             <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
           ${!this.recipients.length ? html`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>` : nothing}
@@ -146,19 +147,13 @@ export class FhGroceries extends LitElement {
           <input class="field" .value=${this._typed} inputmode="none" autocomplete="off" placeholder="Type an item…" aria-label="New item"
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
             @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
-          <button class="tap primary" style="height:60px;padding:0 26px;border-radius:16px;font-size:18px;font-weight:700" @click=${() => this._add()}>Add</button>
+          <button class="tap primary" style="height:60px;padding:0 26px;border-radius:16px;font-size:18px;font-weight:var(--w-bold, 700)" @click=${() => this._add()}>Add</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-          <span class="muted" style="font-size:13px;font-weight:700;margin-right:4px">Usuals</span>
+          <span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-right:4px">Usuals</span>
           ${this.usuals.map((u) => html`<button class="chip quick tap" @click=${() => this._add(u)}>+ ${u}</button>`)}
         </div>
-        <div class="keys">
-          ${ROWS.map((r) => html`<div class="krow">${r.split('').map((k) => html`<button class="key" @click=${() => { this._typed += k; }}>${k}</button>`)}</div>`)}
-          <div class="krow">
-            <button class="key" style="width:420px;font-size:17px" @click=${() => { this._typed += ' '; }}>space</button>
-            <button class="key" style="width:136px;background:var(--chip)" aria-label="Delete" @click=${() => { this._typed = this._typed.slice(0, -1); }}>⌫</button>
-          </div>
-        </div>
+        ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
       </section>
       ${this._toast ? html`<div class="toast" role="status">${this._toast}</div>` : nothing}`;
   }

@@ -27,17 +27,17 @@ export class FhMusic extends LitElement {
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
     .tabs { display: flex; gap: 6px; }
-    .tabs button { height: 42px; padding: 0 18px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: 600; }
+    .tabs button { height: 42px; padding: 0 18px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
     .room { border-radius: 20px; background: var(--chip); padding: 12px; display: flex; gap: 12px; align-items: center; text-align: left; }
     .room[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
     .thumb { width: 52px; height: 52px; border-radius: 12px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: 8px; }
-    .eq i { width: 4px; border-radius: 2px; background: #fff; animation: eq .9s ease-in-out infinite alternate; box-shadow: 0 0 4px rgba(0,0,0,.4); }
+    .eq i { width: 4px; border-radius: 2px; background: #fff; animation: eq .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); box-shadow: 0 0 4px rgba(0,0,0,.4); }
     .eq i:nth-child(2) { animation-delay: .3s; } .eq i:nth-child(3) { animation-delay: .6s; }
     @keyframes eq { from { height: 4px; } to { height: 22px; } }
-    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 14px; font-weight: 700; }
-    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-3))) center / contain no-repeat, #fff; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; font-weight: 800; color: var(--ink2); }
+    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 14px; font-weight: var(--w-bold, 700); }
+    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-3))) center / contain no-repeat, #fff; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; font-weight: var(--w-heavy, 800); color: var(--ink2); }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
     .soon { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 20px; }
     .soon .logo { width: 96px; height: 96px; border-radius: 26px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 44px; box-shadow: 0 14px 30px -10px rgba(0,0,0,.45); }
@@ -110,7 +110,7 @@ export class FhMusic extends LitElement {
     const p = this._cur;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="soon">No speakers found</div></section>`}
       <section class="glass panel">
-        <div style="display:flex;align-items:center;gap:12px"><h1 style="flex:1;font-size:26px;font-weight:800">Music</h1>
+        <div style="display:flex;align-items:center;gap:12px"><h1 class="t-title" style="flex:1">Music</h1>
           <div class="tabs" role="tablist">${([['rooms', 'Speakers'], ['radio', 'Radio'], ['apple', 'Apple Music'], ['spotify', 'Spotify']] as [Tab, string][])
             .map(([id, l]) => html`<button class="tap" role="tab" aria-pressed=${String(this._tab === id)} @click=${() => { this._tab = id; if (id === 'radio') this._loadRadio(); }}>${l}</button>`)}</div></div>
         ${this._tab === 'radio' && !Object.keys(this._resolved).length ? html`<span class="muted" style="font-size:13px">Tuning in…</span>` : nothing}
@@ -125,10 +125,10 @@ export class FhMusic extends LitElement {
     return html`<section class="glass stage" style=${art ? `--art:${art}` : ''} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${playing ? '' : 'animation:none;background:rgba(255,255,255,.5)'}"></span>
-        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.8">${playing ? 'Playing on' : 'Ready on'} ${a.friendly_name}</span></div>
+        <span style="font-size:13px;font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${playing ? 'Playing on' : 'Ready on'} ${a.friendly_name}</span></div>
       <div class="cover ${playing ? '' : 'paused'}"></div>
       <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-        <span class="display" style="font-size:26px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_title ?? (p.state === 'off' ? 'Off' : 'Nothing playing')}</span>
+        <span class="display" style="font-size:26px;font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_title ?? (p.state === 'off' ? 'Off' : 'Nothing playing')}</span>
         <span style="font-size:16px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_artist ?? a.media_album_name ?? 'Pick a station or start something on your phone'}</span>
       </div>
       <div class="ctl">
@@ -138,7 +138,7 @@ export class FhMusic extends LitElement {
       </div>
       ${vol !== null ? html`<div style="display:flex;align-items:center;gap:12px;margin-top:auto"><span style="opacity:.7">${icon('music', 18)}</span>
         <input type="range" min="0" max="100" .value=${String(vol)} aria-label="Volume" @change=${(e: Event) => this._svc('volume_set', { volume_level: Number((e.target as HTMLInputElement).value) / 100 })}>
-        <span style="width:34px;text-align:right;font-size:13px;font-weight:700;opacity:.8">${vol}</span></div>` : nothing}
+        <span style="width:34px;text-align:right;font-size:13px;font-weight:var(--w-bold, 700);opacity:.8">${vol}</span></div>` : nothing}
     </section>`;
   }
 
@@ -148,7 +148,7 @@ export class FhMusic extends LitElement {
       const a = p.attributes, playing = p.state === 'playing';
       return html`<button class="room tap" aria-pressed=${String(p.entity_id === cur)} @click=${() => { this._focus = p.entity_id; }}>
         <span class="thumb ${playing ? 'eq' : ''}" style=${a.entity_picture ? `--art:url(${a.entity_picture})` : ''}>${playing ? html`<i></i><i></i><i></i>` : icon('music', 20)}</span>
-        <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.friendly_name}</span>
+        <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.friendly_name}</span>
           <span class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize">${playing ? (a.media_title ?? 'Playing') : p.state}</span></span>
       </button>`;
     })}</div>`;
@@ -168,7 +168,7 @@ export class FhMusic extends LitElement {
     const apple = t === 'apple';
     return html`<div class="soon">
       <span class="logo" style="background:${apple ? 'linear-gradient(135deg,#fa2d48,#fc5c7d)' : '#1db954'}">${solid('play', 44)}</span>
-      <h2 style="font-size:24px">${apple ? 'Apple Music' : 'Spotify'} is nearly ready</h2>
+      <h2 class="t-head">${apple ? 'Apple Music' : 'Spotify'} is nearly ready</h2>
       <span class="muted" style="max-width:420px">This needs the Music Assistant add-on in Home Assistant${apple ? '' : ' and a Spotify Premium account'}. Once it’s connected, playlists and search will appear here and play to any speaker.</span>
       <span class="muted" style="font-size:13px">Until then, AirPlay from a phone to any HomePod or the Sonos works as normal.</span>
     </div>`;

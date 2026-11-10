@@ -16,7 +16,7 @@ export const fxCss = `
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
   .confetti i { position: absolute; top: -20px; animation-name: fall; animation-timing-function: cubic-bezier(.25,.6,.45,1); animation-fill-mode: forwards; opacity: 0; }
   @keyframes fall { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--drift), 105vh) rotate(var(--rot)); } }
-  .burst { position: absolute; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; color: var(--ok);
+  .burst { position: absolute; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-weight: var(--w-heavy, 800); font-size: 30px; color: var(--ok);
     text-shadow: 0 2px 10px rgba(0,0,0,.18); animation: burst 1.2s cubic-bezier(.2,.8,.2,1) forwards; z-index: 20; }
   @keyframes burst { 0% { opacity: 0; transform: translateY(10px) scale(.6); } 20% { opacity: 1; transform: translateY(-6px) scale(1.15); } 100% { opacity: 0; transform: translateY(-70px) scale(1); } }
   .shake { animation: shake .45s; }

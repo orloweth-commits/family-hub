@@ -1,4 +1,5 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
+import { loadFonts } from './fonts';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -33,7 +34,7 @@ export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: nu
 /** A switch a look offers. With `off`/`on` labels it is drawn as a two-way toggle (e.g. Print | Handwriting). */
 export interface LookOption { id: string; label: string; hint?: string; off?: string; on?: string; onStyle?: string }
 export interface LookDef {
-  id: LookId; name: string; tagline: string; swatch: string; fonts?: string;
+  id: LookId; name: string; tagline: string; swatch: string; /** families from fonts.ts this look needs */ fonts?: string[];
   /** true = colours and background come from the photo themes (the original look) */
   themed?: boolean;
   vars?: Record<string, string>;
@@ -116,7 +117,7 @@ export const LOOKS: LookDef[] = [
   { id: 'glass', name: 'Glass', tagline: 'Frosted panels over a photo', swatch: 'linear-gradient(160deg,#8ecbf0,#f3e3c4)', themed: true },
   {
     id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
-    fonts: 'family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700',
+    fonts: ['Caveat', 'Fredoka'],
     art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size) },
     options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: 'Print is easier to read from across the room.' }],
     vars: {
@@ -127,6 +128,7 @@ export const LOOKS: LookDef[] = [
       '--chip': 'rgba(38,39,43,.07)', '--chip-strong': 'var(--paper)', '--chip-soft': 'rgba(38,39,43,.045)', '--chip-faint': 'rgba(38,39,43,.02)', '--track': 'rgba(38,39,43,.16)',
       '--primary': '#24408e', '--on-primary': '#ffffff', '--primary-edge': '#162a63', '--accent': '#a85200', '--ok': '#17703d',
       '--timer': '#c62a22', '--timer-face': 'var(--paper)', '--timer-rim': 'var(--ink)',
+      '--t-hero': '46px', '--t-title': '42px', '--t-head': '30px', '--t-sub': '26px', '--w-title': '700', '--w-sub': '700', '--w-heavy': '700', '--w-bold': '600', '--w-semi': '500',
       '--font-content': "'Fredoka', sans-serif", '--content-weight': '500', '--content-size': '17px', '--content-size-lg': '21px', '--content-ink': 'var(--ink)', '--bg': 'none'
     },
     evening: {
@@ -136,7 +138,7 @@ export const LOOKS: LookDef[] = [
   },
   {
     id: 'orbit', name: 'Orbit', tagline: 'Dark, calm, built from rings', swatch: '#0a0f1e',
-    fonts: 'family=Outfit:wght@300;400;500;600',
+    fonts: ['Outfit'],
     art: { clock: (c) => ringClock(c.arcs ?? [], c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size) },
     vars: {
       // same hue per person as every other look, lifted for a dark ground
@@ -146,7 +148,8 @@ export const LOOKS: LookDef[] = [
       '--chip': 'rgba(255,255,255,.09)', '--chip-strong': 'rgba(255,255,255,.17)', '--chip-soft': 'rgba(255,255,255,.05)', '--chip-faint': 'rgba(255,255,255,.025)', '--track': 'rgba(255,255,255,.28)', '--on-ok': '#0a0f1e',
       // ink-filled = an action; yellow = now / current; mint = done
       '--primary': '#e8ecf7', '--on-primary': '#0a0f1e', '--accent': '#ffe08a', '--ok': '#6ee7c0',
-      '--timer': '#ffe08a', '--timer-face': 'rgba(255,255,255,.06)', '--timer-rim': 'rgba(255,255,255,.44)', '--bg': 'none'
+      '--timer': '#ffe08a', '--timer-face': 'rgba(255,255,255,.06)', '--timer-rim': 'rgba(255,255,255,.44)', '--bg': 'none',
+      '--w-title': '400', '--w-sub': '500', '--w-heavy': '600', '--w-bold': '500', '--w-semi': '400'
     }
   }
 ];
@@ -164,13 +167,7 @@ export const setLook = (id: LookId): void => {
   loadLookFonts(current);
   subs.forEach((f) => f());
 };
-function loadLookFonts(id: LookId): void {
-  const f = lookById(id).fonts, key = `family-hub-fonts-${id}`;
-  if (!f || document.getElementById(key)) return;
-  const l = document.createElement('link');
-  l.id = key; l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?${f}&display=swap`;
-  document.head.appendChild(l);
-}
+function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [])); }
 
 /** Keeps a component's `data-look` host attribute in step with the chosen look. */
 export class LookController implements ReactiveController {
@@ -188,8 +185,8 @@ const FRIDGE = `
   @F .fh::before { display: none; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
   @F h1, @F h2 { font-family: 'Caveat', 'Fredoka', sans-serif; letter-spacing: 0; }
-  @F h1 { font-size: 42px !important; line-height: .95; }
-  @F h2 { font-size: 30px !important; line-height: 1; }
+  @F h1 { line-height: .95; }
+  @F h2 { line-height: 1; }
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color 1.5s ease; }
   @F .glass.round { border-radius: 50%; }
@@ -206,8 +203,9 @@ const FRIDGE = `
   @F .cap.hot { background: var(--danger); color: #fff; }
   @F .weather { border-radius: 4px; rotate: calc(var(--tilt, 1) * -1deg); }
   @F .presence { background: transparent; box-shadow: none; gap: 2px; padding: 0 4px; }
-  @F .presence .avatar { background: transparent !important; color: var(--c); font-weight: 700; font-size: 34px !important; width: 30px !important; height: 44px !important; border-radius: 0; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
-  @F .presence .avatar.away { color: transparent; -webkit-text-stroke: 2px var(--c); opacity: 1 !important; rotate: 14deg; text-shadow: none; }
+  @F .presence { gap: 10px; }
+  @F .presence .avatar { background: transparent; color: var(--c); font-weight: 700; font-size: 34px; width: auto; min-width: 26px; height: 44px; border-radius: 0; letter-spacing: -.04em; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
+  @F .presence .avatar.away { color: transparent; -webkit-text-stroke: 2px var(--c); opacity: 1; rotate: 14deg; text-shadow: none; }
   @F .right > button.round { background: var(--magnet); color: var(--ink); box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .right > button.round[data-act='night'] { background: #33363b; color: #ffd75a; }
 
@@ -237,16 +235,16 @@ const FRIDGE = `
   @F .cell { border-radius: 2px; background: var(--note); box-shadow: 0 2px 3px rgba(0,0,0,.12); }
   @F .cell.out { background: color-mix(in srgb, var(--note) 45%, transparent); box-shadow: none; }
   @F .cell.today { background: var(--note-today); box-shadow: 0 0 0 2.5px var(--ink); }
-  @F .dayrow { background: var(--note) !important; border-left-width: 10px !important; border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
+  @F .dayrow { background: var(--note); border-left-width: 10px; border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .dayrow .content { font-family: var(--font-content); font-weight: var(--content-weight); }
 
   /* side cards */
   @F .np { background: #2f2a26; border-radius: 10px; --ink: #fff; --ink2: #e2dbcf; color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
   @F .np .np-row { background: #fff6dc; color: #26272b; --ink2: #4c4a45; border-radius: 4px; padding: 6px 10px; }
   @F .np .primary { background: var(--paper); color: #26272b; box-shadow: 0 4px 0 #b9b2a2; }
-  @F .art { border-radius: 50%; width: 46px; height: 46px; background: conic-gradient(#ede6d6 0 8%, #141210 8% 10%, #ede6d6 10% 33%, #141210 33% 35%, #ede6d6 35% 58%, #141210 58% 60%, #ede6d6 60% 83%, #141210 83% 85%, #ede6d6 85%) !important; box-shadow: inset 0 0 0 5px #141210; }
+  @F .art { border-radius: 50%; width: 46px; height: 46px; background: conic-gradient(#ede6d6 0 8%, #141210 8% 10%, #ede6d6 10% 33%, #141210 33% 35%, #ede6d6 35% 58%, #141210 58% 60%, #ede6d6 60% 83%, #141210 83% 85%, #ede6d6 85%); box-shadow: inset 0 0 0 5px #141210; }
   @F .playing .art { animation: fhSpin 4s linear infinite; animation-iteration-count: var(--loops, infinite); }
-  @F .timerrow { align-items: center !important; }
+  @F .timerrow { align-items: center; }
   @F .timerrow.on .hint { display: none; }
   @F .quick { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; min-height: 44px; font-size: 16px; font-weight: 500; }
   @F .rem { font-weight: 500; font-size: 16px; line-height: 1.15; }
@@ -257,7 +255,7 @@ const FRIDGE = `
   /* dock: a row of fridge magnets */
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
   @F .dock .item { font-weight: 600; font-size: 14px; height: 78px; gap: 3px; border-radius: 0; }
-  @F .dock .item svg.i { width: 52px !important; height: 52px !important; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
+  @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #ffd75a; }
   @F .dock .item[data-nav='lights-off'] svg.i { background: #4a4f55; color: #fff; }
   @F .dock .item[data-nav='dinner'] svg.i { background: var(--danger); color: #fff; }
@@ -293,7 +291,7 @@ const FRIDGE = `
   @F .stat { background: var(--chip-soft); border-radius: 8px; }
   @F .stat b { font-family: 'Fredoka', sans-serif; font-weight: 700; }
   @F .stat span { font-weight: 500; font-size: 14px; }
-  @F .dots button.g { background: #f5b301; border-color: #8a5f00; }
+  @F .dots i.g { background: #f5b301; border-color: #8a5f00; }
   @F .nextup { background: var(--chip-soft); border-radius: 8px; }
   @F .jobs { background: linear-gradient(90deg, transparent 0 69px, var(--margin) 69px 71px, transparent 71px) 0 86px / 100% 100% no-repeat, var(--glass); }
   @F .sec h2 { font-size: 30px; line-height: 1; padding: 0 4px; }
@@ -328,8 +326,6 @@ const ORBIT = `
   @O .fh { font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
   @O h1, @O h2, @O .display { font-family: 'Outfit', sans-serif; letter-spacing: -.01em; }
-  @O h1 { font-weight: 400 !important; }
-  @O h2 { font-weight: 500 !important; }
   @O .glass { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
   @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 14px; }
   @O .pill, @O .round { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
@@ -346,7 +342,7 @@ const ORBIT = `
   @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); }
   @O .badge { background: rgba(255,224,138,.18); font-weight: 600; }
   @O .presence { background: transparent; border-color: transparent; }
-  @O .presence .avatar.away { background: transparent !important; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); opacity: 1 !important; }
+  @O .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); opacity: 1; }
   @O .right > button.round { background: transparent; }
 
   /* planner */
@@ -369,12 +365,12 @@ const ORBIT = `
   @O .cell { border-radius: 14px; border: 1px solid var(--glass-line); background: var(--glass); }
   @O .cell.out { background: transparent; }
   @O .cell.today { background: color-mix(in srgb, var(--accent) 13%, var(--glass)); border: 2px solid var(--accent); }
-  @O .dayrow { border-left-width: 4px !important; border-radius: 12px; }
+  @O .dayrow { border-left-width: 4px; border-radius: 12px; }
 
   /* side cards */
-  @O .art { border-radius: 50%; background: radial-gradient(circle, #05070f 0 5%, #7cb7ff 6% 30%, #05070f 31% 44%, #1a2036 45% 46%, #05070f 47% 62%, #1a2036 63% 64%, #05070f 65% 82%, #1a2036 83% 84%, #05070f 85%) !important; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+  @O .art { border-radius: 50%; background: radial-gradient(circle, #05070f 0 5%, #7cb7ff 6% 30%, #05070f 31% 44%, #1a2036 45% 46%, #05070f 47% 62%, #1a2036 63% 64%, #05070f 65% 82%, #1a2036 83% 84%, #05070f 85%); box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
   @O .playing .art { animation: fhSpin 6s linear infinite; animation-iteration-count: var(--loops, infinite); }
-  @O .timerrow { align-items: center !important; gap: 12px !important; }
+  @O .timerrow { align-items: center; gap: 12px; }
   @O .timerrow.on .hint { display: none; }
   @O .quick { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 500; min-height: 44px; }
   @O .rem { font-weight: 400; }
@@ -384,7 +380,7 @@ const ORBIT = `
   /* dock: a line of rings */
   @O .dock { background: transparent; border-color: transparent; gap: 6px; padding: 0; }
   @O .dock .item { font-size: 13px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
-  @O .dock .item svg.i { width: 52px !important; height: 52px !important; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
+  @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
@@ -412,12 +408,12 @@ const ORBIT = `
   @O .stat { background: var(--chip-soft); }
   @O .stat b { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 34px; }
   @O .stat span { font-weight: 400; }
-  @O .dots button.t { box-shadow: 0 0 0 2px #121a31, 0 0 0 4px var(--kid); }
+  @O .dots i.t { box-shadow: 0 0 0 2px #121a31, 0 0 0 4px var(--kid); }
   @O .nextup { background: var(--chip-soft); }
   @O .jobs .check { border-color: var(--kid); }
   @O .jobs .done .check { border-color: var(--ok); }
   @O .sec { margin-top: 12px; }
-  @O .sec h2 { font-size: 17px; font-weight: 600 !important; color: var(--kid); }
+  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--kid); }
   @O .sec span { font-weight: 400; }
   @O .plus { background: color-mix(in srgb, var(--kid) 20%, transparent); color: var(--kid); font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }

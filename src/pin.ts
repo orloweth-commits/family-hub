@@ -13,7 +13,7 @@ export class FhPin extends LitElement {
     .dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink2); transition: background .15s; }
     .dots span.on { background: var(--ink); border-color: var(--ink); }
     .grid { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
-    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: 600; }
+    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: var(--w-semi, 600); }
     .bad { animation: shake .4s; }
     @keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
   `];
@@ -33,7 +33,7 @@ export class FhPin extends LitElement {
   }
   render() {
     return html`<div class="glass pad ${this._bad ? 'bad' : ''}" role="dialog" aria-label="Parent PIN" @click=${(e: Event) => e.stopPropagation()}>
-      <div style="display:flex;width:100%;align-items:center"><h2 style="flex:1;font-size:22px">${this.reason}</h2>
+      <div style="display:flex;width:100%;align-items:center"><h2 class="t-sub" style="flex:1">${this.reason}</h2>
         <button class="round tap" aria-label="Cancel" @click=${() => this.dispatchEvent(new CustomEvent('cancel'))}>${icon('close', 18)}</button></div>
       <div class="dots">${Array.from({ length: this.pin.length }, (_, i) => html`<span class=${i < this._typed.length ? 'on' : ''}></span>`)}</div>
       <div class="grid">

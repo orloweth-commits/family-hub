@@ -2,6 +2,7 @@
 //  1. A look may only style classes listed in HOOKS (shared roles, or parts owned by one component).
 //  2. A rule may not mix parts from different components, and may not select by position.
 //  3. Every hook must still exist: roles somewhere in the base, parts in the component that owns them.
+//  4. A look never forces a value with !important: the base keeps sizes and weights in classes and tokens.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -25,6 +26,7 @@ const errors = [];
 for (const [id, tag] of [['FRIDGE', '@F'], ['ORBIT', '@O']]) {
   const css = new RegExp(`const ${id} = \`([\\s\\S]*?)\`;`).exec(looks)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   if (css.includes('@keyframes')) errors.push(`${id}: keep @keyframes in KEYFRAMES, not in the look's rules`);
+  for (const m of css.matchAll(/([^{}]+)\{[^{}]*!important[^{}]*\}/g)) errors.push(`${id}: no !important – if the base sets this inline, move it to a class or a token: "${m[1].trim()}"`);
   for (const rule of css.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const raw of rule[1].split(',')) {
     const sel = raw.trim();
     if (!sel.startsWith(tag)) { errors.push(`${id}: selector is not scoped to the look: "${sel}"`); continue; }

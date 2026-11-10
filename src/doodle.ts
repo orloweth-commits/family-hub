@@ -30,7 +30,7 @@ export class FhDoodle extends LitElement {
     .wrap { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background .4s; }
     .wrap.chalk { background: #23332b; }
     canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
-    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 700; color: rgba(0,0,0,.12); }
+    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: rgba(0,0,0,.12); }
     .chalk .hint { color: rgba(255,255,255,.18); }
     .acts { display: flex; gap: 8px; align-items: center; }
     .fridge { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -229,13 +229,13 @@ export class FhDoodle extends LitElement {
           <button class="pill tap" @click=${() => this._clear()}>${icon('close', 18)}Clear</button>
           <button class="pill tap" @click=${() => { this._chalk = !this._chalk; if (this._chalk && this._ink === INKS[0]) this._ink = '#ffffff'; else if (!this._chalk && this._ink === '#ffffff') this._ink = INKS[0]; }}>${icon(this._chalk ? 'sun' : 'moon', 18)}${this._chalk ? 'Paper' : 'Chalkboard'}</button>
           <span style="flex:1"></span>
-          ${this.artists.length ? html`<span class="muted" style="font-size:13px;font-weight:700">Artist</span>${this.artists.map((a) => html`<button class="pill tap" style=${this._artist === a ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => { this._artist = this._artist === a ? '' : a; }}>${a}</button>`)}` : ''}
+          ${this.artists.length ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700)">Artist</span>${this.artists.map((a) => html`<button class="pill tap" style=${this._artist === a ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => { this._artist = this._artist === a ? '' : a; }}>${a}</button>`)}` : ''}
           <button class="pill tap primary" style="height:48px;padding:0 20px;font-size:16px" @click=${() => this._toFridge()}>${icon('star', 18)}Stick it on the fridge</button>
         </div>
       </section>
       <section class="glass fridge" aria-label="The fridge">
         <span class="label">The fridge</span>
-        ${this._pics.length ? html`<div class="pics">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<button class="pic tap" aria-label="View doodle" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span style="position:absolute;bottom:-8px;right:-4px;background:var(--chip-strong);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800;text-transform:capitalize">${by}</span>` : ''}</button>`; })}</div>`
+        ${this._pics.length ? html`<div class="pics">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<button class="pic tap" aria-label="View doodle" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span style="position:absolute;bottom:-8px;right:-4px;background:var(--chip-strong);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:var(--w-heavy, 800);text-transform:capitalize">${by}</span>` : ''}</button>`; })}</div>`
           : html`<span class="muted" style="font-size:14px">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}

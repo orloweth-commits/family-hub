@@ -30,7 +30,7 @@ const F: Record<string, string> = {
 };
 
 export const icon = (name: string, size = 22): TemplateResult =>
-  html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="width:${size}px;height:${size}px">${svg`<path d=${P[name] ?? ''}></path>`}</svg>`;
+  html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${svg`<path d=${P[name] ?? ''}></path>`}</svg>`;
 export const solid = (name: string, size = 22): TemplateResult =>
   html`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${size}px;height:${size}px;fill:currentColor">${svg`<path d=${F[name] ?? ''}></path>`}</svg>`;
 
