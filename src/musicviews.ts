@@ -164,7 +164,7 @@ const ACTORS: Record<string, (r: Room, v: number) => TemplateResult> = {
     <path class="ahull" d="M12 98H88L76 114H24Z"></path><path class="aline" d="M50 98V14"></path>
     ${r.live ? svg`<path class="afill" d="M54 92V${92 - h}L${54 + h * 0.52} 92Z"></path><path class="afill soft" d="M46 92V${92 - h * 0.7}L${46 - h * 0.32} 92Z"></path>${r.playing ? svg`<path class="aflag" d="M50 14l18 6-18 6z"></path>` : nothing}`
       : svg`<rect class="aidle" x="46" y="30" width="8" height="62" rx="4"></rect>`}</g>`; },
-  reef: (r, v) => { const s = 17 + 22 * v; return svg`<g class="swim">
+  reef: (r, v) => { const s = 20 + 22 * v; return svg`<g class="swim">
     <path class=${r.live ? 'afill' : 'aidle'} d="M${50 - s} 70L${50 - s * 1.8} ${70 - s * 0.62}V${70 + s * 0.62}Z"></path>
     <ellipse class=${r.live ? 'afill edge' : 'aidle edge'} cx="50" cy="70" rx=${s * 1.15} ry=${s * 0.74}></ellipse>
     <circle class="aeye" cx=${50 + s * 0.6} cy=${70 - s * 0.16} r=${Math.max(3, s * 0.15)}></circle><circle class="apupil" cx=${50 + s * 0.65} cy=${70 - s * 0.16} r=${Math.max(1.5, s * 0.07)}></circle></g>
@@ -282,8 +282,8 @@ export const viewsCss = css`
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* ---- dial ---- */
-  .dialwrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
-  .bigdial { height: 94%; max-height: 430px; aspect-ratio: 1; position: relative; user-select: none; -webkit-user-select: none; }
+  .dialwrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; container-type: size; }
+  .bigdial { height: 90%; max-height: 620px; aspect-ratio: 1; position: relative; user-select: none; -webkit-user-select: none; }
   .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .dplate { fill: var(--chip); }
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
@@ -305,7 +305,7 @@ export const viewsCss = css`
   .dcover span { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; transition: transform .2s cubic-bezier(.2,1.4,.4,1); }
   .dcover:active span { transform: scale(.9); }
   .dlabel { position: absolute; min-width: 44px; min-height: 44px; padding: 2px 8px; display: flex; flex-direction: column; justify-content: center; line-height: 1.15; border-radius: 12px; white-space: nowrap; }
-  .dlabel b { font-size: 15px; font-weight: var(--w-bold, 700); } .dlabel span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dlabel b { font-size: clamp(15px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); } .dlabel span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dlabel[aria-pressed='true'] b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .bigdial[data-fit] .dlabel b { font-size: 13px; }
   :host([data-phone]) .dialwrap { flex: none; height: 360px; } :host([data-phone]) .bigdial { height: 62%; }
@@ -348,7 +348,7 @@ export const viewsCss = css`
   .wire { fill: none; stroke: var(--c, var(--stream, var(--primary))); stroke-width: 6px; stroke-linecap: round; vector-effect: non-scaling-stroke; --c: var(--stream, var(--primary)); }
   .wire[data-playing] { animation: wire 1.3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes wire { to { transform: translateY(1.6px); } }
-  .cab { position: absolute; width: 33.5%; height: min(72px, 30%); min-height: 56px; transform: translateY(-50%); border-radius: 16px; background: #1b2230; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.6); }
+  .cab { position: absolute; width: 33.5%; height: min(84px, 30%); min-height: 56px; transform: translateY(-50%); border-radius: 16px; background: #1b2230; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.6); }
   .cab.left { left: 0; padding-right: 30px; } .cab.right { right: 0; padding-left: 30px; flex-direction: row; }
   .cab[data-focus] { box-shadow: 0 0 0 3px var(--c), 0 6px 12px -8px rgba(0,0,0,.6); } .cab[data-hot] { box-shadow: 0 0 0 4px var(--accent); } .chit { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 8px; border-radius: 12px; outline: none; } .chit:focus-visible { box-shadow: 0 0 0 3px #fff; }
   .cone { width: 40px; height: 40px; border-radius: 50%; background: #0b0d12; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -365,7 +365,7 @@ export const viewsCss = css`
   .sock[aria-pressed='true'] { background: var(--c); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
   .cdeck { position: absolute; left: 41%; right: 41%; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; pointer-events: none; }
   .cdeck > * { pointer-events: auto; }
-  .cdisc { width: min(100%, 120px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, transparent 0 24%, rgba(0,0,0,.0) 24%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 6px #17140f, 0 0 0 8px rgba(255,255,255,.3), 0 12px 22px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .cdisc { width: min(100%, 190px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, transparent 0 24%, rgba(0,0,0,.0) 24%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 6px #17140f, 0 0 0 8px rgba(255,255,255,.3), 0 12px 22px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
   .cdisc[data-playing] { animation: puck 9s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .cdisc span { width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; }
   .cdisc[data-playing] span { animation: puck 9s linear infinite reverse; animation-iteration-count: var(--loops, infinite); }
@@ -387,14 +387,14 @@ export const viewsCss = css`
   @keyframes weed { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
   .bgstar { fill: #fff; animation: twinkle 2s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); } .bgfly { fill: #fff3a8; animation: twinkle 2.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .sun { position: absolute; left: 14px; top: 10px; display: flex; align-items: center; gap: 12px; z-index: 2; }
-  .puck.spot { position: static; margin: 0; width: 64px; height: 64px; flex-shrink: 0; }
+  .puck.spot { position: static; margin: 0; width: clamp(64px, 18cqh, 96px); height: clamp(64px, 18cqh, 96px); flex-shrink: 0; }
   .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .suntx { display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .actor { width: 116px; display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
+  .actor { width: clamp(124px, 48cqh, 230px); display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
   .actor.free { position: absolute; transform: translate(-50%, -50%); transition: left .6s cubic-bezier(.3,1.3,.5,1), top .6s cubic-bezier(.3,1.3,.5,1); }
   .actor[data-held] { transition: none; z-index: 5; cursor: grabbing; filter: drop-shadow(0 14px 12px rgba(0,0,0,.3)); }
   .actor[data-held] > svg { transform: scale(1.12); }
-  .actor > svg { width: 108px; height: 98px; margin-bottom: -8px; overflow: visible; outline: none; transition: transform .2s; }
+  .actor > svg { width: 93%; height: auto; aspect-ratio: 108 / 98; margin-bottom: -8px; overflow: visible; outline: none; transition: transform .2s; }
   .actor > svg:focus-visible { border-radius: 14px; box-shadow: inset 0 0 0 3px var(--ink); }
   .actor[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--c); } .actor[data-focus] .aname { background: var(--chip-strong); box-shadow: 0 0 0 2px var(--c); }
   .agrab { position: absolute; right: -14px; top: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: ns-resize; touch-action: none; }
@@ -403,7 +403,7 @@ export const viewsCss = css`
   .agrab i::before { top: -1px; border-bottom-color: var(--ink2); } .agrab i::after { bottom: -1px; border-top-color: var(--ink2); }
   .actor[data-live] .agrab i { box-shadow: inset 0 0 0 2.5px var(--c), 0 2px 5px rgba(0,0,0,.25); }
   .aname { min-height: 44px; max-width: 120px; padding: 2px 10px; border-radius: 14px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
-  .aname b { max-width: 100%; font-size: 13px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .aname b { max-width: 100%; font-size: clamp(13px, 3.6cqh, 16px); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
   /* orbits */
   .ring { position: absolute; left: 50%; top: 46%; width: calc(var(--r) * var(--k) * 2cqh); height: calc(var(--r) * var(--k) * var(--sq) * 2cqh); transform: translate(-50%, -50%); border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--c) 70%, transparent); pointer-events: none; }
   .ring.park { border: 2px dashed var(--track); }
@@ -416,9 +416,9 @@ export const viewsCss = css`
   .unspin { width: 0; height: 0; transform: rotate(calc(var(--a) * -1deg)); }
   .arm[data-moving] .unspin { animation: orbit var(--t) linear infinite reverse; animation-delay: calc(var(--a) / 360 * var(--t) * -1); animation-play-state: var(--motion, running); }
   .unsquash { width: 0; height: 0; transform: scaleY(calc(1 / var(--sq))); }
-  .actor.planet { position: absolute; left: -58px; top: -52px; }
+  .actor.planet { position: absolute; left: 0; top: 0; transform: translate(-50%, -42%); }
   .arm[data-away] { opacity: .25; } .actor.clone { pointer-events: none; }
-  .orbits .actor > svg { height: 84px; margin-bottom: -14px; } .orbits .aname { min-height: 44px; padding: 0 8px; background: transparent; justify-content: flex-start; } .orbits .aname span { display: none; }
+  .orbits .actor { width: clamp(108px, 24cqh, 160px); } .orbits .actor > svg { aspect-ratio: 108 / 84; margin-bottom: -14px; } .orbits .aname { min-height: 44px; padding: 0 8px; background: transparent; justify-content: flex-start; } .orbits .aname span { display: none; }
   .orbits .actor[data-focus] .aname { background: transparent; box-shadow: none; } .orbits .actor[data-focus] .aname b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .afill { fill: var(--c); } .afill.soft { opacity: .6; } .afill.edge, .aidle.edge { stroke: #fff; stroke-width: 2.5; }
   .aidle { fill: var(--ink3); opacity: .75; } .ahull { fill: #fff; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
@@ -445,5 +445,5 @@ export const viewsCss = css`
   @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
   .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
   .vscene[data-fit] .aname span { display: none; }
-  :host([data-phone]) .vscene { flex: none; height: 470px; --k: .54; --sq: .9; } :host([data-phone]) .actor { width: 92px; } :host([data-phone]) .actor > svg { width: 84px; height: 76px; } :host([data-phone]) .actor.planet { left: -46px; top: -40px; }
+  :host([data-phone]) .vscene { flex: none; height: 470px; --k: .54; --sq: .9; } :host([data-phone]) .actor, :host([data-phone]) .orbits .actor { width: 92px; }
 `;
