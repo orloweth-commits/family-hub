@@ -102,6 +102,8 @@ export interface FamilyHubConfig {
   music_players?: string[];
   /** the house as the Music page draws it: floors from the top down, rooms left to right (without it, one room per speaker) */
   music_map?: MapFloorConfig[];
+  /** speakers to leave off the Music page altogether, e.g. a TV that already plays through another speaker */
+  music_hide?: string[];
   /** song or playlist (name or URI) for timed jobs tagged @song, and how long the Music page's sleep timer runs */
   tidy_song?: string; music_sleep_minutes?: number;
   radio?: (string | StationConfig)[];

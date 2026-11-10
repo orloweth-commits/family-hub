@@ -272,7 +272,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -286,6 +286,7 @@ export class FhMusic extends LitElement {
   quiet: { start?: string; end?: string } = {};
   sleepMinutes = 30;
   map: MapFloorConfig[] = [];
+  hide: string[] = [];
   /** the photo theme, so the sound in each room can take its shape (waves, bubbles, stars…) */
   theme = '';
   private _view: 'house' | 'list' | '' = ls<'house' | 'list' | ''>('fh-music-view', '');
@@ -332,7 +333,12 @@ export class FhMusic extends LitElement {
   disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._tick); }
   private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 3200); }
 
-  private get _list(): HassEntity[] { return rooms(this.hass!, this.players); }
+  private get _list(): HassEntity[] {
+    const all = rooms(this.hass!, this.players);
+    if (!this.hide.length) return all;
+    const gone = new Set(this.hide.map((id) => findRoom(this.hass!, all, id)?.entity_id ?? id));
+    return all.filter((p) => !gone.has(p.entity_id));
+  }
   private get _cur(): HassEntity | undefined {
     const l = this._list;
     return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass!, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l[0];
