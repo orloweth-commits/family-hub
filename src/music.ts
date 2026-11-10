@@ -49,9 +49,10 @@ export class FhMusic extends LitElement {
     .ctl .go { width: 66px; height: 66px; background: #fff; color: #111; }
     .upnext { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 13px; font-weight: var(--w-semi, 600); opacity: .85; white-space: nowrap; overflow: hidden; }
     .mini { display: flex; align-items: center; gap: 10px; }
-    .mini .tog { height: 40px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.14); color: #fff; font-size: 13px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .mini .tog { height: 44px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.14); color: #fff; font-size: 13px; font-weight: var(--w-bold, 700); white-space: nowrap; }
     .mini .tog[aria-pressed='true'] { background: #fff; color: #111; }
-    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--rail, rgba(255,255,255,.3)); outline: none; margin: 10px 0; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; box-sizing: content-box; padding: 12px 0; background-clip: content-box; border-radius: 3px; background-color: var(--rail, rgba(255,255,255,.3)); outline: none; margin: 0; }
+    input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--primary), 0 2px 6px rgba(0,0,0,.3); }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--knob, #fff); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .mhead { display: flex; align-items: center; gap: 16px; }
@@ -87,7 +88,7 @@ export class FhMusic extends LitElement {
     .shelfrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .crate { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
-    .dividers .pchip[aria-pressed='true'] { background: var(--c); color: #fff; box-shadow: none; transform: translateY(-3px); }
+    .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
     .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
     .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform .25s cubic-bezier(.2,1.2,.3,1); }
     .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform .3s cubic-bezier(.2,1.2,.3,1);
@@ -105,7 +106,7 @@ export class FhMusic extends LitElement {
     :host([data-phone]) .mhead { flex-wrap: wrap; }
     :host([data-phone]) .tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
     :host([data-phone]) .tabs button { flex: 1 1 auto; padding: 0 12px; }
-    :host([data-phone]) .tabs button:not([aria-pressed='true']) span { display: none; }
+    :host([data-phone]) .tabs button:not([aria-selected='true']) span { display: none; }
     :host([data-phone]) .body { flex: none; }
     :host([data-phone]) .mhead .finder, :host([data-phone]) .sbar { flex: 1 1 100%; }
     :host([data-phone]) .acts .soft { flex: 1 1 100%; order: 9; }
@@ -119,8 +120,10 @@ export class FhMusic extends LitElement {
     .tabs { display: flex; gap: 8px; }
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: transform .22s cubic-bezier(.2,1.4,.4,1), background .2s, color .2s; }
-    .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); box-shadow: 0 8px 14px -8px color-mix(in srgb, var(--primary) 80%, transparent); }
-    .tabs button[aria-pressed='true'] .i { animation: nod .5s ease-out; }
+    .tabs button[aria-selected='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); box-shadow: 0 8px 14px -8px color-mix(in srgb, var(--primary) 80%, transparent); }
+    .tabs button[aria-selected='true'] .i { animation: nod .5s ease-out; }
+    .acts .seg button { height: 44px; color: var(--ink); }
+    .acts .seg button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
     @keyframes nod { 30% { transform: rotate(-14deg) scale(1.2); } 65% { transform: rotate(8deg); } }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
     .grid[data-fit] { gap: 6px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
@@ -147,7 +150,7 @@ export class FhMusic extends LitElement {
     .hit .tx b, .hit .tx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hit .tx b { font-size: 15px; font-weight: var(--w-bold, 700); }
     .hit .tx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .kind { font-size: 11px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink2); flex-shrink: 0; }
+    .kind { font-size: 11px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 2px 0 0 2px; }
@@ -161,11 +164,38 @@ export class FhMusic extends LitElement {
     .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
     .pchip[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--c, var(--primary)); }
     .pchip .avatar { width: 30px; height: 30px; font-size: 13px; background: var(--c); }
-    .picks { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
-    .picks[data-fit] { gap: 3px; }
-    .pickrow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 14px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); min-height: 48px; }
-    .pickrow.played { opacity: .5; }
-    .pickrow .nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* jukebox: a coin each, and the night's picks as a line of records */
+    .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
+    .coins .soft { align-self: center; margin-right: 6px; }
+    .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
+    .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform .22s cubic-bezier(.2,1.4,.4,1), box-shadow .2s; }
+    .coin[aria-pressed='true'] .face { transform: translateY(-5px) scale(1.1); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c), 0 10px 14px -6px rgba(0,0,0,.4); }
+    .coin .cname { font-size: 12.5px; font-weight: var(--w-bold, 700); }
+    .coin[aria-pressed='true'] .cname { text-decoration: underline; text-underline-offset: 3px; }
+    .tally { display: flex; gap: 3px; height: 7px; }
+    .tally i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: var(--w-semi, 600); }
+    .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background .2s; flex-shrink: 0; }
+    .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .22s cubic-bezier(.2,1.4,.4,1); }
+    .jsw[aria-checked='true'] i { background: var(--ok); }
+    .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
+    .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
+    .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform .25s cubic-bezier(.2,1.2,.3,1); }
+    .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    @keyframes nextup { to { transform: translateY(-4px); } }
+    .pickrow.played .pcover { opacity: .55; }
+    .pickrow.played .art { filter: grayscale(.8); }
+    .pickrow.played .nm .muted { color: var(--ink2); }
+    .pcover { position: relative; display: block; padding-right: 12px; }
+    .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }
+    .pickrow[data-next] .disc { transform: translateX(13%) scale(.94); animation: puck 6s linear infinite; animation-iteration-count: var(--loops, infinite); }
+    .pickrow .pcover .art { position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; box-shadow: 0 8px 14px -8px rgba(0,0,0,.5); background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; }
+    .pcover .init { position: absolute; left: -4px; top: -4px; min-width: 28px; height: 28px; border-radius: 50%; font-size: 13px; box-shadow: 0 0 0 2.5px var(--chip-strong); }
+    .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
+    .when { align-self: flex-start; padding: 3px 9px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 11.5px; font-weight: var(--w-heavy, 800); }
+    .pickrow[data-next] .when { background: var(--primary); color: var(--on-primary); }
     .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
@@ -187,6 +217,30 @@ export class FhMusic extends LitElement {
     .pool::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 8px; background: radial-gradient(circle at 12px 14px, color-mix(in srgb, var(--c) 40%, transparent) 11px, transparent 12px) 0 0 / 24px 8px repeat-x; }
     .mzone[data-playing] .pool::before { animation: wave 1.5s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes wave { to { background-position-x: 24px; } }
+    /* the sound takes the shape of the theme (Glass only; the other looks dress it themselves) */
+    .pool::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+    :host([data-look='glass'][data-theme='sea']) .pool::after { inset: auto 0 100% 0; height: 12px; opacity: .6; background: radial-gradient(circle at 18px 21px, color-mix(in srgb, var(--c) 40%, transparent) 17px, transparent 18px) 0 0 / 36px 12px repeat-x; }
+    :host([data-look='glass'][data-theme='sea']) .mzone[data-playing] .pool::after { animation: wave2 2.7s linear infinite reverse; animation-iteration-count: var(--loops, infinite); }
+    @keyframes wave2 { to { background-position-x: 36px; } }
+    :host([data-look='glass'][data-theme='reef']) .pool::after { background: radial-gradient(circle at 18px 100px, transparent 3px, rgba(255,255,255,.85) 3.5px 5px, transparent 5.5px), radial-gradient(circle at 62px 40px, transparent 5px, rgba(255,255,255,.7) 5.5px 7px, transparent 7.5px), radial-gradient(circle at 84px 84px, rgba(255,255,255,.75) 2px, transparent 2.5px); background-size: 96px 120px; }
+    :host([data-look='glass'][data-theme='reef']) .mzone[data-playing] .pool::after { animation: bubbles 4.5s linear infinite; animation-iteration-count: var(--loops, infinite); }
+    @keyframes bubbles { to { background-position-y: -120px; } }
+    :host([data-look='glass'][data-theme='space']) .pool { background: linear-gradient(to top, color-mix(in srgb, var(--c) 46%, transparent), color-mix(in srgb, var(--c) 8%, transparent)); }
+    :host([data-look='glass'][data-theme='space']) .pool::before { height: 3px; background: var(--c); box-shadow: 0 0 14px 3px var(--c); animation: none; }
+    :host([data-look='glass'][data-theme='space']) .pool::after { background: radial-gradient(circle at 14px 20px, #fff 1.4px, transparent 2px), radial-gradient(circle at 52px 58px, #fff 1px, transparent 1.6px), radial-gradient(circle at 70px 14px, #fff 1.8px, transparent 2.4px), radial-gradient(circle at 30px 70px, #fff 1px, transparent 1.6px); background-size: 86px 84px; }
+    :host([data-look='glass'][data-theme='space']) .mzone[data-playing] .pool::after { animation: twinkle 1.7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+    :host([data-look='glass'][data-theme='bush']) .pool::before { height: 14px; background: radial-gradient(circle at 26px 30px, color-mix(in srgb, var(--c) 40%, transparent) 27px, transparent 28px) 0 0 / 52px 14px repeat-x; animation-duration: 4s; }
+    :host([data-look='glass'][data-theme='bush']) .pool::after { background: radial-gradient(circle at 20px 30px, #fff3a8 2.2px, transparent 3.4px), radial-gradient(circle at 78px 62px, #fff3a8 1.8px, transparent 3px), radial-gradient(circle at 50px 12px, #fff3a8 1.6px, transparent 2.8px); background-size: 104px 80px; }
+    :host([data-look='glass'][data-theme='bush']) .mzone[data-playing] .pool::after { animation: fireflies 3.2s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    @keyframes fireflies { from { opacity: .15; background-position: 0 0; } to { opacity: 1; background-position: 14px -10px; } }
+    :host([data-look='glass'][data-theme='sunset']) .pool::before { height: 4px; background: linear-gradient(90deg, transparent, rgba(255,226,160,.95), transparent) 0 0 / 180px 4px repeat-x; animation: shimmer 3.4s linear infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: paused; }
+    :host([data-look='glass'][data-theme='sunset']) .mzone[data-playing] .pool::before { animation-play-state: running; }
+    :host([data-look='glass'][data-theme='sunset']) .pool::after { background: repeating-linear-gradient(to bottom, rgba(255,226,160,.34) 0 2px, transparent 2px 16px); }
+    :host([data-look='glass'][data-theme='sunset']) .mzone[data-playing] .pool::after { animation: bands 2.6s linear infinite; animation-iteration-count: var(--loops, infinite); }
+    @keyframes shimmer { to { background-position-x: 180px; } }
+    @keyframes bands { to { background-position-y: 16px; } }
+    @keyframes scribble { to { background-position: 5px 0, 0 0; } }
     .zname { position: absolute; left: 6px; top: 4px; right: 56px; min-height: 48px; padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left; border-radius: 14px; }
     .zname b, .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
@@ -218,7 +272,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -232,6 +286,8 @@ export class FhMusic extends LitElement {
   quiet: { start?: string; end?: string } = {};
   sleepMinutes = 30;
   map: MapFloorConfig[] = [];
+  /** the photo theme, so the sound in each room can take its shape (waves, bubbles, stars…) */
+  theme = '';
   private _view: 'house' | 'list' | '' = ls<'house' | 'list' | ''>('fh-music-view', '');
   private _drag: { id: string; vol: number } | null = null;
   private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
@@ -574,7 +630,7 @@ export class FhMusic extends LitElement {
       <section class="glass panel">
         <div class="mhead"><h1 class="t-title">Music</h1>
           ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>Search songs, albums, stories…</span></button>` : html`<span style="flex:1"></span>`}</div>
-        ${searching ? nothing : html`<div class="tabs" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-pressed=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`}
+        ${searching ? nothing : html`<div class="tabs" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
       </section>
@@ -708,19 +764,22 @@ export class FhMusic extends LitElement {
 
   private _jukeTab(): TemplateResult {
     const j = this._juke, short = shortNames(this._everyone.map((p) => p.name)), col = (n: string): string => slotVar(this._everyone.find((p) => p.name === n)?.colour ?? 'family');
-    const next = this._nextPick();
+    const next = this._nextPick(), turns = (w: string): number => j.picks.filter((p) => p.done && p.who === w).length;
+    const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
+    const card = (p: Pick): TemplateResult => html`<div class="pickrow ${p.done ? 'played' : ''}" ?data-next=${p === next}>
+      <span class="pcover"><i class="disc"></i><span class="art" style=${p.img ? `--art:url(${p.img})` : ''}>${p.img ? '' : icon('music', 26)}</span>
+        <span class="init" style="--c:${col(p.who)}" role="img" aria-label=${p.who}>${short[p.who] ?? p.who[0]}</span></span>
+      <span class="nm">${p.name}${p.sub ? html` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${p.sub}</span>` : nothing}</span>
+      <span class="when">${p.done ? 'Played' : p === next ? 'Next' : 'Waiting'}</span></div>`;
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
-      <div class="chiprow"><span class="soft">Who’s choosing?</span>${this._everyone.map((p) => html`<button class="pchip tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} @click=${() => this._saveJuke({ who: p.name })}>
-        <span class="avatar">${short[p.name] ?? p.name[0]}</span>${p.name}</button>`)}</div>
-      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px" ?disabled=${!j.who} @click=${() => { this._adding = true; this._tab = 'search'; this._keys = true; this._hits = null; this._text = ''; this._caps = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
-        <button class="pill tap" aria-pressed=${String(j.on)} style="height:48px;${j.on ? 'background:var(--ok);color:var(--on-ok,#fff)' : ''}" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
+      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft">Who’s choosing?</span>${this._everyone.map((p) => { const n = turns(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} aria-label="${p.name}, ${n} ${n === 1 ? 'turn' : 'turns'} so far" @click=${() => this._saveJuke({ who: p.name })}>
+        <span class="face">${short[p.name] ?? p.name[0]}</span><span class="cname">${p.name}</span><span class="tally" aria-hidden="true">${Array.from({ length: Math.min(n, 5) }, () => html`<i></i>`)}</span></button>`; })}</div>
+      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px" ?disabled=${!j.who} @click=${() => { this._adding = true; this._prev = 'juke'; this._tab = 'search'; this._keys = true; this._hits = null; this._text = ''; this._caps = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
+        <button class="jsw tap" role="switch" aria-checked=${String(j.on)} @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1">Everyone gets a turn: the next song comes from whoever has had the fewest.</span>
         ${j.picks.length ? html`<button class="pill tap" @click=${() => this._saveJuke({ picks: [] })}>Clear</button>` : nothing}</div>
-      ${j.picks.length ? html`<div class="picks scrolly" data-fits @scroll=${scrollCue}>${[...j.picks].sort((a, b) => Number(!!b.done) - Number(!!a.done) || a.t - b.t).map((p) => html`<div class="pickrow ${p.done ? 'played' : ''}">
-          <span class="init" style="--c:${col(p.who)}" role="img" aria-label=${p.who}>${short[p.who] ?? p.who[0]}</span><span class="art" style=${p.img ? `--art:url(${p.img})` : ''}></span>
-          <span class="nm">${p.name}${p.sub ? html` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${p.sub}</span>` : nothing}</span>
-          <span class="soft">${p.done ? 'Played' : p === next ? 'Next' : 'Waiting'}</span></div>`)}</div>`
-        : html`<div class="empty"><span style="font-size:40px">🎶</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
+      ${j.picks.length ? html`<div class="picks scrolly" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
+        : html`<div class="empty"><span style="color:var(--ink2)">${icon('jukebox', 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
 
   private _radio(): TemplateResult {
