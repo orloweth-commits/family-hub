@@ -19,12 +19,12 @@ import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek
 } from './dates';
-import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getShape, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.7.2';
+const VERSION = '0.8.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -146,10 +146,12 @@ export class FamilyHubCard extends LitElement {
     const head = parseFloat(getComputedStyle(this).getPropertyValue('--header-height')) || 0;
     const w = this.getBoundingClientRect().width || window.innerWidth;
     const hgt = window.innerHeight - head;
-    const shape: Shape = hgt > w * 1.15 ? 'tall' : 'wide';
+    // a phone is narrower than any tablet: it gets its own arrangement and scrolls like a normal phone page
+    const shape: Shape = w < 600 ? 'phone' : hgt > w * 1.15 ? 'tall' : 'wide';
+    if (shape === 'phone' && getShape() !== 'phone' && this._view === 'week') this._view = 'day';
     setShape(shape);
     const [dw, dh] = shape === 'tall' ? [900, 1280] : [1280, 800];
-    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(0.6, Math.min(w / dw, hgt / dh)));
+    const z = fixed > 0 ? fixed : shape === 'phone' ? Math.min(1.25, Math.max(0.8, w / 430)) : Math.min(1.6, Math.max(0.6, Math.min(w / dw, hgt / dh)));
     if (Math.abs(z - this._z) > 0.01) { this._z = Math.round(z * 100) / 100; this.requestUpdate(); }
   };
   private _z = 1;

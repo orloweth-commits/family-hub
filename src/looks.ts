@@ -254,9 +254,10 @@ function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [
 /** Keeps a component's `data-look` host attribute in step with the chosen look. */
 export class LookController implements ReactiveController {
   private _off?: () => void;
-  private _on = (): void => { this.host.setAttribute('data-look', current); this.host.setAttribute('data-shape', getShape()); this.host.requestUpdate(); };
+  private _shape = (): void => { const s = getShape(); this.host.setAttribute('data-shape', s === 'phone' ? 'tall' : s); this.host.toggleAttribute('data-phone', s === 'phone'); };
+  private _on = (): void => { this.host.setAttribute('data-look', current); this._shape(); this.host.requestUpdate(); };
   constructor(private host: ReactiveControllerHost & HTMLElement) { host.addController(this); }
-  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this.host.setAttribute('data-shape', getShape()); }
+  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this._shape(); }
   hostDisconnected(): void { subs.delete(this._on); this._off?.(); }
 }
 

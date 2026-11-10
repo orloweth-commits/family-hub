@@ -34,6 +34,9 @@ export class FhMorning extends LitElement {
     .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
     :host([data-shape='tall']) .board { flex-wrap: wrap; }
     :host([data-shape='tall']) .kcols { grid-template-columns: 1fr; }
+    :host([data-phone]) { flex: none; }
+    :host([data-phone]) .kcols { flex: none; }
+    :host([data-phone]) .board > div { flex: 1 1 100% !important; justify-content: flex-start !important; }
     .kcol { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .khead { display: flex; align-items: center; gap: 12px; }
     .khead h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; }

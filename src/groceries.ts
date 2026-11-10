@@ -4,7 +4,7 @@ import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { FitController, scrollCue } from './util';
+import { getShape, FitController, scrollCue } from './util';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -60,6 +60,11 @@ export class FhGroceries extends LitElement {
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .list { width: auto !important; flex: 1; min-height: 0; }
     :host([data-shape='tall']) .add { flex: 0 0 auto; }
+    :host([data-phone]) { flex: none; }
+    :host([data-phone]) .add { order: -1; padding: 14px; border-radius: 22px; }
+    :host([data-phone]) .list { flex: none; padding: 14px; border-radius: 22px; }
+    :host([data-phone]) .items { overflow: visible; flex: none; display: flex !important; }
+    :host([data-phone]) .items .tag { display: inline !important; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
@@ -165,7 +170,7 @@ export class FhGroceries extends LitElement {
           ${!this.recipients.length ? html`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>` : nothing}
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <input class="field" .value=${this._typed} inputmode="none" autocomplete="off" placeholder="Type an item…" aria-label="New item"
+          <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
             @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
           <button class="tap primary" style="height:60px;padding:0 26px;border-radius:16px;font-size:18px;font-weight:var(--w-bold, 700)" @click=${() => this._add()}>Add</button>

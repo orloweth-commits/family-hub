@@ -7,6 +7,7 @@ import { icon } from './icons';
 export class FhPin extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
+    :host([data-phone]) { position: fixed !important; }
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); }
     .pad { border-radius: 32px; padding: 24px 28px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
     .dots { display: flex; gap: 14px; height: 20px; }

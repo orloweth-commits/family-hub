@@ -78,6 +78,14 @@ export class FhKid extends LitElement {
     :host([data-shape='tall']) .hero { width: auto; grid-column: 1; grid-row: 1; }
     :host([data-shape='tall']) .side { width: auto; grid-column: 2; grid-row: 1; max-height: 560px; }
     :host([data-shape='tall']) .jobs { grid-column: 1 / -1; grid-row: 2; }
+    :host([data-phone]) { display: flex; flex-direction: column; gap: 12px; flex: none; }
+    :host([data-phone]) .jobs { order: 1; flex: none; }
+    :host([data-phone]) .hero { order: 2; }
+    :host([data-phone]) .side { order: 3; max-height: none; overflow: visible; }
+    :host([data-phone]) .list, :host([data-phone]) .focus { overflow: visible; flex: none; display: flex !important; }
+    :host([data-phone]) .pic.big { min-height: 230px; flex: none; }
+    :host([data-phone]) .celebrate { position: fixed; border-radius: 0; }
+    :host([data-phone]) .daybtns { grid-template-columns: repeat(4, 1fr); }
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
     .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
     .sec span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }

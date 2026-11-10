@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type StationConfig } from './types';
-import { FitController, isQuiet, scrollCue, shortNames, windDown } from './util';
+import { getShape, FitController, isQuiet, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import './pin';
@@ -49,6 +49,17 @@ export class FhMusic extends LitElement {
     input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--rail, rgba(255,255,255,.3)); outline: none; margin: 10px 0; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--knob, #fff); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .mhead { display: flex; align-items: center; gap: 12px; }
+    :host([data-phone]) { flex: none; }
+    :host([data-phone]) .mhead { flex-wrap: wrap; }
+    :host([data-phone]) .tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+    :host([data-phone]) .tabs button { flex-shrink: 0; }
+    :host([data-phone]) .stage { flex-direction: column; flex-wrap: nowrap; align-items: stretch; border-radius: 22px; }
+    :host([data-phone]) .deck { flex: 0 0 auto; height: 210px; }
+    :host([data-phone]) .panel { padding: 14px; border-radius: 22px; min-height: 320px; }
+    :host([data-phone]) .grid, :host([data-phone]) .hits, :host([data-phone]) .covers, :host([data-phone]) .picks { overflow: visible; flex: none; }
+    :host([data-phone]) .hits { grid-template-columns: 1fr; }
+    :host([data-phone]) .msgs { grid-template-columns: 1fr 1fr; }
     .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
     .tabs button { height: 42px; padding: 0 15px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
     .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
@@ -337,7 +348,7 @@ export class FhMusic extends LitElement {
     const open = (id: Tab): void => { this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel">
-        <div style="display:flex;align-items:center;gap:12px"><h1 class="t-title" style="flex:1">Music</h1>
+        <div class="mhead"><h1 class="t-title" style="flex:1">Music</h1>
           <div class="tabs" role="tablist">${tabs.map(([id, l]) => html`<button class="tap" role="tab" aria-pressed=${String(this._tab === id)} @click=${() => open(id)}>${l}</button>`)}</div></div>
         ${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}
       </section>
@@ -413,7 +424,7 @@ export class FhMusic extends LitElement {
   private _searchTab(): TemplateResult {
     const hits = this._hits, sel = hits?.find((h) => h.uri === this._sel);
     return html`${this._adding ? html`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || 'everyone'}<span style="flex:1"></span><button class="pill tap" style="height:36px" @click=${() => { this._adding = false; this._tab = 'juke'; }}>Back</button></div>` : nothing}
-      <div style="display:flex;gap:10px"><input class="field" inputmode="none" aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
+      <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
         ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} @click=${() => { this._keys = !this._keys; }}>${this._keys ? icon('close', 20) : 'Aa'}</button>` : nothing}</div>
@@ -492,7 +503,7 @@ export class FhMusic extends LitElement {
         <button class="pchip tap" style="padding:0 14px" aria-pressed=${String(every)} @click=${() => { this._callTo = every ? [] : all; }}>Everyone</button>
         ${this._list.map((p) => html`<button class="pchip tap" style="padding:0 14px" aria-pressed=${String(this._callTo.includes(p.entity_id))} @click=${() => flip(p.entity_id)}>${p.attributes.friendly_name}</button>`)}</div>
       <div class="msgs" style=${this._ckeys ? 'display:none' : ''}>${CALLS.map((m) => html`<button class="tap" aria-pressed=${String(this._callMsg === m)} @click=${() => { this._callMsg = m; }}>${m}</button>`)}</div>
-      <div style="display:flex;gap:10px"><input class="field" inputmode="none" aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
+      <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
         <button class="pill tap primary" style="height:52px;padding:0 24px;font-size:16px" @click=${() => this._call()}>📣 Say it</button></div>
       ${this._ckeys ? html`<div style="margin:auto 0 0">${keyboard((k) => { [this._callMsg, this._caps] = typeKey(this._callMsg, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>`
         : html`<span class="soft">It is spoken over the music in that room, then the music carries on.</span>`}`;
