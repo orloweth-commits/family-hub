@@ -7,7 +7,7 @@ import type { Hass } from './types';
 export type Lane = 'routine' | 'job' | 'grow';
 export type Slot = 'am' | 'after' | 'bed' | 'any';
 export interface Chore { uid: string; summary: string; status: 'needs_action' | 'completed'; description?: string }
-export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number; /** a picture chosen for this job: an emoji at the start of its name, or @icon:🦷 in its description */ pic?: string }
+export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number; /** a picture chosen for this job: an emoji at the start of its name, or @icon:🦷 in its description */ pic?: string; /** @song: a timed job that plays music until its time is up */ song?: boolean }
 
 const LEAD_PIC = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u;
 /** Description tokens: "+10 @job @after", "@routine @am", "@grow @bed". Untagged items with points are jobs. */
@@ -19,7 +19,7 @@ export const parseChore = (c: Chore): ParsedChore => {
   const slot: Slot = /@am/.test(d) ? 'am' : /@after/.test(d) ? 'after' : /@bed/.test(d) ? 'bed' : 'any';
   const mins = /(\d+)\s*min/i.exec(`${c.summary} ${d}`);
   const lead = LEAD_PIC.exec(c.summary), tagged = /@icon[:=]\s*(\S+)/.exec(d);
-  return { ...c, summary: lead ? c.summary.slice(lead[0].length) : c.summary, pic: tagged?.[1] ?? lead?.[1], lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
+  return { ...c, summary: lead ? c.summary.slice(lead[0].length) : c.summary, pic: tagged?.[1] ?? lead?.[1], song: /@song/.test(d), lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
 };
 
 export const hm = (s: string): number => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
