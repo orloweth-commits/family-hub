@@ -154,6 +154,7 @@ export class FhMusic extends LitElement {
   private _lastUri = '';
   private _lastCall = 0;
   private _fedFor = '';
+  private _fedName = '';
 
   connectedCallback(): void { super.connectedCallback(); this._tick = window.setInterval(() => { if (this._cur?.state === 'playing') this._now = Date.now(); }, 1000); }
   disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._tick); }
@@ -296,12 +297,15 @@ export class FhMusic extends LitElement {
     const p = this._cur, j = this._juke;
     if (!j.on || !p || !this.hass) return false;
     const idle = p.state !== 'playing' && p.state !== 'buffering', track = String(p.attributes.media_content_id ?? '');
-    if (!(ended || idle || (this._q && !this._q.next))) return false;
+    // what follows the current song is already one of tonight's picks: nothing to do yet
+    const ours = !!this._q?.next && this._q.next.name === this._fedName;
+    if (!(ended || idle) && (!this._q || ours)) return false;
     if (!ended && !idle && this._fedFor === track) return false; // one pick queued per song: the queue has not caught up yet
-    this._fedFor = track;
     const n = this._nextPick(); if (!n) return false;
+    this._fedFor = track; this._fedName = n.name;
     n.done = true; this._saveJuke({ picks: [...j.picks] }); this._lastUri = n.uri;
-    play(this.hass, p.entity_id, n.uri, ended || idle ? 'play' : 'add').catch((e: any) => this._say(`Couldn’t queue ${n.name}: ${e?.message ?? 'error'}`));
+    // nothing playing: start it. Otherwise it follows the current song, replacing whatever else was queued.
+    play(this.hass, p.entity_id, n.uri, ended || idle ? 'play' : this._q?.next ? 'replace_next' : 'add').catch((e: any) => this._say(`Couldn’t queue ${n.name}: ${e?.message ?? 'error'}`));
     this._qKey = '';
     return true;
   }
@@ -412,7 +416,7 @@ export class FhMusic extends LitElement {
       <div style="display:flex;gap:10px"><input class="field" inputmode="none" aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
-        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:20px" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} @click=${() => { this._keys = !this._keys; }}>⌨</button>` : nothing}</div>
+        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} @click=${() => { this._keys = !this._keys; }}>${this._keys ? icon('close', 20) : 'Aa'}</button>` : nothing}</div>
       ${this._keys ? html`<div style="margin:auto 0">${keyboard((k) => { [this._text, this._caps] = typeKey(this._text, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>` : nothing}
       ${hits && !this._keys ? (hits.length ? html`<div class="hits scrolly" data-fits @scroll=${scrollCue}>${hits.map((h) => html`<button class="hit tap" aria-pressed=${String(h.uri === this._sel)} @click=${() => { this._sel = h.uri; }}>
           <span class="art" style=${h.img ? `--art:url(${h.img})` : ''}>${h.img ? '' : icon('music', 18)}</span>
