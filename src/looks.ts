@@ -1,5 +1,6 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 import { loadFonts } from './fonts';
+import { getShape, onShape } from './util';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -221,10 +222,11 @@ function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [
 
 /** Keeps a component's `data-look` host attribute in step with the chosen look. */
 export class LookController implements ReactiveController {
-  private _on = (): void => { this.host.setAttribute('data-look', current); this.host.requestUpdate(); };
+  private _off?: () => void;
+  private _on = (): void => { this.host.setAttribute('data-look', current); this.host.setAttribute('data-shape', getShape()); this.host.requestUpdate(); };
   constructor(private host: ReactiveControllerHost & HTMLElement) { host.addController(this); }
-  hostConnected(): void { subs.add(this._on); this.host.setAttribute('data-look', current); }
-  hostDisconnected(): void { subs.delete(this._on); }
+  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this.host.setAttribute('data-shape', getShape()); }
+  hostDisconnected(): void { subs.delete(this._on); this._off?.(); }
 }
 
 /* ---------------- look styles (shared by every component) ---------------- */
@@ -364,6 +366,12 @@ const FRIDGE = `
   /* groceries: a shopping-list pad and chunky keys */
   @F .list.glass { background: linear-gradient(90deg, transparent 0 63px, var(--margin) 63px 65px, transparent 65px) 0 66px / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .items { gap: 0; }
+  /* lists that have tightened to fit keep their ruled lines, just closer together */
+  @F .items[data-fit] .row { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
+  @F .items[data-fit] .row .content { font-size: 17px; }
+  @F .items[data-fit] .check { width: 24px; height: 24px; }
+  @F .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
+  @F .jobs [data-fit] .row .content { font-size: 18px; }
   @F .tag { font-weight: 600; font-size: 12px; }
   @F .who.glass { border-radius: 4px; }
 
@@ -516,6 +524,7 @@ const ORBIT = `
 
   /* groceries */
   @O .items { gap: 0; }
+  @O .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
   @O .tag { font-weight: 600; }
   @O .who.glass { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
 

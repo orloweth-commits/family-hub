@@ -32,6 +32,8 @@ export class FhMorning extends LitElement {
     .leave.go { animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-10px) rotate(-2deg); } 70% { transform: translateY(0) rotate(1deg); } }
     .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
+    :host([data-shape='tall']) .board { flex-wrap: wrap; }
+    :host([data-shape='tall']) .kcols { grid-template-columns: 1fr; }
     .kcol { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .khead { display: flex; align-items: center; gap: 12px; }
     .khead h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; }

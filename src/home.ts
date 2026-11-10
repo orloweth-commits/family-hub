@@ -3,6 +3,7 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass, HassEntity } from './types';
+import { FitController } from './util';
 import './pin';
 
 const CONTROL = ['light', 'switch', 'fan', 'cover', 'lock', 'climate', 'media_player', 'input_boolean'];
@@ -13,10 +14,23 @@ interface Room { id: string; name: string; ents: HassEntity[] }
 /** Home: rooms with their devices, scenes (scripts) and automations. */
 export class FhHome extends LitElement {
   readonly lookCtl = new LookController(this);
+  readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .rooms { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
     .rgrid { flex: 1; min-height: 0; overflow: auto; columns: 3 250px; column-gap: 12px; }
+    /* more rooms than fit: narrower columns and closer rows, before any scrolling */
+    .rgrid[data-fit] { columns: 4 200px; column-gap: 10px; }
+    .rgrid[data-fit] .room { padding: 10px; gap: 6px; margin-bottom: 10px; border-radius: 18px; }
+    .rgrid[data-fit] .dev { padding: 5px 8px; }
+    .rgrid[data-fit] .rh h2 { font-size: 17px; }
+    .rgrid[data-fit='2'], .rgrid[data-fit='3'] { columns: 5 170px; }
+    .rgrid[data-fit='2'] .dev .s, .rgrid[data-fit='3'] .dev .s { display: none; }
+    .rgrid[data-fit='3'] .dicon { width: 28px; height: 28px; }
+    :host([data-shape='tall']) { flex-direction: column; }
+    :host([data-shape='tall']) .rgrid { columns: 3 220px; }
+    :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
+    :host([data-shape='tall']) .side > section { flex: 1 1 0; min-width: 0; }
     .room { break-inside: avoid; margin-bottom: 12px; border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .5s ease, background .5s ease; }
     .room.lit { background: color-mix(in srgb, #ffd166 22%, var(--chip)); box-shadow: 0 0 0 1px color-mix(in srgb, #ffb703 40%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; }
@@ -102,7 +116,7 @@ export class FhHome extends LitElement {
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           <span class="muted" style="font-size:13px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} rooms</span></div></div>
-        <div class="rgrid">
+        <div class="rgrid" data-fits>
           ${rooms.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.')), lit = lights.some((e) => e.state === 'on');
             return html`<div class="room ${lit ? 'lit' : ''}">

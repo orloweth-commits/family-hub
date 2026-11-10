@@ -113,6 +113,9 @@ export const styles = css`
   .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width .8s; }
 
   .daylist { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+  .daylist[data-fit] { gap: 6px; }
+  .daylist[data-fit] .dayrow { padding: 8px 14px; }
+  .daylist[data-fit='2'], .daylist[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; align-content: start; }
   .dayview { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 22px; }
   .dayview .dayart { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding: 0 6px; line-height: 0; }
   .dayview .daylist { min-width: 0; }
@@ -188,6 +191,17 @@ export const styles = css`
   .breathe { animation: breathe 4s ease-in-out infinite; }
   @keyframes breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
   @keyframes pulse { 50% { opacity: .75; } }
+
+  /* portrait tablets: the same parts, stacked */
+  :host([data-shape='tall']) header { flex-wrap: wrap; row-gap: 10px; }
+  :host([data-shape='tall']) .capsule { order: 3; flex-basis: 100%; justify-content: flex-start; }
+  :host([data-shape='tall']) .body { flex-direction: column; }
+  :host([data-shape='tall']) aside { width: auto; flex-direction: row; }
+  :host([data-shape='tall']) aside > section { flex: 1 1 0; min-width: 0; }
+  :host([data-shape='tall']) nav.dock { gap: 0; max-width: 100%; }
+  :host([data-shape='tall']) .dock .item { min-width: 62px; }
+  :host([data-shape='tall']) .dock .sep { margin: 0 3px; }
+  :host([data-shape='tall']) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   ${lookCss}
 `;

@@ -18,12 +18,12 @@ import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek
 } from './dates';
-import { changed, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, setMuted, setVolume, sfx, shortNames, ymd, type KidPrefs } from './util';
+import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -33,6 +33,7 @@ const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh
 
 
 export class FamilyHubCard extends LitElement {
+  readonly fitCtl = new FitController(this as never);
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`${unsafeCSS(avatarCss)}`];
   static properties = {
@@ -135,12 +136,19 @@ export class FamilyHubCard extends LitElement {
     window.addEventListener('resize', this._onResize); this._onResize();
     this._ro = new ResizeObserver(() => this._onResize()); this._ro.observe(this);
   }
-  /** Designed for a 1280×800 panel; bigger screens scale the whole UI up so it isn't tiny. */
+  /**
+   * Fit the screen. The panel is designed on a fixed canvas (1280×800 wide, 900×1280 tall) and scaled up or down
+   * so the whole canvas is always visible: nothing is cut off and nothing needs scrolling just because the screen is small.
+   */
   private _onResize = (): void => {
     const fixed = Number(this._config?.scale);
     const head = parseFloat(getComputedStyle(this).getPropertyValue('--header-height')) || 0;
     const w = this.getBoundingClientRect().width || window.innerWidth;
-    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(1, Math.min(w / 1280, (window.innerHeight - head) / 800)));
+    const hgt = window.innerHeight - head;
+    const shape: Shape = hgt > w * 1.15 ? 'tall' : 'wide';
+    setShape(shape);
+    const [dw, dh] = shape === 'tall' ? [900, 1280] : [1280, 800];
+    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(0.6, Math.min(w / dw, hgt / dh)));
     if (Math.abs(z - this._z) > 0.01) { this._z = Math.round(z * 100) / 100; this.requestUpdate(); }
   };
   private _z = 1;
@@ -661,7 +669,7 @@ export class FamilyHubCard extends LitElement {
 
   private _day(a: Date): TemplateResult {
     const evs = this._eventsOn(a), today = sameDay(a, new Date());
-    const list = html`<div class="daylist fade scrolly" @scroll=${scrollCue}>
+    const list = html`<div class="daylist fade scrolly" data-fits @scroll=${scrollCue}>
       ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:var(--w-semi, 600)" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span><span style="font-size:18px">💊 Private</span></div>` : html`
         <div class="dayrow ${this._evState(e)}" style="--c:${slotVar(e.colour)}">
           <span style="width:90px;font-size:16px;font-weight:var(--w-bold, 700)" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span>

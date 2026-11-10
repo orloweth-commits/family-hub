@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
+import { FitController } from './util';
 import { icon } from './icons';
 import type { Hass } from './types';
 
@@ -16,9 +17,17 @@ const STAMPS = ['🦖', '🐉', '🚚', '⭐', '❤️', '🌈', '🏄', '🎺']
 /** Doodle pad with undo, rainbow brush, chalkboard mode and a shared "fridge" gallery. */
 export class FhDoodle extends LitElement {
   readonly lookCtl = new LookController(this);
+  readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .brushes { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }
+    .brushes[data-fit='1'] { width: 190px; grid-template-columns: repeat(3, 1fr); }
+    .brushes[data-fit='2'], .brushes[data-fit='3'] { width: 248px; grid-template-columns: repeat(4, 1fr); }
+    :host([data-shape='tall']) { flex-direction: column; }
+    :host([data-shape='tall']) .brushes { width: auto !important; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)) !important; flex-shrink: 0; }
+    :host([data-shape='tall']) .brushes .rule { display: none; }
+    :host([data-shape='tall']) .gallery { width: auto; max-height: 260px; }
+    :host([data-shape='tall']) .snaps { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
     .brushes .rule { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
     .ink { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); transition: transform .2s cubic-bezier(.2,1.4,.4,1); flex-shrink: 0; }
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
@@ -211,7 +220,7 @@ export class FhDoodle extends LitElement {
 
   render(): TemplateResult {
     return html`
-      <section class="glass brushes" aria-label="Brushes">
+      <section class="glass brushes" data-fits aria-label="Brushes">
         ${INKS.map((c) => html`<button class="ink tap" style="background:${c}" aria-label="Colour" aria-pressed=${String(!this._erase && !this._stamp && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; this._stamp = ''; }}></button>`)}
         <button class="ink tap rainbow" aria-label="Rainbow" aria-pressed=${String(!this._erase && !this._stamp && this._ink === 'rainbow')} @click=${() => { this._ink = 'rainbow'; this._erase = false; this._stamp = ''; }}></button>
         <span class="rule"></span>

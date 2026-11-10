@@ -9,7 +9,7 @@ import {
 import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
-import { bedtimeFor, hm, changed, daySlot, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { bedtimeFor, hm, changed, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import './pin';
 
@@ -41,6 +41,7 @@ const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, J
 
 export class FhKid extends LitElement {
   readonly lookCtl = new LookController(this);
+  readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
@@ -63,6 +64,20 @@ export class FhKid extends LitElement {
     .nextup { width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 18px; background: var(--chip); padding: 8px 12px 8px 8px; }
     .jobs { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
     .list { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+    /* a long list tightens before it scrolls: closer rows, then two columns */
+    .list[data-fit] { gap: 5px; }
+    .list[data-fit] .sec { margin-top: 1px; }
+    .list[data-fit] .job { min-height: 46px; padding-top: 4px; padding-bottom: 4px; }
+    .list[data-fit] .job .box { width: 28px; height: 28px; }
+    .list[data-fit] .job .t { font-size: 16px; }
+    .list[data-fit] .pic { min-height: 148px; }
+    .list[data-fit] .pic .e { font-size: 72px; }
+    .list[data-fit='2'], .list[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; align-content: start; }
+    .list[data-fit='2'] > :not(.job), .list[data-fit='3'] > :not(.job) { grid-column: 1 / -1; }
+    :host([data-shape='tall']) { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); }
+    :host([data-shape='tall']) .hero { width: auto; grid-column: 1; grid-row: 1; }
+    :host([data-shape='tall']) .side { width: auto; grid-column: 2; grid-row: 1; max-height: 560px; }
+    :host([data-shape='tall']) .jobs { grid-column: 1 / -1; grid-row: 2; }
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
     .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
     .sec span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
@@ -512,7 +527,7 @@ export class FhKid extends LitElement {
         <div class="ring" role="img" aria-label="${done} of ${total} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
           <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - frac)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${done}/${total}</b></div>
       </div>
-      ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" @scroll=${scrollCue}>
+      ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" data-fits @scroll=${scrollCue}>
         ${this._picMode ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>`
           : html`
             ${routineNow.length ? html`<div class="sec"><h2>${SLOT_NAME[slot]} routine</h2><span>just what we do</span></div>${routineNow.map((c) => this._row(c))}` : nothing}
