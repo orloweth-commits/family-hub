@@ -58,6 +58,7 @@ kids:
     favourites: [skateboard, footy]   # shown first as the next unlock
 parent_pin: "1234"            # optional: guards rewards, locks and automations
 music_players: [media_player.kitchen, media_player.lounge]
+music_hide: [media_player.tv]   # optional: speakers to leave off the Music page
 music_map:                    # optional: the house as the Music page draws it, top floor first
   - name: Upstairs
     rooms:
