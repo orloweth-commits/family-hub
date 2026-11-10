@@ -65,6 +65,8 @@ export interface FamilyHubConfig {
   type: string;
   family_name?: string;
   theme?: ThemeId;
+  /** calm mode (no looping motion, no tilt): true = everywhere, false = never; default is on for the kids' pages only */
+  calm?: boolean;
   /** whole design language: glass (default), fridge or orbit; the panel's palette button changes it */
   look?: LookId;
   weather?: string;

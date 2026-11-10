@@ -37,7 +37,7 @@ export class FhGroceries extends LitElement {
     .done .box { background: var(--ok); border-color: var(--ok); color: #fff; }
     .done .txt { color: var(--ink3); text-decoration: line-through; }
     .txt { flex: 1; font-size: 17px; font-weight: 600; }
-    .tag { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .tag { font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: 600; color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
@@ -169,7 +169,7 @@ export class FhGroceries extends LitElement {
     return html`<button class="item row tap fade ${doneCls}" aria-pressed=${String(i.status === 'completed')} @click=${() => this._toggle(i)}>
       <span class="box check">${i.status === 'completed' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
       <span class="txt content">${i.summary}</span>
-      <span class="tag" style="color:var(${colour});background:color-mix(in srgb, var(${colour}) 14%, transparent)">${aisle}</span>
+      <span class="tag" style="color:color-mix(in srgb, var(${colour}) 62%, var(--ink));background:color-mix(in srgb, var(${colour}) 14%, transparent)">${aisle}</span>
     </button>`;
   }
 }

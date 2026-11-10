@@ -15,9 +15,9 @@ export class FhMusic extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
-    .hero { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; color: #fff; background: #111; }
-    .hero .bg { position: absolute; inset: -40px; background: var(--art) center / cover; filter: blur(40px) saturate(160%) brightness(.65); transform: scale(1.2); transition: background .6s; }
-    .hero > *:not(.bg) { position: relative; }
+    .stage { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; color: #fff; background: #111; }
+    .stage .bg { position: absolute; inset: -40px; background: var(--art) center / cover; filter: blur(40px) saturate(160%) brightness(.65); transform: scale(1.2); transition: background .6s; }
+    .stage > *:not(.bg) { position: relative; }
     .cover { width: 100%; aspect-ratio: 1; max-height: 300px; border-radius: 22px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); align-self: center; max-width: 300px; transition: transform .5s cubic-bezier(.2,1.2,.4,1); }
     .cover.paused { transform: scale(.88); }
     .ctl { display: flex; align-items: center; justify-content: center; gap: 30px; }
@@ -108,7 +108,7 @@ export class FhMusic extends LitElement {
   render(): TemplateResult | typeof nothing {
     if (!this.hass) return nothing;
     const p = this._cur;
-    return html`${p ? this._hero(p) : html`<section class="glass hero"><div class="soon">No speakers found</div></section>`}
+    return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="soon">No speakers found</div></section>`}
       <section class="glass panel">
         <div style="display:flex;align-items:center;gap:12px"><h1 style="flex:1;font-size:26px;font-weight:800">Music</h1>
           <div class="tabs" role="tablist">${([['rooms', 'Speakers'], ['radio', 'Radio'], ['apple', 'Apple Music'], ['spotify', 'Spotify']] as [Tab, string][])
@@ -122,7 +122,7 @@ export class FhMusic extends LitElement {
   private _hero(p: HassEntity): TemplateResult {
     const a = p.attributes, playing = p.state === 'playing', art = a.entity_picture ? `url(${a.entity_picture})` : '';
     const vol = typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
-    return html`<section class="glass hero" style=${art ? `--art:${art}` : ''} aria-label="Now playing">
+    return html`<section class="glass stage" style=${art ? `--art:${art}` : ''} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${playing ? '' : 'animation:none;background:rgba(255,255,255,.5)'}"></span>
         <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.8">${playing ? 'Playing on' : 'Ready on'} ${a.friendly_name}</span></div>

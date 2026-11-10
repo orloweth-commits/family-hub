@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
-import { LOOKS, LOOK_KEY, LookController, lookArt, lookById, lookStyle, setLook, type DialArc, type LookId } from './looks';
+import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, lookArt, lookById, setLook, type DialArc, type LookId } from './looks';
 import './groceries';
 import './kid';
 import './home';
@@ -45,7 +45,7 @@ export class FamilyHubCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _theme: { state: true }, _look: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
   };
@@ -59,6 +59,8 @@ export class FamilyHubCard extends LitElement {
   private _soon: CalEvent[] = [];
   private _theme: ThemeId = 'sea';
   private _look: LookId = 'glass';
+  /** look options the family has switched on, e.g. { hand: true } */
+  private _opts: Record<string, boolean> = {};
   private _sheet: Sheet = '';
   private _now = new Date();
   private _toast = '';
@@ -102,6 +104,7 @@ export class FamilyHubCard extends LitElement {
     try { look = localStorage.getItem(LOOK_KEY); } catch { /* storage unavailable */ }
     this._look = lookById(look || config.look).id;
     setLook(this._look);
+    try { this._opts = JSON.parse(localStorage.getItem(LOOK_OPTS_KEY) || '{}') ?? {}; } catch { this._opts = {}; }
     if (this._morningWindow()) this._page = 'morning';
     this._onResize();
   }
@@ -171,6 +174,8 @@ export class FamilyHubCard extends LitElement {
   protected updated(ch: PropertyValues): void {
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor')) this._refresh();
     if (ch.has('hass')) this._checkAlarm();
+    const root = this.renderRoot.querySelector('.fh');
+    if (root) for (const o of lookById(this._look).options ?? []) root.toggleAttribute(`data-opt-${o.id}`, !!this._opts[o.id]);
     if (this._page === 'planner' && this._view === 'week') this._measureWeek();
   }
 
@@ -179,11 +184,20 @@ export class FamilyHubCard extends LitElement {
   private _measureWeek(): void {
     const next: Record<string, number> = {};
     this.renderRoot.querySelectorAll<HTMLElement>('.evs').forEach((box) => {
-      const h = box.clientHeight; let n = 0;
-      box.querySelectorAll<HTMLElement>(':scope > .ev').forEach((ev) => {
-        const hide = ev.offsetTop + ev.offsetHeight > h + 1 || n > 0;
-        ev.style.visibility = hide ? 'hidden' : ''; if (hide) n++;
-      });
+      const evs = [...box.querySelectorAll<HTMLElement>(':scope > .ev')];
+      for (const ev of evs) { ev.style.display = ''; ev.style.visibility = ''; }
+      let n = 0;
+      // finished events make room first, so what is still to come stays visible
+      for (const ev of evs) {
+        if (box.scrollHeight <= box.clientHeight + 1) break;
+        if (ev.classList.contains('past')) { ev.style.display = 'none'; n++; }
+      }
+      const h = box.clientHeight; let cut = false;
+      for (const ev of evs) {
+        if (ev.style.display === 'none') continue;
+        const hide = cut || ev.offsetTop + ev.offsetHeight > h + 1;
+        ev.style.visibility = hide ? 'hidden' : ''; if (hide) { n++; cut = true; }
+      }
       if (n) next[box.dataset.day!] = n;
     });
     if (JSON.stringify(next) !== JSON.stringify(this._clip)) { this._clip = next; this.requestUpdate(); }
@@ -341,7 +355,8 @@ export class FamilyHubCard extends LitElement {
   }
 
   // ---------- actions ----------
-  private _say(msg: string, ms = 2600): void {
+  /** Toasts stay long enough for a slow reader: at least 4.5 s, longer for longer messages. */
+  private _say(msg: string, ms = Math.max(4500, msg.split(/\s+/).length * 450)): void {
     this._toast = msg;
     clearTimeout(this._toastTimer);
     this._toastTimer = window.setTimeout(() => { this._toast = ''; }, ms);
@@ -353,6 +368,10 @@ export class FamilyHubCard extends LitElement {
   private _setLook(id: LookId): void {
     this._look = id; setLook(id); sfx('tap');
     try { localStorage.setItem(LOOK_KEY, id); } catch { /* ignore */ }
+  }
+  private _toggleOpt(id: string): void {
+    this._opts = { ...this._opts, [id]: !this._opts[id] }; sfx('tap');
+    try { localStorage.setItem(LOOK_OPTS_KEY, JSON.stringify(this._opts)); } catch { /* ignore */ }
   }
   private _shift(dir: number): void {
     const a = this._anchor;
@@ -412,13 +431,16 @@ export class FamilyHubCard extends LitElement {
     const theme = themeById(kid?.theme ?? this._theme);
     const night = this._isNight();
     const look = lookById(this._look);
-    const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''}` : lookStyle(look);
+    // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
+    const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
+    const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
+    const calm = this._config.calm === true || (this._config.calm !== false && this._page === 'kid');
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
-    if (night) return html`<div class="fh" lang="en-AU" style=${`${skin};--z:${this._z}`}>${this._night()}</div>`;
+    if (night) return html`<div class="fh" lang="en-AU" data-tod="night" style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
     return html`
-      <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" style=${`${skin};--tod:${tod};--z:${this._z}`}>
+      <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} ?data-calm=${calm} style=${`${skin}--tod:${tod};--z:${this._z}`}>
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -462,30 +484,32 @@ export class FamilyHubCard extends LitElement {
     return inWindow(this._now, n.start, n.end) && Date.now() > this._awakeUntil;
   }
 
+  /** One fixed row of at most two chips, most urgent first, so the header never changes height. */
   private _capsule(): TemplateResult {
-    const c = this._config, chips: TemplateResult[] = [];
+    const c = this._config, chips: [number, TemplateResult][] = [];
     const left = this._timerLeft();
-    if (left !== null) {
+    // the planner already shows the timer in its side card, so only repeat it there in the last minute
+    if (left !== null && (this._page !== 'planner' || left < 60000)) {
       const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
-      chips.push(html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" @click=${() => { this._sheet = 'timer'; }}>⏲ <b>${mm}:${String(ss).padStart(2, '0')}</b></button>`);
+      chips.push([1, html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" @click=${() => { this._sheet = 'timer'; }}>⏲ <b>${mm}:${String(ss).padStart(2, '0')}</b></button>`]);
     }
     const msg = panelMsg(this.hass);
-    if (msg && !msg.alarm) chips.push(html`<span class="cap">${msg.t}</span>`);
+    if (msg && !msg.alarm) chips.push([4, html`<span class="cap">${msg.t}</span>`]);
     for (const m of c.meds ?? []) {
       const s = this._medStatus(m.id, m.time);
-      if (s.due) chips.push(html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${() => { this._sheet = 'meds'; }}>💊 ${s.late ? 'Overdue' : 'Due'} ${m.time}</button>`);
-      else if (s.given && this._now.getHours() < 12) chips.push(html`<button class="cap tap ok" @click=${() => { this._sheet = 'meds'; }}>💊 ✓ ${fmtTime(s.given)}</button>`);
+      if (s.due) chips.push([s.late ? 0 : 2, html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${() => { this._sheet = 'meds'; }}>💊 ${s.late ? 'Overdue' : 'Due'} ${m.time}</button>`]);
+      else if (s.given && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" @click=${() => { this._sheet = 'meds'; }}>💊 ✓ ${fmtTime(s.given)}</button>`]);
     }
     const now = Date.now();
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title));
     if (next) {
       const mins = Math.round((next.start.getTime() - now) / 60000);
       const when = mins < 60 ? `in ${mins} min` : `${sameDay(next.start, new Date()) ? '' : 'Tomorrow '}${fmtTime(next.start)}`;
-      chips.push(html`<span class="cap evcap"><span class="dot" style="background:${slotVar(next.colour)}"></span><span class="ell">${next.title}</span><span style="white-space:nowrap">· ${when}</span></span>`);
+      chips.push([3, html`<span class="cap evcap"><span class="dot" style="background:${slotVar(next.colour)}"></span><span class="ell">${next.title}</span><span style="white-space:nowrap">· ${when}</span></span>`]);
     }
     const m = c.music_player ? this.hass?.states[c.music_player] : undefined;
-    if (m?.state === 'playing' && this._page !== 'music') chips.push(html`<button class="cap tap" @click=${() => { this._page = 'music'; }}>♪ ${m.attributes.media_title ?? 'Playing'}</button>`);
-    return html`<div class="capsule" aria-live="polite">${chips}</div>`;
+    if (m?.state === 'playing' && this._page !== 'music' && this._page !== 'planner') chips.push([6, html`<button class="cap tap" @click=${() => { this._page = 'music'; }}>♪ ${m.attributes.media_title ?? 'Playing'}</button>`]);
+    return html`<div class="capsule" aria-live="polite">${chips.sort((x, y) => x[0] - y[0]).slice(0, 2).map((x) => x[1])}</div>`;
   }
 
   private _header(): TemplateResult {
@@ -559,9 +583,17 @@ export class FamilyHubCard extends LitElement {
     return evs.filter((e) => !this._private(e.title)).map((e) => ({ start: e.start, end: e.end, allDay: e.allDay, colour: slotVar(e.colour) }));
   }
 
+  /** 'past' once an event has finished today, 'next' for the next thing coming up. */
+  private _evState(e: CalEvent): string {
+    const now = Date.now();
+    if (!e.allDay && e.end.getTime() < now) return 'past';
+    const next = this._soon.find((x) => !x.allDay && x.start.getTime() > now && x.start.getTime() - now < 12 * 3_600_000 && !this._private(x.title));
+    return next && next.title === e.title && next.start.getTime() === e.start.getTime() ? 'next' : '';
+  }
+
   private _evCard(e: CalEvent): TemplateResult {
     if (this._private(e.title)) return html`<div class="ev priv"><span class="t">${e.allDay ? '' : fmtTime(e.start)}</span><span>💊</span></div>`;
-    return html`<div class="ev" style="--c:${slotVar(e.colour)}">
+    return html`<div class="ev ${this._evState(e)}" style="--c:${slotVar(e.colour)}">
       <span class="t">${e.allDay ? 'All day' : fmtTime(e.start)}</span>
       <span class="n content">${e.title}</span>
       <span class="w">${e.who}</span>
@@ -590,7 +622,7 @@ export class FamilyHubCard extends LitElement {
     const evs = this._eventsOn(a);
     return html`<div class="daylist fade">
       ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:600" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span><span style="font-size:18px">💊 Private</span></div>` : html`
-        <div class="dayrow" style="background:color-mix(in srgb, ${slotVar(e.colour)} 22%, transparent);border-left:6px solid ${slotVar(e.colour)}">
+        <div class="dayrow ${this._evState(e)}" style="background:color-mix(in srgb, ${slotVar(e.colour)} 22%, transparent);border-left:6px solid ${slotVar(e.colour)}">
           <span style="width:90px;font-size:16px;font-weight:700" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:20px;font-weight:700">${e.title}</span>
           <span class="muted" style="font-size:14px;font-weight:600">${e.who}</span></span>
@@ -719,6 +751,8 @@ export class FamilyHubCard extends LitElement {
           <span style="font-size:16px;font-weight:700">${l.name}</span><span class="muted" style="font-size:13px">${l.tagline}</span>
         </button>`)}
       </div>
+      ${(lookById(this._look).options ?? []).map((o) => html`<button class="pill tap opt" aria-pressed=${String(!!this._opts[o.id])} @click=${() => this._toggleOpt(o.id)}>
+        <span class="sw" aria-hidden="true"></span><span style="display:flex;flex-direction:column;text-align:left;line-height:1.2"><span>${o.label}</span>${o.hint ? html`<span class="muted" style="font-size:13px;font-weight:500">${o.hint}</span>` : nothing}</span></button>`)}
       ${!lookById(this._look).themed ? nothing : html`<span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
@@ -747,6 +781,7 @@ export class FamilyHubCard extends LitElement {
   private _timerBody(): TemplateResult {
     const left = this._timerLeft() ?? 0, mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
     return html`${this._sheetHead('Kitchen timer')}
+      <span style="align-self:center;line-height:0">${lookArt(this._look, 'timer', { frac: this._timerFrac(this._timerLeft()), size: 170 })}</span>
       <span class="display" style="font-size:88px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums">${mm}:${String(ss).padStart(2, '0')}</span>
       <div class="grid3" style="gap:10px">${[1, 5, 10].map((n) => html`<button class="tap quick" style="height:56px;font-size:18px" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center" @click=${() => { this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' }); this._sheet = ''; }}>Cancel timer</button>`;

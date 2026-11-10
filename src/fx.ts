@@ -22,7 +22,7 @@ export const fxCss = `
   .shake { animation: shake .45s; }
   @keyframes shake { 20%, 60% { transform: translateX(-6px) rotate(-2deg); } 40%, 80% { transform: translateX(6px) rotate(2deg); } }
   .shimmer { position: relative; overflow: hidden; }
-  .shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); transform: translateX(-100%); animation: shimmer 2.8s ease-in-out infinite; }
+  .shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); transform: translateX(-100%); animation: shimmer 2.8s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
   .xp { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
   .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .8s cubic-bezier(.2,.8,.2,1); }
