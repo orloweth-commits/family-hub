@@ -62,7 +62,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -439,7 +439,12 @@ const FRIDGE = `
   @F .cab { background: #2f2a26; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,.25); }
   @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
   @F .sock[aria-pressed='true'] { background: var(--c); }
-  @F .cdisc { box-shadow: 0 0 0 6px #17140f, 0 0 0 9px var(--ink), 0 6px 0 rgba(0,0,0,.2); }
+  @F .cdisc { box-shadow: 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.2); }
+  @F .cbox { background-color: #d9b98a; border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
+  @F .ttable { background: var(--paper); border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.16); }
+  @F .tkey { border-radius: 8px; background: var(--magnet); box-shadow: 0 6px 0 #b9b2a2, 0 8px 8px rgba(0,0,0,.2); }
+  @F .tkey[data-go] { background: var(--primary); color: var(--on-primary); box-shadow: 0 6px 0 var(--primary-edge), 0 8px 8px rgba(0,0,0,.2); }
+  @F .ctab { border-radius: 4px 4px 0 0; }
   @F .vscene { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
   @F .aname { background: var(--note); border-radius: 3px; box-shadow: 0 2px 3px rgba(0,0,0,.18); }
   @F .join { background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
@@ -666,6 +671,10 @@ const ORBIT = `
   @O .sock { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .sock[aria-pressed='true'] { background: var(--c); box-shadow: none; }
   @O .cdisc { box-shadow: 0 0 0 1.5px var(--ink); }
+  @O .cbox { background-color: var(--glass); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .ttable { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @O .tkey { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .tkey[data-go] { background: var(--primary); color: var(--on-primary); box-shadow: none; }
   @O .vscene { box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .aname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .join { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
