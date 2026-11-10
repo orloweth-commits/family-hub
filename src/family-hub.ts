@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
-import { LOOKS, LOOK_KEY, LookController, dayDial, lookById, lookStyle, setLook, timerRing, wallClock, type DialArc, type LookId } from './looks';
+import { LOOKS, LOOK_KEY, LookController, lookArt, lookById, lookStyle, setLook, type DialArc, type LookId } from './looks';
 import './groceries';
 import './kid';
 import './home';
@@ -412,7 +412,7 @@ export class FamilyHubCard extends LitElement {
     const theme = themeById(kid?.theme ?? this._theme);
     const night = this._isNight();
     const look = lookById(this._look);
-    const skin = look.vars ? lookStyle(look) : `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''}`;
+    const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''}` : lookStyle(look);
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
@@ -496,7 +496,7 @@ export class FamilyHubCard extends LitElement {
     return html`
       <header>
         <div class="clock">
-          ${this._look === 'fridge' ? wallClock(now) : this._look === 'orbit' ? dayDial(this._arcs(this._eventsOn(now, this._soon)), 72, now) : nothing}
+          ${lookArt(this._look, 'clock', { now, arcs: this._arcs(this._eventsOn(now, this._soon)) })}
           <span style="font-size:16px;font-weight:600" class="muted">${greeting(now)}${c.family_name ? `, ${c.family_name}` : ''}</span>
           <span style="display:flex;align-items:baseline;gap:10px"><span class="display hm">${clk.hm}</span><span class="muted" style="font-size:16px;font-weight:600">${clk.ampm} · ${fmtShortDate(now)}</span></span>
         </div>
@@ -519,10 +519,10 @@ export class FamilyHubCard extends LitElement {
                 return html`<span class="avatar ${home ? '' : 'away'}" title="${p.name} – ${home ? 'home' : 'away'}" style="--c:${slotVar(p.colour)};width:32px;height:32px;font-size:13px;background:${slotVar(p.colour)};opacity:${home ? 1 : 0.35}">${p.name[0]}</span>`;
               })}
             </div>` : nothing}
-          <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>
-          <button class="glass tap round" style="width:52px;height:52px" aria-label="Looks and themes" @click=${() => { this._sheet = 'themes'; }}>${icon('palette')}</button>
+          <button class="glass tap round" style="width:52px;height:52px" data-act="assist" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>
+          <button class="glass tap round" style="width:52px;height:52px" data-act="looks" aria-label="Looks and themes" @click=${() => { this._sheet = 'themes'; }}>${icon('palette')}</button>
           ${c.babysitter ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
-          <button class="glass tap round" style="width:52px;height:52px" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
+          <button class="glass tap round" style="width:52px;height:52px" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
         </div>
       </header>`;
   }
@@ -563,7 +563,7 @@ export class FamilyHubCard extends LitElement {
     if (this._private(e.title)) return html`<div class="ev priv"><span class="t">${e.allDay ? '' : fmtTime(e.start)}</span><span>💊</span></div>`;
     return html`<div class="ev" style="--c:${slotVar(e.colour)}">
       <span class="t">${e.allDay ? 'All day' : fmtTime(e.start)}</span>
-      <span class="n">${e.title}</span>
+      <span class="n content">${e.title}</span>
       <span class="w">${e.who}</span>
     </div>`;
   }
@@ -578,7 +578,7 @@ export class FamilyHubCard extends LitElement {
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
         const key = ymd(d), hidden = this._clip[key] ?? 0;
         return html`<div class="col ${isToday ? 'today' : ''}">
-          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${this._look === 'orbit' ? dayDial(this._arcs(pub), 30, undefined, 'mini') : nothing}${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
+          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._look, 'day', { arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
           <div class="evs" data-day=${key}>${pub.map((e) => this._evCard(e))}</div>
           ${hidden ? html`<button class="more tap" @click=${() => { this._anchor = d; this._view = 'day'; }}>+${hidden} more</button>` : nothing}
         </div>`;
@@ -592,7 +592,7 @@ export class FamilyHubCard extends LitElement {
       ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:600" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span><span style="font-size:18px">💊 Private</span></div>` : html`
         <div class="dayrow" style="background:color-mix(in srgb, ${slotVar(e.colour)} 22%, transparent);border-left:6px solid ${slotVar(e.colour)}">
           <span style="width:90px;font-size:16px;font-weight:700" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span>
-          <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:20px;font-weight:700">${e.title}</span>
+          <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:20px;font-weight:700">${e.title}</span>
           <span class="muted" style="font-size:14px;font-weight:600">${e.who}</span></span>
         </div>`) : html`<div class="empty"><h2 style="font-size:22px">Nothing on</h2><span>A free day!</span></div>`}
     </div>`;
@@ -640,18 +640,18 @@ export class FamilyHubCard extends LitElement {
 
       <section class="glass card" aria-label="Kitchen timer">
         <span class="label">Kitchen timer</span>
-        <div class="timerrow ${left !== null ? 'on' : ''}" style="display:flex;align-items:baseline;gap:10px">${this._look === 'orbit' ? timerRing(this._timerFrac(left), 56) : nothing}<span class="display" style="font-size:32px;font-weight:700;font-variant-numeric:tabular-nums">${left !== null ? `${mm}:${String(ss).padStart(2, '0')}` : '0:00'}</span>
+        <div class="timerrow ${left !== null ? 'on' : ''}" style="display:flex;align-items:baseline;gap:10px">${lookArt(this._look, 'timer', { frac: this._timerFrac(left) })}<span class="display" style="font-size:32px;font-weight:700;font-variant-numeric:tabular-nums">${left !== null ? `${mm}:${String(ss).padStart(2, '0')}` : '0:00'}</span>
           <span class="muted hint" style="font-size:13px">${left !== null ? 'running · beeps everywhere' : 'tap to start'}</span>
           ${left !== null ? html`<button class="tap muted" style="margin-left:auto;font-size:14px;font-weight:700" @click=${() => this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' })}>Clear</button>` : nothing}</div>
-        <div class="grid3">${[1, 5, 10].map((n) => html`<button class="tap" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
+        <div class="grid3">${[1, 5, 10].map((n) => html`<button class="tap quick" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       </section>
 
       <section class="glass card" aria-label="Reminders" style="flex:1;min-height:0">
         ${this.hass?.states['input_number.family_jar'] ? html`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">🫙</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">Family jar · ${jar >= target ? 'full! 🎉' : `${jar}/${target}`}</span>
-          <div class="xpbar"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></div>` : nothing}
+          <div class="xpbar meter"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></div>` : nothing}
         <span class="label">Reminders</span>
-        ${this._reminders.length ? this._reminders.map((r) => html`<div class="rem"><span class="ring"></span>${r.summary}</div>`)
+        ${this._reminders.length ? this._reminders.map((r) => html`<div class="rem"><span class="ring check"></span><span class="content">${r.summary}</span></div>`)
           : html`<span class="muted" style="font-size:14px">${c.reminders ? 'All done!' : 'Pick a to-do list for reminders in the card settings.'}</span>`}
       </section>
     </aside>`;
@@ -659,7 +659,7 @@ export class FamilyHubCard extends LitElement {
 
   private _dock(): TemplateResult {
     const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" aria-current=${current ? 'page' : 'false'} @click=${() => { sfx('tap'); on(); }}>${icon(ic, 26)}${label}</button>`;
+      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} @click=${() => { sfx('tap'); on(); }}>${icon(ic, 26)}${label}</button>`;
     const kids = this._config.kids ?? [];
     return html`<nav class="glass dock" aria-label="Main">
       ${kids.map((k, i) => {
@@ -677,9 +677,9 @@ export class FamilyHubCard extends LitElement {
       ${item('music', 'Music', () => { this._page = 'music'; }, this._page === 'music')}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep" aria-hidden="true"></span>
-      <button class="item tap" @click=${() => this._allOn()}><span style="color:var(--accent)">${icon('bulb', 26)}</span>All on</button>
-      <button class="item tap" @click=${() => this._allOff()}>${icon('bulbOff', 26)}All off</button>
-      <button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" @click=${() => this._dinnerStart()}>${icon('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>
+      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}><span style="color:var(--accent)">${icon('bulb', 26)}</span>All on</button>
+      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${icon('bulbOff', 26)}All off</button>
+      <button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${icon('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>
     </nav>`;
   }
 
@@ -719,7 +719,7 @@ export class FamilyHubCard extends LitElement {
           <span style="font-size:16px;font-weight:700">${l.name}</span><span class="muted" style="font-size:13px">${l.tagline}</span>
         </button>`)}
       </div>
-      ${this._look !== 'glass' ? nothing : html`<span class="label">Background</span>
+      ${!lookById(this._look).themed ? nothing : html`<span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
           <span class="tprev" style=${themeStyle(t)}>${[1, 2, 3, 4, 5].map((n) => html`<span style="background:var(--p-${n})"></span>`)}</span>
@@ -727,7 +727,7 @@ export class FamilyHubCard extends LitElement {
         </button>`)}
       </div>`}
       <div style="display:flex;justify-content:space-between;align-items:center">
-        ${this._look !== 'glass' ? html`<span></span>` : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => { const o = THEMES.filter((t) => t.id !== this._theme); this._setTheme(o[Math.floor(Math.random() * o.length)].id); }}>${icon('shuffle', 20)}Surprise me</button>`}
+        ${!lookById(this._look).themed ? html`<span></span>` : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => { const o = THEMES.filter((t) => t.id !== this._theme); this._setTheme(o[Math.floor(Math.random() * o.length)].id); }}>${icon('shuffle', 20)}Surprise me</button>`}
         <span class="muted" style="font-size:12px">Family Hub v${VERSION}</span>
       </div>`;
   }
@@ -748,7 +748,7 @@ export class FamilyHubCard extends LitElement {
     const left = this._timerLeft() ?? 0, mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
     return html`${this._sheetHead('Kitchen timer')}
       <span class="display" style="font-size:88px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums">${mm}:${String(ss).padStart(2, '0')}</span>
-      <div class="grid3" style="gap:10px">${[1, 5, 10].map((n) => html`<button class="tap" style="height:56px;font-size:18px" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
+      <div class="grid3" style="gap:10px">${[1, 5, 10].map((n) => html`<button class="tap quick" style="height:56px;font-size:18px" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center" @click=${() => { this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' }); this._sheet = ''; }}>Cancel timer</button>`;
   }
   private _sitterBody(): TemplateResult {

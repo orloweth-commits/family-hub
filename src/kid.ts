@@ -382,7 +382,7 @@ export class FhKid extends LitElement {
           <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b class="stars" style="font-size:30px">★ ${n}</b>` : n ? html`<span class="starjar">${'★'.repeat(n).split('').map((x) => html`<i>${x}</i>`)}</span>` : html`<b class="stars" style="font-size:26px">☆</b>`; })()}
           <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
       : html`
-        <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
+        <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp meter"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
           <span class="muted" style="font-size:13px;font-weight:600;text-align:right">${li.need - li.into} more to ${li.nextRank}</span></div>
         <div class="stats">
           <div class="stat"><b>${pts || '✨'}</b><span>${pts ? 'points to spend' : 'Ready to start'}</span></div>
@@ -393,7 +393,7 @@ export class FhKid extends LitElement {
         : nx ? html`<div class="next">
         <span class="shimmer" style="border-radius:50%;line-height:0">${renderAvatar(applyItem(look, nx.cat, nx.id, nx.swatch), { size: 46, crop: 'head', still: true, age: this.kid.age })}</span>
         <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${goal === nx.id ? '♥ Saving for' : 'Next'}: ${nx.label}</span>
-          <div class="xp" style="height:7px"><div style="width:${pct}%"></div></div>
+          <div class="xp meter" style="height:7px"><div style="width:${pct}%"></div></div>
           ${this._jack ? nothing : html`<span class="muted" style="font-size:12px;font-weight:600">${nx.req - life} to go</span>`}</span>
       </div>` : html`<div class="next"><span style="font-size:13px;font-weight:700;padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
       ${this.kid.special_time && !this._jack ? html`<span class="muted" style="font-size:13px;font-weight:600">💛 Your time: ${this.kid.special_time}</span>` : nothing}
@@ -445,11 +445,11 @@ export class FhKid extends LitElement {
   private _row(c: ParsedChore): TemplateResult {
     const d = c.status === 'completed', p = this._practice?.uid === c.uid ? this._practice : null;
     const left = p ? Math.max(0, p.end - this._now.getTime()) : 0;
-    return html`<div class="job ${d ? 'done' : ''}" style="padding-right:10px">
+    return html`<div class="job row ${d ? 'done' : ''}" style="padding-right:10px">
       <button class="tap" style="display:flex;align-items:center;gap:14px;flex:1;text-align:left;min-height:34px" aria-pressed=${String(d)} @click=${() => this._toggle(c)}>
-        <span class="box">${d ? '✓' : ''}</span>
+        <span class="box check">${d ? '✓' : ''}</span>
         ${this.kid.mode === 'mixed' ? html`<span style="font-size:28px">${picFor(c.summary)}</span>` : nothing}
-        <span class="t">${c.summary}</span></button>
+        <span class="t content">${c.summary}</span></button>
       ${c.lane === 'grow' && c.minutes && !d ? (p ? html`<button class="play tap" @click=${() => this._stopPractice()}>⏸ ${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</button>`
         : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @click=${() => this._startPractice(c)}>▶ ${c.minutes} min</button>`) : nothing}
       ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) ? html`<span class="plus grow">🌱</span>` : nothing}

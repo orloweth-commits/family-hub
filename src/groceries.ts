@@ -43,7 +43,7 @@ export class FhGroceries extends LitElement {
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field::placeholder { color: var(--ink3); font-weight: 500; }
     .keys { flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; }
-    .row { display: flex; gap: 8px; justify-content: center; }
+    .krow { display: flex; gap: 8px; justify-content: center; }
     .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform .1s ease; }
     .key:active { transform: scale(.92); background: var(--chip); }
     .chip { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 600; }
@@ -150,11 +150,11 @@ export class FhGroceries extends LitElement {
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
           <span class="muted" style="font-size:13px;font-weight:700;margin-right:4px">Usuals</span>
-          ${this.usuals.map((u) => html`<button class="chip tap" @click=${() => this._add(u)}>+ ${u}</button>`)}
+          ${this.usuals.map((u) => html`<button class="chip quick tap" @click=${() => this._add(u)}>+ ${u}</button>`)}
         </div>
         <div class="keys">
-          ${ROWS.map((r) => html`<div class="row">${r.split('').map((k) => html`<button class="key" @click=${() => { this._typed += k; }}>${k}</button>`)}</div>`)}
-          <div class="row">
+          ${ROWS.map((r) => html`<div class="krow">${r.split('').map((k) => html`<button class="key" @click=${() => { this._typed += k; }}>${k}</button>`)}</div>`)}
+          <div class="krow">
             <button class="key" style="width:420px;font-size:17px" @click=${() => { this._typed += ' '; }}>space</button>
             <button class="key" style="width:136px;background:var(--chip)" aria-label="Delete" @click=${() => { this._typed = this._typed.slice(0, -1); }}>⌫</button>
           </div>
@@ -166,9 +166,9 @@ export class FhGroceries extends LitElement {
   private _row(i: TodoItem): TemplateResult {
     const [aisle, colour] = aisleOf(i.summary);
     const doneCls = i.status === 'completed' ? 'done' : '';
-    return html`<button class="item tap fade ${doneCls}" aria-pressed=${String(i.status === 'completed')} @click=${() => this._toggle(i)}>
-      <span class="box">${i.status === 'completed' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
-      <span class="txt">${i.summary}</span>
+    return html`<button class="item row tap fade ${doneCls}" aria-pressed=${String(i.status === 'completed')} @click=${() => this._toggle(i)}>
+      <span class="box check">${i.status === 'completed' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
+      <span class="txt content">${i.summary}</span>
       <span class="tag" style="color:var(${colour});background:color-mix(in srgb, var(${colour}) 14%, transparent)">${aisle}</span>
     </button>`;
   }

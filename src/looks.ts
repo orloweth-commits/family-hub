@@ -1,43 +1,49 @@
-import { html, svg, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
+import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
  * "glass" is the original (themes pick its photo and colours); the others
- * bring their own background, type and shapes. Every component gets a
- * `data-look` attribute on its host, and the rules below key off it.
+ * bring their own background, type and shapes.
+ *
+ * How looks stay linked to the base interface:
+ *  1. Every component carries a `data-look` host attribute (LookController).
+ *  2. A look is tokens (`vars`) + rules bound to the HOOKS below + optional
+ *     drawings (`art`). The base templates never name a look.
+ *  3. HOOKS is the contract. "Roles" are shared building blocks (row, check,
+ *     content, meter, quick…): anything new in the base that is built from
+ *     them is styled by every look automatically. "Parts" are the named
+ *     regions a look may also dress (clock, dock, hero…).
+ *  4. `npm run check:looks` (part of the build) fails if a look styles a
+ *     class that is not in HOOKS, or if a hook no longer exists in the base.
  * ------------------------------------------------------------------ */
 
 export type LookId = 'glass' | 'fridge' | 'orbit';
-export interface LookDef { id: LookId; name: string; tagline: string; swatch: string; fonts?: string; vars?: Record<string, string> }
+export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
+/** Places in the base where a look may add a drawing of its own. */
+export type ArtSlot = 'clock' | 'day' | 'timer';
+export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number }
+export interface LookDef {
+  id: LookId; name: string; tagline: string; swatch: string; fonts?: string;
+  /** true = colours and background come from the photo themes (the original look) */
+  themed?: boolean;
+  vars?: Record<string, string>;
+  art?: Partial<Record<ArtSlot, (c: ArtCtx) => TemplateResult>>;
+}
+
+/** The contract between the base interface and the looks (see the note at the top). */
+export const HOOKS = {
+  roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'quick', 'avatar',
+    'row', 'check', 'content', 'done', 'meter', 'tab', 'tabs', 'seg', 'today', 'away', 'playing', 'on', 'hot', 'i'],
+  parts: ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'pchip', 'ev', 't', 'w', 'more',
+    'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'progress', 'dock', 'item', 'kidbtn', 'sep', 'tcard',
+    'hero', 'name', 'rank', 'stat', 'dots', 'g', 'next', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk',
+    'list', 'items', 'tag', 'field', 'key', 'who',
+    // drawings a look adds through `art`
+    'aclock', 'sec-hand', 'dial', 'mini', 'nowdot', 'tring']
+};
 
 export const LOOK_KEY = 'family-hub-look';
 
-export const LOOKS: LookDef[] = [
-  { id: 'glass', name: 'Glass', tagline: 'Frosted panels over a photo', swatch: 'linear-gradient(160deg,#8ecbf0,#f3e3c4)' },
-  {
-    id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
-    fonts: 'family=Caveat:wght@600;700&family=Fredoka:wght@500;600;700&family=Patrick+Hand',
-    vars: {
-      '--ink': '#2b2b2b', '--ink2': '#55524c', '--ink3': '#6f6b63', '--glass': '#ffffff', '--glass-line': 'transparent', '--shadow': '0 5px 8px rgba(0,0,0,.16)',
-      '--chip': 'rgba(43,43,43,.07)', '--chip-strong': '#ffffff', '--chip-soft': 'rgba(43,43,43,.045)', '--chip-faint': 'rgba(43,43,43,.02)', '--track': 'rgba(43,43,43,.14)',
-      '--primary': '#d8342b', '--on-primary': '#ffffff', '--accent': '#c25e00', '--ok': '#1f8a4c',
-      '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0d9488', '--p-4': '#ea580c', '--p-5': '#7c3aed', '--p-family': '#475569', '--on-person': '#ffffff', '--bg': 'none'
-    }
-  },
-  {
-    id: 'orbit', name: 'Orbit', tagline: 'Dark, calm, built from rings', swatch: '#0a0f1e',
-    fonts: 'family=Outfit:wght@200;300;400;500;600',
-    vars: {
-      '--ink': '#eef1fa', '--ink2': '#a7b0cc', '--ink3': '#8791b3', '--glass': 'rgba(255,255,255,.045)', '--glass-line': 'rgba(255,255,255,.11)', '--shadow': 'none',
-      '--chip': 'rgba(255,255,255,.08)', '--chip-strong': 'rgba(255,255,255,.16)', '--chip-soft': 'rgba(255,255,255,.04)', '--chip-faint': 'rgba(255,255,255,.02)', '--track': 'rgba(255,255,255,.14)',
-      '--primary': '#ffe08a', '--on-primary': '#0a0f1e', '--accent': '#ffe08a', '--ok': '#6ee7c0',
-      // same hue per person as every other look, lifted for a dark ground
-      '--p-1': '#7cb7ff', '--p-2': '#ff8fb1', '--p-3': '#6ee7c0', '--p-4': '#ff9f6b', '--p-5': '#c9a7ff', '--p-family': '#cbd5e1', '--on-person': '#0a0f1e', '--bg': 'none'
-    }
-  }
-];
-
-export const lookById = (id: string | null | undefined): LookDef => LOOKS.find((l) => l.id === id) ?? LOOKS[0];
 /** Inline custom properties for a look, or '' for glass (themes supply them). */
 export const lookStyle = (l: LookDef): string => (l.vars ? Object.entries(l.vars).map(([k, v]) => `${k}:${v}`).join(';') : '');
 
@@ -75,11 +81,10 @@ export const wallClock = (now: Date, size = 62): TemplateResult => {
     ${Array.from({ length: 12 }, (_, i) => svg`<rect x="56.5" y="11" width="3" height=${i % 3 ? 6 : 11} fill="#2b2b2b" transform="rotate(${i * 30} 58 58)"></rect>`)}
     <rect x="55" y="30" width="6" height="30" rx="3" fill="#2b2b2b" transform="rotate(${h} 58 58)"></rect>
     <rect x="56.25" y="17" width="3.5" height="43" rx="1.75" fill="#2b2b2b" transform="rotate(${m} 58 58)"></rect>
-    <rect class="sec" x="57.2" y="15" width="1.6" height="50" fill="#d8342b"></rect>
+    <rect class="sec-hand" x="57.2" y="15" width="1.6" height="50" fill="#d8342b"></rect>
     <circle cx="58" cy="58" r="4.5" fill="#d8342b"></circle>`}</svg>`;
 };
 
-export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
 /**
  * Orbit: a day as a 24-hour ring, midday at the top. Events are arcs in their
  * person's colour; pass `now` to draw the hand for the current time.
@@ -106,6 +111,37 @@ export const timerRing = (frac: number, size = 84): TemplateResult => {
     <circle cx="50" cy="50" r="44" stroke="var(--p-4)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${Math.max(0, Math.min(1, frac)) * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>`}</svg>`;
 };
 
+export const LOOKS: LookDef[] = [
+  { id: 'glass', name: 'Glass', tagline: 'Frosted panels over a photo', swatch: 'linear-gradient(160deg,#8ecbf0,#f3e3c4)', themed: true },
+  {
+    id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
+    fonts: 'family=Caveat:wght@600;700&family=Fredoka:wght@500;600;700&family=Patrick+Hand',
+    art: { clock: (c) => wallClock(c.now ?? new Date()) },
+    vars: {
+      '--ink': '#2b2b2b', '--ink2': '#55524c', '--ink3': '#6f6b63', '--glass': '#ffffff', '--glass-line': 'transparent', '--shadow': '0 5px 8px rgba(0,0,0,.16)',
+      '--chip': 'rgba(43,43,43,.07)', '--chip-strong': '#ffffff', '--chip-soft': 'rgba(43,43,43,.045)', '--chip-faint': 'rgba(43,43,43,.02)', '--track': 'rgba(43,43,43,.14)',
+      '--primary': '#d8342b', '--on-primary': '#ffffff', '--accent': '#c25e00', '--ok': '#1f8a4c',
+      '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0d9488', '--p-4': '#ea580c', '--p-5': '#7c3aed', '--p-family': '#475569', '--on-person': '#ffffff', '--bg': 'none'
+    }
+  },
+  {
+    id: 'orbit', name: 'Orbit', tagline: 'Dark, calm, built from rings', swatch: '#0a0f1e',
+    fonts: 'family=Outfit:wght@200;300;400;500;600',
+    art: { clock: (c) => dayDial(c.arcs ?? [], 72, c.now), day: (c) => dayDial(c.arcs ?? [], 30, undefined, 'mini'), timer: (c) => timerRing(c.frac ?? 0, 56) },
+    vars: {
+      '--ink': '#eef1fa', '--ink2': '#a7b0cc', '--ink3': '#8791b3', '--glass': 'rgba(255,255,255,.045)', '--glass-line': 'rgba(255,255,255,.11)', '--shadow': 'none',
+      '--chip': 'rgba(255,255,255,.08)', '--chip-strong': 'rgba(255,255,255,.16)', '--chip-soft': 'rgba(255,255,255,.04)', '--chip-faint': 'rgba(255,255,255,.02)', '--track': 'rgba(255,255,255,.14)',
+      '--primary': '#ffe08a', '--on-primary': '#0a0f1e', '--accent': '#ffe08a', '--ok': '#6ee7c0',
+      // same hue per person as every other look, lifted for a dark ground
+      '--p-1': '#7cb7ff', '--p-2': '#ff8fb1', '--p-3': '#6ee7c0', '--p-4': '#ff9f6b', '--p-5': '#c9a7ff', '--p-family': '#cbd5e1', '--on-person': '#0a0f1e', '--bg': 'none'
+    }
+  }
+];
+
+export const lookById = (id: string | null | undefined): LookDef => LOOKS.find((l) => l.id === id) ?? LOOKS[0];
+/** A look's drawing for a slot, or nothing. The base calls this without knowing which look is on. */
+export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult | typeof nothing => lookById(id).art?.[slot]?.(ctx) ?? nothing;
+
 /* ---------------- look styles (shared by every component) ---------------- */
 
 const FRIDGE = `
@@ -123,7 +159,7 @@ const FRIDGE = `
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @F .clock .aclock { grid-row: 1 / span 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
-  @F .clock .aclock .sec { transform-origin: 58px 58px; animation: fhSec 60s steps(60) infinite; }
+  @F .clock .aclock .sec-hand { transform-origin: 58px 58px; animation: fhSec 60s steps(60) infinite; }
   @keyframes fhSec { to { transform: rotate(360deg); } }
   @F .clock .hm { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 50px; }
   @F .cap { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.18); transform: rotate(-1.2deg); font-family: 'Fredoka', sans-serif; font-weight: 600; }
@@ -135,8 +171,8 @@ const FRIDGE = `
   @F .presence .avatar { background: transparent !important; color: var(--c); font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 34px !important; width: 30px !important; height: 44px !important; border-radius: 0; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
   @F .presence .avatar.away { color: #5b6468; opacity: .75 !important; transform: rotate(16deg) translateY(4px); text-shadow: none; }
   @F header .right > button.round { box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.18); color: #fff; background: #7b4bc9; }
-  @F header .right > button.round:nth-last-child(1) { background: #2b2b2b; color: #ffd75a; }
-  @F header .right > button.round:nth-last-child(2) { background: #1f8a4c; }
+  @F header .right > button.round[data-act='night'] { background: #2b2b2b; color: #ffd75a; }
+  @F header .right > button.round[data-act='looks'] { background: #1f8a4c; }
 
   /* planner: the panel disappears, each day is a sticky note */
   @F .planner { background: transparent; box-shadow: none; padding: 4px 0 0; animation: none; }
@@ -161,15 +197,15 @@ const FRIDGE = `
   @F .num { font-weight: 700; }
   @F .ev { background: transparent; border-left: 0; border-radius: 0; padding: 2px 4px 6px; border-bottom: 1.5px dashed rgba(43,43,43,.2); gap: 0; }
   @F .ev .t { font-size: 14px; font-weight: 400; }
-  @F .ev .n { font-family: 'Caveat', cursive; font-weight: 700; font-size: 24px; line-height: .98; color: color-mix(in srgb, var(--c) 70%, #000); hyphens: none; }
-  @F .today .ev .n { font-size: 29px; }
+  @F .ev .content { font-family: 'Caveat', cursive; font-weight: 700; font-size: 24px; line-height: .98; color: color-mix(in srgb, var(--c) 70%, #000); hyphens: none; }
+  @F .today .ev .content { font-size: 29px; }
   @F .ev .w { font-size: 13px; font-weight: 400; }
   @F .more { background: transparent; text-decoration: underline; font-weight: 400; font-size: 15px; }
   @F .cell { border-radius: 2px; background: #fff; box-shadow: 0 2px 3px rgba(0,0,0,.12); }
   @F .cell.out { background: rgba(255,255,255,.45); box-shadow: none; }
   @F .cell.today { background: #fff2a1; }
   @F .dayrow { background: #fff !important; border-left-width: 10px !important; border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
-  @F .dayrow span span:first-child { font-family: 'Caveat', cursive; font-size: 28px !important; line-height: 1; }
+  @F .dayrow .content { font-family: 'Caveat', cursive; font-size: 28px !important; line-height: 1; }
 
   /* side cards */
   @F aside { gap: 14px; }
@@ -183,23 +219,23 @@ const FRIDGE = `
   @F .art { border-radius: 50%; width: 46px; height: 46px; background: radial-gradient(circle, #141210 0 16%, #ede6d6 17% 100%) !important; box-shadow: inset 0 0 0 5px #141210; }
   @F .playing .art { animation: fhSpin 3s linear infinite; background: conic-gradient(#ede6d6 0 8%, #141210 8% 10%, #ede6d6 10% 33%, #141210 33% 35%, #ede6d6 35% 58%, #141210 58% 60%, #ede6d6 60% 83%, #141210 83% 85%, #ede6d6 85%) !important; }
   @keyframes fhSpin { to { transform: rotate(360deg); } }
-  @F .grid3 button { background: transparent; border: 2px dashed #2b2b2b; border-radius: 22px; height: 44px; font-size: 17px; font-weight: 400; }
+  @F .quick { background: transparent; border: 2px dashed #2b2b2b; border-radius: 22px; min-height: 44px; font-size: 17px; font-weight: 400; }
   @F .rem { font-weight: 400; font-size: 17px; line-height: 1.1; }
-  @F .rem .ring { border-radius: 5px 8px 6px 9px; border: 2px solid #2b2b2b; width: 20px; height: 20px; }
-  @F .xpbar, @F .xp { border: 2px solid #2b2b2b; background: #fff; height: 12px; border-radius: 8px; }
-  @F .xpbar > div, @F .xp > div { background: #f5b301; border-radius: 0; }
+  @F .rem .check { width: 20px; height: 20px; border-width: 2px; }
+  @F .meter { border: 2px solid #2b2b2b; background: #fff; height: 12px; border-radius: 8px; }
+  @F .meter > div { background: #f5b301; border-radius: 0; }
 
   /* dock: a row of fridge magnets */
   @F nav.dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
   @F .dock .item { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 13px; height: 76px; gap: 3px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px !important; height: 52px !important; padding: 13px; border-radius: 50%; background: #2f6fd0; color: #fff; stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.18); }
-  @F .dock .item:nth-last-child(9) svg.i { background: #d8342b; }
-  @F .dock .item:nth-last-child(8) svg.i { background: #1f8a4c; }
-  @F .dock .item:nth-last-child(7) svg.i { background: #f5b301; color: #2b2b2b; }
-  @F .dock .item:nth-last-child(6) svg.i { background: #7b4bc9; }
-  @F .dock .item:nth-last-child(3) svg.i { background: #ffd75a; color: #2b2b2b; }
-  @F .dock .item:nth-last-child(2) svg.i { background: #2b2b2b; }
-  @F .dock .item:nth-last-child(1) svg.i { background: #d8342b; }
+  @F .dock .item[data-nav='calendar'] svg.i { background: #d8342b; }
+  @F .dock .item[data-nav='cart'] svg.i { background: #1f8a4c; }
+  @F .dock .item[data-nav='pencil'] svg.i { background: #f5b301; color: #2b2b2b; }
+  @F .dock .item[data-nav='music'] svg.i { background: #7b4bc9; }
+  @F .dock .item[data-nav='lights-on'] svg.i { background: #ffd75a; color: #2b2b2b; }
+  @F .dock .item[data-nav='lights-off'] svg.i { background: #2b2b2b; }
+  @F .dock .item[data-nav='dinner'] svg.i { background: #d8342b; }
   @F .dock .item[aria-current='page'] { background: transparent; }
   @F .dock .item[aria-current='page'] svg.i { box-shadow: 0 0 0 4px #fff, 0 0 0 6.5px #2b2b2b, 0 6px 6px 4px rgba(0,0,0,.2); }
   @F .dock .kidbtn .avatar { box-shadow: 0 4px 5px rgba(0,0,0,.28); }
@@ -223,11 +259,11 @@ const FRIDGE = `
   @F .jobs { background: linear-gradient(90deg, transparent 0 69px, #f2a7a7 69px 71px, transparent 71px), #fff; }
   @F .sec h2 { font-size: 30px; line-height: 1; background: linear-gradient(transparent 60%, #ffe27a 60%, #ffe27a 92%, transparent 92%); padding: 0 4px; }
   @F .sec span { font-weight: 400; font-size: 15px; }
-  @F .job { background: transparent; border-radius: 0; border-bottom: 1.5px solid #bfd6ea; min-height: 50px; padding-top: 6px; padding-bottom: 6px; }
-  @F .job .box, @F .items .item .box { width: 30px; height: 30px; border-radius: 5px 9px 6px 10px; border: 2.5px solid #2b2b2b; }
-  @F .job.done .box, @F .items .done .box { background: transparent; border-color: #2b2b2b; color: #d8342b; transform: none; font-family: 'Caveat', cursive; font-size: 38px; overflow: visible; }
-  @F .done .box svg { width: 30px; height: 30px; stroke-width: 3.5; margin: -8px -8px 0 0; }
-  @F .job .t, @F .items .txt { font-family: 'Caveat', cursive; font-weight: 700; font-size: 27px; line-height: 1; }
+  @F .row { background: transparent; border-radius: 0; border-bottom: 1.5px solid #bfd6ea; min-height: 50px; padding-top: 6px; padding-bottom: 6px; }
+  @F .check { width: 30px; height: 30px; border-radius: 5px 9px 6px 10px; border: 2.5px solid #2b2b2b; }
+  @F .done .check { background: transparent; border-color: #2b2b2b; color: #d8342b; transform: none; font-family: 'Caveat', cursive; font-size: 38px; overflow: visible; }
+  @F .done .check svg { width: 30px; height: 30px; stroke-width: 3.5; margin: -8px -8px 0 0; }
+  @F .row .content { font-family: 'Caveat', cursive; font-weight: 700; font-size: 27px; line-height: 1; }
   @F .plus { font-family: 'Fredoka', sans-serif; font-weight: 600; }
   @F .play { font-family: 'Fredoka', sans-serif; box-shadow: 0 3px 0 #8f1f18; }
   @F .later { background: transparent; border: 2px dashed #7c898e; border-radius: 10px; font-weight: 400; }
@@ -246,13 +282,11 @@ const FRIDGE = `
 
   /* groceries: a shopping-list pad and chunky keys */
   @F .list.glass { background: linear-gradient(90deg, transparent 0 63px, #f2a7a7 63px 65px, transparent 65px), #fff; transform: rotate(-.5deg); }
-  @F .items .item { background: transparent; border-radius: 0; border-bottom: 1.5px solid #bfd6ea; padding: 7px 6px; }
   @F .items { gap: 0; }
   @F .tag { font-family: 'Fredoka', sans-serif; font-weight: 500; }
   @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed #2b2b2b; border-radius: 0; font-family: 'Caveat', cursive; font-weight: 700; font-size: 36px; padding: 0 6px; }
   @F .key { font-family: 'Fredoka', sans-serif; font-weight: 600; background: #f7f4ec; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
   @F .key:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9b2a2; background: #f7f4ec; }
-  @F .chip { background: transparent; border: 2px dashed #2b2b2b; font-size: 16px; font-weight: 400; }
   @F .who.glass { border-radius: 4px; transform: rotate(-1.5deg); }
 `;
 
@@ -302,7 +336,7 @@ const ORBIT = `
   @O .ev { background: color-mix(in srgb, var(--c) 13%, transparent); border-left: 0; border-radius: 18px; padding: 9px 10px 9px 12px; }
   @O .ev .t { color: var(--c); font-weight: 500; display: flex; align-items: center; gap: 6px; }
   @O .ev .t::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
-  @O .ev .n { font-weight: 500; }
+  @O .ev .content { font-weight: 500; }
   @O .ev .w { font-weight: 300; }
   @O .more { background: transparent; font-weight: 400; }
   @O .cell { border-radius: 16px; border: 1px solid rgba(255,255,255,.07); }
@@ -321,11 +355,10 @@ const ORBIT = `
   @O .timerrow { align-items: center !important; gap: 12px !important; }
   @O .timerrow.on .hint { display: none; }
   @O .timerrow .display { font-weight: 300 !important; font-size: 30px !important; }
-  @O .grid3 button { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); border-radius: 999px; font-weight: 400; height: 44px; }
+  @O .quick { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); border-radius: 999px; font-weight: 400; min-height: 44px; }
   @O .rem { font-weight: 400; }
-  @O .rem .ring { border-width: 1.5px; border-color: var(--ink2); }
-  @O .xpbar, @O .xp { height: 4px; }
-  @O .xpbar > div, @O .xp > div { background: var(--primary); }
+  @O .meter { height: 4px; }
+  @O .meter > div { background: var(--primary); }
   @O .progress > div { background: var(--p-1); }
 
   /* dock: a line of rings */
@@ -353,10 +386,10 @@ const ORBIT = `
   @O .sec { margin-top: 12px; }
   @O .sec h2 { font-size: 13px; font-weight: 500 !important; text-transform: uppercase; letter-spacing: .12em; color: var(--kid); }
   @O .sec span { font-weight: 300; }
-  @O .job { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.09); }
-  @O .job .box, @O .items .item .box { border-width: 1.5px; border-color: var(--ink2); }
-  @O .job.done .box, @O .items .done .box { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
-  @O .job .t, @O .items .txt { font-weight: 400; }
+  @O .row { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.09); }
+  @O .check { border-width: 1.5px; border-color: var(--ink2); }
+  @O .done .check { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  @O .row .content { font-weight: 400; }
   @O .plus { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 70%, transparent); color: var(--kid); font-weight: 500; }
   @O .later { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.11); font-weight: 400; }
   @O .tabs { background: rgba(255,255,255,.06); }
@@ -369,13 +402,11 @@ const ORBIT = `
   @O .pic { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.11); border-radius: 50%; aspect-ratio: 1; }
 
   /* groceries */
-  @O .items .item { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.09); padding: 10px 4px; }
   @O .items { gap: 0; }
   @O .tag { font-weight: 500; }
   @O .field { background: transparent; box-shadow: none; border-bottom: 1px solid rgba(255,255,255,.35); border-radius: 0; font-weight: 300; font-size: 30px; padding: 0 4px; }
   @O .key { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); border-radius: 999px; font-weight: 300; }
   @O .key:active { background: rgba(255,255,255,.14); }
-  @O .chip { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); font-weight: 400; }
   @O .who.glass { background: transparent; }
 `;
 

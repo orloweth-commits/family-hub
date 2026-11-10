@@ -21,7 +21,7 @@ export class FhAddEvent extends LitElement {
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chips button { height: 40px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
-    .row { display: flex; gap: 6px; justify-content: center; }
+    .krow { display: flex; gap: 6px; justify-content: center; }
     .key { width: 56px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 22px; font-weight: 500; }
     .key:active { transform: scale(.92); }
   `];
@@ -79,8 +79,8 @@ export class FhAddEvent extends LitElement {
         ${this._time !== 'All day' ? [30, 60, 90, 120].map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${m < 60 ? `${m} min` : `${m / 60} hr`}</button>`) : ''}</div>
       <div class="chips">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="dot" style="background:${slotVar(c.colour)}"></span>${c.name ?? c.entity}</button>`)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        ${ROWS.map((r, i) => html`<div class="row">${i === 2 ? html`<button class="key tap" style="width:84px;font-size:16px" @click=${() => { this._caps = !this._caps; }}>${this._caps ? '⇧ ABC' : '⇧ abc'}</button>` : ''}${[...r].map((k) => html`<button class="key tap" @click=${() => this._key(k)}>${this._caps ? k.toUpperCase() : k}</button>`)}${i === 2 ? html`<button class="key tap" style="width:84px" aria-label="Delete" @click=${() => this._key('del')}>⌫</button>` : ''}</div>`)}
-        <div class="row"><button class="key tap" style="width:420px;font-size:16px" @click=${() => this._key(' ')}>space</button></div>
+        ${ROWS.map((r, i) => html`<div class="krow">${i === 2 ? html`<button class="key tap" style="width:84px;font-size:16px" @click=${() => { this._caps = !this._caps; }}>${this._caps ? '⇧ ABC' : '⇧ abc'}</button>` : ''}${[...r].map((k) => html`<button class="key tap" @click=${() => this._key(k)}>${this._caps ? k.toUpperCase() : k}</button>`)}${i === 2 ? html`<button class="key tap" style="width:84px" aria-label="Delete" @click=${() => this._key('del')}>⌫</button>` : ''}</div>`)}
+        <div class="krow"><button class="key tap" style="width:420px;font-size:16px" @click=${() => this._key(' ')}>space</button></div>
       </div>
     </div>`;
   }
