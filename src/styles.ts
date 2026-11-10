@@ -8,7 +8,7 @@ export const styles = css`
 
   .fh {
     position: relative; overflow: hidden; overflow: clip;
-    height: calc(100vh - var(--header-height, 0px)); min-height: 640px;
+    zoom: var(--z, 1); height: calc((100vh - var(--header-height, 0px)) / var(--z, 1)); min-height: 600px;
     padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;
     font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink);
     background: var(--bg) center / cover no-repeat; -webkit-font-smoothing: antialiased;
@@ -18,7 +18,7 @@ export const styles = css`
   .fh.rainy::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .18;
     background: repeating-linear-gradient(105deg, transparent 0 18px, rgba(255,255,255,.55) 18px 19px, transparent 19px 46px); animation: rain 1.4s linear infinite; }
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
-  .fh > * { position: relative; }
+  .fh > header, .fh > .body, .fh > nav { position: relative; }
   .fh.idle *, .fh.idle::after { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; } }
   .glass {
@@ -79,7 +79,11 @@ export const styles = css`
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 14px; }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
   .ev .t { font-size: 12px; font-weight: 700; color: var(--ink2); }
-  .ev .n { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .ev .n { font-size: 15px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; hyphens: auto; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .evs { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .evs > .ev { flex-shrink: 0; }
+  .ell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .evcap { min-width: 0; max-width: 100%; }
   .ev .w { font-size: 12px; font-weight: 600; color: var(--ink2); }
   .ev.priv { flex-direction: row; gap: 6px; background: transparent; border-left: 0; padding: 2px 6px; opacity: .6; }
   .more { font-size: 13px; font-weight: 700; color: var(--ink2); padding: 6px 6px; border-radius: 10px; background: var(--chip-soft); text-align: left; }

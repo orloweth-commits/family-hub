@@ -21,7 +21,7 @@ import { changed, hm, isQuiet, isSchoolDay, minsNow, panelMsg, setMuted, sfx, ym
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.4.0';
+const VERSION = '0.4.1';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -96,6 +96,7 @@ export class FamilyHubCard extends LitElement {
     try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
     this._theme = themeById(saved || config.theme || 'sea').id;
     if (this._morningWindow()) this._page = 'morning';
+    this._onResize();
   }
   getCardSize(): number { return 12; }
   static getStubConfig(): FamilyHubConfig { return { type: 'custom:family-hub-card', family_name: 'everyone', theme: 'sea' }; }
@@ -106,9 +107,18 @@ export class FamilyHubCard extends LitElement {
     this._tick = window.setInterval(() => this._onTick(), 1000);
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
+    window.addEventListener('resize', this._onResize); this._onResize();
   }
+  /** Designed for a 1280×800 panel; bigger screens scale the whole UI up so it isn't tiny. */
+  private _onResize = (): void => {
+    const fixed = Number(this._config?.scale);
+    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(1, Math.min(window.innerWidth / 1280, window.innerHeight / 800)));
+    if (Math.abs(z - this._z) > 0.01) { this._z = Math.round(z * 100) / 100; this.requestUpdate(); }
+  };
+  private _z = 1;
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    window.removeEventListener('resize', this._onResize);
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
@@ -150,6 +160,22 @@ export class FamilyHubCard extends LitElement {
   protected updated(ch: PropertyValues): void {
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor')) this._refresh();
     if (ch.has('hass')) this._checkAlarm();
+    if (this._page === 'planner' && this._view === 'week') this._measureWeek();
+  }
+
+  /** Hide event cards that don't fully fit a day column and count them into "+N more". */
+  private _clip: Record<string, number> = {};
+  private _measureWeek(): void {
+    const next: Record<string, number> = {};
+    this.renderRoot.querySelectorAll<HTMLElement>('.evs').forEach((box) => {
+      const h = box.clientHeight; let n = 0;
+      box.querySelectorAll<HTMLElement>(':scope > .ev').forEach((ev) => {
+        const hide = ev.offsetTop + ev.offsetHeight > h + 1 || n > 0;
+        ev.style.visibility = hide ? 'hidden' : ''; if (hide) n++;
+      });
+      if (n) next[box.dataset.day!] = n;
+    });
+    if (JSON.stringify(next) !== JSON.stringify(this._clip)) { this._clip = next; this.requestUpdate(); }
   }
 
   // ---------- data ----------
@@ -367,9 +393,9 @@ export class FamilyHubCard extends LitElement {
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
-    if (night) return html`<div class="fh" style=${themeStyle(theme) + bg}>${this._night()}</div>`;
+    if (night) return html`<div class="fh" lang="en-AU" style=${themeStyle(theme) + bg + `;--z:${this._z}`}>${this._night()}</div>`;
     return html`
-      <div class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" style=${`${themeStyle(theme)}${bg};--tod:${tod}`}>
+      <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" style=${`${themeStyle(theme)}${bg};--tod:${tod};--z:${this._z}`}>
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -432,7 +458,7 @@ export class FamilyHubCard extends LitElement {
     if (next) {
       const mins = Math.round((next.start.getTime() - now) / 60000);
       const when = mins < 60 ? `in ${mins} min` : `${sameDay(next.start, new Date()) ? '' : 'Tomorrow '}${fmtTime(next.start)}`;
-      chips.push(html`<span class="cap"><span class="dot" style="background:${slotVar(next.colour)}"></span>${next.title} · ${when}</span>`);
+      chips.push(html`<span class="cap evcap"><span class="dot" style="background:${slotVar(next.colour)}"></span><span class="ell">${next.title}</span><span style="white-space:nowrap">· ${when}</span></span>`);
     }
     const m = c.music_player ? this.hass?.states[c.music_player] : undefined;
     if (m?.state === 'playing' && this._page !== 'music') chips.push(html`<button class="cap tap" @click=${() => { this._page = 'music'; }}>♪ ${m.attributes.media_title ?? 'Playing'}</button>`);
@@ -522,11 +548,11 @@ export class FamilyHubCard extends LitElement {
       ${days.map((d) => {
         const evs = this._eventsOn(d), isToday = sameDay(d, today);
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
-        const max = 4;
+        const key = ymd(d), hidden = this._clip[key] ?? 0;
         return html`<div class="col ${isToday ? 'today' : ''}">
           <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
-          ${pub.slice(0, max).map((e) => this._evCard(e))}
-          ${pub.length > max ? html`<button class="more tap" @click=${() => { this._anchor = d; this._view = 'day'; }}>+${pub.length - max} more</button>` : nothing}
+          <div class="evs" data-day=${key}>${pub.map((e) => this._evCard(e))}</div>
+          ${hidden ? html`<button class="more tap" @click=${() => { this._anchor = d; this._view = 'day'; }}>+${hidden} more</button>` : nothing}
         </div>`;
       })}
     </div>`;
@@ -594,7 +620,7 @@ export class FamilyHubCard extends LitElement {
 
       <section class="glass card" aria-label="Reminders" style="flex:1;min-height:0">
         ${this.hass?.states['input_number.family_jar'] ? html`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">🫙</span>
-          <span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">Family jar · ${jar}/${target}</span>
+          <span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">Family jar · ${jar >= target ? 'full! 🎉' : `${jar}/${target}`}</span>
           <div class="xpbar"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></div>` : nothing}
         <span class="label">Reminders</span>
         ${this._reminders.length ? this._reminders.map((r) => html`<div class="rem"><span class="ring"></span>${r.summary}</div>`)
@@ -639,7 +665,7 @@ export class FamilyHubCard extends LitElement {
 
   private _alarmView(): TemplateResult {
     return html`<button class="alarm" @click=${() => { this._alarm = 0; this.hass?.callService('input_text', 'set_value', { entity_id: 'input_text.fh_panel_message', value: '' }); }}>
-      <span style="font-size:96px">⏰</span><span class="display" style="font-size:64px;font-weight:800">Timer’s done!</span><span style="font-size:20px;font-weight:600">Tap to stop</span></button>`;
+      <span style="font-size:96px">⏰</span><span class="display" style="font-size:64px;font-weight:800;text-align:center;padding:0 40px">${panelMsg(this.hass)?.t || 'Timer’s done!'}</span><span style="font-size:20px;font-weight:600">Tap to stop</span></button>`;
   }
 
   private _sheetView(): TemplateResult | typeof nothing {

@@ -87,8 +87,8 @@ export class FhDoodle extends LitElement {
   }
 
   private _pt(e: PointerEvent): { x: number; y: number } {
-    const r = this._canvas!.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-    return { x: (e.clientX - r.left) * dpr, y: (e.clientY - r.top) * dpr };
+    const c = this._canvas!, r = c.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (c.width / r.width), y: (e.clientY - r.top) * (c.height / r.height) };
   }
   private _down(e: PointerEvent): void {
     this._canvas!.setPointerCapture(e.pointerId);

@@ -54,7 +54,7 @@ export class FhKid extends LitElement {
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
     .sec h2 { font-size: 18px; font-weight: 800; }
     .sec span { font-size: 13px; color: var(--ink2); font-weight: 600; }
-    .job { display: flex; align-items: center; gap: 14px; padding: 12px 14px; min-height: 58px; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
+    .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
     .job .box { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; transition: all .25s cubic-bezier(.2,1.4,.4,1); }
     .job.done .box { background: var(--ok); border-color: var(--ok); transform: scale(1.08); }
     .job.done .t { color: var(--ink3); text-decoration: line-through; }
@@ -70,12 +70,17 @@ export class FhKid extends LitElement {
     .pic.done .e { transform: scale(.85) rotate(-8deg); opacity: .6; }
     .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; animation: avPop .4s cubic-bezier(.2,1.4,.4,1); }
     .stars { color: #f5b301; font-size: 20px; letter-spacing: 2px; }
+    .avbtn { position: relative; flex: 0 1 223px; min-height: 110px; display: flex; justify-content: center; }
+    .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 223px; }
+    .starjar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 3px; line-height: 1.05; }
+    .starjar > i { font-style: normal; color: #f5b301; font-size: 24px; }
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
     .side > .card { flex-shrink: 0; }
-    .rw { display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 10px; border-radius: 14px; background: var(--chip); }
+    .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
+    .rw { display: flex; align-items: center; gap: 10px; padding: 5px 6px 5px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); }
     .rw .n { flex: 1; font-size: 15px; font-weight: 600; line-height: 1.2; }
-    .rw button { height: 38px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 700; background: var(--primary); color: var(--on-primary); white-space: nowrap; }
+    .rw button { height: 36px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 700; background: var(--primary); color: var(--on-primary); white-space: nowrap; }
     .rw button.save { background: var(--track); color: var(--ink2); }
     .jar { display: flex; align-items: center; gap: 12px; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
@@ -84,6 +89,9 @@ export class FhKid extends LitElement {
     .ring svg { transform: rotate(-90deg); }
     .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
     .feel { display: flex; justify-content: space-between; }
+    .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
+    .tab { flex: 1; height: 40px; border-radius: 999px; font-size: 14px; font-weight: 700; color: var(--ink2); }
+    .tab[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
     .feel button { font-size: 30px; width: 46px; height: 46px; border-radius: 50%; }
     .feel button:active { background: var(--chip-strong); }
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
@@ -100,7 +108,7 @@ export class FhKid extends LitElement {
     hass: { attribute: false }, kid: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean },
     _chores: { state: true }, _events: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
-    _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }
+    _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }
   };
 
   hass?: Hass;
@@ -124,6 +132,7 @@ export class FhKid extends LitElement {
   private _practice: { uid: string; end: number; mins: number } | null = null;
   private _now = new Date();
   private _feel = '';
+  private _tab: 'rewards' | 'week' = 'rewards';
   private _unsub?: () => void;
   private _subFor = '';
   private _subGen = 0;
@@ -169,7 +178,7 @@ export class FhKid extends LitElement {
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
-    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._loadWeek(); }
+    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._loadWeek(); }
     if (ch.has('hass')) this._checkUnlocks();
   }
 
@@ -229,6 +238,7 @@ export class FhKid extends LitElement {
     if (!this.hass || this._busy.has(c.uid)) return;
     const done = c.status === 'completed';
     const ticks = lsGet<Record<string, number>>('fh-ticks', {});
+    if (done && Date.now() - (ticks[c.uid] ?? 0) < 2000) return; // double-tap guard: a fresh tick can't be undone by the same flurry
     if (done && !viaPin && Date.now() - (ticks[c.uid] ?? 0) > UNDO_MS) {
       if (this.pin) this._pinAsk = { reason: `Untick “${c.summary}”?`, run: () => this._toggle(c, true) };
       else this._say('Need to change that? Ask a grown-up.');
@@ -343,7 +353,7 @@ export class FhKid extends LitElement {
       ${this._hero()}
       ${missing ? html`<section class="glass jobs"><div class="empty"><h2 style="font-size:22px">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${e.chores}</b> and <b>${e.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
-      <div class="side">${this._wind ? this._windCard() : this._rewards()}${this._jar()}${this._wind ? nothing : this._feelCard()}${this._week()}</div>
+      <div class="side">${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>` : this._tabs()}${this._jar()}${this._wind ? nothing : this._feelCard()}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
       ${this._confetti && !this._wind ? keyed(this._confetti, confetti(this._confetti)) : nothing}
       ${this._celebrate ? this._celebration() : nothing}
@@ -362,12 +372,12 @@ export class FhKid extends LitElement {
     const goodToday = this._goodToday();
     const goodCount = [...w].filter((c, i) => c === 'G' || (i === todayIdx && goodToday)).length;
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
-      <button class="tap" style="position:relative" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._jack) say(`Hi Jack! You have ${Math.floor(pts / this._star)} stars.`); }}>
+      <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._jack) say(`Hi Jack! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age })}</button>
       <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._jack ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
       ${this._jack ? html`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
-          <span style="display:flex;flex-direction:column;gap:2px"><b class="stars" style="font-size:26px;letter-spacing:1px">${pts >= this._star ? '★'.repeat(Math.min(12, Math.floor(pts / this._star))) : '☆'}</b>
+          <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b class="stars" style="font-size:30px">★ ${n}</b>` : n ? html`<span class="starjar">${'★'.repeat(n).split('').map((x) => html`<i>${x}</i>`)}</span>` : html`<b class="stars" style="font-size:26px">☆</b>`; })()}
           <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
       : html`
         <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
@@ -403,13 +413,13 @@ export class FhKid extends LitElement {
     const routineNow = list.filter((c) => c.lane === 'routine' && (c.slot === slot || (c.slot === 'any' && !this._wind)));
     const jobs = this._wind ? [] : list.filter((c) => c.lane === 'job' && (c.slot === 'any' || c.slot === slot || (slot === 'after' && c.slot === 'am')));
     const grow = this._wind ? list.filter((c) => c.lane === 'grow' && c.slot === 'bed') : list.filter((c) => c.lane === 'grow' && c.slot !== 'bed' || (c.lane === 'grow' && slot === 'bed'));
-    const later = list.filter((c) => c.lane === 'routine' && c.slot !== slot && c.slot !== 'any' && ((slot === 'am') || (slot === 'after' && c.slot === 'bed')));
+    const later = list.filter((c) => c.lane === 'routine' && c.status !== 'completed' && c.slot !== slot && c.slot !== 'any' && ((slot === 'am') || (slot === 'after' && c.slot === 'bed')));
     const visible = [...routineNow, ...jobs, ...grow];
     const done = visible.filter((c) => c.status === 'completed').length, total = visible.length;
     const left = total - done;
     const C = 2 * Math.PI * 22, frac = total ? done / total : 0;
     const sub = this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${t12(bt)}` : 'All set for bed. Sleep well 🌙')
-      : left ? `${left} left ${slot === 'am' ? 'this morning' : slot === 'after' ? 'this afternoon' : 'tonight'}` : 'All done – fresh start tomorrow';
+      : left ? `${left} left ${slot === 'am' ? 'this morning' : slot === 'after' ? 'this afternoon' : 'tonight'}` : later.length ? 'All done for now 🎉' : 'All done – fresh start tomorrow';
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 style="font-size:26px;font-weight:800">${this._wind ? 'Wind down' : this._jack ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
@@ -453,14 +463,18 @@ export class FhKid extends LitElement {
 
   private _rewards(): TemplateResult {
     const have = num(this.hass, this._e.points), list = this.kid.rewards ?? DEFAULT_REWARDS, st = this._star;
-    return html`<section class="glass card" aria-label="Rewards">
-      <span class="label">${this._jack ? 'Spend my stars' : 'Rewards'}</span>
-      ${list.map((r) => {
+    return html`${list.map((r) => {
         const ok = have >= r.cost;
         return html`<div class="rw"><span style="font-size:24px">${r.icon ?? '🎁'}</span><span class="n">${r.name}</span>
           <button class="tap ${ok ? '' : 'save'}" @click=${() => this._redeem(r)}>${this._jack ? (Math.round(r.cost / st) > 5 ? `${Math.round(r.cost / st)} ★` : '★'.repeat(Math.max(1, Math.round(r.cost / st)))) : ok ? `${r.cost}` : `${r.cost - have} to go`}</button></div>`;
-      })}
-    </section>`;
+      })}`;
+  }
+
+  private _tabs(): TemplateResult {
+    const t = this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._sound('tap'); if (this._jack) say(label); }}>${label}</button>`;
+    return html`<section class="glass card tabcard" aria-label=${t === 'rewards' ? 'Rewards' : 'Week'}>
+      <div class="tabs">${tab('rewards', this._jack ? '⭐ My stars' : '🎁 Rewards')}${tab('week', this._jack ? '📅 Coming up' : '📅 My week')}</div>
+      ${t === 'rewards' ? this._rewards() : this._weekBody()}</section>`;
   }
 
   private _windCard(): TemplateResult {
@@ -472,13 +486,13 @@ export class FhKid extends LitElement {
     const n = num(this.hass, 'input_number.family_jar'), t = this.jarTarget || 120, f = Math.min(1, n / t);
     if (!this.hass?.states['input_number.family_jar']) return html``;
     return html`<section class="glass card" aria-label="Family jar"><div class="jar">
-      <svg width="48" height="60" viewBox="0 0 48 60" aria-hidden="true"><rect x="8" y="2" width="32" height="7" rx="3" fill="var(--ink3)"></rect>
+      <svg width="34" height="42" viewBox="0 0 48 60" aria-hidden="true"><rect x="8" y="2" width="32" height="7" rx="3" fill="var(--ink3)"></rect>
         <path d="M6 12 H42 V52 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="var(--chip-strong)" stroke="var(--ink3)" stroke-width="2"></path>
         <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
         <rect clip-path="url(#jc)" x="6" y=${58 - 44 * f} width="36" height=${44 * f} fill="var(--accent)" style="transition:all .8s"></rect></svg>
       <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="label">Family jar</span>
         <span style="font-size:15px;font-weight:700">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marbles to ${this.jarReward}`}</span>
-        <span class="muted" style="font-size:12px">Every family job by anyone adds one</span></span></div></section>`;
+      </span></div></section>`;
   }
 
   private _feelCard(): TemplateResult {
@@ -489,7 +503,7 @@ export class FhKid extends LitElement {
     </section>`;
   }
 
-  private _week(): TemplateResult {
+  private _weekBody(): TemplateResult {
     const today = new Date(), evs = this._events.filter((e) => e.allDay ? e.start >= startOfDay(today) : e.start.getTime() > today.getTime() - 3_600_000).slice(0, 5);
     const label = (d: Date): string => {
       if (sameDay(d, today)) return 'Today';
@@ -497,13 +511,11 @@ export class FhKid extends LitElement {
       if (this._jack) return `${n} sleep${n > 1 ? 's' : ''}`;
       return n === 1 ? 'Tomorrow' : fmtDow(d);
     };
-    return html`<section class="glass card" aria-label="${this.kid.name}’s week">
-      <span class="label">${this._jack ? 'Coming up' : `${this.kid.name}’s week`}</span>
-      ${evs.length ? evs.map((e) => html`<div class="wk"><span class="d">${label(e.start)}</span>
+    return html`${this._wind ? html`<span class="label">${this._jack ? 'Coming up' : `${this.kid.name}’s week`}</span>` : nothing}
+      ${evs.length ? evs.map((e, i) => html`<div class="wk"><span class="d">${i && label(evs[i - 1].start) === label(e.start) ? '' : label(e.start)}</span>
         <span style="flex:1;font-weight:600;display:flex;gap:6px;align-items:baseline"><span class="dot" style="width:8px;height:8px;background:${e.family ? 'var(--p-family)' : 'var(--kid)'}"></span>
           <span>${e.title}${e.allDay ? '' : html` <span class="muted" style="font-weight:500">· ${fmtTime(e.start)}</span>`}</span></span></div>`)
-        : html`<span class="muted" style="font-size:14px">Nothing on this week.</span>`}
-    </section>`;
+        : html`<span class="muted" style="font-size:14px">Nothing on this week.</span>`}`;
   }
 
   private _celebration(): TemplateResult {

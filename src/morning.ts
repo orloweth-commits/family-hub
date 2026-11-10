@@ -87,8 +87,10 @@ export class FhMorning extends LitElement {
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   private _leave(k: KidConfig): { at: number; why: string } {
     const first = this._own(k).filter((e) => !e.allDay && e.start.getHours() < 10).sort((a, b) => a.start.getTime() - b.start.getTime())[0];
-    if (first) return { at: first.start.getHours() * 60 + first.start.getMinutes() - this.travel, why: first.title };
-    return { at: hm(k.leave_by ?? this.leaveBy), why: 'school' };
+    const usual = hm(k.leave_by ?? this.leaveBy);
+    // An early activity pulls the leave time earlier; anything after the usual time happens once they're already out.
+    const early = first ? first.start.getHours() * 60 + first.start.getMinutes() - this.travel : Infinity;
+    return early < usual ? { at: early, why: first!.title } : { at: usual, why: 'school' };
   }
 
   render(): TemplateResult | typeof nothing {

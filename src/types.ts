@@ -59,6 +59,8 @@ export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: s
 export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
 
 export interface FamilyHubConfig {
+  /** UI scale. Omit for automatic (1280×800 design, scaled up on bigger screens). */
+  scale?: number;
   type: string;
   family_name?: string;
   theme?: ThemeId;
