@@ -11,7 +11,7 @@ import './morning';
 import './addevent';
 import './pin';
 import { loadFonts } from './fonts';
-import { kidSpeaker, play, rooms, sleepIn } from './ma';
+import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
 import { kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig } from './types';
@@ -24,7 +24,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.7.0';
+const VERSION = '0.7.1';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -435,7 +435,7 @@ export class FamilyHubCard extends LitElement {
   /** A timed job tagged @song: play the tidy-up song on the child's speaker for that long, then fade it out. */
   private _tidySong(k: KidConfig, minutes: number): void {
     const h = this.hass, list = h ? rooms(h, this._config.music_players ?? []) : [];
-    const room = h && (kidSpeaker(h, k, list) ?? list.find((p) => p.entity_id === this._config.music_player) ?? list[0]);
+    const room = h && (kidSpeaker(h, k, list) ?? findRoom(h, list, this._config.music_player) ?? list[0]);
     if (!h || !room) return;
     if (!minutes) { h.callService('media_player', 'media_pause', { entity_id: room.entity_id }); return; }
     const song = k.tidy_song ?? this._config.tidy_song;

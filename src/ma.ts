@@ -26,10 +26,17 @@ export const rooms = (h: Hass, configured: string[]): HassEntity[] => {
   return ids.map((id) => h.states[id]).filter(alive);
 };
 
+/** Find a configured player in the room list: by id, else by name (the card may name the native player, the list holds Music Assistant's twin). */
+export const findRoom = (h: Hass, list: HassEntity[], id?: string): HassEntity | undefined => {
+  if (!id) return undefined;
+  const name = String(h.states[id]?.attributes.friendly_name ?? '').toLowerCase().trim();
+  return list.find((p) => p.entity_id === id) ?? (name ? list.find((p) => String(p.attributes.friendly_name ?? '').toLowerCase().trim() === name) : undefined);
+};
+
 /** A child's own speaker: `speaker:` in their config, else the room whose name contains theirs. */
 export const kidSpeaker = (h: Hass, kid: KidConfig, list: HassEntity[]): HassEntity | undefined => {
   const set = (kid as KidConfig & { speaker?: string }).speaker;
-  return (set && alive(h.states[set]) ? h.states[set] : undefined) ?? list.find((p) => String(p.attributes.friendly_name ?? '').toLowerCase().includes(kid.name.toLowerCase()));
+  return findRoom(h, list, set) ?? (set && alive(h.states[set]) ? h.states[set] : undefined) ?? list.find((p) => String(p.attributes.friendly_name ?? '').toLowerCase().includes(kid.name.toLowerCase()));
 };
 
 const hit = (x: any, type: string): MediaHit => ({
