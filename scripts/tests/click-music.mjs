@@ -1,0 +1,54 @@
+// Click tests for the Music page against the mock house in preview/index.html: every action asserts the service call it makes.
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
+const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
+  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(4782);
+const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
+const errs = [];
+const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:4782/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
+const calls = (page, re) => page.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).slice(-3).join(' || '), re.source);
+const M = (page) => page.locator('fh-music');
+let page = await open('look=glass&page=music');
+// rooms: add Office, everywhere, just kitchen, move
+await M(page).getByRole('button', { name: /Add Office to the music/ }).click(); await page.waitForTimeout(300);
+console.log('join:', await calls(page, /media_player\.join/), '| in mix:', await M(page).locator('.spk.inmix').count());
+await M(page).getByRole('button', { name: 'Everywhere' }).click(); await page.waitForTimeout(300); console.log('everywhere in mix:', await M(page).locator('.spk.inmix').count());
+await M(page).getByRole('button', { name: /^Just Kitchen/ }).click(); await page.waitForTimeout(300); console.log('after just-kitchen in mix:', await M(page).locator('.spk.inmix').count());
+await M(page).getByRole('button', { name: 'Move the music here' }).first().click(); await page.waitForTimeout(400); console.log('move:', await calls(page, /transfer_queue/), '| now', await M(page).locator('.stage').innerText().then((t) => t.split('\n')[0]));
+await M(page).getByRole('button', { name: /^Night/ }).click(); await page.waitForTimeout(200); console.log('tv night sound:', await calls(page, /switch\./));
+// search → play next, radio, pin
+await M(page).getByRole('tab', { name: 'Search' }).click();
+for (const k of 'Blu') await M(page).locator('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
+await M(page).getByRole('button', { name: 'Search', exact: true }).click(); await page.waitForTimeout(500);
+console.log('typed:', await M(page).locator('input.field').inputValue(), '| hits:', await M(page).locator('.hit').count(), '| fits:', await M(page).locator('.hits').evaluate((e) => e.scrollHeight <= e.clientHeight + 2));
+await M(page).locator('.hit').nth(3).click(); await M(page).getByRole('button', { name: 'Play next' }).click(); await page.waitForTimeout(200); console.log('next:', await calls(page, /music_assistant\.play_media/));
+await M(page).getByRole('button', { name: /Radio from this/ }).click(); await page.waitForTimeout(200); console.log('radio:', await calls(page, /radio_mode/));
+await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
+for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
+await M(page).locator('.setrow', { hasText: 'Max' }).getByRole('button', { name: /Pin as calm/ }).click(); await page.waitForTimeout(400); console.log('pin:', await calls(page, /todo\.add_item/));
+await M(page).getByRole('tab', { name: 'Shelves' }).click(); await M(page).getByRole('button', { name: /Max$/ }).click(); await page.waitForTimeout(500);
+console.log('Max shelf items:', await M(page).locator('.st').count());
+await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('shelf play:', await calls(page, /music_assistant\.play_media/));
+// call a room
+await M(page).getByRole('tab', { name: 'Call a room' }).click(); await M(page).getByRole('button', { name: 'Office' }).click(); await M(page).getByRole('button', { name: 'Dinner’s ready!' }).click(); await M(page).getByRole('button', { name: /Say it/ }).click(); await page.waitForTimeout(300);
+console.log('call:', await calls(page, /tts\.speak/));
+// heart, sleep, keep going
+await M(page).getByRole('button', { name: /Save this song/ }).click(); await M(page).getByRole('button', { name: /Sleep 30/ }).click(); await page.waitForTimeout(200); console.log('heart+sleep:', await calls(page, /button\.press|fh_music_sleep/));
+await page.close();
+// jukebox: fair order and feeding
+page = await open('look=orbit&page=music&mtab=juke'); await page.evaluate(() => { window.__noNext = true; }); 
+console.log('juke next label:', await M(page).locator('.pickrow', { hasText: 'Next' }).innerText().then((t) => t.replace(/\n/g, ' ')));
+await page.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); m._qKey = ''; m.requestUpdate(); }); await page.waitForTimeout(600);
+console.log('juke fed:', await calls(page, /music_assistant\.play_media/), '| waiting:', await M(page).locator('.pickrow:not(.played)').count());
+await page.screenshot({ path: path.join(PREV, 'shots', 'c-juke-orbit.png') }); await page.close();
+// bedtime shelf (Max, 7:10 pm) + DJ banner + tidy song
+page = await open('look=fridge&page=music&mtab=shelves&shelf=Max', '19:10'); await page.waitForTimeout(400);
+console.log('wind-down shelf items:', await M(page).locator('.st').count(), '| banner:', await M(page).locator('.banner').innerText());
+await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('bedtime play:', await calls(page, /play_media|fh_music_sleep/));
+await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') }); await page.close();
+console.log('errors:', errs.length ? errs.join('\n') : 'none');
+await browser.close(); srv.close();

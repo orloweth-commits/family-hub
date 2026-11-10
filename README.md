@@ -101,5 +101,15 @@ All personal details live in your Home Assistant configuration, never in this re
 
 ```bash
 npm install
-npm run build   # → dist/family-hub.js
+npm run build   # → dist/family-hub.js (type check, look check, bundle)
+```
+
+Checks that need Playwright (not a dependency of the card) run against `preview/index.html`, an invented family and house with mocked speakers and music search:
+
+```bash
+export PLAYWRIGHT=/path/to/playwright/index.mjs CHROME=/path/to/chrome   # CHROME is optional
+npm run test:fit     # every page at wall, laptop, tablet and portrait sizes: reports scrolling, clipping, off-screen controls
+npm run test:click   # base panel and Music page click tests; each action asserts the service call it makes
+npm run test:phone   # phone arrangement at 390x844
+npm run shots        # screenshots of every look on every screen → preview/shots/
 ```
