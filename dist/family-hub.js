@@ -977,7 +977,6 @@ const Pa = Ja(class extends Ia {
       ["eyeColour:none", "Cartoon eyes", 0],
       ["mouth:smile", "Smile", 0],
       ["mouth:grin", "Big grin", 0],
-      ["mouth:gap", "Gap-tooth grin", 0],
       ["mouth:smirk", "Smirk", 0],
       ["mouth:wow", "Wow", 0],
       ["freckles:yes", "Freckles", 0],
@@ -1149,7 +1148,6 @@ const Pa = Ja(class extends Ia {
 }, Mi = {
   smile: () => U`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   grin: () => U`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
-  gap: () => U`<g class="av-pop d4"><path d="M83 118 Q100 139 117 118 Q100 121 83 118 Z" fill="#5b2a22"></path><path d="M93 119.4 L98.7 119.8 L98.7 124 Q95.9 125.3 93 124 Z M101.3 119.8 L107 119.4 L107 124 Q104.1 125.3 101.3 124 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
   smirk: () => U`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => U`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 }, Ci = {

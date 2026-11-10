@@ -39,7 +39,7 @@ export const CATALOGUE: Category[] = [
     swatch: { key: 'hairColour', label: 'Colour', items: [['#5a3825', 'Brown', 0], ['#3a2a1f', 'Deep brown', 0], ['#2a1d16', 'Dark brown', 0], ['#a87445', 'Golden brown', 0], ['#b38b55', 'Dirty blond', 0], ['#151110', 'Black', 0], ['#e3b85c', 'Blonde', 0], ['#c0592b', 'Ginger', 0], ['#2f6fe0', 'Electric blue', 700], ['#e2559b', 'Hot pink', 1400], ['#22c55e', 'Slime green', 2000]] } },
   { id: 'face', emoji: '🙂', label: 'Face', key: 'eyes', crop: 'head',
     items: [['eyes:normal', 'Bright eyes', 0], ['eyes:happy', 'Happy eyes', 0], ['eyes:wink', 'Wink', 0], ['eyeColour:#5b8db8', 'Blue eyes', 0], ['eyeColour:#6b7f86', 'Grey-blue eyes', 0], ['eyeColour:#7a6a3a', 'Hazel eyes', 0], ['eyeColour:#6b4428', 'Brown eyes', 0], ['eyeColour:none', 'Cartoon eyes', 0],
-      ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:gap', 'Gap-tooth grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0], ['freckles:yes', 'Freckles', 0], ['freckles:no', 'No freckles', 0]],
+      ['mouth:smile', 'Smile', 0], ['mouth:grin', 'Big grin', 0], ['mouth:smirk', 'Smirk', 0], ['mouth:wow', 'Wow', 0], ['freckles:yes', 'Freckles', 0], ['freckles:no', 'No freckles', 0]],
     swatch: { key: 'skin', label: 'Skin', items: [['#f6d9c2', 'Skin 1', 0], ['#f1c7a5', 'Skin 2', 0], ['#e0ac84', 'Skin 3', 0], ['#c98b5e', 'Skin 4', 0], ['#8d5a3b', 'Skin 5', 0], ['#5c3a24', 'Skin 6', 0]] } },
   { id: 'hats', emoji: '🧢', label: 'Hats', key: 'hat', crop: 'head',
     items: [['none', 'No hat', 0], ['cap', 'Cap', 0], ['backcap', 'Backwards cap', 60], ['beanie', 'Beanie', 150], ['swimcap', 'Swim cap', 200], ['bucket', 'Bucket hat', 300], ['dinohood', 'Dino hood', 400], ['headphones', 'Headphones', 550], ['knight', 'Knight helm', 750], ['wizard', 'Wizard hat', 900], ['akubra', 'Akubra', 1300], ['crown', 'Crown', 2200], ['helmet', 'Space helmet', 3000]] },
@@ -197,7 +197,6 @@ const EYES: Record<string, L> = {
 const MOUTH: Record<string, L> = {
   smile: () => svg`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   grin: () => svg`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
-  gap: () => svg`<g class="av-pop d4"><path d="M83 118 Q100 139 117 118 Q100 121 83 118 Z" fill="#5b2a22"></path><path d="M93 119.4 L98.7 119.8 L98.7 124 Q95.9 125.3 93 124 Z M101.3 119.8 L107 119.4 L107 124 Q104.1 125.3 101.3 124 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
   smirk: () => svg`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => svg`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 };
