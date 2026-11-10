@@ -18,14 +18,19 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'cables', name: 'Cables', icon: 'plug', about: 'Plug the speakers in', hint: 'Tap a socket to plug a speaker in. Slide on a speaker for volume.' },
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
-const SCENE_HINT: Record<string, string> = { sea: 'Raise a sail to make a room louder.', reef: 'Stretch a fish to make a room louder.', space: 'Grow a planet to make a room louder.', bush: 'Build a fire up to make a room louder.',
-  sunset: 'Fly a kite higher to make a room louder.', fridge: 'Slide a magnet up to make a room louder.', orbit: 'Grow a planet to make a room louder.' };
+const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
+  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.' };
 export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
-export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Tap one to add it.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
+export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Drag the round handle for volume.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
-export interface Room { id: string; name: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
+export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
 export interface Ctx {
   rooms: Room[]; look: string; theme: string; over: string; lifted: string;
+  /** the pieces of music playing, the one in the player first (each named by its leading speaker) */
+  streams: string[];
+  /** a room being carried round the scene, in percent of the scene */
+  sdrag: { id: string; x: number; y: number } | null; setDrag(d: { id: string; x: number; y: number } | null): void;
+  join(id: string, lead: string): void; leave(id: string): void;
   now: { title: string; art: string; playing: boolean; frac: number; lead: string };
   shelf: ShelfItem[];
   /** show a volume while dragging, then keep it */
@@ -153,13 +158,13 @@ export const cablesView = (c: Ctx): TemplateResult => {
 };
 
 /* ---------------- the living scene ---------------- */
-const moon = svg`<path class="amoon" d="M56 6a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`;
+const moon = svg`<path class="amoon" d="M66 22a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`;
 const ACTORS: Record<string, (r: Room, v: number) => TemplateResult> = {
   sea: (r, v) => { const h = 22 + 62 * v; return svg`<g class="bob">
     <path class="ahull" d="M12 98H88L76 114H24Z"></path><path class="aline" d="M50 98V14"></path>
     ${r.live ? svg`<path class="afill" d="M54 92V${92 - h}L${54 + h * 0.52} 92Z"></path><path class="afill soft" d="M46 92V${92 - h * 0.7}L${46 - h * 0.32} 92Z"></path>${r.playing ? svg`<path class="aflag" d="M50 14l18 6-18 6z"></path>` : nothing}`
       : svg`<rect class="aidle" x="46" y="30" width="8" height="62" rx="4"></rect>`}</g>`; },
-  reef: (r, v) => { const s = 13 + 22 * v; return svg`<g class="swim">
+  reef: (r, v) => { const s = 17 + 22 * v; return svg`<g class="swim">
     <path class=${r.live ? 'afill' : 'aidle'} d="M${50 - s} 70L${50 - s * 1.8} ${70 - s * 0.62}V${70 + s * 0.62}Z"></path>
     <ellipse class=${r.live ? 'afill edge' : 'aidle edge'} cx="50" cy="70" rx=${s * 1.15} ry=${s * 0.74}></ellipse>
     <circle class="aeye" cx=${50 + s * 0.6} cy=${70 - s * 0.16} r=${Math.max(3, s * 0.15)}></circle><circle class="apupil" cx=${50 + s * 0.65} cy=${70 - s * 0.16} r=${Math.max(1.5, s * 0.07)}></circle></g>
@@ -186,18 +191,80 @@ const BACKDROP: Record<string, TemplateResult> = {
   fridge: svg``, orbit: svg``
 };
 
-export const sceneView = (c: Ctx): TemplateResult => {
-  const kind = sceneKind(c.look, c.theme), draw = ACTORS[kind];
-  return html`<div class="vscene" data-kind=${kind} data-fits>
-    <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}</svg>
-    <div class="sun"><button class="puck spot" ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
-        aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>
-      <span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Drag me to a room' : 'Nothing playing'}</span></span></div>
-    <div class="actors">${c.rooms.map((r, i) => html`<div class="actor" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id && c.lifted !== r.id} style="${col(r)};--lift:${i % 2 ? 0 : 14}px;animation-delay:${-i * 0.45}s"
-        @pointerdown=${slide(c, r, () => 170, () => c.toggle(r.id))}>
-      <svg viewBox="0 0 100 120" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}>${r.asleep && !r.live ? moon : nothing}${draw(r, r.vol / 100)}</svg>
-      <button class="aname tap" data-notrack aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><b>${r.name}</b><span>${state(r)}</span></button></div>`)}</div></div>`;
+/** Where each room floats: rooms sharing music swim together along the top, the rest wait along the bottom. */
+const spots = (c: Ctx): Record<string, [number, number]> => {
+  const out: Record<string, [number, number]> = {}, live = c.rooms.filter((r) => r.stream), idle = c.rooms.filter((r) => !r.stream);
+  const step = Math.min(14, (66 - 9 * Math.max(0, c.streams.length - 1)) / Math.max(1, live.length)); let x = 30;
+  for (const s of c.streams) { const mem = live.filter((r) => r.stream === s).sort((p, q) => Number(q.lead) - Number(p.lead)); mem.forEach((r, j) => { out[r.id] = [x + j * step, (idle.length ? 36 : 52) + (j % 2 ? 6 : -6)]; }); x += mem.length * step + 9; }
+  idle.forEach((r, i) => { out[r.id] = [((i + 0.5) / idle.length) * 100, live.length ? 78 : 62]; });
+  return out;
 };
+const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
+  aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>`;
+const grab = (c: Ctx, r: Room): TemplateResult | typeof nothing => (r.hasVol ? html`<span class="agrab" aria-hidden="true" @pointerdown=${(e: PointerEvent) => { e.stopPropagation(); slide(c, r, () => 150)(e); }}><i></i></span>` : nothing);
+const figure = (c: Ctx, r: Room, draw: (r: Room, v: number) => TemplateResult): TemplateResult => html`
+  <svg viewBox="0 0 100 120" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}>${r.asleep && !r.live ? moon : nothing}${draw(r, r.vol / 100)}</svg>
+  ${grab(c, r)}
+  <button class="aname tap" data-notrack aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><b>${r.name}</b><span>${state(r)}</span></button>`;
+const pct = (m: PointerEvent, b: DOMRect): [number, number] => [((m.clientX - b.left) / b.width) * 100, ((m.clientY - b.top) / b.height) * 100];
+/** Pick a room up by its body. A tap adds or drops it; where it is let go decides the rest. */
+const lift = (c: Ctx, r: Room, drop: (m: PointerEvent, b: DOMRect) => void) => (e: PointerEvent): void => {
+  if ((e.target as Element).closest('[data-notrack]')) return;
+  const stage = (e.currentTarget as Element).closest('.vscene')!;
+  track(e, (m) => { const [x, y] = pct(m, stage.getBoundingClientRect()); c.setDrag({ id: r.id, x, y }); }, (moved, m) => { c.setDrag(null); if (moved) drop(m, stage.getBoundingClientRect()); else c.toggle(r.id); }, 8);
+};
+
+/** Sea, Reef, Bush, Sunset and Fridge door: rooms float free. Bring two together and they share the music; pull one away and it stops. */
+const swimScene = (c: Ctx, kind: string): TemplateResult => {
+  const draw = ACTORS[kind], at = spots(c), d = c.sdrag;
+  const drop = (r: Room) => (m: PointerEvent, b: DOMRect): void => {
+    const far = (o: Room): number => Math.hypot(((at[o.id][0] - ((m.clientX - b.left) / b.width) * 100) / 100) * b.width, ((at[o.id][1] - ((m.clientY - b.top) / b.height) * 100) / 100) * b.height);
+    const near = c.rooms.filter((o) => o.id !== r.id).sort((p, q) => far(p) - far(q))[0];
+    if (near && far(near) < 96) {
+      if (near.stream && near.stream !== r.stream) c.join(r.id, near.stream); // swim up to a room with music: join it
+      else if (!near.stream && r.stream) c.join(near.id, r.stream);          // bring the music to a quiet room
+    } else if (r.stream && !r.lead && !c.rooms.some((o) => o.id !== r.id && o.stream === r.stream && far(o) < 170)) c.leave(r.id);
+  };
+  return html`<div class="vscene" data-kind=${kind} data-fits>
+    <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}
+      ${c.streams.map((s) => { const mem = c.rooms.filter((r) => r.stream === s && d?.id !== r.id); return mem.length > 1 ? svg`<path class="tie" style="--c:${mem[0].colour || 'var(--stream, var(--primary))'}" d="M${mem.map((r) => `${at[r.id][0]} ${at[r.id][1]}`).join(' L')}"></path>` : nothing; })}</svg>
+    <div class="sun">${sun(c)}<span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Drag me to a room' : 'Pick something to play'}</span></span></div>
+    ${c.rooms.map((r, i) => { const p = d?.id === r.id ? [d.x, d.y] : at[r.id];
+      return html`<div class="actor free" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-held=${d?.id === r.id} ?data-hot=${c.over === r.id && c.lifted !== r.id}
+        style="${col(r)};left:${p[0]}%;top:${p[1]}%;animation-delay:${-i * 0.45}s" @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div>`; })}
+  </div>`;
+};
+
+/** Space and Orbit: the music is the sun. Each piece of music has its own orbit and the rooms playing it circle on it; quiet rooms wait on the outer ring. */
+const RINGS = [36, 58], PARK = 82;
+const orbitScene = (c: Ctx, kind: string): TemplateResult => {
+  const draw = ACTORS[kind], d = c.sdrag, ringOf = (s: string): number => RINGS[Math.min(RINGS.length - 1, c.streams.indexOf(s))];
+  const drop = (r: Room) => (m: PointerEvent, b: DOMRect): void => {
+    const st = (m.target as Element).closest('.vscene') ?? document.body, g = getComputedStyle(st), sq = Number(g.getPropertyValue('--sq')) || 0.42, k = Number(g.getPropertyValue('--k')) || 1;
+    const rp = (Math.hypot(m.clientX - (b.left + b.width / 2), (m.clientY - (b.top + b.height * 0.46)) / sq) / b.height) * 100 / k;
+    const opts: [number, string][] = [...c.streams.map((s) => [ringOf(s), s] as [number, string]), [PARK, '']];
+    const [, to] = opts.sort((p, q) => Math.abs(p[0] - rp) - Math.abs(q[0] - rp))[0];
+    if (to && to !== r.stream) c.join(r.id, to); else if (!to && r.stream && !r.lead) c.leave(r.id);
+  };
+  const parked = c.rooms.filter((r) => !r.stream);
+  const arm = (r: Room): TemplateResult => {
+    const mem = r.stream ? c.rooms.filter((o) => o.stream === r.stream) : parked, j = mem.indexOf(r), k = r.stream ? c.streams.indexOf(r.stream) : 0;
+    const a = r.stream ? (k * 47 + (j * 360) / mem.length) % 360 : (100 + (j * 360) / Math.max(1, mem.length)) % 360;
+    return html`<div class="arm" ?data-moving=${r.playing} ?data-away=${d?.id === r.id} style="--a:${a};--r:${r.stream ? ringOf(r.stream) : PARK};--t:${r.stream ? 70 + k * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
+      <div class="actor planet" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id && c.lifted !== r.id} style=${col(r)} @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div></div></div></div></div>`;
+  };
+  const held = d ? c.rooms.find((r) => r.id === d.id) : undefined;
+  return html`<div class="vscene orbits" data-kind=${kind} data-fits>
+    <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}</svg>
+    ${c.streams.slice(0, RINGS.length).map((s, k) => html`<span class="ring" style="--r:${RINGS[k]};--c:${k ? 'var(--p-3)' : 'var(--stream, var(--primary))'}"></span>`)}<span class="ring park" style="--r:${PARK}"></span>
+    <div class="sun">${html`<span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Same orbit, same music' : 'Pick something to play'}</span></span>`}</div>
+    <div class="core">${sun(c)}</div>
+    <div class="plane">${c.rooms.map(arm)}</div>
+    ${held && d ? html`<div class="actor free clone" data-held ?data-live=${held.live} style="${col(held)};left:${d.x}%;top:${d.y}%">${figure(c, held, draw)}</div>` : nothing}
+  </div>`;
+};
+
+export const sceneView = (c: Ctx): TemplateResult => { const kind = sceneKind(c.look, c.theme); return kind === 'space' || kind === 'orbit' ? orbitScene(c, kind) : swimScene(c, kind); };
 
 /** The picker: a card for each way of seeing the rooms. */
 export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: () => void): TemplateResult => html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
@@ -309,10 +376,11 @@ export const viewsCss = css`
   :host([data-phone]) .cab.left .sock { right: 4px; } :host([data-phone]) .cab.right .sock { left: auto; right: 4px; } :host([data-phone]) .cab.right { padding-left: 10px; padding-right: 30px; } :host([data-phone]) .cknob { display: none; }
 
   /* ---- scene ---- */
-  .vscene { flex: 1; min-height: 240px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .vscene { flex: 1; min-height: 250px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; container-type: size; --sq: .42; --k: 1; }
   .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .backdrop path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
   .bg1 { stroke: color-mix(in srgb, var(--primary) 55%, transparent); stroke-width: 3px; } .bg2 { stroke: var(--track); stroke-width: 3px; }
+  .tie { stroke: var(--c); stroke-width: 4px; stroke-dasharray: 2 9; opacity: .8; stroke-linejoin: round; }
   .drift { animation: sdrift 7s linear infinite; animation-iteration-count: var(--loops, infinite); } .drift.slow { animation-duration: 11s; }
   @keyframes sdrift { to { transform: translateX(-20%); } }
   .bgweed { stroke: #0f766e; stroke-width: 9px; opacity: .6; transform-box: fill-box; transform-origin: bottom; animation: weed 3.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); } .bgweed.b { stroke: #ea580c; animation-delay: -1.5s; }
@@ -322,20 +390,44 @@ export const viewsCss = css`
   .puck.spot { position: static; margin: 0; width: 64px; height: 64px; flex-shrink: 0; }
   .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .suntx { display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .actors { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0 4px 6px; }
-  .actor { flex: 1 1 0; min-width: 0; height: calc(100% - 64px); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; padding-bottom: var(--lift); border-radius: 18px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); }
-  .actor > svg { flex: 1 1 0; min-height: 0; width: 100%; max-width: 150px; overflow: visible; }
-  .actor[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--c); } .actor > svg { outline: none; } .actor > svg:focus-visible { filter: drop-shadow(0 0 0 var(--ink)); border-radius: 14px; box-shadow: inset 0 0 0 3px var(--ink); } .actor[data-focus] .aname { background: var(--chip-strong); box-shadow: 0 0 0 2px var(--c); }
-  .aname { min-height: 44px; max-width: 100%; padding: 2px 10px; border-radius: 14px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
-  .aname b { max-width: 100%; font-size: 13.5px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .afill { fill: var(--c); transition: d .2s; } .afill.soft { opacity: .6; } .afill.edge, .aidle.edge { stroke: #fff; stroke-width: 2.5; }
+  .actor { width: 116px; display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
+  .actor.free { position: absolute; transform: translate(-50%, -50%); transition: left .6s cubic-bezier(.3,1.3,.5,1), top .6s cubic-bezier(.3,1.3,.5,1); }
+  .actor[data-held] { transition: none; z-index: 5; cursor: grabbing; filter: drop-shadow(0 14px 12px rgba(0,0,0,.3)); }
+  .actor[data-held] > svg { transform: scale(1.12); }
+  .actor > svg { width: 108px; height: 98px; margin-bottom: -8px; overflow: visible; outline: none; transition: transform .2s; }
+  .actor > svg:focus-visible { border-radius: 14px; box-shadow: inset 0 0 0 3px var(--ink); }
+  .actor[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--c); } .actor[data-focus] .aname { background: var(--chip-strong); box-shadow: 0 0 0 2px var(--c); }
+  .agrab { position: absolute; right: -14px; top: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: ns-resize; touch-action: none; }
+  .agrab i { width: 22px; height: 22px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2.5px var(--ink3), 0 2px 5px rgba(0,0,0,.25); position: relative; }
+  .agrab i::before, .agrab i::after { content: ''; position: absolute; left: 7px; border: 4px solid transparent; }
+  .agrab i::before { top: -1px; border-bottom-color: var(--ink2); } .agrab i::after { bottom: -1px; border-top-color: var(--ink2); }
+  .actor[data-live] .agrab i { box-shadow: inset 0 0 0 2.5px var(--c), 0 2px 5px rgba(0,0,0,.25); }
+  .aname { min-height: 44px; max-width: 120px; padding: 2px 10px; border-radius: 14px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+  .aname b { max-width: 100%; font-size: 13px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  /* orbits */
+  .ring { position: absolute; left: 50%; top: 46%; width: calc(var(--r) * var(--k) * 2cqh); height: calc(var(--r) * var(--k) * var(--sq) * 2cqh); transform: translate(-50%, -50%); border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--c) 70%, transparent); pointer-events: none; }
+  .ring.park { border: 2px dashed var(--track); }
+  .core { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 1; border-radius: 50%; box-shadow: 0 0 34px 8px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .plane { position: absolute; left: 50%; top: 46%; width: 0; height: 0; transform: scaleY(var(--sq)); }
+  .arm { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotate(calc(var(--a) * 1deg)); }
+  .arm[data-moving] { animation: orbit var(--t) linear infinite; animation-delay: calc(var(--a) / 360 * var(--t) * -1); animation-play-state: var(--motion, running); }
+  @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .hold { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: translateX(calc(var(--r) * var(--k) * 1cqh)); }
+  .unspin { width: 0; height: 0; transform: rotate(calc(var(--a) * -1deg)); }
+  .arm[data-moving] .unspin { animation: orbit var(--t) linear infinite reverse; animation-delay: calc(var(--a) / 360 * var(--t) * -1); animation-play-state: var(--motion, running); }
+  .unsquash { width: 0; height: 0; transform: scaleY(calc(1 / var(--sq))); }
+  .actor.planet { position: absolute; left: -58px; top: -52px; }
+  .arm[data-away] { opacity: .25; } .actor.clone { pointer-events: none; }
+  .orbits .actor > svg { height: 84px; margin-bottom: -14px; } .orbits .aname { min-height: 44px; padding: 0 8px; background: transparent; justify-content: flex-start; } .orbits .aname span { display: none; }
+  .orbits .actor[data-focus] .aname { background: transparent; box-shadow: none; } .orbits .actor[data-focus] .aname b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .afill { fill: var(--c); } .afill.soft { opacity: .6; } .afill.edge, .aidle.edge { stroke: #fff; stroke-width: 2.5; }
   .aidle { fill: var(--ink3); opacity: .75; } .ahull { fill: #fff; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
   .aline { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; } .aline.thin { stroke-width: 1.8; opacity: .7; }
   .aflag { fill: var(--accent); } .amoon { fill: #f6d77a; stroke: rgba(0,0,0,.25); stroke-width: 1; }
   .aeye { fill: #fff; } .apupil { fill: #0b2236; } .abub { fill: none; stroke: #fff; stroke-width: 2; } .aring { fill: none; stroke: #fff; stroke-width: 2.5; opacity: .85; }
   .aglow { fill: var(--c); opacity: .3; transform-box: fill-box; transform-origin: center; animation: aglow 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes aglow { from { transform: scale(.9); } to { transform: scale(1.2); opacity: .12; } }
-  .aorbit { fill: none; stroke: var(--track); stroke-width: 1.5; stroke-dasharray: 3 6; }
+  .aorbit { display: none; }
   .alog { fill: #6b4a2b; stroke: #3d2a18; stroke-width: 1.5; } .aflame { fill: var(--c); } .aflame.in { fill: #ffd166; } .aember { fill: #b45309; opacity: .8; }
   .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: 17px; font-weight: 700; text-anchor: middle; }
   .bob, .swim, .flick, .sway, .jig { transform-box: fill-box; transform-origin: 50% 100%; }
@@ -352,6 +444,6 @@ export const viewsCss = css`
   .actor[data-playing] .jig { transform-origin: center; animation: ajig .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
   .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
-  .vscene[data-fit] .aname span { display: none; } .vscene[data-fit] .aname { min-height: 44px; }
-  :host([data-phone]) .vscene { flex: none; height: 420px; } :host([data-phone]) .actors { flex-wrap: wrap; align-content: flex-end; } :host([data-phone]) .actor { flex: 1 1 30%; height: 150px; }
+  .vscene[data-fit] .aname span { display: none; }
+  :host([data-phone]) .vscene { flex: none; height: 470px; --k: .54; --sq: .9; } :host([data-phone]) .actor { width: 92px; } :host([data-phone]) .actor > svg { width: 84px; height: 76px; } :host([data-phone]) .actor.planet { left: -46px; top: -40px; }
 `;

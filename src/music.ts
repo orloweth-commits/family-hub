@@ -273,7 +273,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -294,6 +294,7 @@ export class FhMusic extends LitElement {
   /** volumes being dragged, shown until Home Assistant reports them */
   private _dv: Record<string, number> = {};
   private _viewAsk = false;
+  private _sd: { id: string; x: number; y: number } | null = null;
   private _shelfAsked = false;
   private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
   private _carried = 0;
@@ -452,13 +453,16 @@ export class FhMusic extends LitElement {
     const others = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((id): id is string => !!id && id !== curLead?.entity_id))];
     const rooms: Room[] = this._floors.flatMap((f) => f.rooms.flatMap((r) => r.zones.map((z) => {
       const p = z.p, id = p.entity_id, lead = this._leader(p), has = typeof p.attributes.volume_level === 'number';
-      return { id, name: z.name, vol: id in this._dv ? this._dv[id] : has ? Math.round((p.attributes.volume_level as number) * 100) : 0, hasVol: has, live: !!lead, playing: lead?.state === 'playing', focus: id === cur?.entity_id, inmix: mix.includes(id),
+      return { id, name: z.name, stream: lead?.entity_id ?? '', vol: id in this._dv ? this._dv[id] : has ? Math.round((p.attributes.volume_level as number) * 100) : 0, hasVol: has, live: !!lead, playing: lead?.state === 'playing', focus: id === cur?.entity_id, inmix: mix.includes(id),
         asleep: r.asleep, lead: lead?.entity_id === id, colour: lead && lead.entity_id !== curLead?.entity_id ? `var(--p-${[3, 5, 4, 2][others.indexOf(lead.entity_id) % 4]})` : '', title: String(lead?.attributes.media_title ?? '') };
     })));
     const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
     const frac = dur ? Math.min(1, ((Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) / dur) : 0;
     if (this._mode === 'cables' && !this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
-    return { rooms, look: getLook(), theme: this.theme, over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', shelf: this._items.Family ?? [],
+    return { rooms, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
+      join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); }); },
+      leave: (id) => { this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id }); },
+      look: getLook(), theme: this.theme, over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', shelf: this._items.Family ?? [],
       now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit),
       toggle: (id) => { if (id === cur?.entity_id) return; if (mix.includes(id)) this._join(id); else this._gentle(id, () => { if (curLead) this._join(id); else this._focus = id; }); },
