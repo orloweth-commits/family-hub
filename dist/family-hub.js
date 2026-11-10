@@ -3244,11 +3244,11 @@ const Wo = async (o) => {
     mt = null;
   }
   return mt;
-}, wi = (o, t, i, a, e) => o.callWS({ type: "call_service", domain: t, service: i, service_data: a, ...e ? { target: e } : {}, return_response: !0 }).then((s) => s.response), Mo = ["tracks", "albums", "playlists", "artists", "radio", "podcasts", "audiobooks"], Co = async (o, t, i) => {
+}, wi = (o, t, i, a, e) => o.callWS({ type: "call_service", domain: t, service: i, service_data: a, ...e ? { target: e } : {}, return_response: !0 }).then((s) => s.response), Mo = [["tracks", 4], ["albums", 3], ["playlists", 3], ["artists", 1], ["radio", 2], ["podcasts", 1], ["audiobooks", 2]], Co = async (o, t, i) => {
   const a = await Wo(o);
   if (a) {
     const s = await wi(o, "music_assistant", "search", { config_entry_id: a, name: t, limit: 6 });
-    return Mo.flatMap((r) => (s[r] ?? []).map((n) => Ti(n, r.replace(/s$/, "")))).filter((r) => r.uri);
+    return Mo.flatMap(([r, n]) => (s[r] ?? []).map((l) => Ti(l, r.replace(/s$/, ""))).filter((l) => l.uri).slice(0, n));
   }
   if (!i) return [];
   const e = await wi(o, "media_player", "search_media", { search_query: t }, { entity_id: i });
@@ -3288,7 +3288,7 @@ const Wo = async (o) => {
   }
 }, Pt = class Pt extends N {
   constructor() {
-    super(...arguments), this.lookCtl = new G(this), this.fitCtl = new nt(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this._tab = "rooms", this._focus = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === di() ? t : { day: di(), on: !1, who: "", picks: [] })(hi("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = hi("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "";
+    super(...arguments), this.lookCtl = new G(this), this.fitCtl = new nt(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this._tab = "rooms", this._focus = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === di() ? t : { day: di(), on: !1, who: "", picks: [] })(hi("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = hi("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "";
   }
   connectedCallback() {
     super.connectedCallback(), this._tick = window.setInterval(() => {
@@ -3469,11 +3469,10 @@ const Wo = async (o) => {
   _feed(t = !1) {
     const i = this._cur, a = this._juke;
     if (!a.on || !i || !this.hass) return !1;
-    const e = i.state !== "playing" && i.state !== "buffering", s = String(i.attributes.media_content_id ?? "");
-    if (!(t || e || this._q && !this._q.next) || !t && !e && this._fedFor === s) return !1;
-    this._fedFor = s;
-    const r = this._nextPick();
-    return r ? (r.done = !0, this._saveJuke({ picks: [...a.picks] }), this._lastUri = r.uri, Zt(this.hass, i.entity_id, r.uri, t || e ? "play" : "add").catch((n) => this._say(`Couldn’t queue ${r.name}: ${n?.message ?? "error"}`)), this._qKey = "", !0) : !1;
+    const e = i.state !== "playing" && i.state !== "buffering", s = String(i.attributes.media_content_id ?? ""), r = !!this._q?.next && this._q.next.name === this._fedName;
+    if (!(t || e) && (!this._q || r) || !t && !e && this._fedFor === s) return !1;
+    const n = this._nextPick();
+    return n ? (this._fedFor = s, this._fedName = n.name, n.done = !0, this._saveJuke({ picks: [...a.picks] }), this._lastUri = n.uri, Zt(this.hass, i.entity_id, n.uri, t || e ? "play" : this._q?.next ? "replace_next" : "add").catch((l) => this._say(`Couldn’t queue ${n.name}: ${l?.message ?? "error"}`)), this._qKey = "", !0) : !1;
   }
   _addPick(t) {
     const i = this._juke.who || this._everyone[0]?.name || "Someone";
@@ -3600,9 +3599,9 @@ const Wo = async (o) => {
       a.key === "Enter" && this._search();
     }}>
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? "Looking…" : "Search"}</button>
-        ${t ? p`<button class="round tap" style="width:52px;height:52px;font-size:20px" aria-label=${this._keys ? "Hide the keyboard" : "Show the keyboard"} @click=${() => {
+        ${t ? p`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? "Hide the keyboard" : "Show the keyboard"} @click=${() => {
       this._keys = !this._keys;
-    }}>⌨</button>` : c}</div>
+    }}>${this._keys ? A("close", 20) : "Aa"}</button>` : c}</div>
       ${this._keys ? p`<div style="margin:auto 0">${Yt((a) => {
       [this._text, this._caps] = Bt(this._text, a, this._caps);
     }, this._caps, () => {
@@ -4271,7 +4270,7 @@ _t.styles = [L, Di, W`
   `], _t.properties = { hass: { attribute: !1 }, calendars: { attribute: !1 }, defaultCal: {}, _t: { state: !0 }, _day: { state: !0 }, _time: { state: !0 }, _dur: { state: !0 }, _cal: { state: !0 }, _busy: { state: !0 }, _err: { state: !0 }, _caps: { state: !0 } };
 let ji = _t;
 customElements.get("fh-add-event") || customElements.define("fh-add-event", ji);
-const ne = "0.7.1", Ja = "family-hub-theme", Xo = {
+const ne = "0.7.2", Ja = "family-hub-theme", Xo = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

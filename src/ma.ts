@@ -54,20 +54,21 @@ const entry = async (h: Hass): Promise<string | null> => {
 const respond = <T>(h: Hass, domain: string, service: string, service_data: Record<string, unknown>, target?: Record<string, unknown>): Promise<T> =>
   h.callWS<{ response: T }>({ type: 'call_service', domain, service, service_data, ...(target ? { target } : {}), return_response: true }).then((r) => r.response);
 
-const ORDER = ['tracks', 'albums', 'playlists', 'artists', 'radio', 'podcasts', 'audiobooks'];
+/** How many of each kind to show, so one screen of results covers every kind without scrolling. */
+const ORDER: [string, number][] = [['tracks', 4], ['albums', 3], ['playlists', 3], ['artists', 1], ['radio', 2], ['podcasts', 1], ['audiobooks', 2]];
 /** One search across every connected service. Falls back to the player's own search when the entry cannot be read. */
 export const search = async (h: Hass, text: string, player?: string): Promise<MediaHit[]> => {
   const id = await entry(h);
   if (id) {
     const r = await respond<Record<string, any[]>>(h, 'music_assistant', 'search', { config_entry_id: id, name: text, limit: 6 });
-    return ORDER.flatMap((k) => (r[k] ?? []).map((x) => hit(x, k.replace(/s$/, '')))).filter((x) => x.uri);
+    return ORDER.flatMap(([k, n]) => (r[k] ?? []).map((x) => hit(x, k.replace(/s$/, ''))).filter((x) => x.uri).slice(0, n));
   }
   if (!player) return [];
   const r = await respond<Record<string, { result?: any[] }>>(h, 'media_player', 'search_media', { search_query: text }, { entity_id: player });
   return (Object.values(r)[0]?.result ?? []).map((x) => hit(x, x.media_content_type ?? 'music')).filter((x) => x.uri);
 };
 
-export type Enqueue = 'play' | 'next' | 'add';
+export type Enqueue = 'play' | 'next' | 'add' | 'replace_next';
 export const play = (h: Hass, player: string, uri: string, enqueue: Enqueue = 'play', radio = false): Promise<unknown> =>
   h.services?.music_assistant && platform(h, player) === 'music_assistant'
     ? h.callService('music_assistant', 'play_media', { media_id: uri, enqueue, ...(radio ? { radio_mode: true } : {}) }, { entity_id: player })
