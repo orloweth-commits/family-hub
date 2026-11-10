@@ -57,6 +57,16 @@ export class FhMusic extends LitElement {
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--knob, #fff); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .mhead { display: flex; align-items: center; gap: 16px; }
+    :host([data-full]) .stage { display: none; }
+    .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 54px; height: 54px; padding: 0; } .tabs.inline button span { display: none; }
+    .nowbar { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46%; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--chip); }
+    .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
+    .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); }
+    .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .nowbar .round { width: 44px; height: 44px; flex-shrink: 0; } .nowbar .ngo { background: var(--primary); color: var(--on-primary); }
+    .acts .hint { min-width: 0; }
+    :host([data-phone]) .nowbar { max-width: 100%; flex: 1 1 100%; order: 8; } :host([data-phone]) .tabs.inline { flex: 1 1 100%; }
     .panel { position: relative; }
     .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; animation: fadeIn .28s ease-out; }
     /* search is a field, not a tab: it is always in the same place and looks like somewhere to type */
@@ -273,7 +283,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -294,6 +304,8 @@ export class FhMusic extends LitElement {
   /** volumes being dragged, shown until Home Assistant reports them */
   private _dv: Record<string, number> = {};
   private _viewAsk = false;
+  /** the full player, brought back beside a full-page view */
+  private _peek = false;
   private _sd: { id: string; x: number; y: number } | null = null;
   private _shelfAsked = false;
   private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
@@ -378,6 +390,9 @@ export class FhMusic extends LitElement {
   }
 
 
+  /** A room view other than the list takes the whole page: the player steps aside and its controls move into the bar above the view. */
+  private get _full(): boolean { return this._tab === 'rooms' && this._mode !== 'list' && !this._peek && !!this._cur; }
+  protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); }
   protected updated(ch: PropertyValues): void {
     const p = this._cur;
     if (!this.hass || !p) return;
@@ -663,12 +678,13 @@ export class FhMusic extends LitElement {
     const p = this._cur, ma = hasMa(this.hass);
     const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
     const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
-    const searching = this._tab === 'search', c = this._carry;
+    const searching = this._tab === 'search', c = this._carry, full = this._full;
+    const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel">
         <div class="mhead"><h1 class="t-title">Music</h1>
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>Search songs, albums, stories…</span></button>` : html`<span style="flex:1"></span>`}</div>
-        ${searching ? nothing : html`<div class="tabs" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`}
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>Search songs, albums, stories…</span></button>` : html`<span style="flex:1"></span>`}${full && !searching ? tabrow : nothing}</div>
+        ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
       </section>
@@ -725,7 +741,12 @@ export class FhMusic extends LitElement {
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
         <button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._everywhere(true)}>Everywhere</button>
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
-        <span class="soft" style="flex:1">${viewHint(mode, getLook(), this.theme)}</span>
+        <span class="soft hint" style="flex:1">${viewHint(mode, getLook(), this.theme)}</span>
+        ${mode !== 'list' && cur ? html`<div class="nowbar"><button class="nthumb tap" aria-pressed=${String(this._peek)} aria-label=${this._peek ? 'Hide the player' : 'Show the full player'} style=${cur.attributes.entity_picture ? `--art:url(${cur.attributes.entity_picture})` : ''} @click=${() => { this._peek = !this._peek; }}></button>
+          <span class="ntx"><b>${cur.attributes.media_title ?? 'Nothing playing'}</b><span>${this._name(cur)}</span></span>
+          <button class="round tap" aria-label="Previous" @click=${() => this._svc('media_previous_track')}>${solid('prev', 24)}</button>
+          <button class="round tap ngo" aria-label=${cur.state === 'playing' ? 'Pause' : 'Play'} @click=${() => this._svc('media_play_pause')}>${solid(cur.state === 'playing' ? 'pause' : 'play', 26)}</button>
+          <button class="round tap" aria-label="Next" @click=${() => this._svc('media_next_track')}>${solid('next', 24)}</button></div>` : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>
       ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? cablesView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
