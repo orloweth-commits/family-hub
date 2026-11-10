@@ -1,4 +1,5 @@
 import { LitElement, html, css, nothing, type PropertyValues, type TemplateResult } from 'lit';
+import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
@@ -53,20 +54,74 @@ export class FhMusic extends LitElement {
     input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--rail, rgba(255,255,255,.3)); outline: none; margin: 10px 0; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--knob, #fff); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
-    .mhead { display: flex; align-items: center; gap: 12px; }
+    .mhead { display: flex; align-items: center; gap: 16px; }
+    .panel { position: relative; }
+    .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; animation: fadeIn .28s ease-out; }
+    /* search is a field, not a tab: it is always in the same place and looks like somewhere to type */
+    .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink2);
+      background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent), 0 6px 14px -8px rgba(0,0,0,.35); transition: box-shadow .2s; }
+    .finder:active { box-shadow: inset 0 0 0 3px var(--primary); }
+    .finder span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sbar { flex: 1; min-width: 0; display: flex; gap: 10px; animation: fadeIn .2s ease-out; }
+    .sbar .field { border-radius: 27px; padding: 0 22px; }
+    /* calling: speech bubbles and a house to tap */
+    .callrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
+    .callside, .dropside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
+    .bubble { min-height: 62px; padding: 8px 16px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform .2s cubic-bezier(.2,1.4,.4,1), background .2s; }
+    .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
+    .bubble[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: scale(1.03); }
+    .sayit { height: 52px; padding: 0 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
+    .map.snug { flex: none; }
+    .map.snug .floor { flex: none; height: 100px; min-height: 0; }
+    .map.snug .mstairs { flex-basis: 36px; }
+    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 13px; position: relative; transition: background .2s; }
+    .mz + .mz { border-left: 2px dashed var(--track); }
+    .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.15; font-size: 12.5px; font-weight: var(--w-bold, 700); }
+    .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
+    .mz[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
+    .shout { display: flex; animation: shout .7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    @keyframes shout { from { transform: rotate(-8deg) scale(.95); } to { transform: rotate(6deg) scale(1.1); } }
+    /* shelves: a crate of records next to the house */
+    .shelfrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
+    .crate { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+    .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
+    .dividers .pchip[aria-pressed='true'] { background: var(--c); color: #fff; box-shadow: none; transform: translateY(-3px); }
+    .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
+    .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform .25s cubic-bezier(.2,1.2,.3,1); }
+    .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform .3s cubic-bezier(.2,1.2,.3,1);
+      background: radial-gradient(circle, #f4efe3 0 3%, var(--accent) 3.5% 16%, #17140f 16.5% 100%); }
+    .crate .st:active .disc, .crate .st[data-lifted] .disc { transform: translateX(26%) scale(.94) rotate(40deg); }
+    .crate .st[data-lifted] .img { transform: scale(.94); }
+    .presets .st { background: transparent; align-items: center; text-align: center; }
+    .presets .st .img { width: 100%; border-radius: 50%; box-shadow: 0 0 0 4px var(--chip-strong), 0 8px 16px -8px rgba(0,0,0,.5); }
+    .presets .st.on { box-shadow: none; }
+    .presets .st.on .img { box-shadow: 0 0 0 5px var(--ok), 0 8px 16px -8px rgba(0,0,0,.5); }
+    :host([data-phone]) .callrow, :host([data-phone]) .shelfrow { flex-direction: column; flex: none; }
+    :host([data-phone]) .callside, :host([data-phone]) .dropside { flex: none; }
+    :host([data-phone]) .bubbles { grid-template-columns: 1fr; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .mhead { flex-wrap: wrap; }
     :host([data-phone]) .tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
-    :host([data-phone]) .tabs button { flex-shrink: 0; }
+    :host([data-phone]) .tabs button { flex: 1 1 auto; padding: 0 12px; }
+    :host([data-phone]) .tabs button:not([aria-pressed='true']) span { display: none; }
+    :host([data-phone]) .body { flex: none; }
+    :host([data-phone]) .mhead .finder, :host([data-phone]) .sbar { flex: 1 1 100%; }
+    :host([data-phone]) .acts .soft { flex: 1 1 100%; order: 9; }
     :host([data-phone]) .stage { flex-direction: column; flex-wrap: nowrap; align-items: stretch; border-radius: 22px; }
     :host([data-phone]) .deck { flex: 0 0 auto; height: 210px; }
     :host([data-phone]) .panel { padding: 14px; border-radius: 22px; min-height: 320px; }
     :host([data-phone]) .grid, :host([data-phone]) .hits, :host([data-phone]) .covers, :host([data-phone]) .picks { overflow: visible; flex: none; }
     :host([data-phone]) .hits { grid-template-columns: 1fr; }
     :host([data-phone]) .msgs { grid-template-columns: 1fr 1fr; }
-    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-    .tabs button { height: 42px; padding: 0 15px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
-    .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    /* the places on the page: a picture each, and the one you are in stands up */
+    .tabs { display: flex; gap: 8px; }
+    .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+      transition: transform .22s cubic-bezier(.2,1.4,.4,1), background .2s, color .2s; }
+    .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); box-shadow: 0 8px 14px -8px color-mix(in srgb, var(--primary) 80%, transparent); }
+    .tabs button[aria-pressed='true'] .i { animation: nod .5s ease-out; }
+    @keyframes nod { 30% { transform: rotate(-14deg) scale(1.2); } 65% { transform: rotate(8deg); } }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
     .grid[data-fit] { gap: 6px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
     .spk { border-radius: 20px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; --rail: var(--track); --knob: var(--primary); }
@@ -95,6 +150,7 @@ export class FhMusic extends LitElement {
     .kind { font-size: 11px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink2); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
+    .crate .covers { gap: 14px 6px; padding: 2px 0 0 2px; }
     .covers[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
     .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 14px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
     .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-3))) center / cover no-repeat, #fff; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
@@ -144,11 +200,12 @@ export class FhMusic extends LitElement {
     .mzone[data-playing] .puck { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes puck { to { transform: rotate(360deg); } }
     .puck[data-lifted] { opacity: .3; animation: none; }
-    .puck.fly { margin: -40px 0 0 -40px; width: 80px; height: 80px; bottom: auto; pointer-events: none; z-index: 5; animation: none; box-shadow: 0 18px 30px -8px rgba(0,0,0,.6); }
+    .puck.fly { margin: -42px 0 0 -42px; width: 84px; height: 84px; bottom: auto; pointer-events: none; z-index: 5; animation: lift .18s ease-out; box-shadow: 0 20px 32px -8px rgba(0,0,0,.6); }
+    @keyframes lift { from { transform: scale(.7); } }
     .acts .pill[data-hot] { box-shadow: 0 0 0 4px var(--accent); }
     :host([data-phone]) .map { flex: none; }
-    :host([data-phone]) .floor { flex: none; flex-wrap: wrap; }
-    :host([data-phone]) .mroom { flex: var(--size, 1) 1 calc(var(--size, 1) * 140px); height: 150px; }
+    :host([data-phone]) .map:not(.snug) .floor { flex: none; flex-wrap: wrap; }
+    :host([data-phone]) .map:not(.snug) .mroom { flex: var(--size, 1) 1 calc(var(--size, 1) * 140px); height: 150px; }
     :host([data-phone]) .mstairs { display: none; }
     .map[data-fit] .floor { min-height: 78px; }
     .map[data-fit] .puck { width: 56px; height: 56px; margin-left: -28px; }
@@ -161,7 +218,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, _view: { state: true }, _drag: { state: true }, _puck: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -177,7 +234,10 @@ export class FhMusic extends LitElement {
   map: MapFloorConfig[] = [];
   private _view: 'house' | 'list' | '' = ls<'house' | 'list' | ''>('fh-music-view', '');
   private _drag: { id: string; vol: number } | null = null;
-  private _puck: { from: string; x: number; y: number; over: string } | null = null;
+  private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
+  private _carried = 0;
+  private _prev: Tab = 'rooms';
+  private _shelfTo = '';
   private _tab: Tab = 'rooms';
   private _focus = '';
   private _thumbs: Record<string, string> = {};
@@ -363,34 +423,47 @@ export class FhMusic extends LitElement {
     if (!step || typeof p.attributes.volume_level !== 'number') return;
     e.preventDefault(); this._svc('volume_set', { volume_level: Math.max(0, Math.min(1, p.attributes.volume_level + step / 100)) }, p.entity_id);
   }
-  /** Pick the music up. A tap pauses or plays it; a drag carries it to another room, or to Everywhere. */
-  private _puckDown(e: PointerEvent, lead: HassEntity): void {
-    e.stopPropagation();
-    const el = e.currentTarget as HTMLElement, map = this.renderRoot.querySelector('.map') as HTMLElement, x0 = e.clientX, y0 = e.clientY, from = lead.entity_id;
+  /** Pick something up and carry it to a room: the music itself (a tap pauses or plays it), or a record from a shelf. */
+  private _carryDown(e: PointerEvent, what: { lead?: HassEntity; item?: ShelfItem }): void {
+    const lead = what.lead, item = what.item;
+    if (lead) e.stopPropagation();
+    const el = e.currentTarget as HTMLElement, panel = this.renderRoot.querySelector('.panel') as HTMLElement, x0 = e.clientX, y0 = e.clientY;
+    const art = String(lead?.attributes.entity_picture ?? item?.img ?? '');
     const under = (x: number, y: number): string => {
       const inside = (n: Element): boolean => { const r = n.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
-      const all = this.renderRoot.querySelector('[data-drop="all"]');
+      const all = lead ? this.renderRoot.querySelector('[data-drop="all"]') : null;
       if (all && inside(all)) return 'all';
-      return [...this.renderRoot.querySelectorAll<HTMLElement>('.mzone')].find(inside)?.dataset.zone ?? '';
+      return [...this.renderRoot.querySelectorAll<HTMLElement>('[data-zone]')].find(inside)?.dataset.zone ?? '';
     };
     const move = (m: PointerEvent): void => {
-      const r = map.getBoundingClientRect(), far = Math.hypot(m.clientX - x0, m.clientY - y0) > 8;
-      if (!this._puck && !far) return;
-      this._puck = { from, x: ((m.clientX - r.left) / r.width) * 100, y: ((m.clientY - r.top) / r.height) * 100, over: under(m.clientX, m.clientY) };
+      const r = panel.getBoundingClientRect();
+      if (!this._carry && Math.hypot(m.clientX - x0, m.clientY - y0) < 10) return;
+      this._carry = { from: lead?.entity_id, item, art, x: ((m.clientX - r.left) / r.width) * 100, y: ((m.clientY - r.top) / r.height) * 100, over: under(m.clientX, m.clientY) };
     };
     const up = (): void => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
-      const d = this._puck; this._puck = null;
-      if (!d) { this._focus = from; this._svc('media_play_pause', {}, from); return; }
+      const d = this._carry; this._carry = null;
+      if (!d) { if (lead) { this._focus = lead.entity_id; this._svc('media_play_pause', {}, lead.entity_id); } return; } // a record that was only tapped is played by its click
+      this._carried = Date.now();
       const to = d.over && d.over !== 'all' ? this.hass!.states[d.over] : undefined;
-      if (d.over === 'all') { this._focus = from; this._everywhere(true, lead); }
-      else if (to && to.entity_id !== from) this._gentle(to.entity_id, () => this._move(to, lead));
+      if (lead && d.over === 'all') { this._focus = lead.entity_id; this._everywhere(true, lead); }
+      else if (lead && to && to.entity_id !== lead.entity_id) this._gentle(to.entity_id, () => this._move(to, lead));
+      else if (item && to) this._gentle(to.entity_id, () => { this._focus = to.entity_id; this._start(item, 'play', false, to); });
     };
     el.setPointerCapture(e.pointerId); el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }
+  /** The house in small: rooms as buttons, for choosing where to call or where a record goes. */
+  private _mini(on: (id: string) => boolean, tap: (id: string) => void, call = false): TemplateResult {
+    return html`<div class="map snug">${this._floors.map((f) => html`<div class="floor">
+      ${f.rooms.map((r) => r.stairs ? html`<div class="mstairs" role="img" aria-label="Stairs"></div>` : html`<div class="mroom" style="--size:${r.size}">${r.zones.map((z) => {
+        const id = z.p.entity_id, sel = on(id);
+        return html`<button class="mz tap" data-zone=${id} aria-pressed=${String(sel)} aria-label=${z.name} ?data-live=${!!this._leader(z.p)} ?data-hot=${this._carry?.over === id} @click=${() => tap(id)}>
+          ${call && sel ? html`<span class="shout">${icon('megaphone', 22)}</span>` : nothing}<b>${r.asleep ? '☾ ' : ''}${z.name}</b></button>`;
+      })}</div>`)}</div>`)}</div>`;
+  }
 
   private _house(): TemplateResult {
-    const cur = this._cur, mix = this._mix(cur), curLead = cur && this._leader(cur), floors = this._floors, drag = this._puck;
+    const cur = this._cur, mix = this._mix(cur), curLead = cur && this._leader(cur), floors = this._floors, drag = this._carry;
     const others = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((id): id is string => !!id && id !== curLead?.entity_id))];
     const zone = (z: MapZone, asleep: boolean): TemplateResult => {
       const p = z.p, a = p.attributes, id = p.entity_id, lead = this._leader(p), playing = lead?.state === 'playing', focus = id === cur?.entity_id, inmix = mix.includes(id);
@@ -404,14 +477,12 @@ export class FhMusic extends LitElement {
         ${focus ? nothing : html`<button class="join tap" aria-pressed=${String(inmix)} aria-label="${inmix ? 'Remove' : 'Add'} ${z.name} ${inmix ? 'from' : 'to'} the music" @click=${() => { if (inmix) this._join(id); else this._gentle(id, () => this._join(id)); }}>${inmix ? '✓' : '＋'}</button>`}
         ${vol !== null ? html`<button class="grab" role="slider" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol} style="bottom:${Math.max(6, vol) * POOL}%" @keydown=${(e: KeyboardEvent) => this._volKey(e, p)}><i></i></button>` : nothing}
         ${lead?.entity_id === id ? html`<span class="puck" role="button" tabindex="0" ?data-lifted=${drag?.from === id} style=${art} aria-label="${lead.attributes.media_title ?? 'Music'} in ${z.name}. Tap to ${playing ? 'pause' : 'play'}, drag to move it to another room."
-          @pointerdown=${(e: PointerEvent) => this._puckDown(e, lead)} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._focus = id; this._svc('media_play_pause', {}, id); } }}></span>` : nothing}
+          @pointerdown=${(e: PointerEvent) => this._carryDown(e, { lead })} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._focus = id; this._svc('media_play_pause', {}, id); } }}></span>` : nothing}
       </div>`;
     };
-    const lifted = drag ? this.hass!.states[drag.from] : undefined;
     return html`<div class="map" data-fits>
       ${floors.map((f) => html`<div class="floor">${floors.length > 1 ? html`<span class="flabel">${f.name}</span>` : nothing}
         ${f.rooms.map((r) => r.stairs ? html`<div class="mstairs" role="img" aria-label="Stairs"></div>` : html`<div class="mroom" style="--size:${r.size}" role="group" aria-label=${r.name}>${r.zones.map((z) => zone(z, r.asleep))}</div>`)}</div>`)}
-      ${drag ? html`<span class="puck fly" style="left:${drag.x}%;top:${drag.y}%;${lifted?.attributes.entity_picture ? `--art:url(${lifted.attributes.entity_picture})` : ''}"></span>` : nothing}
     </div>`;
   }
 
@@ -431,9 +502,11 @@ export class FhMusic extends LitElement {
     for (const n of this._shelfNames) out[n] = await loadShelf(this.hass!, shelfEntity(n));
     this._items = out;
   }
+  /** Where a tapped record plays: the room picked on the little house, else the child's own speaker, else the room in focus. */
+  private _shelfRoom(kid?: KidConfig): HassEntity | undefined { return (this._shelfTo ? this.hass!.states[this._shelfTo] : undefined) ?? (kid && kidSpeaker(this.hass!, kid, this._list)) ?? this._cur; }
   private _shelfPlay(m: ShelfItem): void {
     const kid = this.kids.find((k) => k.name === this._shelf);
-    const room = (kid && kidSpeaker(this.hass!, kid, this._list)) ?? this._cur;
+    const room = this._shelfRoom(kid);
     this._start(m, 'play', false, room);
     // at wind-down a child's shelf plays quietly towards sleep
     if (kid && room && windDown(kid.bedtime)) { if (sleepIn(this.hass!, room.entity_id, this.sleepMinutes)) window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); }
@@ -494,13 +567,16 @@ export class FhMusic extends LitElement {
   render(): TemplateResult | typeof nothing {
     if (!this.hass) return nothing;
     const p = this._cur, ma = hasMa(this.hass);
-    const tabs: [Tab, string][] = [['rooms', 'Rooms'], ...(ma ? [['search', 'Search'], ['shelves', 'Shelves'], ['juke', 'Jukebox']] as [Tab, string][] : []), ['radio', 'Radio'], ['call', 'Call a room']];
-    const open = (id: Tab): void => { this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
+    const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
+    const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
+    const searching = this._tab === 'search', c = this._carry;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel">
-        <div class="mhead"><h1 class="t-title" style="flex:1">Music</h1>
-          <div class="tabs" role="tablist">${tabs.map(([id, l]) => html`<button class="tap" role="tab" aria-pressed=${String(this._tab === id)} @click=${() => open(id)}>${l}</button>`)}</div></div>
-        ${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}
+        <div class="mhead"><h1 class="t-title">Music</h1>
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>Search songs, albums, stories…</span></button>` : html`<span style="flex:1"></span>`}</div>
+        ${searching ? nothing : html`<div class="tabs" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-pressed=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`}
+        ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
+        ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
@@ -553,9 +629,9 @@ export class FhMusic extends LitElement {
     const house = this._mode === 'house', pick = (v: 'house' | 'list'): void => { this._view = v; lsSet('fh-music-view', v); };
     return html`<div class="acts">
         <div class="seg" role="group" aria-label="How to show the rooms"><button class="tap" aria-pressed=${String(house)} @click=${() => pick('house')}>House</button><button class="tap" aria-pressed=${String(!house)} @click=${() => pick('list')}>List</button></div>
-        <button class="pill tap primary" data-drop="all" ?data-hot=${this._puck?.over === 'all'} @click=${() => this._everywhere(true)}>Everywhere</button>
+        <button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._everywhere(true)}>Everywhere</button>
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
-        <span class="soft" style="flex:1">${house ? 'Drag the music to a room. Drag up or down in a room for volume.' : 'Tap a room to control it. ＋ adds it to the music.'}</span>
+        <span class="soft" style="flex:1">${house ? 'Drag the music to a room. Slide up or down for volume.' : 'Tap a room to control it. ＋ adds it to the music.'}</span>
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>
       ${house ? this._house() : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
@@ -573,13 +649,19 @@ export class FhMusic extends LitElement {
     })}</div>`}`;
   }
 
+  private _searchBar(): TemplateResult {
+    const hits = this._hits;
+    return html`<div class="sbar"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
+          @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
+        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
+        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Aa</button>` : nothing}
+        <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => { this._tab = this._adding ? 'juke' : this._prev; this._adding = false; }}>${icon('close', 22)}</button></div>`;
+  }
+
   private _searchTab(): TemplateResult {
     const hits = this._hits, sel = hits?.find((h) => h.uri === this._sel);
     return html`${this._adding ? html`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || 'everyone'}<span style="flex:1"></span><button class="pill tap" style="height:36px" @click=${() => { this._adding = false; this._tab = 'juke'; }}>Back</button></div>` : nothing}
-      <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
-          @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
-        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
-        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} @click=${() => { this._keys = !this._keys; }}>${this._keys ? icon('close', 20) : 'Aa'}</button>` : nothing}</div>
+      ${this._keys && !hits ? html`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${icon('search', 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : nothing}
       ${this._keys ? html`<div style="margin:auto 0">${keyboard((k) => { [this._text, this._caps] = typeKey(this._text, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>` : nothing}
       ${hits && !this._keys ? (hits.length ? html`<div class="hits scrolly" data-fits @scroll=${scrollCue}>${hits.map((h) => html`<button class="hit tap" aria-pressed=${String(h.uri === this._sel)} @click=${() => { this._sel = h.uri; }}>
           <span class="art" style=${h.img ? `--art:url(${h.img})` : ''}>${h.img ? '' : icon('music', 18)}</span>
@@ -606,18 +688,22 @@ export class FhMusic extends LitElement {
   private _shelves(): TemplateResult {
     const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime);
     const all = this._items[this._shelf] ?? [], list = wind ? all.filter((x) => x.calm) : all;
-    const room = (kid && kidSpeaker(this.hass!, kid, this._list)) ?? this._cur;
+    const room = this._shelfRoom(kid);
     const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
-    return html`<div class="chiprow">${this._shelfNames.map((n) => html`<button class="pchip tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; }}>
+    return html`<div class="shelfrow"><div class="crate">
+      <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
         <span class="avatar">${n[0]}</span>${n}</button>`)}
-        <span style="flex:1"></span><span class="soft">Plays in ${this._name(room)}</span>
-        ${all.length ? html`<button class="pill tap" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</div>
+</div>
       ${wind ? html`<div class="banner">🌙 Wind-down: calm picks only, fading out after ${this.sleepMinutes} minutes.</div>` : nothing}
-      ${list.length ? html`<div class="covers scrolly" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" @click=${() => { if (!this._edit) this._shelfPlay(m); }}>
-          <span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.calm ? '🌙 ' : ''}${m.name}</span>
+      ${list.length ? html`<div class="covers scrolly" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" ?data-lifted=${this._carry?.item === m} @pointerdown=${(e: PointerEvent) => { if (!this._edit) this._carryDown(e, { item: m }); }} @click=${() => { if (!this._edit && Date.now() - this._carried > 400) this._shelfPlay(m); }}>
+          <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.calm ? '🌙 ' : ''}${m.name}</span>
           ${this._edit ? html`<span class="x tap" role="button" aria-label="Remove ${m.name}" @click=${(e: Event) => { e.stopPropagation(); this._unpin(m); }}>✕</span>` : nothing}</button>`)}</div>`
         : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">${wind ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</h2>
-          <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}`;
+          <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}</div>
+      <div class="dropside"><span class="soft">Drag a record to a room, or tap it to play in <b>${this._name(room)}</b>.</span>
+        ${this._mini((id) => id === room?.entity_id, (id) => { this._shelfTo = id; })}
+        <span style="flex:1"></span><span style="align-self:flex-end">
+        ${all.length ? html`<button class="pill tap" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</span></div></div>`;
   }
 
   private _jukeTab(): TemplateResult {
@@ -640,7 +726,7 @@ export class FhMusic extends LitElement {
   private _radio(): TemplateResult {
     const cur = this._cur, playingName = cur && cur.state === 'playing' ? LAST[cur.entity_id] : '';
     return html`<span class="muted" style="font-size:13px">Tap a station to play it on <b>${this._cur?.attributes.friendly_name ?? 'a speaker'}</b>. Pick a different room in the Rooms tab.</span>
-      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">${this._stations.map((s) => {
+      <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr))">${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
           <span class="img" style=${th ? `--art:url(${th})` : `background:linear-gradient(135deg, var(--p-${(s.name.length % 5) + 1}), var(--primary));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
@@ -651,12 +737,14 @@ export class FhMusic extends LitElement {
   private _callTab(): TemplateResult {
     const all = this._list.map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
     const flip = (id: string): void => { this._callTo = this._callTo.includes(id) ? this._callTo.filter((x) => x !== id) : [...this._callTo, id]; };
-    return html`<div class="chiprow"><span class="soft">Where?</span>
-        <button class="pchip tap" style="padding:0 14px" aria-pressed=${String(every)} @click=${() => { this._callTo = every ? [] : all; }}>Everyone</button>
-        ${this._list.map((p) => html`<button class="pchip tap" style="padding:0 14px" aria-pressed=${String(this._callTo.includes(p.entity_id))} @click=${() => flip(p.entity_id)}>${p.attributes.friendly_name}</button>`)}</div>
-      <div class="msgs" style=${this._ckeys ? 'display:none' : ''}>${CALLS.map((m) => html`<button class="tap" aria-pressed=${String(this._callMsg === m)} @click=${() => { this._callMsg = m; }}>${m}</button>`)}</div>
+    const names = this._callTo.map((id) => this._name(this.hass!.states[id]));
+    return html`${this._ckeys ? html`<span class="soft">Calling ${names.length ? names.join(', ') : 'no rooms yet'}</span>` : html`<div class="callrow">
+        <div class="callside"><span class="soft">Tap the rooms to call</span>
+          ${this._mini((id) => this._callTo.includes(id), flip, true)}
+          <button class="pill tap" style="align-self:flex-start" aria-pressed=${String(every)} @click=${() => { this._callTo = every ? [] : all; }}>Everyone</button></div>
+        <div class="bubbles">${CALLS.map((m) => html`<button class="bubble tap" aria-pressed=${String(this._callMsg === m)} @click=${() => { this._callMsg = m; }}>${m}</button>`)}</div></div>`}
       <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
-        <button class="pill tap primary" style="height:52px;padding:0 24px;font-size:16px" @click=${() => this._call()}>📣 Say it</button></div>
+        <button class="pill tap primary sayit" @click=${() => this._call()}>${icon('megaphone', 22)} Say it</button></div>
       ${this._ckeys ? html`<div style="margin:auto 0 0">${keyboard((k) => { [this._callMsg, this._caps] = typeKey(this._callMsg, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>`
         : html`<span class="soft">It is spoken over the music in that room, then the music carries on.</span>`}`;
   }

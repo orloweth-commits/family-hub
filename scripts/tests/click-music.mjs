@@ -28,6 +28,14 @@ const M = (page) => page.locator('fh-music');
   const pk2 = await M(p).locator('.mzone[data-zone="media_player.lounge_room_sonos"] .puck').boundingBox(), all = await M(p).getByRole('button', { name: 'Everywhere' }).boundingBox();
   await drag(pk2.x + pk2.width / 2, pk2.y + pk2.height / 2, all.x + all.width / 2, all.y + all.height / 2);
   console.log('house everywhere:', (await calls(p, /media_player\.join/)).split(' || ').pop().slice(0, 160));
+  // shelves: carry a record from the crate to a room on the little house
+  await M(p).getByRole('tab', { name: 'Shelves' }).click(); await p.waitForTimeout(600);
+  const rec = await M(p).locator('.crate .st').first().boundingBox(), off = await M(p).locator('.mz[data-zone="media_player.office"]').boundingBox();
+  await drag(rec.x + rec.width / 2, rec.y + rec.height / 3, off.x + off.width / 2, off.y + off.height / 2);
+  console.log('record to a room:', (await calls(p, /music_assistant\.play_media/)).split(' || ').pop(), '| records:', await M(p).locator('.crate .st').count());
+  await M(p).getByRole('tab', { name: 'Call a room' }).click(); await p.waitForTimeout(300);
+  console.log('call house rooms:', await M(p).locator('.mz').count(), '| bubbles:', await M(p).locator('.bubble').count());
+  await M(p).getByRole('button', { name: 'Close search' }).count().then((c) => console.log('search closed by default:', c === 0));
   await p.close();
   const n = await open('look=glass&page=music&mview=house', '20:10');
   console.log('asleep rooms at 20:10:', await M(n).locator('.mzone[data-asleep]').count());
@@ -44,7 +52,7 @@ await M(page).getByRole('button', { name: /^Just Kitchen/ }).click(); await page
 await M(page).getByRole('button', { name: 'Move the music here' }).first().click(); await page.waitForTimeout(400); console.log('move:', await calls(page, /transfer_queue/), '| now', await M(page).locator('.stage').innerText().then((t) => t.split('\n')[0]));
 await M(page).getByRole('button', { name: /^Night/ }).click(); await page.waitForTimeout(200); console.log('tv night sound:', await calls(page, /switch\./));
 // search → play next, radio, pin
-await M(page).getByRole('tab', { name: 'Search' }).click();
+await M(page).getByRole('button', { name: 'Search for music' }).click(); await page.waitForTimeout(200);
 for (const k of 'Blu') await M(page).locator('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
 await M(page).getByRole('button', { name: 'Search', exact: true }).click(); await page.waitForTimeout(500);
 console.log('typed:', await M(page).locator('input.field').inputValue(), '| hits:', await M(page).locator('.hit').count(), '| fits:', await M(page).locator('.hits').evaluate((e) => e.scrollHeight <= e.clientHeight + 2));
@@ -53,6 +61,7 @@ await M(page).getByRole('button', { name: /Radio from this/ }).click(); await pa
 await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
 for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
 await M(page).locator('.setrow', { hasText: 'Max' }).getByRole('button', { name: /Pin as calm/ }).click(); await page.waitForTimeout(400); console.log('pin:', await calls(page, /todo\.add_item/));
+await M(page).getByRole('button', { name: 'Close search' }).click(); await page.waitForTimeout(200);
 await M(page).getByRole('tab', { name: 'Shelves' }).click(); await M(page).getByRole('button', { name: /Max$/ }).click(); await page.waitForTimeout(500);
 console.log('Max shelf items:', await M(page).locator('.st').count());
 await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('shelf play:', await calls(page, /music_assistant\.play_media/));

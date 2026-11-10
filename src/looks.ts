@@ -416,7 +416,7 @@ const FRIDGE = `
   @F .mroom { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
   @F .mstairs { border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink); }
   @F .mzone[data-focus] { background: var(--note); box-shadow: inset 0 0 0 3px var(--ink); }
-  @F .pool { background: color-mix(in srgb, var(--c) 36%, transparent); }
+  @F .pool { background: color-mix(in srgb, var(--c) 42%, var(--paper)); }
   @F .puck { border-color: var(--magnet); box-shadow: 0 4px 0 #b9b2a2, 0 6px 8px rgba(0,0,0,.25); }
   @F .join { background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
