@@ -2796,8 +2796,8 @@ function go() {
 const jt = class jt extends f {
   constructor() {
     super(...arguments), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._wx = {}, this._reminders = [], this._awakeUntil = 0, this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._undo = null, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._onResize = () => {
-      const t = Number(this._config?.scale), i = t > 0 ? t : Math.min(1.6, Math.max(1, Math.min(window.innerWidth / 1280, window.innerHeight / 800)));
-      Math.abs(i - this._z) > 0.01 && (this._z = Math.round(i * 100) / 100, this.requestUpdate());
+      const t = Number(this._config?.scale), i = parseFloat(getComputedStyle(this).getPropertyValue("--header-height")) || 0, a = this.getBoundingClientRect().width || window.innerWidth, o = t > 0 ? t : Math.min(1.6, Math.max(1, Math.min(a / 1280, (window.innerHeight - i) / 800)));
+      Math.abs(o - this._z) > 0.01 && (this._z = Math.round(o * 100) / 100, this.requestUpdate());
     }, this._z = 1, this._touched = () => {
       this._lastTouch = Date.now(), this._idle && (this._idle = !1);
     }, this._clip = {};
@@ -2824,10 +2824,10 @@ const jt = class jt extends f {
   connectedCallback() {
     super.connectedCallback(), go(), this._tick = window.setInterval(() => this._onTick(), 1e3), this._poll = window.setInterval(() => {
       this._fetchedKey = "", this._refresh(), this._loadSoon();
-    }, 5 * 6e4), this.addEventListener("pointerdown", this._touched, { capture: !0 }), window.addEventListener("resize", this._onResize), this._onResize();
+    }, 5 * 6e4), this.addEventListener("pointerdown", this._touched, { capture: !0 }), window.addEventListener("resize", this._onResize), this._onResize(), this._ro = new ResizeObserver(() => this._onResize()), this._ro.observe(this);
   }
   disconnectedCallback() {
-    super.disconnectedCallback(), window.removeEventListener("resize", this._onResize), clearInterval(this._tick), clearInterval(this._poll), clearInterval(this._photoTimer), this._photoTimer = void 0, this._photos = [], this.removeEventListener("pointerdown", this._touched, { capture: !0 });
+    super.disconnectedCallback(), window.removeEventListener("resize", this._onResize), this._ro?.disconnect(), clearInterval(this._tick), clearInterval(this._poll), clearInterval(this._photoTimer), this._photoTimer = void 0, this._photos = [], this.removeEventListener("pointerdown", this._touched, { capture: !0 });
   }
   _onTick() {
     const t = /* @__PURE__ */ new Date();

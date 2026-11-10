@@ -108,17 +108,21 @@ export class FamilyHubCard extends LitElement {
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
     window.addEventListener('resize', this._onResize); this._onResize();
+    this._ro = new ResizeObserver(() => this._onResize()); this._ro.observe(this);
   }
   /** Designed for a 1280×800 panel; bigger screens scale the whole UI up so it isn't tiny. */
   private _onResize = (): void => {
     const fixed = Number(this._config?.scale);
-    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(1, Math.min(window.innerWidth / 1280, window.innerHeight / 800)));
+    const head = parseFloat(getComputedStyle(this).getPropertyValue('--header-height')) || 0;
+    const w = this.getBoundingClientRect().width || window.innerWidth;
+    const z = fixed > 0 ? fixed : Math.min(1.6, Math.max(1, Math.min(w / 1280, (window.innerHeight - head) / 800)));
     if (Math.abs(z - this._z) > 0.01) { this._z = Math.round(z * 100) / 100; this.requestUpdate(); }
   };
   private _z = 1;
+  private _ro?: ResizeObserver;
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('resize', this._onResize); this._ro?.disconnect();
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
