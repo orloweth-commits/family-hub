@@ -14,6 +14,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Looks restyle text through type roles and weight tokens rather than fixed sizes, and never use `!important` (the look check refuses it). Each look can also add drawings of its own: Orbit shows the day view as a clock face with the list beside it, and each look has its own night clock.
 - Colour is never the only cue for a person: chips carry an initial as well (kept distinct when two names start alike).
 - Fonts ship with the card in `dist/fonts` and load from beside `family-hub.js`. Nothing is fetched from a font service. If you copy the card by hand, copy the `fonts` folder next to it (without it the panel falls back to the device's own font).
+- Fits the screen it is on: the panel is drawn on a fixed canvas and scaled up or down so nothing is cut off, portrait tablets get a stacked arrangement, and long lists tighten (closer rows, then extra columns) before they ever scroll. `scale: 1.2` in the config overrides the automatic size.
 - Kid pages: chores with points, streaks, levels, rewards (optional parent PIN), their own week
 - Avatars with 70+ unlockable items (hair, hats, sunnies, tops, gear, buddies, scenes) and an animated style studio
 - Groceries with an on-screen keyboard, aisle sorting and send-to-phone

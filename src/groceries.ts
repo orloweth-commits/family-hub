@@ -4,7 +4,7 @@ import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { scrollCue } from './util';
+import { FitController, scrollCue } from './util';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -29,6 +29,7 @@ export const aisleOf = (name: string): [string, string] => {
 
 export class FhGroceries extends LitElement {
   readonly lookCtl = new LookController(this);
+  readonly fitCtl = new FitController(this as never);
   static styles = [styles, keysCss, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
     .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
@@ -39,6 +40,26 @@ export class FhGroceries extends LitElement {
     .done .txt { color: var(--ink3); text-decoration: line-through; }
     .txt { flex: 1; font-size: 17px; font-weight: var(--w-semi, 600); }
     .tag { font-size: 12px; font-weight: var(--w-bold, 700); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .items[data-fit] { gap: 3px; }
+    .items[data-fit] .item { padding: 6px 10px; }
+    .items[data-fit] .txt { font-size: 15px; }
+    .items[data-fit] .box { width: 22px; height: 22px; }
+    .list:has(.items[data-fit='2']), .list:has(.items[data-fit='3']) { width: 560px; }
+    .items[data-fit='2'], .items[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; align-content: start; }
+    .items[data-fit='2'] > :not(.item), .items[data-fit='3'] > :not(.item) { grid-column: 1 / -1; }
+    .items[data-fit='2'] .tag, .items[data-fit='3'] .tag { display: none; }
+    /* the wider list borrows room from the keyboard, so its keys slim down a little */
+    .list:has(.items[data-fit='2']) + .add .key, .list:has(.items[data-fit='3']) + .add .key { width: 52px; height: 58px; }
+    .list:has(.items[data-fit='2']) + .add .key.wide, .list:has(.items[data-fit='3']) + .add .key.wide { width: 78px; }
+    .list:has(.items[data-fit='2']) + .add .key.space, .list:has(.items[data-fit='3']) + .add .key.space { width: 340px; }
+    :host([data-shape='tall']) .items[data-fit='3'] { grid-template-columns: repeat(3, 1fr); }
+    :host([data-shape='tall']) .items[data-fit] .tag { display: inline; }
+    :host([data-shape='tall']) .add .key:not(.wide):not(.space) { width: 64px !important; height: 64px !important; }
+    :host([data-shape='tall']) .add .key.space { width: 420px !important; }
+    :host([data-shape='tall']) .add .key.wide { width: 96px !important; }
+    :host([data-shape='tall']) { flex-direction: column; }
+    :host([data-shape='tall']) .list { width: auto !important; flex: 1; min-height: 0; }
+    :host([data-shape='tall']) .add { flex: 0 0 auto; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
@@ -125,7 +146,7 @@ export class FhGroceries extends LitElement {
           <h1 class="t-title">Groceries</h1>
           <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${open.length} to buy</span>
         </div>
-        <div class="items scrolly" @scroll=${scrollCue}>
+        <div class="items scrolly" data-fits @scroll=${scrollCue}>
           ${sorted.map((i) => this._row(i))}
           ${done.length ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
             <span class="label">In the trolley</span>

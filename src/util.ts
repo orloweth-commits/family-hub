@@ -60,6 +60,40 @@ export const shortNames = (names: string[]): Record<string, string> => {
   return out;
 };
 
+/* ---------------- fitting the screen ---------------- */
+
+/** How the panel is arranged: wide (landscape tablets and wall displays), tall (portrait tablets), phone. */
+export type Shape = 'wide' | 'tall' | 'phone';
+let shape: Shape = 'wide';
+const shapeSubs = new Set<() => void>();
+export const getShape = (): Shape => shape;
+export const setShape = (s: Shape): void => { if (s !== shape) { shape = s; shapeSubs.forEach((f) => f()); } };
+export const onShape = (f: () => void): (() => void) => { shapeSubs.add(f); return () => shapeSubs.delete(f); };
+
+/**
+ * Tightens a box in steps until its contents fit: data-fit="1", "2", "3". What each step means is up to the
+ * box's own CSS (smaller rows, then a second column…). Only if the last step still overflows does it scroll.
+ */
+export const fitBox = (el: Element, max = 3): void => {
+  const e = el as HTMLElement;
+  e.removeAttribute('data-fit');
+  for (let i = 1; i <= max && (e.scrollHeight > e.clientHeight + 2 || e.scrollWidth > e.clientWidth + 2); i++) e.setAttribute('data-fit', String(i));
+};
+/** Runs fitBox on every [data-fits] box (and refreshes scroll cues) after each render and whenever the component is resized. */
+export class FitController {
+  private _ro?: ResizeObserver;
+  constructor(private host: HTMLElement & { addController(c: unknown): void; renderRoot: ParentNode }) { host.addController(this); }
+  hostConnected(): void { if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this.run()); this._ro.observe(this.host); } }
+  hostDisconnected(): void { this._ro?.disconnect(); }
+  hostUpdated(): void { this.run(); }
+  run(): void {
+    const root = this.host.renderRoot;
+    if (!root?.querySelectorAll) return;
+    root.querySelectorAll('[data-fits]').forEach((e) => fitBox(e));
+    root.querySelectorAll('.scrolly').forEach(scrollCue);
+  }
+}
+
 /** Marks a scrolling box with data-more while there is more below, so it can fade its bottom edge. */
 export const scrollCue = (x: Event | Element): void => {
   const el = (x instanceof Event ? x.currentTarget : x) as HTMLElement | null;
