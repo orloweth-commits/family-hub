@@ -30,8 +30,8 @@ import { getShape, onShape } from './util';
 export type LookId = 'glass' | 'fridge' | 'orbit';
 export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
 /** Places in the base where a look may add a drawing of its own. */
-export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night';
-export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number }
+export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night' | 'player';
+export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number; /** cover art and whether it is playing, for the music player */ img?: string; playing?: boolean }
 /** A switch a look offers. With `off`/`on` labels it is drawn as a two-way toggle (e.g. Print | Handwriting). */
 export interface LookOption { id: string; label: string; hint?: string; off?: string; on?: string; onStyle?: string }
 export interface LookDef {
@@ -60,7 +60,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'night', 'nart'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
-    'fh-music': ['stage'],
+    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -136,6 +136,35 @@ export const dayDial = (arcs: DialArc[], now: Date | undefined, size = 360): Tem
       <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : svg`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
 };
 
+/** Fridge door's player: a record on a turntable. The cover is the label, the record turns while it plays. */
+export const turntable = (img: string | undefined, playing: boolean, size = 230): TemplateResult => html`
+  <svg class="vinyl" aria-hidden="true" width=${size} height=${size} viewBox="0 0 200 200">${svg`
+    <rect x="4" y="4" width="192" height="192" rx="12" fill="#d9cdb4"></rect>
+    <g class=${playing ? 'spin' : ''}>
+      <circle cx="94" cy="104" r="80" fill="#17140f"></circle>
+      ${[70, 60, 50, 42].map((r) => svg`<circle cx="94" cy="104" r=${r} fill="none" stroke="#3a342b" stroke-width="1.2"></circle>`)}
+      <path d="M94 30 A74 74 0 0 1 160 80" fill="none" stroke="#5b5346" stroke-width="2" opacity=".6"></path>
+      <clipPath id="fhlabel"><circle cx="94" cy="104" r="31"></circle></clipPath>
+      <circle cx="94" cy="104" r="31" fill="#c2410c"></circle>
+      ${img ? svg`<image href=${img} x="63" y="73" width="62" height="62" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhlabel)"></image>` : nothing}
+      <circle cx="94" cy="104" r="3.5" fill="#f4efe3"></circle>
+    </g>
+    <g transform="rotate(${playing ? 24 : 6} 176 30)"><rect x="173" y="26" width="6" height="92" rx="3" fill="#8b8477"></rect><rect x="168" y="112" width="16" height="22" rx="3" fill="#26272b"></rect></g>
+    <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`;
+
+/** Orbit's player: the cover as a disc, with a ring around it that fills as the track plays. */
+export const ringPlayer = (img: string | undefined, frac: number, playing: boolean, size = 230): TemplateResult => {
+  const r = 92, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
+  return html`<svg class="pring" aria-hidden="true" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
+    <circle cx="100" cy="100" r=${r} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
+    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray 1s linear"></circle>
+    <clipPath id="fhdisc"><circle cx="100" cy="100" r="78"></circle></clipPath>
+    <circle cx="100" cy="100" r="78" fill="rgba(255,255,255,.08)"></circle>
+    ${img ? svg`<image href=${img} x="22" y="22" width="156" height="156" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhdisc)" opacity=${playing ? 1 : 0.6}></image>`
+      : svg`<circle cx="100" cy="100" r="30" stroke="rgba(255,255,255,.3)" stroke-width="2"></circle><circle cx="100" cy="100" r="54" stroke="rgba(255,255,255,.16)" stroke-width="2"></circle>`}
+    <circle cx="100" cy="100" r="5" fill="var(--ground, #0a0f1e)"></circle>`}</svg>`;
+};
+
 /** A countdown you can see: the coloured wedge is the time left and shrinks as it runs. */
 export const timerFace = (frac: number, size = 56): TemplateResult => {
   const C = 2 * Math.PI * 22, f = Math.max(0, Math.min(1, frac));
@@ -155,7 +184,8 @@ export const LOOKS: LookDef[] = [
   {
     id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
     fonts: ['Caveat', 'Fredoka'],
-    art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size), night: (c) => wallClock(c.now ?? new Date(), c.size ?? 230) },
+    art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size), night: (c) => wallClock(c.now ?? new Date(), c.size ?? 230),
+      player: (c) => turntable(c.img, !!c.playing, c.size) },
     preview: () => html`<span class="lp-note"></span><span class="lp-note lp-today"><i></i></span><span class="lp-note"></span>`,
     options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: 'Print is easier to read from across the room.' }],
     vars: {
@@ -178,7 +208,8 @@ export const LOOKS: LookDef[] = [
     id: 'orbit', name: 'Orbit', tagline: 'Dark, calm, built from rings', swatch: '#0a0f1e',
     fonts: ['Outfit'],
     art: { clock: (c) => ringClock(c.arcs ?? [], c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size),
-      dayview: (c) => dayDial(c.arcs ?? [], c.now, c.size), night: (c) => ringClock(c.arcs ?? [], c.now ?? new Date(), c.size ?? 250) },
+      dayview: (c) => dayDial(c.arcs ?? [], c.now, c.size), night: (c) => ringClock(c.arcs ?? [], c.now ?? new Date(), c.size ?? 250),
+      player: (c) => ringPlayer(c.img, c.frac ?? 0, !!c.playing, c.size) },
     preview: () => html`<span class="lp-ring"></span><span class="lp-card"><i></i><i></i><i></i></span>`,
     vars: {
       // same hue per person as every other look, lifted for a dark ground
@@ -377,6 +408,17 @@ const FRIDGE = `
 
   /* music: the player is a dark deck */
   @F .stage { background: #2f2a26; color: #fff; border-radius: 10px; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
+  @F .stage .glass { background: transparent; }
+  @F .spk { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
+  @F .spk.focus { background: var(--note-today); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
+  @F .spk.inmix { background: var(--note); box-shadow: 0 0 0 3px var(--ok); }
+  @F .join { background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
+  @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
+  @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
+  @F .hit[aria-pressed='true'] { background: var(--note-today); box-shadow: none; border-bottom-color: var(--ink); }
+  @F .st { background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
+  @F .pickrow { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
+  @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
   /* home: every room is a note; a room with a light on is the bright one */
   @F .room { background: var(--note); border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.5deg); }
@@ -561,6 +603,18 @@ const ORBIT = `
   @O .lchip.soon, @O .lchip.now { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
   @O .leave { font-family: 'Outfit', sans-serif; font-weight: 400; }
 
+  /* music: rooms are cells on the ring; the one you control carries the 'now' yellow */
+  @O .spk { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .spk.focus { background: color-mix(in srgb, var(--accent) 8%, transparent); box-shadow: inset 0 0 0 2px var(--accent); }
+  @O .spk.inmix { box-shadow: inset 0 0 0 2px var(--ok); }
+  @O .join { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .join[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
+  @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
+  @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
+  @O .st { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .pickrow { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
+  @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
+
   /* day view: the day as a dial, the list beside it */
   @O .dayview { gap: 28px; }
   @O .dayart { padding: 0 14px; }
@@ -571,6 +625,8 @@ const ORBIT = `
 
 const KEYFRAMES = `
   @keyframes fhSpin { to { transform: rotate(360deg); } }
+  .vinyl .spin { transform-box: fill-box; transform-origin: center; animation: fhSpin 5s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
 `;
 
 /* The look picker's little pictures. They are built from each look's tokens, never from fixed colours. */

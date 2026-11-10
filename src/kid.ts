@@ -355,15 +355,22 @@ export class FhKid extends LitElement {
     this._practice = { uid: c.uid, end: Date.now() + c.minutes * 60_000, mins: c.minutes };
     lsSet(`fh-practice-${this._e.slug}`, this._practice);
     this._sound('tap');
-    this._say(`${c.minutes} minutes on the clock. You’ve got this.`);
+    this._say(c.song ? `${c.minutes} minutes of music. Go!` : `${c.minutes} minutes on the clock. You’ve got this.`);
+    if (c.song) this._song(c.minutes);
   }
-  private _stopPractice(): void { this._practice = null; lsSet(`fh-practice-${this._e.slug}`, null); }
+  /** A timed job tagged @song plays music for as long as its timer runs: when the music stops, time is up. */
+  private _song(minutes: number): void { this.dispatchEvent(new CustomEvent('song', { detail: { minutes }, bubbles: true, composed: true })); }
+  private _stopPractice(): void {
+    if (this._chores.find((x) => x.uid === this._practice?.uid)?.song) this._song(0);
+    this._practice = null; lsSet(`fh-practice-${this._e.slug}`, null);
+  }
   private _checkPractice(): void {
     const p = this._practice;
     if (!p || Date.now() < p.end) return;
     const c = this._chores.find((x) => x.uid === p.uid);
     this._stopPractice();
-    if (c && c.status !== 'completed') { this._doToggle(c, false, lsGet('fh-ticks', {})); this._say(`Practice done – ${p.mins} minutes. Sounding good!`); }
+    if (c?.song) this._say('Time’s up! All done? Tick it off.');
+    else if (c && c.status !== 'completed') { this._doToggle(c, false, lsGet('fh-ticks', {})); this._say(`Practice done – ${p.mins} minutes. Sounding good!`); }
   }
 
   /* ---------------- rewards ---------------- */
@@ -382,6 +389,8 @@ export class FhKid extends LitElement {
       this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed });
     }
     this._confetti++; this._jump++; this._sound('unlock');
+    // a DJ reward hands tonight's jukebox to this child (the Music page reads this)
+    if (r.dj ?? /\bdj\b|dinner music/i.test(r.name)) lsSet('fh-dj', { kid: this.kid.name, day: new Date().toDateString() });
     if (this._picMode) say(`Yay! ${r.name}!`);
     this._say(needs ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${r.name}.` : `Nice saving, ${this.kid.name}! ${r.name} – your pick.`);
   }
@@ -565,7 +574,7 @@ export class FhKid extends LitElement {
         <span class="box check">${d ? '✓' : ''}</span>
         ${this.kid.mode === 'mixed' ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
         <span class="t content">${c.summary}</span></button>
-      ${c.lane === 'grow' && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
+      ${(c.lane === 'grow' || c.song) && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
         : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
       ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;

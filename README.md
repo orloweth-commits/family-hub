@@ -18,7 +18,13 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Kid pages: chores with points, streaks, levels, rewards (optional parent PIN), their own week
 - Avatars with 70+ unlockable items (hair, hats, sunnies, tops, gear, buddies, scenes) and an animated style studio
 - Groceries with an on-screen keyboard, aisle sorting and send-to-phone
-- Home: rooms, devices, scenes and automations · Music: every speaker plus internet radio
+- Home: rooms, devices, scenes and automations
+- Music (best with Music Assistant): one search across every connected service with play now / play next / queue / radio-from-this; rooms as a mixer (add rooms, a volume each, Everywhere, move the music); up next, favourite and shuffle; a shelf of pinned favourites per child that plays on their own speaker; a take-turns jukebox; radio; and "Call a room", which speaks a message over the music. Without Music Assistant the page keeps rooms, radio and Call a room.
+  - Shelves are to-do lists named `todo.family_music` and `todo.<child>_music`. Each item's name is the title and its description is `uri | picture url | @calm`. Pin from a search result (behind the PIN) or edit the list in Home Assistant. During a child's wind-down their shelf offers only `@calm` items and fades out after `music_sleep_minutes` (default 30).
+  - The sleep fade uses `script.fh_music_sleep` (fields `player`, `minutes`) if it exists, otherwise the Sonos sleep timer.
+  - A timed job tagged `@song` (e.g. "Tidy toys 3 min", description `+10 @job @song`) gets a play button: `tidy_song` (card or per child) plays on the child's speaker until the time is up.
+  - A reward with `dj: true`, or named like "DJ" or "dinner music", makes that child tonight's DJ: their jukebox picks play first.
+  - `speaker:` on a child sets their speaker; by default it is the room whose name contains theirs.
 - Doodle pad with a shared "fridge" gallery · rotating photo backgrounds · returns to the planner when idle
 
 ## Install (HACS)

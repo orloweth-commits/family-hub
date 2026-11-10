@@ -25,9 +25,11 @@ export interface Hass {
 export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
-export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean }
+export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean }
 export interface KidConfig {
   name: string; colour: ColourSlot;
+  /** this child's own speaker (default: the room whose name contains theirs) and the song for timed jobs tagged @song */
+  speaker?: string; tidy_song?: string;
   /** to-do list of chores; each item's description holds its points, e.g. "+10" */
   chores?: string; points?: string; lifetime?: string; streak?: string; avatar?: string; calendar?: string;
   /** picture = big icons and stars (pre-readers), mixed, or text */
@@ -93,6 +95,8 @@ export interface FamilyHubConfig {
   night?: { start: string; end: string };
   parent_pin?: string;
   music_players?: string[];
+  /** song or playlist (name or URI) for timed jobs tagged @song, and how long the Music page's sleep timer runs */
+  tidy_song?: string; music_sleep_minutes?: number;
   radio?: (string | StationConfig)[];
   radio_source?: string;
   photos?: string;
