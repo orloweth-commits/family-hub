@@ -274,8 +274,8 @@ const ga = (e, t) => {
   let o, s = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", p = at;
   for (let l = 0; l < i; l++) {
     const n = e[l];
-    let K, m, A = -1, d = 0;
-    for (; d < n.length && (p.lastIndex = d, m = p.exec(n), m !== null); ) d = p.lastIndex, p === at ? m[1] === "!--" ? p = di : m[1] !== void 0 ? p = Ri : m[2] !== void 0 ? ($i.test(m[2]) && (o = RegExp("</" + m[2], "g")), p = Z) : m[3] !== void 0 && (p = Z) : p === Z ? m[0] === ">" ? (p = o ?? at, A = -1) : m[1] === void 0 ? A = -2 : (A = p.lastIndex - m[2].length, K = m[1], p = m[3] === void 0 ? Z : m[3] === '"' ? ui : Fi) : p === ui || p === Fi ? p = Z : p === di || p === Ri ? p = at : (p = Z, o = void 0);
+    let K, m, A = -1, q = 0;
+    for (; q < n.length && (p.lastIndex = q, m = p.exec(n), m !== null); ) q = p.lastIndex, p === at ? m[1] === "!--" ? p = di : m[1] !== void 0 ? p = Ri : m[2] !== void 0 ? ($i.test(m[2]) && (o = RegExp("</" + m[2], "g")), p = Z) : m[3] !== void 0 && (p = Z) : p === Z ? m[0] === ">" ? (p = o ?? at, A = -1) : m[1] === void 0 ? A = -2 : (A = p.lastIndex - m[2].length, K = m[1], p = m[3] === void 0 ? Z : m[3] === '"' ? ui : Fi) : p === ui || p === Fi ? p = Z : p === di || p === Ri ? p = at : (p = Z, o = void 0);
     const F = p === Z && e[l + 1].startsWith("/>") ? " " : "";
     s += p === at ? n + ua : A >= 0 ? (a.push(K), n.slice(0, A) + Ei + n.slice(A) + z + F) : n + z + (A === -2 ? l : F);
   }
@@ -294,15 +294,15 @@ class mt {
     for (; (o = Q.nextNode()) !== null && n.length < l; ) {
       if (o.nodeType === 1) {
         if (o.hasAttributes()) for (const A of o.getAttributeNames()) if (A.endsWith(Ei)) {
-          const d = m[p++], F = o.getAttribute(A).split(z), N = /([.?@])?(.*)/.exec(d);
-          n.push({ type: 1, index: s, name: N[2], strings: F, ctor: N[1] === "." ? Na : N[1] === "?" ? fa : N[1] === "@" ? Ta : jt }), o.removeAttribute(A);
+          const q = m[p++], F = o.getAttribute(A).split(z), g = /([.?@])?(.*)/.exec(q);
+          n.push({ type: 1, index: s, name: g[2], strings: F, ctor: g[1] === "." ? Na : g[1] === "?" ? fa : g[1] === "@" ? Ta : jt }), o.removeAttribute(A);
         } else A.startsWith(z) && (n.push({ type: 6, index: s }), o.removeAttribute(A));
         if ($i.test(o.tagName)) {
-          const A = o.textContent.split(z), d = A.length - 1;
-          if (d > 0) {
+          const A = o.textContent.split(z), q = A.length - 1;
+          if (q > 0) {
             o.textContent = Vt ? Vt.emptyScript : "";
-            for (let F = 0; F < d; F++) o.append(A[F], Ut()), Q.nextNode(), n.push({ type: 2, index: ++s });
-            o.append(A[d], Ut());
+            for (let F = 0; F < q; F++) o.append(A[F], Ut()), Q.nextNode(), n.push({ type: 2, index: ++s });
+            o.append(A[q], Ut());
           }
         }
       } else if (o.nodeType === 8) if (o.data === _i) n.push({ type: 2, index: s });
@@ -696,7 +696,7 @@ const gi = (e) => At.find((t) => t.id === e) ?? At[0], Lt = (e) => Object.entrie
   pause: "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z",
   prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
   next: "M16 6h2v12h-2zM4 6v12l10.5-6z"
-}, q = (e, t = 22) => r`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px">${U`<path d=${za[e] ?? ""}></path>`}</svg>`, Y = (e, t = 22) => r`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${U`<path d=${La[e] ?? ""}></path>`}</svg>`, Za = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", V = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, va = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), j = (e) => {
+}, d = (e, t = 22) => r`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px">${U`<path d=${za[e] ?? ""}></path>`}</svg>`, Y = (e, t = 22) => r`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${U`<path d=${La[e] ?? ""}></path>`}</svg>`, Za = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", N = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, va = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), j = (e) => {
   const t = va(e.name);
   return {
     chores: e.chores ?? `todo.${t}_chores`,
@@ -803,7 +803,7 @@ const gi = (e) => At.find((t) => t.id === e) ?? At[0], Lt = (e) => Object.entrie
             <span class="label">In the trolley</span>
             <button class="tap muted" style="font-size:13px;font-weight:700" @click=${() => this._clearDone()}>Clear ${i.length}</button></div>
             ${i.map((o) => this._row(o))}` : c}
-          ${this._items.length ? c : r`<div class="empty"><span style="color:var(--accent)">${q("cart", 40)}</span><span>Nothing on the list yet</span></div>`}
+          ${this._items.length ? c : r`<div class="empty"><span style="color:var(--accent)">${d("cart", 40)}</span><span>Nothing on the list yet</span></div>`}
         </div>
         <span class="muted" style="font-size:12px">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
@@ -812,7 +812,7 @@ const gi = (e) => At.find((t) => t.id === e) ?? At[0], Lt = (e) => Object.entrie
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted" style="font-size:15px;font-weight:600;flex:1">Send the list to</span>
           ${this.recipients.map((o) => r`<button class="who glass tap" @click=${() => this._send(o)}>
-            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${V(o.colour)}">${o.name[0]}</span>${o.name}</button>`)}
+            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${N(o.colour)}">${o.name[0]}</span>${o.name}</button>`)}
           ${this.recipients.length ? c : r`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>`}
         </div>
         <div style="display:flex;gap:10px;align-items:center">
@@ -1112,13 +1112,13 @@ const Pa = Ja(class extends Ia {
   pageboy: (e) => U`<path class="av-pop d3" fill=${e.hairColour} d="M52 92 C48 120 50 140 58 148 L142 148 C150 140 152 120 148 92 Z"></path>`
 }, vt = (e) => U`<path d=${e} fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5" stroke-linecap="round"></path>`, xi = {
   fringe: (e) => U`<g class="av-pop d3"><path fill=${e.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
-    <path fill=${e.hairColour} d="M62 92 C70 80 86 74 104 76 C96 82 90 88 86 92 C78 92 70 92 62 92 Z" opacity=".9"></path>
+    <path fill=${e.hairColour} d="M60 90 C68 79 84 73 104 75 C96 80 90 85 86 89 C77 89 68 89 60 90 Z" opacity=".9"></path>
     ${vt("M72 62 C84 53 100 51 116 54")}<path d="M92 86 C98 80 108 76 120 76" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2" stroke-linecap="round"></path></g>`,
   crop: (e) => U`<g class="av-pop d3"><path fill=${e.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
-    <path fill=${e.hairColour} d="M60 90 C59 70 72 56 88 52 L92 42 L99 51 L105 40 L111 50 L119 43 L122 54 L131 52 C140 62 142 74 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
-    <path d="M78 66 L86 58 M96 62 L102 52 M112 62 L118 54 M126 68 L132 62" stroke="rgba(0,0,0,.16)" stroke-width="2.2" stroke-linecap="round"></path>${vt("M80 60 C92 54 106 52 120 56")}</g>`,
+    <path fill=${e.hairColour} d="M60 90 C59 71 72 58 87 54 Q90 47 94 47 Q97 51 99 53 Q102 45 106 45 Q109 50 111 53 Q115 48 119 48 Q121 53 121 56 L129 55 C139 63 142 75 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
+    <path d="M80 66 Q84 61 88 59 M98 63 Q101 58 104 56 M114 63 Q118 59 122 58" fill="none" stroke="rgba(0,0,0,.14)" stroke-width="2" stroke-linecap="round"></path>${vt("M80 60 C92 54 106 52 120 56")}</g>`,
   mop: (e) => U`<g class="av-pop d3"><path fill=${e.hairColour} d="M51 106 C45 70 66 44 98 42 C131 40 155 64 149 106 C145 97 141 92 136 89 L133 97 C128 86 117 80 104 82 C92 80 81 84 71 91 L67 99 C61 96 55 99 51 106 Z"></path>
-    <path fill=${e.hairColour} d="M82 48 L76 30 L92 42 Z M100 44 L104 24 L112 42 Z M118 46 L132 32 L128 52 Z M66 58 L54 48 L64 66 Z"></path>
+    <path fill=${e.hairColour} d="M84 48 C80 42 82 37 88 35 C87 40 90 44 95 46 Z M104 45 C103 38 107 33 113 33 C110 37 110 41 113 45 Z M120 50 C124 44 129 42 134 43 C130 46 127 50 126 55 Z"></path>
     <path d="M84 84 C88 76 94 72 100 72 M110 82 C114 76 120 74 126 76" fill="none" stroke="rgba(0,0,0,.15)" stroke-width="2" stroke-linecap="round"></path>${vt("M74 58 C86 50 102 48 118 52")}</g>`,
   short: (e) => U`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
   quiff: (e) => U`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 66 70 54 88 52 C92 32 126 26 142 44 C132 44 124 48 121 55 C138 62 146 76 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
@@ -1148,8 +1148,8 @@ const Pa = Ja(class extends Ia {
   wink: (e) => U`<g class="av-pop d4">${e.eyeColour && e.eyeColour !== "none" ? Qt(e.eyeColour, 84) : U`<ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle>`}<path d="M109 105 Q116 99 123 105" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"></path></g>`
 }, Mi = {
   smile: () => U`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
-  grin: () => U`<g class="av-pop d4"><path d="M85 119 Q100 138 115 119 Z" fill="#3b1f14"></path><path d="M88 120 L112 120 L110.5 124 L89.5 124 Z" fill="#fff"></path></g>`,
-  gap: () => U`<g class="av-pop d4"><path d="M84 118 Q100 140 116 118 Z" fill="#5b2a22"></path><path d="M92 119 L99 119 L99 126 Q95.5 127.5 92 126 Z M101 119 L108 119 L108 126 Q104.5 127.5 101 126 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
+  grin: () => U`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
+  gap: () => U`<g class="av-pop d4"><path d="M83 118 Q100 139 117 118 Q100 121 83 118 Z" fill="#5b2a22"></path><path d="M93 119.4 L98.7 119.8 L98.7 124 Q95.9 125.3 93 124 Z M101.3 119.8 L107 119.4 L107 124 Q104.1 125.3 101.3 124 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
   smirk: () => U`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => U`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 }, Ci = {
@@ -1175,7 +1175,7 @@ const Pa = Ja(class extends Ia {
   helmet: () => U`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
 function B(e, t = {}) {
-  const i = t.size ?? 200, a = t.crop === "head", o = i, s = a ? i : Math.round(i * 1.2), p = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", l = t.age ?? "mid", n = l === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : l === "teen" ? "translate(100 100) scale(0.95 1.02) translate(-100 -100)" : "", K = l !== "kid" ? U`<g class="av-pop d4" stroke=${e.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${l === "teen" ? "M76 92 L91 90" : "M77 93 Q84 89 91 92"}></path><path d=${l === "teen" ? "M109 90 L124 92" : "M109 92 Q116 89 123 93"}></path></g>` : c;
+  const i = t.size ?? 200, a = t.crop === "head", o = i, s = a ? i : Math.round(i * 1.2), p = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", l = t.age ?? "mid", n = l === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", K = l === "kid" ? 44 : 46, m = l === "teen" ? 46 : 44, A = U`<path d=${l === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, q = l !== "kid" ? U`<g class="av-pop d4" stroke=${e.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${l === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${l === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : c;
   return r`<span class="avwrap ${p}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${a ? "36 28 128 128" : "0 0 200 240"} width=${o} height=${s} role="img" aria-label=${t.label ?? "Avatar"}
       style="display:block;overflow:hidden;border-radius:${a ? "50%" : `${Math.round(i * 0.12)}px`}">
@@ -1189,13 +1189,14 @@ function B(e, t = {}) {
         <g transform=${n}>
         <g class="av-pop d2">
           <circle cx="57" cy="104" r="9" fill=${e.skin}></circle><circle cx="143" cy="104" r="9" fill=${e.skin}></circle>
-          <circle cx="100" cy="100" r="44" fill=${e.skin}></circle>
+          <ellipse cx="100" cy="100" rx=${K} ry=${m} fill=${e.skin}></ellipse>
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
         <g class=${t.still ? "" : "av-blink"}>${(yi[e.eyes] ?? yi.normal)(e)}</g>
-        ${K}
-        ${e.freckles === "yes" ? U`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([m, A]) => U`<circle cx=${m} cy=${A} r="1.15"></circle>`)}</g>` : c}
-        ${e.mole === "yes" ? U`<circle cx="87" cy="121" r="1.5" fill="#6b4532"></circle>` : c}
+        ${q}
+        ${e.freckles === "yes" ? U`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([F, g]) => U`<circle cx=${F} cy=${g} r="1.15"></circle>`)}</g>` : c}
+        ${A}
+        ${e.mole === "yes" ? U`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : c}
         ${(Mi[e.mouth] ?? Mi.smile)(e)}
         ${(xi[e.hair] ?? xi.short)(e)}
         ${Ci[e.eyewear] ? Ci[e.eyewear](e) : c}
@@ -1304,7 +1305,7 @@ const eo = (e) => {
   if (!p) return;
   const l = p.createOscillator(), n = p.createGain();
   l.type = a, l.frequency.setValueAtTime(e, p.currentTime + t), s && l.frequency.exponentialRampToValueAtTime(s, p.currentTime + t + i), n.gain.setValueAtTime(1e-4, p.currentTime + t), n.gain.exponentialRampToValueAtTime(o, p.currentTime + t + 0.015), n.gain.exponentialRampToValueAtTime(1e-4, p.currentTime + t + i), l.connect(n).connect(p.destination), l.start(p.currentTime + t), l.stop(p.currentTime + t + i + 0.05);
-}, g = (e) => {
+}, V = (e) => {
   switch (e) {
     case "tap":
       u(660, 0, 0.06, "triangle", 0.08);
@@ -1389,20 +1390,20 @@ const x = (e) => {
     if (!et(i, this.life, this.grow)) {
       if (this._shake = `${t.id}:${i[0]}`, setTimeout(() => {
         this._shake = "";
-      }, 460), g("locked"), this._jack) {
+      }, 460), V("locked"), this._jack) {
         x("Not yet! Keep collecting stars.");
         return;
       }
       i[3] ? this._say(`${i[1]} is a surprise – keep practising and reading!`) : this._say(`${i[1]} is ${i[2] - this.life} away. Tap ♥ to make it your goal.`);
       return;
     }
-    g("tap"), this._jack && x(i[1]), this._draft = H(this.d, t, i[0], a), this._jump++;
+    V("tap"), this._jack && x(i[1]), this._draft = H(this.d, t, i[0], a), this._jump++;
   }
   _setGoal(t) {
     const i = j(this.kid).goal;
     if (!this.hass?.states[i]) return;
     const a = this._goal === t[0] ? "" : t[0];
-    this.hass.callService("input_text", "set_value", { entity_id: i, value: a }), g("coin"), this._say(a ? `Saving for ${t[1]} ♥` : "Goal cleared");
+    this.hass.callService("input_text", "set_value", { entity_id: i, value: a }), V("coin"), this._say(a ? `Saving for ${t[1]} ♥` : "Goal cleared");
   }
   _random() {
     let t = { ...this.d };
@@ -1433,12 +1434,12 @@ const x = (e) => {
   }
   render() {
     const t = O.find((p) => p.id === this._tab) ?? O[0], i = ea(this.life, this.kid.favourites, this._goal || void 0), a = sa(this.life), o = !!this._draft && Zt(this._draft) !== Zt(this.look), s = (p) => p > 0 && p <= this.life && p > this.life - 100;
-    return r`<div style="display:contents;--kid:${V(this.kid.colour)}">
+    return r`<div style="display:contents;--kid:${N(this.kid.colour)}">
       <section class="glass stage">
         <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
-          <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${q("left", 18)}</button>
+          <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${d("left", 18)}</button>
           <h1 style="flex:1;font-size:24px;font-weight:800">${this.kid.name}’s studio</h1>
-          <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${q("shuffle", 18)}</button>
+          <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${d("shuffle", 18)}</button>
         </div>
         <button class="tap" style="z-index:1" aria-label="Jump" @click=${() => {
       this._jump++;
@@ -1455,7 +1456,7 @@ const x = (e) => {
       </section>
       <section class="glass shelf">
         <div class="tabs" role="tablist">${O.map((p) => r`<button class="tap" role="tab" aria-label=${p.label} aria-pressed=${String(p.id === this._tab)} style=${this._jack ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
-      this._tab = p.id, g("tap"), this._jack && x(p.label);
+      this._tab = p.id, V("tap"), this._jack && x(p.label);
     }}>${this._jack ? p.emoji : r`${p.emoji} ${p.label}`}</button>`)}</div>
         ${t.swatch ? r`<div class="sw"><span class="label" style="width:60px">${t.swatch.label}</span>
           ${t.swatch.items.map((p) => {
@@ -1534,7 +1535,7 @@ const Tt = class Tt extends f {
   render() {
     return r`<div class="glass pad ${this._bad ? "bad" : ""}" role="dialog" aria-label="Parent PIN" @click=${(t) => t.stopPropagation()}>
       <div style="display:flex;width:100%;align-items:center"><h2 style="flex:1;font-size:22px">${this.reason}</h2>
-        <button class="round tap" aria-label="Cancel" @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${q("close", 18)}</button></div>
+        <button class="round tap" aria-label="Cancel" @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${d("close", 18)}</button></div>
       <div class="dots">${Array.from({ length: this.pin.length }, (t, i) => r`<span class=${i < this._typed.length ? "on" : ""}></span>`)}</div>
       <div class="grid">
         ${["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map((t) => t ? r`<button class="tap" aria-label=${t === "del" ? "Delete" : t} @click=${() => this._key(t)}>${t === "del" ? "⌫" : t}</button>` : r`<span></span>`)}
@@ -1682,7 +1683,7 @@ const po = [
   }
   /* ---------------- ticking ---------------- */
   _sound(t) {
-    !this.quiet && !this._wind ? g(t) : t === "tick" && g("tap");
+    !this.quiet && !this._wind ? V(t) : t === "tick" && V("tap");
   }
   _award(t, i) {
     const a = { kid: this._e.slug, points: i * t.pts, lifetime: !0, jar: t.lane === "job" ? i : 0, grow: t.lane === "grow" ? i : 0, reason: `${i > 0 ? "" : "un-ticked "}${t.summary}` };
@@ -1782,7 +1783,7 @@ const po = [
       this._studio = !1, this._jump++;
     }}></fh-studio>`;
     const t = this._e, i = this.hass, a = !i.states[t.points] || !i.states[t.chores];
-    return r`<div style="display:contents;--kid:${V(this.kid.colour)}">
+    return r`<div style="display:contents;--kid:${N(this.kid.colour)}">
       ${this._hero()}
       ${a ? r`<section class="glass jobs"><div class="empty"><h2 style="font-size:22px">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${t.chores}</b> and <b>${t.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
@@ -1800,7 +1801,7 @@ const po = [
     </div>`;
   }
   _hero() {
-    const t = this._e, i = this.hass, a = this._life, o = this._look, s = v(i, t.points), p = _a(a), l = i.states[t.goal]?.state, n = ea(a, this.kid.favourites, l && l !== "unknown" ? l : void 0), K = sa(a), m = n ? Math.max(4, Math.round((a - K) / Math.max(1, n.req - K) * 100)) : 100, A = (i.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), d = (this._now.getDay() + 6) % 7, F = this._goodToday(), N = [...A].filter((h, T) => h === "G" || T === d && F).length;
+    const t = this._e, i = this.hass, a = this._life, o = this._look, s = v(i, t.points), p = _a(a), l = i.states[t.goal]?.state, n = ea(a, this.kid.favourites, l && l !== "unknown" ? l : void 0), K = sa(a), m = n ? Math.max(4, Math.round((a - K) / Math.max(1, n.req - K) * 100)) : 100, A = (i.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), q = (this._now.getDay() + 6) % 7, F = this._goodToday(), g = [...A].filter((h, T) => h === "G" || T === q && F).length;
     return r`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap" style="position:relative" aria-label="Make ${this.kid.name} jump" @click=${() => {
       this._jump++, this._sound(this.kid.sound ?? "tap"), this._jack && x(`Hi Jack! You have ${Math.floor(s / this._star)} stars.`);
@@ -1815,8 +1816,8 @@ const po = [
           <span class="muted" style="font-size:13px;font-weight:600;text-align:right">${p.need - p.into} more to ${p.nextRank}</span></div>
         <div class="stats">
           <div class="stat"><b>${s || "✨"}</b><span>${s ? "points to spend" : "Ready to start"}</span></div>
-          <div class="stat"><span>Good days</span><div class="dots">${[...A].map((h, T) => r`<button aria-label="${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][T]}${h === "O" ? ", day off" : ""}" class="${h === "G" || T === d && F ? "g" : h === "O" ? "o" : ""} ${T === d ? "t" : ""}" @click=${() => this._dayOff(T)}></button>`)}</div>
-            <span>${N >= 5 ? "Full week ⭐" : `${N} this week`}</span></div>
+          <div class="stat"><span>Good days</span><div class="dots">${[...A].map((h, T) => r`<button aria-label="${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][T]}${h === "O" ? ", day off" : ""}" class="${h === "G" || T === q && F ? "g" : h === "O" ? "o" : ""} ${T === q ? "t" : ""}" @click=${() => this._dayOff(T)}></button>`)}</div>
+            <span>${g >= 5 ? "Full week ⭐" : `${g} this week`}</span></div>
         </div>`}
       ${this._wind ? r`<div class="next"><span style="font-size:13px;font-weight:700;padding:6px">🌙 Studio opens in the morning</span></div>` : n ? r`<div class="next">
         <span class="shimmer" style="border-radius:50%;line-height:0">${B(H(o, n.cat, n.id, n.swatch), { size: 46, crop: "head", still: !0, age: this.kid.age })}</span>
@@ -1827,7 +1828,7 @@ const po = [
       ${this.kid.special_time && !this._jack ? r`<span class="muted" style="font-size:13px;font-weight:600">💛 Your time: ${this.kid.special_time}</span>` : c}
       ${this._wind ? c : r`<button class="pill tap primary" style="height:52px;width:100%;justify-content:center;font-size:16px;margin-top:auto" @click=${() => {
       this._studio = !0, this._sound("tap");
-    }}>${q("star", 20)}${this._jack ? "🎨 My look" : "Style studio"}</button>`}
+    }}>${d("star", 20)}${this._jack ? "🎨 My look" : "Style studio"}</button>`}
     </section>`;
   }
   _goodToday() {
@@ -1835,14 +1836,14 @@ const po = [
     return t.length + i.length > 0 && a === o && (i.length === 0 || s >= Math.min(2, i.length));
   }
   _jobs() {
-    const t = St(this.kid.bedtime, this._now), i = Zi(t, this._now), a = this._chores, o = a.filter((h) => h.lane === "routine" && (h.slot === i || h.slot === "any" && !this._wind)), s = this._wind ? [] : a.filter((h) => h.lane === "job" && (h.slot === "any" || h.slot === i || i === "after" && h.slot === "am")), p = this._wind ? a.filter((h) => h.lane === "grow" && h.slot === "bed") : a.filter((h) => h.lane === "grow" && h.slot !== "bed" || h.lane === "grow" && i === "bed"), l = a.filter((h) => h.lane === "routine" && h.slot !== i && h.slot !== "any" && (i === "am" || i === "after" && h.slot === "bed")), n = [...o, ...s, ...p], K = n.filter((h) => h.status === "completed").length, m = n.length, A = m - K, d = 2 * Math.PI * 22, F = m ? K / m : 0, N = this._wind ? A ? `Bedtime jobs: ${A} left · bed at ${Yi(t)}` : "All set for bed. Sleep well 🌙" : A ? `${A} left ${i === "am" ? "this morning" : i === "after" ? "this afternoon" : "tonight"}` : "All done – fresh start tomorrow";
+    const t = St(this.kid.bedtime, this._now), i = Zi(t, this._now), a = this._chores, o = a.filter((h) => h.lane === "routine" && (h.slot === i || h.slot === "any" && !this._wind)), s = this._wind ? [] : a.filter((h) => h.lane === "job" && (h.slot === "any" || h.slot === i || i === "after" && h.slot === "am")), p = this._wind ? a.filter((h) => h.lane === "grow" && h.slot === "bed") : a.filter((h) => h.lane === "grow" && h.slot !== "bed" || h.lane === "grow" && i === "bed"), l = a.filter((h) => h.lane === "routine" && h.slot !== i && h.slot !== "any" && (i === "am" || i === "after" && h.slot === "bed")), n = [...o, ...s, ...p], K = n.filter((h) => h.status === "completed").length, m = n.length, A = m - K, q = 2 * Math.PI * 22, F = m ? K / m : 0, g = this._wind ? A ? `Bedtime jobs: ${A} left · bed at ${Yi(t)}` : "All set for bed. Sleep well 🌙" : A ? `${A} left ${i === "am" ? "this morning" : i === "after" ? "this afternoon" : "tonight"}` : "All done – fresh start tomorrow";
     return r`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 style="font-size:26px;font-weight:800">${this._wind ? "Wind down" : this._jack ? i === "am" ? "My morning" : i === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
-          <span class="muted" style="font-size:14px;font-weight:600">${N}</span></div>
+          <span class="muted" style="font-size:14px;font-weight:600">${g}</span></div>
         ${this._jack ? r`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => x(o.filter((h) => h.status !== "completed").map((h) => h.summary).join(". ") || "All done! Great job!")}>🔊</button>` : c}
         <div class="ring" aria-label="${K} of ${m} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${d} stroke-dashoffset=${d * (1 - F)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${K}/${m}</b></div>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${q} stroke-dashoffset=${q * (1 - F)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${K}/${m}</b></div>
       </div>
       <div class="list">
         ${this._jack ? r`<div class="pics">${o.map((h) => this._pic(h))}</div>` : r`
@@ -1927,7 +1928,7 @@ const po = [
         <div class="unl">${t.slice(0, 8).map((a, o) => r`<div style="animation-delay:${0.15 + o * 0.12}s">
           ${B(H(i, a.cat, a.id, a.swatch), { size: 96, crop: a.cat.crop, still: !0, age: this.kid.age })}${a.label}</div>`)}</div>
         <div style="display:flex;gap:12px"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => this._closeCelebrate(!1)}>Later</button>
-          ${this._wind ? c : r`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => this._closeCelebrate(!0)}>${q("star", 18)}Try it on</button>`}</div>
+          ${this._wind ? c : r`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => this._closeCelebrate(!0)}>${d("star", 18)}Try it on</button>`}</div>
       </div>
     </div>`;
   }
@@ -2075,10 +2076,10 @@ const Uo = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
       return r`<div class="room ${K ? "lit" : ""}">
               <div class="rh"><h2>${l.name}</h2>${n.length ? r`<button class="sw tap" role="switch" aria-label="${l.name} lights" aria-checked=${String(K)} @click=${() => this._room(l, !K)}></button>` : c}</div>
               ${l.ents.map((m) => {
-        const A = co.has(m.state), d = m.attributes.brightness;
+        const A = co.has(m.state), q = m.attributes.brightness;
         return r`<button class="dev tap ${A && m.entity_id.startsWith("light.") ? "on" : ""}" @click=${() => this._toggle(m)}>
-                  <span class="ic">${q(this._ic(m), 18)}</span><span class="n">${this._name(m, l.name)}</span>
-                  <span class="s">${m.entity_id.startsWith("light.") && A && d ? `${Math.round(d / 255 * 100)}%` : m.state.replace(/_/g, " ")}</span></button>`;
+                  <span class="ic">${d(this._ic(m), 18)}</span><span class="n">${this._name(m, l.name)}</span>
+                  <span class="s">${m.entity_id.startsWith("light.") && A && q ? `${Math.round(q / 255 * 100)}%` : m.state.replace(/_/g, " ")}</span></button>`;
       })}
             </div>`;
     })}
@@ -2090,14 +2091,14 @@ const Uo = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
           <div class="scenes">
             <button class="scene tap ${this._went === "on" ? "go" : ""}" @click=${() => {
       this.hass.callService("light", "turn_on", { entity_id: "all" }), this._went = "on";
-    }}>${q("bulb", 20)}All on</button>
+    }}>${d("bulb", 20)}All on</button>
             <button class="scene tap ${this._went === "off" ? "go" : ""}" @click=${() => {
       this.hass.callService("light", "turn_off", { entity_id: "all" }), this._went = "off";
-    }}>${q("bulbOff", 20)}All off</button>
+    }}>${d("bulbOff", 20)}All off</button>
             ${o.map((l) => r`<button class="scene tap ${this._went === l.entity_id ? "go" : ""}" @click=${() => {
       this.hass.callService("script", "turn_on", { entity_id: l.entity_id }), this._went = l.entity_id;
     }}>
-              ${/movie|tv/i.test(l.entity_id) ? r`<span style="font-size:20px">🍿</span>` : /bed|night/i.test(l.entity_id) ? q("moon", 20) : q("star", 20)}${l.attributes.friendly_name ?? l.entity_id}</button>`)}
+              ${/movie|tv/i.test(l.entity_id) ? r`<span style="font-size:20px">🍿</span>` : /bed|night/i.test(l.entity_id) ? d("moon", 20) : d("star", 20)}${l.attributes.friendly_name ?? l.entity_id}</button>`)}
           </div>
         </section>
         <section class="glass card" style="flex:1;min-height:0" aria-label="Automations">
@@ -2239,7 +2240,7 @@ const Rt = { thumbs: {}, res: {}, key: "" }, Ji = {}, mo = [{ name: "ABC Kids li
         <button class="tap big" aria-label=${a ? "Pause" : "Play"} @click=${() => this._svc("media_play_pause")}>${Y(a ? "pause" : "play", 32)}</button>
         <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${Y("next", 30)}</button>
       </div>
-      ${s !== null ? r`<div style="display:flex;align-items:center;gap:12px;margin-top:auto"><span style="opacity:.7">${q("music", 18)}</span>
+      ${s !== null ? r`<div style="display:flex;align-items:center;gap:12px;margin-top:auto"><span style="opacity:.7">${d("music", 18)}</span>
         <input type="range" min="0" max="100" .value=${String(s)} aria-label="Volume" @change=${(p) => this._svc("volume_set", { volume_level: Number(p.target.value) / 100 })}>
         <span style="width:34px;text-align:right;font-size:13px;font-weight:700;opacity:.8">${s}</span></div>` : c}
     </section>`;
@@ -2251,7 +2252,7 @@ const Rt = { thumbs: {}, res: {}, key: "" }, Ji = {}, mo = [{ name: "ABC Kids li
       return r`<button class="room tap" aria-pressed=${String(i.entity_id === t)} @click=${() => {
         this._focus = i.entity_id;
       }}>
-        <span class="thumb ${o ? "eq" : ""}" style=${a.entity_picture ? `--art:url(${a.entity_picture})` : ""}>${o ? r`<i></i><i></i><i></i>` : q("music", 20)}</span>
+        <span class="thumb ${o ? "eq" : ""}" style=${a.entity_picture ? `--art:url(${a.entity_picture})` : ""}>${o ? r`<i></i><i></i><i></i>` : d("music", 20)}</span>
         <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.friendly_name}</span>
           <span class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize">${o ? a.media_title ?? "Playing" : i.state}</span></span>
       </button>`;
@@ -2482,16 +2483,16 @@ const Ft = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
           ${this._blank ? r`<div class="hint">Draw something brilliant</div>` : c}
         </div>
         <div class="acts">
-          <button class="pill tap" @click=${() => this._undoOne()}>${q("left", 18)}Undo</button>
-          <button class="pill tap" @click=${() => this._clear()}>${q("close", 18)}Clear</button>
+          <button class="pill tap" @click=${() => this._undoOne()}>${d("left", 18)}Undo</button>
+          <button class="pill tap" @click=${() => this._clear()}>${d("close", 18)}Clear</button>
           <button class="pill tap" @click=${() => {
       this._chalk = !this._chalk, this._chalk && this._ink === Ft[0] ? this._ink = "#ffffff" : !this._chalk && this._ink === "#ffffff" && (this._ink = Ft[0]);
-    }}>${q(this._chalk ? "sun" : "moon", 18)}${this._chalk ? "Paper" : "Chalkboard"}</button>
+    }}>${d(this._chalk ? "sun" : "moon", 18)}${this._chalk ? "Paper" : "Chalkboard"}</button>
           <span style="flex:1"></span>
           ${this.artists.length ? r`<span class="muted" style="font-size:13px;font-weight:700">Artist</span>${this.artists.map((t) => r`<button class="pill tap" style=${this._artist === t ? "background:var(--primary);color:var(--on-primary)" : ""} @click=${() => {
       this._artist = this._artist === t ? "" : t;
     }}>${t}</button>`)}` : ""}
-          <button class="pill tap primary" style="height:48px;padding:0 20px;font-size:16px" @click=${() => this._toFridge()}>${q("star", 18)}Stick it on the fridge</button>
+          <button class="pill tap primary" style="height:48px;padding:0 20px;font-size:16px" @click=${() => this._toFridge()}>${d("star", 18)}Stick it on the fridge</button>
         </div>
       </section>
       <section class="glass fridge" aria-label="The fridge">
@@ -2611,16 +2612,16 @@ const qo = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], yt = class yt exte
       </section>
       <div class="cols" style="--n:${this.kids.length}">
         ${this.kids.map((K) => {
-      const m = j(K), A = tt(this.hass.states[m.avatar]?.state, K.look ? tt(K.look) : {}), d = (this._items[K.name] ?? []).filter((R) => R.lane === "routine" && R.slot === "am"), F = d.filter((R) => R.status === "completed").length, N = this.events.filter((R) => y(R.start, l) && !n.some((Ka) => R.title.toLowerCase().includes(Ka)) && (R.who === K.name || R.colour === "family" || R.title.toLowerCase().includes(K.name.toLowerCase()))), h = this._bring(K, N), T = i.find((R) => R.k === K), it = T.at - t;
-      return r`<button class="glass col tap" style="--kid:${V(K.colour)}" @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: K.name }))}>
-            <div class="who">${B(A, { size: 56, crop: "head", still: !0, age: K.age, ring: V(K.colour) })}<h2>${K.name}</h2>
-              <span style="font-size:15px;font-weight:800">${d.length ? F === d.length ? "✅ Ready" : `${F}/${d.length}` : ""}</span></div>
+      const m = j(K), A = tt(this.hass.states[m.avatar]?.state, K.look ? tt(K.look) : {}), q = (this._items[K.name] ?? []).filter((R) => R.lane === "routine" && R.slot === "am"), F = q.filter((R) => R.status === "completed").length, g = this.events.filter((R) => y(R.start, l) && !n.some((Ka) => R.title.toLowerCase().includes(Ka)) && (R.who === K.name || R.colour === "family" || R.title.toLowerCase().includes(K.name.toLowerCase()))), h = this._bring(K, g), T = i.find((R) => R.k === K), it = T.at - t;
+      return r`<button class="glass col tap" style="--kid:${N(K.colour)}" @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: K.name }))}>
+            <div class="who">${B(A, { size: 56, crop: "head", still: !0, age: K.age, ring: N(K.colour) })}<h2>${K.name}</h2>
+              <span style="font-size:15px;font-weight:800">${q.length ? F === q.length ? "✅ Ready" : `${F}/${q.length}` : ""}</span></div>
             <div class="go ${it <= 10 && it > -5 ? "soon" : ""}"><span>Leave ${s(T.at)}${T.why !== "school" ? ` · ${T.why}` : ""}</span><span>${it > 0 ? `${it} min` : it > -5 ? "Go!" : "✓"}</span></div>
-            ${d.length ? r`<div class="bar"><div style="width:${F / d.length * 100}%"></div></div>
-              <div class="steps">${d.map((R) => r`<span class="step ${R.status === "completed" ? "done" : ""}">${gt(R.summary)} ${R.summary}</span>`)}</div>` : c}
+            ${q.length ? r`<div class="bar"><div style="width:${F / q.length * 100}%"></div></div>
+              <div class="steps">${q.map((R) => r`<span class="step ${R.status === "completed" ? "done" : ""}">${gt(R.summary)} ${R.summary}</span>`)}</div>` : c}
             ${h.length ? r`<span class="label">Bring</span><div class="bring">${h.map((R) => r`<span>${R}</span>`)}</div>` : c}
             <span class="label">Today</span>
-            ${N.length ? N.slice(0, 4).map((R) => r`<div class="mev2"><span class="t">${R.allDay ? "All day" : k(R.start)}</span><span>${R.title}</span></div>`) : r`<span class="muted" style="font-size:14px">Just school today</span>`}
+            ${g.length ? g.slice(0, 4).map((R) => r`<div class="mev2"><span class="t">${R.allDay ? "All day" : k(R.start)}</span><span>${R.title}</span></div>`) : r`<span class="muted" style="font-size:14px">Just school today</span>`}
           </button>`;
     })}
       </div>`;
@@ -2705,7 +2706,7 @@ const Ro = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], Fo = ["All day", "07:00", "08
     return r`<div class="glass box" role="dialog" aria-label="Add to the calendar" @click=${(a) => a.stopPropagation()}>
       <div style="display:flex;gap:10px;align-items:center">
         <h2 style="font-size:24px;font-weight:800">Add to the calendar</h2><span style="flex:1"></span>
-        <button class="round tap" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${q("close", 18)}</button></div>
+        <button class="round tap" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${d("close", 18)}</button></div>
       <div style="display:flex;gap:10px"><input class="field" inputmode="none" placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @input=${(a) => {
       this._t = a.target.value;
     }}>
@@ -2722,7 +2723,7 @@ const Ro = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], Fo = ["All day", "07:00", "08
     }}>${a < 60 ? `${a} min` : `${a / 60} hr`}</button>`) : ""}</div>
       <div class="chips">${this.calendars.map((a) => r`<button class="tap" aria-pressed=${String(i === a.entity)} @click=${() => {
       this._cal = a.entity;
-    }}><span class="dot" style="background:${V(a.colour)}"></span>${a.name ?? a.entity}</button>`)}</div>
+    }}><span class="dot" style="background:${N(a.colour)}"></span>${a.name ?? a.entity}</button>`)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${Ro.map((a, o) => r`<div class="row">${o === 2 ? r`<button class="key tap" style="width:84px;font-size:16px" @click=${() => {
       this._caps = !this._caps;
@@ -2899,8 +2900,8 @@ const Ct = class Ct extends f {
       try {
         const K = await this.hass.callApi("GET", `calendars/${n.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(i.toISOString())}`), m = n.name ?? this.hass.states[n.entity]?.attributes.friendly_name ?? n.entity;
         for (const A of K) {
-          const d = !!A.start?.date, F = d ? /* @__PURE__ */ new Date(`${A.start.date}T00:00:00`) : new Date(A.start.dateTime), N = d ? /* @__PURE__ */ new Date(`${A.end.date}T00:00:00`) : new Date(A.end.dateTime);
-          p.push({ title: A.summary ?? "(busy)", start: F, end: N, allDay: d, colour: n.colour, who: m });
+          const q = !!A.start?.date, F = q ? /* @__PURE__ */ new Date(`${A.start.date}T00:00:00`) : new Date(A.start.dateTime), g = q ? /* @__PURE__ */ new Date(`${A.end.date}T00:00:00`) : new Date(A.end.dateTime);
+          p.push({ title: A.summary ?? "(busy)", start: F, end: g, allDay: q, colour: n.colour, who: m });
         }
       } catch (K) {
         l++, console.warn("Family Hub: calendar fetch failed", n.entity, K);
@@ -2960,19 +2961,19 @@ const Ct = class Ct extends f {
     return null;
   }
   _addTimer(t) {
-    this.hass?.callService("script", "fh_timer_add", { minutes: t }), g("tap");
+    this.hass?.callService("script", "fh_timer_add", { minutes: t }), V("tap");
   }
   _checkAlarm() {
     const t = Qi(this.hass);
     if (t?.alarm && t.ts && t.ts !== this._alarmSeen && Date.now() / 1e3 - t.ts < 120) {
-      this._alarmSeen = t.ts, this._alarm = t.ts, g("alarm");
+      this._alarmSeen = t.ts, this._alarm = t.ts, V("alarm");
       let i = 0;
       const a = window.setInterval(() => {
         if (!this._alarm || ++i > 12) {
           clearInterval(a), this._alarm = 0;
           return;
         }
-        g("alarm");
+        V("alarm");
       }, 5e3);
     }
   }
@@ -2983,7 +2984,7 @@ const Ct = class Ct extends f {
   _giveMed(t, i) {
     const a = this.hass;
     a.callService("input_datetime", "set_datetime", { entity_id: `input_datetime.fh_med_${t}`, timestamp: Math.floor(Date.now() / 1e3) }), a.callService("input_text", "set_value", { entity_id: `input_text.fh_med_${t}_by`, value: i }), a.callService("persistent_notification", "dismiss", { notification_id: `fh_meds_${t.split("_").pop()}` }).catch(() => {
-    }), g("tick"), this._say(`Logged – given by ${i}`);
+    }), V("tick"), this._say(`Logged – given by ${i}`);
   }
   // ---------- actions ----------
   _say(t, i = 2600) {
@@ -2992,7 +2993,7 @@ const Ct = class Ct extends f {
     }, i);
   }
   _setTheme(t) {
-    this._theme = t, g("tap");
+    this._theme = t, V("tap");
     try {
       localStorage.setItem(Pi, t);
     } catch {
@@ -3004,7 +3005,7 @@ const Ct = class Ct extends f {
   }
   _allOn() {
     const t = this._config.all_on;
-    this.hass?.callService("light", "turn_on", { entity_id: t?.length ? t : "all" }), g("tap"), this._say(t?.length ? "Living areas on" : "All lights on");
+    this.hass?.callService("light", "turn_on", { entity_id: t?.length ? t : "all" }), V("tap"), this._say(t?.length ? "Living areas on" : "All lights on");
   }
   _allOff() {
     const t = Object.values(this.hass?.states ?? {}).filter((i) => i.entity_id.startsWith("light.") && i.state === "on").map((i) => i.entity_id);
@@ -3012,7 +3013,7 @@ const Ct = class Ct extends f {
       this._say("Everything’s already off");
       return;
     }
-    this.hass?.callService("light", "turn_off", { entity_id: t }), g("untick"), this._undo = { ids: t, until: Date.now() + 1e4 };
+    this.hass?.callService("light", "turn_off", { entity_id: t }), V("untick"), this._undo = { ids: t, until: Date.now() + 1e4 };
   }
   _undoOff() {
     this._undo && (this.hass?.callService("light", "turn_on", { entity_id: this._undo.ids }), this._undo = null, this._say("Back on"));
@@ -3022,7 +3023,7 @@ const Ct = class Ct extends f {
       this._say("Already called – give them a minute");
       return;
     }
-    g("tap");
+    V("tap");
     const t = window.setTimeout(() => this._dinnerGo(), 3e3);
     this._dinner = { at: Date.now() + 3e3, timer: t };
   }
@@ -3036,7 +3037,7 @@ const Ct = class Ct extends f {
       this._say("Set announce_script in the card settings");
       return;
     }
-    this.hass.callService("script", "turn_on", { entity_id: t }), this._dinnerCooldown = Date.now() + 6e4, g("done"), this._say("Calling everyone for dinner 🍽️");
+    this.hass.callService("script", "turn_on", { entity_id: t }), this._dinnerCooldown = Date.now() + 6e4, V("done"), this._say("Calling everyone for dinner 🍽️");
   }
   _media(t) {
     const i = this._config.music_player;
@@ -3123,7 +3124,7 @@ const Ct = class Ct extends f {
     const s = Date.now(), p = this._soon.find((n) => !n.allDay && n.start.getTime() > s && n.start.getTime() - s < 12 * 36e5 && !this._private(n.title));
     if (p) {
       const n = Math.round((p.start.getTime() - s) / 6e4), K = n < 60 ? `in ${n} min` : `${y(p.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${k(p.start)}`;
-      i.push(r`<span class="cap"><span class="dot" style="background:${V(p.colour)}"></span>${p.title} · ${K}</span>`);
+      i.push(r`<span class="cap"><span class="dot" style="background:${N(p.colour)}"></span>${p.title} · ${K}</span>`);
     }
     const l = t.music_player ? this.hass?.states[t.music_player] : void 0;
     return l?.state === "playing" && this._page !== "music" && i.push(r`<button class="cap tap" @click=${() => {
@@ -3142,7 +3143,7 @@ const Ct = class Ct extends f {
         <div class="right">
           ${s ? r`
             <div class="glass weather">
-              <span style="color:var(--accent)">${q(Za(s.state), 28)}</span>
+              <span style="color:var(--accent)">${d(Za(s.state), 28)}</span>
               <span style="display:flex;flex-direction:column;line-height:1.15">
                 <span style="font-weight:700;font-size:20px">${p !== void 0 ? `${Math.round(p)}°` : "–"}${l.max !== void 0 ? r`<span class="muted" style="font-size:13px;font-weight:600"> · top ${Math.round(l.max)}°</span>` : c}</span>
                 <span class="muted" style="font-size:13px;font-weight:600">${uo[s.state] ?? s.state}${l.rain ? ` · ${l.rain} mm` : ""}</span>
@@ -3154,19 +3155,19 @@ const Ct = class Ct extends f {
             <div class="glass presence" aria-label="Who is home">
               ${t.people.map((n) => {
       const K = n.entity ? i?.states[n.entity]?.state === "home" : !0;
-      return r`<span class="avatar" title="${n.name} – ${K ? "home" : "away"}" style="width:32px;height:32px;font-size:13px;background:${V(n.colour)};opacity:${K ? 1 : 0.35}">${n.name[0]}</span>`;
+      return r`<span class="avatar" title="${n.name} – ${K ? "home" : "away"}" style="width:32px;height:32px;font-size:13px;background:${N(n.colour)};opacity:${K ? 1 : 0.35}">${n.name[0]}</span>`;
     })}
             </div>` : c}
-          <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${q("mic", 22)}</button>
+          <button class="glass tap round" style="width:52px;height:52px" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${d("mic", 22)}</button>
           <button class="glass tap round" style="width:52px;height:52px" aria-label="Themes" @click=${() => {
       this._sheet = "themes";
-    }}>${q("palette")}</button>
+    }}>${d("palette")}</button>
           ${t.babysitter ? r`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => {
       this._sheet = "sitter";
     }}>ℹ️</button>` : c}
           <button class="glass tap round" style="width:52px;height:52px" aria-label="Night mode" @click=${() => {
       this._nightManual = !0;
-    }}>${q("moon")}</button>
+    }}>${d("moon")}</button>
         </div>
       </header>`;
   }
@@ -3181,14 +3182,14 @@ const Ct = class Ct extends f {
             <h1 style="font-size:28px;font-weight:800">${o[0]}</h1>
             <span class="muted" style="font-size:14px;font-weight:600">${o[1]}</span>
           </div>
-          <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${q("left", 20)}</button>
-          <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${q("right", 20)}</button>
+          <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${d("left", 20)}</button>
+          <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${d("right", 20)}</button>
           <button class="pill tap" @click=${() => {
       this._anchor = /* @__PURE__ */ new Date();
     }}>Today</button>
           <button class="pill tap" @click=${() => {
       this._sheet = "add";
-    }}>${q("plus", 18)}Add</button>
+    }}>${d("plus", 18)}Add</button>
           <span style="flex:1"></span>
           <div class="seg" role="group" aria-label="View">
             ${["day", "week", "month"].map((p) => r`<button class="tap" aria-pressed=${String(t === p)} @click=${() => {
@@ -3196,15 +3197,15 @@ const Ct = class Ct extends f {
     }}>${p[0].toUpperCase() + p.slice(1)}</button>`)}
           </div>
         </div>
-        ${s.length ? r`<div class="legend">${s.map((p) => r`<span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:${V(p.colour)}"></span>${p.name ?? this.hass?.states[p.entity]?.attributes.friendly_name ?? p.entity}</span>`)}</div>` : c}
+        ${s.length ? r`<div class="legend">${s.map((p) => r`<span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:${N(p.colour)}"></span>${p.name ?? this.hass?.states[p.entity]?.attributes.friendly_name ?? p.entity}</span>`)}</div>` : c}
         ${this._calError ? r`<button class="pill tap" style="background:#fee2e2;color:#7f1d1d;align-self:flex-start" @click=${() => {
       location.reload();
     }}>Calendars couldn’t load – tap to reload</button>` : c}
-        ${s.length ? t === "week" ? this._week(i) : t === "day" ? this._day(i) : this._month() : r`<div class="empty"><span style="color:var(--accent)">${q("calendar", 40)}</span><h2 style="font-size:22px">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
+        ${s.length ? t === "week" ? this._week(i) : t === "day" ? this._day(i) : this._month() : r`<div class="empty"><span style="color:var(--accent)">${d("calendar", 40)}</span><h2 style="font-size:22px">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
       </section>`;
   }
   _evCard(t) {
-    return this._private(t.title) ? r`<div class="ev priv"><span class="t">${t.allDay ? "" : k(t.start)}</span><span>💊</span></div>` : r`<div class="ev" style="--c:${V(t.colour)}">
+    return this._private(t.title) ? r`<div class="ev priv"><span class="t">${t.allDay ? "" : k(t.start)}</span><span>💊</span></div>` : r`<div class="ev" style="--c:${N(t.colour)}">
       <span class="t">${t.allDay ? "All day" : k(t.start)}</span>
       <span class="n">${t.title}</span>
       <span class="w">${t.who}</span>
@@ -3229,7 +3230,7 @@ const Ct = class Ct extends f {
     const i = this._eventsOn(t);
     return r`<div class="daylist fade">
       ${i.length ? i.map((a) => this._private(a.title) ? r`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:600" class="muted">${a.allDay ? "All day" : k(a.start)}</span><span style="font-size:18px">💊 Private</span></div>` : r`
-        <div class="dayrow" style="background:color-mix(in srgb, ${V(a.colour)} 22%, transparent);border-left:6px solid ${V(a.colour)}">
+        <div class="dayrow" style="background:color-mix(in srgb, ${N(a.colour)} 22%, transparent);border-left:6px solid ${N(a.colour)}">
           <span style="width:90px;font-size:16px;font-weight:700" class="muted">${a.allDay ? "All day" : k(a.start)}</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-size:20px;font-weight:700">${a.title}</span>
           <span class="muted" style="font-size:14px;font-weight:600">${a.who}</span></span>
@@ -3247,7 +3248,7 @@ const Ct = class Ct extends f {
         this._anchor = o, this._view = "day";
       }}>
             <span style="font-size:14px;font-weight:700">${o.getDate()}</span>
-            ${s.slice(0, 2).map((l) => r`<span class="mev"><span class="dot" style="width:7px;height:7px;background:${V(l.colour)}"></span>${l.title}</span>`)}
+            ${s.slice(0, 2).map((l) => r`<span class="mev"><span class="dot" style="width:7px;height:7px;background:${N(l.colour)}"></span>${l.title}</span>`)}
             ${s.length > 2 ? r`<span class="mev muted">+${s.length - 2}</span>` : c}
           </button>`;
     })}
@@ -3292,15 +3293,15 @@ const Ct = class Ct extends f {
   }
   _dock() {
     const t = (a, o, s, p = !1) => r`<button class="item tap" aria-current=${p ? "page" : "false"} @click=${() => {
-      g("tap"), s();
-    }}>${q(a, 26)}${o}</button>`, i = this._config.kids ?? [];
+      V("tap"), s();
+    }}>${d(a, 26)}${o}</button>`, i = this._config.kids ?? [];
     return r`<nav class="glass dock" aria-label="Main">
       ${i.map((a, o) => {
       const s = j(a), p = this.hass?.states[s.avatar]?.state, l = p || a.look ? tt(p, a.look ? tt(a.look) : {}) : null, n = this._page === "kid" && this._kid === o;
-      return r`<button class="item kidbtn tap" style="--kidc:${V(a.colour)}" aria-current=${n ? "page" : "false"} @click=${() => {
-        g("tap"), this._kid = o, this._page = "kid";
+      return r`<button class="item kidbtn tap" style="--kidc:${N(a.colour)}" aria-current=${n ? "page" : "false"} @click=${() => {
+        V("tap"), this._kid = o, this._page = "kid";
       }}>
-          <span class="avatar" style="width:44px;height:44px;background:${V(a.colour)}">${l ? B(l, { size: 44, crop: "head", still: !0, label: a.name, age: a.age, ring: V(a.colour) }) : a.name[0]}</span>${a.name}</button>`;
+          <span class="avatar" style="width:44px;height:44px;background:${N(a.colour)}">${l ? B(l, { size: 44, crop: "head", still: !0, label: a.name, age: a.age, ring: N(a.colour) }) : a.name[0]}</span>${a.name}</button>`;
     })}
       ${i.length ? r`<span class="sep" aria-hidden="true"></span>` : c}
       ${this._morningWindow() ? t("sun", "Morning", () => {
@@ -3322,9 +3323,9 @@ const Ct = class Ct extends f {
       this._page = "home";
     }, this._page === "home")}
       <span class="sep" aria-hidden="true"></span>
-      <button class="item tap" @click=${() => this._allOn()}><span style="color:var(--accent)">${q("bulb", 26)}</span>All on</button>
-      <button class="item tap" @click=${() => this._allOff()}>${q("bulbOff", 26)}All off</button>
-      <button class="item tap ${Date.now() < this._dinnerCooldown ? "called" : ""}" @click=${() => this._dinnerStart()}>${q("megaphone", 26)}${Date.now() < this._dinnerCooldown ? "Called ✓" : "Dinner"}</button>
+      <button class="item tap" @click=${() => this._allOn()}><span style="color:var(--accent)">${d("bulb", 26)}</span>All on</button>
+      <button class="item tap" @click=${() => this._allOff()}>${d("bulbOff", 26)}All off</button>
+      <button class="item tap ${Date.now() < this._dinnerCooldown ? "called" : ""}" @click=${() => this._dinnerStart()}>${d("megaphone", 26)}${Date.now() < this._dinnerCooldown ? "Called ✓" : "Dinner"}</button>
     </nav>`;
   }
   _dinnerView() {
@@ -3361,7 +3362,7 @@ const Ct = class Ct extends f {
       <div style="flex:1"><h2 style="font-size:28px;font-weight:800">${t}</h2>${i ? r`<span class="muted">${i}</span>` : c}</div>
       <button class="round tap" aria-label="Close" @click=${() => {
       this._sheet = "";
-    }}>${q("close", 18)}</button></div>`;
+    }}>${d("close", 18)}</button></div>`;
   }
   _themeBody() {
     return r`${this._sheetHead("Pick a theme", "Changes the whole panel.")}
@@ -3375,7 +3376,7 @@ const Ct = class Ct extends f {
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => {
       const t = At.filter((i) => i.id !== this._theme);
       this._setTheme(t[Math.floor(Math.random() * t.length)].id);
-    }}>${q("shuffle", 20)}Surprise me</button>
+    }}>${d("shuffle", 20)}Surprise me</button>
         <span class="muted" style="font-size:12px">Family Hub v${na}</span>
       </div>`;
   }

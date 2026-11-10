@@ -156,13 +156,13 @@ const HAIR_BEHIND: Record<string, L> = {
 const shine = (d: string): SVGTemplateResult => svg`<path d=${d} fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5" stroke-linecap="round"></path>`;
 const HAIR: Record<string, L> = {
   fringe: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
-    <path fill=${l.hairColour} d="M62 92 C70 80 86 74 104 76 C96 82 90 88 86 92 C78 92 70 92 62 92 Z" opacity=".9"></path>
+    <path fill=${l.hairColour} d="M60 90 C68 79 84 73 104 75 C96 80 90 85 86 89 C77 89 68 89 60 90 Z" opacity=".9"></path>
     ${shine('M72 62 C84 53 100 51 116 54')}<path d="M92 86 C98 80 108 76 120 76" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2" stroke-linecap="round"></path></g>`,
   crop: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
-    <path fill=${l.hairColour} d="M60 90 C59 70 72 56 88 52 L92 42 L99 51 L105 40 L111 50 L119 43 L122 54 L131 52 C140 62 142 74 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
-    <path d="M78 66 L86 58 M96 62 L102 52 M112 62 L118 54 M126 68 L132 62" stroke="rgba(0,0,0,.16)" stroke-width="2.2" stroke-linecap="round"></path>${shine('M80 60 C92 54 106 52 120 56')}</g>`,
+    <path fill=${l.hairColour} d="M60 90 C59 71 72 58 87 54 Q90 47 94 47 Q97 51 99 53 Q102 45 106 45 Q109 50 111 53 Q115 48 119 48 Q121 53 121 56 L129 55 C139 63 142 75 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
+    <path d="M80 66 Q84 61 88 59 M98 63 Q101 58 104 56 M114 63 Q118 59 122 58" fill="none" stroke="rgba(0,0,0,.14)" stroke-width="2" stroke-linecap="round"></path>${shine('M80 60 C92 54 106 52 120 56')}</g>`,
   mop: (l) => svg`<g class="av-pop d3"><path fill=${l.hairColour} d="M51 106 C45 70 66 44 98 42 C131 40 155 64 149 106 C145 97 141 92 136 89 L133 97 C128 86 117 80 104 82 C92 80 81 84 71 91 L67 99 C61 96 55 99 51 106 Z"></path>
-    <path fill=${l.hairColour} d="M82 48 L76 30 L92 42 Z M100 44 L104 24 L112 42 Z M118 46 L132 32 L128 52 Z M66 58 L54 48 L64 66 Z"></path>
+    <path fill=${l.hairColour} d="M84 48 C80 42 82 37 88 35 C87 40 90 44 95 46 Z M104 45 C103 38 107 33 113 33 C110 37 110 41 113 45 Z M120 50 C124 44 129 42 134 43 C130 46 127 50 126 55 Z"></path>
     <path d="M84 84 C88 76 94 72 100 72 M110 82 C114 76 120 74 126 76" fill="none" stroke="rgba(0,0,0,.15)" stroke-width="2" stroke-linecap="round"></path>${shine('M74 58 C86 50 102 48 118 52')}</g>`,
   short: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
   quiff: (l) => svg`<path class="av-pop d3" fill=${l.hairColour} d="M56 98 C55 66 70 54 88 52 C92 32 126 26 142 44 C132 44 124 48 121 55 C138 62 146 76 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
@@ -196,8 +196,8 @@ const EYES: Record<string, L> = {
 };
 const MOUTH: Record<string, L> = {
   smile: () => svg`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
-  grin: () => svg`<g class="av-pop d4"><path d="M85 119 Q100 138 115 119 Z" fill="#3b1f14"></path><path d="M88 120 L112 120 L110.5 124 L89.5 124 Z" fill="#fff"></path></g>`,
-  gap: () => svg`<g class="av-pop d4"><path d="M84 118 Q100 140 116 118 Z" fill="#5b2a22"></path><path d="M92 119 L99 119 L99 126 Q95.5 127.5 92 126 Z M101 119 L108 119 L108 126 Q104.5 127.5 101 126 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
+  grin: () => svg`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
+  gap: () => svg`<g class="av-pop d4"><path d="M83 118 Q100 139 117 118 Q100 121 83 118 Z" fill="#5b2a22"></path><path d="M93 119.4 L98.7 119.8 L98.7 124 Q95.9 125.3 93 124 Z M101.3 119.8 L107 119.4 L107 124 Q104.1 125.3 101.3 124 Z" fill="#fffaf0"></path><path d="M90 131 Q100 135 110 131" fill="none" stroke="#e8857a" stroke-width="2.4" stroke-linecap="round"></path></g>`,
   smirk: () => svg`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
   wow: () => svg`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 };
@@ -234,8 +234,10 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   const jumpCls = o.jump ? (o.jump % 2 ? 'av-jump-a' : 'av-jump-b') : '';
   const age = o.age ?? 'mid';
   // younger: bigger head, smaller body; teen: slightly narrower face and longer neck
-  const headT = age === 'kid' ? 'translate(100 104) scale(1.1) translate(-100 -104)' : age === 'teen' ? 'translate(100 100) scale(0.95 1.02) translate(-100 -100)' : '';
-  const brows = age !== 'kid' ? svg`<g class="av-pop d4" stroke=${look.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${age === 'teen' ? 'M76 92 L91 90' : 'M77 93 Q84 89 91 92'}></path><path d=${age === 'teen' ? 'M109 90 L124 92' : 'M109 92 Q116 89 123 93'}></path></g>` : nothing;
+  const headT = age === 'kid' ? 'translate(100 104) scale(1.1) translate(-100 -104)' : '';
+  const faceRx = age === 'kid' ? 44 : 46, faceRy = age === 'teen' ? 46 : 44;
+  const nose = svg`<path d=${age === 'kid' ? 'M99 111 Q97 115 100 116 Q102 116 103 114.5' : 'M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5'} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`;
+  const brows = age !== 'kid' ? svg`<g class="av-pop d4" stroke=${look.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${age === 'teen' ? 'M76 94.5 Q83 92 91 93.5' : 'M77 94 Q84 90 91 93'}></path><path d=${age === 'teen' ? 'M109 93.5 Q117 92 124 94.5' : 'M109 93 Q116 90 123 94'}></path></g>` : nothing;
   return html`<span class="avwrap ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${head ? '36 28 128 128' : '0 0 200 240'} width=${w} height=${h} role="img" aria-label=${o.label ?? 'Avatar'}
       style="display:block;overflow:hidden;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`}">
@@ -249,13 +251,14 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
         <g transform=${headT}>
         <g class="av-pop d2">
           <circle cx="57" cy="104" r="9" fill=${look.skin}></circle><circle cx="143" cy="104" r="9" fill=${look.skin}></circle>
-          <circle cx="100" cy="100" r="44" fill=${look.skin}></circle>
+          <ellipse cx="100" cy="100" rx=${faceRx} ry=${faceRy} fill=${look.skin}></ellipse>
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
         <g class=${o.still ? '' : 'av-blink'}>${(EYES[look.eyes] ?? EYES.normal)(look)}</g>
         ${brows}
         ${look.freckles === 'yes' ? svg`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([x, y]) => svg`<circle cx=${x} cy=${y} r="1.15"></circle>`)}</g>` : nothing}
-        ${look.mole === 'yes' ? svg`<circle cx="87" cy="121" r="1.5" fill="#6b4532"></circle>` : nothing}
+        ${nose}
+        ${look.mole === 'yes' ? svg`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : nothing}
         ${(MOUTH[look.mouth] ?? MOUTH.smile)(look)}
         ${(HAIR[look.hair] ?? HAIR.short)(look)}
         ${EYEWEAR[look.eyewear] ? EYEWEAR[look.eyewear](look) : nothing}
