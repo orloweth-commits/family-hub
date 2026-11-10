@@ -2,12 +2,14 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add, &night=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &long=1, &night=1, &studio=1). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
+const doodle = (bg, a, b) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="${bg}"/><circle cx="120" cy="130" r="60" fill="none" stroke="${a}" stroke-width="14"/><path d="M210 220 Q260 60 340 200" fill="none" stroke="${b}" stroke-width="16" stroke-linecap="round"/><path d="M40 250 H360" stroke="${a}" stroke-width="10" stroke-linecap="round"/></svg>`);
+try { localStorage.setItem('family-hub-fridge', JSON.stringify([{ title: 'doodle-20261110-161000-max', url: doodle('#fffdf7', '#e63946', '#118ab2') }, { title: 'doodle-20261109-171500-charlie', url: doodle('#fffdf7', '#2a9d8f', '#f77f00') }, { title: 'doodle-20261108-101500-riley', url: doodle('#23332b', '#ffffff', '#fcbf49') }, { title: 'doodle-20261107-101500', url: doodle('#fffdf7', '#7b2cbf', '#ff5d8f') }, { title: 'doodle-20261106-101500-max', url: doodle('#fffdf7', '#118ab2', '#e63946') }])); } catch {}
 try { localStorage.setItem('family-hub-look', look); localStorage.setItem('family-hub-theme', q.get('theme') || 'sea'); } catch {}
-await import('/dist/family-hub.js');
+await import('../dist/family-hub.js');
 if (q.get('night')) window.__night = true;
 const now = new Date();
 const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
@@ -19,18 +21,22 @@ const CAL = {
   'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
   'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
   'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
-  'calendar.riley': [ev(1,16,0,'Swimming squad',90), ev(2,17,30,'Guitar lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
-  'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Piano lesson',45)],
+  'calendar.riley': [ev(1,16,0,'Swimming squad',90), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
+  'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
   'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120)]
 };
 const TODOS = {
-  'todo.shopping_list': [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
+  'todo.shopping_list': q.get('long') ? ['Milk','Bananas','Sourdough loaf','Chicken thighs','Pasta','Dishwasher tablets','Greek yoghurt','Frozen peas','Apples','Carrots','Rice','Butter','Tomatoes','Mince','Wraps','Orange juice','Toilet paper','Cheese','Honey','Oats','Broccoli','Salmon'].map((x) => [x]) : [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
+  'todo.family_music': [['Dinner Party Essentials','needs_action','apple_music://playlist/1 | ' + doodle('#264653','#e9c46a','#e76f51')],['Housework Hits!','needs_action','spotify://playlist/2 | ' + doodle('#8ecae6','#023047','#ffb703')],['ABC Jazz','needs_action','radio://abcjazz']],
+  'todo.riley_music': [['Minecraft – Volume Alpha','needs_action','apple_music://album/3 | ' + doodle('#2a9d8f','#264653','#e9c46a')],['Clarinet Classics','needs_action','spotify://playlist/4 | @calm']],
+  'todo.charlie_music': [['Trumpet Heroes','needs_action','spotify://playlist/5 | ' + doodle('#f4a261','#e76f51','#264653')]],
+  'todo.max_music': [['Bluey the Album','needs_action','apple_music://album/6 | ' + doodle('#48cae4','#03045e','#ffb703')],['Dinosaur Stomp','needs_action','spotify://album/7 | ' + doodle('#80b918','#2b9348','#ffff3f')],['Bluey Sleepy Time','needs_action','spotify://playlist/8 | ' + doodle('#3a0ca3','#f72585','#4cc9f0') + ' | @calm']],
   'todo.reminders': [['Bins out – recycling week'],['Charlie – library bag'],['Riley – sign excursion form']],
   'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Brush teeth','needs_action','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
-    ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Guitar practice 15 min','needs_action','@grow @after'],
+    ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Clarinet practice 15 min','needs_action','@grow @after'],
     ['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
   'todo.charlie_chores': [['Make bed','completed','@routine @am'],['Get dressed','needs_action','@routine @am'],['Pack lunch box','needs_action','@routine @am'],['Unpack school bag','needs_action','@routine @after'],['Homework','needs_action','@routine @after'],['Feed the fish','needs_action','+5 @job'],
-    ['Set the table','needs_action','+10 @job @after'],['Piano practice 10 min','needs_action','@grow @after'],['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
+    ['Set the table','needs_action','+10 @job @after'],['Trumpet practice 10 min','needs_action','@grow @after'],['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
   'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Breakfast','needs_action','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
     ['Bath','needs_action','+10 @routine @bed'],['Teeth','needs_action','+10 @routine @bed'],['Story time','needs_action','+10 @routine @bed']]
 };
@@ -51,21 +57,56 @@ const hass = {
     st('calendar.family', 'off', { friendly_name: 'Family' }), st('calendar.alex', 'off', { friendly_name: 'Alex' }), st('calendar.sam', 'off', { friendly_name: 'Sam' }),
     st('todo.shopping_list', 8), st('todo.reminders', 3), st('todo.rewards_owed', 0),
     ...kidStates('riley', 120, 640, 'G------'), ...kidStates('charlie', 65, 310, 'G------'), ...kidStates('max', 80, 150, 'G------'),
-    st('light.kitchen', 'on'), st('light.lounge', 'on')
+    st('light.kitchen', 'on', { friendly_name: 'Kitchen bench', brightness: 200 }), st('light.kitchen_pendant', 'off', { friendly_name: 'Kitchen pendant' }), st('light.lounge', 'on', { friendly_name: 'Lounge lamp', brightness: 120 }),
+    st('light.lounge_ceiling', 'off', { friendly_name: 'Lounge ceiling' }), st('media_player.lounge_tv', 'off', { friendly_name: 'Lounge TV' }), st('light.riley', 'off', { friendly_name: 'Riley’s room light' }), st('fan.riley', 'on', { friendly_name: 'Riley’s room fan' }),
+    st('light.charlie', 'off', { friendly_name: 'Charlie’s room light' }), st('light.max', 'on', { friendly_name: 'Max’s room night light', brightness: 30 }), st('light.patio', 'off', { friendly_name: 'Patio lights' }), st('lock.front_door', 'locked', { friendly_name: 'Front door' }),
+    st('cover.garage', 'closed', { friendly_name: 'Garage door' }), st('script.movie_night', 'off', { friendly_name: 'Movie night' }), st('script.bedtime', 'off', { friendly_name: 'Bedtime' }),
+    st('media_player.kitchen', 'playing', { friendly_name: 'Kitchen', volume_level: 0.35, media_title: 'Dance Mode', media_artist: 'Bluey', media_content_id: 'x://1', media_duration: 180, media_position: 62, media_position_updated_at: new Date().toISOString(), shuffle: false, group_members: ['media_player.kitchen'], entity_picture: doodle('#ffb703', '#023047', '#fb8500') }),
+    st('media_player.office', 'idle', { friendly_name: 'Office', volume_level: 0.2, group_members: [] }), st('media_player.rileys_homepod', 'idle', { friendly_name: 'Riley’s HomePod', volume_level: 0.3, group_members: [] }),
+    st('media_player.charlies_homepod', 'paused', { friendly_name: 'Charlie’s HomePod', volume_level: 0.25, group_members: [] }), st('media_player.alexs_homepod', 'idle', { friendly_name: 'Alex’s HomePod', volume_level: 0.3, group_members: [] }),
+    st('media_player.lounge_room_sonos', 'idle', { friendly_name: 'Lounge Room Sonos', volume_level: 0.4, group_members: [] }), st('media_player.sonos_native', 'playing', { friendly_name: 'Lounge Sonos (native)', source: 'TV' }),
+    st('switch.sonos_night_sound', 'off'), st('switch.sonos_speech_enhancement', 'on'), st('button.kitchen_favorite_current_song', 'unknown'), st('tts.home_assistant_cloud', 'unknown'), st('script.fh_music_sleep', 'off'),
+    st('todo.family_music', 3), st('todo.riley_music', 2), st('todo.charlie_music', 1), st('todo.max_music', 3),
+    st('automation.porch', 'on', { friendly_name: 'Porch light at sunset' }), st('automation.school', 'on', { friendly_name: 'School morning chime' }), st('automation.sprinklers', 'off', { friendly_name: 'Sprinklers' })
   ]),
-  services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} } },
+  areas: Object.fromEntries([['kitchen', 'Kitchen'], ['lounge', 'Lounge'], ['riley', 'Riley’s room'], ['charlie', 'Charlie’s room'], ['max', 'Max’s room'], ['outside', 'Outside']].map(([area_id, name]) => [area_id, { area_id, name }])),
+  devices: {},
+  entities: Object.fromEntries([['light.kitchen', 'kitchen'], ['light.kitchen_pendant', 'kitchen'], ['light.lounge', 'lounge'], ['light.lounge_ceiling', 'lounge'], ['media_player.lounge_tv', 'lounge'], ['light.riley', 'riley'], ['fan.riley', 'riley'],
+    ['light.charlie', 'charlie'], ['light.max', 'max'], ['light.patio', 'outside'], ['lock.front_door', 'outside'], ['cover.garage', 'outside'], ['script.movie_night', null], ['script.bedtime', null], ['automation.porch', null], ['automation.school', null], ['automation.sprinklers', null]]
+    .map(([id, area_id]) => [id, { entity_id: id, area_id, labels: ['family_hub'] }]).concat(
+      ['kitchen', 'office', 'rileys_homepod', 'charlies_homepod', 'alexs_homepod', 'lounge_room_sonos'].map((n) => ['media_player.' + n, { entity_id: 'media_player.' + n, platform: 'music_assistant', device_id: 'ma_' + n }]),
+      [['media_player.sonos_native', 'sonos'], ['switch.sonos_night_sound', 'sonos'], ['switch.sonos_speech_enhancement', 'sonos']].map(([id, p]) => [id, { entity_id: id, platform: p, device_id: 'sonos1' }]),
+      [['button.kitchen_favorite_current_song', { entity_id: 'button.kitchen_favorite_current_song', platform: 'music_assistant', device_id: 'ma_kitchen' }]])),
+  services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} }, music_assistant: { search: {}, play_media: {}, get_queue: {}, transfer_queue: {} }, tts: { speak: {} } },
   callService: async (domain, service, data = {}, target = {}) => {
     const id = target.entity_id ?? data.entity_id;
+    (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
+    const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
+    if (domain === 'media_player' && service === 'join') { const all = [id, ...data.group_members]; all.forEach((m) => upd(m, { group_members: all })); }
+    if (domain === 'media_player' && service === 'unjoin') { const g = S[id].attributes.group_members ?? []; g.forEach((m) => upd(m, { group_members: m === id ? [] : g.filter((x) => x !== id) })); }
+    if (domain === 'media_player' && service === 'volume_set') upd(id, { volume_level: data.volume_level });
+    if (domain === 'media_player' && service === 'media_play_pause') upd(id, {}, S[id].state === 'playing' ? 'paused' : 'playing');
+    if (domain === 'media_player' && service === 'media_pause') upd(id, {}, 'paused');
+    if (domain === 'music_assistant' && service === 'play_media' && data.enqueue === 'play') upd(id, { media_title: String(data.media_id).split('/').pop(), media_artist: data.radio_mode ? 'Radio' : 'Test', media_content_id: data.media_id }, 'playing');
+    if (domain === 'music_assistant' && service === 'transfer_queue') { upd(id, { media_title: S[data.source_player].attributes.media_title }, 'playing'); upd(data.source_player, {}, 'idle'); }
+    if (domain === 'switch') upd(id, {}, service === 'turn_on' ? 'on' : 'off');
+    if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }
       if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
+      if (service === 'remove_item') store[id] = store[id].filter((x) => x.uid !== data.item);
+      if (service === 'add_item' && data.description) store[id][store[id].length - 1].description = data.description;
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
   },
   callApi: async (_m, path) => { const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
+    if (msg.type === 'config_entries/get') return [{ entry_id: 'ma1', domain: 'music_assistant' }];
+    if (msg.type === 'call_service' && msg.service === 'search') { const n = msg.service_data.name; const mk = (t, name, sub) => ({ media_type: t, name, uri: `demo://${t}/${name.replace(/\W+/g, '-')}`, image: t === 'radio' ? null : doodle('#' + (name.length * 123457 % 0xffffff).toString(16).padStart(6, '0'), '#ffffff', '#222222'), artists: sub ? [{ name: sub }] : [] });
+      return { response: { tracks: [mk('track', n + ' Theme Tune', n), mk('track', 'Dance Mode', n), mk('track', 'Keepy Uppy', n)], albums: [mk('album', n + ' the Album', n), mk('album', 'Dance Mode!', n)], playlists: [mk('playlist', n + ' Essentials'), mk('playlist', n + ' Sleepy Time')], artists: [mk('artist', n)], radio: [mk('radio', 'ABC Kids listen')], podcasts: [mk('podcast', n + ' Brekky Chats')], audiobooks: [mk('audiobook', n + ': The Beach and Other Stories')] } }; }
+    if (msg.type === 'call_service' && msg.service === 'get_queue') { const e = msg.target.entity_id, a = hass.states[e].attributes; return { response: { [e]: hass.states[e].state === 'playing' ? { items: 5, shuffle_enabled: false, repeat_mode: 'off', current_item: { name: a.media_title }, next_item: window.__noNext ? null : { name: 'Keepy Uppy', media_item: { name: 'Keepy Uppy', artists: [{ name: 'Bluey' }] } } } : { items: 0 } } }; }
     if (msg.type === 'call_service' && msg.domain === 'weather') return { response: { 'weather.home': { forecast: [{ temperature: 27, templow: 14, uv_index: 9, precipitation: 0 }] } } };
     return {};
   },
@@ -76,7 +117,7 @@ el.setConfig({
   type: 'custom:family-hub-card', family_name: 'everyone', weather: 'weather.home', music_player: 'media_player.lounge', reminders: 'todo.reminders', groceries: 'todo.shopping_list',
   people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
   kids: [
-    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'New book', cost: 200, icon: '📚' }] },
+    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }] },
     { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', look: 'h=styled;hc=e3b85c', bedtime: '20:00' },
     { name: 'Max', colour: 5, mode: 'picture', age: 'kid', look: 'h=pageboy;hc=6b4226', bedtime: '19:30', star: 10, leave_by: '07:30' }
   ],
@@ -94,6 +135,7 @@ else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
 if (q.get('sheet')) el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;
+if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
 window.__ready = true;
 </script>

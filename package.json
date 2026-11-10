@@ -10,7 +10,10 @@
     "build": "tsc --noEmit && node scripts/check-looks.mjs && vite build",
     "typecheck": "tsc --noEmit",
     "check:looks": "node scripts/check-looks.mjs",
-    "shots": "node scripts/shots.mjs"
+    "shots": "node scripts/shots.mjs",
+    "test:fit": "node scripts/tests/audit.mjs",
+    "test:click": "node scripts/tests/click-base.mjs && node scripts/tests/click-music.mjs",
+    "test:phone": "node scripts/tests/phone.mjs"
   },
   "dependencies": {
     "lit": "^3.2.0"
