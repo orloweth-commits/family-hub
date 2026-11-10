@@ -88,7 +88,7 @@ export class FhMorning extends LitElement {
   private _leave(k: KidConfig): { at: number; why: string } {
     const first = this._own(k).filter((e) => !e.allDay && e.start.getHours() < 10).sort((a, b) => a.start.getTime() - b.start.getTime())[0];
     if (first) return { at: first.start.getHours() * 60 + first.start.getMinutes() - this.travel, why: first.title };
-    return { at: hm(this.leaveBy), why: 'school' };
+    return { at: hm(k.leave_by ?? this.leaveBy), why: 'school' };
   }
 
   render(): TemplateResult | typeof nothing {

@@ -47,6 +47,8 @@ export interface KidConfig {
   bring?: Record<string, string[]>;
   /** age band for avatar proportions: kid | mid | teen */
   age?: 'kid' | 'mid' | 'teen';
+  /** default school-morning leave time, e.g. "07:50" */
+  leave_by?: string;
   /** points per star for pre-readers (stars = points / star) */
   star?: number;
 }

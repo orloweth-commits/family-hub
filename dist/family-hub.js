@@ -2602,7 +2602,7 @@ const qo = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Mt = class Mt exte
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   _leave(t) {
     const i = this._own(t).filter((a) => !a.allDay && a.start.getHours() < 10).sort((a, o) => a.start.getTime() - o.start.getTime())[0];
-    return i ? { at: i.start.getHours() * 60 + i.start.getMinutes() - this.travel, why: i.title } : { at: L(this.leaveBy), why: "school" };
+    return i ? { at: i.start.getHours() * 60 + i.start.getMinutes() - this.travel, why: i.title } : { at: L(t.leave_by ?? this.leaveBy), why: "school" };
   }
   render() {
     if (!this.hass) return c;
