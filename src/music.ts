@@ -7,6 +7,7 @@ import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, t
 import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
+import { VIEWS, cablesView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
 import './pin';
 
 type Tab = 'rooms' | 'search' | 'shelves' | 'juke' | 'radio' | 'call';
@@ -33,7 +34,7 @@ const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, J
 export class FhMusic extends LitElement {
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
-  static styles = [styles, keysCss, css`
+  static styles = [styles, keysCss, viewsCss, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; color: #fff; background: #111; }
     .stage .bg { position: absolute; inset: -40px; background: var(--art) center / cover; filter: blur(40px) saturate(160%) brightness(.65); transform: scale(1.2); transition: background .6s; }
@@ -272,7 +273,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _drag: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -289,8 +290,11 @@ export class FhMusic extends LitElement {
   hide: string[] = [];
   /** the photo theme, so the sound in each room can take its shape (waves, bubbles, stars…) */
   theme = '';
-  private _view: 'house' | 'list' | '' = ls<'house' | 'list' | ''>('fh-music-view', '');
-  private _drag: { id: string; vol: number } | null = null;
+  private _view: ViewId | '' = ls<ViewId | ''>('fh-music-view', '');
+  /** volumes being dragged, shown until Home Assistant reports them */
+  private _dv: Record<string, number> = {};
+  private _viewAsk = false;
+  private _shelfAsked = false;
   private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
   private _carried = 0;
   private _prev: Tab = 'rooms';
@@ -435,7 +439,33 @@ export class FhMusic extends LitElement {
 
 
   /* ---------------- the house ---------------- */
-  private get _mode(): 'house' | 'list' { return this._view || (this.map.length ? 'house' : 'list'); }
+  private get _mode(): ViewId { return VIEWS.some((v) => v.id === this._view) ? this._view as ViewId : this.map.length ? 'house' : 'list'; }
+  private _setVol(id: string, v: number, commit: boolean): void {
+    this._dv = { ...this._dv, [id]: v };
+    if (!commit) return;
+    this._svc('volume_set', { volume_level: v / 100 }, id);
+    window.setTimeout(() => { if (this._dv[id] === v) { const { [id]: _gone, ...rest } = this._dv; this._dv = rest; } }, 900); // hold the new level until Home Assistant reports it
+  }
+  /** What the other room views draw from, and the few things they can do. */
+  private _vctx(): Ctx {
+    const cur = this._cur, mix = this._mix(cur), curLead = cur && this._leader(cur), a = cur?.attributes ?? {};
+    const others = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((id): id is string => !!id && id !== curLead?.entity_id))];
+    const rooms: Room[] = this._floors.flatMap((f) => f.rooms.flatMap((r) => r.zones.map((z) => {
+      const p = z.p, id = p.entity_id, lead = this._leader(p), has = typeof p.attributes.volume_level === 'number';
+      return { id, name: z.name, vol: id in this._dv ? this._dv[id] : has ? Math.round((p.attributes.volume_level as number) * 100) : 0, hasVol: has, live: !!lead, playing: lead?.state === 'playing', focus: id === cur?.entity_id, inmix: mix.includes(id),
+        asleep: r.asleep, lead: lead?.entity_id === id, colour: lead && lead.entity_id !== curLead?.entity_id ? `var(--p-${[3, 5, 4, 2][others.indexOf(lead.entity_id) % 4]})` : '', title: String(lead?.attributes.media_title ?? '') };
+    })));
+    const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
+    const frac = dur ? Math.min(1, ((Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) / dur) : 0;
+    if (this._mode === 'cables' && !this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
+    return { rooms, look: getLook(), theme: this.theme, over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', shelf: this._items.Family ?? [],
+      now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
+      vol: (id, v, commit) => this._setVol(id, v, commit),
+      toggle: (id) => { if (id === cur?.entity_id) return; if (mix.includes(id)) this._join(id); else this._gentle(id, () => { if (curLead) this._join(id); else this._focus = id; }); },
+      focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._everywhere(true),
+      carry: (e, id) => { const p = this.hass!.states[id]; if (p) this._carryDown(e, { lead: p }); },
+      carryItem: (e, m) => this._carryDown(e, { item: m }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
+  }
   /** The speaker a room's music comes from, if anything is on there (playing or paused). */
   private _leader(p: HassEntity): HassEntity | undefined {
     const mem = (x: HassEntity): string[] => (x.attributes.group_members as string[] | undefined) ?? [];
@@ -466,17 +496,15 @@ export class FhMusic extends LitElement {
   private _gentle(id: string, run: () => void): void { if (this._asleep(id)) this._guard(`${this._name(this.hass!.states[id])} is in a bedroom after bedtime. Play there anyway?`, run); else run(); }
   private _volDown(e: PointerEvent, p: HassEntity): void {
     if ((e.target as HTMLElement).closest('.zname, .join, .puck') || typeof p.attributes.volume_level !== 'number') return;
-    const el = e.currentTarget as HTMLElement, y0 = e.clientY, v0 = Math.round(p.attributes.volume_level * 100), h = el.getBoundingClientRect().height * POOL;
-    let moved = false;
+    const el = e.currentTarget as HTMLElement, id = p.entity_id, y0 = e.clientY, v0 = Math.round(p.attributes.volume_level * 100), h = el.getBoundingClientRect().height * POOL;
+    let moved = false, v = v0;
     const move = (m: PointerEvent): void => {
       if (!moved && Math.abs(m.clientY - y0) < 6) return;
-      moved = true; this._drag = { id: p.entity_id, vol: Math.max(0, Math.min(100, Math.round(v0 + ((y0 - m.clientY) / h) * 100))) };
+      moved = true; v = Math.max(0, Math.min(100, Math.round(v0 + ((y0 - m.clientY) / h) * 100))); this._setVol(id, v, false);
     };
     const up = (): void => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
-      const d = this._drag; if (!moved || !d) return;
-      this._svc('volume_set', { volume_level: d.vol / 100 }, d.id);
-      window.setTimeout(() => { if (this._drag === d) this._drag = null; }, 900); // hold the new level until Home Assistant reports it
+      if (moved) this._setVol(id, v, true);
     };
     el.setPointerCapture(e.pointerId); el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }
@@ -529,7 +557,7 @@ export class FhMusic extends LitElement {
     const others = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((id): id is string => !!id && id !== curLead?.entity_id))];
     const zone = (z: MapZone, asleep: boolean): TemplateResult => {
       const p = z.p, a = p.attributes, id = p.entity_id, lead = this._leader(p), playing = lead?.state === 'playing', focus = id === cur?.entity_id, inmix = mix.includes(id);
-      const vol = this._drag?.id === id ? this._drag.vol : typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
+      const vol = id in this._dv ? this._dv[id] : typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
       const colour = lead && lead.entity_id !== curLead?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][others.indexOf(lead.entity_id) % 4]})` : '';
       const what = lead ? `${playing ? '' : 'Paused · '}${lead.attributes.media_title ?? 'Music'}` : asleep ? 'Asleep' : 'Quiet';
       const art = lead?.attributes.entity_picture ? `--art:url(${lead.attributes.entity_picture})` : '';
@@ -688,15 +716,15 @@ export class FhMusic extends LitElement {
       const on = this.hass!.states[id].state === 'on';
       return html`<button class="pill tap" aria-pressed=${String(on)} style=${on ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => this.hass!.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id })}>${label} ${on ? 'on' : 'off'}</button>`;
     };
-    const house = this._mode === 'house', pick = (v: 'house' | 'list'): void => { this._view = v; lsSet('fh-music-view', v); };
-    return html`<div class="acts">
-        <div class="seg" role="group" aria-label="How to show the rooms"><button class="tap" aria-pressed=${String(house)} @click=${() => pick('house')}>House</button><button class="tap" aria-pressed=${String(!house)} @click=${() => pick('list')}>List</button></div>
+    const mode = this._mode, house = mode !== 'list', view = VIEWS.find((v) => v.id === mode)!;
+    return html`${this._viewAsk ? viewPicker(mode, (v) => { this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; }, () => { this._viewAsk = false; }) : nothing}<div class="acts">
+        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
         <button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._everywhere(true)}>Everywhere</button>
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
-        <span class="soft" style="flex:1">${house ? 'Drag the music to a room. Slide up or down for volume.' : 'Tap a room to control it. ＋ adds it to the music.'}</span>
+        <span class="soft" style="flex:1">${viewHint(mode, getLook(), this.theme)}</span>
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>
-      ${house ? this._house() : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
+      ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? cablesView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
       const a = p.attributes, playing = p.state === 'playing', focus = p.entity_id === cur?.entity_id, inmix = mix.includes(p.entity_id);
       const vol = typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
       return html`<div class="spk ${focus ? 'focus' : inmix ? 'inmix' : ''}">

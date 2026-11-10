@@ -60,7 +60,9 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'night', 'nart'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
-    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck'],
+    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck',
+      // other ways of seeing the rooms (musicviews.ts)
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -419,6 +421,25 @@ const FRIDGE = `
   @F .pool { background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
   @F .mzone[data-playing] .pool { animation: scribble .7s steps(2, jump-none) infinite; animation-iteration-count: var(--loops, infinite); }
   @F .puck { border-color: var(--magnet); box-shadow: 0 4px 0 #b9b2a2, 0 6px 8px rgba(0,0,0,.25); }
+  @F .viewbtn { border-radius: 6px; background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
+  @F .vcard { border-radius: 4px; background: var(--note); box-shadow: 0 3px 5px rgba(0,0,0,.16); }
+  @F .vcard[aria-pressed='true'] { background: var(--primary); }
+  @F .dplate { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
+  @F .dtrack { stroke: color-mix(in srgb, var(--ink) 16%, var(--paper)); }
+  @F .dknob { fill: var(--magnet); stroke: var(--ink); }
+  @F .dcover { box-shadow: 0 0 0 4px var(--ink), 0 6px 0 rgba(0,0,0,.18); }
+  @F .desk { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
+  @F .strip[data-focus] { background: var(--note); }
+  @F .sname { background: var(--note); border-radius: 2px; box-shadow: 0 2px 3px rgba(0,0,0,.18); font-family: var(--font-content); }
+  @F .lamp { box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+  @F .fcap { border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 rgba(0,0,0,.3); }
+  @F .slot { background: var(--ink); width: 4px; left: 20px; }
+  @F .cab { background: #2f2a26; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,.25); }
+  @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
+  @F .sock[aria-pressed='true'] { background: var(--c); }
+  @F .cdisc { box-shadow: 0 0 0 6px #17140f, 0 0 0 9px var(--ink), 0 6px 0 rgba(0,0,0,.2); }
+  @F .vscene { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
+  @F .aname { background: var(--note); border-radius: 3px; box-shadow: 0 2px 3px rgba(0,0,0,.18); }
   @F .join { background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
   @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
@@ -622,6 +643,27 @@ const ORBIT = `
   @O .pool::before { display: none; }
   @O .mzone[data-playing] .pool { animation: breathe 3.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @O .puck { border: 1.5px solid var(--ink); box-shadow: none; }
+  @O .viewbtn { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .vcard { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .vcard[aria-pressed='true'] { background: var(--primary); }
+  @O .dplate { fill: transparent; stroke: var(--glass-line); stroke-width: 1.5; }
+  @O .bigdial, @O .desk, @O .rig, @O .vscene { --stream: var(--accent); }
+  @O .dtrack { stroke: rgba(255,255,255,.14); stroke-width: 10; }
+  @O .dknob { fill: var(--ground); stroke-width: 3; }
+  @O .dcover { box-shadow: 0 0 0 1.5px var(--ink); }
+  @O .desk { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .sname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .lamp[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
+  @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
+  @O .fcap { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .slot { width: 2px; left: 21px; }
+  @O .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @O .sock { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .sock[aria-pressed='true'] { background: var(--c); box-shadow: none; }
+  @O .cdisc { box-shadow: 0 0 0 1.5px var(--ink); }
+  @O .vscene { box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .aname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .join { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .join[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }

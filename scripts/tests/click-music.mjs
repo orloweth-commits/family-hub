@@ -37,6 +37,27 @@ const M = (page) => page.locator('fh-music');
   console.log('call house rooms:', await M(p).locator('.mz').count(), '| bubbles:', await M(p).locator('.bubble').count());
   await M(p).getByRole('button', { name: 'Close search' }).count().then((c) => console.log('search closed by default:', c === 0));
   await p.close();
+  // the other ways of seeing the rooms: each one changes a volume by dragging, and adds a room
+  for (const [view, grab, add] of [['dial', '.darc[data-zone="media_player.kitchen"] .dknob', null], ['desk', '.strip[data-zone="media_player.kitchen"] .fcap', /Add Office to the music/], ['cables', '.cab[data-zone="media_player.kitchen"] .cone', /Add Office to the music/], ['scene', '.actor[data-zone="media_player.kitchen"] > svg', null]]) {
+    const v = await open('look=glass&page=music&mview=' + view); await v.evaluate(() => { (window.__calls ||= []).length = 0; });
+    const g = await M(v).locator(grab).boundingBox(), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
+    await v.mouse.move(cx, cy); await v.mouse.down(); await v.mouse.move(cx + (view === 'dial' ? -14 : 0), cy - 20, { steps: 4 }); await v.mouse.move(cx + (view === 'dial' ? -30 : 0), cy - (view === 'dial' ? 30 : 44), { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
+    let out = `${view} volume: ${(await calls(v, /volume_set/)).split(' || ').pop().slice(-60)}`;
+    if (add) { await M(v).getByRole('button', { name: add }).click(); await v.waitForTimeout(300); out += ` | add: ${(await calls(v, /media_player\.join/)).slice(0, 70)}`; }
+    else { await M(v).locator(view === 'dial' ? '.darc[data-zone="media_player.office"]' : '.actor[data-zone="media_player.office"] > svg').focus(); await v.keyboard.press('Enter'); await v.waitForTimeout(300); out += ` | add by key: ${(await calls(v, /media_player\.join/)).slice(0, 70)}`; }
+    await M(v).locator(view === 'dial' ? '.darc[data-zone="media_player.kitchen"]' : view === 'desk' ? '.strip[data-zone="media_player.kitchen"] .fader' : view === 'cables' ? '.cab[data-zone="media_player.kitchen"] .chit' : '.actor[data-zone="media_player.kitchen"] > svg').focus();
+    await v.keyboard.press('ArrowDown'); await v.waitForTimeout(200); out += ` | key: ${(await calls(v, /volume_set/)).split(' || ').pop().slice(-28)}`;
+    const box = await M(v).locator('.body').evaluate((e) => [...e.querySelectorAll('.bigdial, .desk, .rig, .vscene')].map((x) => { const r = x.getBoundingClientRect(), b = e.getBoundingClientRect(); return r.bottom <= b.bottom + 1 && r.height > 120; })[0]);
+    console.log(out, '| fits:', box);
+    if (view === 'scene') { const pk = await M(v).locator('.puck.spot').boundingBox(), to = await M(v).locator('.actor[data-zone="media_player.lounge_room_sonos"]').boundingBox();
+      await v.mouse.move(pk.x + 30, pk.y + 30); await v.mouse.down(); await v.mouse.move(pk.x + 120, pk.y + 100, { steps: 4 }); await v.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
+      console.log('scene carry:', await calls(v, /transfer_queue/)); }
+    if (view === 'desk') { const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
+      console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
+    await M(v).getByRole('button', { name: /Change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
+    if (view === 'dial') console.log('picker cards:', await M(v).locator('.vcard').count());
+    await v.close();
+  }
   const hd = await open('look=glass&page=music&mview=house&mhide=media_player.office');
   console.log('hidden speaker: rooms', await M(hd).locator('.mzone').count(), '| office shown:', await M(hd).locator('.mzone[data-zone="media_player.office"]').count());
   await hd.close();

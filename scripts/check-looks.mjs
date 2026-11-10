@@ -17,7 +17,7 @@ for (const m of /parts: \{([\s\S]*)\n  \}/.exec(hooksSrc)[1].matchAll(/'([\w-]+)
   partsByTag[m[1]] = names(m[2]);
   for (const n of partsByTag[m[1]]) owner.set(n, [...(owner.get(n) ?? []), m[1]]);
 }
-const FILES = { 'family-hub-card': 'family-hub.ts', 'fh-kid': 'kid.ts', 'fh-groceries': 'groceries.ts', 'fh-music': 'music.ts', 'fh-home': 'home.ts', 'fh-doodle': 'doodle.ts', 'fh-morning': 'morning.ts', 'fh-studio': 'studio.ts', 'fh-add-event': 'addevent.ts', 'fh-pin': 'pin.ts' };
+const FILES = { 'family-hub-card': 'family-hub.ts', 'fh-kid': 'kid.ts', 'fh-groceries': 'groceries.ts', 'fh-music': ['music.ts', 'musicviews.ts'], 'fh-home': 'home.ts', 'fh-doodle': 'doodle.ts', 'fh-morning': 'morning.ts', 'fh-studio': 'studio.ts', 'fh-add-event': 'addevent.ts', 'fh-pin': 'pin.ts' };
 const base = fs.readdirSync(dir).filter((f) => f.endsWith('.ts') && f !== 'looks.ts').map(read).join('\n');
 const drawings = looks.slice(looks.indexOf('little drawings the looks add'), looks.indexOf('look styles (shared by every component)'));
 const has = (txt, n) => new RegExp(`(?<![\\w-])${n}(?![\\w-])`).test(txt);
@@ -43,7 +43,7 @@ for (const [id, tag] of [['FRIDGE', '@F'], ['ORBIT', '@O']]) {
 }
 for (const r of roles) if (!has(base, r)) errors.push(`role "${r}" is no longer used anywhere in the base – remove it from HOOKS and the looks`);
 for (const [tag, list] of Object.entries(partsByTag)) {
-  const src = FILES[tag] ? read(FILES[tag]) + (tag === 'family-hub-card' ? drawings : '') : '';
+  const src = FILES[tag] ? [].concat(FILES[tag]).map(read).join('\n') + (tag === 'family-hub-card' ? drawings : '') : '';
   if (!src) errors.push(`HOOKS names an unknown component "${tag}"`);
   for (const n of list) if (!has(src, n)) errors.push(`part "${n}" no longer exists in ${FILES[tag]} – update HOOKS and the looks that style it`);
 }
