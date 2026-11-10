@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
-import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, setLook, type DialArc, type LookId, type LookOption } from './looks';
+import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, lookPreview, setLook, type DialArc, type LookId, type LookOption } from './looks';
 import './groceries';
 import './kid';
 import './home';
@@ -23,7 +23,7 @@ import { changed, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKid
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.4.1';
+const VERSION = '0.5.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -660,15 +660,18 @@ export class FamilyHubCard extends LitElement {
   }
 
   private _day(a: Date): TemplateResult {
-    const evs = this._eventsOn(a);
-    return html`<div class="daylist fade scrolly" @scroll=${scrollCue}>
+    const evs = this._eventsOn(a), today = sameDay(a, new Date());
+    const list = html`<div class="daylist fade scrolly" @scroll=${scrollCue}>
       ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow" style="opacity:.7"><span style="width:90px;font-size:16px;font-weight:var(--w-semi, 600)" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span><span style="font-size:18px">💊 Private</span></div>` : html`
         <div class="dayrow ${this._evState(e)}" style="--c:${slotVar(e.colour)}">
           <span style="width:90px;font-size:16px;font-weight:var(--w-bold, 700)" class="muted">${e.allDay ? 'All day' : fmtTime(e.start)}</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:20px;font-weight:var(--w-bold, 700)">${e.title}</span>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${e.who}</span></span>
+          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600);display:flex;align-items:center;gap:6px">${this._chip(e.who, e.colour, true)}${e.who}</span></span>
         </div>`) : html`<div class="empty"><h2 class="t-sub">Nothing on</h2><span>A free day!</span></div>`}
     </div>`;
+    // a look may picture the whole day (a clock, a strip…); the list then sits beside it
+    const art = lookArt(this._lk, 'dayview', { arcs: this._arcs(evs), now: today ? this._now : undefined, size: 340 });
+    return art === nothing ? list : html`<div class="dayview fade"><div class="dayart">${art}</div>${list}</div>`;
   }
 
   private _month(): TemplateResult {
@@ -788,7 +791,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead('Pick a look', 'Changes the whole panel.')}
       <div class="themes looks">
         ${LOOKS.map((l) => html`<button class="tcard tap" aria-pressed=${String(l.id === this._look)} @click=${() => this._setLook(l.id)}>
-          <span class="tprev lprev" style="background:${l.swatch}"><span class="lp lp-${l.id}"></span></span>
+          ${lookPreview(l, 120, themeStyle(themeById(this._theme)))}
           <span style="font-size:16px;font-weight:var(--w-bold, 700)">${l.name}</span><span class="muted" style="font-size:13px">${l.tagline}</span>
         </button>`)}
       </div>
@@ -826,7 +829,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`)}
       <div class="themes" style="grid-template-columns:repeat(4,minmax(0,1fr))">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
-          <span class="tprev lprev" style="height:84px;background:${id === 'panel' ? 'var(--chip)' : lookById(id).swatch}">${id === 'panel' ? icon('home', 30) : html`<span class="lp lp-${id}"></span>`}</span>
+          ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme)))}
           <span style="font-size:16px;font-weight:var(--w-bold, 700)">${name}</span><span class="muted" style="font-size:13px">${tag}</span></button>`)}
       </div>
       ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}
@@ -867,15 +870,21 @@ export class FamilyHubCard extends LitElement {
     const now = this._now, clk = fmtClock(now), early = now.getHours() < 6;
     const day = early ? now : addDays(now, 1);
     const evs = this._eventsOn(day, this._soon).filter((e) => !this._private(e.title)).slice(0, 3);
-    const drift = (now.getMinutes() % 10) * 6, driftY = (now.getHours() % 4) * 10;
+    // burn-in care: the whole screen wanders on a slow path that takes hours to repeat, so no pixel rests
+    const t = now.getHours() * 60 + now.getMinutes();
+    const dx = Math.round(Math.sin(t / 7) * 38), dy = Math.round(Math.cos(t / 11) * 24);
+    const amber = this._arcs(this._eventsOn(now, this._soon)).map((x) => ({ ...x, colour: 'rgba(255,178,107,.7)' }));
+    const art = lookArt(this._lk, 'night', { now, arcs: amber, size: 230 });
     return html`<button class="night" aria-label="Wake the panel" @click=${() => { this._nightManual = false; this._awakeUntil = Date.now() + 10 * 60_000; this._lastTouch = Date.now(); }}>
-      <div style="transform:translate(${drift}px, ${driftY}px);transition:transform 30s linear"><span class="display big">${clk.hm}</span><div class="ndate">${fmtLongDate(now)}</div></div>
+      <div class="nwander" style="transform:translate(${dx}px, ${dy}px)">
+      <div class="nclock">${art === nothing ? nothing : html`<span class="nart">${art}</span>`}<div><span class="display big">${clk.hm}</span><div class="ndate">${fmtLongDate(now)}</div></div></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${evs.length ? html`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
           <span style="font-size:13px;font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${early ? 'Today' : 'Tomorrow'}</span>
           ${evs.map((e) => html`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${e.allDay ? 'All day' : fmtTime(e.start)}</span>${e.title}</div>`)}
         </div>` : html`<span></span>`}
         <span class="breathe" style="font-size:16px;opacity:.7">Tap anywhere to wake</span>
+      </div>
       </div>
     </button>`;
   }

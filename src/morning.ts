@@ -20,7 +20,7 @@ export class FhMorning extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; position: relative; }
-    .top { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
+    .board { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
     .team { flex: 1.4; display: flex; flex-direction: column; gap: 4px; align-items: center; }
     .stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; font-size: 30px; line-height: 1; }
     .stars i { font-style: normal; color: var(--track); transition: color .3s; }
@@ -31,21 +31,21 @@ export class FhMorning extends LitElement {
     .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
     .leave.go { animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-10px) rotate(-2deg); } 70% { transform: translateY(0) rotate(1deg); } }
-    .cols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
-    .col { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
-    .who { display: flex; align-items: center; gap: 12px; }
-    .who h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; }
+    .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
+    .kcol { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
+    .khead { display: flex; align-items: center; gap: 12px; }
+    .khead h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; }
     .nextstep { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); font-size: 20px; font-weight: var(--w-bold, 700); min-height: 64px; }
     .nextstep .e { font-size: 38px; line-height: 1; }
     .nextstep small { display: block; font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); }
     .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .go { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
-    .go.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
-    .go.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
+    .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
+    .lchip.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
+    .lchip.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
     .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
-    .mev2 .t { width: 72px; color: var(--ink2); flex-shrink: 0; }
+    .mev2 .mt { width: 72px; color: var(--ink2); flex-shrink: 0; }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
@@ -136,7 +136,7 @@ export class FhMorning extends LitElement {
     const priv = this.privateWords.map((w) => w.toLowerCase());
     const team = this._team(), ready = team.total > 0 && team.done === team.total;
     return html`
-      <section class="glass top">
+      <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
         ${team.total ? html`<div class="team" role="img" aria-label="Team morning: ${team.done} of ${team.total} done">
@@ -148,7 +148,7 @@ export class FhMorning extends LitElement {
           <div style="text-align:right"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
             <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
       </section>
-      <div class="cols" style="--n:${this.kids.length}">
+      <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((k) => {
           const e = kidEntities(k);
           const look = decodeLook(this.hass!.states[e.avatar]?.state, k.look ? decodeLook(k.look) : {});
@@ -157,14 +157,14 @@ export class FhMorning extends LitElement {
           const evs = this.events.filter((ev) => sameDay(ev.start, today) && !priv.some((w) => ev.title.toLowerCase().includes(w)) && (ev.who === k.name || ev.colour === 'family' || ev.title.toLowerCase().includes(k.name.toLowerCase())));
           const bring = this._bring(k, evs);
           const lv = legs.find((l) => l.k === k)!, kl = lv.at - nowM;
-          return html`<button class="glass col tap" style="--kid:${slotVar(k.colour)}" @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
-            <div class="who">${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2></div>
-            <div class="go ${kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : ''}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
+          return html`<button class="glass kcol tap" style="--kid:${slotVar(k.colour)}" @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
+            <div class="khead">${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2></div>
+            <div class="lchip ${kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : ''}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
             ${steps.length ? (todo ? html`<div class="nextstep"><span class="e">${picFor(todo.summary)}</span><span><small>Next</small>${todo.summary}</span></div>`
               : html`<div class="nextstep set"><span class="e">🌟</span><span><small>Morning jobs</small>All set</span></div>`) : nothing}
             ${bring.length ? html`<span class="label">Bring</span><div class="bring">${bring.map((b) => html`<span>${b}</span>`)}</div>` : nothing}
             <span class="label">Today</span>
-            ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="mev2"><span class="t">${ev.allDay ? 'All day' : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
+            ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="mev2"><span class="mt">${ev.allDay ? 'All day' : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
               : html`<span class="muted" style="font-size:14px">Just school today</span>`}
           </button>`;
         })}

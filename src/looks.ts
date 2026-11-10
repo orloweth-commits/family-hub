@@ -29,7 +29,7 @@ import { loadFonts } from './fonts';
 export type LookId = 'glass' | 'fridge' | 'orbit';
 export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
 /** Places in the base where a look may add a drawing of its own. */
-export type ArtSlot = 'clock' | 'day' | 'timer';
+export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night';
 export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number }
 /** A switch a look offers. With `off`/`on` labels it is drawn as a two-way toggle (e.g. Print | Handwriting). */
 export interface LookOption { id: string; label: string; hint?: string; off?: string; on?: string; onStyle?: string }
@@ -42,6 +42,8 @@ export interface LookDef {
   evening?: Record<string, string>;
   art?: Partial<Record<ArtSlot, (c: ArtCtx) => TemplateResult>>;
   options?: LookOption[];
+  /** how the look pictures itself in the look picker; drawn with the look's own tokens */
+  preview?: () => TemplateResult;
 }
 
 /** The contract between the base interface and the looks (see the note at the top). */
@@ -54,10 +56,14 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'family-hub-card': ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'seg', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard',
       // drawings a look adds through art
-      'aclock', 'dial', 'nowdot', 'tface'],
+      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'night', 'nart'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
-    'fh-music': ['stage']
+    'fh-music': ['stage'],
+    'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
+    'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
+    'fh-studio': ['mirror', 'tile'],
+    'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave']
   }
 };
 
@@ -100,6 +106,35 @@ export const ringClock = (arcs: DialArc[], now: Date, size = 76): TemplateResult
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
 };
 
+/**
+ * Orbit's day view: one whole day on a clock face. The inner ring is the morning, the outer ring
+ * the afternoon and evening, so nothing overlaps and each event sits at its hour. Hands show now.
+ */
+export const dayDial = (arcs: DialArc[], now: Date | undefined, size = 360): TemplateResult => {
+  const ring = (r: number): number => 2 * Math.PI * r, AM = 62, PM = 84;
+  const hours = (d: Date): number => d.getHours() + d.getMinutes() / 60;
+  const seg = (a: DialArc, r: number, from: number, to: number) => {
+    const s = Math.max(from, hours(a.start)), e = Math.min(to, a.end.getDate() !== a.start.getDate() ? 24 : hours(a.end));
+    if (e <= s && !(hours(a.start) >= from && hours(a.start) < to)) return nothing;
+    const span = Math.max(7, (Math.max(e, s) - s) * 30);
+    return svg`<circle cx="100" cy="100" r=${r} stroke=${a.colour} stroke-width="15" stroke-dasharray="${(span / 360) * ring(r)} ${ring(r)}" transform="rotate(${(s % 12) * 30 - 90} 100 100)"></circle>`;
+  };
+  const timed = arcs.filter((a) => !a.allDay);
+  const hh = now ? (now.getHours() % 12) * 30 + now.getMinutes() * 0.5 : 0, mm = now ? now.getMinutes() * 6 : 0;
+  return html`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
+    <circle cx="100" cy="100" r=${PM} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
+    <circle cx="100" cy="100" r=${AM} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
+    ${timed.map((a) => seg(a, AM, 0, 12))}${timed.map((a) => seg(a, PM, 12, 24))}
+    ${Array.from({ length: 12 }, (_, i) => svg`<rect x="99.4" y="6" width="1.2" height=${i % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${i * 30} 100 100)"></rect>`)}
+    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([n, x, y]) => svg`<text x=${x} y=${y} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${n}</text>`)}
+    <text x="100" y="41.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
+    <text x="100" y="19.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
+    ${now ? svg`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${hh} 100 100)"></rect>
+      <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${mm} 100 100)"></rect>
+      <circle cx="100" cy=${100 - (now.getHours() < 12 ? AM : PM)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${hh} 100 100)"></circle>
+      <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : svg`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
+};
+
 /** A countdown you can see: the coloured wedge is the time left and shrinks as it runs. */
 export const timerFace = (frac: number, size = 56): TemplateResult => {
   const C = 2 * Math.PI * 22, f = Math.max(0, Math.min(1, frac));
@@ -114,11 +149,13 @@ export const timerFace = (frac: number, size = 56): TemplateResult => {
 const PEOPLE = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0f766e', '--p-4': '#c2410c', '--p-5': '#7c3aed', '--p-family': '#475569', '--on-person': '#ffffff' };
 
 export const LOOKS: LookDef[] = [
-  { id: 'glass', name: 'Glass', tagline: 'Frosted panels over a photo', swatch: 'linear-gradient(160deg,#8ecbf0,#f3e3c4)', themed: true },
+  { id: 'glass', name: 'Glass', tagline: 'Frosted panels over a photo', swatch: 'linear-gradient(160deg,#8ecbf0,#f3e3c4)', themed: true,
+    preview: () => html`<span class="lp-pane"><i></i><i></i><i></i></span>` },
   {
     id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
     fonts: ['Caveat', 'Fredoka'],
-    art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size) },
+    art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size), night: (c) => wallClock(c.now ?? new Date(), c.size ?? 230) },
+    preview: () => html`<span class="lp-note"></span><span class="lp-note lp-today"><i></i></span><span class="lp-note"></span>`,
     options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: 'Print is easier to read from across the room.' }],
     vars: {
       ...PEOPLE,
@@ -139,7 +176,9 @@ export const LOOKS: LookDef[] = [
   {
     id: 'orbit', name: 'Orbit', tagline: 'Dark, calm, built from rings', swatch: '#0a0f1e',
     fonts: ['Outfit'],
-    art: { clock: (c) => ringClock(c.arcs ?? [], c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size) },
+    art: { clock: (c) => ringClock(c.arcs ?? [], c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size),
+      dayview: (c) => dayDial(c.arcs ?? [], c.now, c.size), night: (c) => ringClock(c.arcs ?? [], c.now ?? new Date(), c.size ?? 250) },
+    preview: () => html`<span class="lp-ring"></span><span class="lp-card"><i></i><i></i><i></i></span>`,
     vars: {
       // same hue per person as every other look, lifted for a dark ground
       '--p-1': '#7cb7ff', '--p-2': '#ff8fb1', '--p-3': '#6ee7c0', '--p-4': '#ff9f6b', '--p-5': '#c9a7ff', '--p-family': '#cbd5e1', '--on-person': '#0a0f1e',
@@ -158,6 +197,17 @@ export const lookById = (id: string | null | undefined): LookDef => LOOKS.find((
 /** A look's drawing for a slot, or nothing. The base calls this without knowing which look is on. */
 export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult | typeof nothing =>
   lookById(id).art?.[slot]?.(ctx) ?? (slot === 'timer' ? timerFace(ctx.frac ?? 0, ctx.size) : nothing); // every look shows time as a shrinking wedge
+
+/**
+ * The picture of a look in the picker. It carries the look's own tokens, so a look that changes its
+ * colours changes its preview too; a themed look inherits the current theme from the panel.
+ */
+export const lookPreview = (l: LookDef, height = 120, theme = ''): TemplateResult => {
+  const vars = l.vars ? Object.entries(l.vars).map(([k, v]) => `${k}:${v}`).join(';') : theme;
+  return html`<span class="lookprev" data-prev=${l.id} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
+    ${l.art?.clock ? html`<span class="lp-clock">${l.art.clock({ now: new Date(2000, 0, 1, 10, 10), arcs: [] })}</span>` : nothing}${l.preview?.() ?? nothing}
+    <span class="lp-people">${[1, 2, 3, 4, 5].map((n) => html`<i style="background:var(--p-${n})"></i>`)}</span></span>`;
+};
 
 let current: LookId = 'glass';
 const subs = new Set<() => void>();
@@ -319,6 +369,46 @@ const FRIDGE = `
 
   /* music: the player is a dark deck */
   @F .stage { background: #2f2a26; color: #fff; border-radius: 10px; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
+
+  /* home: every room is a note; a room with a light on is the bright one */
+  @F .room { background: var(--note); border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.5deg); }
+  @F .room.lit { background: var(--note-today); box-shadow: 0 7px 10px rgba(0,0,0,.2); rotate: calc(var(--tilt, 1) * .5deg); }
+  @F .rh h2 { font-size: 28px; line-height: 1; }
+  @F .dev { background: transparent; border-radius: 0; border-bottom: 1.5px solid color-mix(in srgb, var(--ink) 18%, transparent); padding-left: 2px; padding-right: 2px; }
+  @F .dicon { background: var(--magnet); color: var(--ink); box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.12); }
+  @F .dev.on .dicon { background: #ffd23f; color: #5b3a00; box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.14), 0 0 0 4px rgba(255,210,63,.4); }
+  @F .toggle { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
+  @F .toggle[aria-checked='true'] { background: var(--ok); }
+  @F .scene { background: var(--magnet); border-radius: 10px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.18); font-weight: 600; }
+
+  /* doodle: paint-pot magnets, and finished pictures taped up as polaroids */
+  @F .pad { border-radius: 2px; }
+  @F .ink { box-shadow: 0 3px 0 rgba(0,0,0,.22), inset 0 -3px 0 rgba(0,0,0,.14); }
+  @F .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink); }
+  @F .gallery { background: transparent; box-shadow: none; padding: 8px 2px; }
+  @F .snaps { gap: 26px 12px; padding: 12px 6px; }
+  @F .snap { aspect-ratio: auto; height: 108px; border-radius: 2px; border: 7px solid #fff; border-bottom-width: 26px; background-color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.26); }
+  @F .snap::before { top: -16px; width: 46px; height: 16px; margin-left: -23px; border-radius: 1px; background: color-mix(in srgb, var(--note-today) 82%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.12); rotate: -4deg; }
+  @F .by { left: 0; right: 0; bottom: -25px; padding: 0; background: transparent; border-radius: 0; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.2; text-align: center; color: #26272b; }
+
+  /* avatar studio: the mirror is a taped photo, the shelf is a sheet of stickers */
+  @F .mirror { overflow: visible; rotate: calc(var(--tilt, 1) * -.5deg); }
+  @F .mirror::before { inset: -10px auto auto 50%; width: 96px; height: 24px; margin-left: -48px; background: color-mix(in srgb, var(--kid) 50%, #fff); opacity: .85; transform: rotate(-3deg); }
+  @F .tile { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.16); font-weight: 500; }
+  @F .tile[aria-pressed='true'] { background: var(--note-today); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
+
+  /* morning board: one note per child under a magnet in their colour */
+  @F .kcol { position: relative; overflow: visible; border-top: 0; border-radius: 2px; padding-top: 30px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); }
+  @F .kcol::before { content: ''; position: absolute; top: 6px; left: 50%; margin-left: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--kid); box-shadow: 0 2px 3px rgba(0,0,0,.3), inset 0 -3px 0 rgba(0,0,0,.18); }
+  @F .khead h2 { font-size: 36px; }
+  @F .nextstep { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); font-weight: 600; }
+  @F .nextstep.set { background: color-mix(in srgb, var(--ok) 22%, var(--paper)); }
+  @F .lchip { background: transparent; border-radius: 0; border-bottom: 2px dashed var(--ink); padding-left: 2px; padding-right: 2px; font-weight: 600; }
+  @F .lchip.soon, @F .lchip.now { background: var(--note-today); border-radius: 3px; border-bottom-color: transparent; padding-left: 10px; padding-right: 10px; }
+  @F .leave { font-family: 'Fredoka', sans-serif; font-weight: 700; }
+
+  /* night: the kitchen clock keeps watch */
+  @F .night .big { font-weight: 400; }
 `;
 
 const ORBIT = `
@@ -428,10 +518,71 @@ const ORBIT = `
   @O .items { gap: 0; }
   @O .tag { font-weight: 600; }
   @O .who.glass { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+
+  /* home: rooms are outlined cells; a room with a light on carries the 'now' yellow */
+  @O .room { background: transparent; border-radius: 26px; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .room.lit { background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  @O .rh h2 { font-size: 20px; font-weight: 500; }
+  @O .dev { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); padding-left: 2px; padding-right: 2px; }
+  @O .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .dev.on .dicon { background: var(--accent); color: #0a0f1e; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
+  @O .toggle { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .toggle[aria-checked='true'] { background: var(--ok); box-shadow: none; }
+  @O .scene { background: transparent; border-radius: 20px; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
+
+  /* doodle: the paper stays bright, the gallery is a row of framed portholes */
+  @O .pad { border-radius: 24px; }
+  @O .ink { box-shadow: none; }
+  @O .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ground), 0 0 0 5px var(--ink); }
+  @O .snap { border-radius: 18px; box-shadow: 0 0 0 1.5px var(--ctl-line); }
+  @O .snap:nth-child(odd), @O .snap:nth-child(even) { transform: none; }
+  @O .snap::before { display: none; }
+  @O .by { background: var(--ground); color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); font-weight: 500; }
+
+  /* avatar studio */
+  @O .tile { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 400; }
+  @O .tile[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 0 0 0 2px var(--accent); }
+
+  /* morning board */
+  @O .kcol { border-top: 0; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--kid) 60%, transparent); }
+  @O .khead h2 { font-weight: 500; }
+  @O .nextstep { background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); font-weight: 500; }
+  @O .nextstep.set { background: color-mix(in srgb, var(--ok) 11%, transparent); box-shadow: inset 0 0 0 1.5px var(--ok); }
+  @O .lchip { background: transparent; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--glass-line); padding-left: 14px; padding-right: 14px; font-weight: 500; }
+  @O .lchip.soon, @O .lchip.now { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  @O .leave { font-family: 'Outfit', sans-serif; font-weight: 400; }
+
+  /* day view: the day as a dial, the list beside it */
+  @O .dayview { gap: 28px; }
+  @O .dayart { padding: 0 14px; }
+
+  /* night: only the dial and the time */
+  @O .night .big { font-weight: 300; }
 `;
 
 const KEYFRAMES = `
   @keyframes fhSpin { to { transform: rotate(360deg); } }
+`;
+
+/* The look picker's little pictures. They are built from each look's tokens, never from fixed colours. */
+const PREVIEW = `
+  .lookprev { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; overflow: hidden; padding: 10px; color: var(--ink); }
+  .lookprev .lp-clock { position: absolute; top: 8px; right: 10px; line-height: 0; }
+  .lookprev .lp-clock svg { width: 30px; height: 30px; }
+  .lookprev .lp-people { position: absolute; left: 10px; bottom: 8px; display: flex; gap: 4px; }
+  .lookprev .lp-people i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--glass, #fff); }
+  .lookprev .lp-pane, .lookprev .lp-card { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 10px; background: var(--glass); border: 1px solid var(--glass-line); }
+  .lookprev .lp-pane { width: 62%; height: 56%; border-radius: 14px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: var(--shadow); }
+  .lookprev .lp-card { width: 42%; height: 56%; border-radius: 14px; }
+  .lookprev .lp-pane i, .lookprev .lp-card i { height: 6px; border-radius: 3px; background: var(--ink); opacity: .6; }
+  .lookprev .lp-pane i:nth-child(2), .lookprev .lp-card i:nth-child(2) { width: 68%; }
+  .lookprev .lp-pane i:nth-child(3), .lookprev .lp-card i:nth-child(3) { width: 42%; background: var(--primary); opacity: 1; }
+  .lookprev .lp-note { position: relative; width: 21%; height: 52%; border-radius: 2px; background: var(--note); box-shadow: 0 4px 5px rgba(0,0,0,.18); rotate: -3deg; }
+  .lookprev .lp-note:last-of-type { rotate: 2deg; }
+  .lookprev .lp-note.lp-today { height: 64%; background: var(--note-today); rotate: 1deg; }
+  .lookprev .lp-note::before { content: ''; position: absolute; top: -4px; left: 50%; margin-left: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink3); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .lookprev .lp-note.lp-today::before { background: var(--danger); }
+  .lookprev .lp-ring { width: 56px; height: 56px; border-radius: 50%; border: 8px solid var(--track); border-top-color: var(--accent); border-right-color: var(--p-1); flex-shrink: 0; }
 `;
 
 const OWNER = new Map<string, string[]>();
@@ -459,4 +610,4 @@ const tokens = (l: LookDef): string => {
   return `${root} {${decl(l.vars)}}\n${l.evening ? `${root}[data-tod='eve'], ${root}[data-tod='night'] {${decl(l.evening)}}\n` : ''}`;
 };
 
-export const lookCss = unsafeCSS(KEYFRAMES + LOOKS.map(tokens).join('') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit'));
+export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit'));

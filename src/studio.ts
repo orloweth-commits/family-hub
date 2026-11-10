@@ -12,8 +12,8 @@ export class FhStudio extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
-    .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
-    .stage::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
+    .mirror { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
+    .mirror::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
     .tabs button { height: 40px; padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
@@ -52,19 +52,19 @@ export class FhStudio extends LitElement {
   private get d(): Look { return this._draft ?? this.look; }
   private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 2200); }
 
-  private get _jack(): boolean { return this.kid.mode === 'picture'; }
+  private get _picMode(): boolean { return this.kid.mode === 'picture'; }
   private get _goal(): string { return this.hass?.states[kidEntities(this.kid).goal]?.state ?? ''; }
   private _pick(cat: Category, it: Item, swatch = false): void {
     if (!isUnlocked(it, this.life, this.grow)) {
       this._shake = `${cat.id}:${it[0]}`; setTimeout(() => { this._shake = ''; }, 460);
       sfx('locked');
-      if (this._jack) { say('Not yet! Keep collecting stars.'); return; }
+      if (this._picMode) { say('Not yet! Keep collecting stars.'); return; }
       if (it[3]) this._say(`${it[1]} is a surprise – keep practising and reading!`);
       else this._say(`${it[1]} is ${it[2] - this.life} away. Tap ♥ to make it your goal.`);
       return;
     }
     sfx('tap');
-    if (this._jack) say(it[1]);
+    if (this._picMode) say(it[1]);
     this._draft = applyItem(this.d, cat, it[0], swatch);
     this._jump++;
   }
@@ -105,14 +105,14 @@ export class FhStudio extends LitElement {
     const dirty = !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
-      <section class="glass stage">
+      <section class="glass mirror">
         <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('left', 18)}</button>
           <h1 class="t-title" style="flex:1">${this.kid.name}’s studio</h1>
           <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${icon('shuffle', 18)}</button>
         </div>
         <button class="tap" style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>
-        ${nx && !this._jack ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
+        ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:14px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
         <div style="display:flex;gap:10px;width:100%;margin-top:auto;z-index:1">
@@ -121,7 +121,7 @@ export class FhStudio extends LitElement {
         </div>
       </section>
       <section class="glass shelf">
-        <div class="tabs" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-pressed=${String(c.id === this._tab)} style=${this._jack ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._jack) say(c.label); }}>${this._jack ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
+        <div class="tabs" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-pressed=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="width:60px">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
@@ -131,8 +131,8 @@ export class FhStudio extends LitElement {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
               <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
-              ${locked ? html`<span class="lock">${surprise ? '🌱' : `🔒 ${this._jack ? '★' : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
-              ${locked && !surprise && !this._jack ? html`<span class="heart tap" role="button" aria-label="Make ${it[1]} my goal" @click=${(e: Event) => { e.stopPropagation(); this._setGoal(it); }}>${this._goal === it[0] ? '❤️' : '♡'}</span>` : nothing}
+              ${locked ? html`<span class="lock">${surprise ? '🌱' : `🔒 ${this._picMode ? '★' : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
+              ${locked && !surprise && !this._picMode ? html`<span class="heart tap" role="button" aria-label="Make ${it[1]} my goal" @click=${(e: Event) => { e.stopPropagation(); this._setGoal(it); }}>${this._goal === it[0] ? '❤️' : '♡'}</span>` : nothing}
             </button>`;
           })}
         </div>

@@ -113,6 +113,9 @@ export const styles = css`
   .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width .8s; }
 
   .daylist { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+  .dayview { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 22px; }
+  .dayview .dayart { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding: 0 6px; line-height: 0; }
+  .dayview .daylist { min-width: 0; }
   .dayrow { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c, transparent) 22%, transparent); border-left: 6px solid var(--c, transparent); }
 
   .month { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px; }
@@ -165,15 +168,16 @@ export const styles = css`
   .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
   .opt[aria-checked='true'] .sw { background: var(--ok); }
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
-  .lprev { align-items: center; justify-content: center; }
-  .lprev .lp { width: 46%; height: 62%; border-radius: 14px; box-shadow: none; background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.85); }
-  .lprev .lp-fridge { border-radius: 2px; background: #fff2a1; border: 0; box-shadow: 0 5px 7px rgba(0,0,0,.2); transform: rotate(-3deg); }
-  .lprev .lp-orbit { width: 78px; height: 78px; border-radius: 50%; background: transparent; border: 8px solid rgba(255,255,255,.16); border-top-color: #ffe08a; border-right-color: #7cb7ff; }
   .toast { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); z-index: 20; padding: 14px 22px; border-radius: 999px; background: rgba(15,15,20,.88); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn .3s ease both; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash .7s ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
   .night { position: absolute; inset: 0; z-index: 40; padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between; color: #ffb26b; text-align: left;
-    background: #000; animation: fadeIn .8s ease both; }
+    background: #000; animation: fadeIn .8s ease both;
+    /* drawings a look adds here are redrawn in the same dim amber as the digits */
+    --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
+  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform 55s linear; }
+  .night .nclock { display: flex; align-items: center; gap: 40px; }
+  .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
   .night .ndate { font-size: 26px; font-weight: 500; margin-top: 10px; opacity: .6; }
   .night .dglass { background: rgba(255,178,107,.06); border: 1px solid rgba(255,178,107,.18); -webkit-backdrop-filter: none; backdrop-filter: none; }

@@ -68,10 +68,9 @@ export class FhKid extends LitElement {
     .sec span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
     .job .box { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: var(--w-heavy, 800); transition: all .25s cubic-bezier(.2,1.4,.4,1); }
-    /* the tick button's target covers the whole row; the practice timer sits above it */
+    /* a tap anywhere on the row ticks the job (the row listens; the button inside keeps it reachable by keyboard and screen reader) */
+    .job { cursor: pointer; }
     .job > .hit { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; text-align: left; min-height: 44px; }
-    .job > .hit::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
-    .job > .play { position: relative; z-index: 1; }
     .job.now { box-shadow: inset 0 0 0 2.5px var(--kid); }
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
@@ -80,7 +79,7 @@ export class FhKid extends LitElement {
     .job.big .box { width: 52px; height: 52px; font-size: 26px; }
     .job.big .t { font-size: 28px; font-weight: var(--w-bold, 700); }
     .job.soonjob { opacity: .82; }
-    .pic.big { flex: 1 1 0; min-height: 0; max-height: 300px; }
+    .pic.big { flex: 4 1 0; min-height: 204px; max-height: 300px; }
     .pic.big .e { font-size: 124px; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
@@ -195,7 +194,7 @@ export class FhKid extends LitElement {
 
   private get _e() { return kidEntities(this.kid); }
   private get _star(): number { return this.kid.star ?? 10; }
-  private get _jack(): boolean { return this.kid.mode === 'picture'; }
+  private get _picMode(): boolean { return this.kid.mode === 'picture'; }
   private get _life(): number { return num(this.hass, this._e.lifetime); }
   private get _grow(): number { return num(this.hass, this._e.grow); }
   private _lookCache: [string, Look] | null = null;
@@ -244,7 +243,7 @@ export class FhKid extends LitElement {
       this._celebrate = [...fresh].sort((a, b) => Number(f.includes(b.id)) - Number(f.includes(a.id)));
       this._confetti++;
       this._sound('unlock');
-      if (this._jack) say(`Wow Jack! You unlocked ${fresh[0].label}!`);
+      if (this._picMode) say(`Wow Jack! You unlocked ${fresh[0].label}!`);
     }
   }
   private _closeCelebrate(open: boolean): void {
@@ -309,10 +308,10 @@ export class FhKid extends LitElement {
       this._sound(c.lane === 'job' ? 'coin' : 'tick');
       this._jump++;
       const id = Date.now();
-      const text = c.lane === 'grow' ? '🌱' : c.pts ? (this._jack ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
+      const text = c.lane === 'grow' ? '🌱' : c.pts ? (this._picMode ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
       this._bursts = [...this._bursts, { id, text }];
       setTimeout(() => { this._bursts = this._bursts.filter((b) => b.id !== id); }, 1300);
-      if (this._jack) say(`${c.summary}. Done! ${c.pts ? 'Here’s a star!' : ''}`);
+      if (this._picMode) say(`${c.summary}. Done! ${c.pts ? 'Here’s a star!' : ''}`);
       this._maybeAllDone();
     } catch (err) {
       console.warn('Family Hub: chore update failed', err);
@@ -332,7 +331,7 @@ export class FhKid extends LitElement {
     lsSet(key, true);
     const n = this.kid.name;
     if (!this._wind) { this._confetti++; this._sound(((this.kid.sound as Sfx) ?? 'done')); setTimeout(() => this._sound('done'), 700); }
-    if (this._jack) say(slot === 'am' ? `You did your whole morning, ${n}!` : slot === 'bed' ? `All ready for bed, ${n}. Sleep well!` : `All done, ${n}!`);
+    if (this._picMode) say(slot === 'am' ? `You did your whole morning, ${n}!` : slot === 'bed' ? `All ready for bed, ${n}. Sleep well!` : `All done, ${n}!`);
     this._say(slot === 'bed' ? `All set for bed, ${n}. Sleep well.` : [`All done, ${n}. You stuck with it today.`, `That’s everything, ${n}. Nice and steady.`, `Legend effort, ${n}.`][Math.floor(Math.random() * 3)]);
   }
 
@@ -357,8 +356,8 @@ export class FhKid extends LitElement {
     const have = num(this.hass, this._e.points);
     if (have < r.cost) {
       this._sound('locked');
-      if (this._jack) say(`Not yet! ${Math.ceil((r.cost - have) / this._star)} more stars for ${r.name}.`);
-      this._say(`Saving up: ${this._jack ? `${Math.ceil((r.cost - have) / this._star)} more stars` : `${r.cost - have} to go`}. You’ll get there.`);
+      if (this._picMode) say(`Not yet! ${Math.ceil((r.cost - have) / this._star)} more stars for ${r.name}.`);
+      this._say(`Saving up: ${this._picMode ? `${Math.ceil((r.cost - have) / this._star)} more stars` : `${r.cost - have} to go`}. You’ll get there.`);
       return;
     }
     const needs = r.approve ?? r.cost >= 60;
@@ -368,19 +367,19 @@ export class FhKid extends LitElement {
       this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed });
     }
     this._confetti++; this._jump++; this._sound('unlock');
-    if (this._jack) say(`Yay! ${r.name}!`);
+    if (this._picMode) say(`Yay! ${r.name}!`);
     this._say(needs ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${r.name}.` : `Nice saving, ${this.kid.name}! ${r.name} – your pick.`);
   }
 
   private _feelPick(f: string): void {
     this._feel = f; this._sound('tap');
-    if (this._jack) say({ up: 'Yay! I’m glad you feel happy.', mid: 'Okay. Thanks for telling me.', down: 'Thanks for telling me. Let’s find a grown-up for a hug.' }[FEEL_KIND(f)]);
+    if (this._picMode) say({ up: 'Yay! I’m glad you feel happy.', mid: 'Okay. Thanks for telling me.', down: 'Thanks for telling me. Let’s find a grown-up for a hug.' }[FEEL_KIND(f)]);
   }
   private _feelReply(kind: 'hug' | 'chat' | 'ok' | 'share'): void {
     if (kind === 'chat' || kind === 'share') this.hass?.callService('persistent_notification', 'create', { title: kind === 'share' ? `${this.kid.name} has something good to share` : `${this.kid.name} would like a chat`,
       message: this._feel ? `${this.kid.name} said he’s feeling ${this._feel} and would like ${kind === 'share' ? 'to tell you about it' : 'a chat later'}.` : `${this.kid.name} would like a chat with a grown-up${this._wind ? ' before bed' : ''}.`, notification_id: `fh_chat_${this._e.slug}` });
     const msg = kind === 'hug' ? 'Go find a grown-up for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : kind === 'share' ? 'Lovely. A grown-up will come and hear all about it.' : 'A grown-up will come and chat soon.';
-    this._say(msg); if (this._jack) say(msg.replace(' 🤗', ''));
+    this._say(msg); if (this._picMode) say(msg.replace(' 🤗', ''));
     this._feel = '';
   }
 
@@ -439,10 +438,10 @@ export class FhKid extends LitElement {
     const goodToday = this._goodToday();
     const goodCount = [...w].filter((c, i) => c === 'G' || (i === todayIdx && goodToday)).length;
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
-      <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._jack) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
+      <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age })}</button>
-      <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._jack ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
-      ${this._jack ? html`
+      <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
+      ${this._picMode ? html`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
           <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b class="stars" style="font-size:30px">★ ${n}</b>` : n ? html`<span class="starjar">${'★'.repeat(n).split('').map((x) => html`<i>${x}</i>`)}</span>` : html`<b class="stars" style="font-size:26px">☆</b>`; })()}
           <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
@@ -460,13 +459,13 @@ export class FhKid extends LitElement {
         <span class="shimmer" style="border-radius:50%;line-height:0">${renderAvatar(applyItem(look, nx.cat, nx.id, nx.swatch), { size: 46, crop: 'head', still: true, age: this.kid.age })}</span>
         <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${goal === nx.id ? '♥ Saving for' : 'Next'}: ${nx.label}</span>
           <div class="xp meter" style="height:7px"><div style="width:${pct}%"></div></div>
-          ${this._jack ? nothing : html`<span class="muted" style="font-size:12px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
+          ${this._picMode ? nothing : html`<span class="muted" style="font-size:12px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
       </div>` : html`<div class="nextup"><span style="font-size:13px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
-      ${this.kid.special_time && !this._jack ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
+      ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind ? nothing : (() => {
         const wait = this.oneAtATime && this._block().todo.length > 0;
-        return html`${wait ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._jack ? 'my look' : 'studio'}</span>` : nothing}
-          <button class="pill tap ${wait ? '' : 'primary'}" style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => { this._studio = true; this._sound('tap'); }}>${icon('star', 20)}${this._jack ? '🎨 My look' : 'Style studio'}</button>`;
+        return html`${wait ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
+          <button class="pill tap ${wait ? '' : 'primary'}" style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => { this._studio = true; this._sound('tap'); }}>${icon('star', 20)}${this._picMode ? '🎨 My look' : 'Style studio'}</button>`;
       })()}
     </section>`;
   }
@@ -488,7 +487,7 @@ export class FhKid extends LitElement {
     const grow = this._wind ? list.filter((c) => c.lane === 'grow' && c.slot === 'bed') : list.filter((c) => c.lane === 'grow' && c.slot !== 'bed' || (c.lane === 'grow' && slot === 'bed'));
     const later = list.filter((c) => c.lane === 'routine' && c.status !== 'completed' && c.slot !== slot && c.slot !== 'any' && ((slot === 'am') || (slot === 'after' && c.slot === 'bed')));
     // picture mode shows the routine only
-    const visible = this._jack ? routineNow : [...routineNow, ...jobs, ...grow];
+    const visible = this._picMode ? routineNow : [...routineNow, ...jobs, ...grow];
     const todo = visible.filter((c) => c.status !== 'completed');
     return { bt, slot, routineNow, jobs, grow, later, visible, todo, done: visible.length - todo.length, total: visible.length };
   }
@@ -505,21 +504,21 @@ export class FhKid extends LitElement {
     const toBed = Math.min(60, hm(bt) - minsNow(this._now));
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="flex:1"><h1 class="t-title">${this._wind ? 'Wind down' : this._jack ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
+        <div style="flex:1"><h1 class="t-title">${this._wind ? 'Wind down' : this._picMode ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
           <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${sub}</span></div>
         ${this.oneAtATime && this._showAll ? html`<button class="pill tap" @click=${() => { this._showAll = false; }}>One at a time</button>` : nothing}
-        ${this._jack ? html`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => say(routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary).join('. ') || 'All done! Great job!')}>🔊</button>` : nothing}
+        ${this._picMode ? html`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => say(routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary).join('. ') || 'All done! Great job!')}>🔊</button>` : nothing}
         ${this._wind && toBed > 0 ? html`<span class="bedclock" role="img" aria-label="${toBed} minutes until bed">${lookArt(getLook(), 'timer', { frac: toBed / 60, size: 52 })}<b>${toBed}<span>min</span></b></span>` : nothing}
         <div class="ring" role="img" aria-label="${done} of ${total} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
           <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - frac)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${done}/${total}</b></div>
       </div>
       ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" @scroll=${scrollCue}>
-        ${this._jack ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>`
+        ${this._picMode ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>`
           : html`
             ${routineNow.length ? html`<div class="sec"><h2>${SLOT_NAME[slot]} routine</h2><span>just what we do</span></div>${routineNow.map((c) => this._row(c))}` : nothing}
             ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2><span>earn points · fill the jar</span></div>${jobs.map((c) => this._row(c))}` : nothing}
             ${grow.length ? html`<div class="sec"><h2>Growing</h2><span>for you – surprises along the way</span></div>${grow.map((c) => this._row(c))}` : nothing}`}
-        ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._jack ? picFor(c) : '').join(' ')}</span></div>` : nothing}
+        ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._picMode ? picFor(c) : '').join(' ')}</span></div>` : nothing}
         ${!visible.length ? html`<div class="wind"><span style="font-size:44px">🌤️</span><span>Nothing right now. Enjoy!</span></div>` : nothing}
       </div>`}
     </section>`;
@@ -535,8 +534,8 @@ export class FhKid extends LitElement {
     const more = rest.length;
     return html`<div class="focus">
       <span class="label">Now</span>
-      ${this._jack ? this._pic(now, 'big') : this._row(now, true)}
-      ${next ? html`<span class="label">Next</span>${this._jack ? this._pic(next, 'small') : this._row(next, false, true)}` : nothing}
+      ${this._picMode ? this._pic(now, 'big') : this._row(now, true)}
+      ${next ? html`<span class="label">Next</span>${this._picMode ? this._pic(next, 'small') : this._row(next, false, true)}` : nothing}
       <span style="flex:1"></span>
       ${more || done ? html`<button class="later tap" @click=${() => { this._showAll = true; this._sound('tap'); }}>
         <span>${more ? `Later: ${more} more` : 'That’s the last one!'}${done ? ` · ${done} done ✓` : ''}</span><span>Show all</span></button>` : nothing}
@@ -546,13 +545,13 @@ export class FhKid extends LitElement {
   private _row(c: ParsedChore, big = false, soon = false): TemplateResult {
     const d = c.status === 'completed', p = this._practice?.uid === c.uid ? this._practice : null;
     const left = p ? Math.max(0, p.end - this._now.getTime()) : 0;
-    return html`<div class="job row ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${big ? 'big' : ''} ${soon ? 'soonjob' : ''}" style="padding-right:10px">
-      <button class="tap hit" aria-pressed=${String(d)} @click=${() => this._toggle(c)}>
+    return html`<div class="job row ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${big ? 'big' : ''} ${soon ? 'soonjob' : ''}" style="padding-right:10px" @click=${() => this._toggle(c)}>
+      <button class="tap hit" aria-pressed=${String(d)}>
         <span class="box check">${d ? '✓' : ''}</span>
         ${this.kid.mode === 'mixed' ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
         <span class="t content">${c.summary}</span></button>
-      ${c.lane === 'grow' && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.ceil(left / 60000)} minutes left" @click=${() => this._stopPractice()}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
-        : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @click=${() => this._startPractice(c)}>▶ ${c.minutes} min</button>`) : nothing}
+      ${c.lane === 'grow' && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
+        : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
       ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;
   }
@@ -569,15 +568,15 @@ export class FhKid extends LitElement {
     return html`${list.map((r) => {
         const ok = have >= r.cost;
         return html`<div class="rw"><span style="font-size:24px">${r.icon ?? '🎁'}</span><span class="n">${r.name}</span>
-          <button class="tap ${ok ? '' : 'save'}" @click=${() => this._redeem(r)}>${this._jack ? (Math.round(r.cost / st) > 5 ? `${Math.round(r.cost / st)} ★` : '★'.repeat(Math.max(1, Math.round(r.cost / st)))) : ok ? `${r.cost}` : `${r.cost - have} to go`}</button></div>`;
+          <button class="tap ${ok ? '' : 'save'}" @click=${() => this._redeem(r)}>${this._picMode ? (Math.round(r.cost / st) > 5 ? `${Math.round(r.cost / st)} ★` : '★'.repeat(Math.max(1, Math.round(r.cost / st)))) : ok ? `${r.cost}` : `${r.cost - have} to go`}</button></div>`;
       })}`;
   }
 
   private _tabs(): TemplateResult {
     const wait = this.oneAtATime && !this._tabPicked && this._block().todo.length > 0;
-    const t = wait ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._jack) say(label); }}>${label}</button>`;
+    const t = wait ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._picMode) say(label); }}>${label}</button>`;
     return html`<section class="glass card tabcard" aria-label=${t === 'rewards' ? 'Rewards' : 'Week'}>
-      <div class="tabs">${tab('rewards', this._jack ? '⭐ My stars' : '🎁 Rewards')}${tab('week', this._jack ? '📅 Coming up' : '📅 My week')}</div>
+      <div class="tabs">${tab('rewards', this._picMode ? '⭐ My stars' : '🎁 Rewards')}${tab('week', this._picMode ? '📅 Coming up' : '📅 My week')}</div>
       ${t === 'rewards' ? this._rewards() : this._weekBody()}</section>`;
   }
 
@@ -600,8 +599,8 @@ export class FhKid extends LitElement {
   }
 
   private _feelCard(): TemplateResult {
-    const faces = this._jack ? FEELINGS_3 : FEELINGS, kind = this._feel ? FEEL_KIND(this._feel) : 'mid';
-    const big = this._jack ? 'height:56px;font-size:18px' : '';
+    const faces = this._picMode ? FEELINGS_3 : FEELINGS, kind = this._feel ? FEEL_KIND(this._feel) : 'mid';
+    const big = this._picMode ? 'height:56px;font-size:18px' : '';
     const ask = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' }[kind];
     return html`<section class="glass card" aria-label="How are you feeling">
       ${this._feel ? html`<span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
@@ -609,8 +608,8 @@ export class FhKid extends LitElement {
           ? html`<button class="pill tap" style=${big} @click=${() => this._feelReply('share')}>💬 Tell a grown-up</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>👍 All good</button>`
           : html`<button class="pill tap" style=${big} @click=${() => this._feelReply('hug')}>🤗 Hug</button><button class="pill tap" style=${big} @click=${() => this._feelReply('chat')}>💬 Chat later</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>I’m OK</button>`}</div>`
         : html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._jack ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${() => say('How are you feeling?')}>🔊</button>` : nothing}</div>
-          <div class="feel ${this._jack ? 'three' : ''}">${faces.map(([e, w]) => html`<button class="tap" aria-label=${w} @click=${() => this._feelPick(w)}>${e}</button>`)}</div>`}
+            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${() => say('How are you feeling?')}>🔊</button>` : nothing}</div>
+          <div class="feel ${this._picMode ? 'three' : ''}">${faces.map(([e, w]) => html`<button class="tap" aria-label=${w} @click=${() => this._feelPick(w)}>${e}</button>`)}</div>`}
     </section>`;
   }
 
@@ -625,10 +624,10 @@ export class FhKid extends LitElement {
     const label = (d: Date): string => {
       if (sameDay(d, today)) return 'Today';
       const n = Math.round((startOfDay(d).getTime() - startOfDay(today).getTime()) / 86_400_000);
-      if (this._jack) return `${n} sleep${n > 1 ? 's' : ''}`;
+      if (this._picMode) return `${n} sleep${n > 1 ? 's' : ''}`;
       return n === 1 ? 'Tomorrow' : fmtDow(d);
     };
-    return html`${this._wind ? html`<span class="label">${this._jack ? 'Coming up' : `${this.kid.name}’s week`}</span>` : nothing}
+    return html`${this._wind ? html`<span class="label">${this._picMode ? 'Coming up' : `${this.kid.name}’s week`}</span>` : nothing}
       ${evs.length ? evs.map((e, i) => html`<div class="wk"><span class="d">${i && label(evs[i - 1].start) === label(e.start) ? '' : label(e.start)}</span>
         <span style="flex:1;font-weight:var(--w-semi, 600);display:flex;gap:6px;align-items:baseline"><span class="init sm" style="--c:${e.family ? 'var(--p-family)' : 'var(--kid)'};align-self:center" role="img" aria-label=${e.family ? 'Family' : this.kid.name}>${e.family ? 'F' : this.kid.name[0]}</span>
           <span>${e.title}${e.allDay ? '' : html` <span class="muted" style="font-weight:500">· ${fmtTime(e.start)}</span>`}</span></span></div>`)

@@ -22,8 +22,8 @@ export class FhHome extends LitElement {
     .rh { display: flex; align-items: center; gap: 8px; }
     .rh h2 { flex: 1; font-size: 19px; font-weight: var(--w-heavy, 800); }
     .dev { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
-    .dev .ic { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: all .3s; }
-    .dev.on .ic { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
+    .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: all .3s; }
+    .dev.on .dicon { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
     .dev .n { flex: 1; font-size: 14px; font-weight: var(--w-semi, 600); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dev .s { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); text-transform: capitalize; }
     .side { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
@@ -32,10 +32,10 @@ export class FhHome extends LitElement {
     .scene.go { animation: go .8s ease; }
     @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(1.04); } }
     .auto { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-size: 14px; font-weight: var(--w-semi, 600); }
-    .sw { width: 50px; height: 30px; border-radius: 15px; background: var(--track); position: relative; flex-shrink: 0; transition: background .25s; }
-    .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
-    .sw[aria-checked='true'] { background: var(--ok); }
-    .sw[aria-checked='true']::after { transform: translateX(20px); }
+    .toggle { width: 50px; height: 30px; border-radius: 15px; background: var(--track); position: relative; flex-shrink: 0; transition: background .25s; }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
+    .toggle[aria-checked='true'] { background: var(--ok); }
+    .toggle[aria-checked='true']::after { transform: translateX(20px); }
     .alist { flex: 1; min-height: 0; overflow: auto; }
   `];
 
@@ -84,7 +84,7 @@ export class FhHome extends LitElement {
   private _name(e: HassEntity, room: string): string {
     const n: string = e.attributes.friendly_name ?? e.entity_id;
     const stripped = n.replace(new RegExp(`^${room.replace(/[^\w ]/g, '.')}\\s*`, 'i'), '');
-    return stripped.length > 2 && !/^room\b/i.test(stripped) ? stripped : n;
+    return stripped.length > 2 && !/^room\b/i.test(stripped) ? stripped[0].toUpperCase() + stripped.slice(1) : n;
   }
   private _ic(e: HassEntity): string {
     const d = e.entity_id.split('.')[0];
@@ -106,11 +106,11 @@ export class FhHome extends LitElement {
           ${rooms.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.')), lit = lights.some((e) => e.state === 'on');
             return html`<div class="room ${lit ? 'lit' : ''}">
-              <div class="rh"><h2>${r.name}</h2>${lights.length ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} @click=${() => this._room(r, !lit)}></button>` : nothing}</div>
+              <div class="rh"><h2>${r.name}</h2>${lights.length ? html`<button class="toggle tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} @click=${() => this._room(r, !lit)}></button>` : nothing}</div>
               ${r.ents.map((e) => {
                 const on = ON.has(e.state), bri = e.attributes.brightness;
                 return html`<button class="dev tap ${on && e.entity_id.startsWith('light.') ? 'on' : ''}" @click=${() => this._toggle(e)}>
-                  <span class="ic">${icon(this._ic(e), 18)}</span><span class="n">${this._name(e, r.name)}</span>
+                  <span class="dicon">${icon(this._ic(e), 18)}</span><span class="n">${this._name(e, r.name)}</span>
                   <span class="s">${e.entity_id.startsWith('light.') && on && bri ? `${Math.round((bri / 255) * 100)}%` : e.state.replace(/_/g, ' ')}</span></button>`;
               })}
             </div>`;
@@ -132,7 +132,7 @@ export class FhHome extends LitElement {
             <button class="pill tap" style="height:34px;font-size:13px" @click=${() => { if (this._all) { this._all = false; return; } this._guard(() => { this._all = true; }); }}>${this._all ? 'Hide' : '🔒 Grown-ups'}</button></div>
           <div class="alist">
             ${autos.length ? autos.map((a) => html`<div class="auto"><span style="flex:1">${a.attributes.friendly_name ?? a.entity_id}</span>
-              <button class="sw tap" role="switch" aria-label=${a.attributes.friendly_name ?? a.entity_id} aria-checked=${String(a.state === 'on')}
+              <button class="toggle tap" role="switch" aria-label=${a.attributes.friendly_name ?? a.entity_id} aria-checked=${String(a.state === 'on')}
                 @click=${() => this._guard(() => this.hass!.callService('automation', a.state === 'on' ? 'turn_off' : 'turn_on', { entity_id: a.entity_id }))}></button></div>`)
               : html`<span class="muted" style="font-size:14px">Household automations are in the grown-ups section.</span>`}
           </div>
