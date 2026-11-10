@@ -68,6 +68,14 @@ export const search = async (h: Hass, text: string, player?: string): Promise<Me
   return (Object.values(r)[0]?.result ?? []).map((x) => hit(x, x.media_content_type ?? 'music')).filter((x) => x.uri);
 };
 
+/** The best single match of one kind (a playlist by default): the one whose name matches most closely, else the first found. */
+export const findOne = async (h: Hass, text: string, kind = 'playlist'): Promise<MediaHit | undefined> => {
+  const id = await entry(h); if (!id) return undefined;
+  const r = await respond<Record<string, any[]>>(h, 'music_assistant', 'search', { config_entry_id: id, name: text, media_type: [kind], limit: 8 });
+  const hits = (r[`${kind}s`] ?? r[kind] ?? []).map((x) => hit(x, kind)).filter((x) => x.uri), want = text.toLowerCase().trim();
+  return hits.find((x) => x.name.toLowerCase().trim() === want) ?? hits.find((x) => x.name.toLowerCase().includes(want)) ?? hits[0];
+};
+
 export type Enqueue = 'play' | 'next' | 'add' | 'replace_next';
 export const play = (h: Hass, player: string, uri: string, enqueue: Enqueue = 'play', radio = false): Promise<unknown> =>
   h.services?.music_assistant && platform(h, player) === 'music_assistant'

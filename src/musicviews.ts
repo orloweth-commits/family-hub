@@ -14,7 +14,7 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Drag the music or a record to a room. Slide up or down for volume.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob', hint: 'Drag round a room’s arc for volume. Tap the arc to add or drop the room.' },
-  { id: 'desk', name: 'Desk', icon: 'desk', about: 'A fader for every room', hint: 'Slide a fader for volume. The lamp adds the room to the music.' },
+  { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders, a jog wheel and pads', hint: 'Slide a fader for volume. Turn the wheel to move through the song. A pad starts a moment.' },
   { id: 'cables', name: 'Crate', icon: 'sleeve', about: 'Records, a turntable and cables', hint: 'Flick through the crate. Drop a record on the turntable or a speaker.' },
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
@@ -36,6 +36,9 @@ export interface Ctx {
   /** the record crate: a divider per person, that person's records, and which one is at the front */
   crate: { tabs: { name: string; colour: string }[]; who: string; pick(name: string): void; items: ShelfItem[]; at: number; tap(i: number): void; flick(i: number): void; calm: boolean; room: string };
   prev(): void; next(): void;
+  /** the mixing desk: four moment pads and a jog wheel */
+  moments: { name: string; icon: string; on: boolean; busy: boolean }[]; moment(i: number): void;
+  jog: { turn: number | null; at: number; read: string; len: number; says: string }; jogTo(turn: number, commit: boolean): void; seekBy(seconds: number): void;
   /** show a volume while dragging, then keep it */
   vol(id: string, v: number, commit: boolean): void;
   /** add the room to the music, or take it out */
@@ -126,14 +129,36 @@ export const deskView = (c: Ctx): TemplateResult => {
           <i class="slot"></i>${r.hasVol ? html`<i class="run" style="height:${r.vol}%"></i><i class="fcap" style="bottom:${r.vol}%"></i>` : nothing}</div></div>
       <span class="sval">${r.hasVol ? r.vol : '–'}</span></div>`;
   };
-  return html`<div class="desk" data-fits>${c.rooms.map(strip)}
+  // the jog wheel: follow the finger round the centre, adding up how far it has turned
+  const jogDown = (e: PointerEvent): void => {
+    const b = (e.currentTarget as Element).getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2, ang = (m: PointerEvent): number => (Math.atan2(m.clientY - cy, m.clientX - cx) * 180) / Math.PI;
+    let last = ang(e), turn = 0;
+    const step = (m: PointerEvent): number => { const a = ang(m); let d = a - last; if (d > 180) d -= 360; else if (d < -180) d += 360; last = a; turn += d; return turn; };
+    track(e, (m) => c.jogTo(step(m), false), (moved, m) => { if (moved) c.jogTo(step(m), true); else c.jogTo(0, true); }, 4);
+  };
+  const jogKey = (e: KeyboardEvent): void => { const s = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 10 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -10 : 0; if (s) { e.preventDefault(); c.seekBy(s); } };
+  const j = c.jog, spin = j.at * 3 + (j.turn ?? 0);
+  return html`<div class="desk" data-fits>
+    <div class="dside">
+      <div class="dnow"><span class="dart" ?data-playing=${c.now.playing} style=${c.now.art ? `--art:url(${c.now.art})` : ''} aria-hidden="true"><i></i></span>
+        <span class="dtx"><i>${c.now.playing ? 'Now playing' : c.now.lead ? 'Paused' : 'Ready'}</i><b>${c.now.title}</b><span>${c.now.artist}</span></span></div>
+      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => c.prev()}>${solid('prev', 26)}</button>
+        <button class="tkey go tap" data-go aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}>${solid(c.now.playing ? 'pause' : 'play', 28)}</button>
+        <button class="tkey tap" aria-label="Next" @click=${() => c.next()}>${solid('next', 26)}</button></div>
+      <div class="dplay">
+        <div class="jog" role="slider" tabindex="0" aria-label="Jog wheel. Turn it to move through the song; past the end it skips to the next." aria-valuemin="0" aria-valuemax=${Math.round(j.len)} aria-valuenow=${Math.round(j.at)} aria-valuetext=${j.says}
+          ?data-held=${j.turn !== null} @pointerdown=${jogDown} @keydown=${jogKey}><i class="jring" style="transform:rotate(${spin.toFixed(1)}deg)"><i></i></i><b>${j.read}</b></div>
+        <div class="pads">${c.moments.map((m, i) => html`<button class="mpad tap" style="--c:var(--p-${[2, 5, 3, 4][i % 4]})" ?data-on=${m.on} ?data-busy=${m.busy} aria-pressed=${String(m.on)} @click=${() => c.moment(i)}><span aria-hidden="true">${m.icon}</span>${m.name}</button>`)}</div>
+      </div>
+    </div>
+    <div class="dstrips">${c.rooms.map(strip)}
     <div class="strip master" ?data-live=${live.length > 0}>
       <span class="sname">Whole house</span>
       <button class="lamp tap" data-drop="all" ?data-hot=${c.over === 'all'} aria-label="Play in every room" @click=${() => c.all()}>ALL</button>
       <div class="well"><div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Volume of every room with music" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${avg} @pointerdown=${master}
         @keydown=${(e: KeyboardEvent) => { const s = e.key === 'ArrowUp' ? 5 : e.key === 'ArrowDown' ? -5 : 0; if (s) { e.preventDefault(); for (const r of live) c.vol(r.id, clamp(r.vol + s), true); } }}>
         <i class="slot"></i><i class="run" style="height:${avg}%"></i><i class="fcap" style="bottom:${avg}%"></i></div></div>
-      <span class="sval">${live.length ? avg : '–'}</span></div></div>`;
+      <span class="sval">${live.length ? avg : '–'}</span></div></div></div>`;
 };
 
 /* ---------------- the record crate ---------------- */
@@ -337,7 +362,32 @@ export const viewsCss = css`
   :host([data-phone]) .dialwrap { flex: none; height: 360px; } :host([data-phone]) .bigdial { height: 62%; }
 
   /* ---- desk ---- */
-  .desk { flex: 1; min-height: 0; display: flex; gap: 6px; padding: 10px; border-radius: 22px; background: var(--chip); user-select: none; -webkit-user-select: none; }
+  .dside { flex: 0 0 27%; min-width: 0; display: flex; flex-direction: column; gap: 3cqh; padding: 4px 8px 4px 4px; }
+  .dstrips { flex: 1; min-width: 0; display: flex; gap: 6px; }
+  .dnow { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 12px; }
+  .dart { height: 100%; max-height: 150px; aspect-ratio: 1; flex-shrink: 0; border-radius: 20px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
+  .dart i { width: 22%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 0 2px rgba(0,0,0,.15); opacity: 0; }
+  .dart[data-playing] i { opacity: 1; animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  .dtx { min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.15; }
+  .dtx i { font-style: normal; font-size: 12px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dtx b { font-size: clamp(17px, 6cqh, 26px); font-weight: var(--w-heavy, 800); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dtx span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .desk .tkeys { flex: 0 0 clamp(50px, 14cqh, 64px); }
+  .dplay { flex: 1.25 1 0; min-height: 0; display: flex; align-items: center; gap: 12px; }
+  .jog { height: 100%; max-height: 160px; aspect-ratio: 1; flex-shrink: 0; position: relative; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track), 0 6px 0 rgba(0,0,0,.16); touch-action: none; cursor: grab; outline: none; display: flex; align-items: center; justify-content: center; }
+  .jog[data-held] { cursor: grabbing; box-shadow: inset 0 0 0 3px var(--primary), 0 3px 0 rgba(0,0,0,.16); }
+  .jog:focus-visible { box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.16); }
+  .jring { position: absolute; inset: 11%; border-radius: 50%; border: 0.5em dotted var(--track); transition: transform 1s linear; pointer-events: none; }
+  .jog[data-held] .jring { transition: none; }
+  .jring i { position: absolute; right: 8%; top: 8%; width: 20%; height: 20%; border-radius: 50%; background: var(--track); box-shadow: inset 0 2px 3px rgba(0,0,0,.2); }
+  .jog b { position: relative; font-size: clamp(15px, 5cqh, 20px); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+  .pads { flex: 1; min-width: 0; align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 8px 8px; padding-bottom: 6px; }
+  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: 12.5px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform .08s, box-shadow .08s; }
+  .mpad span { font-size: clamp(16px, 5.4cqh, 24px); line-height: 1; }
+  .mpad:active, .mpad[data-busy] { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
+  .mpad[data-on] { box-shadow: 0 6px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes lamp2 { to { filter: brightness(1.15); } }
+  .desk { container-type: size; flex: 1; min-height: 0; display: flex; gap: 6px; padding: 10px; border-radius: 22px; background: var(--chip); user-select: none; -webkit-user-select: none; }
   .strip { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; border-radius: 14px; --c: var(--stream, var(--primary)); }
   .strip[data-focus] { background: var(--chip-strong); }
   .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
@@ -366,7 +416,8 @@ export const viewsCss = css`
   .fader:focus-visible .fcap { outline: 3px solid var(--ink); outline-offset: 2px; }
   .sval { font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); }
   .desk[data-fit] .sname { font-size: 11px; } .desk[data-fit] .well { padding: 6px 0; }
-  :host([data-phone]) .desk { flex: none; height: 380px; overflow-x: auto; } :host([data-phone]) .strip { flex: 0 0 62px; }
+  :host([data-phone]) .desk { flex: none; container-type: normal; flex-direction: column; gap: 14px; } :host([data-phone]) .dside { flex: none; gap: 12px; padding: 4px; } :host([data-phone]) .dnow { flex: none; height: 110px; } :host([data-phone]) .dplay { flex: none; height: 150px; }
+  :host([data-phone]) .desk .tkeys { flex-basis: 60px; } :host([data-phone]) .dstrips { flex: none; height: 360px; overflow-x: auto; } :host([data-phone]) .strip { flex: 0 0 62px; }
 
   /* ---- crate ---- */
   .rig { flex: 1; min-height: 230px; position: relative; user-select: none; -webkit-user-select: none; container-type: size; --S: min(14.5cqw, 38cqh); --P: min(26cqw, 54cqh); }

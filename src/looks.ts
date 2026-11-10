@@ -62,7 +62,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -436,6 +436,9 @@ const FRIDGE = `
   @F .lamp { box-shadow: 0 3px 0 rgba(0,0,0,.3); }
   @F .fcap { border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 rgba(0,0,0,.3); }
   @F .slot { background: var(--ink); width: 4px; left: 20px; }
+  @F .jog { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 #b9b2a2; }
+  @F .mpad { border-radius: 8px; box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.28); }
+  @F .dart { border-radius: 4px; box-shadow: 0 0 0 3px var(--ink), 0 5px 6px rgba(0,0,0,.2); }
   @F .cab { background: #2f2a26; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,.25); }
   @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
   @F .sock[aria-pressed='true'] { background: var(--c); }
@@ -667,6 +670,8 @@ const ORBIT = `
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
   @O .fcap { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .slot { width: 2px; left: 21px; }
+  @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  @O .mpad { box-shadow: none; }
   @O .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @O .sock { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .sock[aria-pressed='true'] { background: var(--c); box-shadow: none; }

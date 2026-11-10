@@ -104,6 +104,8 @@ export interface FamilyHubConfig {
   music_map?: MapFloorConfig[];
   /** speakers to leave off the Music page altogether, e.g. a TV that already plays through another speaker */
   music_hide?: string[];
+  /** the moment pads on the mixing desk (up to four): what each one plays, where, and how loud */
+  music_moments?: MomentConfig[];
   /** song or playlist (name or URI) for timed jobs tagged @song, and how long the Music page's sleep timer runs */
   tidy_song?: string; music_sleep_minutes?: number;
   radio?: (string | StationConfig)[];
@@ -156,3 +158,6 @@ export const num = (hass: Hass | undefined, id: string): number => {
   const v = Number(hass?.states[id]?.state);
   return Number.isFinite(v) ? v : 0;
 };
+
+/** A moment pad: one press plays something for an occasion. `find` is searched for (a playlist unless `kind` says otherwise) or `uri` is played as it is; `rooms` are speakers (the first leads, the rest join it), and without them it plays in the room in focus. */
+export interface MomentConfig { name: string; icon?: string; find?: string; uri?: string; kind?: string; rooms?: string[]; volume?: number; shuffle?: boolean }
