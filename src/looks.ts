@@ -30,7 +30,8 @@ export interface DialArc { start: Date; end: Date; allDay: boolean; colour: stri
 /** Places in the base where a look may add a drawing of its own. */
 export type ArtSlot = 'clock' | 'day' | 'timer';
 export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number }
-export interface LookOption { id: string; label: string; hint?: string }
+/** A switch a look offers. With `off`/`on` labels it is drawn as a two-way toggle (e.g. Print | Handwriting). */
+export interface LookOption { id: string; label: string; hint?: string; off?: string; on?: string; onStyle?: string }
 export interface LookDef {
   id: LookId; name: string; tagline: string; swatch: string; fonts?: string;
   /** true = colours and background come from the photo themes (the original look) */
@@ -46,7 +47,7 @@ export interface LookDef {
 export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
   // shared building blocks: styled once per look, wherever they appear
   roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'quick', 'avatar',
-    'row', 'check', 'content', 'done', 'now', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i'],
+    'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i'],
   // named regions, by the component that owns them
   parts: {
     'family-hub-card': ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'seg', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
@@ -102,9 +103,9 @@ export const ringClock = (arcs: DialArc[], now: Date, size = 76): TemplateResult
 export const timerFace = (frac: number, size = 56): TemplateResult => {
   const C = 2 * Math.PI * 22, f = Math.max(0, Math.min(1, frac));
   return html`<svg class="tface" aria-hidden="true" width=${size} height=${size} viewBox="0 0 100 100" fill="none">${svg`
-    <circle cx="50" cy="50" r="46" fill="var(--timer-face)" stroke="var(--timer-rim)" stroke-width="4"></circle>
-    <circle cx="50" cy="50" r="22" stroke="var(--timer)" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>
-    <circle cx="50" cy="50" r="3" fill="var(--timer-rim)"></circle>`}</svg>`;
+    <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
+    <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>
+    <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
 };
 
 /* ---------------- the looks ---------------- */
@@ -117,7 +118,7 @@ export const LOOKS: LookDef[] = [
     id: 'fridge', name: 'Fridge door', tagline: 'Sticky notes and magnets', swatch: '#e4eaec',
     fonts: 'family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700',
     art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size) },
-    options: [{ id: 'hand', label: 'Handwritten notes', hint: 'Events and jobs in handwriting. Harder to read from across the room.' }],
+    options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: 'Print is easier to read from across the room.' }],
     vars: {
       ...PEOPLE,
       '--ink': '#26272b', '--ink2': '#4c4a45', '--ink3': '#66625b', '--ground': '#e4eaec', '--paper': '#ffffff', '--note': '#fff6c4', '--note-today': '#ffe45c',
@@ -152,7 +153,8 @@ export const LOOKS: LookDef[] = [
 
 export const lookById = (id: string | null | undefined): LookDef => LOOKS.find((l) => l.id === id) ?? LOOKS[0];
 /** A look's drawing for a slot, or nothing. The base calls this without knowing which look is on. */
-export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult | typeof nothing => lookById(id).art?.[slot]?.(ctx) ?? nothing;
+export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult | typeof nothing =>
+  lookById(id).art?.[slot]?.(ctx) ?? (slot === 'timer' ? timerFace(ctx.frac ?? 0, ctx.size) : nothing); // every look shows time as a shrinking wedge
 
 let current: LookId = 'glass';
 const subs = new Set<() => void>();
@@ -182,13 +184,14 @@ export class LookController implements ReactiveController {
 
 const FRIDGE = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
-  @F .fh { font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color 3s ease, color .45s ease; }
+  @F .fh { font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color 1.5s ease, color .45s ease; }
   @F .fh::before { display: none; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
   @F h1, @F h2 { font-family: 'Caveat', 'Fredoka', sans-serif; letter-spacing: 0; }
   @F h1 { font-size: 42px !important; line-height: .95; }
+  @F h2 { font-size: 30px !important; line-height: 1; }
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color 3s ease; }
+  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color 1.5s ease; }
   @F .glass.round { border-radius: 50%; }
   @F .label { letter-spacing: .05em; font-size: 13px; }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
@@ -216,7 +219,7 @@ const FRIDGE = `
   @F .seg button[aria-pressed='true'] { background: var(--ink); color: var(--paper); box-shadow: none; font-weight: 600; }
   @F .legend { font-size: 15px; font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
-  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color 3s ease; }
+  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color 1.5s ease; }
   @F .col:nth-child(even) { rotate: calc(var(--tilt, 1) * .8deg); }
   @F .col:nth-child(3n) { rotate: calc(var(--tilt, 1) * -.3deg); }
   @F .col.today { background: var(--note-today); box-shadow: 0 9px 14px rgba(0,0,0,.24); rotate: calc(var(--tilt, 1) * -1deg); }
@@ -273,6 +276,10 @@ const FRIDGE = `
   @F .done .check svg { width: 28px; height: 28px; stroke-width: 4; }
   @F .row .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size-lg); line-height: 1.1; }
   @F .row.now { background: linear-gradient(90deg, transparent 0 46px, var(--note) 46px); }
+  @F .big .check { width: 48px; height: 48px; }
+  @F .big.done .check { font-size: 50px; }
+  @F .row.big .content { font-size: 30px; }
+  @F .row.big { background: var(--note); padding-left: 12px; }
   @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
   @F .key:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9b2a2; background: #f7f4ec; }
@@ -390,6 +397,7 @@ const ORBIT = `
   @O .done .check { background: var(--ok); border-color: var(--ok); color: #0a0f1e; }
   @O .row .content { font-weight: 400; }
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; }
+  @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
   @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
   @O .key:active { background: var(--chip-strong); }

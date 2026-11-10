@@ -142,11 +142,14 @@ export const styles = css`
   .tprev { height: 120px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
   .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .opt { height: auto; min-height: 56px; padding: 8px 18px 8px 12px; gap: 12px; align-self: flex-start; }
+  .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
+  .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; }
+  .setlabel .muted { font-size: 13px; font-weight: 500; }
   .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color .2s; }
   .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
-  .opt[aria-pressed='true'] .sw { background: var(--ok); }
-  .opt[aria-pressed='true'] .sw::after { transform: translateX(18px); }
+  .opt[aria-checked='true'] .sw { background: var(--ok); }
+  .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
   .lprev { align-items: center; justify-content: center; }
   .lprev .lp { width: 46%; height: 62%; border-radius: 14px; box-shadow: none; background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.85); }
   .lprev .lp-fridge { border-radius: 2px; background: #fff2a1; border: 0; box-shadow: 0 5px 7px rgba(0,0,0,.2); transform: rotate(-3deg); }

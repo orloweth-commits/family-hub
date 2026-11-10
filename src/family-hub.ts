@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
-import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, lookArt, lookById, setLook, type DialArc, type LookId } from './looks';
+import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, setLook, type DialArc, type LookId, type LookOption } from './looks';
 import './groceries';
 import './kid';
 import './home';
@@ -12,16 +12,16 @@ import './addevent';
 import './pin';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
-import { kidEntities, num, slotVar, type CalEvent, type FamilyHubConfig, type Hass } from './types';
+import { kidEntities, num, slotVar, type CalEvent, type FamilyHubConfig, type Hass, type KidConfig } from './types';
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek
 } from './dates';
-import { changed, hm, isQuiet, isSchoolDay, minsNow, panelMsg, setMuted, sfx, ymd } from './util';
+import { changed, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, setMuted, setVolume, sfx, ymd, type KidPrefs } from './util';
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
-type Sheet = '' | 'themes' | 'meds' | 'add' | 'sitter' | 'timer';
+type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
 const VERSION = '0.4.1';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
@@ -45,7 +45,7 @@ export class FamilyHubCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
   };
@@ -61,6 +61,28 @@ export class FamilyHubCard extends LitElement {
   private _look: LookId = 'glass';
   /** look options the family has switched on, e.g. { hand: true } */
   private _opts: Record<string, boolean> = {};
+  private _prefTick = 0;
+
+  /** The child whose page is open, and his settings (config defaults + what a grown-up changed on the panel). */
+  private get _kidOn(): KidConfig | undefined { return this._page === 'kid' ? this._config?.kids?.[this._kid] : undefined; }
+  private get _kp(): KidPrefs | undefined { const k = this._kidOn; return k ? kidPrefs(k) : undefined; }
+  /** The look on screen right now: a child's own look on his page, otherwise the panel's. */
+  private get _lk(): LookId { const p = this._kp; return p && p.look !== 'panel' ? lookById(p.look).id : this._look; }
+  private _optOn(o: LookOption): boolean { return this._kp && o.id === 'hand' ? this._kp.font === 'hand' : !!this._opts[o.id]; }
+  private _setKidPref(patch: Partial<KidPrefs>): void {
+    const k = this._kidOn; if (!k) return;
+    saveKidPrefs(k.name, patch); this._prefTick++; sfx('tap');
+  }
+  /** Looks and settings are for grown-ups when a PIN is set. */
+  private _openLooks(): void {
+    const k = this._kidOn, open = (): void => { this._sheet = k ? 'kidprefs' : 'themes'; };
+    if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
+  }
+  protected willUpdate(): void {
+    if (!this._config) return;
+    if (this._lk !== getLook()) setLook(this._lk);
+    setVolume(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1);
+  }
   private _sheet: Sheet = '';
   private _now = new Date();
   private _toast = '';
@@ -175,7 +197,7 @@ export class FamilyHubCard extends LitElement {
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor')) this._refresh();
     if (ch.has('hass')) this._checkAlarm();
     const root = this.renderRoot.querySelector('.fh');
-    if (root) for (const o of lookById(this._look).options ?? []) root.toggleAttribute(`data-opt-${o.id}`, !!this._opts[o.id]);
+    if (root) for (const o of lookById(this._lk).options ?? []) root.toggleAttribute(`data-opt-${o.id}`, this._optOn(o));
     if (this._page === 'planner' && this._view === 'week') this._measureWeek();
   }
 
@@ -430,11 +452,11 @@ export class FamilyHubCard extends LitElement {
     const kid = this._page === 'kid' ? this._config.kids?.[this._kid] : undefined;
     const theme = themeById(kid?.theme ?? this._theme);
     const night = this._isNight();
-    const look = lookById(this._look);
+    const look = lookById(this._lk);
     // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
     const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
     const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
-    const calm = this._config.calm === true || (this._config.calm !== false && this._page === 'kid');
+    const kp = this._kp, calm = this._config.calm === false ? false : kp ? kp.calm : this._config.calm === true;
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
@@ -464,7 +486,7 @@ export class FamilyHubCard extends LitElement {
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
         return html`<fh-kid .hass=${this.hass} .kid=${k} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
-          .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet}></fh-kid>`;
+          .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
@@ -512,21 +534,35 @@ export class FamilyHubCard extends LitElement {
     return html`<div class="capsule" aria-live="polite">${chips.sort((x, y) => x[0] - y[0]).slice(0, 2).map((x) => x[1])}</div>`;
   }
 
+  /** On a child's page: only his own next event (and the kitchen timer in its last minute). */
+  private _kidCapsule(k: KidConfig): TemplateResult {
+    const now = Date.now(), chips: TemplateResult[] = [], left = this._timerLeft();
+    if (left !== null && left < 60000) chips.push(html`<button class="cap tap hot" @click=${() => { this._sheet = 'timer'; }}>⏲ <b>0:${String(Math.floor(left / 1000)).padStart(2, '0')}</b></button>`);
+    const n = k.name.toLowerCase();
+    const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title) && (e.who === k.name || e.title.toLowerCase().includes(n)));
+    if (next) {
+      const mins = Math.round((next.start.getTime() - now) / 60000);
+      const when = mins < 60 ? `in ${mins} min` : `${sameDay(next.start, new Date()) ? '' : 'Tomorrow '}${fmtTime(next.start)}`;
+      chips.push(html`<span class="cap evcap"><span class="dot" style="background:${slotVar(k.colour)}"></span><span class="ell">Next: ${next.title}</span><span style="white-space:nowrap">· ${when}</span></span>`);
+    }
+    return html`<div class="capsule" aria-live="polite">${chips}</div>`;
+  }
+
   private _header(): TemplateResult {
     const c = this._config, h = this.hass, now = this._now, clk = fmtClock(now);
     const w = c.weather ? h?.states[c.weather] : undefined;
     const temp = w?.attributes.temperature;
-    const wx = this._wx;
+    const wx = this._wx, kid = this._kidOn;
     return html`
       <header>
         <div class="clock">
-          ${lookArt(this._look, 'clock', { now, arcs: this._arcs(this._eventsOn(now, this._soon)) })}
-          <span style="font-size:16px;font-weight:600" class="muted">${greeting(now)}${c.family_name ? `, ${c.family_name}` : ''}</span>
+          ${lookArt(this._lk, 'clock', { now, arcs: this._arcs(this._eventsOn(now, this._soon)) })}
+          <span style="font-size:16px;font-weight:600" class="muted">${greeting(now)}${kid ? `, ${kid.name}` : c.family_name ? `, ${c.family_name}` : ''}</span>
           <span style="display:flex;align-items:baseline;gap:10px"><span class="display hm">${clk.hm}</span><span class="muted" style="font-size:16px;font-weight:600">${clk.ampm} · ${fmtShortDate(now)}</span></span>
         </div>
-        ${this._capsule()}
+        ${kid ? this._kidCapsule(kid) : this._capsule()}
         <div class="right">
-          ${w ? html`
+          ${w && !kid ? html`
             <div class="glass weather">
               <span style="color:var(--accent)">${icon(weatherIcon(w.state), 28)}</span>
               <span style="display:flex;flex-direction:column;line-height:1.15">
@@ -536,16 +572,16 @@ export class FamilyHubCard extends LitElement {
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">🧢 UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">🥵 Hot</span>` : nothing}
             </div>` : nothing}
-          ${(c.people ?? []).length ? html`
+          ${(c.people ?? []).length && !kid ? html`
             <div class="glass presence" aria-label="Who is home">
               ${c.people!.map((p) => {
                 const home = p.entity ? h?.states[p.entity]?.state === 'home' : true;
                 return html`<span class="avatar ${home ? '' : 'away'}" title="${p.name} – ${home ? 'home' : 'away'}" style="--c:${slotVar(p.colour)};width:32px;height:32px;font-size:13px;background:${slotVar(p.colour)};opacity:${home ? 1 : 0.35}">${p.name[0]}</span>`;
               })}
             </div>` : nothing}
-          <button class="glass tap round" style="width:52px;height:52px" data-act="assist" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>
-          <button class="glass tap round" style="width:52px;height:52px" data-act="looks" aria-label="Looks and themes" @click=${() => { this._sheet = 'themes'; }}>${icon('palette')}</button>
-          ${c.babysitter ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
+          ${kid ? nothing : html`<button class="glass tap round" style="width:52px;height:52px" data-act="assist" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>`}
+          <button class="glass tap round" style="width:52px;height:52px" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon('palette')}</button>
+          ${c.babysitter && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
           <button class="glass tap round" style="width:52px;height:52px" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
         </div>
       </header>`;
@@ -610,7 +646,7 @@ export class FamilyHubCard extends LitElement {
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
         const key = ymd(d), hidden = this._clip[key] ?? 0;
         return html`<div class="col ${isToday ? 'today' : ''}">
-          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._look, 'day', { arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
+          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:700">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._lk, 'day', { arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" title="Private reminder">💊</span>` : nothing}</div>
           <div class="evs" data-day=${key}>${pub.map((e) => this._evCard(e))}</div>
           ${hidden ? html`<button class="more tap" @click=${() => { this._anchor = d; this._view = 'day'; }}>+${hidden} more</button>` : nothing}
         </div>`;
@@ -672,7 +708,7 @@ export class FamilyHubCard extends LitElement {
 
       <section class="glass card" aria-label="Kitchen timer">
         <span class="label">Kitchen timer</span>
-        <div class="timerrow ${left !== null ? 'on' : ''}" style="display:flex;align-items:baseline;gap:10px">${lookArt(this._look, 'timer', { frac: this._timerFrac(left) })}<span class="display" style="font-size:32px;font-weight:700;font-variant-numeric:tabular-nums">${left !== null ? `${mm}:${String(ss).padStart(2, '0')}` : '0:00'}</span>
+        <div class="timerrow ${left !== null ? 'on' : ''}" style="display:flex;align-items:baseline;gap:10px">${lookArt(this._lk, 'timer', { frac: this._timerFrac(left) })}<span class="display" style="font-size:32px;font-weight:700;font-variant-numeric:tabular-nums">${left !== null ? `${mm}:${String(ss).padStart(2, '0')}` : '0:00'}</span>
           <span class="muted hint" style="font-size:13px">${left !== null ? 'running · beeps everywhere' : 'tap to start'}</span>
           ${left !== null ? html`<button class="tap muted" style="margin-left:auto;font-size:14px;font-weight:700" @click=${() => this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' })}>Clear</button>` : nothing}</div>
         <div class="grid3">${[1, 5, 10].map((n) => html`<button class="tap quick" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
@@ -734,9 +770,9 @@ export class FamilyHubCard extends LitElement {
     const close = () => { this._sheet = ''; };
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''}
       @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { close(); this._say(`Added “${e.detail}”`); this._fetchedKey = ''; this._refresh(); this._loadSoon(); }}></fh-add-event>`;
-    const body = s === 'themes' ? this._themeBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
+    const body = s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet" role="dialog" style=${s === 'themes' ? '' : 'width:min(640px,92%)'}>${body}</section></div>`;
+      <section class="glass sheet" role="dialog" aria-modal="true" style=${s === 'themes' ? '' : s === 'kidprefs' ? 'width:min(860px,94%);gap:14px' : 'width:min(640px,92%)'}>${body}</section></div>`;
   }
   private _sheetHead(title: string, sub = ''): TemplateResult {
     return html`<div style="display:flex;align-items:flex-start;gap:16px">
@@ -751,8 +787,7 @@ export class FamilyHubCard extends LitElement {
           <span style="font-size:16px;font-weight:700">${l.name}</span><span class="muted" style="font-size:13px">${l.tagline}</span>
         </button>`)}
       </div>
-      ${(lookById(this._look).options ?? []).map((o) => html`<button class="pill tap opt" aria-pressed=${String(!!this._opts[o.id])} @click=${() => this._toggleOpt(o.id)}>
-        <span class="sw" aria-hidden="true"></span><span style="display:flex;flex-direction:column;text-align:left;line-height:1.2"><span>${o.label}</span>${o.hint ? html`<span class="muted" style="font-size:13px;font-weight:500">${o.hint}</span>` : nothing}</span></button>`)}
+      ${(lookById(this._look).options ?? []).map((o) => this._optRow(o, !!this._opts[o.id], () => this._toggleOpt(o.id)))}
       ${!lookById(this._look).themed ? nothing : html`<span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
@@ -764,6 +799,36 @@ export class FamilyHubCard extends LitElement {
         ${!lookById(this._look).themed ? html`<span></span>` : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => { const o = THEMES.filter((t) => t.id !== this._theme); this._setTheme(o[Math.floor(Math.random() * o.length)].id); }}>${icon('shuffle', 20)}Surprise me</button>`}
         <span class="muted" style="font-size:12px">Family Hub v${VERSION}</span>
       </div>`;
+  }
+  /** A look's switch: a two-way toggle when it names both sides (Print | Handwriting), otherwise an on/off switch. */
+  private _optRow(o: LookOption, on: boolean, flip: () => void): TemplateResult {
+    if (o.off && o.on) return html`<div class="setrow"><span class="setlabel"><b>${o.label}</b>${o.hint ? html`<span class="muted">${o.hint}</span>` : nothing}</span>
+      <div class="seg" role="group" aria-label=${o.label}>
+        <button class="tap" aria-pressed=${String(!on)} @click=${() => { if (on) flip(); }}>${o.off}</button>
+        <button class="tap" aria-pressed=${String(on)} style=${o.onStyle ?? ''} @click=${() => { if (!on) flip(); }}>${o.on}</button></div></div>`;
+    return this._switchRow(o.label, o.hint ?? '', on, flip);
+  }
+  private _switchRow(label: string, hint: string, on: boolean, flip: () => void): TemplateResult {
+    return html`<div class="setrow"><span class="setlabel"><b>${label}</b>${hint ? html`<span class="muted">${hint}</span>` : nothing}</span>
+      <button class="tap opt" role="switch" aria-checked=${String(on)} aria-label=${label} @click=${flip}><span class="sw" aria-hidden="true"></span></button></div>`;
+  }
+  private _kidPrefsBody(): TemplateResult {
+    const k = this._kidOn, p = this._kp;
+    if (!k || !p) return html``;
+    void this._prefTick;
+    const eff = lookById(this._lk), hand = eff.options?.find((o) => o.id === 'hand');
+    const looks: [string, string, string][] = [['panel', 'Same as the panel', `Follows the family’s choice (${lookById(this._look).name})`], ...LOOKS.map((l): [string, string, string] => [l.id, l.name, l.tagline])];
+    return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`)}
+      <div class="themes" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
+          <span class="tprev lprev" style="height:84px;background:${id === 'panel' ? 'var(--chip)' : lookById(id).swatch}">${id === 'panel' ? icon('home', 30) : html`<span class="lp lp-${id}"></span>`}</span>
+          <span style="font-size:16px;font-weight:700">${name}</span><span class="muted" style="font-size:13px">${tag}</span></button>`)}
+      </div>
+      ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}
+      ${this._switchRow('One job at a time', 'Shows Now, Next and Later instead of the whole list.', p.focus, () => this._setKidPref({ focus: !p.focus }))}
+      ${this._switchRow('Calm mode', 'No looping motion or tilted cards.', p.calm, () => this._setKidPref({ calm: !p.calm }))}
+      <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Timers and alarms always sound.</span></span>
+        <div class="seg" role="group" aria-label="Sounds">${(['full', 'soft', 'off'] as const).map((v) => html`<button class="tap" aria-pressed=${String(p.sound === v)} @click=${() => this._setKidPref({ sound: v })}>${v[0].toUpperCase() + v.slice(1)}</button>`)}</div></div>`;
   }
   private _medsBody(): TemplateResult {
     const parents = this._config.parents ?? (this._config.people ?? []).map((p) => p.name);
@@ -781,7 +846,7 @@ export class FamilyHubCard extends LitElement {
   private _timerBody(): TemplateResult {
     const left = this._timerLeft() ?? 0, mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
     return html`${this._sheetHead('Kitchen timer')}
-      <span style="align-self:center;line-height:0">${lookArt(this._look, 'timer', { frac: this._timerFrac(this._timerLeft()), size: 170 })}</span>
+      <span style="align-self:center;line-height:0">${lookArt(this._lk, 'timer', { frac: this._timerFrac(this._timerLeft()), size: 170 })}</span>
       <span class="display" style="font-size:88px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums">${mm}:${String(ss).padStart(2, '0')}</span>
       <div class="grid3" style="gap:10px">${[1, 5, 10].map((n) => html`<button class="tap quick" style="height:56px;font-size:18px" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center" @click=${() => { this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' }); this._sheet = ''; }}>Cancel timer</button>`;

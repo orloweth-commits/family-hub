@@ -1,42 +1,56 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
+import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
-import { LookController } from './looks';
+import { LookController, getLook, lookArt } from './looks';
+import { confetti, fxCss } from './fx';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { fmtTime, sameDay } from './dates';
 import { kidEntities, slotVar, type BringRule, type CalEvent, type Hass, type KidConfig } from './types';
-import { changed, hm, minsNow, parseChore, type Chore, type ParsedChore } from './util';
+import { changed, hm, minsNow, parseChore, sfx, type Chore, type ParsedChore } from './util';
 import { picFor } from './kid';
 
 const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
-/** "Out the door": school-morning overview, one column per child. */
+/**
+ * "Out the door": the school-morning board.
+ * Progress is shown for the team as a whole (one row of stars everyone fills together), never child against child:
+ * each column only says what that child does next, what to bring and when to leave.
+ */
 export class FhMorning extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
-    :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
-    .top { border-radius: 26px; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }
-    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-    .leave.soon { color: #dc2626; animation: pulse 1.2s ease-in-out infinite; }
+    :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; position: relative; }
+    .top { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
+    .team { flex: 1.4; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; font-size: 30px; line-height: 1; }
+    .stars i { font-style: normal; color: var(--track); transition: color .3s; }
+    .stars i.on { color: #f5b301; animation: starpop .6s cubic-bezier(.3,1.8,.5,1) both; }
+    @keyframes starpop { from { transform: scale(.2) rotate(-40deg); } to { transform: none; } }
+    .teambar { width: 100%; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
+    .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; transition: width .6s; }
+    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .leave.go { animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
+    @keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-10px) rotate(-2deg); } 70% { transform: translateY(0) rotate(1deg); } }
     .cols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
     .col { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .who { display: flex; align-items: center; gap: 12px; }
     .who h2 { font-size: 24px; font-weight: 800; flex: 1; }
-    .bar { height: 12px; border-radius: 6px; background: var(--track); overflow: hidden; }
-    .bar > div { height: 100%; border-radius: 6px; background: var(--ok); transition: width .6s; }
-    .steps { display: flex; flex-wrap: wrap; gap: 8px; }
-    .step { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 600; }
-    .step.done { background: color-mix(in srgb, var(--ok) 22%, var(--chip)); text-decoration: line-through; color: var(--ink3); }
+    .nextstep { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); font-size: 20px; font-weight: 700; min-height: 64px; }
+    .nextstep .e { font-size: 38px; line-height: 1; }
+    .nextstep small { display: block; font-size: 13px; font-weight: 700; color: var(--ink2); }
+    .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: 700; }
-    .go { font-size: 15px; font-weight: 800; padding: 7px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
-    .go.soon { background: #dc2626; color: #fff; }
+    .go { font-size: 15px; font-weight: 800; padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
+    .go.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
+    .go.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
     .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: 600; }
     .mev2 .t { width: 72px; color: var(--ink2); flex-shrink: 0; }
-    @keyframes pulse { 50% { opacity: .55; } }
     ${unsafeCSS(avatarCss)}
+    ${unsafeCSS(fxCss)}
   `];
   static properties = { hass: { attribute: false }, kids: { attribute: false }, events: { attribute: false }, leaveBy: {}, rules: { attribute: false },
-    privateWords: { attribute: false }, uv: { type: Number }, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true } };
+    privateWords: { attribute: false }, uv: { type: Number }, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true }, _cheer: { state: true } };
   hass?: Hass;
   kids: KidConfig[] = [];
   events: CalEvent[] = [];
@@ -48,6 +62,9 @@ export class FhMorning extends LitElement {
   travel = 15;
   private _items: Record<string, ParsedChore[]> = {};
   private _now = new Date();
+  /** bumps when the whole team finishes, to set off the celebration */
+  private _cheer = 0;
+  private _wasReady = true;
   private _unsubs: (() => void)[] = [];
   private _t?: number;
 
@@ -95,6 +112,18 @@ export class FhMorning extends LitElement {
     return early < usual ? { at: early, why: first!.title } : { at: usual, why: 'school' };
   }
 
+  /** Everyone's morning steps, pooled: the team fills one row of stars together. */
+  private _team(): { done: number; total: number } {
+    let done = 0, total = 0;
+    for (const k of this.kids) for (const c of this._items[k.name] ?? []) if (c.lane === 'routine' && c.slot === 'am') { total++; if (c.status === 'completed') done++; }
+    return { done, total };
+  }
+  protected updated(): void {
+    const { done, total } = this._team(), ready = total > 0 && done === total;
+    if (ready && !this._wasReady) { this._cheer++; sfx('done'); }
+    if (Object.keys(this._items).length) this._wasReady = ready;
+  }
+
   render(): TemplateResult | typeof nothing {
     if (!this.hass) return nothing;
     const nowM = minsNow(this._now);
@@ -105,35 +134,42 @@ export class FhMorning extends LitElement {
     const who = next ? (legs.filter((l) => l.at === next.at).length === legs.length ? 'everyone leaves' : `${legs.filter((l) => l.at === next.at).map((l) => l.k.name).join(' & ')} leaves`) : '';
     const today = this._now;
     const priv = this.privateWords.map((w) => w.toLowerCase());
+    const team = this._team(), ready = team.total > 0 && team.done === team.total;
     return html`
       <section class="glass top">
         <div style="flex:1"><h1 style="font-size:28px;font-weight:800">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:600">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
-        <div style="text-align:right"><div class="leave ${left <= 10 && left > -5 ? 'soon' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
-          <span class="muted" style="font-size:14px;font-weight:600">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div>
+        ${team.total ? html`<div class="team" role="img" aria-label="Team morning: ${team.done} of ${team.total} done">
+          ${team.total <= 18 ? html`<div class="stars">${Array.from({ length: team.total }, (_, i) => html`<i class=${i < team.done ? 'on' : ''}>★</i>`)}</div>`
+            : html`<div class="teambar"><div style="width:${(team.done / team.total) * 100}%"></div></div>`}
+          <span style="font-size:15px;font-weight:700">${ready ? 'Everyone’s ready – go team! 🎉' : 'Team morning: every job done adds a star'}</span></div>` : nothing}
+        <div style="display:flex;align-items:center;gap:14px;justify-content:flex-end;flex:1">
+          ${left > 0 ? lookArt(getLook(), 'timer', { frac: Math.min(1, left / 60), size: 64 }) : nothing}
+          <div style="text-align:right"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
+            <span class="muted" style="font-size:14px;font-weight:600">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
       </section>
       <div class="cols" style="--n:${this.kids.length}">
         ${this.kids.map((k) => {
           const e = kidEntities(k);
           const look = decodeLook(this.hass!.states[e.avatar]?.state, k.look ? decodeLook(k.look) : {});
           const steps = (this._items[k.name] ?? []).filter((c) => c.lane === 'routine' && c.slot === 'am');
-          const done = steps.filter((c) => c.status === 'completed').length;
+          const todo = steps.find((c) => c.status !== 'completed');
           const evs = this.events.filter((ev) => sameDay(ev.start, today) && !priv.some((w) => ev.title.toLowerCase().includes(w)) && (ev.who === k.name || ev.colour === 'family' || ev.title.toLowerCase().includes(k.name.toLowerCase())));
           const bring = this._bring(k, evs);
           const lv = legs.find((l) => l.k === k)!, kl = lv.at - nowM;
           return html`<button class="glass col tap" style="--kid:${slotVar(k.colour)}" @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
-            <div class="who">${renderAvatar(look, { size: 56, crop: 'head', still: true, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2>
-              <span style="font-size:15px;font-weight:800">${steps.length ? (done === steps.length ? '✅ Ready' : `${done}/${steps.length}`) : ''}</span></div>
-            <div class="go ${kl <= 10 && kl > -5 ? 'soon' : ''}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
-            ${steps.length ? html`<div class="bar"><div style="width:${(done / steps.length) * 100}%"></div></div>
-              <div class="steps">${steps.map((c) => html`<span class="step ${c.status === 'completed' ? 'done' : ''}">${picFor(c.summary)} ${c.summary}</span>`)}</div>` : nothing}
+            <div class="who">${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2></div>
+            <div class="go ${kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : ''}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
+            ${steps.length ? (todo ? html`<div class="nextstep"><span class="e">${picFor(todo.summary)}</span><span><small>Next</small>${todo.summary}</span></div>`
+              : html`<div class="nextstep set"><span class="e">🌟</span><span><small>Morning jobs</small>All set</span></div>`) : nothing}
             ${bring.length ? html`<span class="label">Bring</span><div class="bring">${bring.map((b) => html`<span>${b}</span>`)}</div>` : nothing}
             <span class="label">Today</span>
             ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="mev2"><span class="t">${ev.allDay ? 'All day' : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
               : html`<span class="muted" style="font-size:14px">Just school today</span>`}
           </button>`;
         })}
-      </div>`;
+      </div>
+      ${this._cheer ? keyed(this._cheer, confetti(this._cheer)) : nothing}`;
   }
 }
 if (!customElements.get('fh-morning')) customElements.define('fh-morning', FhMorning);

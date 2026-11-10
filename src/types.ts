@@ -52,6 +52,17 @@ export interface KidConfig {
   leave_by?: string;
   /** points per star for pre-readers (stars = points / star) */
   star?: number;
+  /* The next five are defaults; a grown-up can change each one on the panel (palette button on the child's page, behind the PIN). */
+  /** this child's own look for his page: glass | fridge | orbit (default: same as the panel) */
+  look_id?: LookId;
+  /** print (default) or hand, where the look offers handwriting */
+  font?: 'print' | 'hand';
+  /** calm mode on his page (default true) */
+  calm?: boolean;
+  /** interface sounds on his page: full (default) | soft | off */
+  sound_level?: 'full' | 'soft' | 'off';
+  /** one job at a time (Now / Next / Later); default true except in text mode */
+  focus?: boolean;
 }
 export interface MedConfig { id: string; label: string; time: string; who?: string }
 export interface BringRule { match: string; item: string; kid?: string }

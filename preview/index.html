@@ -26,12 +26,12 @@ const CAL = {
 const TODOS = {
   'todo.shopping_list': [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
   'todo.reminders': [['Bins out – recycling week'],['Charlie – library bag'],['Riley – sign excursion form']],
-  'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
+  'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Brush teeth','needs_action','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
     ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Guitar practice 15 min','needs_action','@grow @after'],
     ['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
-  'todo.charlie_chores': [['Make bed','completed','@routine @am'],['Unpack school bag','needs_action','@routine @after'],['Homework','needs_action','@routine @after'],['Feed the fish','needs_action','+5 @job'],
+  'todo.charlie_chores': [['Make bed','completed','@routine @am'],['Get dressed','needs_action','@routine @am'],['Pack lunch box','needs_action','@routine @am'],['Unpack school bag','needs_action','@routine @after'],['Homework','needs_action','@routine @after'],['Feed the fish','needs_action','+5 @job'],
     ['Set the table','needs_action','+10 @job @after'],['Piano practice 10 min','needs_action','@grow @after'],['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
-  'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
+  'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Breakfast','needs_action','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
     ['Bath','needs_action','+10 @routine @bed'],['Teeth','needs_action','+10 @routine @bed'],['Story time','needs_action','+10 @routine @bed']]
 };
 const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', description = ''], i) => ({ uid: `${id}-${i}`, summary, status, description }));
@@ -78,11 +78,12 @@ el.setConfig({
   kids: [
     { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'New book', cost: 200, icon: '📚' }] },
     { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', look: 'h=styled;hc=e3b85c', bedtime: '20:00' },
-    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', look: 'h=pageboy;hc=6b4226', bedtime: '19:30', star: 10 }
+    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', look: 'h=pageboy;hc=6b4226', bedtime: '19:30', star: 10, leave_by: '07:30' }
   ],
   calendars: [{ entity: 'calendar.family', colour: 'family', name: 'Family' }, { entity: 'calendar.alex', colour: 1, name: 'Alex' }, { entity: 'calendar.sam', colour: 2, name: 'Sam' },
     { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],
   grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
+  parent_pin: '1234', morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
   idle_seconds: 0
 });
 el.hass = hass;
