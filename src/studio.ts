@@ -1,5 +1,6 @@
 import { LitElement, html, css, unsafeCSS, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import { avatarCss, applyItem, CATALOGUE, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
 import { say, sfx } from './util';
@@ -8,6 +9,7 @@ import { kidEntities, num, slotVar, type Hass, type KidConfig } from './types';
 
 /** Avatar Studio: try on everything, locked items show what they need. */
 export class FhStudio extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }

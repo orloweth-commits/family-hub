@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass } from './types';
 
@@ -14,6 +15,7 @@ const STAMPS = ['🦖', '🐉', '🚚', '⭐', '❤️', '🌈', '🏄', '🎺']
 
 /** Doodle pad with undo, rainbow brush, chalkboard mode and a shared "fridge" gallery. */
 export class FhDoodle extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .tools { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }

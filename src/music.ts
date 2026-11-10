@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon, solid } from './icons';
 import type { Hass, HassEntity, StationConfig } from './types';
 
@@ -11,6 +12,7 @@ const DEFAULT_STATIONS: StationConfig[] = [{ name: 'ABC Kids listen', match: 'AB
 
 /** Music: every speaker in the house, a focused "now playing" hero, and local radio. */
 export class FhMusic extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; color: #fff; background: #111; }

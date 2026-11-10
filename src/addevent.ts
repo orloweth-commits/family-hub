@@ -1,5 +1,6 @@
 import { LitElement, html, css, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import { addDays, fmtDow, startOfDay } from './dates';
 import { slotVar, type CalendarConfig, type Hass } from './types';
@@ -12,6 +13,7 @@ const ymd = (d: Date): string => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${
 
 /** Quick-add sheet: type a title, tap a day, a time and a calendar. */
 export class FhAddEvent extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
     .box { width: min(1100px, 94%); max-height: 96%; overflow-y: auto; border-radius: 30px; padding: 16px 20px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }

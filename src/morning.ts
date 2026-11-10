@@ -1,5 +1,6 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { fmtTime, sameDay } from './dates';
 import { kidEntities, slotVar, type BringRule, type CalEvent, type Hass, type KidConfig } from './types';
@@ -10,6 +11,7 @@ const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 /** "Out the door": school-morning overview, one column per child. */
 export class FhMorning extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
     .top { border-radius: 26px; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }

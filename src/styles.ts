@@ -1,4 +1,5 @@
 import { css } from 'lit';
+import { lookCss } from './looks';
 
 export const styles = css`
   :host { display: block; height: 100%; }
@@ -132,6 +133,11 @@ export const styles = css`
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); }
   .tprev { height: 120px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+  .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lprev { align-items: center; justify-content: center; }
+  .lprev .lp { width: 46%; height: 62%; border-radius: 14px; box-shadow: none; background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.85); }
+  .lprev .lp-fridge { border-radius: 2px; background: #fff2a1; border: 0; box-shadow: 0 5px 7px rgba(0,0,0,.2); transform: rotate(-3deg); }
+  .lprev .lp-orbit { width: 78px; height: 78px; border-radius: 50%; background: transparent; border: 8px solid rgba(255,255,255,.16); border-top-color: #ffe08a; border-right-color: #7cb7ff; }
   .toast { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); z-index: 20; padding: 14px 22px; border-radius: 999px; background: rgba(15,15,20,.88); color: #fff; font-size: 16px; font-weight: 600; animation: fadeIn .3s ease both; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash .7s ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
@@ -147,4 +153,6 @@ export const styles = css`
   .breathe { animation: breathe 4s ease-in-out infinite; }
   @keyframes breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
   @keyframes pulse { 50% { opacity: .75; } }
+
+  ${lookCss}
 `;

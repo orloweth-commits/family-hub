@@ -1,9 +1,11 @@
 import { LitElement, html, css } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 
 /** Parent PIN pad. Fires `ok` when the right PIN is entered, `cancel` when dismissed. */
 export class FhPin extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); }
     .pad { border-radius: 32px; padding: 24px 28px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }

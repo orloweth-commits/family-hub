@@ -6,6 +6,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Five themes: Sea & Sun, Cottesloe Sunset, Coral Reef, Aussie Bush, Space Mission
 - Weather, who's home, now playing, kitchen timer, reminders
 - All lights on / off, announcement button, night mode photo-frame clock
+- Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets) or Orbit (dark, built from rings). Set a default with `look: fridge` in the card config.
 - Kid pages: chores with points, streaks, levels, rewards (optional parent PIN), their own week
 - Avatars with 70+ unlockable items (hair, hats, sunnies, tops, gear, buddies, scenes) and an animated style studio
 - Groceries with an on-screen keyboard, aisle sorting and send-to-phone

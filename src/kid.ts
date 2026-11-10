@@ -1,6 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import {
   avatarCss, decodeLook, levelInfo, nextUnlock, prevThreshold, renderAvatar, unlocksBetween, growBetween, applyItem, type Look, type Unlock
@@ -33,6 +34,7 @@ const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 export class FhKid extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }

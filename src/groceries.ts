@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 
@@ -26,6 +27,7 @@ export const aisleOf = (name: string): [string, string] => {
 const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 
 export class FhGroceries extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
     .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }

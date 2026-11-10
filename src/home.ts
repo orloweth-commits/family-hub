@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass, HassEntity } from './types';
 import './pin';
@@ -11,6 +12,7 @@ interface Room { id: string; name: string; ents: HassEntity[] }
 
 /** Home: rooms with their devices, scenes (scripts) and automations. */
 export class FhHome extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .rooms { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }

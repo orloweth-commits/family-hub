@@ -1,4 +1,5 @@
 import type { ThemeId } from './themes';
+import type { LookId } from './looks';
 
 /** Minimal slice of Home Assistant's frontend `hass` object that the card uses. */
 export interface HassEntity {
@@ -64,6 +65,8 @@ export interface FamilyHubConfig {
   type: string;
   family_name?: string;
   theme?: ThemeId;
+  /** whole design language: glass (default), fridge or orbit; the panel's palette button changes it */
+  look?: LookId;
   weather?: string;
   people?: PersonConfig[];
   kids?: KidConfig[];
