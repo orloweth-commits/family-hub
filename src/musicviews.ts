@@ -1,0 +1,357 @@
+import { html, svg, css, nothing, type TemplateResult } from 'lit';
+import { icon, solid } from './icons';
+import type { ShelfItem } from './ma';
+
+/* ------------------------------------------------------------------ *
+ * Ways to see the rooms on the Music page. Each one is a drawing and a
+ * set of gestures over the same few actions (Ctx): set a room's volume,
+ * add or drop a room, pause or play, carry the music or a record to a room.
+ * The house and the list live in music.ts; the others are here.
+ * ------------------------------------------------------------------ */
+
+export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
+export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
+  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Drag the music to a room. Slide up or down for volume.' },
+  { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
+  { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob', hint: 'Drag round a room’s arc for volume. Tap the arc to add or drop the room.' },
+  { id: 'desk', name: 'Desk', icon: 'desk', about: 'A fader for every room', hint: 'Slide a fader for volume. The lamp adds the room to the music.' },
+  { id: 'cables', name: 'Cables', icon: 'plug', about: 'Plug the speakers in', hint: 'Tap a socket to plug a speaker in. Slide on a speaker for volume.' },
+  { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
+];
+const SCENE_HINT: Record<string, string> = { sea: 'Raise a sail to make a room louder.', reef: 'Stretch a fish to make a room louder.', space: 'Grow a planet to make a room louder.', bush: 'Build a fire up to make a room louder.',
+  sunset: 'Fly a kite higher to make a room louder.', fridge: 'Slide a magnet up to make a room louder.', orbit: 'Grow a planet to make a room louder.' };
+export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
+export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Tap one to add it.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
+
+export interface Room { id: string; name: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
+export interface Ctx {
+  rooms: Room[]; look: string; theme: string; over: string; lifted: string;
+  now: { title: string; art: string; playing: boolean; frac: number; lead: string };
+  shelf: ShelfItem[];
+  /** show a volume while dragging, then keep it */
+  vol(id: string, v: number, commit: boolean): void;
+  /** add the room to the music, or take it out */
+  toggle(id: string): void; focus(id: string): void; playPause(): void; all(): void;
+  carry(e: PointerEvent, id: string): void; carryItem(e: PointerEvent, m: ShelfItem): void; playItem(m: ShelfItem): void;
+}
+
+const clamp = (v: number): number => Math.max(0, Math.min(100, Math.round(v)));
+/** Follow one finger from press to release. `end` hears whether it moved (a press that did not move is a tap). */
+const track = (e: PointerEvent, move: (m: PointerEvent) => void, end: (moved: boolean, m: PointerEvent) => void, slop = 6): void => {
+  const el = e.currentTarget as Element, x0 = e.clientX, y0 = e.clientY; let moved = false;
+  const mv = (ev: Event): void => { const m = ev as PointerEvent; if (!moved && Math.hypot(m.clientX - x0, m.clientY - y0) < slop) return; moved = true; move(m); };
+  const up = (ev: Event): void => { el.removeEventListener('pointermove', mv); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); end(moved && ev.type !== 'pointercancel', ev as PointerEvent); };
+  el.setPointerCapture(e.pointerId); el.addEventListener('pointermove', mv); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+};
+/** Up and down (or along a length) changes a room's volume; a tap does `tap`. */
+const slide = (c: Ctx, r: Room, len: (el: Element) => number, tap?: () => void) => (e: PointerEvent): void => {
+  if ((e.target as Element).closest('[data-notrack]')) return;
+  if (!r.hasVol) { track(e, () => { /* nothing to slide */ }, (moved) => { if (!moved) tap?.(); }); return; }
+  const v0 = r.vol, y0 = e.clientY, h = Math.max(40, len(e.currentTarget as Element)), at = (m: PointerEvent): number => clamp(v0 + ((y0 - m.clientY) / h) * 100);
+  track(e, (m) => c.vol(r.id, at(m), false), (moved, m) => { if (moved) c.vol(r.id, at(m), true); else tap?.(); });
+};
+const keys = (c: Ctx, r: Room) => (e: KeyboardEvent): void => {
+  const step = e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 5 : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -5 : 0;
+  if (step && r.hasVol) { e.preventDefault(); c.vol(r.id, clamp(r.vol + step), true); }
+  else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.toggle(r.id); }
+};
+const state = (r: Room): string => (r.live ? `${r.playing ? '' : 'Paused · '}${r.vol}` : r.asleep ? 'Asleep' : 'Off');
+const says = (r: Room): string => `${r.name}: ${r.live ? (r.playing ? 'playing' : 'paused') : r.asleep ? 'asleep' : 'off'}${r.hasVol ? `, volume ${r.vol}` : ''}. Up and down arrows change the volume, Enter adds or drops the room.`;
+const col = (r: Room): string => (r.colour ? `--c:${r.colour}` : '');
+
+/* ---------------- the big dial ---------------- */
+const pol = (r: number, deg: number): [number, number] => [200 + r * Math.cos((deg * Math.PI) / 180), 200 + r * Math.sin((deg * Math.PI) / 180)];
+const arc = (r: number, a0: number, a1: number): string => { const [x0, y0] = pol(r, a0), [x1, y1] = pol(r, a1); return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
+
+export const dialView = (c: Ctx): TemplateResult => {
+  const n = c.rooms.length, seg = 360 / Math.max(n, 3), gap = 9, C = 2 * Math.PI * 106;
+  const down = (r: Room, a0: number, span: number) => (e: PointerEvent): void => {
+    const box = (e.currentTarget as SVGElement).ownerSVGElement!;
+    const at = (m: PointerEvent): number => {
+      const b = box.getBoundingClientRect(), a = (Math.atan2(m.clientY - (b.top + b.height / 2), m.clientX - (b.left + b.width / 2)) * 180) / Math.PI;
+      const rel = (((a - a0) % 360) + 360) % 360;
+      return clamp(((rel > span + (360 - span) / 2 ? 0 : Math.min(rel, span)) / span) * 100);
+    };
+    if (!r.hasVol) { track(e, () => { /* fixed volume */ }, (moved) => { if (!moved) c.toggle(r.id); }); return; }
+    track(e, (m) => c.vol(r.id, at(m), false), (moved, m) => { if (moved) c.vol(r.id, at(m), true); else c.toggle(r.id); });
+  };
+  return html`<div class="dialwrap"><div class="bigdial" data-fits>
+    <svg viewBox="0 0 400 400">
+      <circle class="dplate" cx="200" cy="200" r="184"></circle>
+      ${c.now.playing ? svg`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : nothing}
+      ${c.rooms.map((r, i) => {
+        const a0 = -90 + i * seg + gap / 2, span = seg - gap, a1 = a0 + span * Math.max(0.03, r.vol / 100), [kx, ky] = pol(152, a1), on = r.live;
+        return svg`<g class="darc" data-zone=${r.id} ?data-live=${on} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)} role="slider" tabindex="0" aria-label=${says(r)}
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${down(r, a0, span)} @keydown=${keys(c, r)}>
+          <path class="dhit" d=${arc(152, a0, a0 + span)}></path><path class="dtrack" d=${arc(152, a0, a0 + span)}></path>
+          ${r.hasVol ? svg`<path class="dfill" d=${arc(152, a0, a1)}></path><circle class="dknob" cx=${kx} cy=${ky} r="13"></circle>` : nothing}</g>`;
+      })}
+      <circle class="dprogt" cx="200" cy="200" r="106"></circle>
+      <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${c.now.frac * C} ${C}" transform="rotate(-90 200 200)"></circle>
+    </svg>
+    <button class="dcover tap" ?data-playing=${c.now.playing} style=${c.now.art ? `--art:url(${c.now.art})` : ''} aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}><span>${solid(c.now.playing ? 'pause' : 'play', 30)}</span></button>
+    ${c.rooms.map((r, i) => {
+      const am = -90 + i * seg + seg / 2, co = Math.cos((am * Math.PI) / 180), si = Math.sin((am * Math.PI) / 180);
+      const tx = co > 0.3 ? '0' : co < -0.3 ? '-100%' : '-50%', ty = Math.abs(co) > 0.3 ? '-50%' : si > 0 ? '0' : '-100%';
+      return html`<button class="dlabel tap" style="left:${50 + 47.5 * co}%;top:${50 + 47.5 * si}%;transform:translate(${tx},${ty});text-align:${co > 0.3 ? 'left' : co < -0.3 ? 'right' : 'center'}" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}>
+        <b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${state(r)}</span></button>`;
+    })}
+  </div></div>`;
+};
+
+/* ---------------- the mixing desk ---------------- */
+export const deskView = (c: Ctx): TemplateResult => {
+  const live = c.rooms.filter((r) => r.live && r.hasVol), avg = live.length ? Math.round(live.reduce((s, r) => s + r.vol, 0) / live.length) : 0;
+  const master = (e: PointerEvent): void => {
+    if (!live.length) return;
+    const start = live.map((r) => [r.id, r.vol] as [string, number]), y0 = e.clientY, h = Math.max(40, (e.currentTarget as Element).getBoundingClientRect().height);
+    const set = (m: PointerEvent, commit: boolean): void => { const d = ((y0 - m.clientY) / h) * 100; for (const [id, v] of start) c.vol(id, clamp(v + d), commit); };
+    track(e, (m) => set(m, false), (moved, m) => { if (moved) set(m, true); });
+  };
+  const strip = (r: Room): TemplateResult => {
+    const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
+    return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
+      <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}>${r.name}</button>
+      <button class="lamp tap" aria-pressed=${String(r.live)} aria-label="${r.inmix ? 'Remove' : 'Add'} ${r.name} ${r.inmix ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${r.asleep && !r.live ? '☾' : r.live ? 'ON' : 'OFF'}</button>
+      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => html`<i ?data-lit=${9 - k < lit} ?data-peak=${9 - k >= lit - 2 && 9 - k < lit}></i>`)}</span>
+        <div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${slide(c, r, (el) => el.getBoundingClientRect().height)} @keydown=${keys(c, r)}>
+          <i class="slot"></i>${r.hasVol ? html`<i class="run" style="height:${r.vol}%"></i><i class="fcap" style="bottom:${r.vol}%"></i>` : nothing}</div></div>
+      <span class="sval">${r.hasVol ? r.vol : '–'}</span></div>`;
+  };
+  return html`<div class="desk" data-fits>${c.rooms.map(strip)}
+    <div class="strip master" ?data-live=${live.length > 0}>
+      <span class="sname">Whole house</span>
+      <button class="lamp tap" data-drop="all" ?data-hot=${c.over === 'all'} aria-label="Play in every room" @click=${() => c.all()}>ALL</button>
+      <div class="well"><div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Volume of every room with music" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${avg} @pointerdown=${master}
+        @keydown=${(e: KeyboardEvent) => { const s = e.key === 'ArrowUp' ? 5 : e.key === 'ArrowDown' ? -5 : 0; if (s) { e.preventDefault(); for (const r of live) c.vol(r.id, clamp(r.vol + s), true); } }}>
+        <i class="slot"></i><i class="run" style="height:${avg}%"></i><i class="fcap" style="bottom:${avg}%"></i></div></div>
+      <span class="sval">${live.length ? avg : '–'}</span></div></div>`;
+};
+
+/* ---------------- patch cables ---------------- */
+export const cablesView = (c: Ctx): TemplateResult => {
+  const half = Math.ceil(c.rooms.length / 2), cols = [c.rooms.slice(0, half), c.rooms.slice(half)];
+  const y = (j: number, n: number): number => ((j + 0.5) / n) * 100;
+  const plugged = (r: Room): boolean => r.focus ? r.live : r.inmix;
+  const cab = (r: Room, side: number, j: number, n: number): TemplateResult => html`<div class="cab ${side ? 'right' : 'left'}" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id}
+      style="top:${y(j, n)}%;${col(r)}" @pointerdown=${slide(c, r, () => 180, () => c.focus(r.id))}>
+    <span class="chit" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}><span class="cone" aria-hidden="true"><i></i></span>
+    <span class="ctext"><b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${r.live ? (r.title || 'Music') : r.asleep ? 'Asleep' : 'Not plugged in'}</span></span>
+    ${r.hasVol ? html`<span class="cknob" aria-hidden="true" style="--turn:${-135 + r.vol * 2.7}deg"><i></i></span><span class="cval">${r.vol}</span>` : nothing}</span>
+    <button class="sock tap" data-notrack aria-pressed=${String(plugged(r))} aria-label="${r.inmix || r.focus ? 'Remove' : 'Add'} ${r.name} ${r.inmix || r.focus ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${plugged(r) ? '' : '＋'}</button></div>`;
+  const wires = cols.flatMap((list, side) => { const on = list.map((r, j) => [r, j] as [Room, number]).filter(([r]) => plugged(r)); return on.map(([r, j], k) => {
+    const x0 = side ? 58 : 42, y0 = 50 + (k - (on.length - 1) / 2) * 9, x1 = side ? 66.5 : 33.5, y1 = y(j, list.length), dx = side ? 5 : -5, sag = 12 + Math.abs(y1 - y0) * 0.2;
+    return svg`<path class="wire" ?data-playing=${r.playing} style="${col(r)};animation-delay:${-k * 0.4}s" d="M${x0} ${y0} C${x0 + dx} ${y0 + sag}, ${x1 - dx} ${y1 + sag}, ${x1} ${y1}"></path>`; }); });
+  return html`<div class="rig" data-fits>
+    <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${wires}</svg>
+    ${cols.map((list, side) => list.map((r, j) => cab(r, side, j, list.length)))}
+    <div class="cdeck">
+      <button class="cdisc tap" ?data-playing=${c.now.playing} style=${c.now.art ? `--art:url(${c.now.art})` : ''} aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}><span>${solid(c.now.playing ? 'pause' : 'play', 26)}</span></button>
+      <b class="ctitle">${c.now.title}</b>
+      ${c.shelf.length ? html`<div class="csleeves">${c.shelf.slice(0, 3).map((m) => html`<button class="csleeve tap" style=${m.img ? `--art:url(${m.img})` : ''} aria-label="Play ${m.name}. Drag it onto a speaker to play it there." @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => c.playItem(m)}>${m.img ? '' : m.name[0]}</button>`)}</div>` : nothing}
+    </div></div>`;
+};
+
+/* ---------------- the living scene ---------------- */
+const moon = svg`<path class="amoon" d="M56 6a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`;
+const ACTORS: Record<string, (r: Room, v: number) => TemplateResult> = {
+  sea: (r, v) => { const h = 22 + 62 * v; return svg`<g class="bob">
+    <path class="ahull" d="M12 98H88L76 114H24Z"></path><path class="aline" d="M50 98V14"></path>
+    ${r.live ? svg`<path class="afill" d="M54 92V${92 - h}L${54 + h * 0.52} 92Z"></path><path class="afill soft" d="M46 92V${92 - h * 0.7}L${46 - h * 0.32} 92Z"></path>${r.playing ? svg`<path class="aflag" d="M50 14l18 6-18 6z"></path>` : nothing}`
+      : svg`<rect class="aidle" x="46" y="30" width="8" height="62" rx="4"></rect>`}</g>`; },
+  reef: (r, v) => { const s = 13 + 22 * v; return svg`<g class="swim">
+    <path class=${r.live ? 'afill' : 'aidle'} d="M${50 - s} 70L${50 - s * 1.8} ${70 - s * 0.62}V${70 + s * 0.62}Z"></path>
+    <ellipse class=${r.live ? 'afill edge' : 'aidle edge'} cx="50" cy="70" rx=${s * 1.15} ry=${s * 0.74}></ellipse>
+    <circle class="aeye" cx=${50 + s * 0.6} cy=${70 - s * 0.16} r=${Math.max(3, s * 0.15)}></circle><circle class="apupil" cx=${50 + s * 0.65} cy=${70 - s * 0.16} r=${Math.max(1.5, s * 0.07)}></circle></g>
+    ${r.playing ? svg`<circle class="abub" cx=${58 + s} cy="52" r="3"></circle><circle class="abub late" cx=${66 + s} cy="60" r="4.5"></circle>` : nothing}`; },
+  space: (r, v) => { const p = 9 + 21 * v; return svg`${r.playing ? svg`<circle class="aglow" cx="50" cy="68" r=${p + 9}></circle>` : nothing}
+    <circle class=${r.live ? 'afill' : 'aidle edge'} cx="50" cy="68" r=${p}></circle>
+    ${r.live ? svg`<ellipse class="aring" cx="50" cy="68" rx=${p * 1.75} ry=${p * 0.42}></ellipse>` : nothing}`; },
+  bush: (r, v) => { const h = 18 + 66 * v; return svg`<path class="alog" d="M26 112l44-12 4 8-44 12z"></path><path class="alog" d="M74 112l-44-12-4 8 44 12z"></path>
+    ${r.live ? svg`<g class="flick"><path class="aflame" d="M50 ${106 - h}C${50 + h * 0.5} ${106 - h * 0.42},${50 + h * 0.34} 106,50 106C${50 - h * 0.34} 106,${50 - h * 0.5} ${106 - h * 0.42},50 ${106 - h}Z"></path>
+      <path class="aflame in" d="M50 ${106 - h * 0.56}C${50 + h * 0.26} ${106 - h * 0.22},${50 + h * 0.18} 106,50 106C${50 - h * 0.18} 106,${50 - h * 0.26} ${106 - h * 0.22},50 ${106 - h * 0.56}Z"></path></g>` : svg`<circle class="aember" cx="50" cy="102" r="5"></circle>`}`; },
+  sunset: (r, v) => { const y = r.live ? 92 - 72 * v : 96; return svg`<path class="aline thin" d="M50 ${y + 12}Q${56} ${(y + 126) / 2} 50 114"></path>
+    <g class="sway"><path class=${r.live ? 'afill edge' : 'aidle edge'} d="M50 ${y - 16}L64 ${y}L50 ${y + 16}L36 ${y}Z"></path><path class="aline thin" d="M50 ${y - 16}V${y + 16}M36 ${y}H64"></path></g>`; },
+  fridge: (r, v) => { const y = 102 - 84 * (r.hasVol ? v : 0); return svg`<path class="aline" d="M50 14C53 44 47 76 50 106"></path>${[0, 1, 2, 3, 4].map((k) => svg`<path class="aline thin" d="M43 ${18 + k * 21}h14"></path>`)}
+    <g class="jig"><circle class="ashade" cx="52" cy=${y + 4} r="17"></circle><circle class=${r.live ? 'afill' : 'aidle'} cx="50" cy=${y} r="17"></circle><text class="ainit" x="50" y=${y + 6}>${r.name[0]}</text></g>`; },
+  orbit: (r, v) => { const p = 8 + 18 * v; return svg`<circle class="aorbit" cx="50" cy="68" r="38"></circle>${r.playing ? svg`<circle class="aglow" cx="50" cy="68" r=${p + 8}></circle>` : nothing}
+    <circle class=${r.live ? 'afill' : 'aidle edge'} cx="50" cy="68" r=${p}></circle>`; }
+};
+const BACKDROP: Record<string, TemplateResult> = {
+  sea: svg`<path class="bg1 drift" d="M-40 62q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path><path class="bg2 drift slow" d="M-40 80q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path>`,
+  reef: svg`<path class="bgweed" d="M6 100q-5 -14 1 -26q-6 -10 1 -22"></path><path class="bgweed b" d="M94 100q5 -12 -1 -24q5 -10 -1 -20"></path>`,
+  space: svg`${[[8, 14], [22, 40], [40, 8], [63, 22], [81, 12], [93, 44], [52, 50]].map(([x, y], i) => svg`<circle class="bgstar" style="animation-delay:${-i * 0.5}s" cx=${x} cy=${y} r=".7"></circle>`)}`,
+  bush: svg`<path class="bg2" d="M0 96h100"></path>${[[12, 30], [88, 22], [50, 14], [70, 44]].map(([x, y], i) => svg`<circle class="bgfly" style="animation-delay:${-i * 0.8}s" cx=${x} cy=${y} r=".8"></circle>`)}`,
+  sunset: svg`<path class="bg2" d="M0 96q25 -8 50 0t50 0"></path>`,
+  fridge: svg``, orbit: svg``
+};
+
+export const sceneView = (c: Ctx): TemplateResult => {
+  const kind = sceneKind(c.look, c.theme), draw = ACTORS[kind];
+  return html`<div class="vscene" data-kind=${kind} data-fits>
+    <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}</svg>
+    <div class="sun"><button class="puck spot" ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
+        aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>
+      <span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Drag me to a room' : 'Nothing playing'}</span></span></div>
+    <div class="actors">${c.rooms.map((r, i) => html`<div class="actor" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id && c.lifted !== r.id} style="${col(r)};--lift:${i % 2 ? 0 : 14}px;animation-delay:${-i * 0.45}s"
+        @pointerdown=${slide(c, r, () => 170, () => c.toggle(r.id))}>
+      <svg viewBox="0 0 100 120" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}>${r.asleep && !r.live ? moon : nothing}${draw(r, r.vol / 100)}</svg>
+      <button class="aname tap" data-notrack aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><b>${r.name}</b><span>${state(r)}</span></button></div>`)}</div></div>`;
+};
+
+/** The picker: a card for each way of seeing the rooms. */
+export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: () => void): TemplateResult => html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
+  <section class="glass sheet" role="dialog" aria-modal="true" aria-label="How to show the rooms" style="width:min(640px,94%);gap:14px">
+    <h2 class="t-head">How would you like to see the rooms?</h2>
+    <div class="vgrid">${VIEWS.map((v) => html`<button class="vcard tap" aria-pressed=${String(v.id === current)} @click=${() => pick(v.id)}>${icon(v.icon, 34)}<b>${v.name}</b><span>${v.about}</span></button>`)}</div>
+    <button class="pill tap" style="align-self:flex-end" @click=${close}>Close</button></section></div>`;
+
+export const viewsCss = css`
+  .viewbtn { height: 44px; padding: 0 14px 0 12px; border-radius: 14px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: var(--w-bold, 700); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 40%, transparent); }
+  .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .vcard { min-height: 112px; padding: 12px 10px; border-radius: 20px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; transition: transform .2s cubic-bezier(.2,1.4,.4,1); }
+  .vcard b { font-size: 16px; font-weight: var(--w-bold, 700); } .vcard span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .vcard[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); } .vcard[aria-pressed='true'] span { color: inherit; }
+  :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* ---- dial ---- */
+  .dialwrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .bigdial { height: 94%; max-height: 430px; aspect-ratio: 1; position: relative; user-select: none; -webkit-user-select: none; }
+  .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .dplate { fill: var(--chip); }
+  .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
+  .dhit { fill: none; stroke: transparent; stroke-width: 46; }
+  .dtrack { fill: none; stroke: var(--track); stroke-width: 26; stroke-linecap: round; }
+  .dfill { fill: none; stroke: var(--ink3); stroke-width: 26; stroke-linecap: round; opacity: .55; transition: stroke .2s; }
+  .darc[data-live] .dfill { stroke: var(--c); opacity: 1; }
+  .darc[data-playing] .dfill { animation: breathe 2.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  .dknob { fill: #fff; stroke: var(--ink3); stroke-width: 4; }
+  .darc[data-live] .dknob { stroke: var(--c); }
+  .darc[data-hot] .dtrack, .darc:focus-visible .dtrack { stroke: var(--chip-strong); filter: drop-shadow(0 0 0 var(--primary)); stroke-width: 30; }
+  .darc:focus-visible .dknob { stroke: var(--ink); stroke-width: 5; }
+  .dprogt { fill: none; stroke: var(--track); stroke-width: 6; }
+  .dprog { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dasharray 1s linear; }
+  .dripple { fill: none; stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: dripple 2.8s ease-out infinite; animation-iteration-count: var(--loops, infinite); }
+  .dripple.late { animation-delay: -1.4s; }
+  @keyframes dripple { from { transform: scale(1); opacity: .7; } to { transform: scale(1.22); opacity: 0; } }
+  .dcover { position: absolute; left: 26%; top: 26%; width: 48%; height: 48%; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,.28), rgba(0,0,0,.28)), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 3px #fff, 0 12px 26px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .dcover span { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; transition: transform .2s cubic-bezier(.2,1.4,.4,1); }
+  .dcover:active span { transform: scale(.9); }
+  .dlabel { position: absolute; min-width: 44px; min-height: 44px; padding: 2px 8px; display: flex; flex-direction: column; justify-content: center; line-height: 1.15; border-radius: 12px; white-space: nowrap; }
+  .dlabel b { font-size: 15px; font-weight: var(--w-bold, 700); } .dlabel span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dlabel[aria-pressed='true'] b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .bigdial[data-fit] .dlabel b { font-size: 13px; }
+  :host([data-phone]) .dialwrap { flex: none; height: 360px; } :host([data-phone]) .bigdial { height: 62%; }
+
+  /* ---- desk ---- */
+  .desk { flex: 1; min-height: 0; display: flex; gap: 6px; padding: 10px; border-radius: 22px; background: var(--chip); user-select: none; -webkit-user-select: none; }
+  .strip { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; border-radius: 14px; --c: var(--stream, var(--primary)); }
+  .strip[data-focus] { background: var(--chip-strong); }
+  .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
+  .strip.master { background: var(--chip-soft); --c: var(--accent); margin-left: 4px; }
+  .sname { width: 100%; min-height: 44px; padding: 2px 4px; border-radius: 8px; background: var(--chip-strong); font-size: 12.5px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+  .lamp { width: 46px; height: 46px; border-radius: 50%; background: var(--ink3); color: #fff; font-size: 11px; font-weight: var(--w-heavy, 800); flex-shrink: 0; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background .2s, box-shadow .2s; }
+  .lamp[aria-pressed='true'] { background: var(--ok); color: var(--on-ok, #fff); box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
+  .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
+  .master .lamp { background: var(--primary); color: var(--on-primary); }
+  .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
+  .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 8px; padding: 10px 0; }
+  .vu { width: 12px; display: flex; flex-direction: column; gap: 3px; }
+  .vu i { flex: 1; border-radius: 3px; background: var(--track); }
+  .vu i[data-lit] { background: var(--ok); } .vu i[data-lit]:nth-child(-n+4) { background: var(--accent); } .vu i[data-lit]:nth-child(-n+2) { background: var(--danger, #c62a22); }
+  .strip[data-playing] .vu i[data-peak] { animation: vu .45s steps(2, jump-none) infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  .strip[data-playing] .vu i[data-peak] + i[data-peak] { animation-delay: -.2s; }
+  @keyframes vu { to { opacity: .3; } }
+  .fader { width: 44px; position: relative; touch-action: none; cursor: ns-resize; outline: none; }
+  .slot { position: absolute; left: 18px; top: 0; bottom: 0; width: 8px; border-radius: 4px; background: var(--track); }
+  .run { position: absolute; left: 18px; bottom: 0; width: 8px; border-radius: 4px; background: var(--ink3); }
+  .strip[data-live] .run { background: var(--c); }
+  .fcap { position: absolute; left: 2px; width: 40px; height: 26px; margin-bottom: -13px; border-radius: 8px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink3), 0 3px 0 rgba(0,0,0,.22); transition: bottom .12s ease-out; }
+  .fcap::after { content: ''; position: absolute; left: 7px; right: 7px; top: 11px; height: 4px; border-radius: 2px; background: var(--ink3); }
+  .strip[data-live] .fcap { background: var(--c); box-shadow: inset 0 0 0 2px rgba(255,255,255,.5), 0 3px 0 rgba(0,0,0,.25); } .strip[data-live] .fcap::after { background: #fff; }
+  .fader:focus-visible .fcap { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .sval { font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .desk[data-fit] .sname { font-size: 11px; } .desk[data-fit] .well { padding: 6px 0; }
+  :host([data-phone]) .desk { flex: none; height: 380px; overflow-x: auto; } :host([data-phone]) .strip { flex: 0 0 62px; }
+
+  /* ---- cables ---- */
+  .rig { flex: 1; min-height: 230px; position: relative; user-select: none; -webkit-user-select: none; }
+  .wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .wire { fill: none; stroke: var(--c, var(--stream, var(--primary))); stroke-width: 6px; stroke-linecap: round; vector-effect: non-scaling-stroke; --c: var(--stream, var(--primary)); }
+  .wire[data-playing] { animation: wire 1.3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes wire { to { transform: translateY(1.6px); } }
+  .cab { position: absolute; width: 33.5%; height: min(72px, 30%); min-height: 56px; transform: translateY(-50%); border-radius: 16px; background: #1b2230; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.6); }
+  .cab.left { left: 0; padding-right: 30px; } .cab.right { right: 0; padding-left: 30px; flex-direction: row; }
+  .cab[data-focus] { box-shadow: 0 0 0 3px var(--c), 0 6px 12px -8px rgba(0,0,0,.6); } .cab[data-hot] { box-shadow: 0 0 0 4px var(--accent); } .chit { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 8px; border-radius: 12px; outline: none; } .chit:focus-visible { box-shadow: 0 0 0 3px #fff; }
+  .cone { width: 40px; height: 40px; border-radius: 50%; background: #0b0d12; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cone i { width: 22px; height: 22px; border-radius: 50%; background: #333a48; } .cab[data-live] .cone i { background: var(--c); }
+  .cab[data-playing] .cone i { animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes thump { from { transform: scale(.82); } to { transform: scale(1.14); } }
+  .ctext { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+  .ctext b, .ctext span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext b { font-size: 14.5px; font-weight: 700; } .ctext span { font-size: 12px; color: rgba(255,255,255,.78); }
+  .cknob { width: 30px; height: 30px; border-radius: 50%; background: #3a4150; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); position: relative; flex-shrink: 0; transform: rotate(var(--turn)); transition: transform .15s ease-out; }
+  .cknob i { position: absolute; left: 13.5px; top: 3px; width: 3px; height: 10px; border-radius: 2px; background: #fff; }
+  .cval { width: 22px; font-size: 12px; font-weight: 700; text-align: right; }
+  .sock { position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); }
+  .cab.left .sock { right: -22px; } .cab.right .sock { left: -22px; }
+  .sock[aria-pressed='true'] { background: var(--c); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
+  .cdeck { position: absolute; left: 41%; right: 41%; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; pointer-events: none; }
+  .cdeck > * { pointer-events: auto; }
+  .cdisc { width: min(100%, 120px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, transparent 0 24%, rgba(0,0,0,.0) 24%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 6px #17140f, 0 0 0 8px rgba(255,255,255,.3), 0 12px 22px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .cdisc[data-playing] { animation: puck 9s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  .cdisc span { width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; }
+  .cdisc[data-playing] span { animation: puck 9s linear infinite reverse; animation-iteration-count: var(--loops, infinite); }
+  .ctitle { max-width: 150%; font-size: 13px; font-weight: var(--w-bold, 700); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .csleeves { display: flex; gap: 6px; }
+  .csleeve { width: 46px; height: 46px; border-radius: 8px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; font-weight: 800; box-shadow: 0 0 0 2px var(--chip-strong), 0 5px 8px -4px rgba(0,0,0,.5); touch-action: none; }
+  :host([data-phone]) .rig { flex: none; height: 460px; } :host([data-phone]) .cab { width: 46%; } :host([data-phone]) .cdeck, :host([data-phone]) .wires { display: none; }
+  :host([data-phone]) .cab.left .sock { right: 4px; } :host([data-phone]) .cab.right .sock { left: auto; right: 4px; } :host([data-phone]) .cab.right { padding-left: 10px; padding-right: 30px; } :host([data-phone]) .cknob { display: none; }
+
+  /* ---- scene ---- */
+  .vscene { flex: 1; min-height: 240px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .backdrop path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+  .bg1 { stroke: color-mix(in srgb, var(--primary) 55%, transparent); stroke-width: 3px; } .bg2 { stroke: var(--track); stroke-width: 3px; }
+  .drift { animation: sdrift 7s linear infinite; animation-iteration-count: var(--loops, infinite); } .drift.slow { animation-duration: 11s; }
+  @keyframes sdrift { to { transform: translateX(-20%); } }
+  .bgweed { stroke: #0f766e; stroke-width: 9px; opacity: .6; transform-box: fill-box; transform-origin: bottom; animation: weed 3.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); } .bgweed.b { stroke: #ea580c; animation-delay: -1.5s; }
+  @keyframes weed { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+  .bgstar { fill: #fff; animation: twinkle 2s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); } .bgfly { fill: #fff3a8; animation: twinkle 2.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  .sun { position: absolute; left: 14px; top: 10px; display: flex; align-items: center; gap: 12px; z-index: 2; }
+  .puck.spot { position: static; margin: 0; width: 64px; height: 64px; flex-shrink: 0; }
+  .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  .suntx { display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .actors { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0 4px 6px; }
+  .actor { flex: 1 1 0; min-width: 0; height: calc(100% - 64px); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; padding-bottom: var(--lift); border-radius: 18px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); }
+  .actor > svg { flex: 1 1 0; min-height: 0; width: 100%; max-width: 150px; overflow: visible; }
+  .actor[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--c); } .actor > svg { outline: none; } .actor > svg:focus-visible { filter: drop-shadow(0 0 0 var(--ink)); border-radius: 14px; box-shadow: inset 0 0 0 3px var(--ink); } .actor[data-focus] .aname { background: var(--chip-strong); box-shadow: 0 0 0 2px var(--c); }
+  .aname { min-height: 44px; max-width: 100%; padding: 2px 10px; border-radius: 14px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+  .aname b { max-width: 100%; font-size: 13.5px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .afill { fill: var(--c); transition: d .2s; } .afill.soft { opacity: .6; } .afill.edge, .aidle.edge { stroke: #fff; stroke-width: 2.5; }
+  .aidle { fill: var(--ink3); opacity: .75; } .ahull { fill: #fff; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  .aline { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; } .aline.thin { stroke-width: 1.8; opacity: .7; }
+  .aflag { fill: var(--accent); } .amoon { fill: #f6d77a; stroke: rgba(0,0,0,.25); stroke-width: 1; }
+  .aeye { fill: #fff; } .apupil { fill: #0b2236; } .abub { fill: none; stroke: #fff; stroke-width: 2; } .aring { fill: none; stroke: #fff; stroke-width: 2.5; opacity: .85; }
+  .aglow { fill: var(--c); opacity: .3; transform-box: fill-box; transform-origin: center; animation: aglow 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes aglow { from { transform: scale(.9); } to { transform: scale(1.2); opacity: .12; } }
+  .aorbit { fill: none; stroke: var(--track); stroke-width: 1.5; stroke-dasharray: 3 6; }
+  .alog { fill: #6b4a2b; stroke: #3d2a18; stroke-width: 1.5; } .aflame { fill: var(--c); } .aflame.in { fill: #ffd166; } .aember { fill: #b45309; opacity: .8; }
+  .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: 17px; font-weight: 700; text-anchor: middle; }
+  .bob, .swim, .flick, .sway, .jig { transform-box: fill-box; transform-origin: 50% 100%; }
+  .actor[data-playing] .bob { animation: abob 2.6s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
+  @keyframes abob { from { transform: translateY(-3px) rotate(-3deg); } to { transform: translateY(3px) rotate(3deg); } }
+  .actor[data-playing] .swim { transform-origin: center; animation: aswim 2.8s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
+  @keyframes aswim { from { transform: translateX(-6px) rotate(-4deg); } to { transform: translateX(6px) rotate(4deg); } }
+  .actor[data-playing] .abub { animation: abub 2.4s ease-in infinite; animation-iteration-count: var(--loops, infinite); } .abub.late { animation-delay: -1.2s; }
+  @keyframes abub { from { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } to { transform: translateY(-46px); opacity: 0; } }
+  .actor[data-playing] .flick { animation: aflick .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes aflick { from { transform: scale(.96, 1.04) skewX(-3deg); } to { transform: scale(1.04, .95) skewX(3deg); } }
+  .actor[data-playing] .sway { transform-origin: center; animation: asway 2.2s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
+  @keyframes asway { from { transform: translateX(-5px) rotate(-8deg); } to { transform: translateX(5px) rotate(8deg); } }
+  .actor[data-playing] .jig { transform-origin: center; animation: ajig .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
+  .vscene[data-fit] .aname span { display: none; } .vscene[data-fit] .aname { min-height: 44px; }
+  :host([data-phone]) .vscene { flex: none; height: 420px; } :host([data-phone]) .actors { flex-wrap: wrap; align-content: flex-end; } :host([data-phone]) .actor { flex: 1 1 30%; height: 150px; }
+`;

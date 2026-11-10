@@ -24,7 +24,12 @@ const P: Record<string, string> = {
   search: 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM20 20l-4.7-4.7',
   sleeve: 'M3.5 5h11v14h-11zM14.5 7.5a4.5 4.5 0 0 1 0 9M14.5 12h.01M7 9h4',
   jukebox: 'M6 21V10a6 6 0 0 1 12 0v11zM6 14h12M9.5 17.5h5M12 7.5v3',
-  radio: 'M4 9h16v11H4zM7.5 9l8.5-5M8.5 12.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM14 13h3.5M14 16h3.5'
+  radio: 'M4 9h16v11H4zM7.5 9l8.5-5M8.5 12.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM14 13h3.5M14 16h3.5',
+  dial: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM12 3v2.5',
+  desk: 'M6 4v16M12 4v16M18 4v16M4 9h4M10 15h4M16 7h4',
+  plug: 'M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4',
+  scene: 'M3 18h18M5.5 18l1.5 3h10l1.5-3M12 4v14M12 5l6 9h-6',
+  list: 'M4 6h16M4 12h16M4 18h16'
 };
 const F: Record<string, string> = {
   play: 'M8 5.5v13l10.5-6.5z',
