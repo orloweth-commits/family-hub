@@ -5,7 +5,7 @@ import { icon, solid } from './icons';
 import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type StationConfig } from './types';
 import { FitController, isQuiet, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
-import { hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
+import { findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import './pin';
 
 type Tab = 'rooms' | 'search' | 'shelves' | 'juke' | 'radio' | 'call';
@@ -162,7 +162,7 @@ export class FhMusic extends LitElement {
   private get _list(): HassEntity[] { return rooms(this.hass!, this.players); }
   private get _cur(): HassEntity | undefined {
     const l = this._list;
-    return l.find((p) => p.entity_id === this._focus) ?? l.find((p) => p.entity_id === this.preferred) ?? l.find((p) => p.state === 'playing') ?? l[0];
+    return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass!, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l[0];
   }
   private get _stations(): StationConfig[] {
     const s = this.stations.length ? this.stations : DEFAULT_STATIONS;
