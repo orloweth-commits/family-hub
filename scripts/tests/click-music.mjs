@@ -79,6 +79,19 @@ const M = (page) => page.locator('fh-music');
       const pk = await M(v).locator('.puck.spot').boundingBox(), to = await M(v).locator('.actor[data-zone="media_player.lounge_room_sonos"]').boundingBox();
       await v.mouse.move(pk.x + 30, pk.y + 30); await v.mouse.down(); await v.mouse.move(pk.x + 120, pk.y + 100, { steps: 4 }); await v.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
       console.log('scene carry:', await calls(v, /transfer_queue/)); }
+    if (view === 'cables') {
+      // the record crate: flick with the keys, tap the front record to play it, carry one to the turntable; a sideways drag flicks and does not play
+      await v.evaluate(() => { window.__calls.length = 0; });
+      const front = () => M(v).locator('.cpick b').innerText();
+      const first = await front(); await M(v).getByRole('button', { name: 'Flick forward' }).click(); await v.waitForTimeout(300);
+      const f = await M(v).locator('.sleeve[data-front]').boundingBox(), fx = f.x + f.width / 2, fy = f.y + f.height / 2;
+      await v.mouse.move(fx, fy); await v.mouse.down(); await v.mouse.move(fx + 40, fy + 3, { steps: 4 }); await v.mouse.move(fx + 70, fy + 4, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(500);
+      console.log('crate sleeves:', await M(v).locator('.sleeve').count(), '| flicked forward then dragged back to the first:', (await front()) === first, '| flick played nothing:', !(await calls(v, /play_media/)));
+      await M(v).locator('.sleeve[data-front]').click(); await v.waitForTimeout(300); console.log('crate tap front:', (await calls(v, /play_media/)).slice(0, 100));
+      const s2 = await M(v).locator('.sleeve[data-front]').boundingBox(), tt = await M(v).locator('.ttable').boundingBox(); await v.evaluate(() => { window.__calls.length = 0; });
+      await v.mouse.move(s2.x + s2.width / 2, s2.y + 30); await v.mouse.down(); await v.mouse.move(s2.x + s2.width / 2 + 8, s2.y - 30, { steps: 4 }); await v.mouse.move(tt.x + tt.width / 2, tt.y + tt.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
+      console.log('crate record to the turntable:', (await calls(v, /play_media/)).slice(0, 100), '| wires:', await M(v).locator('.wire').count());
+      await M(v).getByRole('button', { name: 'Max', exact: true }).click(); await v.waitForTimeout(300); console.log('crate divider:', await M(v).locator('.clabel b').innerText()); }
     if (view === 'desk') { const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
     await M(v).getByRole('button', { name: /Change how the rooms are shown/ }).click(); await v.waitForTimeout(200);

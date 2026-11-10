@@ -15,7 +15,7 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob', hint: 'Drag round a room’s arc for volume. Tap the arc to add or drop the room.' },
   { id: 'desk', name: 'Desk', icon: 'desk', about: 'A fader for every room', hint: 'Slide a fader for volume. The lamp adds the room to the music.' },
-  { id: 'cables', name: 'Cables', icon: 'plug', about: 'Plug the speakers in', hint: 'Tap a socket to plug a speaker in. Slide on a speaker for volume.' },
+  { id: 'cables', name: 'Crate', icon: 'sleeve', about: 'Records, a turntable and cables', hint: 'Flick through the crate. Drop a record on the turntable or a speaker.' },
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
 const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
@@ -31,13 +31,16 @@ export interface Ctx {
   /** a room being carried round the scene, in percent of the scene */
   sdrag: { id: string; x: number; y: number } | null; setDrag(d: { id: string; x: number; y: number } | null): void;
   join(id: string, lead: string): void; leave(id: string): void;
-  now: { title: string; art: string; playing: boolean; frac: number; lead: string };
+  now: { title: string; artist: string; art: string; playing: boolean; frac: number; lead: string };
   shelf: ShelfItem[];
+  /** the record crate: a divider per person, that person's records, and which one is at the front */
+  crate: { tabs: { name: string; colour: string }[]; who: string; pick(name: string): void; items: ShelfItem[]; at: number; tap(i: number): void; flick(i: number): void; calm: boolean; room: string };
+  prev(): void; next(): void;
   /** show a volume while dragging, then keep it */
   vol(id: string, v: number, commit: boolean): void;
   /** add the room to the music, or take it out */
   toggle(id: string): void; focus(id: string): void; playPause(): void; all(): void;
-  carry(e: PointerEvent, id: string): void; carryItem(e: PointerEvent, m: ShelfItem): void; playItem(m: ShelfItem): void;
+  carry(e: PointerEvent, id: string): void; carryItem(e: PointerEvent, m: ShelfItem, flick?: (dx: number) => void): void; playItem(m: ShelfItem): void;
 }
 
 const clamp = (v: number): number => Math.max(0, Math.min(100, Math.round(v)));
@@ -133,28 +136,51 @@ export const deskView = (c: Ctx): TemplateResult => {
       <span class="sval">${live.length ? avg : '–'}</span></div></div>`;
 };
 
-/* ---------------- patch cables ---------------- */
-export const cablesView = (c: Ctx): TemplateResult => {
-  const half = Math.ceil(c.rooms.length / 2), cols = [c.rooms.slice(0, half), c.rooms.slice(half)];
-  const y = (j: number, n: number): number => ((j + 0.5) / n) * 100;
+/* ---------------- the record crate ---------------- */
+const CRATE_SHOWS = 6;
+/** A crate of records to flick through, a turntable to drop them on, and a speaker for every room on the end of a cable. */
+export const crateView = (c: Ctx): TemplateResult => {
+  const k = c.crate, n = k.items.length, at = Math.max(0, Math.min(n - 1, k.at)), start = Math.max(0, Math.min(at - 2, n - CRATE_SHOWS)), win = k.items.slice(start, start + CRATE_SHOWS), sel = k.items[at];
+  const y = (j: number): number => ((j + 0.5) / c.rooms.length) * 100;
   const plugged = (r: Room): boolean => r.focus ? r.live : r.inmix;
-  const cab = (r: Room, side: number, j: number, n: number): TemplateResult => html`<div class="cab ${side ? 'right' : 'left'}" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id}
-      style="top:${y(j, n)}%;${col(r)}" @pointerdown=${slide(c, r, () => 180, () => c.focus(r.id))}>
+  const whose = k.who === 'Family' ? 'Family crate' : `${k.who}’s crate`;
+  const cab = (r: Room, j: number): TemplateResult => html`<div class="cab" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id}
+      style="--top:${y(j)}%;--n:${c.rooms.length};${col(r)}" @pointerdown=${slide(c, r, () => 180, () => c.focus(r.id))}>
     <span class="chit" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}><span class="cone" aria-hidden="true"><i></i></span>
-    <span class="ctext"><b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${r.live ? (r.title || 'Music') : r.asleep ? 'Asleep' : 'Not plugged in'}</span></span>
-    ${r.hasVol ? html`<span class="cknob" aria-hidden="true" style="--turn:${-135 + r.vol * 2.7}deg"><i></i></span><span class="cval">${r.vol}</span>` : nothing}</span>
+    <span class="ctext"><b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${r.live ? (r.hasVol ? `Volume ${r.vol}` : r.title || 'Music') : r.asleep ? 'Asleep' : 'Plug in to play'}</span></span>
+    ${r.hasVol ? html`<span class="cknob" aria-hidden="true" style="--turn:${-135 + r.vol * 2.7}deg"><i></i></span>` : nothing}</span>
     <button class="sock tap" data-notrack aria-pressed=${String(plugged(r))} aria-label="${r.inmix || r.focus ? 'Remove' : 'Add'} ${r.name} ${r.inmix || r.focus ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${plugged(r) ? '' : '＋'}</button></div>`;
-  const wires = cols.flatMap((list, side) => { const on = list.map((r, j) => [r, j] as [Room, number]).filter(([r]) => plugged(r)); return on.map(([r, j], k) => {
-    const x0 = side ? 58 : 42, y0 = 50 + (k - (on.length - 1) / 2) * 9, x1 = side ? 66.5 : 33.5, y1 = y(j, list.length), dx = side ? 5 : -5, sag = 12 + Math.abs(y1 - y0) * 0.2;
-    return svg`<path class="wire" ?data-playing=${r.playing} style="${col(r)};animation-delay:${-k * 0.4}s" d="M${x0} ${y0} C${x0 + dx} ${y0 + sag}, ${x1 - dx} ${y1 + sag}, ${x1} ${y1}"></path>`; }); });
+  const on = c.rooms.map((r, j) => [r, j] as [Room, number]).filter(([r]) => plugged(r)), jackY = (i: number): number => 39 + (i - (on.length - 1) / 2) * Math.min(9, 60 / Math.max(1, on.length));
+  const wires = on.map(([r, j], i) => { const x0 = 70.6, y0 = jackY(i), x1 = 76, y1 = y(j), sag = 9 + Math.abs(y1 - y0) * 0.18;
+    return svg`<path class="wire" ?data-playing=${r.playing} style="${col(r)};animation-delay:${-i * 0.4}s" d="M${x0} ${y0} C${x0 + 3.4} ${y0 + sag}, ${x1 - 3.4} ${y1 + sag}, ${x1} ${y1}"></path>`; });
+  const sleeve = (m: ShelfItem, w: number): TemplateResult => { const i = start + w, front = i === at, spread = 0.5 + (w - (win.length - 1) / 2) / Math.max(3, win.length - 1);
+    return html`<button class="sleeve tap" ?data-front=${front} style="z-index:${10 - Math.abs(i - at)};--x:${spread};--tilt:${(-9 + 17 * spread).toFixed(1)}deg;--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"
+      aria-label="${m.name}. ${front ? `Tap to play in ${k.room}` : 'Tap to bring it to the front'}, or drag it to the turntable or a speaker."
+      @pointerdown=${(e: PointerEvent) => c.carryItem(e, m, (dx) => k.flick(Math.max(0, Math.min(n - 1, at - Math.round(dx / 52)))))} @click=${() => k.tap(i)}><i class="vinyl"></i><span class="sart">${m.img ? '' : m.name[0]}</span></button>`; };
   return html`<div class="rig" data-fits>
     <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${wires}</svg>
-    ${cols.map((list, side) => list.map((r, j) => cab(r, side, j, list.length)))}
-    <div class="cdeck">
-      <button class="cdisc tap" ?data-playing=${c.now.playing} style=${c.now.art ? `--art:url(${c.now.art})` : ''} aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}><span>${solid(c.now.playing ? 'pause' : 'play', 26)}</span></button>
-      <b class="ctitle">${c.now.title}</b>
-      ${c.shelf.length ? html`<div class="csleeves">${c.shelf.slice(0, 3).map((m) => html`<button class="csleeve tap" style=${m.img ? `--art:url(${m.img})` : ''} aria-label="Play ${m.name}. Drag it onto a speaker to play it there." @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => c.playItem(m)}>${m.img ? '' : m.name[0]}</button>`)}</div>` : nothing}
-    </div></div>`;
+    <div class="cratecol">
+      <div class="ctabs" role="group" aria-label="Whose crate">${k.tabs.map((t) => html`<button class="ctab tap" style="--c:${t.colour}" aria-pressed=${String(t.name === k.who)} @click=${() => k.pick(t.name)}>${t.name}</button>`)}</div>
+      <div class="sleeves">${win.map(sleeve)}</div>
+      <div class="cbox">
+        <div class="clabel">${n > 1 ? html`<button class="cnav tap" aria-label="Flick back" ?disabled=${at === 0} @click=${() => k.flick(at - 1)}>${solid('prev', 20)}</button>` : nothing}
+          <b>${k.calm ? '🌙 ' : ''}${whose}</b>${n > 1 ? html`<button class="cnav tap" aria-label="Flick forward" ?disabled=${at === n - 1} @click=${() => k.flick(at + 1)}>${solid('next', 20)}</button>` : nothing}</div>
+        ${sel ? html`<span class="cpick"><b>${sel.name}</b><span>${n > 1 ? `${at + 1} of ${n} · ` : ''}tap it to play in ${k.room}</span></span>`
+          : html`<span class="cpick"><b>${k.calm ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</b><span>Search for music, then tap Pin.</span></span>`}
+      </div>
+    </div>
+    <div class="tdeck">
+      <div class="ttable" data-drop="deck" ?data-hot=${c.over === 'deck'}>
+        <div class="tplat"><button class="cdisc tap" ?data-playing=${c.now.playing} style=${c.now.art ? `--art:url(${c.now.art})` : ''} aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}></button>
+          <i class="tarm" aria-hidden="true" style="--arm:${c.now.lead ? (12 + 18 * c.now.frac).toFixed(1) : 0}deg"><i></i></i><i class="tpivot" aria-hidden="true"></i></div>
+        <span class="ttitle"><b>${c.now.title}</b><span>${c.now.artist || (c.now.lead ? '' : 'Drop a record here')}</span></span>
+        ${on.map((_, i) => html`<i class="jack" aria-hidden="true" style="top:${(jackY(i) / 78) * 100}%"></i>`)}
+      </div>
+      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => c.prev()}>${solid('prev', 28)}</button>
+        <button class="tkey go tap" data-go aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}>${solid(c.now.playing ? 'pause' : 'play', 30)}</button>
+        <button class="tkey tap" aria-label="Next" @click=${() => c.next()}>${solid('next', 28)}</button></div>
+    </div>
+    ${c.rooms.map(cab)}</div>`;
 };
 
 /* ---------------- the living scene ---------------- */
@@ -342,38 +368,73 @@ export const viewsCss = css`
   .desk[data-fit] .sname { font-size: 11px; } .desk[data-fit] .well { padding: 6px 0; }
   :host([data-phone]) .desk { flex: none; height: 380px; overflow-x: auto; } :host([data-phone]) .strip { flex: 0 0 62px; }
 
-  /* ---- cables ---- */
-  .rig { flex: 1; min-height: 230px; position: relative; user-select: none; -webkit-user-select: none; }
-  .wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-  .wire { fill: none; stroke: var(--c, var(--stream, var(--primary))); stroke-width: 6px; stroke-linecap: round; vector-effect: non-scaling-stroke; --c: var(--stream, var(--primary)); }
+  /* ---- crate ---- */
+  .rig { flex: 1; min-height: 230px; position: relative; user-select: none; -webkit-user-select: none; container-type: size; --S: min(14.5cqw, 38cqh); --P: min(26cqw, 54cqh); }
+  .wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 1; }
+  .wire { fill: none; stroke: var(--c, var(--stream, var(--primary))); stroke-width: 7px; stroke-linecap: round; vector-effect: non-scaling-stroke; --c: var(--stream, var(--primary)); }
   .wire[data-playing] { animation: wire 1.3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes wire { to { transform: translateY(1.6px); } }
-  .cab { position: absolute; width: 33.5%; height: min(84px, 30%); min-height: 56px; transform: translateY(-50%); border-radius: 16px; background: #1b2230; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.6); }
-  .cab.left { left: 0; padding-right: 30px; } .cab.right { right: 0; padding-left: 30px; flex-direction: row; }
+  /* the crate: dividers behind, sleeves fanned in the box */
+  .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 34%; }
+  .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 2px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: flex; align-items: flex-start; justify-content: center; white-space: nowrap; overflow: hidden;
+    transition: margin-top .25s cubic-bezier(.2,1.4,.4,1); }
+  .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
+  .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }
+  .sleeve { position: absolute; left: calc(var(--x) * (100% - var(--S))); top: 0; width: var(--S); height: var(--S); transform-origin: 50% 110%; transform: rotate(var(--tilt)); touch-action: none; border-radius: 8px;
+    transition: transform .28s cubic-bezier(.2,1.3,.4,1); }
+  .sleeve[data-front] { transform: rotate(var(--tilt)) translateY(-9%); }
+  .sart { position: absolute; inset: 0; border-radius: 8px; background: var(--art) center / cover no-repeat, #fff; box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), -4px 4px 10px -4px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Bricolage Grotesque', sans-serif; font-size: calc(var(--S) * .3); font-weight: var(--w-heavy, 800); font-style: normal; }
+  .vinyl { position: absolute; left: 6%; right: 6%; top: 0; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #f4efe3 0 4%, var(--accent) 4.5% 20%, #17140f 20.5% 100%); transform: translateY(0); transition: transform .3s cubic-bezier(.2,1.3,.4,1); }
+  .sleeve[data-front] .vinyl { transform: translateY(-15%); }
+  .sleeve:focus-visible .sart { box-shadow: 0 0 0 3px var(--ink); }
+  .cbox { position: absolute; left: 0; right: 0; top: calc(26% + var(--S) - 12px); bottom: 0; z-index: 2; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 8px 0 rgba(0,0,0,.14), inset 0 0 0 1.5px rgba(255,255,255,.6); padding: 10px 14px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 4px; overflow: hidden;
+    background-image: linear-gradient(var(--track), var(--track)), linear-gradient(var(--track), var(--track)); background-size: calc(100% - 28px) 2px; background-repeat: no-repeat; background-position: 14px 8px, 14px calc(100% - 8px); }
+  .clabel { display: flex; align-items: center; gap: 8px; max-width: 100%; }
+  .clabel b { min-width: 0; padding: 6px 14px; border-radius: 6px; background: #fff; color: #17140f; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .cnav { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--chip); display: flex; align-items: center; justify-content: center; } .cnav[disabled] { opacity: .35; }
+  .cpick { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
+  .cpick b { max-width: 100%; font-size: 16px; font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cpick span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .rig[data-fit] .cpick span { display: none; }
+  /* the turntable */
+  .tdeck { position: absolute; left: 37.5%; width: 33%; top: 0; bottom: 0; display: flex; flex-direction: column; gap: 3.5%; }
+  .ttable { flex: 1; min-height: 0; position: relative; border-radius: 26px; background: var(--chip); padding: 3% 4% 2%; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; transition: box-shadow .2s, background .2s; }
+  .ttable[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--stream, var(--primary)); }
+  .tplat { position: relative; width: var(--P); height: var(--P); margin-right: calc(var(--P) * .1); flex-shrink: 0; }
+  .cdisc { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 14px 22px -10px rgba(0,0,0,.6);
+    background: radial-gradient(circle closest-side, #f4efe3 0 2.6%, transparent 3%), radial-gradient(circle closest-side, transparent 34%, #17140f 34.6% 46%, #3a342b 46.4% 47.2%, #17140f 47.6% 59%, #3a342b 59.4% 60.2%, #17140f 60.6% 72%, #3a342b 72.4% 73.2%, #17140f 73.6% 85%, #3a342b 85.4% 86.2%, #17140f 86.6% 100%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / 70% 70% no-repeat, #17140f; }
+  .cdisc[data-playing] { animation: puck 3.6s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  .cdisc:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .tpivot { position: absolute; left: 102.5%; top: 7.5%; width: 13%; height: 13%; margin: -6.5% 0 0 -6.5%; border-radius: 50%; background: radial-gradient(circle, #8b8477 0 34%, #26272b 36%); pointer-events: none; }
+  .tarm { position: absolute; left: 102.5%; top: 7.5%; width: 0; height: 0; transform: rotate(var(--arm)); transition: transform .9s cubic-bezier(.3,1.2,.5,1); pointer-events: none; }
+  .tarm::before { content: ''; position: absolute; left: calc(var(--P) * -.017); top: 0; width: calc(var(--P) * .034); height: calc(var(--P) * .6); border-radius: 4px; background: #8b8477; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
+  .tarm i { position: absolute; left: calc(var(--P) * -.048); top: calc(var(--P) * .56); width: calc(var(--P) * .096); height: calc(var(--P) * .13); border-radius: 5px; background: #26272b; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
+  .ttitle { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
+  .ttitle b { max-width: 100%; font-size: clamp(15px, 5.4cqh, 22px); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ttitle span { max-width: 100%; min-height: 1.2em; font-size: 13.5px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jack { position: absolute; right: -9px; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: var(--stream, var(--primary)); box-shadow: 0 0 0 3px var(--chip-strong); z-index: 2; }
+  .tkeys { flex: 0 0 clamp(56px, 17cqh, 76px); display: flex; gap: 8px; }
+  .tkey { flex: 1 1 0; border-radius: 20px; background: var(--chip-strong); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,.2); margin-bottom: 6px; transition: transform .08s, box-shadow .08s; }
+  .tkey.go { flex-grow: 1.3; background: var(--primary); color: var(--on-primary); }
+  .tkey:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+  /* a speaker for every room, on the end of a cable */
+  .cab { position: absolute; right: 0; top: var(--top); width: 24%; height: min(88px, calc(100% / var(--n) - 8px)); min-height: 48px; transform: translateY(-50%); border-radius: 16px; background: #1b2230; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 28px; touch-action: none; cursor: ns-resize; outline: none; --c: var(--stream, var(--primary)); box-shadow: 0 6px 12px -8px rgba(0,0,0,.6); }
   .cab[data-focus] { box-shadow: 0 0 0 3px var(--c), 0 6px 12px -8px rgba(0,0,0,.6); } .cab[data-hot] { box-shadow: 0 0 0 4px var(--accent); } .chit { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 8px; border-radius: 12px; outline: none; } .chit:focus-visible { box-shadow: 0 0 0 3px #fff; }
-  .cone { width: 40px; height: 40px; border-radius: 50%; background: #0b0d12; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .cone i { width: 22px; height: 22px; border-radius: 50%; background: #333a48; } .cab[data-live] .cone i { background: var(--c); }
+  .cone { height: min(46px, 72%); aspect-ratio: 1; border-radius: 50%; background: #0b0d12; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cone i { width: 56%; height: 56%; border-radius: 50%; background: #333a48; box-shadow: inset 0 0 0 5px rgba(0,0,0,.25); } .cab[data-live] .cone i { background: var(--c); }
   .cab[data-playing] .cone i { animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes thump { from { transform: scale(.82); } to { transform: scale(1.14); } }
   .ctext { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
   .ctext b, .ctext span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext b { font-size: 14.5px; font-weight: 700; } .ctext span { font-size: 12px; color: rgba(255,255,255,.78); }
   .cknob { width: 30px; height: 30px; border-radius: 50%; background: #3a4150; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); position: relative; flex-shrink: 0; transform: rotate(var(--turn)); transition: transform .15s ease-out; }
   .cknob i { position: absolute; left: 13.5px; top: 3px; width: 3px; height: 10px; border-radius: 2px; background: #fff; }
-  .cval { width: 22px; font-size: 12px; font-weight: 700; text-align: right; }
-  .sock { position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); }
-  .cab.left .sock { right: -22px; } .cab.right .sock { left: -22px; }
+  .sock { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); z-index: 2; }
   .sock[aria-pressed='true'] { background: var(--c); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
-  .cdeck { position: absolute; left: 41%; right: 41%; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; pointer-events: none; }
-  .cdeck > * { pointer-events: auto; }
-  .cdisc { width: min(100%, 190px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, transparent 0 24%, rgba(0,0,0,.0) 24%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 6px #17140f, 0 0 0 8px rgba(255,255,255,.3), 0 12px 22px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
-  .cdisc[data-playing] { animation: puck 9s linear infinite; animation-iteration-count: var(--loops, infinite); }
-  .cdisc span { width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; }
-  .cdisc[data-playing] span { animation: puck 9s linear infinite reverse; animation-iteration-count: var(--loops, infinite); }
-  .ctitle { max-width: 150%; font-size: 13px; font-weight: var(--w-bold, 700); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .csleeves { display: flex; gap: 6px; }
-  .csleeve { width: 46px; height: 46px; border-radius: 8px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; font-weight: 800; box-shadow: 0 0 0 2px var(--chip-strong), 0 5px 8px -4px rgba(0,0,0,.5); touch-action: none; }
-  :host([data-phone]) .rig { flex: none; height: 460px; } :host([data-phone]) .cab { width: 46%; } :host([data-phone]) .cdeck, :host([data-phone]) .wires { display: none; }
-  :host([data-phone]) .cab.left .sock { right: 4px; } :host([data-phone]) .cab.right .sock { left: auto; right: 4px; } :host([data-phone]) .cab.right { padding-left: 10px; padding-right: 30px; } :host([data-phone]) .cknob { display: none; }
+  :host([data-phone]) .rig { flex: none; display: flex; flex-direction: column; gap: 14px; container-type: normal; --S: 138px; --P: 200px; }
+  :host([data-phone]) .cratecol { position: relative; width: auto; height: 330px; }
+  :host([data-phone]) .tdeck { position: relative; left: auto; width: auto; height: 400px; gap: 12px; }
+  :host([data-phone]) .tkeys { flex-basis: 64px; } :host([data-phone]) .ttitle b { font-size: 19px; }
+  :host([data-phone]) .cab { position: relative; top: auto; width: auto; height: 64px; transform: none; padding: 0 56px 0 10px; }
+  :host([data-phone]) .sock { left: auto; right: 6px; } :host([data-phone]) .wires, :host([data-phone]) .jack { display: none; }
 
   /* ---- scene ---- */
   .vscene { flex: 1; min-height: 250px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; container-type: size; --sq: .42; --k: 1; }

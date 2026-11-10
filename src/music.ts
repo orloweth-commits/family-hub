@@ -7,7 +7,7 @@ import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, t
 import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
-import { VIEWS, cablesView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
+import { VIEWS, crateView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
 import './pin';
 
 type Tab = 'rooms' | 'search' | 'shelves' | 'juke' | 'radio' | 'call';
@@ -121,6 +121,7 @@ export class FhMusic extends LitElement {
     :host([data-phone]) .body { flex: none; }
     :host([data-phone]) .mhead .finder, :host([data-phone]) .sbar { flex: 1 1 100%; }
     :host([data-phone]) .acts .soft { flex: 1 1 100%; order: 9; }
+    :host([data-shape='tall']) .acts .hint { flex: 1 1 100%; order: 9; }
     :host([data-phone]) .stage { flex-direction: column; flex-wrap: nowrap; align-items: stretch; border-radius: 22px; }
     :host([data-phone]) .deck { flex: 0 0 auto; height: 210px; }
     :host([data-phone]) .panel { padding: 14px; border-radius: 22px; min-height: 320px; }
@@ -325,7 +326,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -350,6 +351,8 @@ export class FhMusic extends LitElement {
   private _peek = false;
   private _sd: { id: string; x: number; y: number } | null = null;
   private _shelfAsked = false;
+  /** which record is at the front of the crate */
+  private _crateAt = 0;
   private _carry: { from?: string; item?: ShelfItem; art?: string; x: number; y: number; over: string } | null = null;
   private _carried = 0;
   private _prev: Tab = 'rooms';
@@ -518,16 +521,20 @@ export class FhMusic extends LitElement {
     const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
     const frac = dur ? Math.min(1, ((Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) / dur) : 0;
     if (!this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
-    return { rooms, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
+    const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime), mine = this._items[this._shelf] ?? [], crate = wind ? mine.filter((x) => x.calm) : mine;
+    const front = Math.max(0, Math.min(crate.length - 1, this._crateAt));
+    return { rooms, prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
+      crate: { tabs: this._shelfNames.map((n) => ({ name: n, colour: slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family') })), who: this._shelf, pick: (n) => { this._shelf = n; this._crateAt = 0; }, items: crate, at: front, calm: wind, room: this._name(cur),
+        flick: (i) => { this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) this._crateAt = i; else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); }); },
       leave: (id) => { this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id }); },
       look: getLook(), theme: this.theme, over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', shelf: this._items.Family ?? [],
-      now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
+      now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), artist: String(a.media_artist ?? a.media_album_name ?? ''), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit),
       toggle: (id) => { if (id === cur?.entity_id) return; if (mix.includes(id)) this._join(id); else this._gentle(id, () => { if (curLead) this._join(id); else this._focus = id; }); },
       focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._wholeHouse(() => this._everywhere(true)),
       carry: (e, id) => { const p = this.hass!.states[id]; if (p) this._carryDown(e, { lead: p }); },
-      carryItem: (e, m) => this._carryDown(e, { item: m }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
+      carryItem: (e, m, flick) => this._carryDown(e, { item: m, flick }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
   }
   /** The speaker a room's music comes from, if anything is on there (playing or paused). */
   private _leader(p: HassEntity): HassEntity | undefined {
@@ -577,30 +584,37 @@ export class FhMusic extends LitElement {
     e.preventDefault(); this._svc('volume_set', { volume_level: Math.max(0, Math.min(1, p.attributes.volume_level + step / 100)) }, p.entity_id);
   }
   /** Pick something up and carry it to a room: the music itself (a tap pauses or plays it), or a record from a shelf. */
-  private _carryDown(e: PointerEvent, what: { lead?: HassEntity; item?: ShelfItem }): void {
-    const lead = what.lead, item = what.item;
+  private _carryDown(e: PointerEvent, what: { lead?: HassEntity; item?: ShelfItem; flick?: (dx: number) => void }): void {
+    const lead = what.lead, item = what.item; let flicking = false;
     if (lead) e.stopPropagation();
     const el = e.currentTarget as HTMLElement, panel = this.renderRoot.querySelector('.panel') as HTMLElement, x0 = e.clientX, y0 = e.clientY;
     const art = String(lead?.attributes.entity_picture ?? item?.img ?? '');
     const under = (x: number, y: number): string => {
       const inside = (n: Element): boolean => { const r = n.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(inside)) return 'all';
+      const deck = item ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
+      if (deck && inside(deck)) return 'deck';
       return [...this.renderRoot.querySelectorAll<HTMLElement>('[data-zone]')].find(inside)?.dataset.zone ?? '';
     };
     const move = (m: PointerEvent): void => {
       const r = panel.getBoundingClientRect();
-      if (!this._carry && Math.hypot(m.clientX - x0, m.clientY - y0) < 10) return;
+      if (!this._carry && !flicking && Math.hypot(m.clientX - x0, m.clientY - y0) < 10) return;
+      // a sideways start flicks through the crate; any other way lifts the record out
+      if (!this._carry && !flicking && what.flick && Math.abs(m.clientX - x0) > Math.abs(m.clientY - y0) * 1.4) flicking = true;
+      if (flicking) { what.flick!(m.clientX - x0); return; }
       this._carry = { from: lead?.entity_id, item, art, x: ((m.clientX - r.left) / r.width) * 100, y: ((m.clientY - r.top) / r.height) * 100, over: under(m.clientX, m.clientY) };
     };
     const up = (): void => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
       const d = this._carry; this._carry = null;
+      if (flicking) { this._carried = Date.now(); return; }
       if (!d) { if (lead) { this._focus = lead.entity_id; this._svc('media_play_pause', {}, lead.entity_id); } return; } // a record that was only tapped is played by its click
       this._carried = Date.now();
       const to = d.over && d.over !== 'all' ? this.hass!.states[d.over] : undefined;
       if (lead && d.over === 'all') this._wholeHouse(() => { this._focus = lead.entity_id; this._everywhere(true, lead); });
       else if (item && d.over === 'all') this._wholeHouse(() => { const room = this._cur; if (room) { this._shelfPlay(item, room); this._everywhere(true, room); } });
       else if (lead && to && to.entity_id !== lead.entity_id) this._gentle(to.entity_id, () => this._move(to, lead));
+      else if (item && d.over === 'deck') { const room = this._cur; if (room) this._gentle(room.entity_id, () => this._shelfPlay(item, room)); }
       else if (item && to) this._gentle(to.entity_id, () => { this._focus = to.entity_id; this._shelfPlay(item, to); });
     };
     el.setPointerCapture(e.pointerId); el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
@@ -815,7 +829,7 @@ export class FhMusic extends LitElement {
           <button class="round tap" aria-label="Next" @click=${() => this._svc('media_next_track')}>${solid('next', 24)}</button></div>` : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>
-      ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? cablesView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
+      ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? crateView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
       const a = p.attributes, playing = p.state === 'playing', focus = p.entity_id === cur?.entity_id, inmix = mix.includes(p.entity_id);
       const vol = typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
       return html`<div class="spk ${focus ? 'focus' : inmix ? 'inmix' : ''}">
