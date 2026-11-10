@@ -1,9 +1,11 @@
 import { LitElement, html, css } from 'lit';
 import { styles } from './styles';
+import { LookController } from './looks';
 import { icon } from './icons';
 
 /** Parent PIN pad. Fires `ok` when the right PIN is entered, `cancel` when dismissed. */
 export class FhPin extends LitElement {
+  readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); }
     .pad { border-radius: 32px; padding: 24px 28px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 340px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
@@ -11,7 +13,7 @@ export class FhPin extends LitElement {
     .dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink2); transition: background .15s; }
     .dots span.on { background: var(--ink); border-color: var(--ink); }
     .grid { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
-    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: 600; }
+    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: var(--w-semi, 600); }
     .bad { animation: shake .4s; }
     @keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
   `];
@@ -31,7 +33,7 @@ export class FhPin extends LitElement {
   }
   render() {
     return html`<div class="glass pad ${this._bad ? 'bad' : ''}" role="dialog" aria-label="Parent PIN" @click=${(e: Event) => e.stopPropagation()}>
-      <div style="display:flex;width:100%;align-items:center"><h2 style="flex:1;font-size:22px">${this.reason}</h2>
+      <div style="display:flex;width:100%;align-items:center"><h2 class="t-sub" style="flex:1">${this.reason}</h2>
         <button class="round tap" aria-label="Cancel" @click=${() => this.dispatchEvent(new CustomEvent('cancel'))}>${icon('close', 18)}</button></div>
       <div class="dots">${Array.from({ length: this.pin.length }, (_, i) => html`<span class=${i < this._typed.length ? 'on' : ''}></span>`)}</div>
       <div class="grid">

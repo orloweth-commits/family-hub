@@ -282,11 +282,11 @@ export const avatarCss = `
   .avwrap svg .av-pop.d4 { animation-delay: .14s; } .avwrap svg .av-pop.d5 { animation-delay: .18s; } .avwrap svg .av-pop.d6 { animation-delay: .22s; }
   .avwrap svg path.av-pop, .avwrap svg ellipse.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop .55s cubic-bezier(.2,1.4,.4,1) both; }
   @keyframes avPop { from { opacity: 0; transform: scale(.4) translateY(10px); } to { opacity: 1; transform: none; } }
-  .avwrap svg .av-bob { animation: avBob 3.2s ease-in-out infinite; }
+  .avwrap svg .av-bob { animation: avBob 3.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes avBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  .avwrap svg .av-blink { transform-box: fill-box; transform-origin: center; animation: avBlink 5.5s infinite; }
+  .avwrap svg .av-blink { transform-box: fill-box; transform-origin: center; animation: avBlink 5.5s infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes avBlink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
-  .avwrap svg .av-flame { animation: avFlame .8s ease-in-out infinite alternate; }
+  .avwrap svg .av-flame { animation: avFlame .8s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes avFlame { from { opacity: .4; } to { opacity: 1; } }
   .avwrap.av-jump-a { animation: avJumpA .7s cubic-bezier(.3,1.6,.5,1); }
   .avwrap.av-jump-b { animation: avJumpB .7s cubic-bezier(.3,1.6,.5,1); }

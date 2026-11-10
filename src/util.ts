@@ -7,8 +7,9 @@ import type { Hass } from './types';
 export type Lane = 'routine' | 'job' | 'grow';
 export type Slot = 'am' | 'after' | 'bed' | 'any';
 export interface Chore { uid: string; summary: string; status: 'needs_action' | 'completed'; description?: string }
-export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number }
+export interface ParsedChore extends Chore { lane: Lane; slot: Slot; pts: number; minutes: number; /** a picture chosen for this job: an emoji at the start of its name, or @icon:🦷 in its description */ pic?: string }
 
+const LEAD_PIC = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u;
 /** Description tokens: "+10 @job @after", "@routine @am", "@grow @bed". Untagged items with points are jobs. */
 export const parseChore = (c: Chore): ParsedChore => {
   const d = c.description ?? '';
@@ -17,7 +18,8 @@ export const parseChore = (c: Chore): ParsedChore => {
   const lane: Lane = /@grow/.test(d) ? 'grow' : /@routine/.test(d) ? 'routine' : /@job/.test(d) || pts ? 'job' : 'routine';
   const slot: Slot = /@am/.test(d) ? 'am' : /@after/.test(d) ? 'after' : /@bed/.test(d) ? 'bed' : 'any';
   const mins = /(\d+)\s*min/i.exec(`${c.summary} ${d}`);
-  return { ...c, lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
+  const lead = LEAD_PIC.exec(c.summary), tagged = /@icon[:=]\s*(\S+)/.exec(d);
+  return { ...c, summary: lead ? c.summary.slice(lead[0].length) : c.summary, pic: tagged?.[1] ?? lead?.[1], lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
 };
 
 export const hm = (s: string): number => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
@@ -47,6 +49,23 @@ export const changed = (a: Hass | undefined, b: Hass | undefined, ids: Iterable<
   return false;
 };
 
+/** Shortest label that tells each name apart: "W", "H", and "Ju" / "Ja" when two start alike. */
+export const shortNames = (names: string[]): Record<string, string> => {
+  const out: Record<string, string> = {}, uniq = [...new Set(names.filter(Boolean))];
+  for (const n of uniq) {
+    let len = 1;
+    while (len < Math.min(3, n.length) && uniq.some((o) => o !== n && o.slice(0, len).toLowerCase() === n.slice(0, len).toLowerCase())) len++;
+    out[n] = n[0].toUpperCase() + n.slice(1, len).toLowerCase();
+  }
+  return out;
+};
+
+/** Marks a scrolling box with data-more while there is more below, so it can fade its bottom edge. */
+export const scrollCue = (x: Event | Element): void => {
+  const el = (x instanceof Event ? x.currentTarget : x) as HTMLElement | null;
+  if (el) el.toggleAttribute('data-more', el.scrollHeight - el.scrollTop - el.clientHeight > 6);
+};
+
 export const pinOk = (pin: unknown, typed: string): boolean => pin !== undefined && pin !== null && String(pin) === typed;
 
 /** WA-style school-day check from configured terms and public holidays. */
@@ -66,12 +85,16 @@ export const isQuiet = (d = new Date(), start = '19:30', end = '07:00'): boolean
 /* ---------------- sound: tiny Web Audio synth, no assets ---------------- */
 let ctx: AudioContext | null = null;
 let muted = false;
+let level = 1;
+/** 1 = full, lower = softer, 0 = interface sounds off. Alarms ignore this. */
+export const setVolume = (v: number): void => { level = Math.max(0, Math.min(1, v)); };
 export const setMuted = (m: boolean): void => { muted = m; };
 const ac = (): AudioContext | null => {
   if (muted) return null;
   try { ctx = ctx ?? new (window.AudioContext || (window as any).webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; } catch { return null; }
 };
-const tone = (f: number, t0: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, glide?: number): void => {
+const tone = (f: number, t0: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, glide?: number, always = false): void => {
+  if (!always) { if (level <= 0) return; vol *= level; }
   const a = ac(); if (!a) return;
   const o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.setValueAtTime(f, a.currentTime + t0);
@@ -92,7 +115,7 @@ export const sfx = (s: Sfx): void => {
     case 'jar': tone(1200, 0, 0.05, 'sine', 0.12); tone(1600, 0.05, 0.08, 'sine', 0.1); tone(2100, 0.11, 0.12, 'sine', 0.07); break;
     case 'done': [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, 'triangle', 0.13)); break;
     case 'unlock': [392, 523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.09, 0.35, 'triangle', 0.12)); tone(1568, 0.6, 0.6, 'sine', 0.1); break;
-    case 'alarm': for (let i = 0; i < 6; i++) { tone(1046, i * 0.5, 0.18, 'square', 0.12); tone(1318, i * 0.5 + 0.2, 0.18, 'square', 0.12); } break;
+    case 'alarm': for (let i = 0; i < 6; i++) { tone(1046, i * 0.5, 0.18, 'square', 0.12, undefined, true); tone(1318, i * 0.5 + 0.2, 0.18, 'square', 0.12, undefined, true); } break;
     case 'clarinet': [587, 698, 880].forEach((f, i) => tone(f, i * 0.16, 0.3, 'square', 0.05)); break;
     case 'trumpet': [523, 523, 784].forEach((f, i) => tone(f, i * 0.14, i === 2 ? 0.5 : 0.12, 'sawtooth', 0.07)); break;
     case 'roar': tone(140, 0, 0.6, 'sawtooth', 0.12, 70); tone(210, 0.05, 0.5, 'square', 0.05, 90); break;
@@ -127,4 +150,23 @@ export const panelMsg = (hass: Hass | undefined): PanelMsg | null => {
     if (m.ts && m.ttl && Date.now() / 1000 > m.ts + m.ttl) return null;
     return m;
   } catch { return null; }
+};
+
+/* ---------------- per-child settings: card config sets the defaults, a grown-up can change them on the panel ---------------- */
+export interface KidPrefs {
+  /** 'panel' follows whatever the panel is set to */
+  look: string;
+  font: 'print' | 'hand';
+  calm: boolean;
+  sound: 'full' | 'soft' | 'off';
+  /** one job at a time: Now / Next / Later */
+  focus: boolean;
+}
+const prefKey = (name: string): string => `family-hub-kid-${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+export const kidPrefs = (k: { name: string; mode?: string; look_id?: string; font?: 'print' | 'hand'; calm?: boolean; sound_level?: 'full' | 'soft' | 'off'; focus?: boolean }): KidPrefs => {
+  const base: KidPrefs = { look: k.look_id ?? 'panel', font: k.font ?? 'print', calm: k.calm ?? true, sound: k.sound_level ?? 'full', focus: k.focus ?? k.mode !== 'text' };
+  try { return { ...base, ...(JSON.parse(localStorage.getItem(prefKey(k.name)) || '{}') as Partial<KidPrefs>) }; } catch { return base; }
+};
+export const saveKidPrefs = (name: string, patch: Partial<KidPrefs>): void => {
+  try { localStorage.setItem(prefKey(name), JSON.stringify({ ...(JSON.parse(localStorage.getItem(prefKey(name)) || '{}') as Partial<KidPrefs>), ...patch })); } catch { /* storage unavailable */ }
 };

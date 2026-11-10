@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><title>Family Hub preview (sample data)</title>
+<style>html,body{margin:0;height:100%;background:#222}</style></head>
+<body>
+<!-- Sample data only. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add, &night=1). -->
+<script type="module">
+const q = new URLSearchParams(location.search);
+const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
+try { localStorage.setItem('family-hub-look', look); localStorage.setItem('family-hub-theme', q.get('theme') || 'sea'); } catch {}
+await import('/dist/family-hub.js');
+if (q.get('night')) window.__night = true;
+const now = new Date();
+const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+const at = (d, h, m = 0) => { const x = new Date(mon); x.setDate(x.getDate() + d); x.setHours(h, m, 0, 0); return x; };
+const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+const ev = (d, h, m, title, mins = 60) => ({ summary: title, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
+const allDay = (d, title) => ({ summary: title, start: { date: ymd(at(d,0)) }, end: { date: ymd(at(d+1,0)) } });
+const CAL = {
+  'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
+  'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
+  'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
+  'calendar.riley': [ev(1,16,0,'Swimming squad',90), ev(2,17,30,'Guitar lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
+  'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Piano lesson',45)],
+  'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120)]
+};
+const TODOS = {
+  'todo.shopping_list': [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
+  'todo.reminders': [['Bins out – recycling week'],['Charlie – library bag'],['Riley – sign excursion form']],
+  'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Brush teeth','needs_action','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
+    ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Guitar practice 15 min','needs_action','@grow @after'],
+    ['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
+  'todo.charlie_chores': [['Make bed','completed','@routine @am'],['Get dressed','needs_action','@routine @am'],['Pack lunch box','needs_action','@routine @am'],['Unpack school bag','needs_action','@routine @after'],['Homework','needs_action','@routine @after'],['Feed the fish','needs_action','+5 @job'],
+    ['Set the table','needs_action','+10 @job @after'],['Piano practice 10 min','needs_action','@grow @after'],['Shower','needs_action','@routine @bed'],['Teeth','needs_action','@routine @bed']],
+  'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Breakfast','needs_action','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
+    ['Bath','needs_action','+10 @routine @bed'],['Teeth','needs_action','+10 @routine @bed'],['Story time','needs_action','+10 @routine @bed']]
+};
+const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', description = ''], i) => ({ uid: `${id}-${i}`, summary, status, description }));
+const store = Object.fromEntries(Object.keys(TODOS).map((k) => [k, items(k)]));
+const subs = {};
+const st = (entity_id, state, attributes = {}) => [entity_id, { entity_id, state: String(state), attributes }];
+const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3), st(`input_number.${s}_points`, pts), st(`input_number.${s}_lifetime_points`, life), st(`input_number.${s}_streak`, 3),
+  st(`input_text.${s}_avatar`, ''), st(`input_text.${s}_week`, week), st(`input_text.${s}_goal`, ''), st(`input_number.${s}_grow`, 4), st(`calendar.${s}`, 'off', { friendly_name: s })];
+const hass = {
+  user: { name: 'Panel', is_admin: false },
+  states: Object.fromEntries([
+    st('weather.home', 'sunny', { temperature: 24, friendly_name: 'Home' }),
+    st('person.alex', 'home'), st('person.sam', 'not_home'),
+    st('media_player.lounge', 'playing', { friendly_name: 'Lounge', media_title: 'ABC Jazz', media_artist: 'Radio' }),
+    st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
+    st('input_number.family_jar', 84), st('input_text.fh_panel_message', ''),
+    st('calendar.family', 'off', { friendly_name: 'Family' }), st('calendar.alex', 'off', { friendly_name: 'Alex' }), st('calendar.sam', 'off', { friendly_name: 'Sam' }),
+    st('todo.shopping_list', 8), st('todo.reminders', 3), st('todo.rewards_owed', 0),
+    ...kidStates('riley', 120, 640, 'G------'), ...kidStates('charlie', 65, 310, 'G------'), ...kidStates('max', 80, 150, 'G------'),
+    st('light.kitchen', 'on'), st('light.lounge', 'on')
+  ]),
+  services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} } },
+  callService: async (domain, service, data = {}, target = {}) => {
+    const id = target.entity_id ?? data.entity_id;
+    if (domain === 'todo' && store[id]) {
+      if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }
+      if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
+      if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
+      (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
+    }
+  },
+  callApi: async (_m, path) => { const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
+  callWS: async (msg) => {
+    if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
+    if (msg.type === 'call_service' && msg.domain === 'weather') return { response: { 'weather.home': { forecast: [{ temperature: 27, templow: 14, uv_index: 9, precipitation: 0 }] } } };
+    return {};
+  },
+  connection: { subscribeMessage: async (cb, msg) => { (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
+};
+const el = document.createElement('family-hub-card');
+el.setConfig({
+  type: 'custom:family-hub-card', family_name: 'everyone', weather: 'weather.home', music_player: 'media_player.lounge', reminders: 'todo.reminders', groceries: 'todo.shopping_list',
+  people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
+  kids: [
+    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'New book', cost: 200, icon: '📚' }] },
+    { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', look: 'h=styled;hc=e3b85c', bedtime: '20:00' },
+    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', look: 'h=pageboy;hc=6b4226', bedtime: '19:30', star: 10, leave_by: '07:30' }
+  ],
+  calendars: [{ entity: 'calendar.family', colour: 'family', name: 'Family' }, { entity: 'calendar.alex', colour: 1, name: 'Alex' }, { entity: 'calendar.sam', colour: 2, name: 'Sam' },
+    { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],
+  grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
+  parent_pin: '1234', morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
+  idle_seconds: 0
+});
+el.hass = hass;
+document.body.appendChild(el);
+await el.updateComplete;
+if (page === 'kid') { el._kid = Number(q.get('kid') || 0); el._page = 'kid'; }
+else if (page !== 'planner') el._page = page;
+if (q.get('view')) el._view = q.get('view');
+if (q.get('sheet')) el._sheet = q.get('sheet');
+if (q.get('night')) el._nightManual = true;
+if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
+window.__ready = true;
+</script>
+</body></html>

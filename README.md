@@ -6,6 +6,14 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Five themes: Sea & Sun, Cottesloe Sunset, Coral Reef, Aussie Bush, Space Mission
 - Weather, who's home, now playing, kitchen timer, reminders
 - All lights on / off, announcement button, night mode photo-frame clock
+- Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets) or Orbit (dark, built from rings). Set a default with `look: fridge` in the card config.
+- Per-child settings (palette button on a child's page, behind the parent PIN): his own look, print or handwriting, one job at a time (Now / Next / Later), calm mode and sound level. Defaults can be set per kid in the config: `look_id`, `font`, `focus`, `calm`, `sound_level`.
+- Morning board shows team progress (one row of stars everyone fills together), never child against child.
+- Calm mode: on the kids' pages looping motion runs once and tilted cards sit straight. `calm: true` applies it everywhere, `calm: false` turns it off.
+- Looks stay linked to the base through a small contract (`HOOKS` in `src/looks.ts`), checked on every build by `npm run check:looks`. `preview/index.html` and `npm run shots` show every screen in every look with sample data.
+- Looks restyle text through type roles and weight tokens rather than fixed sizes, and never use `!important` (the look check refuses it). Each look can also add drawings of its own: Orbit shows the day view as a clock face with the list beside it, and each look has its own night clock.
+- Colour is never the only cue for a person: chips carry an initial as well (kept distinct when two names start alike).
+- Fonts ship with the card in `dist/fonts` and load from beside `family-hub.js`. Nothing is fetched from a font service. If you copy the card by hand, copy the `fonts` folder next to it (without it the panel falls back to the device's own font).
 - Kid pages: chores with points, streaks, levels, rewards (optional parent PIN), their own week
 - Avatars with 70+ unlockable items (hair, hats, sunnies, tops, gear, buddies, scenes) and an animated style studio
 - Groceries with an on-screen keyboard, aisle sorting and send-to-phone
@@ -75,7 +83,8 @@ Put tags in each to-do item's description:
 
 - `@routine` with `@am`, `@after` or `@bed`: checklists (no points unless `+N` is given, e.g. for pre-readers)
 - `+10 @job`: family jobs that earn points and add a marble to the family jar
-- `@grow`: practice, reading, homework; logged rather than paid, with surprise unlocks ("20 min" in the name adds a timer)
+- `@grow`: practice, reading, homework; logged rather than paid, with surprise unlocks ("20 min" in the name adds a timer, shown as a shrinking wedge)
+- A picture for a job (used in picture and mixed modes): start the item's name with an emoji, e.g. `🦷 Brush teeth`, or add `@icon:🦷` to the description. Without one, the card picks a picture from the words in the name.
 
 Points are added by a queued Home Assistant script (`script.fh_add_points`), so quick taps and several devices never lose points.
 

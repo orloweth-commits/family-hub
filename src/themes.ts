@@ -18,7 +18,7 @@ export const THEMES: ThemeDef[] = [
 ];
 
 /** Person colours stay the same in every theme so each child is always recognisable. */
-const PEOPLE: Record<string, string> = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0d9488', '--p-4': '#ea580c', '--p-5': '#7c3aed', '--on-person': '#ffffff' };
+const PEOPLE: Record<string, string> = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0f766e', '--p-4': '#c2410c', '--p-5': '#7c3aed', '--on-person': '#ffffff' };
 for (const t of THEMES) Object.assign(t.vars, PEOPLE);
 
 export const themeById = (id: string): ThemeDef => THEMES.find((t) => t.id === id) ?? THEMES[0];
