@@ -160,7 +160,7 @@ console.log('Max shelf items:', await M(page).locator('.st').count());
 await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('shelf play:', await calls(page, /music_assistant\.play_media/));
 // call a room
 await M(page).getByRole('tab', { name: 'Call a room' }).click(); await M(page).getByRole('button', { name: 'Office' }).click(); await M(page).getByRole('button', { name: 'Dinner’s ready!' }).click(); await M(page).getByRole('button', { name: /Say it/ }).click(); await page.waitForTimeout(300);
-console.log('call:', await calls(page, /tts\.speak/));
+console.log('call:', await calls(page, /tts_get_url|play_announcement|tts\.speak/));
 // heart, sleep, keep going
 await M(page).getByRole('button', { name: /Save this song/ }).click(); await M(page).getByRole('button', { name: /Sleep 30/ }).click(); await page.waitForTimeout(200); console.log('heart+sleep:', await calls(page, /button\.press|fh_music_sleep/));
 await page.close();

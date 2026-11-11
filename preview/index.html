@@ -77,7 +77,7 @@ const hass = {
       ['kitchen', 'office', 'rileys_homepod', 'charlies_homepod', 'alexs_homepod', 'lounge_room_sonos'].map((n) => ['media_player.' + n, { entity_id: 'media_player.' + n, platform: 'music_assistant', device_id: 'ma_' + n }]),
       [['media_player.sonos_native', 'sonos'], ['switch.sonos_night_sound', 'sonos'], ['switch.sonos_speech_enhancement', 'sonos']].map(([id, p]) => [id, { entity_id: id, platform: p, device_id: 'sonos1' }]),
       [['button.kitchen_favorite_current_song', { entity_id: 'button.kitchen_favorite_current_song', platform: 'music_assistant', device_id: 'ma_kitchen' }]])),
-  services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} }, music_assistant: { search: {}, play_media: {}, get_queue: {}, transfer_queue: {} }, tts: { speak: {} } },
+  services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} }, music_assistant: { search: {}, play_media: {}, get_queue: {}, transfer_queue: {}, play_announcement: {} }, tts: { speak: {} } },
   callService: async (domain, service, data = {}, target = {}) => {
     const id = target.entity_id ?? data.entity_id;
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
@@ -100,7 +100,7 @@ const hass = {
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
   },
-  callApi: async (_m, path) => { const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
+  callApi: async (_m, path, body) => { if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
     if (msg.type === 'config_entries/get') return [{ entry_id: 'ma1', domain: 'music_assistant' }];

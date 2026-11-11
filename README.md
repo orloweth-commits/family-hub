@@ -28,6 +28,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
       - { name: Dinner, find: "dinner jazz", rooms: [media_player.lounge], volume: 25 }
       - { name: Wind down, find: "sleep sounds", rooms: [media_player.kids_room], volume: 15 }
     ```
+  - Call a room speaks in `call_language` (default `en-AU`; add `call_voice` for one of that language's voices, e.g. `NatashaNeural` with Home Assistant Cloud) and, on Music Assistant speakers, at `call_volume` (0–100, default 70) whatever the room's music is set to. Other speakers say it at their own volume.
   - The sleep fade uses `script.fh_music_sleep` (fields `player`, `minutes`) if it exists, otherwise the Sonos sleep timer.
   - A timed job tagged `@song` (e.g. "Tidy toys 3 min", description `+10 @job @song`) gets a play button: `tidy_song` (card or per child) plays on the child's speaker until the time is up.
   - A reward with `dj: true`, or named like "DJ" or "dinner music", makes that child tonight's DJ: their jukebox picks play first.

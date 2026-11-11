@@ -330,7 +330,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, moments: { attribute: false }, _jog: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -346,6 +346,10 @@ export class FhMusic extends LitElement {
   map: MapFloorConfig[] = [];
   hide: string[] = [];
   moments: MomentConfig[] = [];
+  /** how loud a call to a room is spoken (0–100), and in which language and voice */
+  callVolume = 70;
+  callLanguage = 'en-AU';
+  callVoice = '';
   /** how far the jog wheel has been turned in this gesture, in degrees */
   private _jog: number | null = null;
   private _momentOn: { name: string; lead: string } | null = null;
@@ -806,7 +810,17 @@ export class FhMusic extends LitElement {
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     if (!checked && this.pin && isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30')) { this._pinAsk = { reason: 'Quiet time. Call anyway?', run: () => this._call(true) }; return; }
     this._lastCall = Date.now();
-    for (const id of to) this.hass!.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts }).catch((e: any) => this._say(`Couldn’t call ${this._name(this.hass!.states[id])}: ${e?.message ?? 'error'}`));
+    const h = this.hass!, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
+    const failed = (id: string) => (e: any): void => this._say(`Couldn’t call ${this._name(h.states[id])}: ${e?.message ?? 'error'}`);
+    // the plain way: Home Assistant speaks on the speaker at whatever volume it is set to. If the voice has no such language, it speaks in its own.
+    const speak = (id: string): void => { h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice }, { entity_id: tts })
+      .catch(() => h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts })).catch(failed(id)); };
+    // Music Assistant speakers can be told how loud to say it: make the speech once, then announce it in each room at the call volume
+    const ma = to.filter((id) => !!h.services?.music_assistant?.play_announcement && (h.entities?.[id] as { platform?: string } | undefined)?.platform === 'music_assistant');
+    for (const id of to) if (!ma.includes(id)) speak(id);
+    if (ma.length) h.callApi<{ url?: string }>('POST', 'tts_get_url', { engine_id: tts, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice })
+      .then((r) => { if (!r?.url) throw new Error('no speech'); for (const id of ma) h.callService('music_assistant', 'play_announcement', { url: r.url, announce_volume: vol }, { entity_id: id }).catch(() => speak(id)); })
+      .catch(() => { for (const id of ma) speak(id); });
     this._say(`Calling ${to.length === 1 ? this._name(this.hass!.states[to[0]]) : `${to.length} rooms`}`);
   }
 
