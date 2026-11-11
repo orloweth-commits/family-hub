@@ -92,7 +92,28 @@ const M = (page) => page.locator('fh-music');
       await v.mouse.move(s2.x + s2.width / 2, s2.y + 30); await v.mouse.down(); await v.mouse.move(s2.x + s2.width / 2 + 8, s2.y - 30, { steps: 4 }); await v.mouse.move(tt.x + tt.width / 2, tt.y + tt.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
       console.log('crate record to the turntable:', (await calls(v, /play_media/)).slice(0, 100), '| wires:', await M(v).locator('.wire').count());
       await M(v).getByRole('button', { name: 'Max', exact: true }).click(); await v.waitForTimeout(300); console.log('crate divider:', await M(v).locator('.clabel b').innerText()); }
-    if (view === 'desk') { const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
+    if (view === 'desk') {
+      // the jog wheel: a quarter turn clockwise moves the song on thirty seconds; the arrow keys move it ten
+      await v.evaluate(() => { window.__calls.length = 0; });
+      const jb = await M(v).locator('.jog').boundingBox(), jx = jb.x + jb.width / 2, jy = jb.y + jb.height / 2, R = jb.width * .36;
+      await v.mouse.move(jx, jy - R); await v.mouse.down(); for (const a of [-70, -50, -30, -10, 0]) await v.mouse.move(jx + R * Math.cos(a * Math.PI / 180), jy + R * Math.sin(a * Math.PI / 180), { steps: 2 }); await v.mouse.up(); await v.waitForTimeout(300);
+      let out2 = `jog quarter turn: ${(await calls(v, /media_seek/)).slice(-40)}`;
+      await M(v).locator('.jog').focus(); await v.keyboard.press('ArrowLeft'); await v.waitForTimeout(200); out2 += ` | key: ${(await calls(v, /media_seek/)).split(' || ').pop().slice(-24)}`;
+      console.log(out2);
+      // the moment pads: a press finds the playlist and plays it; a pad with rooms plays there, lets other rooms go, sets the volume and joins the rest
+      await v.evaluate(() => { window.__calls.length = 0; }); await M(v).getByRole('button', { name: 'Dance' }).click(); await v.waitForTimeout(700);
+      console.log('pad in the room in focus:', (await calls(v, /music_assistant\.play_media/)).slice(0, 120), '| pads:', await M(v).locator('.mpad').count(), '| lit:', await M(v).locator('.mpad[data-on]').innerText().then((t) => t.trim().split('\n').pop()));
+      const pv = await open('look=glass&page=music&mview=desk&moments=1'); await pv.evaluate(() => { (window.__calls ||= []).length = 0; });
+      await M(pv).getByRole('button', { name: 'Dinner' }).click(); await pv.waitForTimeout(700);
+      console.log('pad on a named speaker:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
+      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Wind down' }).click(); await pv.waitForTimeout(700);
+      console.log('pad in two rooms:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
+      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
+      console.log('pad in every room:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|media_player\.join/.test(c)).map((c) => c.slice(0, 190)).join(' || ')));
+      await pv.close();
+      const nv = await open('look=glass&page=music&mview=desk&moments=1', '20:10'); await M(nv).getByRole('button', { name: 'Wind down' }).click(); await nv.waitForTimeout(500);
+      console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
+      const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
     await M(v).getByRole('button', { name: /Change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
     if (view === 'dial') console.log('picker cards:', await M(v).locator('.vcard').count());
@@ -128,6 +149,11 @@ await M(page).getByRole('button', { name: /Radio from this/ }).click(); await pa
 await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
 for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
 await M(page).locator('.setrow', { hasText: 'Max' }).getByRole('button', { name: /Pin as calm/ }).click(); await page.waitForTimeout(400); console.log('pin:', await calls(page, /todo\.add_item/));
+// put a search result on a moment pad (already behind the PIN), then the pad plays it
+await M(page).locator('.hit').nth(5).click(); const padded = await M(page).locator('.hit').nth(5).locator('.tx b').innerText(); await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
+for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
+await M(page).getByRole('button', { name: /Put it on the Dance pad/ }).click(); await page.waitForTimeout(300);
+console.log('put on a pad:', await page.evaluate(() => localStorage.getItem('fh-moments')).then((t) => t.slice(0, 90)), '| was', padded);
 await M(page).getByRole('button', { name: 'Close search' }).click(); await page.waitForTimeout(200);
 await M(page).getByRole('tab', { name: 'Shelves' }).click(); await M(page).getByRole('button', { name: /Max$/ }).click(); await page.waitForTimeout(500);
 console.log('Max shelf items:', await M(page).locator('.st').count());

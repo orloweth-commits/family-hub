@@ -3,10 +3,10 @@ import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
-import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type StationConfig } from './types';
+import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
 import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
-import { findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
+import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import { VIEWS, crateView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
 import './pin';
 
@@ -21,6 +21,10 @@ const POOL = 0.8;
 const CACHE: { thumbs: Record<string, string>; res: Record<string, string>; key: string } = { thumbs: {}, res: {}, key: '' };
 const LAST: Record<string, string> = {};
 const DEFAULT_STATIONS: StationConfig[] = [{ name: 'ABC Kids listen', match: 'ABC Kids listen' }, { name: 'ABC Jazz', match: 'ABC Jazz' }];
+/** The moment pads, when the card sets none: each plays in the room in focus. */
+const MOMENTS: MomentConfig[] = [{ name: 'Dinner', find: 'dinner' }, { name: 'Dance', find: 'dance hits' }, { name: 'Tidy-up', find: 'motivation' }, { name: 'Wind down', find: 'sleep sounds' }];
+const MOMENT_ICON: [RegExp, string][] = [[/dinner|eat|meal|breakfast|lunch/i, '🍽️'], [/danc|party|disco/i, '🪩'], [/tidy|clean|chore|job/i, '🧹'], [/wind|sleep|bed|calm|night/i, '🌙'], [/morning|wake/i, '☀️'], [/read|story|homework|study/i, '📚']];
+const clock = (s: number): string => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const CALLS = ['Dinner’s ready!', 'Time to get ready, please.', 'Please come to the kitchen.', 'Five minutes until bedtime.', 'Time to leave – shoes on!', 'I love you!'];
 const TYPE_LABEL: Record<string, string> = { track: 'Song', album: 'Album', playlist: 'Playlist', artist: 'Artist', radio: 'Radio', podcast: 'Podcast', audiobook: 'Story' };
 const today = (): string => new Date().toDateString();
@@ -326,7 +330,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) .stage .titles { flex: 1 1 0; min-width: 0; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, moments: { attribute: false }, _jog: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
@@ -341,6 +345,19 @@ export class FhMusic extends LitElement {
   sleepMinutes = 30;
   map: MapFloorConfig[] = [];
   hide: string[] = [];
+  moments: MomentConfig[] = [];
+  /** how far the jog wheel has been turned in this gesture, in degrees */
+  private _jog: number | null = null;
+  private _momentOn: { name: string; lead: string } | null = null;
+  private _momentBusy = '';
+  /** music put on a pad from this panel (behind the PIN): it replaces what the pad looks for, and keeps the pad's rooms and volume */
+  private _padSet = ls<Record<string, { uri: string; title: string }>>('fh-moments', {});
+  private get _pads(): MomentConfig[] { return (this.moments.length ? this.moments : MOMENTS).slice(0, 4); }
+  private _padPut(pad: string, m: MediaHit | null): void {
+    const { [pad]: _old, ...rest } = this._padSet;
+    this._padSet = m ? { ...rest, [pad]: { uri: m.uri, title: m.name } } : rest; lsSet('fh-moments', this._padSet);
+    this._say(m ? `${pad} now plays ${m.name}` : `${pad} is back to its own music`);
+  }
   /** the photo theme, so the sound in each room can take its shape (waves, bubbles, stars…) */
   theme = '';
   private _view: ViewId | '' = ls<ViewId | ''>('fh-music-view', '');
@@ -519,11 +536,15 @@ export class FhMusic extends LitElement {
         asleep: r.asleep, lead: lead?.entity_id === id, colour: lead && lead.entity_id !== curLead?.entity_id ? `var(--p-${[3, 5, 4, 2][others.indexOf(lead.entity_id) % 4]})` : '', title: String(lead?.attributes.media_title ?? '') };
     })));
     const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
-    const frac = dur ? Math.min(1, ((Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) / dur) : 0;
+    const pos = dur ? Math.min(dur, (Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) : 0, frac = dur ? pos / dur : 0;
+    const pads = this._pads, jog = this._jog, lit = this._momentOn && this.hass!.states[this._momentOn.lead]?.state === 'playing' ? this._momentOn.name : '';
     if (!this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
     const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime), mine = this._items[this._shelf] ?? [], crate = wind ? mine.filter((x) => x.calm) : mine;
     const front = Math.max(0, Math.min(crate.length - 1, this._crateAt));
-    return { rooms, prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
+    return { rooms, moments: pads.map((m) => ({ name: m.name, icon: m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵', on: lit === m.name, busy: this._momentBusy === m.name })), moment: (i) => { if (!this._momentBusy && pads[i]) this._moment(pads[i]); },
+      jog: { turn: jog, at: pos, read: jog === null ? (dur ? clock(pos) : '') : dur ? clock(Math.max(0, Math.min(dur, pos + (jog / 360) * 120))) : Math.abs(jog) < 60 ? '' : jog > 0 ? 'Next' : 'Back', len: dur, says: dur ? `${clock(pos)} of ${clock(dur)}` : 'No length' },
+      jogTo: (turn, commit) => this._jogTo(turn, commit, pos, dur), seekBy: (sec) => { if (dur) this._svc('media_seek', { seek_position: Math.max(0, Math.min(dur - 1, Math.round(pos + sec))) }); else this._svc(sec > 0 ? 'media_next_track' : 'media_previous_track'); },
+      prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
       crate: { tabs: this._shelfNames.map((n) => ({ name: n, colour: slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family') })), who: this._shelf, pick: (n) => { this._shelf = n; this._crateAt = 0; }, items: crate, at: front, calm: wind, room: this._name(cur),
         flick: (i) => { this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) this._crateAt = i; else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); }); },
@@ -535,6 +556,43 @@ export class FhMusic extends LitElement {
       focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._wholeHouse(() => this._everywhere(true)),
       carry: (e, id) => { const p = this.hass!.states[id]; if (p) this._carryDown(e, { lead: p }); },
       carryItem: (e, m, flick) => this._carryDown(e, { item: m, flick }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
+  }
+  /** One press for an occasion: find the music, set the rooms and the volume, play. */
+  private _moment(m: MomentConfig): void {
+    const h = this.hass!, list = this._list, cur = this._cur;
+    const all = m.rooms === 'all', ask: string[] = Array.isArray(m.rooms) ? m.rooms : [], put = this._padSet[m.name];
+    const named = ask.map((id) => findRoom(h, list, id) ?? (h.states[id]?.entity_id.startsWith('media_player.') ? h.states[id] : undefined)).filter((p): p is HassEntity => !!p);
+    // every room: the one in focus leads and the others join it
+    const rooms = all ? [...(cur ? [cur] : []), ...list.filter((p) => p.entity_id !== cur?.entity_id)] : named.length ? named : cur ? [cur] : [];
+    if (!rooms.length) { this._say('No speaker to play on'); return; }
+    if (named.length < ask.length) console.warn('Family Hub: a moment names a speaker that was not found', m);
+    const run = async (): Promise<void> => {
+      this._momentBusy = m.name;
+      try {
+        const found = put ? { name: put.title, uri: put.uri } : m.uri ? { name: m.name, uri: m.uri } : await findOne(h, m.find ?? m.name, m.kind ?? 'playlist');
+        if (!found) { this._say(`Couldn’t find “${m.find ?? m.name}” to play`); return; }
+        const lead = rooms[0], ids = rooms.map((r) => r.entity_id);
+        // only the rooms this moment names: anything else still grouped with the leader is let go first
+        for (const id of this._mix(lead)) if (!ids.includes(id)) h.callService('media_player', 'unjoin', {}, { entity_id: id });
+        if (typeof m.volume === 'number') for (const id of ids) this._svc('volume_set', { volume_level: Math.max(0, Math.min(100, m.volume)) / 100 }, id);
+        if (m.shuffle) this._svc('shuffle_set', { shuffle: true }, lead.entity_id);
+        this._lastUri = found.uri;
+        await play(h, lead.entity_id, found.uri, 'play');
+        if (ids.length > 1) await h.callService('media_player', 'join', { group_members: ids.slice(1) }, { entity_id: lead.entity_id }).catch((e: any) => this._say(`Couldn’t add every room: ${e?.message ?? 'error'}`));
+        this._focus = lead.entity_id; this._momentOn = { name: m.name, lead: lead.entity_id };
+        this._say(`${m.name}: ${found.name === m.name ? '' : `${found.name} `}in ${all ? 'every room' : rooms.map((r) => this._name(r)).join(' and ')}`);
+      } catch (e: any) { this._say(`${m.name} couldn’t start: ${e?.message ?? 'error'}`); }
+      finally { this._momentBusy = ''; }
+    };
+    if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`${m.name} plays in a bedroom after bedtime. Play anyway?`, () => { run(); }); else run();
+  }
+  /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. */
+  private _jogTo(turn: number, commit: boolean, pos: number, dur: number): void {
+    if (!commit) { this._jog = turn; return; }
+    this._jog = null;
+    if (!dur) { if (Math.abs(turn) >= 60) this._svc(turn > 0 ? 'media_next_track' : 'media_previous_track'); return; }
+    const to = pos + (turn / 360) * 120;
+    if (to >= dur - 1) this._svc('media_next_track'); else if (to < 0 && pos < 5) this._svc('media_previous_track'); else this._svc('media_seek', { seek_position: Math.max(0, Math.round(to)) });
   }
   /** The speaker a room's music comes from, if anything is on there (playing or paused). */
   private _leader(p: HassEntity): HassEntity | undefined {
@@ -877,6 +935,9 @@ export class FhMusic extends LitElement {
         <h2 class="t-head">Pin “${m.name}”</h2><span class="soft">Whose shelf? Calm picks are the only ones offered at wind-down.</span>
         ${this._shelfNames.map((n) => html`<div class="setrow"><b style="font-size:17px">${n === 'Family' ? 'Family shelf' : `${n}’s shelf`}</b><span style="display:flex;gap:8px">
           <button class="pill tap primary" @click=${() => this._pin(n, false)}>Pin</button><button class="pill tap" @click=${() => this._pin(n, true)}>🌙 Pin as calm</button></span></div>`)}
+        <span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
+        <div class="acts">${this._pads.map((p) => { const on = this._padSet[p.name]; return html`<button class="pill tap" style="height:44px" aria-label="Put it on the ${p.name} pad${on ? `, which now plays ${on.title}` : ''}" @click=${() => { this._padPut(p.name, m); this._pinTo = null; }}>${p.name}</button>
+          ${on ? html`<button class="pill tap" style="height:44px" aria-label="Put the ${p.name} pad back to its own music instead of ${on.title}" @click=${() => this._padPut(p.name, null)}>↺</button>` : nothing}`; })}</div>
         <button class="pill tap" style="align-self:flex-end" @click=${() => { this._pinTo = null; }}>Cancel</button></section></div>`;
   }
 

@@ -68,6 +68,16 @@ export const search = async (h: Hass, text: string, player?: string): Promise<Me
   return (Object.values(r)[0]?.result ?? []).map((x) => hit(x, x.media_content_type ?? 'music')).filter((x) => x.uri);
 };
 
+/** The best single match of one kind (a playlist by default): the name that is the same, else contains the words asked for, else shares the most of them. A search also returns loosely related things, so a result sharing none of the words is not taken. */
+export const findOne = async (h: Hass, text: string, kind = 'playlist'): Promise<MediaHit | undefined> => {
+  const id = await entry(h); if (!id) return undefined;
+  const r = await respond<Record<string, any[]>>(h, 'music_assistant', 'search', { config_entry_id: id, name: text, media_type: [kind], limit: 8 });
+  const hits = (r[`${kind}s`] ?? r[kind] ?? []).map((x) => hit(x, kind)).filter((x) => x.uri), want = text.toLowerCase().trim();
+  const words = want.split(/\s+/).filter((w) => w.length > 2), score = (x: MediaHit): number => { const n = x.name.toLowerCase(); return words.filter((w) => n.includes(w)).length; };
+  const best = [...hits].sort((p, q) => score(q) - score(p))[0];
+  return hits.find((x) => x.name.toLowerCase().trim() === want) ?? hits.find((x) => x.name.toLowerCase().includes(want)) ?? (best && score(best) > 0 ? best : undefined);
+};
+
 export type Enqueue = 'play' | 'next' | 'add' | 'replace_next';
 export const play = (h: Hass, player: string, uri: string, enqueue: Enqueue = 'play', radio = false): Promise<unknown> =>
   h.services?.music_assistant && platform(h, player) === 'music_assistant'
