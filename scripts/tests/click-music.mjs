@@ -108,6 +108,8 @@ const M = (page) => page.locator('fh-music');
       console.log('pad on a named speaker:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
       await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Wind down' }).click(); await pv.waitForTimeout(700);
       console.log('pad in two rooms:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
+      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
+      console.log('pad in every room:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|media_player\.join/.test(c)).map((c) => c.slice(0, 190)).join(' || ')));
       await pv.close();
       const nv = await open('look=glass&page=music&mview=desk&moments=1', '20:10'); await M(nv).getByRole('button', { name: 'Wind down' }).click(); await nv.waitForTimeout(500);
       console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
@@ -147,6 +149,11 @@ await M(page).getByRole('button', { name: /Radio from this/ }).click(); await pa
 await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
 for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
 await M(page).locator('.setrow', { hasText: 'Max' }).getByRole('button', { name: /Pin as calm/ }).click(); await page.waitForTimeout(400); console.log('pin:', await calls(page, /todo\.add_item/));
+// put a search result on a moment pad (already behind the PIN), then the pad plays it
+await M(page).locator('.hit').nth(5).click(); const padded = await M(page).locator('.hit').nth(5).locator('.tx b').innerText(); await M(page).getByRole('button', { name: /Pin$/ }).click(); await page.waitForTimeout(200);
+for (const d of '1234') await M(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(300);
+await M(page).getByRole('button', { name: /Put it on the Dance pad/ }).click(); await page.waitForTimeout(300);
+console.log('put on a pad:', await page.evaluate(() => localStorage.getItem('fh-moments')).then((t) => t.slice(0, 90)), '| was', padded);
 await M(page).getByRole('button', { name: 'Close search' }).click(); await page.waitForTimeout(200);
 await M(page).getByRole('tab', { name: 'Shelves' }).click(); await M(page).getByRole('button', { name: /Max$/ }).click(); await page.waitForTimeout(500);
 console.log('Max shelf items:', await M(page).locator('.st').count());

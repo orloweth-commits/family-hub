@@ -159,5 +159,5 @@ export const num = (hass: Hass | undefined, id: string): number => {
   return Number.isFinite(v) ? v : 0;
 };
 
-/** A moment pad: one press plays something for an occasion. `find` is searched for (a playlist unless `kind` says otherwise) or `uri` is played as it is; `rooms` are speakers (the first leads, the rest join it), and without them it plays in the room in focus. */
-export interface MomentConfig { name: string; icon?: string; find?: string; uri?: string; kind?: string; rooms?: string[]; volume?: number; shuffle?: boolean }
+/** A moment pad: one press plays something for an occasion. `find` is searched for (a playlist unless `kind` says otherwise) or `uri` is played as it is; `rooms` are speakers (the first leads, the rest join it) or `all` for every room, and without them it plays in the room in focus. */
+export interface MomentConfig { name: string; icon?: string; find?: string; uri?: string; kind?: string; rooms?: string[] | 'all'; volume?: number; shuffle?: boolean }
