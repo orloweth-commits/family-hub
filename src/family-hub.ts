@@ -147,6 +147,9 @@ export class FamilyHubCard extends LitElement {
   setConfig(config: FamilyHubConfig): void {
     if (!config) throw new Error('Family Hub: missing configuration');
     for (const k of config.kids ?? []) if (!k.name) throw new Error('Family Hub: every kid needs a name');
+    for (const m of config.meds ?? []) if (!m?.id || !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(m.time ?? ''))) throw new Error('Family Hub: every medicine in "meds" needs an id and a time like "06:30"');
+    for (const t of [config.night?.start, config.night?.end]) if (t !== undefined && !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(t))) throw new Error('Family Hub: night start and end need times like "21:00"');
+    if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) throw new Error(`Family Hub: "${c.entity}" isn't a calendar entity`);
     if (config.parent_pin !== undefined && !/^\d{4,8}$/.test(String(config.parent_pin))) throw new Error('Family Hub: parent_pin should be 4–8 digits (put it in quotes)');
     this._config = config;
@@ -187,8 +190,10 @@ export class FamilyHubCard extends LitElement {
     const w = this.getBoundingClientRect().width || window.innerWidth;
     const hgt = window.innerHeight - head;
     // a phone is narrower than any tablet: it gets its own arrangement and scrolls like a normal phone page
-    const shape: Shape = w < 600 ? 'phone' : hgt > w * 1.15 ? 'tall' : 'wide';
-    if (shape === 'phone' && getShape() !== 'phone' && this._view === 'week') this._view = 'day';
+    // (a phone on its side is short rather than narrow: it must not get the wall layout shrunk to fit)
+    const shape: Shape = w < 600 || (window.innerHeight < 500 && w < 1000) ? 'phone' : hgt > w * 1.15 ? 'tall' : 'wide';
+    if (shape === 'phone' && getShape() !== 'phone' && this._view === 'week') { this._view = 'day'; this._viewWas = 'week'; }
+    else if (shape !== 'phone' && getShape() === 'phone' && this._viewWas) { if (this._view === 'day') this._view = this._viewWas; this._viewWas = ''; }
     setShape(shape);
     const [dw, dh] = shape === 'tall' ? [900, 1280] : [1280, 800];
     // wide enough for the canvas (a laptop, the wall): never below 1, a short screen goes compact. Narrower than the canvas (a tablet):
@@ -200,11 +205,13 @@ export class FamilyHubCard extends LitElement {
     else if (this.hasUpdated) this._fitFrame();
   };
   private _z = 1;
+  private _viewWas: '' | 'week' = '';
   private _ro?: ResizeObserver;
   disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener('resize', this._onResize); this._ro?.disconnect(); window.removeEventListener('keydown', this._keys);
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
+    clearTimeout(this._toastTimer); clearTimeout(this._dinner?.timer);
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
   }
@@ -380,7 +387,7 @@ export class FamilyHubCard extends LitElement {
     if (key === this._fetchedKey) return;
     const first = !this._fetchedKey && !this._dayKey;
     this._fetchedKey = key;
-    this._loadEvents(a, b).then((ev) => { if (ev) { this._events = ev; this._evKey = key; } });
+    this._loadEvents(a, b).then((ev) => { if (ev && !(this._calError && this._events.length && this._evKey === key)) { this._events = ev; this._evKey = key; } }); // a failed poll keeps the last good week on screen
     this._loadWeather();
     this._loadReminders();
     if (first || !this._soon.length) this._loadSoon();
@@ -423,10 +430,12 @@ export class FamilyHubCard extends LitElement {
       try {
         const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
         const who = c.name ?? this.hass!.states[c.entity]?.attributes.friendly_name ?? c.entity;
-        for (const r of rows) {
-          const allDay = !!r.start?.date;
-          const start = allDay ? new Date(`${r.start.date}T00:00:00`) : new Date(r.start.dateTime);
-          const end = allDay ? new Date(`${r.end.date}T00:00:00`) : new Date(r.end.dateTime);
+        for (const r of rows ?? []) {
+          // one odd row (no start, no end) must not lose the rest of that calendar
+          const allDay = !!r?.start?.date, sv = allDay ? `${r.start.date}T00:00:00` : r?.start?.dateTime;
+          const start = new Date(sv); if (!sv || isNaN(start.getTime())) continue;
+          const ev = allDay ? (r.end?.date ? `${r.end.date}T00:00:00` : '') : r.end?.dateTime;
+          let end = new Date(ev); if (!ev || isNaN(end.getTime())) end = new Date(start.getTime() + (allDay ? 86_400_000 : 3_600_000));
           out.push({ title: r.summary ?? '(busy)', start, end, allDay, colour: c.colour, who });
         }
       } catch (e) { failed++; console.warn('Family Hub: calendar fetch failed', c.entity, e); }

@@ -512,7 +512,8 @@ export class FhMusic extends LitElement {
   private _undo: (() => void) | null = null;
 
   private get _list(): HassEntity[] {
-    const h = this.hass!, found = rooms(h, this.players);
+    if (!this.hass?.states) return []; // Home Assistant is reconnecting
+    const h = this.hass, found = rooms(h, this.players);
     let all = found;
     if (this.lock && this.map.length) {
       // the house map is the whole list: a speaker found elsewhere is not shown, and one that cannot be reached keeps its place

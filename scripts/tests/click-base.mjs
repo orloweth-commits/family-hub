@@ -460,5 +460,17 @@ const mb = (await page.locator('fh-morning section, fh-morning .kcol').allInnerT
 console.log('morning board: "All set" or "Next" in a column:', /All set|Next\b/.test(mb), '| pooled line:', (/Morning jobs: \d+ to go between us/.exec(mb) ?? ['MISSING'])[0]);
 await page.close();
 }
+// robustness: a reward tapped three times spends once; a medicine with no time gives a readable error, not a blank panel; one odd calendar row does not lose the calendar; a phone on its side gets the phone arrangement
+page = await open('look=glass&page=kid&kid=0');
+await page.getByRole('button', { name: /Extra screen time/ }).click(); await page.waitForTimeout(250);
+{ const yes = page.locator('fh-kid').getByRole('button', { name: 'Yes' }); await yes.evaluate((b) => { b.click(); b.click(); b.click(); }); await page.waitForTimeout(600);
+  console.log('reward tapped three times: spends', await page.evaluate(() => (window.__calls || []).filter((c) => c.includes('fh_add_points') && c.includes('-50')).length), '(expect 1)'); }
+console.log('medicine with no time:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); try { c.setConfig({ ...c._config, meds: [{ id: 'x', who: 'Riley', label: 'x' }] }); return 'ACCEPTED'; } catch (e) { return String(e.message); } }));
+console.log('odd calendar row:', await page.evaluate(async () => { const c = document.querySelector('family-hub-card'), real = c.hass.callApi; c.hass.callApi = async (m, p, b) => { const r = await real(m, p, b); return /calendars\/calendar.family/.test(p) ? [{ summary: 'No end', start: { dateTime: new Date().toISOString() } }, { summary: 'No start' }, ...r] : r; }; const a = new Date(); a.setHours(0, 0, 0, 0); const ev = await c._loadEvents(a, new Date(a.getTime() + 7 * 864e5)); c.hass.callApi = real; return ev.filter((e) => e.who === 'Family').map((e) => e.title).join(', '); }));
+await page.close();
+page = await open('look=glass'); await page.setViewportSize({ width: 844, height: 390 }); await page.waitForTimeout(500);
+console.log('phone on its side: phone arrangement', await page.evaluate(() => document.querySelector('family-hub-card').hasAttribute('data-phone')), '| scale', await page.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.fh')).zoom));
+await page.setViewportSize({ width: 1280, height: 800 }); await page.waitForTimeout(400); console.log('back to a wide screen: view', await page.evaluate(() => document.querySelector('family-hub-card')._view));
+await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

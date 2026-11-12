@@ -462,15 +462,20 @@ export class FhKid extends LitElement {
     this._spend = r.name;
     if (this._picMode) say(`${r.name}. Spend ${this._costWords(r)}? Yes, or not now.`);
   }
-  private _redeem(r: RewardConfig, checked = false): void {
+  private _redeeming = false;
+  private async _redeem(r: RewardConfig, checked = false): Promise<void> {
     const have = num(this.hass, this._e.points);
     this._spend = '';
-    if (have < r.cost) return;
+    if (have < r.cost || this._redeeming) return;
     const needs = r.approve ?? r.cost >= 60;
-    if (needs && this.pin && !checked) { this._pinAsk = { reason: `${this.kid.name}: ${r.name}?`, run: () => this._redeem(r, true) }; return; }
-    this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` });
+    if (needs && this.pin && !checked) { this._pinAsk = { reason: `${this.kid.name}: ${r.name}?`, run: () => { void this._redeem(r, true); } }; return; }
+    // one spend at a time, and no celebration until Home Assistant has taken the points
+    this._redeeming = true;
+    try {
+      await Promise.race([this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 12000))]);
+    } catch { this._say('That did not go through, so no points were spent. Try again in a moment.'); return; } finally { window.setTimeout(() => { this._redeeming = false; }, 1500); }
     if (this.owed && this.hass!.states[this.owed]) {
-      this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed });
+      this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
     }
     this._confetti++; this._jump++; this._sound('unlock');
     // a DJ reward hands tonight's jukebox to this child (the Music page reads this)
