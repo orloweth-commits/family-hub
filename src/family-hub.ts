@@ -2,6 +2,7 @@ import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type Te
 import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
 import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, lookPreview, setLook, type DialArc, type LookId, type LookOption } from './looks';
+import './ambient';
 import './groceries';
 import './kid';
 import './home';
@@ -24,7 +25,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.18.0';
+const VERSION = '0.19.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -490,6 +491,7 @@ export class FamilyHubCard extends LitElement {
     if (night) return html`<div class="fh" lang="en-AU" data-tod="night" style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
     return html`
       <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} ?data-calm=${calm} style=${`${skin}--tod:${tod};--z:${this._z}`}>
+        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}

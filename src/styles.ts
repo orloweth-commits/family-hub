@@ -14,7 +14,7 @@ export const styles = css`
   .t-sub { font-size: var(--t-sub, 22px); font-weight: var(--w-sub, 700); }
 
   .fh {
-    position: relative; overflow: hidden; overflow: clip;
+    position: relative; overflow: hidden; overflow: clip; isolation: isolate;
     zoom: var(--z, 1); height: calc((100vh - var(--header-height, 0px)) / var(--z, 1)); min-height: 600px;
     padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;
     font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink);
