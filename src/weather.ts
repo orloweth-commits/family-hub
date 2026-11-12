@@ -174,11 +174,13 @@ export class FhWeather extends LitElement {
     .hscroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
     /* whole hours only: the columns are sized to the strip, and an edge with more beyond it fades */
     .hhead { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: -8px 0 -6px; }
-    .hhead h2 { flex: 1; min-width: 0; }
+    .hhead h2 { flex: 0 1 auto; min-width: 0; }
     .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .hchart { display: block; }
     .hchart text { font-size: 14px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
     .hchart .wind { font-size: 14px; }
+    /* the unit is said once, here, so the hours below carry the number alone */
+    .hkey { flex: 1 1 0; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
@@ -404,7 +406,7 @@ export class FhWeather extends LitElement {
       </div>
       <div class="wtip" role="group" aria-label="What to wear today">
         <div class="tips">${tips.map((x) => html`<span class="tipone">${tipPic(x.id)}<span>${TIP_WORDS[x.id]}</span></span>`)}</div>
-        <button class="speak tap" aria-label="Read the advice aloud" @click=${() => { sfx('tap'); say(tips.map((x) => x.say).join(' ')); }}>${speakerIcon}</button>
+        <button class="speak tap" aria-label="Read the advice aloud" @click=${(e: Event) => { sfx('tap'); say(tips.map((x) => x.say).join(' '), e.currentTarget as Element); }}>${speakerIcon}</button>
       </div>
       <div class="facts">
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
@@ -429,7 +431,7 @@ export class FhWeather extends LitElement {
     const pts = hs.map((h, i) => `${x(i)} ${y(h.temperature ?? lo)}`);
     const step = (dir: number): void => { const el = this.renderRoot.querySelector<HTMLElement>('.hscroll'); if (el) el.scrollTo({ left: Math.round((el.scrollLeft + dir * el.clientWidth) / this._hw) * this._hw, behavior: motion(this).travel ? 'smooth' : 'auto' }); };
     return html`<section class="glass whours">
-      <div class="hhead"><h2>${this._titles()[1]}</h2>
+      <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
         <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => step(-1)}>${icon('left', 20)}</button>
         <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => step(1)}>${icon('right', 20)}</button></div>
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
@@ -445,7 +447,7 @@ export class FhWeather extends LitElement {
               <svg class="sky" x=${x(i) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${glyph(h.condition)}</svg>
               <circle cx=${x(i)} cy=${y(h.temperature ?? lo)} r="3.5" fill=${tcol(h.temperature ?? lo)}></circle>
               <text class="tv" x=${x(i)} y=${y(h.temperature ?? lo) - 9}>${Math.round(h.temperature ?? 0)}°</text>
-              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? `${Math.round(h.wind_speed)} km/h` : ''}</text>`}`;
+              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? Math.round(h.wind_speed) : ''}</text>`}`;
           })}`}
         </svg>
       </div>

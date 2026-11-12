@@ -20,8 +20,9 @@ export class FhStudio extends LitElement {
     :host([data-phone]) .grid { overflow: visible; flex: none; }
     :host([data-shape='tall']) .mirror { width: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
-    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-    .tabs button { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
+    /* eight tabs in two even rows of four (the picture tabs of a child who cannot read stay in one row) */
+    .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .tabs.pics { display: flex; flex-wrap: wrap; }
+    .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
     .label { font-size: 14px; }
@@ -136,7 +137,7 @@ export class FhStudio extends LitElement {
         </div>
       </section>
       <section class="glass shelf">
-        <div class="tabs" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
+        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="width:60px">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}

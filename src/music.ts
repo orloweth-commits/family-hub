@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown } from './util';
+import { bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
@@ -139,6 +139,8 @@ export class FhMusic extends LitElement {
     .chiprow.dividers { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 3px 3px; margin: -4px -3px -3px; } .chiprow.dividers .pchip { flex: 0 1 auto; min-width: 44px; white-space: nowrap; }
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
     .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
+    :host(:not([data-phone])) .crate.low .chiprow { order: 9; } :host(:not([data-phone])) .crate.low .covers, :host(:not([data-phone])) .jcovers.low { align-content: safe end; }
+    :host(:not([data-phone])) .crate.low .dividers .pchip { border-radius: 6px 6px 16px 16px; box-shadow: inset 0 4px 0 var(--c); } :host(:not([data-phone])) .crate.low .dividers .pchip[aria-pressed='true'] { box-shadow: none; transform: translateY(3px); }
     .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
     .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1);
@@ -204,7 +206,7 @@ export class FhMusic extends LitElement {
     .hit .tx b, .hit .tx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hit .tx b { font-size: 15px; font-weight: var(--w-bold, 700); }
     .hit .tx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .kind { font-size: 11px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
+    .kind { font-size: 12px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 6px; }
@@ -520,9 +522,13 @@ export class FhMusic extends LitElement {
   /** Home Assistant, watched: a control whose call is still out after 250 ms shows it (data-busy) until the answer comes. */
   private get _h(): Hass {
     const real = this.hass!;
-    if (!this._hx || Object.getPrototypeOf(this._hx) !== real) { this._hx = Object.create(real) as Hass; this._hx.callService = (d, s, data, target) => this._watch(real.callService(d, s, data, target)); }
+    if (!this._hx || Object.getPrototypeOf(this._hx) !== real) { this._hx = Object.create(real) as Hass; this._hx.callService = (d, s, data, target) => {
+      // the same request is never sent twice while the first is still out: a second tap on Pause, "+" or Whole house waits for the answer
+      const key = `${d}.${s} ${JSON.stringify(data ?? {})} ${JSON.stringify(target ?? {})}`, out = this._out.get(key); if (out) return out as ReturnType<Hass['callService']>;
+      const p = this._watch(inTime(real.callService(d, s, data, target))), clear = (): void => { this._out.delete(key); }; this._out.set(key, p); p.then(clear, clear); return p; }; }
     return this._hx;
   }
+  private _out = new Map<string, Promise<unknown>>();
   private _watch<T>(p: Promise<T>): Promise<T> {
     const el = Date.now() - this._pressAt < 1200 ? this._pressEl : null;
     if (el) { const t = window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250), done = (): void => { clearTimeout(t); el.removeAttribute('data-busy'); el.removeAttribute('aria-busy'); }; p.then(done, done); }
@@ -531,7 +537,7 @@ export class FhMusic extends LitElement {
   private _undoLabel = 'Undo';
   private _say(m: string, undo?: () => void, label = 'Undo'): void { this._msg = m; this._undo = undo ?? null; this._undoLabel = label; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
   /** Something did not work: say so plainly and calmly, and keep the detail for the console. */
-  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(`${what}. Try again in a moment.`); }
+  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(e instanceof SlowError ? SLOW_SAY : `${what}. Try again in a moment.`); }
   private _undo: (() => void) | null = null;
 
   private get _list(): HassEntity[] {
@@ -554,7 +560,8 @@ export class FhMusic extends LitElement {
   private get _offline(): HassEntity[] { return this._list.filter((p) => this._off(p)); }
   private get _cur(): HassEntity | undefined {
     const l = this._list;
-    return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass!, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l.find((p) => !this._off(p)) ?? l[0];
+    if (!this.hass) return undefined; // before Home Assistant has connected there is no room to show
+    return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l.find((p) => !this._off(p)) ?? l[0];
   }
   private get _stations(): StationConfig[] {
     const s = this.stations.length ? this.stations : DEFAULT_STATIONS;
@@ -966,7 +973,7 @@ export class FhMusic extends LitElement {
         <button class="zname tap" aria-pressed=${String(focus)} aria-label="${z.name}: ${what}${vol !== null ? `, volume ${vol}` : ''}${linked ? ', linked with another room' : ''}" @click=${() => { this._focus = id; }}><b>${asleep ? '☾ ' : ''}${z.name}${linked ? html`<i class="linkd" aria-hidden="true"></i>` : nothing}</b><span>${what}</span></button>
         ${id === mine?.entity_id || offline ? nothing : html`<button class="join tap" aria-pressed=${String(inmix)} aria-label="${inmix ? 'Remove' : 'Add'} ${z.name} ${inmix ? 'from' : 'to'} the music" @click=${() => this._join(id)}>${inmix ? '✓' : '＋'}</button>`}
         ${can ? html`${stepBtn(z.name, vol!, true, () => this._volStep(id, 5))}
-          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol!} aria-valuetext="${vol}${lead ? '' : ', quiet'}" @keydown=${volKey(vol!, (v) => this._setVol(id, v, true))}><i></i></span>
+          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol!} aria-valuetext="${vol} per cent${lead ? '' : ', quiet'}" @keydown=${volKey(vol!, (v) => this._setVol(id, v, true))}><i></i></span>
           ${stepBtn(z.name, vol!, false, () => this._volStep(id, -5))}<b class="zvol" aria-hidden="true">${vol}</b>` : nothing}
         ${lead?.entity_id === id ? html`<span class="puck" role="button" tabindex="0" ?data-lifted=${drag?.from === id} style=${art} aria-label="${lead.attributes.media_title ?? 'Music'} in ${z.name}. Tap to ${playing ? 'pause' : 'play'}, drag to move it to another room."
           @pointerdown=${(e: PointerEvent) => this._carryDown(e, { lead })} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._focus = id; this._svc('media_play_pause', {}, id); } }}></span>` : nothing}
@@ -1231,7 +1238,7 @@ export class FhMusic extends LitElement {
     return html`<div class="sbar"><input class="field" inputmode=${shp() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
-        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Aa</button>` : nothing}
+        ${hits ? html`<button class="pill tap" style="height:52px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>` : nothing}
         <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => { this._tab = this._adding ? 'juke' : this._prev; this._adding = false; }}>${icon('close', 22)}</button></div>`;
   }
 
@@ -1270,7 +1277,8 @@ export class FhMusic extends LitElement {
     const all = this._items[this._shelf] ?? [], list = wind ? all.filter((x) => x.calm) : all;
     const room = this._shelfRoom(kid);
     const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
-    return html`<div class="shelfrow"><div class="crate">
+    // the youngest reaches the lower half of a wall panel only: on his shelf the records sit low and the row of faces goes under them
+    return html`<div class="shelfrow"><div class="crate ${kid?.mode === 'picture' ? 'low' : ''}">
       <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
         <span class="avatar" aria-hidden="true">${n === 'Family' ? icon('home', 18) : this._face(n, 32)}</span>${n}</button>`)}
 </div>
@@ -1295,10 +1303,13 @@ export class FhMusic extends LitElement {
     if (this._jpick && j.who) {
       // a turn starts with pictures: that person's own shelf, then the family's. No reading, no typing.
       const seen = new Set<string>(), list = [...(this._items[j.who] ?? []), ...(this._items.Family ?? [])].filter((m) => !seen.has(m.uri) && !!seen.add(m.uri));
-      return html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>
-        ${list.length ? html`<div class="covers scrolly jcovers" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
+      const low = this.kids.find((k) => k.name === j.who)?.mode === 'picture';
+      const banner = html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>`;
+      // on the youngest's turn the pictures sit low, with the words and the way back under them
+      return html`${low ? nothing : banner}
+        ${list.length ? html`<div class="covers scrolly jcovers ${low ? 'low' : ''}" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.name}</span></button>`)}</div>`
-        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}`;
+        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
     }
     const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
     // each state has its own picture as well as its word: a play mark for the next one, an hourglass for waiting, a tick for played

@@ -22,6 +22,8 @@ for (const v of VP) {
     const page = await ctx.newPage();
     await page.clock.setFixedTime(new Date(`2026-11-10T${process.env.TIME || '16:20'}:00+08:00`));
     await page.goto(`http://localhost:${PORT}/?look=${process.env.LOOK || 'glass'}${process.env.THEME ? '&theme=' + process.env.THEME : ''}&page=${pg}`); await page.waitForFunction('window.__ready === true').catch(() => {}); await page.waitForTimeout(1500);
+    // a sheet is measured once it has arrived: its entrance scales it, and a slow first frame can leave that entrance still running
+    await page.evaluate(() => Promise.race([Promise.all(document.getAnimations().filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime)).map((a) => a.finished.catch(() => {}))), new Promise((r) => setTimeout(r, 3000))]));
     const r = await page.evaluate(() => {
       const out = [], card = document.querySelector('family-hub-card'), fh = card.shadowRoot.querySelector('.fh');
       const z = Number(getComputedStyle(fh).zoom) || 1;

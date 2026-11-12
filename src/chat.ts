@@ -199,6 +199,9 @@ export class FhChat extends LitElement {
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
 
+  /** Puts the caret in the question field. The on-screen keys come up on a touch of the field, not on focus, so someone at a real keyboard is not given forty extra stops. */
+  focusField(): void { this.renderRoot.querySelector<HTMLInputElement>('.field')?.focus({ preventScroll: true }); }
+
   /** Three minutes without a touch or an answer: the sheet closes itself and the conversation is gone. */
   private _poke = (): void => { clearTimeout(this._idleT); this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent('close')), IDLE_MS); };
   private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); }
@@ -355,7 +358,7 @@ export class FhChat extends LitElement {
         <div class="sr" aria-live="polite">${last?.text ?? ''}</div>
         <form class="send" @submit=${(e: Event) => { e.preventDefault(); this._ask(this._typed); }}>
           <input class="field" .value=${this._typed} maxlength=${MAX_CHARS} inputmode=${phone ? 'text' : 'none'} enterkeyhint="send" autocomplete="off" autocapitalize="sentences" placeholder="Type a question…" aria-label="Your question"
-            @focus=${() => { this._keys = true; }} @click=${() => { this._keys = true; }}
+            @click=${() => { this._keys = true; }}
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value.slice(0, MAX_CHARS); }} />
           <button type="button" class="pill tap opt kb" style="height:56px;padding:0 16px" aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>
           <button type="submit" class="tap lead" ?disabled=${this._busy || !this._typed.trim()}>Send</button>

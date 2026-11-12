@@ -163,7 +163,10 @@ export const sfx = (s: Sfx): void => {
 
 /* ---------------- speech: on-device, Australian English where available ---------------- */
 let voice: SpeechSynthesisVoice | null | undefined;
-export const say = (text: string): void => {
+/** `by` is the read-aloud button that was pressed: it shows that it is speaking (data-speaking) until the words end or something else is read. */
+let speaker: Element | null = null;
+export const say = (text: string, by?: Element | null): void => {
+  speaker?.removeAttribute('data-speaking'); speaker = null;
   if (muted || !('speechSynthesis' in window)) return;
   try {
     if (voice === undefined) {
@@ -175,12 +178,13 @@ export const say = (text: string): void => {
     const u = new SpeechSynthesisUtterance(text);
     if (voice) u.voice = voice;
     u.lang = voice?.lang ?? 'en-AU'; u.rate = 0.95; u.pitch = 1.1;
+    if (by) { speaker = by; by.setAttribute('data-speaking', ''); const end = (): void => { if (speaker === by) { by.removeAttribute('data-speaking'); speaker = null; } }; u.onend = end; u.onerror = end; window.setTimeout(end, Math.max(4000, text.length * 110)); }
     speechSynthesis.speak(u);
   } catch { /* speech unavailable */ }
 };
 
 /** Stops whatever `say` is reading out. */
-export const hush = (): void => { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
+export const hush = (): void => { speaker?.removeAttribute('data-speaking'); speaker = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
 
 /** Read a JSON panel message from input_text.fh_panel_message. */
 export interface PanelMsg { t: string; ttl?: number; ts?: number; alarm?: number; parent?: number }
@@ -225,11 +229,18 @@ export function linger<T>(host: { requestUpdate(): void }, key: string, v: T, ms
   if (!e.until) { e.until = Date.now() + ms; window.setTimeout(() => { if (e.until) { e.last = v; e.until = 0; host.requestUpdate(); } }, ms); }
   return [e.last as T, true];
 }
+/** A call that Home Assistant never answers is given up after twelve seconds, so nothing on the panel waits for ever. */
+export const SLOW_MS = 12_000, SLOW_SAY = 'Home Assistant is slow. Try again.';
+export class SlowError extends Error {}
+export const inTime = <T>(p: Promise<T> | T, ms = SLOW_MS): Promise<T> => new Promise<T>((yes, no) => { const t = window.setTimeout(() => no(new SlowError('no answer')), ms); Promise.resolve(p).then((v) => { clearTimeout(t); yes(v); }, (e) => { clearTimeout(t); no(e); }); });
+let slowLast = false;
+/** True when the `watched` call that has just resolved false gave up waiting (rather than being refused). */
+export const wasSlow = (): boolean => slowLast;
 /** One call to Home Assistant from a control: after 250 ms without an answer the control shows it is waiting (data-busy, aria-busy)
  *  until the answer comes. Resolves true when the call worked and false when it did not; it never throws, and never shows the error's own words. */
 export async function watched(el: Element | null | undefined, p: Promise<unknown> | undefined): Promise<boolean> {
   const t = el ? window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250) : 0;
-  try { if (!p) throw new Error('not connected'); await p; return true; } catch { return false; }
+  try { if (!p) throw new Error('not connected'); await inTime(p); slowLast = false; return true; } catch (e) { slowLast = e instanceof SlowError; return false; }
   finally { clearTimeout(t); el?.removeAttribute('data-busy'); el?.removeAttribute('aria-busy'); }
 }
 /** A motion token of the panel in milliseconds (--m-1 … --m-5), and whether things may travel (calm mode and reduce-motion say no). */

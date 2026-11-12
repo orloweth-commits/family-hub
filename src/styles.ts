@@ -185,9 +185,9 @@ export const styles = css`
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   /* a person's colour never stands alone: the chip carries their initial too */
-  .init { min-width: 18px; height: 18px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 11px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
+  .init { min-width: 19px; height: 19px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 12px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-style: normal; text-transform: none; }
-  .init.sm { min-width: 15px; height: 15px; padding: 0 3px; border-radius: 5px; font-size: 10px; }
+  .init.sm { min-width: 16px; height: 16px; padding: 0 2px; border-radius: 5px; font-size: 12px; }
   /* a list with more below fades out at the bottom edge instead of cutting a row in half */
   .scrolly[data-more] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); }
 
@@ -234,6 +234,8 @@ export const styles = css`
   .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
   .ev .loc svg, .dayrow .loc svg { flex: 0 0 auto; }
   .col[data-tight] .ev .loc { display: none; }
+  .col[data-wrap] .ev .loc { align-items: flex-start; } .col[data-wrap] .ev .loc svg { margin-top: 1px; }
+  .col[data-wrap] .ev .loc .ell { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .xpbar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
   .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width var(--mt-5); }
 
@@ -275,7 +277,8 @@ export const styles = css`
   aside > .card.tmr { max-height: 176px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
-  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
+  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px; margin: -6px; }
   .remmore { height: 16px; line-height: 16px; font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
   .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
   @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
@@ -351,6 +354,10 @@ export const styles = css`
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
   /* toasts: centred in a strip that lets touches through; only the toast's own box takes a tap */
   .toasts { position: absolute; left: 0; right: 0; bottom: calc(var(--bot) + 4px); z-index: 44; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+  /* a standing place for spoken messages: it is always in the page, so a screen reader hears what is put into it */
+  .says { position: absolute; inset: 0; pointer-events: none; }
+  /* a read-aloud button while its words are being spoken */
+  [data-speaking] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--ink); }
   .toast:empty { display: none; }
   .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn var(--m-3, 240ms) var(--e-out, ease) backwards; }
   /* a page's own toast (it has no strip around it) sits centred above the dock; pages sit inside the card's body, so this is measured from the page's own bottom edge */

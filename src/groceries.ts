@@ -4,7 +4,7 @@ import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { flip, getShape, FitController, linger, places, scrollCue, sfx, watched } from './util';
+import { flip, getShape, FitController, linger, places, scrollCue, sfx, watched, wasSlow, inTime, SlowError, SLOW_SAY } from './util';
 /** a row that has just been touched: what it shows, where it sat, whether Home Assistant has answered yet (out), whether its four seconds are up (due) */
 interface Held { to: string; was: string; t: number; n: number; out: boolean; due: boolean; busy: boolean }
 import { spark } from './sparks';
@@ -111,7 +111,7 @@ export class FhGroceries extends LitElement {
     _items: { state: true },
     _typed: { state: true },
     _caps: { state: true },
-    _toast: { state: true }, _undo: { state: true }, _failed: { state: true }, _hidden: { state: true }
+    _toast: { state: true }, _undo: { state: true }, _sticky: { state: true }, _adding: { state: true }, _failed: { state: true }, _hidden: { state: true }
   };
 
   hass?: Hass;
@@ -155,7 +155,11 @@ export class FhGroceries extends LitElement {
     } catch (e) { console.warn('Family Hub: grocery subscribe failed', e); this._failed = true; }
   }
 
-  private _say(m: string, undo?: () => void): void { this._toast = m; this._undo = undo; clearTimeout(this._toastTimer); this._toastTimer = window.setTimeout(() => { this._toast = ''; this._undo = undefined; }, undo ? 6000 : 2600); }
+  /** A message. One marked `stay` (something was not saved) remains until it is dismissed. */
+  private _sticky = false;
+  private _say(m: string, undo?: () => void, stay = false): void { this._toast = m; this._undo = undo; this._sticky = stay; clearTimeout(this._toastTimer); if (!stay) this._toastTimer = window.setTimeout(() => { this._toast = ''; this._undo = undefined; }, undo ? 6000 : 2600); }
+  /** Items on their way to the list: each shows as a waiting row until Home Assistant has it, so a slow link never looks like a missed tap. */
+  private _adding: string[] = [];
 
   private _add(name = this._typed, el: Element | null = this.renderRoot.querySelector('.add .lead')): void {
     const n = name.trim();
@@ -164,11 +168,14 @@ export class FhGroceries extends LitElement {
     const nice = n.charAt(0).toUpperCase() + n.slice(1), typed = name === this._typed;
     if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
     // a failed add says so and gives the words back, so nothing typed is lost
-    void watched(el, Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity }))).then((ok) => { if (ok) return; this._say(`Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
+    if (this._adding.includes(nice)) return; // already on its way
+    this._adding = [...this._adding, nice];
+    void watched(el, Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity }))).then((ok) => { this._adding = this._adding.filter((x) => x !== nice); if (ok) return; this._say(wasSlow() ? SLOW_SAY : `Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
     if (typed) { this._typed = ''; this._caps = true; }
   }
   private _toggle(i: TodoItem): void {
     // the touch is answered at once: the tick, its sound and the service call all happen now. The row keeps its place for a few seconds, so a slip can be tapped back.
+    if (this._tk[i.uid]?.out) return; // a second tap while the first is still on its way is not sent
     const to = this._shown(i) === 'completed' ? 'needs_action' : 'completed';
     sfx(to === 'completed' ? 'tick' : 'untick');
     if (to === 'completed') { const row = [...this.renderRoot.querySelectorAll('button.item')].find((b) => b.querySelector('.strike')?.textContent === i.summary), list = this.renderRoot.querySelector('.items');
@@ -184,9 +191,9 @@ export class FhGroceries extends LitElement {
       t: window.setTimeout(() => { const e = this._tk[i.uid]; if (!e || e.n !== n) return; if (e.out) patch({ due: true }); else drop(); }, 4000) } };
     const slow = window.setTimeout(() => patch({ busy: true }), 250);
     this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
-    Promise.resolve(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).then(() => true, () => false).then((ok) => {
+    inTime(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).then(() => '', (err: unknown) => (err instanceof SlowError ? 'slow' : 'no')).then((bad) => {
       clearTimeout(slow); const e = this._tk[i.uid]; if (!e || e.n !== n) return;
-      if (!ok) { clearTimeout(e.t); drop(); this._say(`Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); return; }
+      if (bad) { clearTimeout(e.t); drop(); this._say(bad === 'slow' ? SLOW_SAY : `Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); return; }
       if (e.due) drop(); else patch({ out: false, busy: false });
     });
   }
@@ -211,8 +218,10 @@ export class FhGroceries extends LitElement {
     clearTimeout(this._clearTimer); this._clearTimer = undefined;
     const ids = this._hidden; if (!ids.length) return;
     this._hidden = [];
-    Promise.resolve(this.hass?.callService('todo', 'remove_item', { item: ids }, { entity_id: this.entity })).catch(() => { if (this.isConnected) this._say('Couldn’t clear the ticked items. Try again'); });
+    const n = ids.length;
     if (this._undo) { this._toast = ''; this._undo = undefined; }
+    // a clear that did not happen is said until someone has seen it: the ticked items are still on the list
+    inTime(this.hass?.callService('todo', 'remove_item', { item: ids }, { entity_id: this.entity })).catch((e: unknown) => { if (this.isConnected) this._say(e instanceof SlowError ? `${SLOW_SAY} The ${n === 1 ? 'ticked item is' : `${n} ticked items are`} still on the list.` : `Couldn’t clear the ${n === 1 ? 'ticked item' : `${n} ticked items`}. Try again`, undefined, true); });
   }
 
   private _sending = '';
@@ -234,7 +243,8 @@ export class FhGroceries extends LitElement {
   }
 
   render(): TemplateResult {
-    const [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, undo: !!this._undo } : null);
+    const [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, undo: !!this._undo, stay: this._sticky } : null);
+    const adding = this._adding.filter((n) => !this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === n.toLowerCase()));
     const open = this._items.filter((i) => this._group(i) === 'needs_action');
     const done = this._items.filter((i) => this._group(i) === 'completed' && !this._hidden.includes(i.uid));
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
@@ -247,12 +257,13 @@ export class FhGroceries extends LitElement {
         ${this._failed ? html`<div class="failed" role="alert"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span>Can’t reach the shopping list.</span>
           <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
         <div class="items scrolly" @scroll=${scrollCue}>
+          ${adding.map((n) => html`<div class="item row pending" role="status" aria-busy="true" data-busy><span class="box check"></span><span class="txt content"><span class="strike">${n}</span></span><span class="tag">Adding…</span></div>`)}
           ${sorted.map((i) => this._row(i))}
           ${done.length ? html`<div class="trolley">
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>
             ${done.map((i) => this._row(i))}` : nothing}
-          ${!open.length && !done.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:17px;font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:15px">Type an item or tap a usual to add it.</span></div>` : nothing}
+          ${!open.length && !done.length && !adding.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:17px;font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:15px">Type an item or tap a usual to add it.</span></div>` : nothing}
         </div>`}
         <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
@@ -276,7 +287,7 @@ export class FhGroceries extends LitElement {
         </div>
         ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
       </section>
-      ${toast ? html`<div class="toast ${toast.undo ? 'act' : ''}" role="status" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : nothing}</div>` : nothing}`;
+      <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }
 
   private _row(i: TodoItem): TemplateResult {

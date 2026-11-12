@@ -169,6 +169,8 @@ el.setConfig({
   grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
   parent_pin: '1234', meds: [{ id: 'riley_am', who: 'Riley', label: 'Morning dose', time: '06:30' }, { id: 'charlie_am', who: 'Charlie', label: 'Morning dose', time: '06:30' }], parents: ['Alex', 'Sam'], bins: { day: 1, always: ['green'], alternate: ['yellow', 'red'], anchor: '2026-11-09' }, babysitter: { address: '1 Example Street, Sampleton', lines: ['Mum: 0400 000 001', 'Dad: 0400 000 002', 'Nan next door: 0400 000 003', 'Max is allergic to nothing but dislikes peas', 'Torch and first-aid kit are in the laundry cupboard'], wifi: { name: 'Example-Guest', password: 'welcome-in' } }, emergency: { notify: ['notify.mobile_app_demo_one', 'notify.mobile_app_demo_two'], who: 'Mum and Dad' }, morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
   idle_seconds: 0,
+  // the dock's Dinner button is shown only with an announce script; &dinner=0 leaves it out
+  ...(q.get('dinner') === '0' ? {} : { announce_script: 'script.dinner' }),
   // &chat=off leaves the Ask button out
   ...(q.get('chat') === 'off' ? {} : { chat: { agent: 'conversation.demo_chat', pipeline: 'demo' } })
 });

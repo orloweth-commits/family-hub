@@ -105,7 +105,7 @@ const railDown = (o: Vol) => (e: PointerEvent): void => {
 /** The plain member of the family: quieter, a rail with its fill and thumb, louder, the number. Lying down by default; `vert` stands it up (a fader). */
 export const volCtl = (o: Vol): TemplateResult => html`<div class="vs" ?data-vert=${!!o.vert} ?data-idle=${!o.live} ?data-held=${!!o.held} style="--v:${o.v}">
   ${stepBtn(o.name, o.v, false, () => o.set(clamp(o.v - STEP), true))}
-  <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${o.name}" aria-orientation=${o.vert ? 'vertical' : 'horizontal'} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${o.v} aria-valuetext="${o.v}${o.live ? '' : ', quiet'}"
+  <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${o.name}" aria-orientation=${o.vert ? 'vertical' : 'horizontal'} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${o.v} aria-valuetext="${o.v} per cent${o.live ? '' : ', quiet'}"
     @pointerdown=${railDown(o)} @keydown=${volKey(o.v, (v) => o.set(v, true))}><i class="slot"></i><i class="vfill"></i><i class="fcap"><b aria-hidden="true">${o.v}</b></i></div>
   ${stepBtn(o.name, o.v, true, () => o.set(clamp(o.v + STEP), true))}
   <b class="vnum" aria-hidden="true">${o.v}</b></div>`;
@@ -125,7 +125,7 @@ const keys = (c: Ctx, r: Room) => (e: KeyboardEvent): void => {
 };
 /** One word for what a room is doing. A room with nothing on is "Quiet" in every view. */
 const state = (r: Room): string => (r.offline ? 'Offline' : r.live ? (r.playing ? 'Playing' : 'Paused') : r.asleep ? 'Asleep' : 'Quiet');
-const vtext = (r: Room): string => `${r.vol}, ${state(r).toLowerCase()}`;
+const vtext = (r: Room): string => `${r.vol} per cent, ${state(r).toLowerCase()}`;
 const col = (r: Room): string => (r.colour ? `--c:${r.colour}` : '');
 /** Rooms that play together carry this mark, whichever room is selected. */
 const link = (r: Room): TemplateResult | typeof nothing => (r.linked ? html`<i class="linkd" role="img" aria-label="linked with another room"></i>` : nothing);
@@ -210,7 +210,7 @@ export const deskView = (c: Ctx): TemplateResult => {
   const strip = (r: Room): TemplateResult => {
     const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
     // a lamp says ON only for a room playing the music on this desk; a room with other music shows a note
-    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? '♪' : r.asleep ? '☾' : 'OFF';
+    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? 'PLAYING' : r.asleep ? '☾' : 'OFF';
     const says = r.offline ? `${r.name} is offline` : r.on ? (r.lead ? `ON: ${r.name} plays this music. ${r.playing ? 'Pause' : 'Play'}` : `ON. Remove ${r.name} from the music`) : r.live ? `${r.name} has other music. Swap it for this music` : `OFF. Add ${r.name} to the music`;
     return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
       <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><span>${r.name}</span>${link(r)}</button>
@@ -516,7 +516,8 @@ export const viewsCss = css`
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
   .darc:focus-visible .dtrack { stroke: var(--ink); stroke-opacity: 1; } .darc:focus-visible .dknob { stroke: var(--ink); stroke-width: 5; }
   .tuner:focus-visible, .jog:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-  .dhit { fill: none; stroke: transparent; stroke-width: 46; }
+  /* the place to press is 46 px across whatever size the dial is drawn at */
+  .dhit { fill: none; stroke: transparent; stroke-width: 46px; vector-effect: non-scaling-stroke; }
   .dtrack { fill: none; stroke: var(--track); stroke-width: 26; stroke-linecap: round; }
   .dfill { fill: none; stroke: var(--ink3); stroke-width: 26; stroke-linecap: round; opacity: .55; transition: stroke var(--m-2, 160ms); }
   .darc[data-live] .dfill { stroke: var(--c); opacity: 1; }

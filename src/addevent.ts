@@ -40,7 +40,7 @@ export class FhAddEvent extends LitElement {
     :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     .box > * { flex-shrink: 0; }
     .sum { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); }
+    .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); } .err:empty { display: none; }
     /* the keyboard is as wide as the sheet (up to 900 px), so the keys are as big as the sheet allows */
     .box .keys { width: 100%; max-width: 900px; align-self: center; }
     .box .keys .key, .box .keys.compact .key { flex: 1 1 0; width: auto; min-width: 0; }
@@ -253,8 +253,11 @@ export class FhAddEvent extends LitElement {
   }
   private _drum(which: 'h' | 'm'): TemplateResult {
     const list = which === 'h' ? HOURS : MINS, v = which === 'h' ? this._h : this._m, label = which === 'h' ? 'Hour' : 'Minutes';
-    return html`<div class="drum" data-d=${which} tabindex="0" role="spinbutton" aria-label=${label} aria-valuenow=${v} aria-valuetext=${which === 'h' ? String(v) : pad(v)} aria-valuemin=${list[0]} aria-valuemax=${list[list.length - 1]}
-      @scroll=${(e: Event) => this._scrolled(which, e)} @keydown=${(e: KeyboardEvent) => { if (e.key === 'ArrowUp') this._nudge(which, -1, e); else if (e.key === 'ArrowDown') this._nudge(which, 1, e); }}>
+    return html`<div class="drum" data-d=${which} tabindex="0" role="spinbutton" aria-label=${label} aria-valuenow=${v} aria-valuetext=${which === 'h' ? `${v} ${this._pm ? 'pm' : 'am'}` : `${pad(v)} minutes`} aria-valuemin=${list[0]} aria-valuemax=${list[list.length - 1]}
+      @scroll=${(e: Event) => this._scrolled(which, e)} @keydown=${(e: KeyboardEvent) => { if (e.key === 'ArrowUp') this._nudge(which, -1, e); else if (e.key === 'ArrowDown') this._nudge(which, 1, e);
+        // Page Up and Page Down move three places (three hours, a quarter of an hour); Home and End go to the first and the last
+        else if (e.key === 'PageUp' || e.key === 'PageDown') { e.preventDefault(); this._setDrum(which, list.indexOf(v as never) + (e.key === 'PageUp' ? -3 : 3)); }
+        else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._setDrum(which, e.key === 'Home' ? 0 : list.length - 1); } }}>
       ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => { sfx('tap'); this._setDrum(which, i); }}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
   }
 
@@ -339,7 +342,7 @@ export class FhAddEvent extends LitElement {
         </div>` : nothing}
       </div>
         ${phone ? nothing : add}</div>
-      ${this._err ? html`<span class="err" role="alert">${this._err}</span>` : ''}
+      <span class="err" role="status" aria-live="polite">${this._err}</span>
       <div class="when">
         <div class="left">
           <div class="rowhead"><span class="sub" id="dayl">Which day</span>

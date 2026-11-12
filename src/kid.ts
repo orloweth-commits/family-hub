@@ -10,7 +10,7 @@ import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
-import { bedtimeFor, hm, changed, linger, watched, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import './pin';
 
@@ -47,6 +47,8 @@ const speakerSvg = (s = 26): TemplateResult => html`<svg viewBox="0 0 24 24" wid
 const listSvg = html`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`;
 
 const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
+/** What the feelings card asks next, shown and (for a child who cannot read) spoken. */
+const FEEL_ASK: Record<'up' | 'mid' | 'down', string> = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' };
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 export class FhKid extends LitElement {
@@ -188,6 +190,10 @@ export class FhKid extends LitElement {
     .side > .card { flex-shrink: 0; }
     /* a small child's controls sit low: the jar card above them takes up the spare height, so there is no empty band between the cards */
     .side.low > .card:first-child { flex: 1 0 auto; justify-content: center; }
+    /* the youngest reaches the lower half of a wall panel only: his feelings card sits at the very bottom of the column, and the two tab buttons come down to meet it, under their list */
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .feelcard { order: 3; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard { order: 2; justify-content: flex-end; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard > .tabs { order: 9; }
     .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
@@ -196,10 +202,13 @@ export class FhKid extends LitElement {
     .rw.picrow .rpic { font-size: 40px; }
     .rw .stars { max-width: 100px; }
     .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
-    .rw .cost.notyet { box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    /* "80 to go" is a status, not something to press: a flat tile with no outline */
+    .rw .cost.notyet { box-shadow: none; background: var(--track); color: var(--ink); font-weight: var(--w-semi, 600); }
     .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
     .rw.ask[data-held] { pointer-events: none; }
-    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); }
+    @keyframes lockwig { 0%, 100% { rotate: 0deg; } 25% { rotate: calc(-16deg * var(--m-d, 1)); } 60% { rotate: calc(12deg * var(--m-d, 1)); } 82% { rotate: calc(-6deg * var(--m-d, 1)); } }
+    .studio[data-nudge] svg { transform-origin: 50% 20%; animation: lockwig var(--m-4, 400ms) var(--e-out, ease) 1; }
+    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); }
     .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
@@ -235,7 +244,7 @@ export class FhKid extends LitElement {
   static properties = {
     hass: { attribute: false }, kid: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
-    _chores: { state: true }, _events: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
+    _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
     _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }
   };
@@ -432,8 +441,8 @@ export class FhKid extends LitElement {
         else if (row && /read|book|library/.test(words)) spark('book', row); } }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
-      await this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores });
-      await this._award(c, done ? -1 : 1);
+      await inTime(this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores }));
+      await inTime(this._award(c, done ? -1 : 1));
       if (done) { delete ticks[c.uid]; lsSet('fh-ticks', ticks); return; }
       ticks[c.uid] = Date.now(); lsSet('fh-ticks', ticks);
       this._jump++;
@@ -445,7 +454,7 @@ export class FhKid extends LitElement {
     } catch (err) {
       console.warn('Family Hub: chore update failed', err);
       this._chores = prev;
-      this._say('Couldn’t save that one – try again');
+      this._say(err instanceof SlowError ? SLOW_SAY : 'Couldn’t save that one – try again');
     } finally { this._busy.delete(c.uid); clearTimeout(slow); const r = rowOf(); r?.removeAttribute('data-busy'); r?.removeAttribute('aria-busy'); }
   }
 
@@ -509,6 +518,8 @@ export class FhKid extends LitElement {
     if (this._picMode) say(`${r.name}. Spend ${this._costWords(r)}? Yes, or not now.`);
   }
   private _redeeming = false;
+  /** the reward whose points are on their way to Home Assistant: its row says "Saving…" until the answer comes */
+  private _saving = '';
   private async _redeem(r: RewardConfig, checked = false): Promise<void> {
     const have = num(this.hass, this._e.points);
     this._spend = '';
@@ -516,10 +527,10 @@ export class FhKid extends LitElement {
     const needs = r.approve ?? r.cost >= 60;
     if (needs && this.pin && !checked) { this._pinAsk = { reason: `${this.kid.name}: ${r.name}?`, run: () => { void this._redeem(r, true); } }; return; }
     // one spend at a time, and no celebration until Home Assistant has taken the points
-    this._redeeming = true;
+    this._redeeming = true; this._saving = r.name;
     try {
-      await Promise.race([this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 12000))]);
-    } catch { this._say('That did not go through, so no points were spent. Try again in a moment.'); return; } finally { window.setTimeout(() => { this._redeeming = false; }, 1500); }
+      await inTime(this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }));
+    } catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'That did not go through, so no points were spent. Try again in a moment.'); return; } finally { this._saving = ''; window.setTimeout(() => { this._redeeming = false; }, 1500); }
     if (this.owed && this.hass!.states[this.owed]) {
       this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
     }
@@ -533,7 +544,8 @@ export class FhKid extends LitElement {
 
   private _feelPick(f: string): void {
     this._feel = f; this._sound('tap');
-    if (this._picMode) say({ up: 'Yay! I’m glad you feel happy.', mid: 'Okay. Thanks for telling me.', down: 'Thanks for telling me. Let’s find a grown-up for a hug.' }[FEEL_KIND(f)]);
+    // a child who cannot read hears the follow-up question that the card now shows
+    if (this._picMode) say(FEEL_ASK[FEEL_KIND(f)]);
   }
   private _feelReply(kind: 'hug' | 'chat' | 'ok' | 'share'): void {
     const n = this.kid.name;
@@ -589,7 +601,7 @@ export class FhKid extends LitElement {
       ${this._celebrate ? this._celebration() : nothing}
       ${this._days ? this._daysSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      ${msg ? html`<div class="toast" role="status" ?data-closing=${msgOut}>${msg}</div>` : nothing}
+      <div class="says" role="status" aria-live="polite">${msg ? html`<div class="toast" ?data-closing=${msgOut}>${msg}</div>` : nothing}</div>
     </div>`;
   }
 
@@ -633,9 +645,10 @@ export class FhKid extends LitElement {
         const askOn = this._picMode && this.ask;
         return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
           <div class="lowrow" style=${wait ? '' : 'margin-top:auto'}>${askOn ? html`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
-          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${() => {
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(e: Event) => {
             // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
-            if (wait) { this._sound('locked'); if (this._picMode && !this._lookSaid) { this._lookSaid = true; say(`Jobs first, then your look. ${left} to go.`); } return; }
+            // not yet: the padlock gives a small wiggle and, for a child who cannot read, the reason is spoken. Nothing red, no error message.
+            if (wait) { this._sound('locked'); const b = e.currentTarget as HTMLElement; b.removeAttribute('data-nudge'); void b.offsetWidth; b.setAttribute('data-nudge', ''); if (this._picMode) say(left === 1 ? 'One more job, then your look.' : `${left} jobs to go.`); return; }
             this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button></div>`;
       })()}
     </section>`;
@@ -741,7 +754,7 @@ export class FhKid extends LitElement {
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   private _reader(): TemplateResult {
-    return html`<button class="readme tap" aria-label="Read my jobs" @click=${() => { const left = this._block().routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary); this._sound('tap'); say(left.length ? left.join('. Then, ') + '.' : 'All done! Great job!'); }}>${speakerSvg(36)}</button>`;
+    return html`<button class="readme tap" aria-label="Read my jobs" @click=${(e: Event) => { const by = e.currentTarget as Element, left = this._block().routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary); this._sound('tap'); say(left.length ? left.join('. Then, ') + '.' : 'All done! Great job!', by); }}>${speakerSvg(36)}</button>`;
   }
 
   private _rewards(): TemplateResult {
@@ -749,10 +762,10 @@ export class FhKid extends LitElement {
     return html`${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
-        const held = this._held === r.name;
-        if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held}>
+        const saving = this._saving === r.name, held = this._held === r.name || saving;
+        if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held} aria-busy=${saving ? 'true' : nothing}>
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${r.name}</span></span>
-          <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${tickSvg(18)}Yes</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
+          <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${saving ? 'Saving…' : html`${tickSvg(18)}Yes`}</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
         return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" aria-label="${r.name}: ${ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
@@ -790,14 +803,15 @@ export class FhKid extends LitElement {
   private _feelCard(): TemplateResult {
     const faces = this._picMode ? FEELINGS_3 : FEELINGS, kind = this._feel ? FEEL_KIND(this._feel) : 'mid';
     const big = this._picMode ? 'height:56px;font-size:18px' : '';
-    const ask = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' }[kind];
-    return html`<section class="glass card" aria-label="How are you feeling">
-      ${this._feel ? html`<span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
+    const ask = FEEL_ASK[kind];
+    return html`<section class="glass card feelcard" aria-label="How are you feeling">
+      ${this._feel ? html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
+            ${this._picMode ? html`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(e: Event) => say(ask, e.currentTarget as Element)}>🔊</button>` : nothing}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${kind === 'up'
           ? html`<button class="pill tap" style=${big} @click=${() => this._feelReply('share')}>💬 Leave a note</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>👍 All good</button>`
           : html`<button class="pill tap" style=${big} @click=${() => this._feelReply('hug')}>🤗 Hug</button><button class="pill tap" style=${big} @click=${() => this._feelReply('chat')}>💬 Chat later</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>I’m OK</button>`}</div>`
         : html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${() => say('How are you feeling?')}>🔊</button>` : nothing}</div>
+            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(e: Event) => say('How are you feeling?', e.currentTarget as Element)}>🔊</button>` : nothing}</div>
           <div class="feel ${this._picMode ? 'three' : ''}">${faces.map(([e, w]) => html`<button class="tap" aria-label=${w} @click=${() => this._feelPick(w)}>${e}</button>`)}</div>`}
     </section>`;
   }
