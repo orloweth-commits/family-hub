@@ -24,7 +24,7 @@ const AISLES: [string, string, string][] = [
 ];
 const AISLE_RE = AISLES.map(([a, c, w]) => [a, c, new RegExp(`\\b(${w})`)] as const);
 export const aisleOf = (name: string): [string, string] => {
-  const n = name.toLowerCase();
+  const n = String(name ?? '').toLowerCase();
   for (const [aisle, colour, re] of AISLE_RE) if (re.test(n)) return [aisle, colour];
   return ['Other', '--p-family'];
 };
@@ -136,8 +136,11 @@ export class FhGroceries extends LitElement {
     const conn = this.hass?.connection;
     if (!conn) { this._failed = true; return; }
     try {
-      this._unsub = await conn.subscribeMessage<{ items: TodoItem[] }>((m) => { this._items = m.items; this._failed = false; }, { type: 'todo/item/subscribe', entity_id: this.entity });
-      this._failed = false;
+      const ent = this.entity;
+      const un = await conn.subscribeMessage<{ items: TodoItem[] }>((m) => { this._items = (m.items ?? []).filter((i) => i && typeof i.summary === 'string'); this._failed = false; }, { type: 'todo/item/subscribe', entity_id: ent });
+      // the page may have gone, or moved to another list, while Home Assistant was answering: do not keep a subscription nobody will close
+      if (!this.isConnected || this._subFor !== ent) { un(); return; }
+      this._unsub = un; this._failed = false;
     } catch (e) { console.warn('Family Hub: grocery subscribe failed', e); this._failed = true; }
   }
 

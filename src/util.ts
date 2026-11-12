@@ -22,7 +22,7 @@ export const parseChore = (c: Chore): ParsedChore => {
   return { ...c, summary: lead ? c.summary.slice(lead[0].length) : c.summary, pic: tagged?.[1] ?? lead?.[1], song: /@song/.test(d), lane, slot, pts: lane === 'grow' ? 0 : pts, minutes: mins ? Number(mins[1]) : 0 };
 };
 
-export const hm = (s: string): number => { const [h, m] = s.split(':').map(Number); return h * 60 + (m || 0); };
+export const hm = (s: string | undefined): number => { const [h, m] = String(s ?? '').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
 export const minsNow = (d = new Date()): number => d.getHours() * 60 + d.getMinutes();
 
 /** Current part of the day for a child, given their bedtime ("19:30"). */
