@@ -49,7 +49,7 @@ export class FhAmbient extends LitElement {
     @keyframes peek { from, to { transform: translateX(100%); } 18%, 80% { transform: translateX(34%); } 30%, 34% { transform: translateX(34%) rotate(-5deg); } }
     .foot { top: auto; bottom: 4px; }
   `, ...Object.values({ sea, reef, bush, space, fridge }).map((s) => s.css)];
-  static properties = { look: {}, theme: {}, tod: {}, calm: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: true }, _guest: { state: true } };
+  static properties = { look: { reflect: true }, theme: { reflect: true }, tod: {}, calm: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: true }, _guest: { state: true } };
   look = 'glass'; theme = 'sea'; tod: Ctx['tod'] = 'day'; calm = false;
   /** show one visitor straight away, by id (the preview and the tests use this) */
   demo = '';

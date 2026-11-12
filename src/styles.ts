@@ -54,7 +54,7 @@ export const styles = css`
   .strike { background: linear-gradient(currentColor, currentColor) left 56% / 0 2px no-repeat; transition: background-size var(--m-3, 240ms) var(--e-out, ease), color var(--m-2, 160ms) ease; }
   .done .strike { background-size: 100% 2px; color: var(--ink3); text-decoration: none; }
   /* planner reminders: rows you can tick */
-  .rem { width: 100%; min-height: 44px; padding: 4px 6px; margin: -2px -6px; border-radius: 12px; text-align: left; }
+  .rem { width: 100%; min-height: 44px; padding: 4px 6px; margin: -7px -6px; border-radius: 12px; text-align: left; }
   .rem .check { width: 28px; height: 28px; border-width: 2.5px; display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background-color var(--m-1, 80ms) ease, border-color var(--m-1, 80ms) ease; }
   .rem.done .check { background: var(--ok); border-color: var(--ok); }
   .rem .content { flex: 1; min-width: 0; }
