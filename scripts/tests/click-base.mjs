@@ -151,5 +151,20 @@ await md('.mchip', { hasText: 'Riley' }).click(); await md('.lead').click(); awa
 console.log('meds: records now:', await md('.irow').count(), '| newest:', (await md('.irow').first().innerText()).replace(/\s+/g, ' '));
 await md('.irow button').first().click(); await page.waitForTimeout(300); console.log('meds: after removing one:', await md('.irow').count());
 await page.close();
+
+// 12. medication: one chip for two boys; a helper nobody has set is not a dose; a missing helper says so; "Given by" records and clears the chip
+page = await open('look=glass', '08:10');
+const cap = () => page.locator('family-hub-card .capsule .cap').filter({ hasText: '💊' });
+console.log('meds chip, two overdue:', await cap().count(), '|', (await cap().first().innerText()).replace(/\s+/g, ' '));
+await cap().first().click(); await page.waitForTimeout(300);
+await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(400);
+console.log('meds after one given:', (await cap().first().innerText()).replace(/\s+/g, ' '), '| row:', (await page.locator('family-hub-card .sheet .med2 .card b').nth(1).innerText()));
+await page.close();
+page = await open('look=glass&meds=new&sheet=meds', '08:10');
+console.log('meds never set: rows read', (await page.locator('family-hub-card .sheet .med2 .card').allInnerTexts()).map((t) => /Overdue/.test(t) && /Given by/.test(t) ? 'overdue with buttons' : 'WRONG: ' + t.replace(/\s+/g, ' ')).join(' | '));
+await page.close();
+page = await open('look=glass&meds=missing&sheet=meds', '08:10');
+console.log('meds helper missing:', (await page.locator('family-hub-card .sheet .med2 .card').first().innerText()).replace(/\s+/g, ' ').slice(0, 140), '| buttons:', await page.getByRole('button', { name: /Given by/ }).count());
+await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

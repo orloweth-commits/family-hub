@@ -267,7 +267,7 @@ export class FhKid extends LitElement {
       this._celebrate = [...fresh].sort((a, b) => Number(f.includes(b.id)) - Number(f.includes(a.id)));
       this._confetti++;
       this._sound('unlock');
-      if (this._picMode) say(`Wow Jack! You unlocked ${fresh[0].label}!`);
+      if (this._picMode) say(`Wow ${this.kid.name}! You unlocked ${fresh[0].label}!`);
     }
   }
   private _closeCelebrate(open: boolean): void {

@@ -404,20 +404,31 @@ export class FamilyHubCard extends LitElement {
       const rep = window.setInterval(() => { if (!this._alarm || ++n > 12) { clearInterval(rep); this._alarm = 0; return; } sfx('alarm'); }, 5000);
     }
   }
-  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean } {
+  /** Where a daily medicine stands. A helper that has never been set reads as midnight today, given by "unknown": that is not a dose. */
+  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean; missing: boolean } {
     const st = this.hass?.states[`input_datetime.fh_med_${id}`];
+    const raw = this.hass?.states[`input_text.fh_med_${id}_by`]?.state ?? '';
+    const by = ['unknown', 'unavailable'].includes(raw) ? '' : raw;
     const ts = st?.attributes.timestamp ? new Date(st.attributes.timestamp * 1000) : null;
-    const given = ts && sameDay(ts, new Date()) ? ts : null;
+    const neverSet = !!ts && !by && ts.getHours() === 0 && ts.getMinutes() === 0 && ts.getSeconds() === 0;
+    const given = ts && !neverSet && sameDay(ts, new Date()) ? ts : null;
     const n = minsNow(this._now), t = hm(time);
-    return { given, by: this.hass?.states[`input_text.fh_med_${id}_by`]?.state ?? '', due: !given && n >= t - 60, late: !given && n > t + 45 };
+    return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, missing: !st || st.state === 'unavailable' };
   }
-  private _giveMed(id: string, by: string): void {
+  private _medBusy = '';
+  private async _giveMed(id: string, by: string): Promise<void> {
     const h = this.hass!;
-    h.callService('input_datetime', 'set_datetime', { entity_id: `input_datetime.fh_med_${id}`, timestamp: Math.floor(Date.now() / 1000) });
-    h.callService('input_text', 'set_value', { entity_id: `input_text.fh_med_${id}_by`, value: by });
-    h.callService('persistent_notification', 'dismiss', { notification_id: `fh_meds_${id.split('_').pop()}` }).catch(() => undefined);
-    sfx('tick');
-    this._say(`Logged – given by ${by}`);
+    if (this._medBusy) return;
+    this._medBusy = id; this.requestUpdate();
+    try {
+      await h.callService('input_datetime', 'set_datetime', { entity_id: `input_datetime.fh_med_${id}`, timestamp: Math.floor(Date.now() / 1000) });
+      await h.callService('input_text', 'set_value', { entity_id: `input_text.fh_med_${id}_by`, value: by });
+      h.callService('persistent_notification', 'dismiss', { notification_id: `fh_meds_${id.split('_').pop()}` }).catch(() => undefined);
+      sfx('tick');
+      this._say(`Logged – given by ${by}`);
+    } catch {
+      this._say('That was not recorded: Home Assistant did not answer. Please try again.', 7000);
+    } finally { this._medBusy = ''; this.requestUpdate(); }
   }
 
   /* ----- other medicine given (paracetamol and the like): a plain record, newest first ----- */
@@ -630,10 +641,14 @@ export class FamilyHubCard extends LitElement {
     }
     const msg = panelMsg(this.hass);
     if (msg && !msg.alarm) chips.push([4, html`<span class="cap">${msg.t}</span>`]);
-    for (const m of c.meds ?? []) {
-      const s = this._medStatus(m.id, m.time);
-      if (s.due) chips.push([s.late ? 0 : 2, html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${() => { this._sheet = 'meds'; }}>💊 ${m.who ? `${m.who}: ` : ''}${s.late ? 'overdue' : 'due'} ${((t: string) => { const [h, mi] = t.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; })(m.time)}</button>`]);
-      else if (s.given && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" @click=${() => { this._sheet = 'meds'; }}>💊 ✓ ${fmtTime(s.given)}</button>`]);
+    {
+      const t12 = (t: string) => { const [h, mi] = t.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+      const all = (c.meds ?? []).map((m) => ({ m, s: this._medStatus(m.id, m.time) }));
+      const due = all.filter((x) => x.s.due), late = due.some((x) => x.s.late), done = all.filter((x) => x.s.given);
+      const open = () => { this._sheet = 'meds'; };
+      if (due.length === 1) { const { m, s } = due[0]; chips.push([s.late ? 0 : 2, html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${open}>💊 ${m.who ? `${m.who}: ` : ''}${s.late ? 'overdue' : 'due'} ${t12(m.time)}</button>`]); }
+      else if (due.length > 1) { const who = due.map((x) => x.m.who).filter(Boolean).join(', '); chips.push([late ? 0 : 2, html`<button class="cap tap ${late ? 'hot' : ''}" aria-label=${`Medication: ${due.length} ${late ? 'overdue' : 'due'}${who ? `: ${who}` : ''}`} @click=${open}>💊 ${due.length} ${late ? 'overdue' : 'due'}${who ? html`<span class="ell">: ${who}</span>` : nothing}</button>`]); }
+      else if (done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" aria-label="Medication given" @click=${open}>💊 ✓ ${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</button>`]);
     }
     const bn = this._bins(this._now);
     if (bn && sameDay(bn.night, this._now) && bn.bins.length) chips.push([this._now.getHours() >= 16 ? 2 : 5, html`<span class="cap" aria-label=${`Bin night: ${bn.bins.join(' and ')} bins go out tonight`}>🗑 Bins tonight ${this._binDots(bn.bins)}<span class="ell">${bn.bins.join(' + ')}</span></span>`]);
@@ -969,8 +984,9 @@ export class FamilyHubCard extends LitElement {
             return html`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
               <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px" aria-hidden="true">💊</span>
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${d.who ? `${d.who} – ` : ''}${d.label}</b><span class="muted">Due ${t12(d.time)}</span></span>
-                <b style="font-size:15px;color:${s.given ? 'var(--ok)' : s.late ? 'var(--danger, #dc2626)' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.late ? 'Overdue' : 'Not yet'}</b></div>
-              ${s.given ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" @click=${() => this._giveMed(d.id, p)}>Given by ${p}</button>`)}</div>`}
+                <b style="font-size:15px;color:${s.given ? 'var(--ok)' : s.late ? 'var(--danger, #dc2626)' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.missing ? 'Not set up' : s.late ? 'Overdue' : 'Not yet'}</b></div>
+              ${s.missing ? html`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${d.id}</b>, so this cannot be recorded here.</span>`
+                : s.given ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" ?disabled=${this._medBusy === d.id} @click=${() => this._giveMed(d.id, p)}>Given by ${p}</button>`)}</div>`}
             </div>`;
           })}
           <span class="label">Given in the last two days</span>

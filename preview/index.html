@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -63,6 +63,8 @@ const hass = {
       st('sensor.home_extended_text_0', q.get('wx') === 'rain' ? 'Cloudy. Very high chance of rain, most likely in the morning. The chance of a thunderstorm.' : 'Sunny. Light winds becoming south-westerly 15 to 25 km/h in the early afternoon.'), st('sensor.home_uv_max_index_0', '9'), st('sensor.home_uv_start_time_0', new Date(new Date().setHours(8, 40, 0, 0)).toISOString()), st('sensor.home_uv_end_time_0', new Date(new Date().setHours(16, 10, 0, 0)).toISOString()),
       st('sensor.home_rain_chance_0', q.get('wx') === 'rain' ? '90' : '5'), st('sensor.home_rain_amount_range_0', q.get('wx') === 'rain' ? '4 to 10' : '0'), st('sensor.home_fire_danger_0', 'Moderate'), st('sensor.home_astronomical_sunrise_time_0', new Date(new Date().setHours(5, 11, 0, 0)).toISOString()), st('sensor.home_astronomical_sunset_time_0', new Date(new Date().setHours(18, 51, 0, 0)).toISOString()),
       st('sensor.home_warnings', q.get('wx') === 'rain' ? '1' : '0', { warnings: q.get('wx') === 'rain' ? [{ short_title: 'Severe Thunderstorm Warning', phase: 'new', expiry_time: new Date(Date.now() + 3600000).toISOString() }] : [] })]),
+    // daily medicine helpers: last given yesterday morning (so today reads as due); &meds=new is a helper nobody has ever set, &meds=missing has none
+    ...(q.get('meds') === 'missing' ? [] : ['riley_am', 'charlie_am'].flatMap((id) => { const never = q.get('meds') === 'new', d = new Date(); d.setHours(0, 0, 0, 0); const ts = never ? d.getTime() / 1000 : d.getTime() / 1000 - 17 * 3600; return [st(`input_datetime.fh_med_${id}`, 'x', { timestamp: ts }), st(`input_text.fh_med_${id}_by`, never ? 'unknown' : 'Sam')]; })),
     st('person.alex', 'home'), st('person.sam', 'not_home'),
     st('media_player.lounge', 'playing', { friendly_name: 'Lounge', media_title: 'ABC Jazz', media_artist: 'Radio' }),
     st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
@@ -102,6 +104,8 @@ const hass = {
     if (domain === 'media_player' && service === 'media_pause') upd(id, {}, 'paused');
     if (domain === 'music_assistant' && service === 'play_media' && data.enqueue === 'play') upd(id, { media_title: String(data.media_id).split('/').pop(), media_artist: data.radio_mode ? 'Radio' : 'Test', media_content_id: data.media_id }, 'playing');
     if (domain === 'music_assistant' && service === 'transfer_queue') { upd(id, { media_title: S[data.source_player].attributes.media_title }, 'playing'); upd(data.source_player, {}, 'idle'); }
+    if (domain === 'input_datetime' && service === 'set_datetime') { if (!S[id]) throw new Error('no such entity'); upd(id, { timestamp: data.timestamp }); el.hass = { ...hass }; }
+    if (domain === 'input_text' && service === 'set_value') { if (!S[id]) throw new Error('no such entity'); upd(id, {}, data.value); el.hass = { ...hass }; }
     if (domain === 'switch') upd(id, {}, service === 'turn_on' ? 'on' : 'off');
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
