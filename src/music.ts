@@ -61,6 +61,16 @@ export class FhMusic extends LitElement {
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--knob, #fff); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .mhead { display: flex; align-items: center; gap: 16px; }
+    /* one row on a wide screen: the view gets the height */
+    .panel[data-one] { padding: 12px 14px; gap: 10px; }
+    .mhead[data-one] { gap: 8px; } .mhead[data-one] h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .mhead[data-one] .finder { height: 48px; padding: 0 16px; flex: 1 1 120px; } .mhead[data-one] .nowbar { max-width: 32%; flex: 0 1 auto; }
+    .mhead[data-one] .pill, .mhead[data-one] .viewbtn, .mhead[data-one] .offnote { flex-shrink: 0; }
+    .helpb, .peekb { width: 48px; height: 48px; flex-shrink: 0; font-size: 20px; font-weight: var(--w-heavy, 800); }
+    .helpb { color: var(--ink); }
+    .body { position: relative; }
+    .coach { position: absolute; left: 0; right: 0; bottom: 10px; margin: 0 auto; width: fit-content; max-width: 86%; z-index: 6; padding: 10px 18px; border-radius: 999px; background: rgba(15,15,20,.86); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); text-align: center; pointer-events: none; opacity: 0; transition: opacity .4s; }
+    .coach[data-on] { opacity: 1; }
     :host([data-full]) .stage { display: none; }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 54px; height: 54px; padding: 0; } .tabs.inline button span { display: none; }
     .nowbar { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46%; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--chip); }
@@ -233,7 +243,7 @@ export class FhMusic extends LitElement {
     /* ---- the house: rooms you can see, music you can pick up ---- */
     .map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; position: relative; user-select: none; -webkit-user-select: none; }
     .floor { flex: 1 1 0; min-height: 96px; display: flex; gap: 8px; }
-    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 11px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 13px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
     .mroom { flex: var(--size, 1) 1 0; min-width: 0; display: flex; border-radius: 20px; background: var(--chip); overflow: hidden; }
     .mstairs { flex: 0 0 54px; border-radius: 20px; background: repeating-linear-gradient(135deg, var(--track) 0 3px, transparent 3px 13px); }
     .mzone { flex: 1 1 0; min-width: 0; position: relative; touch-action: none; --c: var(--stream, var(--primary)); }
@@ -273,7 +283,7 @@ export class FhMusic extends LitElement {
     .zname { position: absolute; left: 6px; top: 4px; right: 56px; min-height: 48px; padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left; border-radius: 14px; }
     .zname b, .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .zname span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 8px; top: 6px; }
     .grab { position: absolute; right: 4px; width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; }
     .grab i { display: block; width: 44px; height: 12px; border-radius: 6px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--c), 0 1px 4px rgba(0,0,0,.2); }
@@ -300,7 +310,7 @@ export class FhMusic extends LitElement {
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 26px; font-size: 11.5px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .srec span { max-width: 100%; height: 26px; font-size: 13px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 13px; font-weight: var(--w-bold, 700); }
     .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background .2s, border-color .2s, transform .2s cubic-bezier(.2,1.4,.4,1); }
@@ -345,7 +355,7 @@ export class FhMusic extends LitElement {
 
   static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
-    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true } };
+    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true } };
   hass?: Hass;
   players: string[] = [];
   stations: (string | StationConfig)[] = [];
@@ -912,12 +922,13 @@ export class FhMusic extends LitElement {
     const p = this._cur, ma = hasMa(this.hass);
     const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
     const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
-    const searching = this._tab === 'search', c = this._carry, full = this._full;
+    const searching = this._tab === 'search', c = this._carry, full = this._full, one = this._one && !searching;
+    if (one && this._coachFor !== this._mode) { this._coachFor = this._mode; window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel">
-        <div class="mhead"><h1 class="t-title">Music</h1>
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>Search songs, albums, stories…</span></button>` : html`<span style="flex:1"></span>`}${full && !searching ? tabrow : nothing}</div>
+      <section class="glass panel" ?data-one=${one} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
+        <div class="mhead" ?data-one=${one}><h1 class="t-title">Music</h1>${one ? this._oneRow() : nothing}
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, albums, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
@@ -961,6 +972,31 @@ export class FhMusic extends LitElement {
     </section>`;
   }
 
+  /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
+  private get _one(): boolean { return this._full && getShape() !== 'phone' && getShape() !== 'tall'; }
+  private _coach = false; private _coachT = 0; private _coachFor = '';
+  private _oneRow(): TemplateResult {
+    const cur = this._cur, mix = this._mix(cur), mode = this._mode, view = VIEWS.find((v) => v.id === mode)!;
+    return html`
+        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
+        ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
+        ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
+        ${this._offline.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${this._offline.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${this._offline.length === this._list.length ? 'Every speaker is offline' : `${this._offline.length} ${this._offline.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
+        <button class="round tap helpb" aria-label="How this view works" aria-pressed=${String(this._coach)} @click=${() => this._showCoach(true)}>?</button>`;
+  }
+  private _oneNow(): TemplateResult | typeof nothing {
+    const cur = this._cur, mode = this._mode;
+    if (mode !== 'house') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
+    return html`
+        ${cur ? html`<div class="nowbar"><button class="nthumb tap" aria-pressed=${String(this._peek)} aria-label=${this._peek ? 'Hide the player' : 'Show the full player'} style=${cur.attributes.entity_picture ? `--art:url(${cur.attributes.entity_picture})` : ''} @click=${() => { this._peek = !this._peek; }}></button>
+          <span class="ntx"><b>${cur.attributes.media_title ?? 'Nothing playing'}</b><span>${this._name(cur)}</span></span>
+          <button class="round tap" aria-label="Previous" @click=${() => this._svc('media_previous_track')}>${solid('prev', 24)}</button>
+          <button class="round tap ngo primary" aria-label=${cur.state === 'playing' ? 'Pause' : 'Play'} @click=${() => this._svc('media_play_pause')}>${solid(cur.state === 'playing' ? 'pause' : 'play', 26)}</button>
+          <button class="round tap" aria-label="Next" @click=${() => this._svc('media_next_track')}>${solid('next', 24)}</button></div>` : nothing}
+`;
+  }
+  private _showCoach(toggle = false): void { clearTimeout(this._coachT); this._coach = toggle ? !this._coach : true; if (this._coach) this._coachT = window.setTimeout(() => { this._coach = false; }, 6000); }
+
   private _rooms(): TemplateResult {
     const cur = this._cur, mix = this._mix(cur), ma = hasMa(this.hass!);
     const sonos = Object.keys(this.hass!.states).find((id) => id.startsWith('media_player.') && (this.hass!.entities?.[id] as { platform?: string } | undefined)?.platform === 'sonos');
@@ -971,7 +1007,7 @@ export class FhMusic extends LitElement {
       return html`<button class="pill tap" aria-pressed=${String(on)} style=${on ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => this.hass!.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id })}>${label} ${on ? 'on' : 'off'}</button>`;
     };
     const mode = this._mode, house = mode !== 'list', view = VIEWS.find((v) => v.id === mode)!;
-    return html`${this._viewAsk ? viewPicker(mode, (v) => { this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; }, () => { this._viewAsk = false; }) : nothing}<div class="acts">
+    return html`${this._viewAsk ? viewPicker(mode, (v) => { this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; }, () => { this._viewAsk = false; }) : nothing}${this._one ? html`<span class="coach" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>` : html`<div class="acts">
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
@@ -983,7 +1019,7 @@ export class FhMusic extends LitElement {
           <button class="round tap ngo primary" aria-label=${cur.state === 'playing' ? 'Pause' : 'Play'} @click=${() => this._svc('media_play_pause')}>${solid(cur.state === 'playing' ? 'pause' : 'play', 26)}</button>
           <button class="round tap" aria-label="Next" @click=${() => this._svc('media_next_track')}>${solid('next', 24)}</button></div>` : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
-      </div>
+      </div>`}
       ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? crateView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
       const a = p.attributes, playing = p.state === 'playing', focus = p.entity_id === cur?.entity_id, inmix = mix.includes(p.entity_id);
       const vol = typeof a.volume_level === 'number' ? Math.round(a.volume_level * 100) : null;
