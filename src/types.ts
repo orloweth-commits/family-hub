@@ -127,6 +127,12 @@ export interface FamilyHubConfig {
   /** calendar events containing these words are shown only as a discreet chip */
   private?: string[];
   meds?: MedConfig[];
+  /** a to-do list that keeps the record of other medicine given (paracetamol and the like), so every screen shows the same record; without it the record stays on this screen only */
+  med_log?: string;
+  /** the medicines offered when logging something else; Paracetamol and Ibuprofen unless set */
+  med_extras?: string[];
+  /** bin night: `day` 0 (Sunday) to 6, bins that go out every week, bins that take turns, and a date on which the first of `alternate` went out */
+  bins?: { day: number; always?: string[]; alternate?: string[]; anchor?: string };
   /** grown-ups who can give meds / approve */
   parents?: string[];
   school_terms?: [string, string][];
@@ -137,10 +143,15 @@ export interface FamilyHubConfig {
   /** lights switched by "All on" (defaults to every light) */
   all_on?: string[];
   quiet?: { start?: string; end?: string };
-  babysitter?: { title?: string; lines?: string[] };
+  /** the house-info sheet (the "i" button). `lines` like "Dad: 0400 000 000" become contacts; other lines are notes. */
+  babysitter?: { title?: string; lines?: string[]; address?: string; contacts?: { name: string; phone: string }[]; wifi?: { name: string; password?: string }; notes?: string[] };
+  /** the red hold-to-send button on the house-info sheet: notify services to alert (e.g. notify.mobile_app_dads_phone), as a critical alert that sounds through silent mode */
+  emergency?: { notify: string[]; who?: string; message?: string };
   home_hide?: string[];
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
+  /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */
+  address_search?: boolean;
 }
 
 export interface CalEvent {

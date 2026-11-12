@@ -48,7 +48,7 @@ const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3), st(`input_
   st(`input_text.${s}_avatar`, ''), st(`input_text.${s}_week`, week), st(`input_text.${s}_goal`, ''), st(`input_number.${s}_grow`, 4), st(`calendar.${s}`, 'off', { friendly_name: s })];
 // the radar's list of pictures, so the page can be seen without the internet
 const realFetch = window.fetch.bind(window);
-window.fetch = async (u, o) => String(u).includes('rainviewer.com') ? new Response(JSON.stringify({ host: '/none', radar: { past: Array.from({ length: 12 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) - (11 - i) * 600, path: '/f' + i })) } })) : realFetch(u, o);
+window.fetch = async (u, o) => String(u).includes('photon.komoot.io') ? new Response(JSON.stringify({ features: [{ properties: { name: 'Beatty Park Leisure Centre', street: 'Vincent Street', housenumber: '220', city: 'North Perth', state: 'Western Australia', postcode: '6006', countrycode: 'AU' } }, { properties: { name: 'Beatty Park', city: 'North Perth', state: 'Western Australia', countrycode: 'AU' } }] })) : String(u).includes('rainviewer.com') ? new Response(JSON.stringify({ host: '/none', radar: { past: Array.from({ length: 12 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) - (11 - i) * 600, path: '/f' + i })) } })) : realFetch(u, o);
 const hass = {
   user: { name: 'Panel', is_admin: false },
   config: { latitude: -31.95, longitude: 115.86 },
@@ -140,7 +140,7 @@ el.setConfig({
   calendars: [{ entity: 'calendar.family', colour: 'family', name: 'Family' }, { entity: 'calendar.alex', colour: 1, name: 'Alex' }, { entity: 'calendar.sam', colour: 2, name: 'Sam' },
     { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],
   grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
-  parent_pin: '1234', morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
+  parent_pin: '1234', meds: [{ id: 'riley_am', who: 'Riley', label: 'Morning dose', time: '06:30' }, { id: 'charlie_am', who: 'Charlie', label: 'Morning dose', time: '06:30' }], parents: ['Alex', 'Sam'], bins: { day: 1, always: ['green'], alternate: ['yellow', 'red'], anchor: '2026-11-09' }, babysitter: { address: '1 Example Street, Sampleton', lines: ['Mum: 0400 000 001', 'Dad: 0400 000 002', 'Nan next door: 0400 000 003', 'Max is allergic to nothing but dislikes peas', 'Torch and first-aid kit are in the laundry cupboard'], wifi: { name: 'Example-Guest', password: 'welcome-in' } }, emergency: { notify: ['notify.mobile_app_demo_one', 'notify.mobile_app_demo_two'], who: 'Mum and Dad' }, morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
   idle_seconds: 0
 });
 // &juke=1 starts with tonight's jukebox picks waiting
