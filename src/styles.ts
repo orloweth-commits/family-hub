@@ -278,7 +278,7 @@ export const styles = css`
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
-  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px; margin: -6px; }
+  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 12px; margin: -6px -12px; }
   .remmore { height: 16px; line-height: 16px; font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
   .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
   @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
@@ -302,7 +302,11 @@ export const styles = css`
 
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 1px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
+  .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
+  .grid3 button { white-space: nowrap; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
   .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }

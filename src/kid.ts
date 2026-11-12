@@ -194,6 +194,8 @@ export class FhKid extends LitElement {
     :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .feelcard { order: 3; }
     :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard { order: 2; justify-content: flex-end; }
     :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard > .tabs { order: 9; }
+    /* the older boys' column reaches the bottom of the page: the tab card takes the spare height */
+    :host(:not([data-phone]):not([data-shape='tall'])) .side:not(.low) > .tabcard { flex-grow: 1; }
     .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }

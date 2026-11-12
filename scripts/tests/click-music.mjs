@@ -296,7 +296,34 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
 
 // ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----
+// Round 5: hints whole in three looks, the Dial's 44 px arcs, one call per tap on a slow link, plain words on the search and the Desk
+async function round5() {
+  const at = async (w, h, qs) => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e))); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+  const ok = (b) => (b ? 'ok' : 'FAIL');
+  for (const look of ['glass', 'fridge', 'orbit']) { const out = []; for (const v of ['scene', 'dial', 'desk', 'cables', 'list']) { const p = await at(1280, 800, `look=${look}&page=music&mview=${v}`);
+      const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, h = m.querySelector('.hint[data-on]'); if (!h) return null; const rg = document.createRange(); rg.selectNodeContents(h); const rr = rg.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { lines: Math.round(hb.height / parseFloat(getComputedStyle(h).lineHeight)), cut: h.scrollHeight > h.clientHeight + 1 || rr.bottom > hb.bottom + 1 || rr.right > hb.right + 1, ends: /[.!?]$/.test(h.textContent.trim()) }; });
+      out.push(`${v} ${r ? `${r.lines} line${r.lines > 1 ? 's' : ''}${r.cut ? ' CUT' : ''}` : 'no hint'} ${ok(!!r && !r.cut && r.lines <= 2 && r.ends)}`); await p.context().close(); }
+    console.log(`R5-5 hints at 1280x800 in ${look}:`, out.join(' | ')); }
+  for (const [w, h] of [[1280, 800], [820, 1180], [390, 844]]) { const p = await at(w, h, 'look=glass&page=music&mview=dial');
+    await p.locator('fh-music .bigdial').scrollIntoViewIfNeeded(); await p.waitForTimeout(200);
+    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, arcs = [...m.querySelectorAll('.darc')]; const widths = arcs.map((a) => { const cs = getComputedStyle(a.querySelector('.dhit')); return cs.vectorEffect === 'non-scaling-stroke' ? parseFloat(cs.strokeWidth) : 0; });
+      // press 20 px to the side of the middle of each arc's centre line: the arc itself must be what is hit
+      const hits = arcs.map((a) => { const t = a.querySelector('.dtrack'), len = t.getTotalLength(), pt = t.getPointAtLength(len / 2), m2 = t.getScreenCTM(), sx = pt.x * m2.a + pt.y * m2.c + m2.e, sy = pt.x * m2.b + pt.y * m2.d + m2.f, sv = a.ownerSVGElement.getBoundingClientRect(), cx = sv.left + sv.width / 2, cy = sv.top + sv.height / 2, d = Math.hypot(sx - cx, sy - cy), ux = (sx - cx) / d, uy = (sy - cy) / d; return [20, -20].every((o) => { const el = a.getRootNode().elementFromPoint(sx + ux * o, sy + uy * o); return !!el && a.contains(el); }); });
+      return { n: arcs.length, min: Math.min(...widths), hit20: hits.filter(Boolean).length }; });
+    console.log(`R5-6 Dial arcs at ${w}x${h}: hit stroke ${r.min} px (expect >= 44)`, ok(r.min >= 44), `| pressed 20 px either side of the line: ${r.hit20} of ${r.n} arcs answer`, ok(r.hit20 === r.n)); await p.context().close(); }
+  { const probe = async (qs, pick, re) => { const p = await at(1280, 800, qs + '&slow=1500');
+      const r = await p.evaluate(async ([pick, re]) => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = pick === 'go' ? m.querySelector('.go') : [...m.querySelectorAll('button')].find((x) => /^(Add|Remove) .* (to|from) the music/.test(x.getAttribute('aria-label') || '')); if (!b) return null; window.__calls = []; const fire = () => { b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true })); b.click(); }; fire(); fire(); await new Promise((r) => setTimeout(r, 400)); const busy = b.hasAttribute('data-busy') && getComputedStyle(b).cursor === 'progress'; fire(); await new Promise((r) => setTimeout(r, 2400)); return { name: b.getAttribute('aria-label'), busy, calls: window.__calls.filter((c) => new RegExp(re).test(c)).length, after: b.hasAttribute('data-busy') }; }, [pick, re]);
+      await p.context().close(); return r; };
+    const a = await probe('look=glass&page=music&mview=list', 'go', 'media_play_pause'), b = await probe('look=glass&page=music&mview=list', 'room', 'join'), c = await probe('look=glass&page=music&mview=house', 'room', 'join');
+    for (const [n, r] of [['player Play/Pause', a], ['List room "+"', b], ['House room "+"', c]]) console.log(`R5-8 ${n} tapped three times on a slow link:`, JSON.stringify(r), ok(!!r && r.busy && r.calls === 1 && !r.after)); }
+  { const p = await at(1280, 800, 'look=glass&page=music&mtab=search&find=Bluey'); await p.waitForTimeout(900);
+    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = [...m.querySelectorAll('button')].find((x) => /the keyboard$/.test(x.getAttribute('aria-label') || '')); const k = [...m.querySelectorAll('.kind')].map((e) => parseFloat(getComputedStyle(e).fontSize)); return { word: b?.textContent.trim(), name: b?.getAttribute('aria-label'), h: b && Math.round(b.getBoundingClientRect().height), kinds: k.length, kindMin: k.length ? Math.min(...k) : null }; });
+    console.log('R5-17 search keyboard button:', JSON.stringify(r), ok(r.word === 'Keyboard' && r.h >= 44), '| R5-2 kind badges (px):', r.kindMin, ok(r.kinds === 0 || r.kindMin >= 12)); await p.context().close(); }
+  { const p = await at(1280, 800, 'look=glass&page=music&mview=desk'); const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const l = [...m.querySelectorAll('.lamp')]; return { lamps: l.map((e) => e.textContent.trim()), cut: l.filter((e) => e.scrollWidth > e.clientWidth + 1).length + [...m.querySelectorAll('.strip')].filter((e) => e.scrollWidth > e.clientWidth + 1).length, text: m.querySelector('[role=slider][aria-valuetext]')?.getAttribute('aria-valuetext') }; });
+    console.log('R5-17 Desk lamps:', JSON.stringify(r.lamps), ok(!r.lamps.includes('♪') && r.cut === 0), '| R5-15 volume value text:', JSON.stringify(r.text), ok(/per cent/.test(r.text ?? ''))); await p.context().close(); }
+}
 async function polish() {
+  await round5();
   const toast = async (pg) => (await M(pg).locator('.toast').textContent() ?? '').trim().replace(/\s+/g, ' ');
   const clear = (pg) => pg.evaluate(() => { (window.__calls ||= []).length = 0; });
   const count = (pg, re) => pg.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).length, re.source);

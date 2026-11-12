@@ -595,7 +595,8 @@ export const viewsCss = css`
   .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
-  .lamp[data-other] { background: var(--c); font-size: 18px; }
+  /* a room with other music says so in a word, on a lamp wide enough to hold it */
+  .lamp[data-other] { background: var(--c); font-size: 13px; width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
   .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 2px; }

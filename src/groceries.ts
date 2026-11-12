@@ -138,7 +138,8 @@ export class FhGroceries extends LitElement {
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
     this.renderRoot.querySelectorAll('.scrolly').forEach(scrollCue);
-    if (this._places) { flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
+    // a long list changes without the rows travelling: sixty rows moving at once is a blur, and slow on a wall panel
+    if (this._places) { if (this._places.size <= 40) flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
   }
 
   private async _subscribe(): Promise<void> {

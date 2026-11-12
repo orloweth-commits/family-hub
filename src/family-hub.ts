@@ -1324,7 +1324,6 @@ export class FamilyHubCard extends LitElement {
             </div>`;
           })}
           <span class="label">${local ? 'Kept on this screen only' : 'Given in the last two days'}</span>
-          ${local ? html`<span class="muted" role="note" data-medlocal>The record below (the last two days) lives in this browser. No other screen or phone will show it. Grown-ups: set <b>med_log</b> in the card settings to a to-do list to share it.</span>` : nothing}
           ${recent.length ? recent.map((r) => html`<div class="irow" data-at=${r.at.toISOString()}><span style="min-width:0"><b>${r.who}</b> · ${r.what}<br><small class="muted">${r.at.toLocaleDateString('en-AU', { weekday: 'short' })} ${fmtTime(r.at)}${r.by ? ` · ${r.by}` : ''} · ${since(r.at)}</small></span>
             <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${r.what} for ${r.who} from the record`} @click=${() => this._medGuard('Remove this from the record?', () => { void this._unlogMed(r); })}>${icon('close', 16)}</button></div>`)
             : html`<span class="iline muted">Nothing else has been given.</span>`}
@@ -1347,7 +1346,7 @@ export class FamilyHubCard extends LitElement {
         </div>
       </div>
       <div class="sfoot">
-        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.</span>
+        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${local ? html` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it. Grown-ups: set <b>med_log</b> in the card settings to share it.</span>` : nothing}</span>
         <button class="tap ${(m.what === 'other' ? m.other.trim() : m.what) ? 'lead' : 'ghost'}" data-act="log" style="height:60px;padding:0 26px;font-size:17px;border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard('Add to the medicine record?', () => { void this._logMed(); })}>Add to the record</button>
       </div>`;
   }
