@@ -65,15 +65,16 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // drawings a look adds through art
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
       // more of the base that Home Ground dresses
-      'ok', 'called', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
+      'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
     'fh-home': ['rooms', 'room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
+    'fh-pin': ['grid', 'what'],
     'fh-chat': ['thread', 'bubble', 'asker', 'starter', 'talk'],
     'fh-add-event': ['box', 'chips', 'durs', 'ampm', 'allday', 'dialbox', 'drums'],
     'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
@@ -203,7 +204,7 @@ const BALLS: Record<string, string> = {
   whistle: ballG('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
 };
 const lineG = (inner: string, stroke: string, w = 2): string => `<g fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
-const BIB = 'M6 2h3c0 3 1.200 4.500 3 4.500s3-1.500 3-4.500h3c0 3 1 5 3 6v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8c2-1 3-3 3-6z';
+const BIB = 'M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z';
 const flag = (staff: string, fill: string): string => sv(`<path fill="${fill}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${staff}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${staff}" stroke-width="2.4" stroke-linecap="round"/>`);
 const WHISTLE = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>';
 const CONE = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>';
@@ -338,7 +339,7 @@ export const LOOKS: LookDef[] = [
       '--wash': '#3a3508', '--edge': '#000000', '--sel': '#f1f4ea', '--on-sel': '#14201a',
       '--ok': '#6fd896', '--ok-wash': '#17382a', '--on-ok': '#0d1411', '--danger': '#ff9485', '--danger-wash': '#43201c', '--on-danger': '#2a0d09', '--wet': '#8fcbff',
       '--turf': '#144226', '--turf2': '#113a21', '--mow1': '#15261c', '--mow2': '#192c21', '--chalk': 'rgba(255,255,255,.34)', '--board': '#070b09', '--tile': '#000000', '--board-line': 'var(--line)',
-      '--p-family': '#5f6f66', '--bib-edge': 'rgba(255,255,255,.75)', '--evcard': '#223029', '--kid-mix': '42%', '--shadow': 'none', '--accent': '#ffd60a', '--timer': '#f1f4ea', '--ring-halo': '#0d1411',
+      '--p-family': '#55625a', '--bib-edge': 'rgba(255,255,255,.75)', '--evcard': '#223029', '--kid-mix': '42%', '--shadow': 'none', '--accent': '#ffd60a', '--timer': '#f1f4ea', '--ring-halo': '#0d1411',
       '--flood': 'radial-gradient(520px 300px at 0 0, rgba(255,244,190,.13), transparent 70%), radial-gradient(520px 300px at 100% 0, rgba(255,244,190,.13), transparent 70%)'
     }
   }
@@ -978,7 +979,7 @@ const SPORTS = `
   /* actions */
   @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: 16px; }
   @S .round { border-radius: 50%; }
-  @S .quick { border-radius: 999px; min-height: 44px; font-size: 15px; }
+  @S .quick { border-radius: 999px; min-height: 44px; font-size: 15px; white-space: nowrap; }
   @S .pill.primary, @S .primary, @S .lead { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .lead { font-size: 18px; padding: 0 24px; }
   @S .tap:active { opacity: 1; }
@@ -1018,8 +1019,9 @@ const SPORTS = `
   @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
-  @S .init.sm:not(.avatar) { min-width: 18px; width: 18px; height: 18px; padding: 0 0 1px; font-size: 10px; }
-  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 3px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
+  @S .init.sm:not(.avatar) { min-width: 18px; width: 18px; height: 20px; padding: 0 0 3px; font-size: 10px; }
+  @S .init.sm:not(.avatar)::before { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
   @S .presence .avatar.away { background: var(--s-away) center / contain no-repeat; color: var(--ink); filter: none; outline: 0; opacity: 1; }
@@ -1075,21 +1077,33 @@ const SPORTS = `
   @S .ev { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: 8px; padding: 6px 5px 7px 7px; }
   @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink2); }
   @S .ev .content { font-size: 16px; font-weight: 600; }
-  @S .ev .w { font-size: 14px; font-weight: 600; color: var(--ink2); }
-  @S .ev.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 5px top 5px / 18px 18px no-repeat, var(--evcard); }
+  /* who it is for: their bib in the corner of the card, with their initial (the name itself stays for screen readers) */
+  @S .ev { position: relative; }
+  @S .ev .t { padding-right: 26px; }
+  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 8px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 12px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
+  @S .ev .w::first-letter { font-size: 12px; }
+  @S .col.today .ev.past .w { display: block; }
+  @S .ev.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 30px top 6px / 18px 18px no-repeat, var(--evcard); }
   @S .ev.past, @S .dayrow.past { opacity: 1; background: transparent; border-style: dashed; border-left-style: solid; border-left-color: color-mix(in srgb, var(--c) 55%, transparent); }
-  @S .ev.past .t, @S .ev.past .w, @S .ev.past .content, @S .dayrow.past .content, @S .dayrow.past .muted { color: var(--ink-done); font-weight: 500; }
-  @S .ev.past .t::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 5px; vertical-align: -2px; background: var(--ok); -webkit-mask: var(--s-tick) center / contain no-repeat; mask: var(--s-tick) center / contain no-repeat; }
+  @S .ev.past .t, @S .ev.past .content, @S .dayrow.past .content, @S .dayrow.past .muted { color: var(--ink-done); font-weight: 500; }
+  @S .col.today .ev.past .t::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 5px; vertical-align: -2px; background: var(--ok); -webkit-mask: var(--s-tick) center / contain no-repeat; mask: var(--s-tick) center / contain no-repeat; }
   @S .more { background: transparent; }
   /* month: the season fixture, a grid of small tiles */
   @S .cell { border-radius: 8px; background: var(--evcard); border: 1px solid var(--line); }
   @S .cell.out { background: transparent; border-style: dashed; color: var(--ink3); }
   @S .cell.today { background: var(--wash); border: 2px solid var(--ink); }
+  @S .cell.today .mtop > span:first-child { font-weight: 800; text-decoration: underline; text-decoration-color: var(--hi); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: 15px; }
   /* day: the match-day programme, one lane */
   @S .dayrow { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c, var(--line)); border-radius: 8px; }
   @S .daylist { background: var(--mow1); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; }
   @S .dayrow.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 10px top 10px / 22px 22px no-repeat, var(--evcard); }
 
+  /* a free day: the ball of the day resting on the line */
+  @S .freeday > span:first-child { width: 150px; height: 60px; border-bottom: 3px solid var(--ink); background: var(--s-ball) center bottom / 54px 54px no-repeat; }
+  @S .freeday > span:first-child svg { display: none; }
+  @S .freeday h2 { font-size: 0; }
+  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, 22px); }
   /* the rail: now playing sits on a scoreboard; the kitchen timer is the match clock; the family jar is the ball bag */
   @S .np { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
   @S .np .muted { color: var(--board-ink2); }
@@ -1124,9 +1138,16 @@ const SPORTS = `
   @S .dock .item > span { display: inline-flex; }
 
   /* sheets: the team sheet on a clipboard */
-  @S .sheet { background: var(--s-clip) center top -1px / 120px 24px no-repeat, var(--panel); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 10px 0 rgba(9,18,13,.35); padding-top: 32px; }
+  @S .sheet { background: var(--s-clip) center top -1px / 120px 24px no-repeat, var(--panel); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 10px 0 rgba(9,18,13,.35); padding-top: 30px; }
   /* the kitchen timer's sheet: the time left on the scoreboard */
-  @S .sheet [role='timer'] { padding: 10px 22px; border-radius: 12px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
+  @S .sheet [role='timer'] { padding: 16px 24px; border-radius: 12px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
+  /* the PIN pad: a scoreboard keypad. Lamps fill as you type, with the count in words beside them */
+  @S .grid button { border-radius: 8px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .grid button:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 1.5px var(--line); background: var(--panel); opacity: 1; }
+  @S .what ~ [role='img'] { align-items: center; height: 24px; gap: 10px; }
+  @S .what ~ [role='img'] span { width: 18px; height: 18px; border: 2px solid var(--ink); background: var(--panel); }
+  @S .what ~ [role='img'] span.on { background: var(--hi); border-color: var(--ink); }
+  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: 15px; font-weight: 600; color: var(--ink2); white-space: nowrap; }
   /* toasts: the linesman's flag */
   @S .toast { background: var(--panel); color: var(--ink); border-radius: 12px; box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 rgba(20,32,26,.18); text-align: left; padding: 12px 18px 12px 14px; gap: 10px; }
   @S .toast::before { content: ''; width: 22px; height: 22px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; transform-origin: 25% 90%; animation: sFlag var(--mt-4, 400ms) var(--e-spring, ease) both; }
@@ -1166,7 +1187,8 @@ const SPORTS = `
   @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
-  @S .rw { background: var(--panel2); border-radius: 10px; }
+  @S .rw { background: var(--panel2); border-radius: 10px; min-height: 52px; }
+  @S .side { gap: 10px; border-radius: 14px; }
   @S .rw button { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .rw button.save { background: transparent; color: var(--ink2); box-shadow: none; text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
   @S .rw .cost { border-radius: 6px; font-family: 'Outfit', sans-serif; background: var(--panel); }
@@ -1180,7 +1202,7 @@ const SPORTS = `
   @S .pic.big .e { grid-area: 1 / 1 / 4 / 2; font-size: 112px; line-height: 1.05; }
   @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
   @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
-  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: 60px; margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: 60px; text-align: center; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: 60px; margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: 60px; text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
   @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
   @S .pic.small .e { font-size: 48px; }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
@@ -1233,7 +1255,8 @@ const SPORTS = `
   @S .leave { font-family: 'Outfit', sans-serif; font-weight: 700; }
 
   /* weather: the pitch report. The verdict comes first, then the readings */
-  @S .verdict[data-big] { height: 52px; padding: 0 16px; border-radius: 8px; font-size: 22px; gap: 8px; align-self: flex-start; }
+  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: 20px; gap: 8px; align-self: flex-start; flex-shrink: 0; }
+  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
   @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .wtip { background: var(--panel2); border-radius: 10px; }
   @S .wfact { background: var(--panel2); border-radius: 10px; }
@@ -1257,7 +1280,7 @@ const SPORTS = `
   @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 11px; }
   @S .dialbox { border-radius: 12px; background: var(--panel2); }
   @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
-  @S .drums::before { left: 0; right: 0; border-radius: 0; background: transparent; box-shadow: inset 0 2px 0 var(--hi), inset 0 -2px 0 var(--hi); }
+  @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--hi), inset -5px 0 0 var(--hi); }
 
   /* music */
   @S .stage { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
@@ -1307,6 +1330,7 @@ const SPORTS = `
   /* the Scene view is a training ground: mown stripes, rooms as players, a dotted pass line between rooms that share */
   @S .vscene { background: repeating-linear-gradient(90deg, var(--mow1) 0 88px, var(--mow2) 88px 176px); border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--line); }
   @S .aname { background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .suntx { padding: 5px 10px 7px; border-radius: 10px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); }
   @S .join { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .join[aria-pressed='true'] { background: var(--ok); color: var(--on-ok); box-shadow: none; }
   @S .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--line); }
@@ -1314,6 +1338,7 @@ const SPORTS = `
   @S .st { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 700; }
   @S .st.on { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .crate .st, @S .presets .st { background: transparent; box-shadow: none; }
+  @S .presets .st.on { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -6px 0 var(--hi); }
   @S .pickrow { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
   @S .banner { background: var(--wash); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--ink); }
 
@@ -1322,7 +1347,12 @@ const SPORTS = `
   @S .night .big { display: none; }
   @S .night .nart { opacity: 1; }
   @S .night .dball { opacity: .4; }
+  @S .night .breathe { animation: none; opacity: .7; }
 
+  /* portrait tablets: the same touchline, with the balls closer together so every place still fits */
+  @S[data-shape='tall'] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
+  @S[data-shape='tall'] .dock .item { min-width: 62px; }
+  @S[data-shape='tall'] .dock .sep { margin: 0 4px 22px; }
   /* phone: the scoreboard shrinks; the dock is the touchline along the bottom */
   @S[data-phone] .sboard { --u: 34px; }
   @S[data-phone] .weather .verdict { display: none; }
@@ -1332,8 +1362,18 @@ const SPORTS = `
   @S[data-phone] .dock .item { min-width: 64px; height: 74px; font-size: 14px; gap: 5px; }
   @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
-  @S[data-phone] .dock .kidbtn .avatar { scale: 1.3; margin: 6px 0 5px; }
+  @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }
+  @S[data-phone] .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffd60a; }
+  /* the bar fades into turf at the right while there is more to slide to (the words never fade over the page) */
+  @S[data-phone] .dock[data-more] { -webkit-mask-image: none; mask-image: none; }
+  @S[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 36px; height: calc(86px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--turf2) 85%); pointer-events: none; }
   @S[data-phone] .week { overflow-x: auto; }
+  /* phone: the picture job stacks, and its button runs along the bottom beside the speaker */
+  @S[data-phone] .pic.big { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 14px 14px 16px; text-align: center; }
+  @S[data-phone] .pic.big .e { grid-area: auto; font-size: 96px; }
+  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: 28px; }
+  @S[data-phone] .pic.big .stars { grid-area: auto; justify-content: center; }
+  @S[data-phone] .pic.big::after { grid-area: auto; margin: 6px 86px 0 0; }
   @S[data-phone] .planner { padding: 0; }
   @S[data-phone] .sheet { padding-top: 30px; }
 `;

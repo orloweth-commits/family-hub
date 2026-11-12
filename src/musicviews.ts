@@ -20,7 +20,7 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
 const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
-  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.', sports: 'Bring two players together to pass the music.' };
+  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.', sports: 'Two players together share the music.' };
 export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : look === 'sports' ? 'sports' : 'orbit');
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? SCENE_HINT[sceneKind(look, theme)] : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
