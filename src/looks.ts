@@ -340,7 +340,7 @@ const FRIDGE = `
   /* side cards */
   @F .np { background: #2f2a26; border-radius: 10px; --ink: #fff; --ink2: #e2dbcf; color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
   @F .np .np-row { background: #fff6dc; color: #26272b; --ink2: #4c4a45; border-radius: 4px; padding: 6px 10px; }
-  @F .np .primary { background: var(--paper); color: #26272b; box-shadow: 0 4px 0 #b9b2a2; }
+  @F .np .primary, @F .np .round { background: var(--paper); color: #26272b; box-shadow: 0 4px 0 #b9b2a2; }
   @F .art { border-radius: 50%; width: 46px; height: 46px; background: conic-gradient(#ede6d6 0 8%, #141210 8% 10%, #ede6d6 10% 33%, #141210 33% 35%, #ede6d6 35% 58%, #141210 58% 60%, #ede6d6 60% 83%, #141210 83% 85%, #ede6d6 85%); box-shadow: inset 0 0 0 5px #141210; }
   @F .playing .art { animation: fhSpin 4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @F .timerrow { align-items: center; }
