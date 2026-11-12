@@ -36,6 +36,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
   - A timed job tagged `@song` (e.g. "Tidy toys 3 min", description `+10 @job @song`) gets a play button: `tidy_song` (card or per child) plays on the child's speaker until the time is up.
   - A reward with `dj: true`, or named like "DJ" or "dinner music", makes that child tonight's DJ: their jukebox picks play first.
   - `speaker:` on a child sets their speaker; by default it is the room whose name contains theirs.
+- Quiet life behind the page: stars twinkle (Orbit, and Glass in space), glints on the water, bubbles on the reef, leaves and fireflies in the bush, and the notes on the Fridge door jiggle now and then. Every minute or two a visitor wanders through: a shooting star, a flying saucer, a rocket, gulls, a hot-air balloon, a fish or turtle, a butterfly, a line of ants, a fly, a gecko. It never takes a touch, and calm mode or the device's "reduce motion" setting switches it all off. `ambient: false` turns it off altogether.
 - Doodle pad with a shared "fridge" gallery · rotating photo backgrounds · returns to the planner when idle
 
 ## Install (HACS)

@@ -106,6 +106,10 @@ export interface FamilyHubConfig {
   music_hide?: string[];
   /** with a music_map, show only the speakers it names (so speakers discovered elsewhere never appear) and keep one that cannot be reached in its place, marked offline. On unless set to false. */
   music_lock?: boolean;
+  /** quiet life behind the page (twinkling stars, glints on the water, now and then a visitor); false turns it off. Calm mode and the device's "reduce motion" setting always turn it off. */
+  ambient?: boolean;
+  /** show one visitor straight away (for the preview and tests) */
+  ambient_demo?: string;
   /** Call a room: how loud a call is spoken (0–100, default 70; Music Assistant speakers only), and the voice: a language such as en-AU (the default) and, optionally, one of that language's voices by name */
   call_volume?: number; call_language?: string; call_voice?: string;
   /** the moment pads on the mixing desk (up to four): what each one plays, where, and how loud */
