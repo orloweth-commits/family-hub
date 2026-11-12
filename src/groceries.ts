@@ -5,6 +5,7 @@ import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
 import { getShape, FitController, scrollCue, sfx } from './util';
+import { spark } from './sparks';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -129,6 +130,10 @@ export class FhGroceries extends LitElement {
     // the touch is answered at once: the tick, its sound and the service call all happen now. The row keeps its place for a few seconds, so a slip can be tapped back.
     const to = this._shown(i) === 'completed' ? 'needs_action' : 'completed';
     sfx(to === 'completed' ? 'tick' : 'untick');
+    if (to === 'completed') { const row = [...this.renderRoot.querySelectorAll('button.item')].find((b) => b.querySelector('.strike')?.textContent === i.summary), list = this.renderRoot.querySelector('.items');
+      if (row) spark('tick', row.querySelector('.check') ?? row);
+      // the last thing on the list: a ute delivers it (at most once a day)
+      if (list && this._items.every((x) => x.uid === i.uid || this._shown(x) === 'completed') && localStorage.getItem('fh-truck') !== new Date().toDateString()) { try { localStorage.setItem('fh-truck', new Date().toDateString()); } catch { /* private mode */ } spark('truck', list); } }
     clearTimeout(this._tk[i.uid]?.t);
     this._tk = { ...this._tk, [i.uid]: { to, was: this._tk[i.uid]?.was ?? i.status, t: window.setTimeout(() => { const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; }, 4000) } };
     this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
