@@ -30,7 +30,7 @@ export const keysCss = css`
   .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform .1s ease; }
   .key:active { transform: scale(.92); background: var(--chip); }
   .key.wide { width: 96px; font-size: 20px; }
-  .key.wide[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+  .key.wide[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
   .key.space { width: 420px; font-size: 17px; }
   .keys.compact, .keys.compact .krow { gap: 6px; }
   .keys.compact .key { width: 56px; height: 48px; border-radius: 12px; font-size: 22px; }

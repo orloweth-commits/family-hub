@@ -25,7 +25,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.19.0';
+const VERSION = '0.20.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -632,7 +632,7 @@ export class FamilyHubCard extends LitElement {
           <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${icon('left', 20)}</button>
           <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${icon('right', 20)}</button>
           <button class="pill tap" @click=${() => { this._anchor = new Date(); }}>Today</button>
-          <button class="pill tap" @click=${() => { this._sheet = 'add'; }}>${icon('plus', 18)}Add</button>
+          <button class="tap lead" @click=${() => { this._sheet = 'add'; }}>${icon('plus', 22)}Add</button>
           <span style="flex:1"></span>
           <div class="seg" role="group" aria-label="View">
             ${(['day', 'week', 'month'] as View[]).map((x) => html`<button class="tap" aria-pressed=${String(v === x)} @click=${() => { this._view = x; }}>${x[0].toUpperCase() + x.slice(1)}</button>`)}
@@ -734,7 +734,7 @@ export class FamilyHubCard extends LitElement {
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:22px">
           <button class="tap" aria-label="Previous track" @click=${() => this._media('media_previous_track')}>${solid('prev')}</button>
-          <button class="tap primary round" style="width:54px;height:54px" aria-label=${playing ? 'Pause' : 'Play'} @click=${() => this._media('media_play_pause')}>${solid(playing ? 'pause' : 'play', 20)}</button>
+          <button class="tap round" style="width:54px;height:54px" aria-label=${playing ? 'Pause' : 'Play'} @click=${() => this._media('media_play_pause')}>${solid(playing ? 'pause' : 'play', 20)}</button>
           <button class="tap" aria-label="Next track" @click=${() => this._media('media_next_track')}>${solid('next')}</button>
         </div>
       </section>` : nothing}

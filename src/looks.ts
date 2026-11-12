@@ -50,7 +50,7 @@ export interface LookDef {
 /** The contract between the base interface and the looks (see the note at the top). */
 export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
   // shared building blocks: styled once per look, wherever they appear
-  roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'quick', 'avatar',
+  roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'lead', 'tap', 'quick', 'avatar',
     'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i'],
   // named regions, by the component that owns them
   parts: {
@@ -196,7 +196,7 @@ export const LOOKS: LookDef[] = [
       '--rule': '#b9d0e6', '--margin': '#f2a7a7', '--magnet': '#fbf8f0', '--danger': '#c62a22',
       '--glass': 'var(--paper)', '--glass-line': 'transparent', '--shadow': '0 5px 8px rgba(0,0,0,.16)',
       '--chip': 'rgba(38,39,43,.07)', '--chip-strong': 'var(--paper)', '--chip-soft': 'rgba(38,39,43,.045)', '--chip-faint': 'rgba(38,39,43,.02)', '--track': 'rgba(38,39,43,.16)',
-      '--primary': '#24408e', '--on-primary': '#ffffff', '--primary-edge': '#162a63', '--accent': '#a85200', '--ok': '#17703d',
+      '--sel-bg': 'var(--ink)', '--sel-ink': 'var(--paper)', '--sel-ring': 'none', '--primary': '#24408e', '--on-primary': '#ffffff', '--primary-edge': '#162a63', '--accent': '#a85200', '--ok': '#17703d',
       '--timer': '#c62a22', '--timer-face': 'var(--paper)', '--timer-rim': 'var(--ink)',
       '--t-hero': '46px', '--t-title': '42px', '--t-head': '30px', '--t-sub': '26px', '--w-title': '700', '--w-sub': '700', '--w-heavy': '700', '--w-bold': '600', '--w-semi': '500',
       '--font-content': "'Fredoka', sans-serif", '--content-weight': '500', '--content-size': '17px', '--content-size-lg': '21px', '--content-ink': 'var(--ink)', '--bg': 'none'
@@ -220,7 +220,7 @@ export const LOOKS: LookDef[] = [
       '--glass': '#121a31', '--glass-line': 'rgba(255,255,255,.12)', '--shadow': 'none', '--ctl-line': 'rgba(255,255,255,.44)',
       '--chip': 'rgba(255,255,255,.09)', '--chip-strong': 'rgba(255,255,255,.17)', '--chip-soft': 'rgba(255,255,255,.05)', '--chip-faint': 'rgba(255,255,255,.025)', '--track': 'rgba(255,255,255,.28)', '--on-ok': '#0a0f1e',
       // ink-filled = an action; yellow = now / current; mint = done
-      '--primary': '#e8ecf7', '--on-primary': '#0a0f1e', '--accent': '#ffe08a', '--ok': '#6ee7c0',
+      '--sel-bg': 'var(--accent)', '--sel-ink': '#0a0f1e', '--sel-ring': 'none', '--primary': '#e8ecf7', '--on-primary': '#0a0f1e', '--accent': '#ffe08a', '--ok': '#6ee7c0',
       '--timer': '#ffe08a', '--timer-face': 'rgba(255,255,255,.06)', '--timer-rim': 'rgba(255,255,255,.44)', '--bg': 'none',
       '--w-title': '400', '--w-sub': '500', '--w-heavy': '600', '--w-bold': '500', '--w-semi': '400'
     }
@@ -280,6 +280,9 @@ const FRIDGE = `
   @F .label { letter-spacing: .05em; font-size: 13px; }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
   @F .pill.primary, @F .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
+  /* the lead action is a chunky plastic push-button; pressing any plastic button sends it down onto its edge */
+  @F .lead { font-weight: 600; box-shadow: 0 5px 0 var(--primary-edge), 0 8px 8px rgba(0,0,0,.2); }
+  @F .lead:active, @F .primary.tap:active { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: 0 1px 0 var(--primary-edge); opacity: 1; }
   @F .sheet { border-radius: 4px; }
 
   /* header */
@@ -301,7 +304,7 @@ const FRIDGE = `
   @F .planner h1 { background: linear-gradient(transparent 62%, var(--note-today) 62%, var(--note-today) 92%, transparent 92%); align-self: flex-start; padding: 0 6px 0 2px; }
   @F .seg { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); border-radius: 26px; padding: 4px; }
   @F .seg button { border-radius: 22px; color: var(--ink); font-size: 16px; font-weight: 500; }
-  @F .seg button[aria-pressed='true'] { background: var(--ink); color: var(--paper); box-shadow: none; font-weight: 600; }
+  @F .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
   @F .legend { font-size: 15px; font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
   @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color 1.5s ease; }
@@ -426,7 +429,7 @@ const FRIDGE = `
   @F .wholeh { border-radius: 6px; border-color: var(--ink2); }
   @F .viewbtn { border-radius: 6px; background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
   @F .vcard { border-radius: 4px; background: var(--note); box-shadow: 0 3px 5px rgba(0,0,0,.16); }
-  @F .vcard[aria-pressed='true'] { background: var(--primary); }
+  @F .vcard[aria-pressed='true'] { background: var(--sel-bg); }
   @F .dplate { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
   @F .dtrack { stroke: color-mix(in srgb, var(--ink) 16%, var(--paper)); }
   @F .dknob { fill: var(--magnet); stroke: var(--ink); }
@@ -506,6 +509,10 @@ const ORBIT = `
   /* a ring always means time or progress · ink-filled = an action · yellow = now · mint = done */
   @O .fh { font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
+  /* a touch lights the line instead of shrinking the control; the lead action is a full moon with a halo */
+  @O .tap:active { transform: none; opacity: 1; box-shadow: inset 0 0 0 2px var(--accent); }
+  @O .lead { font-weight: 600; box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 22%, transparent); }
+  @O .lead:active { transform: scale(calc(1 - .02 * var(--m-d, 1))); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent); }
   @O h1, @O h2, @O .display { font-family: 'Outfit', sans-serif; letter-spacing: -.01em; }
   @O .glass { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
   @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 14px; }
@@ -530,7 +537,7 @@ const ORBIT = `
   @O .planner { background: transparent; border-color: transparent; padding: 6px 0 0; }
   @O .seg { border-radius: 999px; padding: 4px; background: rgba(255,255,255,.07); }
   @O .seg button { border-radius: 999px; font-weight: 400; color: var(--ink); }
-  @O .seg button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); font-weight: 600; box-shadow: none; }
+  @O .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
   @O .legend { font-weight: 400; }
   @O .col { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 22px; padding: 10px 8px; }
   @O .col.today { background: color-mix(in srgb, var(--accent) 13%, var(--glass)); border: 2px solid var(--accent); }
@@ -660,7 +667,7 @@ const ORBIT = `
   @O .wholeh { border-width: 1.5px; border-color: var(--ctl-line); }
   @O .viewbtn { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .vcard { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
-  @O .vcard[aria-pressed='true'] { background: var(--primary); }
+  @O .vcard[aria-pressed='true'] { background: var(--sel-bg); }
   @O .dplate { fill: transparent; stroke: var(--glass-line); stroke-width: 1.5; }
   @O .bigdial, @O .desk, @O .rig, @O .vscene { --stream: var(--accent); }
   @O .dtrack { stroke: rgba(255,255,255,.14); stroke-width: 10; }

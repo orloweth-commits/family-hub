@@ -378,7 +378,7 @@ export const viewsCss = css`
   .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .vcard { min-height: 112px; padding: 12px 10px; border-radius: 20px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; transition: transform .2s cubic-bezier(.2,1.4,.4,1); }
   .vcard b { font-size: 16px; font-weight: var(--w-bold, 700); } .vcard span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .vcard[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); } .vcard[aria-pressed='true'] span { color: inherit; }
+  .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: translateY(calc(-3px * var(--m-d, 1))); } .vcard[aria-pressed='true'] span { color: inherit; }
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* ---- dial ---- */

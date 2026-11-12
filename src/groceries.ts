@@ -173,7 +173,7 @@ export class FhGroceries extends LitElement {
           <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
             @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
-          <button class="tap primary" style="height:60px;padding:0 26px;border-radius:16px;font-size:18px;font-weight:var(--w-bold, 700)" @click=${() => this._add()}>Add</button>
+          <button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" @click=${() => this._add()}>Add</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
           <span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-right:4px">Usuals</span>

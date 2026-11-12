@@ -21,7 +21,7 @@ export class FhStudio extends LitElement {
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
     .tabs button { height: 40px; padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
-    .tabs button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .tabs button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .heart { position: absolute; bottom: 34px; right: 6px; width: 32px; height: 32px; border-radius: 50%; background: var(--chip-strong); font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; padding: 4px; }
     .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 12px; font-weight: var(--w-bold, 700); text-align: center; }

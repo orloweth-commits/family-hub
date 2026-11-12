@@ -27,7 +27,11 @@ export const styles = css`
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
   .fh > header, .fh > .body, .fh > nav { position: relative; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
-  .fh[data-calm] { --loops: 0; --tilt: 0; --motion: paused; }
+  /* one grammar under the three looks (claude/family-hub-foreground-spec.md): timings, the selected style, the lead action */
+  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03;
+    --sel-bg: var(--chip-strong); --sel-ink: var(--ink); --sel-ring: inset 0 0 0 2.5px var(--primary); --danger: #c62828; }
+  .fh[data-calm] { --loops: 0; --tilt: 0; --motion: paused; --m-d: 0; }
+  @media (prefers-reduced-motion: reduce) { .fh { --m-d: 0; } }
   .fh.idle *, .fh.idle::after { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; } }
   .glass {
@@ -37,8 +41,15 @@ export const styles = css`
     animation: rise .6s cubic-bezier(.2,.8,.2,1) both;
   }
   @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
-  .tap { transition: transform .18s ease, background-color .3s ease, box-shadow .25s ease; }
-  .tap:active { transform: scale(0.95); }
+  /* a touch answers within 80 ms and stays visible for a glancing tap (the release waits 60 ms); wide things do not shrink */
+  .tap { transition: transform var(--m-2, 160ms) var(--e-spring, ease) 60ms, opacity var(--m-3, 240ms) ease 60ms, background-color .3s ease, box-shadow .25s ease; }
+  .tap:active { transform: scale(calc(1 - var(--press, .03) * var(--m-d, 1))); opacity: .84; transition: transform var(--m-1, 80ms) var(--e-out, ease), opacity var(--m-1, 80ms) ease; }
+  .row.tap:active, .job.tap:active, .pic.tap:active, .dev.tap:active, .room.tap:active, .st.tap:active, .card.tap:active { transform: none; }
+  /* the lead action: the one thing a page or sheet is for */
+  .lead { height: 52px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+  button:focus-visible, [role='slider']:focus-visible, [role='tab']:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  button[disabled] { opacity: .45; cursor: default; }
   .fade { animation: fadeIn .35s cubic-bezier(.2,.8,.2,1); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: live 2s ease-out infinite; animation-iteration-count: var(--loops, infinite); flex-shrink: 0; }
@@ -77,8 +88,8 @@ export const styles = css`
   .planner { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
   .bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .seg { display: flex; padding: 3px; border-radius: 12px; background: var(--track); }
-  .seg button { height: 40px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: 14px; font-weight: 500; color: var(--ink2); }
-  .seg button[aria-pressed='true'] { background: var(--chip-strong); color: var(--ink); font-weight: var(--w-bold, 700); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .seg button { height: 44px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: 14px; font-weight: 500; color: var(--ink2); }
+  .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   /* a person's colour never stands alone: the chip carries their initial too */
@@ -159,7 +170,7 @@ export const styles = css`
   @keyframes sheet { from { opacity: 0; transform: scale(.94) translateY(12px); } to { opacity: 1; transform: none; } }
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }
-  .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); }
+  .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
   .tprev { height: 120px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
   .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
