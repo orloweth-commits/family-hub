@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub sparks (foreground effects demo)</title>
+<style>
+  html,body{margin:0;min-height:100%;background:#1d2026;color:#e9ecf2;font:15px/1.4 system-ui,sans-serif}
+  #bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:8px 14px;background:#12141a;border-bottom:1px solid #333a48}
+  #bar b{font-size:16px} #bar label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  #bar button,#bar select{font:inherit;padding:5px 10px;border-radius:8px;border:1px solid #556;background:#262b36;color:inherit}
+  #count{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.85}
+  #cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;padding:12px}
+</style></head>
+<body>
+<!-- Demo of src/sparks.ts on mock rows, buttons and cards in each look. Sample data only.
+     Open with ?look=glass|fridge|orbit (default: all three), &calm=1, &z=1.25 (the card's zoom), &dir=-1.
+     Loads dist/sparks.js if it exists (npx esbuild src/sparks.ts --bundle --format=esm --outfile=dist/sparks.js), else the card bundle, which must import './sparks'. -->
+<div id="bar"><b>Sparks</b>
+  <label><input type="checkbox" id="calm"> Calm mode</label>
+  <label><input type="checkbox" id="rtl"> Right to left</label>
+  <label>Zoom <select id="zoom"><option>1</option><option>0.8</option><option>1.25</option><option>1.5</option></select></label>
+  <button id="ten">Fire 10 at once</button><button id="all">Everything, one after another</button>
+  <span id="count">pieces alive: 0</span></div>
+<div id="cols"></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+let spark, sparkCount;
+try { ({ spark, sparkCount } = await import('../dist/sparks.js')); }
+catch { try { await import('../dist/family-hub.js'); } catch {} spark = window.fhSpark; sparkCount = window.fhSparkCount; }
+if (!spark) document.body.insertAdjacentHTML('beforeend', '<p style="padding:20px">sparks.ts is not in the bundle yet: build dist/sparks.js (see the comment at the top of this file).</p>');
+
+const face = (f, file, w) => `@font-face{font-family:'${f}';font-weight:${w};src:url(../public/fonts/${file}) format('woff2')}`;
+document.head.insertAdjacentHTML('beforeend', `<style>${face('Inter', 'inter.woff2', '100 900')}${face('Caveat', 'caveat.woff2', '400 700')}${face('Fredoka', 'fredoka.woff2', '300 700')}${face('Outfit', 'outfit.woff2', '100 900')}</style>`);
+
+const PEOPLE = '--p-1:#2563eb;--p-2:#db2777;--p-3:#0f766e;--p-4:#c2410c;--p-5:#7c3aed;';
+const TOKENS = {
+  glass: PEOPLE + '--ink:#0b2236;--ink3:#566e82;--glass:rgba(255,255,255,.56);--chip:rgba(255,255,255,.74);--primary:#0b5fa5;--on-primary:#fff;--accent:#c26a00;--ok:#0f8a5f;--kid:#c2410c;font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#8fd0f2 0%,#bfe6f5 34%,#2f9ec9 36%,#1b7fb0 62%,#ecd9a8 64%,#f3e6c2 100%)',
+  fridge: PEOPLE + '--ink:#26272b;--ink3:#66625b;--ground:#e4eaec;--paper:#fff;--glass:#fff;--chip:rgba(38,39,43,.07);--primary:#24408e;--on-primary:#fff;--accent:#a85200;--ok:#17703d;--kid:#c2410c;font-family:Fredoka,sans-serif;background:#e4eaec radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.5px) 0 0/14px 14px',
+  orbit: '--p-1:#7cb7ff;--p-2:#ff8fb1;--p-3:#6ee7c0;--p-4:#ff9f6b;--p-5:#c9a7ff;--ink:#e8ecf7;--ink3:#98a2c2;--ground:#0a0f1e;--glass:#121a31;--chip:rgba(255,255,255,.09);--primary:#e8ecf7;--on-primary:#0a0f1e;--accent:#ffe08a;--ok:#6ee7c0;--kid:#ff9f6b;font-family:Outfit,sans-serif;background:#0a0f1e'
+};
+const FX = [['tick', 'check'], ['points', 'pts'], ['done', 'chores'], ['done', 'chores', { soft: true }, 'done soft'], ['add', 'newrow'], ['marble', 'jar'], ['ring', 'timer'], ['sweep', 'nav'], ['party', 'name'], ['party', 'name', { burst: true }, 'party burst'],
+  ['stomp', 'chores'], ['puff', 'streak'], ['truck', 'groc'], ['tada', 'practice'], ['tada', 'practice', { variant: 'clarinet' }, 'tada clarinet'], ['bounce', 'tennis'], ['zip', 'leave'], ['splash', 'swim'], ['salute', 'jar'],
+  ['rocket', 'timer'], ['book', 'reading'], ['quokka', 'chores'], ['paint', 'doodle'], ['moon', 'bed'], ['medal', 'reward']];
+const CSS = `
+  :host{display:block}
+  .fh{--m-d:1;position:relative;border-radius:14px;padding:16px;color:var(--ink);display:flex;flex-direction:column;gap:12px;overflow:hidden}
+  .fh[data-calm]{--m-d:0}
+  h2{margin:0;font-size:26px;display:inline-block} .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:34px}
+  .chip{padding:6px 12px;border-radius:99px;background:var(--chip);font-weight:600;font-size:14px;white-space:nowrap}
+  .card{background:var(--glass);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+  .row{display:flex;align-items:center;gap:12px;min-height:44px;font-size:17px;font-weight:600} .row span{flex:1}
+  .check{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--ink3);box-sizing:border-box;flex:none;display:grid;place-items:center;font-weight:800;cursor:pointer;color:transparent}
+  .check.on{background:var(--ok);border-color:var(--ok);color:#fff}
+  .pts{font-size:13px;padding:3px 8px;border-radius:99px;background:var(--chip)}
+  .ev{display:flex;gap:10px;flex-wrap:wrap;padding-top:26px}
+  .bot{display:flex;gap:14px;align-items:flex-end;padding-top:30px}
+  .jar{width:54px;height:62px;border:3px solid var(--ink3);border-top-width:6px;border-radius:8px 8px 16px 16px;box-sizing:border-box;background:var(--chip)}
+  .nav{padding:10px 18px;border-radius:14px;background:var(--primary);color:var(--on-primary);font-weight:700;border:0;font:inherit;font-weight:700}
+  .btns{display:flex;flex-wrap:wrap;gap:6px} .btns button{font:600 12px/1 system-ui,sans-serif;padding:7px 9px;border-radius:8px;border:1px solid color-mix(in srgb,var(--ink) 40%,transparent);background:var(--chip);color:var(--ink);cursor:pointer}
+  :host([data-look=fridge]) .card{border-radius:3px;box-shadow:0 5px 8px rgba(0,0,0,.16);background:#fff6c4;rotate:-.6deg} :host([data-look=fridge]) .card+.ev+.card{background:#fff;rotate:.5deg}
+  :host([data-look=fridge]) h2{font-family:Caveat,cursive;font-size:38px} :host([data-look=fridge]) .chip{background:#fff;border-radius:3px;box-shadow:0 2px 3px rgba(0,0,0,.18)}
+  :host([data-look=fridge]) .check{border-radius:4px;border-color:var(--ink)} :host([data-look=fridge]) .check.on{background:#fff;color:var(--ok)}
+  :host([data-look=orbit]) .card{border:1px solid rgba(255,255,255,.14)} :host([data-look=orbit]) .chip{border:1px solid rgba(255,255,255,.3)} :host([data-look=orbit]) .check.on{color:#0a0f1e}
+  :host([data-look=orbit]) .jar{border-width:1.5px;border-top-width:3px}`;
+class Demo extends HTMLElement {
+  connectedCallback() {
+    const look = this.getAttribute('data-look');
+    this.attachShadow({ mode: 'open' }).innerHTML = `<style>${CSS}</style><div class="fh" style="${TOKENS[look]}">
+      <div class="top"><h2 id="name">Max</h2><span class="chip" id="streak">4 days in a row</span><span class="chip" id="timer">Timer 5:00</span></div>
+      <div class="card" id="chores">
+        <div class="row"><i class="check" id="check">&#10003;</i><span>Feed the dog</span><b class="pts" id="pts">10</b></div>
+        <div class="row" id="practice"><i class="check">&#10003;</i><span>Trumpet practice</span><b class="pts">15</b></div>
+        <div class="row" id="reading"><i class="check">&#10003;</i><span>Read a book</span><b class="pts">5</b></div></div>
+      <div class="ev"><span class="chip" id="tennis">Tennis 4 pm</span><span class="chip" id="swim">Swimming 5 pm</span><span class="chip" id="leave">Ready to go 8:10</span></div>
+      <div class="ev"><span class="chip" id="doodle">Doodle saved</span><span class="chip" id="bed">Bedtime list</span><span class="chip" id="reward">Movie night</span></div>
+      <div class="card" id="groc"><div class="row"><i class="check on">&#10003;</i><span>Milk</span></div><div class="row" id="newrow"><i class="check"></i><span>Bananas</span></div></div>
+      <div class="bot"><div class="jar" id="jar"></div><button class="nav" id="nav">Planner</button><span style="font-size:13px;opacity:.7">${look}</span></div>
+      <div class="btns">${FX.map(([k, , , label], i) => `<button data-i="${i}">${label ?? k}</button>`).join('')}</div></div>`;
+    const root = this.shadowRoot;
+    root.querySelector('.btns').addEventListener('click', (e) => { const i = e.target.dataset?.i; if (i != null) this.fire(+i); });
+    root.querySelectorAll('.check').forEach((c) => c.addEventListener('click', () => {
+      if (!c.classList.toggle('on')) return;
+      spark('tick', c); const p = c.parentElement.querySelector('.pts'); if (p) spark('points', p, { text: '+' + p.textContent });
+      const list = c.closest('.card'); if (list.id === 'chores' && !list.querySelector('.check:not(.on)')) spark('done', list);
+    }));
+    root.getElementById('jar').addEventListener('click', (e) => spark('marble', e.currentTarget));
+    root.getElementById('nav').addEventListener('click', (e) => spark('sweep', e.currentTarget));
+  }
+  fire(i) { const [k, id, o] = FX[i]; return spark(k, this.shadowRoot.getElementById(id), { ...(o ?? {}), dir: document.getElementById('rtl').checked ? -1 : 1 }); }
+  set calm(v) { this.shadowRoot.querySelector('.fh').toggleAttribute('data-calm', v); }
+  set zoom(z) { const f = this.shadowRoot.querySelector('.fh'); f.style.setProperty('--z', z); f.style.zoom = z; }
+}
+customElements.define('spk-demo', Demo);
+const looks = q.get('look') ? [q.get('look')] : ['glass', 'fridge', 'orbit'];
+const demos = looks.map((l) => { const d = document.createElement('spk-demo'); d.setAttribute('data-look', l); document.getElementById('cols').appendChild(d); return d; });
+const $ = (id) => document.getElementById(id);
+$('calm').addEventListener('change', (e) => demos.forEach((d) => (d.calm = e.target.checked)));
+$('zoom').addEventListener('change', (e) => demos.forEach((d) => (d.zoom = e.target.value)));
+$('ten').addEventListener('click', () => { window.__ten = demos.map((d) => FX.slice(0, 10).map((_, i) => !!d.fire(i))); });
+$('all').addEventListener('click', async () => { for (let i = 0; i < FX.length; i++) { demos.forEach((d) => d.fire(i)); await new Promise((r) => setTimeout(r, 1500)); } });
+if (q.get('calm')) { $('calm').checked = true; demos.forEach((d) => (d.calm = true)); }
+if (q.get('z')) { $('zoom').value = q.get('z'); demos.forEach((d) => (d.zoom = q.get('z'))); }
+if (q.get('dir') === '-1') $('rtl').checked = true;
+setInterval(() => { $('count').textContent = 'pieces alive: ' + (sparkCount ? sparkCount() : '?'); }, 100);
+window.__fx = FX; window.__demos = demos; window.__spark = spark; window.__count = sparkCount; window.__ready = true;
+</script>
+</body></html>
