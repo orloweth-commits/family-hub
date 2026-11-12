@@ -13,6 +13,7 @@ import './doodle';
 import './morning';
 import './addevent';
 import './pin';
+import './chat';
 import { loadFonts } from './fonts';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -27,14 +28,14 @@ import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs,
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
+type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat';
 const VERSION = '0.24.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
   partlycloudy: 'Partly cloudy', pouring: 'Pouring', rainy: 'Rain', snowy: 'Snow', 'snowy-rainy': 'Sleet', sunny: 'Sunny', windy: 'Windy', 'windy-variant': 'Windy'
 };
-const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event';
+const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event,fh-chat';
 
 
 export class FamilyHubCard extends LitElement {
@@ -566,8 +567,17 @@ export class FamilyHubCard extends LitElement {
     const m = this._config.music_player;
     if (m) this.hass?.callService('media_player', service, { entity_id: m });
   }
-  private _assist(): void {
-    this.dispatchEvent(new CustomEvent('hass-action', { bubbles: true, composed: true, detail: { config: { tap_action: { action: 'assist', start_listening: true } }, action: 'tap' } }));
+  /** Ask, the children's chat. After any child's bedtime, and in quiet hours, it is for grown-ups to open. */
+  private _chatLate(now = new Date()): boolean {
+    const c = this._config, n = minsNow(now);
+    return isQuiet(now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30') || (c.kids ?? []).some((k) => n >= hm(bedtimeFor(k.bedtime, now)) || n < 5 * 60);
+  }
+  private _openChat(): void {
+    const c = this._config, open = (): void => { this._sheet = 'chat'; };
+    if (!c.chat?.agent) return;
+    if (c.chat.pin_after_bedtime === false || !this._chatLate()) open();
+    else if (c.parent_pin) this._pinAsk = { reason: 'Chat after bedtime?', run: open };
+    else this._say('The helper is asleep now. Come back in the morning.');
   }
   private _openKid(name: string): void {
     const i = (this._config.kids ?? []).findIndex((k) => k.name === name);
@@ -717,7 +727,7 @@ export class FamilyHubCard extends LitElement {
                 return html`<span class="avatar ${home ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}">${this._short[p.name] ?? p.name[0]}</span>`;
               })}
             </button>` : nothing}
-          ${kid ? nothing : html`<button class="glass tap round" style="width:52px;height:52px" data-act="assist" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>`}
+          ${c.chat?.agent ? html`<button class="glass tap round" style="width:52px;height:52px" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}</button>` : nothing}
           <button class="glass tap round" style="width:52px;height:52px" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon('palette')}</button>
           ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:22px" data-act="meds" aria-label="Medication" @click=${() => { this._sheet = 'meds'; this._loadMedLog(); }}>💊</button>` : nothing}
           ${(c.babysitter || c.emergency) && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
@@ -913,6 +923,11 @@ export class FamilyHubCard extends LitElement {
     const close = () => { this._sheet = ''; };
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .places=${this._config.address_search !== false}
       @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { close(); this._say(`Added “${e.detail}”`); this._fetchedKey = ''; this._refresh(); this._loadSoon(); }}></fh-add-event>`;
+    if (s === 'chat') { const ch = this._config.chat, name = ch?.name || 'Ask';
+      if (!ch?.agent) return nothing;
+      return html`<div class="scrim" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
+        <section class="glass sheet chatsheet" role="dialog" aria-modal="true" aria-label=${name}>${this._sheetHead(name, 'Ask a question, or tap a picture.')}
+          <fh-chat .hass=${this.hass} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .helper=${name} .pin=${!!this._config.parent_pin} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = e.detail; }}></fh-chat></section></div>`; }
     const body = s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
       <section class="glass sheet" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info' }[s] ?? 'Panel'} style=${s === 'themes' ? '' : s === 'sitter' || s === 'meds' ? 'width:min(860px,94%)' : s === 'kidprefs' ? 'width:min(860px,94%);gap:14px' : 'width:min(640px,92%)'}>${body}</section></div>`;

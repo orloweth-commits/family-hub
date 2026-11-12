@@ -175,6 +175,9 @@ export const say = (text: string): void => {
   } catch { /* speech unavailable */ }
 };
 
+/** Stops whatever `say` is reading out. */
+export const hush = (): void => { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
+
 /** Read a JSON panel message from input_text.fh_panel_message. */
 export interface PanelMsg { t: string; ttl?: number; ts?: number; alarm?: number; parent?: number }
 export const panelMsg = (hass: Hass | undefined): PanelMsg | null => {

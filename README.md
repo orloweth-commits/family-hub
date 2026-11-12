@@ -129,6 +129,18 @@ address_search: true          # look places up while adding an event (Photon, Op
 
 The emergency button must be held for a second and a half, then sends a critical alert (it sounds through silent mode) to each phone through the Home Assistant app. Each daily medication needs two helpers: `input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`. The medication record shows what was given and when; it gives no advice on doses.
 
+### Ask: a chat for the children
+
+```yaml
+chat:                         # the speech-bubble button in the header; without this there is no button
+  agent: conversation.kids_helper   # a conversation agent in Home Assistant
+  pipeline: 01abcdefexamplepipelineid   # optional: an Assist pipeline id, for talking instead of typing
+  name: Ask                   # what the helper is called
+  pin_after_bedtime: true     # after any child's bedtime and in quiet hours, ask for the parent PIN first
+```
+
+A sheet with big speech bubbles, six picture buttons a child who cannot read yet can tap, the on-screen keyboard and, with a `pipeline`, a microphone button. What the helper may talk about and how it speaks to a child are its own instructions in Home Assistant, on the agent: write them for your children there. The card sends only the child's words (never names or a location), reads answers aloud unless that is switched off, closes itself after three quiet minutes, and keeps the last 30 questions and answers on that screen only, behind the PIN ("For grown-ups"). The microphone needs a secure page (https or the Home Assistant app); elsewhere the sheet says so and typing still works. After bedtime with no `parent_pin` set, the chat stays shut until morning.
+
 ### Weather page
 
 With `weather:` set, the dock gains a **Weather** page (and the weather chip in the header opens it): what it is doing now, the next 24 hours, a seven-day outlook, a rain radar and a wind map, drawn in the language of whichever look and world is on.

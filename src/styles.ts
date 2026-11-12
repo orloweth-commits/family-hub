@@ -210,6 +210,8 @@ export const styles = css`
   /* sheets, toasts, night */
   .scrim { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
   .sheet { position: relative; width: min(1000px, 92%); border-radius: 32px; padding: 26px 28px 24px; display: flex; flex-direction: column; gap: 18px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
+  .sheet.chatsheet { width: min(1180px, 96%); height: min(736px, 95%); gap: 14px; }
+  :host([data-phone]) .sheet.chatsheet { height: auto; }
   @keyframes sheet { from { opacity: 0; transform: scale(.94) translateY(12px); } to { opacity: 1; transform: none; } }
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }

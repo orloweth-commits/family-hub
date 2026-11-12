@@ -66,6 +66,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
+    'fh-chat': ['thread', 'bubble', 'asker', 'starter', 'talk'],
     'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
     'fh-weather': ['wnow', 'wtemp', 'wtip', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
   }
@@ -285,6 +286,13 @@ const FRIDGE = `
   @F .lead { font-weight: 600; box-shadow: 0 5px 0 var(--primary-edge), 0 8px 8px rgba(0,0,0,.2); }
   @F .lead:active, @F .primary.tap:active { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: 0 1px 0 var(--primary-edge); opacity: 1; }
   @F .sheet { border-radius: 4px; }
+  /* Ask: answers are notes of paper, the child's own words a card in the pen's blue; the pictures are dashed "add" buttons */
+  @F .thread { background: transparent; box-shadow: inset 0 0 0 2px var(--track); border-radius: 6px; }
+  @F .bubble { background: var(--note); color: #26272b; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.16); font-family: var(--font-content, inherit); }
+  @F .bubble.asker { background: var(--primary); color: var(--on-primary); border-radius: 3px; }
+  @F .starter { background: transparent; border: 2px dashed var(--ink); border-radius: 18px; font-weight: 500; }
+  @F .talk { box-shadow: 0 6px 0 var(--primary-edge), 0 9px 9px rgba(0,0,0,.2); }
+  @F .talk:active { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: 0 2px 0 var(--primary-edge); opacity: 1; }
 
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
@@ -538,6 +546,12 @@ const ORBIT = `
   @O .pill.primary, @O .primary { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 600; }
   @O .toast { background: var(--primary); color: var(--on-primary); font-weight: 500; }
   @O .sheet { background: #172039; }
+  /* Ask: line-drawn bubbles; the child's own words are ink-filled; the microphone is a full moon with a halo */
+  @O .thread { background: transparent; box-shadow: inset 0 0 0 1.5px var(--glass-line); }
+  @O .bubble { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 400; }
+  @O .bubble.asker { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 500; }
+  @O .starter { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
+  @O .talk { box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 22%, transparent); }
   @O .scrim { background: rgba(3,5,12,.66); }
 
   /* header */
