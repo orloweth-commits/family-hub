@@ -78,6 +78,12 @@ export const space: Scene = {
     .sp-red i { left: 263px; top: -7px; width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #ffb08a, #c9502f 45%, #5a1a14 95%); }
     @keyframes sp-turn { to { transform: rotate(360deg); } }
     .sp-blue { left: 32.6%; top: 2.6%; width: 40px; height: 40px; }
+    /* Orbit has no glass in its header and dock, so nothing is drawn where it would sit on bare words: the wandering red planet, the galaxy and the cross stay in Glass, the globe shrinks into the gap above the chips */
+    .sp-o :is(.sp-red, .sp-gal, .sp-cross) { display: none; }
+    .sp-o .sp-blue { left: 29.6%; top: 3px; width: 28px; height: 28px; }
+    .sp-o .sp-blue b { left: 14px; top: 14px; scale: .7; }
+    /* portrait screens: the dock reaches both corners, so the corner planets step aside */
+    @media (orientation: portrait) { .sp-o :is(.sp-gi, .sp-hill, .sp-ring) { display: none; } }
     .sp-blue b { position: absolute; left: 20px; top: 20px; width: 0; height: 0; animation: sp-turn 53s linear infinite; }
     .sp-blue b i { left: 28px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #f4f5fa, #a9afc2 55%, #3d4258); }
     .sp-gi { left: -80px; bottom: -100px; width: 200px; height: 200px; border-radius: 50%; overflow: hidden; rotate: -14deg; background: linear-gradient(#a98463, #e2caa0 7%, #c39a6c 13%, #f0dfbc 20%, #dcbb8c 28%, #a26f49 34%, #c99c6c 38%, #f3e6c8 47%, #e6cfa4 54%, #b98758 61%, #9c6c47 66%, #e2c79b 75%, #c59d6f 86%, #a9825b); }
@@ -94,13 +100,13 @@ export const space: Scene = {
     @keyframes sp-gal { 0%, 60%, 100% { opacity: 0; } 20%, 42% { opacity: .9; } }
     .sp-cross { position: absolute; left: 26.6%; top: 2.6%; width: 68px; rotate: var(--r); animation: sp-br 9.7s ease-in-out infinite alternate; }
     /* Orbit: the same world in fine luminous lines */
-    .sp-oo, :is(.sp-o, .sp-o ~ .guest) .sp-g { display: none; }
-    :is(.sp-o, .sp-o ~ .guest) .sp-oo { display: inline; }
-    :is(.sp-o, .sp-o ~ .guest) svg:not(.sp-c) :not(.sp-l) { fill: #0a0f1e; fill-opacity: 1; stroke: #e8ecf7; stroke-width: 1.2px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
-    :is(.sp-o, .sp-o ~ .guest) svg:not(.sp-c) [fill=none] { fill: none; }
-    :is(.sp-o, .sp-o ~ .guest) svg:not(.sp-c) .sp-y { stroke: #ffe08a; }
-    :is(.sp-o, .sp-o ~ .guest) svg:not(.sp-c) .sp-m { stroke: #6ee7c0; }
-    :is(.sp-o, .sp-o ~ .guest) svg:not(.sp-c) .sp-d { stroke-opacity: .45; }
+    .sp-oo, :is(.sp-o, .sp-o ~ .cast) .sp-g { display: none; }
+    :is(.sp-o, .sp-o ~ .cast) .sp-oo { display: inline; }
+    :is(.sp-o, .sp-o ~ .cast) svg:not(.sp-c) :not(.sp-l) { fill: #0a0f1e; fill-opacity: 1; stroke: #e8ecf7; stroke-width: 1.2px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+    :is(.sp-o, .sp-o ~ .cast) svg:not(.sp-c) [fill=none] { fill: none; }
+    :is(.sp-o, .sp-o ~ .cast) svg:not(.sp-c) .sp-y { stroke: #ffe08a; }
+    :is(.sp-o, .sp-o ~ .cast) svg:not(.sp-c) .sp-m { stroke: #6ee7c0; }
+    :is(.sp-o, .sp-o ~ .cast) svg:not(.sp-c) .sp-d { stroke-opacity: .45; }
     .sp-o .sp-red i { background: #0a0f1e; box-shadow: inset 0 0 0 1.5px #ff9f6b; }
     .sp-o :is(.sp-blue b i, .sp-ring i) { background: #0a0f1e; box-shadow: inset 0 0 0 1.2px #e8ecf7; }
     .sp-o .sp-gi { background: repeating-linear-gradient(#0a0f1e 0 15px, rgba(232,236,247,.3) 15px 16px, #0a0f1e 16px 23px, rgba(232,236,247,.5) 23px 24px); box-shadow: inset 0 0 0 1.5px #e8ecf7; }
@@ -184,7 +190,7 @@ export const space: Scene = {
     .sp-kick { transform-origin: 27px 40px; animation: sp-kick 1.1s infinite; } @keyframes sp-kick { 0%, 100% { transform: rotate(-24deg); animation-timing-function: cubic-bezier(.5,0,.3,1); } 30% { transform: rotate(40deg); animation-timing-function: ease-in-out; } }
     .sp-lean { transform-origin: 27px 40px; animation: sp-lean 1.1s ease-in-out infinite; } @keyframes sp-lean { 0%, 100% { transform: rotate(-3deg); } 30% { transform: rotate(4deg); } }
     /* a phone: the open part of the top band is on the right */
-    @media (max-width: 600px) { .sp-cross { display: none; } .sp-blue { left: 80%; top: 1%; } .sp-stop { --sx: 60vw; } .sp-stay { left: 56%; } }
+    @media (max-width: 600px) { .sp-cross, .sp-sk { display: none; } .sp-blue, .sp-o .sp-blue { left: 82%; top: 1%; } .sp-stop { --sx: 60vw; } .sp-stay { left: 56%; } }
   `,
   always: (c) => {
     const o = c.look === 'orbit', dark = c.tod !== 'day';
@@ -192,7 +198,7 @@ export const space: Scene = {
     return html`<div class="sp-w ${o ? 'sp-o' : ''}">
       <i class="sp-neb"><i style="box-shadow:${DUST}"></i></i>
       <div style="opacity:${dark ? 1 : 0.6}"><i class="sp-s" style="box-shadow:${FAR}"></i>${c.tod === 'night' ? html`<i class="sp-s sp-s1" style="box-shadow:${DEEP}"></i>` : nothing}<i class="sp-s sp-s2" style="box-shadow:${MID}"></i><i class="sp-s sp-s3" style="box-shadow:${NEAR}"></i></div>
-      ${sk(21.5, 1.6, 5.3)}${dark ? sk(13.2, 90.5, 11.3) : nothing}<i class="sp-pass"></i>
+      ${sk(30.2, 1.2, 5.3)}${dark ? sk(0.3, 85, 11.3) : nothing}<i class="sp-pass"></i>
       ${dark ? html`<svg class="sp-cross sp-c" style="--r:${Math.round((c.mins / 4 + c.month * 30) % 360)}deg" viewBox="-56 -6 100 60" fill="#fff"><path d="M20 2L22 46M5 22L36 17M-28 34L-50 42" stroke="rgba(232,236,247,.28)" stroke-width="1"/><circle cx="20" cy="2" r="2.8" fill="#ffc2a0"/><circle cx="22" cy="46" r="3.3" fill="#dfe8ff"/><circle cx="5" cy="22" r="3" fill="#dfe8ff"/><circle cx="36" cy="17" r="2.3"/><circle cx="28" cy="28" r="1.4" fill="#ffd9b0"/><circle cx="-28" cy="34" r="3" fill="#dfe8ff"/><circle cx="-50" cy="42" r="3.3" fill="#fff3cf"/><g fill="#fff" opacity=".7"><circle cx="9" cy="15" r=".8"/><circle cx="11" cy="17.5" r=".6"/><circle cx="7.5" cy="17" r=".6"/></g></svg>` : nothing}
       ${dark ? html`<i class="sp-gal"><svg class="sp-c" viewBox="0 0 60 60" fill="none" stroke-linecap="round"><radialGradient id="spgx"><stop offset="0" stop-color="#fff3cf"/><stop offset=".25" stop-color="#cfd8ff" stop-opacity=".55"/><stop offset="1" stop-color="#9fb0ff" stop-opacity="0"/></radialGradient><circle cx="30" cy="30" r="29" fill="url(#spgx)"/><g stroke="#dfe6ff"><path d="M30 30c-2-9 8-14 16-9s8 18-2 24-24 2-27-10" stroke-width="2.2" opacity=".8"/><path d="M30 30c2 9-8 14-16 9s-8-18 2-24 24-2 27 10" stroke-width="2.2" opacity=".8"/><path d="M38 14q14 6 10 22M22 46Q8 40 12 24" stroke-width="1" opacity=".5" stroke-dasharray=".5 3"/></g><circle cx="30" cy="30" r="4" fill="#fff8e0"/></svg></i>` : nothing}
       <i class="sp-red"><i></i></i>

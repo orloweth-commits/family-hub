@@ -276,20 +276,21 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
 
 /** Shared avatar animation CSS (include in any element that renders avatars). */
 export const avatarCss = `
-  .avwrap svg g.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop .55s cubic-bezier(.2,1.4,.4,1) both; }
+  /* parts pop in only where a look is being put together (the studio marks its stage data-avpop): an avatar that is simply shown stays still */
+  [data-avpop] .avwrap svg g.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop var(--m-4, 400ms) var(--e-spring, ease) backwards; }
   .avwrap svg g.av-pop.d1, .avwrap svg path.av-pop.d1 { animation-delay: .02s; }
   .avwrap svg .av-pop.d2 { animation-delay: .06s; } .avwrap svg .av-pop.d3 { animation-delay: .1s; }
   .avwrap svg .av-pop.d4 { animation-delay: .14s; } .avwrap svg .av-pop.d5 { animation-delay: .18s; } .avwrap svg .av-pop.d6 { animation-delay: .22s; }
-  .avwrap svg path.av-pop, .avwrap svg ellipse.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop .55s cubic-bezier(.2,1.4,.4,1) both; }
-  @keyframes avPop { from { opacity: 0; transform: scale(.4) translateY(10px); } to { opacity: 1; transform: none; } }
+  [data-avpop] .avwrap svg path.av-pop, [data-avpop] .avwrap svg ellipse.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop var(--m-4, 400ms) var(--e-spring, ease) backwards; }
+  @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))) translateY(calc(10px * var(--m-d, 1))); } }
   .avwrap svg .av-bob { animation: avBob 3.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
-  @keyframes avBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes avBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-3px * var(--m-d, 1))); } }
   .avwrap svg .av-blink { transform-box: fill-box; transform-origin: center; animation: avBlink 5.5s infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes avBlink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
   .avwrap svg .av-flame { animation: avFlame .8s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes avFlame { from { opacity: .4; } to { opacity: 1; } }
-  .avwrap.av-jump-a { animation: avJumpA .7s cubic-bezier(.3,1.6,.5,1); }
-  .avwrap.av-jump-b { animation: avJumpB .7s cubic-bezier(.3,1.6,.5,1); }
-  @keyframes avJumpA { 0% { transform: none; } 35% { transform: translateY(-22px) rotate(-4deg) scale(1.04); } 70% { transform: translateY(2px) scale(.98, 1.02); } 100% { transform: none; } }
-  @keyframes avJumpB { 0% { transform: none; } 35% { transform: translateY(-22px) rotate(4deg) scale(1.04); } 70% { transform: translateY(2px) scale(.98, 1.02); } 100% { transform: none; } }
+  .avwrap.av-jump-a { animation: avJumpA var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1); }
+  .avwrap.av-jump-b { animation: avJumpB var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1); }
+  @keyframes avJumpA { 35% { transform: translateY(calc(-22px * var(--m-d, 1))) rotate(calc(-4deg * var(--m-d, 1))) scale(calc(1 + .04 * var(--m-d, 1))); } 70% { transform: translateY(calc(2px * var(--m-d, 1))) scale(calc(1 - .02 * var(--m-d, 1)), calc(1 + .02 * var(--m-d, 1))); } }
+  @keyframes avJumpB { 35% { transform: translateY(calc(-22px * var(--m-d, 1))) rotate(calc(4deg * var(--m-d, 1))) scale(calc(1 + .04 * var(--m-d, 1))); } 70% { transform: translateY(calc(2px * var(--m-d, 1))) scale(calc(1 - .02 * var(--m-d, 1)), calc(1 + .02 * var(--m-d, 1))); } }
 `;

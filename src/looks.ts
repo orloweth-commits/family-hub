@@ -20,6 +20,9 @@ import { getShape, onShape } from './util';
  *  4. `npm run check:looks` (part of the build) fails if a look styles a
  *     class that is not in HOOKS, mixes components, selects by position, or
  *     if a hook no longer exists in the base.
+ *  5. Glass has a few hook rules of its own too (GLASS): the pane behind the clock, the chosen-card ring and tick,
+ *     past events told by ink instead of fading. They are checked like the other two.
+ *  6. A rule's tag may carry host state or a width limit: `@O[data-phone] .dock` (phones), `@O<700 .dayview` (under 700 px).
  *
  * State the base exposes on the root `.fh` for looks to react to:
  *   data-tod="day|eve|night"   time of day (evening tokens apply to eve + night)
@@ -51,21 +54,23 @@ export interface LookDef {
 export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
   // shared building blocks: styled once per look, wherever they appear
   roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'lead', 'tap', 'quick', 'avatar',
-    'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i'],
+    'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i', 'seg'],
   // named regions, by the component that owns them
   parts: {
-    'family-hub-card': ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'seg', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
-      'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard',
+    'family-hub-card': ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
+      'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
-      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'night', 'nart'],
+      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
       'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
-    'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
+    'fh-home': ['rooms', 'room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
+    'fh-chat': ['thread', 'bubble', 'asker', 'starter', 'talk'],
+    'fh-add-event': ['box', 'chips', 'durs', 'ampm', 'allday', 'dialbox', 'drums'],
     'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
     'fh-weather': ['wnow', 'wtemp', 'wtip', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
   }
@@ -130,9 +135,9 @@ export const dayDial = (arcs: DialArc[], now: Date | undefined, size = 360): Tem
     <circle cx="100" cy="100" r=${AM} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     ${timed.map((a) => seg(a, AM, 0, 12))}${timed.map((a) => seg(a, PM, 12, 24))}
     ${Array.from({ length: 12 }, (_, i) => svg`<rect x="99.4" y="6" width="1.2" height=${i % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${i * 30} 100 100)"></rect>`)}
-    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([n, x, y]) => svg`<text x=${x} y=${y} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${n}</text>`)}
-    <text x="100" y="41.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
-    <text x="100" y="19.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
+    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([n, x, y]) => svg`<text class="dh" x=${x} y=${y} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${n}</text>`)}
+    <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
+    <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
     ${now ? svg`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${hh} 100 100)"></rect>
       <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${mm} 100 100)"></rect>
       <circle cx="100" cy=${100 - (now.getHours() < 12 ? AM : PM)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${hh} 100 100)"></circle>
@@ -160,7 +165,7 @@ export const ringPlayer = (img: string | undefined, frac: number, playing: boole
   const r = 92, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
   return html`<svg class="pring" aria-hidden="true" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
     <circle cx="100" cy="100" r=${r} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
-    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray 1s linear"></circle>
+    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <clipPath id="fhdisc"><circle cx="100" cy="100" r="78"></circle></clipPath>
     <circle cx="100" cy="100" r="78" fill="rgba(255,255,255,.08)"></circle>
     ${img ? svg`<image href=${img} x="22" y="22" width="156" height="156" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhdisc)" opacity=${playing ? 1 : 0.6}></image>`
@@ -173,7 +178,7 @@ export const timerFace = (frac: number, size = 56): TemplateResult => {
   const C = 2 * Math.PI * 22, f = Math.max(0, Math.min(1, frac));
   return html`<svg class="tface" aria-hidden="true" width=${size} height=${size} viewBox="0 0 100 100" fill="none">${svg`
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
-    <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>
+    <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
 };
 
@@ -194,7 +199,7 @@ export const LOOKS: LookDef[] = [
     vars: {
       ...PEOPLE,
       '--ink': '#26272b', '--ink2': '#4c4a45', '--ink3': '#66625b', '--ground': '#e4eaec', '--paper': '#ffffff', '--note': '#fff6c4', '--note-today': '#ffe45c',
-      '--rule': '#b9d0e6', '--margin': '#f2a7a7', '--magnet': '#fbf8f0', '--danger': '#c62a22',
+      '--rule': '#b9d0e6', '--margin': '#f2a7a7', '--magnet': '#fbf8f0', '--danger': '#b8261f', '--ink-done': '#5c5852', '--wet': '#1f5f99',
       '--glass': 'var(--paper)', '--glass-line': 'transparent', '--shadow': '0 5px 8px rgba(0,0,0,.16)',
       '--chip': 'rgba(38,39,43,.07)', '--chip-strong': 'var(--paper)', '--chip-soft': 'rgba(38,39,43,.045)', '--chip-faint': 'rgba(38,39,43,.02)', '--track': 'rgba(38,39,43,.16)',
       '--sel-bg': 'var(--ink)', '--sel-ink': 'var(--paper)', '--sel-ring': 'none', '--primary': '#24408e', '--on-primary': '#ffffff', '--primary-edge': '#162a63', '--accent': '#a85200', '--ok': '#17703d',
@@ -204,7 +209,9 @@ export const LOOKS: LookDef[] = [
     },
     evening: {
       '--ground': '#9d927b', '--paper': '#eadfc6', '--note': '#e3d39b', '--note-today': '#e7c651', '--rule': '#cbbe9f', '--margin': '#d6a391', '--magnet': '#e6dcc6',
-      '--shadow': '0 5px 8px rgba(0,0,0,.2)'
+      '--shadow': '0 5px 8px rgba(0,0,0,.2)',
+      // the evening ground is darker: the quiet inks go darker with it, so small words on the bare fridge keep 4.5:1
+      '--ink2': '#2a2824', '--ink3': '#3d3a35', '--ink-done': '#3d3a35'
     }
   },
   {
@@ -217,7 +224,7 @@ export const LOOKS: LookDef[] = [
     vars: {
       // same hue per person as every other look, lifted for a dark ground
       '--p-1': '#7cb7ff', '--p-2': '#ff8fb1', '--p-3': '#6ee7c0', '--p-4': '#ff9f6b', '--p-5': '#c9a7ff', '--p-family': '#cbd5e1', '--on-person': '#0a0f1e',
-      '--ink': '#e8ecf7', '--ink2': '#b4bcd6', '--ink3': '#98a2c2', '--ground': '#0a0f1e', '--danger': '#ff8a7a',
+      '--ink': '#e8ecf7', '--ink2': '#b4bcd6', '--ink3': '#98a2c2', '--ground': '#0a0f1e', '--danger': '#ff8a7a', '--ink-done': '#a3acc9', '--wet': '#8fcbff', '--on-danger': '#0a0f1e',
       '--glass': '#121a31', '--glass-line': 'rgba(255,255,255,.12)', '--shadow': 'none', '--ctl-line': 'rgba(255,255,255,.44)',
       '--chip': 'rgba(255,255,255,.09)', '--chip-strong': 'rgba(255,255,255,.17)', '--chip-soft': 'rgba(255,255,255,.05)', '--chip-faint': 'rgba(255,255,255,.025)', '--track': 'rgba(255,255,255,.28)', '--on-ok': '#0a0f1e',
       // ink-filled = an action; yellow = now / current; mint = done
@@ -266,32 +273,69 @@ export class LookController implements ReactiveController {
 
 /* ---------------- look styles (shared by every component) ---------------- */
 
+const GLASS = `
+  /* the clock sits on its own pane of glass, so the greeting, the time and the date read over any photo and whatever drifts behind it */
+  @G .clock { margin: -8px 0 -8px -14px; padding: 8px 18px 8px 14px; border-radius: 26px; background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @G[data-phone] .clock { margin: 0; padding: 6px 14px 8px; flex: 0 1 auto; }
+  /* the chosen look or background: a ring and a tick, never a fill */
+  /* what is over is told by its ink, not by fading the whole card: the words stay readable */
+  @G .ev.past, @G .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
+  @G .ev.past { background: color-mix(in srgb, var(--c) 10%, var(--chip-soft)); }
+  @G .ev.past .t, @G .ev.past .w, @G .ev.past .content, @G .dayrow.past .content, @G .dayrow.past .muted { color: var(--ink-done); }
+  /* an alert chip pulses with a ring inside its edge; the words keep their full contrast */
+  @G .cap.hot { animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  /* someone who is out keeps their letter at full strength inside a ring of their colour */
+  @G .presence .avatar.away { opacity: 1; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--c); }
+  /* a warning is the theme's danger colour with ink that reads on it (dark ink on Space's pale red) */
+  @G .wwarn { color: var(--on-danger, #fff); }
+  @G .field { min-width: 0; }
+  @G .tcard { position: relative; }
+  @G .tcard[aria-pressed='true'] { background: var(--chip); color: var(--ink); box-shadow: 0 0 0 3px var(--primary); }
+  @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: 17px; font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
+`;
+
 const FRIDGE = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
-  @F .fh { font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color 1.5s ease, color .45s ease; }
+  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
   @F .fh::before { display: none; }
-  @F .fh:not([data-calm]) { animation: fjig 37s linear infinite; }
+  @F .fh:not([data-calm]):not([data-tod='night']) { animation: fjig 37s linear infinite; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
   @F h1, @F h2 { font-family: 'Caveat', 'Fredoka', sans-serif; letter-spacing: 0; }
   @F h1 { line-height: .95; }
   @F h2 { line-height: 1; }
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color 1.5s ease; }
+  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color var(--m-5, 900ms) ease; }
   @F .glass.round { border-radius: 50%; }
-  @F .label { letter-spacing: .05em; font-size: 13px; }
+  @F .label { letter-spacing: .05em; font-size: 14px; }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
   @F .pill.primary, @F .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
   /* the lead action is a chunky plastic push-button; pressing any plastic button sends it down onto its edge */
   @F .lead { font-weight: 600; box-shadow: 0 5px 0 var(--primary-edge), 0 8px 8px rgba(0,0,0,.2); }
   @F .lead:active, @F .primary.tap:active { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: 0 1px 0 var(--primary-edge); opacity: 1; }
-  @F .sheet { border-radius: 4px; }
+  /* Ask: answers are notes of paper, the child's own words a card in the pen's blue; the pictures are dashed "add" buttons */
+  @F .thread { background: transparent; box-shadow: inset 0 0 0 2px var(--track); border-radius: 6px; }
+  @F .bubble { background: var(--note); color: #26272b; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.16); font-family: var(--font-content, inherit); }
+  @F .bubble.asker { background: var(--primary); color: var(--on-primary); border-radius: 3px; }
+  @F .starter { background: transparent; border: 2px dashed var(--ink); border-radius: 18px; font-weight: 500; }
+  @F .talk { box-shadow: 0 6px 0 var(--primary-edge), 0 9px 9px rgba(0,0,0,.2); }
+  @F .talk:active { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: 0 2px 0 var(--primary-edge); opacity: 1; }
+  /* sheets: one large note taped to the door. The tilt is a hair, and calm mode takes it away */
+  @F .sheet, @F .box { background: var(--note); border-radius: 3px; box-shadow: 0 16px 34px rgba(0,0,0,.32); rotate: calc(clamp(0, var(--tilt, 1), 1) * -.4deg); }
+  @F .sheet::before, @F .box::before { content: ''; position: absolute; top: -13px; left: 50%; width: 124px; height: 28px; margin-left: -62px; background: rgba(176,200,216,.82); box-shadow: 0 1px 3px rgba(0,0,0,.18); rotate: -2deg; pointer-events: none; }
+  @F[data-phone] .sheet::before, @F .box::before { top: 0; height: 16px; z-index: 1; }
+  /* chips on a sheet are the dashed marker pill; the chosen one is inked in */
+  @F .mchip, @F .chips button, @F .durs button, @F .ampm button, @F .allday { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; box-shadow: none; font-weight: 500; }
+  @F .mchip[aria-pressed='true'], @F .chips button[aria-pressed='true'], @F .durs button[aria-pressed='true'], @F .ampm button[aria-pressed='true'], @F .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); border-style: solid; box-shadow: none; font-weight: 600; }
+  @F .dialbox { background: rgba(38,39,43,.06); border-radius: 8px; }
+  @F .drums { background: var(--paper); border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink); }
+  /* medication: who gave it is a choice (an outline); adding to the record is the one filled action */
 
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @F .clock .aclock { grid-row: 1 / span 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
   @F .clock .hm { font-weight: 700; font-size: 50px; }
   @F .cap { background: var(--paper); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -1.2deg); font-weight: 600; }
-  @F .cap.hot { background: var(--danger); color: #fff; }
+  @F .cap.hot { background: var(--danger); color: #fff; animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @F .weather { border-radius: 4px; rotate: calc(var(--tilt, 1) * -1deg); }
   @F .presence { background: transparent; box-shadow: none; gap: 2px; padding: 0 4px; }
   @F .presence { gap: 10px; }
@@ -308,7 +352,7 @@ const FRIDGE = `
   @F .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
   @F .legend { font-size: 15px; font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
-  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color 1.5s ease; }
+  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color var(--m-5, 900ms) ease; }
   @F .col:nth-child(even) { rotate: calc(var(--tilt, 1) * .8deg); }
   @F .col:nth-child(3n) { rotate: calc(var(--tilt, 1) * -.3deg); }
   @F .col.today { background: var(--note-today); box-shadow: 0 9px 14px rgba(0,0,0,.24); rotate: calc(var(--tilt, 1) * -1deg); }
@@ -319,20 +363,31 @@ const FRIDGE = `
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
   @F .ev .t { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: 13px; font-weight: 500; }
+  @F .ev .w { font-size: 14px; font-weight: 500; }
   @F .ev.next { box-shadow: none; }
-  @F .ev.next .content { background: linear-gradient(transparent 55%, rgba(255,255,255,.75) 55%); }
+  /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
+  @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
+  @F .ev.past .t, @F .ev.past .w, @F .ev.past .content, @F .dayrow.past .content, @F .dayrow.past .muted { color: var(--ink-done); }
+  /* highlighter: a stroke behind the words only, never out to the edge of the note */
+  @F .ev.next .content { text-decoration: underline rgba(255,255,255,.8); text-decoration-thickness: .5em; text-underline-offset: -.34em; text-decoration-skip-ink: none; }
   @F .more { background: transparent; text-decoration: underline; font-weight: 500; }
-  @F .cell { border-radius: 2px; background: var(--note); box-shadow: 0 2px 3px rgba(0,0,0,.12); }
-  @F .cell.out { background: color-mix(in srgb, var(--note) 45%, transparent); box-shadow: none; }
+  /* month: light paper squares, today the one bright note */
+  @F .cell { border-radius: 2px; background: var(--paper); box-shadow: 0 1px 3px rgba(0,0,0,.16); }
+  @F .cell.out { background: color-mix(in srgb, var(--paper) 50%, transparent); box-shadow: none; }
   @F .cell.today { background: var(--note-today); box-shadow: 0 0 0 2.5px var(--ink); }
-  @F .dayrow { background: var(--note); border-left-width: 10px; border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
+  /* day view: every event is a note of its own under a pin */
+  @F .dayrow { position: relative; background: var(--note); border-left-width: 10px; border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.2deg); }
+  @F .dayrow:nth-child(even) { rotate: calc(var(--tilt, 1) * .22deg); }
+  @F .dayrow::before { content: ''; position: absolute; top: 5px; right: 14px; width: 14px; height: 14px; border-radius: 50%; background: #8b949a; box-shadow: 0 2px 3px rgba(0,0,0,.3), inset 0 -2px 0 rgba(0,0,0,.18); }
+  @F .dayrow.now, @F .dayrow.next { background: var(--note-today); }
+  @F .dayrow.now::before, @F .dayrow.next::before { background: var(--danger); }
   @F .dayrow .content { font-family: var(--font-content); font-weight: var(--content-weight); }
 
   /* side cards */
   @F .np { background: #2f2a26; border-radius: 10px; --ink: #fff; --ink2: #e2dbcf; color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
   @F .np .np-row { background: #fff6dc; color: #26272b; --ink2: #4c4a45; border-radius: 4px; padding: 6px 10px; }
-  @F .np .primary { background: var(--paper); color: #26272b; box-shadow: 0 4px 0 #b9b2a2; }
+  /* on a dark card a round button is the look's blue action with a white icon, never paper on paper */
+  @F .np .round, @F .np .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
   @F .art { border-radius: 50%; width: 46px; height: 46px; background: conic-gradient(#ede6d6 0 8%, #141210 8% 10%, #ede6d6 10% 33%, #141210 33% 35%, #ede6d6 35% 58%, #141210 58% 60%, #ede6d6 60% 83%, #141210 83% 85%, #ede6d6 85%); box-shadow: inset 0 0 0 5px #141210; }
   @F .playing .art { animation: fhSpin 4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @F .timerrow { align-items: center; }
@@ -345,18 +400,21 @@ const FRIDGE = `
 
   /* dock: a row of fridge magnets */
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
-  @F .dock .item { font-weight: 600; font-size: 14px; height: 78px; gap: 3px; border-radius: 0; }
+  @F .dock .item { font-weight: 600; font-size: 15px; height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #ffd75a; }
   @F .dock .item[data-nav='lights-off'] svg.i { background: #4a4f55; color: #fff; }
   @F .dock .item[data-nav='dinner'] svg.i { background: var(--danger); color: #fff; }
   @F .dock .item[aria-current='page'] { background: transparent; }
-  @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 4px var(--paper), 0 0 0 6.5px var(--ink), 0 6px 6px 4px rgba(0,0,0,.2); }
+  @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5.5px var(--ink); }
   @F .dock .kidbtn .avatar { box-shadow: 0 4px 5px rgba(0,0,0,.28); }
   @F .dock .kidbtn[aria-current='page'] { box-shadow: none; }
-  @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 4px var(--paper), 0 0 0 6.5px var(--kidc), 0 6px 6px 4px rgba(0,0,0,.2); }
+  @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4.5px var(--kidc), 0 -3px 6px 3px rgba(0,0,0,.14); }
   @F .dock .sep { background: transparent; margin: 0 2px; }
-  @F .tcard { border-radius: 4px; }
+  @F .tcard { position: relative; border-radius: 4px; background: var(--paper); box-shadow: 0 3px 5px rgba(0,0,0,.14); }
+  /* the chosen look: a ring and a tick, never a fill */
+  @F .tcard[aria-pressed='true'] { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
+  @F .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--paper); }
 
   /* lists: lined paper, a tick box you could draw, print by default */
   @F .row { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
@@ -364,12 +422,13 @@ const FRIDGE = `
   @F .done .check { background: var(--paper); border-color: var(--ink); color: var(--ok); transform: none; font-size: 34px; font-weight: 700; overflow: visible; }
   @F .done .check svg { width: 28px; height: 28px; stroke-width: 4; }
   @F .row .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size-lg); line-height: 1.1; }
-  @F .row.now { background: linear-gradient(90deg, transparent 0 46px, var(--note) 46px); }
+  @F .row.now { background: transparent; }
+  @F .row.now .content { text-decoration: underline var(--note-today); text-decoration-thickness: .5em; text-underline-offset: -.34em; text-decoration-skip-ink: none; }
   @F .big .check { width: 48px; height: 48px; }
   @F .big.done .check { font-size: 50px; }
   @F .row.big .content { font-size: 30px; }
   @F .row.big { background: var(--note); padding-left: 12px; }
-  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; }
+  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; min-width: 0; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
   @F .key:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9b2a2; background: #f7f4ec; }
   @F .tab { font-weight: 600; }
@@ -384,7 +443,8 @@ const FRIDGE = `
   @F .stat span { font-weight: 500; font-size: 14px; }
   @F .dots i.g { background: #f5b301; border-color: #8a5f00; }
   @F .nextup { background: var(--chip-soft); border-radius: 8px; }
-  @F .jobs { background: linear-gradient(90deg, transparent 0 69px, var(--margin) 69px 71px, transparent 71px) 0 86px / 100% 100% no-repeat, var(--glass); }
+  /* the red margin runs down the edge of the page, clear of every word */
+  @F .jobs { background: linear-gradient(90deg, transparent 0 8px, var(--margin) 8px 10px, transparent 10px) 0 0 / 100% 100% no-repeat, var(--glass); }
   @F .sec h2 { font-size: 30px; line-height: 1; padding: 0 4px; }
   @F .sec span { font-weight: 500; font-size: 14px; }
   @F .plus { font-weight: 600; }
@@ -403,7 +463,7 @@ const FRIDGE = `
   @F .wk { font-size: 15px; }
 
   /* groceries: a shopping-list pad and chunky keys */
-  @F .list.glass { background: linear-gradient(90deg, transparent 0 63px, var(--margin) 63px 65px, transparent 65px) 0 66px / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
+  @F .list.glass { background: linear-gradient(90deg, transparent 0 10px, var(--margin) 10px 12px, transparent 12px) 0 0 / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .items { gap: 0; }
   /* lists that have tightened to fit keep their ruled lines, just closer together */
   @F .items[data-fit] .row { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
@@ -417,20 +477,22 @@ const FRIDGE = `
   /* music: the player is a dark deck */
   @F .stage { background: #2f2a26; color: #fff; border-radius: 10px; box-shadow: 0 5px 8px rgba(0,0,0,.25); }
   @F .stage .glass { background: transparent; }
+  @F .stage .round, @F .stage .pill { background: var(--paper); color: #26272b; }
   @F .spk { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .spk.focus { background: var(--note-today); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
   @F .spk.inmix { background: var(--note); box-shadow: 0 0 0 3px var(--ok); }
-  @F .mroom { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
+  /* the house: every room is a square of paper with a marker line drawn round it */
+  @F .mroom { background: var(--paper); border-radius: 3px 10px 4px 12px; box-shadow: inset 0 0 0 3px var(--ink), 0 5px 7px rgba(0,0,0,.18); }
   @F .mstairs { border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink); }
   @F .mzone[data-focus] { background: var(--note); box-shadow: inset 0 0 0 3px var(--ink); }
-  @F .pool { background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
+  @F .pool { left: 3px; right: 3px; bottom: 3px; border-radius: 0 0 8px 2px; background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
   @F .mzone[data-playing] .pool { animation: scribble .7s steps(2, jump-none) infinite; animation-iteration-count: var(--loops, infinite); }
   @F .puck { border-color: var(--magnet); box-shadow: 0 4px 0 #b9b2a2, 0 6px 8px rgba(0,0,0,.25); }
   @F .mshelf { background: var(--note); border-radius: 4px; transform: rotate(.5deg); box-shadow: 0 5px 8px rgba(0,0,0,.16); }
   @F .wholeh { border-radius: 6px; border-color: var(--ink2); }
   @F .viewbtn { border-radius: 6px; background: var(--magnet); box-shadow: 0 3px 0 #b9b2a2, 0 4px 5px rgba(0,0,0,.18); }
   @F .vcard { border-radius: 4px; background: var(--note); box-shadow: 0 3px 5px rgba(0,0,0,.16); }
-  @F .vcard[aria-pressed='true'] { background: var(--sel-bg); }
+  @F .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); }
   @F .dplate { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
   @F .dtrack { stroke: color-mix(in srgb, var(--ink) 16%, var(--paper)); }
   @F .dknob { fill: var(--magnet); stroke: var(--ink); }
@@ -442,11 +504,11 @@ const FRIDGE = `
   @F .sname { background: var(--note); border-radius: 2px; box-shadow: 0 2px 3px rgba(0,0,0,.18); font-family: var(--font-content); }
   @F .lamp { box-shadow: 0 3px 0 rgba(0,0,0,.3); }
   @F .fcap { border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 rgba(0,0,0,.3); }
-  @F .slot { background: var(--ink); width: 4px; left: 20px; }
+  @F .slot { background: var(--ink); --rail-w: 4px; } /* music polish: the rail's thickness is a token now (one slider family), not a width and an offset */
   @F .jog { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 #b9b2a2; }
   @F .mpad { border-radius: 8px; box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.28); }
   @F .dart { border-radius: 4px; box-shadow: 0 0 0 3px var(--ink), 0 5px 6px rgba(0,0,0,.2); }
-  @F .cab { background: #2f2a26; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,.25); }
+  @F .cab { background: var(--paper); border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.2); } /* music polish: speaker tiles are the look's own paper, with ink text (was a dark slab with white text) */
   @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
   @F .sock[aria-pressed='true'] { background: var(--c); }
   @F .cdisc { box-shadow: 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.2); }
@@ -465,7 +527,8 @@ const FRIDGE = `
   @F .pickrow { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
-  /* home: every room is a note; a room with a light on is the bright one */
+  /* home: every room is a note; a room with a light on is the bright one. The notes sit straight on the door, with no slab behind them */
+  @F .rooms { background: transparent; box-shadow: none; padding-left: 4px; padding-right: 4px; }
   @F .room { background: var(--note); border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .room.lit { background: var(--note-today); box-shadow: 0 7px 10px rgba(0,0,0,.2); rotate: calc(var(--tilt, 1) * .5deg); }
   @F .rh h2 { font-size: 28px; line-height: 1; }
@@ -473,12 +536,12 @@ const FRIDGE = `
   @F .dicon { background: var(--magnet); color: var(--ink); box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.12); }
   @F .dev.on .dicon { background: #ffd23f; color: #5b3a00; box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.14), 0 0 0 4px rgba(255,210,63,.4); }
   @F .toggle { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
-  @F .toggle[aria-checked='true'] { background: var(--ok); }
+  @F .toggle[aria-checked='true'], @F [aria-checked='true'] > .toggle { background: var(--ok); }
   @F .scene { background: var(--magnet); border-radius: 10px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.18); font-weight: 600; }
 
   /* doodle: paint-pot magnets, and finished pictures taped up as polaroids */
   @F .pad { border-radius: 2px; }
-  @F .ink { box-shadow: 0 3px 0 rgba(0,0,0,.22), inset 0 -3px 0 rgba(0,0,0,.14); }
+  @F .ink { box-shadow: 0 3px 0 rgba(0,0,0,.22), inset 0 -3px 0 rgba(0,0,0,.14), inset 0 0 0 1.5px rgba(0,0,0,.5); }
   @F .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink); }
   @F .gallery { background: transparent; box-shadow: none; padding: 8px 2px; }
   @F .snaps { gap: 26px 12px; padding: 12px 6px; }
@@ -521,11 +584,18 @@ const FRIDGE = `
   @F .sky .disc, @F .sky .moon, @F .sky .bolt { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
   @F .sky .rays, @F .sky .drop { stroke-width: 4; }
   @F .hchart .line { stroke-dasharray: 1 7; stroke-width: 4.5; }
+
+  /* phone: the dock is a strip of paper along the bottom of the door; the page ends above it, and the strip fades at the right while there is more to slide to */
+  @F[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
+  @F[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: var(--paper); border-top: 2px solid var(--ink); box-shadow: 0 -6px 14px rgba(0,0,0,.14); }
+  @F[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--paper) 85%); pointer-events: none; }
+  @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @F[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 10px; }
 `;
 
 const ORBIT = `
   /* a ring always means time or progress · ink-filled = an action · yellow = now · mint = done */
-  @O .fh { font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
+  @O .fh { --ring-halo: #0a0f1e; --pg-from: scale(calc(1 - .01 * var(--m-d, 1))); font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
   /* a touch lights the line instead of shrinking the control; the lead action is a full moon with a halo */
   @O .tap:active { transform: none; opacity: 1; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -538,16 +608,24 @@ const ORBIT = `
   @O .pill.primary, @O .primary { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 600; }
   @O .toast { background: var(--primary); color: var(--on-primary); font-weight: 500; }
   @O .sheet { background: #172039; }
+  /* Ask: line-drawn bubbles; the child's own words are ink-filled; the microphone is a full moon with a halo */
+  @O .thread { background: transparent; box-shadow: inset 0 0 0 1.5px var(--glass-line); }
+  @O .bubble { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 400; }
+  @O .bubble.asker { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 500; }
+  @O .starter { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
+  @O .talk { box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 22%, transparent); }
   @O .scrim { background: rgba(3,5,12,.66); }
 
   /* header */
   @O .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @O .clock .dial { grid-row: 1 / span 2; }
-  @O .clock .hm { font-weight: 400; font-size: 56px; letter-spacing: -.02em; }
-  @O .cap { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 500; }
-  @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); }
+  @O .clock .hm { font-weight: 400; font-size: 52px; letter-spacing: -.02em; }
+  /* the header is drawn a little tighter than the base (smaller rings, closer avatars) so an alert chip has room for all of its words */
+  @O .cap { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 500; max-width: 100%; }
+  @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @O .badge { background: rgba(255,224,138,.18); font-weight: 600; }
-  @O .presence { background: transparent; border-color: transparent; }
+  @O .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
+  @O .right { gap: 6px; }
   @O .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); opacity: 1; }
   @O .right > button.round { background: transparent; }
 
@@ -561,12 +639,16 @@ const ORBIT = `
   @O .col.today { background: color-mix(in srgb, var(--accent) 13%, var(--glass)); border: 2px solid var(--accent); }
   @O .dayhead { padding: 2px 4px 6px 6px; }
   @O .num { font-weight: 400; font-size: 22px; }
-  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; }
+  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; font-size: 15px; }
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: 13px; }
+  @O .ev .w { font-weight: 400; font-size: 14px; }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
+  /* what is over keeps its outline and loses its fill; the words stay readable */
+  @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }
+  @O .ev.past { box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .ev.past .t, @O .ev.past .w, @O .ev.past .content, @O .dayrow.past .content, @O .dayrow.past .muted { color: var(--ink-done); }
   @O .more { background: transparent; font-weight: 500; }
   @O .cell { border-radius: 14px; border: 1px solid var(--glass-line); background: var(--glass); }
   @O .cell.out { background: transparent; }
@@ -581,16 +663,16 @@ const ORBIT = `
   @O .quick { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 500; min-height: 44px; }
   @O .rem { font-weight: 400; }
   @O .meter { height: 6px; }
-  @O .meter > div { background: var(--ok); }
+  @O .meter > div { background: var(--accent); }
 
   /* dock: a line of rings */
   @O .dock { background: transparent; border-color: transparent; gap: 6px; padding: 0; }
-  @O .dock .item { font-size: 13px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
+  @O .dock .item { font-size: 15px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
   @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
-  @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 3px #0a0f1e, 0 0 0 6px var(--kidc); }
+  @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
 
   /* lists */
@@ -598,12 +680,16 @@ const ORBIT = `
   @O .check { border-width: 2.5px; border-color: var(--ink2); }
   @O .done .check { background: var(--ok); border-color: var(--ok); color: #0a0f1e; }
   @O .row .content { font-weight: 400; }
-  @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; }
+  @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
-  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; }
+  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; min-width: 0; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
-  @O .key:active { background: var(--chip-strong); }
-  @O .tabs { background: rgba(255,255,255,.07); }
+  /* outlined controls light their line when pressed; they never shrink. Shift is a ring, and yellow only while it is latched */
+  @O .key:active { background: var(--chip-strong); transform: none; box-shadow: inset 0 0 0 2px var(--accent); }
+  @O .key[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
+  @O .tabs { background: transparent; }
+  @O .ctab { background: var(--ground, #0a0f1e); color: var(--ink); box-shadow: inset 0 0 0 2px var(--c); }
+  @O .ctab[aria-pressed='true'] { background: color-mix(in srgb, var(--c) 22%, var(--ground, #0a0f1e)); box-shadow: inset 0 0 0 3px var(--c); }
   @O .tab { font-weight: 500; }
   @O .tab[aria-pressed='true'] { font-weight: 600; }
 
@@ -616,12 +702,12 @@ const ORBIT = `
   @O .stat span { font-weight: 400; }
   @O .dots i.t { box-shadow: 0 0 0 2px #121a31, 0 0 0 4px var(--kid); }
   @O .nextup { background: var(--chip-soft); }
-  @O .jobs .check { border-color: var(--kid); }
   @O .jobs .done .check { border-color: var(--ok); }
+  @O .pic.now { box-shadow: 0 0 0 3px var(--accent); }
   @O .sec { margin-top: 12px; }
-  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--kid); }
+  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--ink); }
   @O .sec span { font-weight: 400; }
-  @O .plus { background: color-mix(in srgb, var(--kid) 20%, transparent); color: var(--kid); font-weight: 600; }
+  @O .plus { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
   @O .rw { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
   @O .rw .n { font-weight: 400; }
@@ -644,7 +730,7 @@ const ORBIT = `
   @O .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .dev.on .dicon { background: var(--accent); color: #0a0f1e; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
   @O .toggle { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .toggle[aria-checked='true'] { background: var(--ok); box-shadow: none; }
+  @O .toggle[aria-checked='true'], @O [aria-checked='true'] > .toggle { background: var(--accent); box-shadow: none; }
   @O .scene { background: transparent; border-radius: 20px; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
 
   /* doodle: the paper stays bright, the gallery is a row of framed portholes */
@@ -672,7 +758,7 @@ const ORBIT = `
   /* music: rooms are cells on the ring; the one you control carries the 'now' yellow */
   @O .spk { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .spk.focus { background: color-mix(in srgb, var(--accent) 8%, transparent); box-shadow: inset 0 0 0 2px var(--accent); }
-  @O .spk.inmix { box-shadow: inset 0 0 0 2px var(--ok); }
+  @O .spk.inmix { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .mroom { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @O .mstairs { box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .mzone { --stream: var(--accent); }
@@ -685,7 +771,7 @@ const ORBIT = `
   @O .wholeh { border-width: 1.5px; border-color: var(--ctl-line); }
   @O .viewbtn { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .vcard { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
-  @O .vcard[aria-pressed='true'] { background: var(--sel-bg); }
+  @O .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; }
   @O .dplate { fill: transparent; stroke: var(--glass-line); stroke-width: 1.5; }
   @O .bigdial, @O .desk, @O .rig, @O .vscene { --stream: var(--accent); }
   @O .dtrack { stroke: rgba(255,255,255,.14); stroke-width: 10; }
@@ -695,10 +781,10 @@ const ORBIT = `
   @O .desk { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .sname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .lamp[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
+  @O .lamp[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
   @O .fcap { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .slot { width: 2px; left: 21px; }
+  @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .mpad { box-shadow: none; }
   @O .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
@@ -710,12 +796,13 @@ const ORBIT = `
   @O .tkey { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .tkey[data-go] { background: var(--primary); color: var(--on-primary); box-shadow: none; }
   @O .vscene { box-shadow: inset 0 0 0 1px var(--glass-line); }
-  @O .aname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .aname { background: var(--ground); box-shadow: inset 0 0 0 1px var(--glass-line); } /* music polish: opaque, so an orbit never runs through a room's name */
   @O .join { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .join[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
+  @O .join[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
   @O .st { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .st.on { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
 
@@ -728,7 +815,7 @@ const ORBIT = `
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
   @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
   @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
-  @O .wfact { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 14px; }
+  @O .wfact { background: transparent; }
   @O .wday.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
   @O .wbar { box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent); }
   @O .wwarn { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 2px var(--danger); }
@@ -740,12 +827,37 @@ const ORBIT = `
   @O .hchart .area { opacity: .08; }
   @O .hchart .line { stroke-width: 2; }
   @O .mbox { border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+
+  /* switches: on is yellow (mint is kept for things that are done) */
+  @O .opt[aria-checked='true'] .sw { background: var(--accent); }
+  /* the chosen look: a ring and a tick, never a fill */
+  @O .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 3px var(--accent); }
+  @O .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #0a0f1e; font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px #172039; }
+  /* sheets: chips are rings, the chosen one is yellow; who gave a medicine is a ring too, so adding to the record is the one filled action */
+  @O .mchip, @O .chips button, @O .durs button, @O .ampm button, @O .allday { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
+  @O .mchip[aria-pressed='true'], @O .chips button[aria-pressed='true'], @O .durs button[aria-pressed='true'], @O .ampm button[aria-pressed='true'], @O .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
+
+  /* phone, and anything narrower than 700 px: the day ring sits above the list instead of beside it */
+  @O[data-phone] .dayview, @O<700 .dayview { flex-direction: column; align-items: stretch; gap: 16px; }
+  @O[data-phone] .dayart, @O<700 .dayart { min-width: 0; padding: 0; align-self: center; }
+  @O[data-phone] .dayview .ddial, @O<700 .dayview .ddial { width: min(calc(72vw / var(--z, 1)), 300px); height: auto; }
+  @O[data-phone] .dayview .dh, @O<700 .dayview .dh { font-size: 10.5px; }
+  @O[data-phone] .dayview .dp, @O<700 .dayview .dp { font-size: 9.5px; translate: 0 2.5px; }
+  @O[data-phone] .dayview .dayrow, @O<700 .dayview .dayrow { min-width: 0; }
+  /* phone: the dock is a solid bar along the bottom; the page ends above it, and the bar fades at the right while there is more to slide to */
+  @O[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
+  @O[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: rgba(10,15,30,.92); border: 0; border-top: 1px solid var(--glass-line); }
+  @O[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, #0a0f1e 85%); pointer-events: none; }
+  @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @O[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 11px; }
 `;
 
 const KEYFRAMES = `
   /* the fridge door gets a bump now and then: every note jiggles on its pin (needs --tilt registered as a number, see ambient.ts) */
   @keyframes fjig { 0%, 93%, 100% { --tilt: 1; } 94.5% { --tilt: 2.3; } 96% { --tilt: -.2; } 97.5% { --tilt: 1.6; } 99% { --tilt: .7; } }
   @keyframes fhSpin { to { transform: rotate(360deg); } }
+  @keyframes fhHot { 50% { box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); } }
   .vinyl .spin { transform-box: fill-box; transform-origin: center; animation: fhSpin 5s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
 `;
@@ -774,18 +886,25 @@ const PREVIEW = `
 const OWNER = new Map<string, string[]>();
 for (const [tag, names] of Object.entries(HOOKS.parts)) for (const n of names) OWNER.set(n, [...(OWNER.get(n) ?? []), tag]);
 
-/** Expand a look's rules: role rules apply in every component, part rules only inside the component that owns the part. */
+/**
+ * Expand a look's rules: role rules apply in every component, part rules only inside the component that owns the part.
+ * The look's tag may carry host state and a width limit: `@O[data-phone] .dock` applies on phones only,
+ * `@O<700 .dayview` on any screen narrower than 700 px.
+ */
 const scope = (css: string, id: LookId): string => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/([^{}]+)\{([^{}]*)\}/g, (_m, sels: string, body: string) => {
-  const out = sels.split(',').map((sel) => {
+  const byWidth = new Map<string, string[]>();
+  for (const sel of sels.split(',')) {
     let owners: string[] | null = null;
     for (const m of sel.replace(/\[[^\]]*\]/g, '').matchAll(/\.([a-zA-Z][\w-]*)/g)) {
       const o = OWNER.get(m[1]);
       if (o && !HOOKS.roles.includes(m[1])) owners = owners ? owners.filter((x) => o.includes(x)) : o;
     }
-    const host = owners?.length === 1 ? `:host(${owners[0]}[data-look='${id}'])` : `:host([data-look='${id}'])`;
-    return sel.trim().replace(/^@[A-Z]/, host);
-  });
-  return `${out.join(', ')} {${body}}\n`;
+    const tag = /^@[A-Z](?:<(\d+))?((?:\[[^\]]+\])*)/.exec(sel.trim());
+    const host = `:host(${owners?.length === 1 ? owners[0] : ''}[data-look='${id}']${tag?.[2] ?? ''})`;
+    const max = tag?.[1] ?? '';
+    byWidth.set(max, [...(byWidth.get(max) ?? []), sel.trim().replace(/^@[A-Z](?:<\d+)?(?:\[[^\]]+\])*/, host)]);
+  }
+  return [...byWidth].map(([max, list]) => (max ? `@media (max-width: ${Number(max) - 1}px) { ${list.join(', ')} {${body}} }\n` : `${list.join(', ')} {${body}}\n`)).join('');
 });
 
 /** A look's tokens as rules on the root, so evening (and any later state) can override them in CSS. */
@@ -796,4 +915,4 @@ const tokens = (l: LookDef): string => {
   return `${root} {${decl(l.vars)}}\n${l.evening ? `${root}[data-tod='eve'], ${root}[data-tod='night'] {${decl(l.evening)}}\n` : ''}`;
 };
 
-export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit'));
+export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(GLASS, 'glass') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit'));

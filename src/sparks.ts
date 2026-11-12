@@ -295,7 +295,7 @@ const FX: Record<SparkKind, (e: E) => void> = {
     if (e.o.burst) {
       for (let i = 0; i < 12; i++) {
         const a = ((i * 30 + R(-13, 13)) * Math.PI) / 180, v = R(70, 150), p = paper(e, x - 5, -36, i);
-        if (e.calm) { p.style.translate = `${Math.cos(a) * v * 0.25}px ${Math.sin(a) * v * 0.2}px`; A(e, p, blink(), 700); } else A(e, p, toss(Math.cos(a) * v, Math.sin(a) * v * 0.8 - 70, 560, 0.9, R(-300, 300), R(0.8, 1.6)), 900, R(0, 50));
+        if (e.calm) { p.style.translate = `${Math.cos(a) * v * 0.25}px ${Math.sin(a) * v * 0.2}px`; A(e, p, blink(), 700); } else A(e, p, toss(Math.cos(a) * v, Math.sin(a) * v * 0.8 - 70, 560, 0.9, R(-300, 300), R(0.8, 1.6)), 850, R(0, 50));
       }
       return;
     }

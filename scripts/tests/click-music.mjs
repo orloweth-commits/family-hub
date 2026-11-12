@@ -12,6 +12,8 @@ const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); p
   await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:4782/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const calls = (page, re) => page.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).slice(-3).join(' || '), re.source);
 const M = (page) => page.locator('fh-music');
+// ONLY=polish runs just the polish-pass tests at the end of this file
+if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs.length ? errs.join('\n') : 'none'); await browser.close(); srv.close(); process.exit(0); }
 // the house: drag the waterline for volume, add a room, carry the music to another room and to Everywhere, bedrooms after bedtime ask first
 {
   const p = await open('look=glass&page=music&mview=house');
@@ -50,14 +52,14 @@ const M = (page) => page.locator('fh-music');
   await M(p).getByRole('button', { name: 'Close search' }).count().then((c) => console.log('search closed by default:', c === 0));
   await p.close();
   // the other ways of seeing the rooms: each one changes a volume by dragging, and adds a room
-  for (const [view, grab, add] of [['dial', '.darc[data-zone="media_player.kitchen"] .dknob', null], ['desk', '.strip[data-zone="media_player.kitchen"] .fcap', /Add Office to the music/], ['cables', '.cab[data-zone="media_player.kitchen"] .cone', /Add Office to the music/], ['scene', '.actor[data-zone="media_player.kitchen"] .agrab', null]]) {
-    const v = await open('look=glass&page=music&mview=' + view); await v.evaluate(() => { (window.__calls ||= []).length = 0; });
+  for (const [view, grab, add] of [['dial', '.darc[data-zone="media_player.kitchen"] .dknob', null], ['desk', '.strip[data-zone="media_player.kitchen"] .fcap', /Add Office to the music/], ['cables', '.cab[data-zone="media_player.kitchen"] .cknob', /Add Office to the music/], ['scene', '.actor[data-zone="media_player.kitchen"] .agrab', null]]) {
+    const v = await open('look=glass&page=music&mview=' + view); await v.evaluate(() => { (window.__calls ||= []).length = 0; }); if (view === 'scene') await v.waitForTimeout(800); // the rooms glide to their places first
     const g = await M(v).locator(grab).boundingBox(), cx = g.x + g.width / 2, cy = g.y + g.height / 2;
     await v.mouse.move(cx, cy); await v.mouse.down(); await v.mouse.move(cx + (view === 'dial' ? -14 : 0), cy - 20, { steps: 4 }); await v.mouse.move(cx + (view === 'dial' ? -30 : 0), cy - (view === 'dial' ? 30 : 44), { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
     let out = `${view} volume: ${(await calls(v, /volume_set/)).split(' || ').pop().slice(-60)}`;
     if (add) { await M(v).getByRole('button', { name: add }).click(); await v.waitForTimeout(300); out += ` | add: ${(await calls(v, /media_player\.join/)).slice(0, 70)}`; }
     else { await M(v).locator(view === 'dial' ? '.darc[data-zone="media_player.office"]' : '.actor[data-zone="media_player.office"] > svg').focus(); await v.keyboard.press('Enter'); await v.waitForTimeout(300); out += ` | add by key: ${(await calls(v, /media_player\.join/)).slice(0, 70)}`; }
-    await M(v).locator(view === 'dial' ? '.darc[data-zone="media_player.kitchen"]' : view === 'desk' ? '.strip[data-zone="media_player.kitchen"] .fader' : view === 'cables' ? '.cab[data-zone="media_player.kitchen"] .chit' : '.actor[data-zone="media_player.kitchen"] > svg').focus();
+    await M(v).locator(view === 'dial' ? '.darc[data-zone="media_player.kitchen"]' : view === 'desk' ? '.strip[data-zone="media_player.kitchen"] .vrail' : view === 'cables' ? '.cab[data-zone="media_player.kitchen"] .cknob' : '.actor[data-zone="media_player.kitchen"] .agrab').focus();
     await v.keyboard.press('ArrowDown'); await v.waitForTimeout(200); out += ` | key: ${(await calls(v, /volume_set/)).split(' || ').pop().slice(-28)}`;
     const box = await M(v).locator('.body').evaluate((e) => [...e.querySelectorAll('.bigdial, .desk, .rig, .vscene')].map((x) => { const r = x.getBoundingClientRect(), b = e.getBoundingClientRect(); return r.bottom <= b.bottom + 1 && r.height > 120; })[0]);
     console.log(out, '| fits:', box);
@@ -125,7 +127,7 @@ const M = (page) => page.locator('fh-music');
       console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
-    await M(v).getByRole('button', { name: /change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
+    await M(v).getByRole('button', { name: 'Change the view', exact: true }).click(); await v.waitForTimeout(200);
     if (view === 'dial') {
       // the big dial's surroundings: the tuner plays a favourite and then a station, a face opens the search for that person, the sleep fade starts a timer
       const dv = await open('look=glass&page=music&mview=dial&juke=1'); await dv.evaluate(() => { (window.__calls ||= []).length = 0; });
@@ -166,7 +168,7 @@ let page = await open('look=glass&page=music&mview=list');
 // rooms: add Office, everywhere, just kitchen, move
 await M(page).getByRole('button', { name: /Add Office to the music/ }).click(); await page.waitForTimeout(300);
 console.log('join:', await calls(page, /media_player\.join/), '| in mix:', await M(page).locator('.spk.inmix').count());
-await M(page).getByRole('button', { name: 'Everywhere' }).click(); await page.waitForTimeout(300); console.log('everywhere in mix:', await M(page).locator('.spk.inmix').count());
+await M(page).getByRole('button', { name: 'Whole house' }).click(); await page.waitForTimeout(300); console.log('everywhere in mix:', await M(page).locator('.spk.inmix').count());
 await M(page).getByRole('button', { name: /^Just Kitchen/ }).click(); await page.waitForTimeout(300); console.log('after just-kitchen in mix:', await M(page).locator('.spk.inmix').count());
 await M(page).getByRole('button', { name: 'Move the music here' }).first().click(); await page.waitForTimeout(400); console.log('move:', await calls(page, /transfer_queue/), '| now', await M(page).locator('.stage').innerText().then((t) => t.split('\n')[0]));
 await M(page).getByRole('button', { name: /^Night/ }).click(); await page.waitForTimeout(200); console.log('tv night sound:', await calls(page, /switch\./));
@@ -258,12 +260,12 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   console.log('jukebox turn by pictures:', pics, '|', await toast(j), '| tallies shown:', await M(j).locator('.tally').count());
   await M(j).getByRole('button', { name: 'Clear', exact: true }).click(); await j.waitForTimeout(300); const gone = await M(j).locator('.pickrow').count(); await M(j).locator('.toast button').click(); await j.waitForTimeout(300);
   console.log('clear then undo:', gone, '→', await M(j).locator('.pickrow').count()); await j.close();
-  const q = await open('page=music&look=glass&mview=scene'); await q.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.fh').setAttribute('data-calm', '')); await q.waitForTimeout(600);
+  const q = await open('page=music&look=glass&mview=scene'); await q.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.fh').setAttribute('data-calm', '')); await q.waitForTimeout(1500);
   console.log('calm mode, animations still running:', await q.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return r.getAnimations ? r.getAnimations().filter((a) => a.playState === 'running').length : -1; })); await q.close(); }
 // 0.18.0: on a wide screen the view's controls share the title row, so the view gets the height
 { for (const v of ['house', 'cables', 'desk', 'scene', 'dial']) { const o = await open('page=music&look=glass&mview=' + v);
     const b = await M(o).locator(v === 'house' ? '.map' : v === 'cables' ? '.rig' : v === 'desk' ? '.desk' : v === 'scene' ? '.vscene' : '.dialwrap').first().boundingBox();
-    console.log(`stage height, ${v}:`, Math.round(b?.height ?? 0), '| view button in the title row:', await M(o).locator('.mhead .viewbtn').count() === 1, '| hint shows then goes on a touch:', await M(o).locator('.coach[data-on]').count(), '→', (await o.mouse.click(640, 400), await o.waitForTimeout(200), await M(o).locator('.coach[data-on]').count())); await o.close(); }
+    console.log(`stage height, ${v}:`, Math.round(b?.height ?? 0), '| view button in the title row:', await M(o).locator('.mhead .viewbtn').count() === 1, '| hint shows then goes on a touch:', await M(o).locator('.hint[data-on]').count(), '→', (await o.mouse.click(640, 400), await o.waitForTimeout(200), await M(o).locator('.hint[data-on]').count())); await o.close(); }
   const t = await open('page=music&look=glass&mview=house'); await t.setViewportSize({ width: 800, height: 1280 }); await t.waitForTimeout(500);
   console.log('portrait keeps the two rows:', await M(t).locator('.acts .viewbtn').count() === 1); await t.close(); }
 // 0.19.0: quiet life behind the page, off in calm mode
@@ -288,5 +290,122 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   const mid = await G.locator('button.item').allTextContents();
   console.log('grocery ticked at once and stays put:', await G.locator('button.item', { hasText: name }).first().evaluate((e) => e.classList.contains('done')), JSON.stringify(before) === JSON.stringify(mid), '| min row height:', Math.min(...await G.locator('button.item').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)))));
   await g.waitForTimeout(4300); console.log('then moves to the trolley:', JSON.stringify(await G.locator('button.item').allTextContents()) !== JSON.stringify(mid)); await g.close(); }
+await polish();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
+
+// ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----
+async function polish() {
+  const toast = async (pg) => (await M(pg).locator('.toast').textContent() ?? '').trim().replace(/\s+/g, ' ');
+  const clear = (pg) => pg.evaluate(() => { (window.__calls ||= []).length = 0; });
+  const count = (pg, re) => pg.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).length, re.source);
+  // 1, 3, 4, 5. one page per full view: the hint is a line in the toolbar and never over the view (four seconds on first entry, again on "?", not again on coming back);
+  // the view's share of the page, type sizes and names; the quieter and louder buttons send a volume and the slider says what it is
+  { const zone = { house: '.mzone[data-zone="media_player.kitchen"]', desk: '.strip[data-zone="media_player.kitchen"]', cables: '.cab[data-zone="media_player.kitchen"]', dial: '.dlabel:has(.dname[aria-label="Show Kitchen in the player"])', scene: '.actor[data-zone="media_player.kitchen"]' };
+    for (const v of ['house', 'scene', 'dial', 'desk', 'cables']) { const o = await open('page=music&look=glass&mview=' + v), sel = zone[v];
+      const r = await M(o).locator('.hint').evaluate((h) => { const root = h.getRootNode(), b = h.getBoundingClientRect(), body = root.querySelector('.body').getBoundingClientRect(), cs = getComputedStyle(h);
+        return { on: h.hasAttribute('data-on'), inToolbar: !!h.closest('.mhead, .acts'), overView: b.bottom > body.top + 1, px: cs.fontSize, lines: Math.round(b.height / 18), coach: root.querySelectorAll('.coach').length }; });
+      const z = await M(o).evaluate((m, v) => { const R = m.shadowRoot, q = (s) => [...R.querySelectorAll(s)], px = (e) => parseFloat(getComputedStyle(e).fontSize), min = (s) => Math.min(...q(s).filter((e) => e.getClientRects().length).map(px));
+        const stage = R.querySelector(v === 'house' ? '.maprow' : v === 'cables' ? '.rig' : v === 'desk' ? '.desk' : v === 'scene' ? '.vscene' : '.dialwrap').getBoundingClientRect(), host = m.getBoundingClientRect();
+        const names = { house: '.zname b', scene: '.atx > b', dial: '.dname b', desk: '.sname', cables: '.ctext > b' }[v], states = { house: '.zname span', scene: '.atx > span', dial: '.dname span', desk: '.lamp', cables: '.ctext > span' }[v];
+        const cut = q('.actor, .mpad, .cab, .dlabel, .strip').filter((e) => { const b = e.getBoundingClientRect(); return b.width && (b.left < stage.left - 1 || b.right > stage.right + 1 || b.top < stage.top - 1 || b.bottom > stage.bottom + 1); }).length;
+        return { stage: Math.round(stage.height), ofPage: Math.round((stage.height / host.height) * 100) + '%', ofScreen: Math.round((stage.height / innerHeight) * 100) + '%', names: min(names), states: min(states), cutByEdge: cut, filledInToolbar: q('.mhead .primary, .mhead .mkey.go').length, oldWords: R.querySelector('.panel').innerText.match(/Everywhere|\bALL\b|\bOff\b|Plug in to play/g) }; }, v);
+      console.log(`hint, ${v}:`, JSON.stringify(r)); console.log(`sizes, ${v}:`, JSON.stringify(z), '| view button:', await M(o).locator('.viewbtn').getAttribute('aria-label'), '/', (await M(o).locator('.viewbtn').innerText()).trim());
+      await clear(o); await M(o).locator(`${sel} .vstep[data-step="up"]`).click(); await o.waitForTimeout(300); const up = (await calls(o, /volume_set/)).slice(-20);
+      await M(o).locator(`${sel} .vstep[data-step="down"]`).click(); await o.waitForTimeout(300);
+      const sl = M(o).locator(v === 'house' ? `${sel} .grab` : v === 'desk' ? `${sel} .vrail` : v === 'cables' ? `${sel} .cknob` : v === 'dial' ? '.darc[data-zone="media_player.kitchen"]' : `${sel} .agrab`);
+      console.log(`${v}: plus ${up} | minus ${(await calls(o, /volume_set/)).split(' || ').pop().slice(-20)} | slider:`, JSON.stringify(await sl.evaluate((e) => ({ role: e.getAttribute('role'), label: e.getAttribute('aria-label'), now: e.getAttribute('aria-valuenow'), text: e.getAttribute('aria-valuetext') }))),
+        '| button', await M(o).locator(`${sel} .vstep`).first().evaluate((e) => Math.round(e.getBoundingClientRect().width) + 'x' + Math.round(e.getBoundingClientRect().height)));
+      if (v !== 'house') { await o.close(); continue; }
+      await o.waitForTimeout(3600); const after = await M(o).locator('.hint[data-on]').count();
+      await M(o).getByRole('button', { name: 'How this view works' }).click(); await o.waitForTimeout(200); const asked = await M(o).locator('.hint[data-on]').count();
+      await o.mouse.click(640, 300); await M(o).getByRole('button', { name: 'Change the view', exact: true }).click(); await M(o).locator('.vcard', { hasText: 'Desk' }).click(); await o.waitForTimeout(600);
+      const first = await M(o).locator('.hint[data-on]').count(); await o.mouse.click(640, 300);
+      await M(o).getByRole('button', { name: 'Change the view', exact: true }).click(); await M(o).locator('.vcard', { hasText: 'House' }).click(); await o.waitForTimeout(600);
+      console.log('hint: gone after 4 s:', after === 0, '| back on "?":', asked === 1, '| a new view shows it once:', first === 1, '| coming back to a view seen already does not:', await M(o).locator('.hint[data-on]').count() === 0); await o.close(); } }
+  // 2. Whole house and ＋ spread the music that is playing, whichever room is selected; nothing playing: say so and do nothing; linked rooms keep their mark
+  { const o = await open('page=music&look=glass&mview=house'); await clear(o);
+    await M(o).locator('.mzone[data-zone="media_player.office"] .zname').click(); await o.waitForTimeout(200);
+    await M(o).locator('.wholeh').click(); await o.waitForTimeout(500);
+    console.log('whole house with a silent room selected spreads what is playing:', (await calls(o, /media_player\.join/)).slice(0, 60), '|', await toast(o));
+    console.log('linked marks:', await M(o).locator('.mzone[data-linked]').count(), '| after selecting another room:', (await M(o).locator('.mzone[data-zone="media_player.alexs_homepod"] .zname').click(), await o.waitForTimeout(200), await M(o).locator('.mzone[data-linked] .linkd').count())); await o.close();
+    const a = await open('page=music&look=glass&mview=house'); await M(a).locator('.mzone[data-zone="media_player.office"] .zname').click(); await a.waitForTimeout(200); await clear(a);
+    await M(a).getByRole('button', { name: /Add Lounge to the music/ }).click(); await a.waitForTimeout(400);
+    console.log('＋ with a silent room selected joins the playing music:', (await calls(a, /media_player\.join/)).slice(0, 110)); await a.close();
+    for (const v of ['house', 'list']) { const n = await open('page=music&look=glass&mview=' + v);
+      await M(n).locator(v === 'house' ? '.nowbar .ngo' : v === 'desk' ? '.tkey.go' : '.ctl .go').click(); await n.waitForTimeout(400); await clear(n);
+      await M(n).locator(v === 'house' ? '.wholeh' : v === 'desk' ? '.master .lamp' : '.wholeb').click(); await n.waitForTimeout(400);
+      console.log(`nothing playing, ${v}:`, await toast(n), '| joins sent:', await count(n, /media_player\.join/)); await n.close(); } }
+  // 3. one slider family: the end buttons and the arrow keys send a volume; a slider says what it is; a failed call glides back; a slow one shows busy
+  { const l = await open('page=music&look=glass&mview=list'); await clear(l); const k = M(l).locator('.spk[data-zone="media_player.kitchen"]');
+    await k.locator('.vstep[data-step="up"]').click(); await l.waitForTimeout(300); let out = `list plus: ${(await calls(l, /volume_set/)).slice(-22)}`;
+    await k.locator('.vstep[data-step="down"]').click(); await l.waitForTimeout(300); out += ` | minus: ${(await calls(l, /volume_set/)).split(' || ').pop().slice(-22)}`;
+    await k.locator('.vrail').focus(); await l.keyboard.press('ArrowRight'); await l.waitForTimeout(300); out += ` | arrow key: ${(await calls(l, /volume_set/)).split(' || ').pop().slice(-22)}`;
+    console.log(out, '|', JSON.stringify(await k.locator('.vrail').evaluate((e) => ({ role: e.getAttribute('role'), label: e.getAttribute('aria-label'), now: e.getAttribute('aria-valuenow'), text: e.getAttribute('aria-valuetext'), hit: Math.round(e.getBoundingClientRect().height), thumb: Math.round(e.querySelector('.fcap').getBoundingClientRect().width), num: getComputedStyle(e.parentElement.querySelector('.vnum')).fontSize, step: Math.round(e.parentElement.querySelector('.vstep').getBoundingClientRect().width) }))));
+    const rb = await k.locator('.vrail').boundingBox(); await clear(l); await l.mouse.move(rb.x + 30, rb.y + 22); await l.mouse.down(); await l.mouse.move(rb.x + 60, rb.y + 23, { steps: 3 }); const held = await k.locator('.vs[data-held]').count(); await l.mouse.move(rb.x + rb.width - 20, rb.y + 24, { steps: 3 }); await l.mouse.up(); await l.waitForTimeout(300);
+    console.log('list drag:', (await calls(l, /volume_set/)).slice(-22), '| held while dragging:', held === 1, '| idle rooms hollow, no fill:', await M(l).locator('.spk[data-zone="media_player.office"] .vs[data-idle]').count() === 1);
+    await clear(l); await M(l).locator('.stage .vstep[data-step="up"]').click(); await l.waitForTimeout(300); console.log('main player plus:', (await calls(l, /volume_set/)).slice(-60)); await l.close();
+    const f = await open('page=music&look=glass&mview=list&fail=1'); await M(f).locator('.spk[data-zone="media_player.kitchen"] .vstep[data-step="up"]').click(); await f.waitForTimeout(150);
+    const shown = await M(f).locator('.spk[data-zone="media_player.kitchen"] .vnum').innerText(); await f.waitForTimeout(900);
+    console.log('failed volume call: shows', shown, 'then back to', await M(f).locator('.spk[data-zone="media_player.kitchen"] .vnum').innerText(), '|', await toast(f)); await f.close();
+    const s = await open('page=music&look=glass&mview=list&slow=1500'); await M(s).locator('.spk[data-zone="media_player.kitchen"] .vstep[data-step="up"]').click(); await s.waitForTimeout(120); const early = await M(s).locator('[data-busy]').count(); await s.waitForTimeout(500);
+    console.log('slow Home Assistant: busy at once:', early, '| busy after 250 ms:', await M(s).locator('[data-busy]').count(), '| cleared when it answers:', (await s.waitForTimeout(1400), await M(s).locator('[data-busy]').count())); await s.close();
+    // on a phone a swipe up the page that starts on a slider scrolls and changes nothing; a slide along it sets the volume
+    const pc = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }), ph = await pc.newPage(); ph.on('pageerror', (e) => errs.push(String(e)));
+    await ph.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await ph.goto('http://localhost:4782/?look=glass&page=music&mview=list'); await ph.waitForFunction('window.__ready === true'); await ph.waitForTimeout(700);
+    const cdp = await pc.newCDPSession(ph), rail = M(ph).locator('.spk[data-zone="media_player.alexs_homepod"] .vrail'); await rail.scrollIntoViewIfNeeded(); await ph.waitForTimeout(300);
+    const touch = async (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
+    const swipe = async (x0, y0, x1, y1) => { await touch('touchStart', x0, y0); for (let i = 1; i <= 8; i++) { await touch('touchMove', x0 + ((x1 - x0) * i) / 8, y0 + ((y1 - y0) * i) / 8); await ph.waitForTimeout(30); } await touch('touchEnd'); await ph.waitForTimeout(500); };
+    let b = await rail.boundingBox(); await clear(ph); await swipe(b.x + b.width / 2, b.y + 22, b.x + b.width / 2 + 6, b.y - 150);
+    const b2 = await rail.boundingBox(); console.log('phone: a swipe up that starts on a slider scrolls the page:', Math.round(b.y - b2.y) > 40, '| volume calls:', await count(ph, /volume_set/), '| touch-action:', await rail.evaluate((e) => getComputedStyle(e).touchAction));
+    await clear(ph); await swipe(b2.x + 24, b2.y + 22, b2.x + b2.width - 24, b2.y + 24); console.log('phone: a slide along the slider sets the volume:', (await calls(ph, /volume_set/)).slice(-60)); await pc.close(); }
+  // 7. a press that moves less than 16 px is a tap: a buoy, a sleeve, the music itself
+  { const o = await open('page=music&look=glass&mview=scene'); await clear(o);
+    const wob = async (pg, sel) => { const b = await M(pg).locator(sel).first().boundingBox(), x = b.x + b.width / 2, y = b.y + b.height / 2; await pg.mouse.move(x, y); await pg.mouse.down(); await pg.mouse.move(x + 9, y + 9, { steps: 3 }); await pg.mouse.up(); await pg.waitForTimeout(450); };
+    await wob(o, '.sitem'); console.log('a wobbly tap on a buoy plays it:', (await calls(o, /play_media/)).slice(0, 70)); await o.close();
+    const c = await open('page=music&look=glass&mview=cables'); await clear(c); await wob(c, '.sleeve[data-front]'); console.log('a wobbly tap on the front sleeve plays it:', (await calls(c, /play_media/)).slice(0, 70)); await c.close();
+    const h = await open('page=music&look=glass&mview=house'); await clear(h); await wob(h, '.mzone[data-zone="media_player.kitchen"] .puck'); console.log('a wobbly tap on the music pauses it:', (await calls(h, /media_play_pause/)).slice(0, 60), '| nothing moved:', !(await calls(h, /transfer_queue|join/))); await h.close(); }
+  // 8. call a room: pictures on the ready messages; no room chosen is said at once; rooms and messages stay in reach with the keyboard up
+  { const o = await open('page=music&look=glass&mtab=call');
+    await M(o).locator('.bubble').first().click(); await o.waitForTimeout(250); const said = await toast(o);
+    await M(o).locator('input.field').click(); await o.waitForTimeout(400);
+    console.log('call: pictures', await M(o).locator('.bpic').count() + await M(o).locator('.qpic').count(), '| a message with no room:', said, '| with the keyboard up: rooms', await M(o).locator('.rchip').count(), 'messages', await M(o).locator('.qpic').count(), 'keys', await M(o).locator('.key').count() > 20);
+    await clear(o); await M(o).locator('.rchip', { hasText: 'Office' }).click(); await M(o).locator('.qpic').nth(1).click(); await M(o).locator('.sayit').click(); await o.waitForTimeout(400);
+    console.log('call from the keyboard screen:', (await calls(o, /tts_get_url/)).slice(0, 110)); await o.close(); }
+  // 9. sleep fade names its room, can be called off, and is not offered for a speaker that cannot be reached; a tap on the wheel or on the station playing does nothing; Remove has Undo
+  { const d = await open('page=music&look=glass&mview=dial'); const before = (await M(d).locator('.dsleep').innerText()).replace(/\s+/g, ' ');
+    await M(d).locator('.dsleep').click(); await d.waitForTimeout(300); const during = (await M(d).locator('.dsleep').innerText()).replace(/\s+/g, ' '), t1 = await toast(d);
+    await M(d).locator('.toast button').click(); await d.waitForTimeout(300);
+    console.log('sleep fade:', before, '→', during, '|', t1, '→', await toast(d), '|', (await calls(d, /script\.turn_off/)).slice(0, 40));
+    await clear(d); const tb = await M(d).locator('.tuner').boundingBox(), n = await M(d).locator('.tstop').count(); await d.mouse.click(tb.x + tb.width * (0.5 / n), tb.y + 40); await d.waitForTimeout(500); const once = await count(d, /play_media/);
+    await d.mouse.click(tb.x + tb.width * (0.5 / n), tb.y + 40); await d.waitForTimeout(500); console.log('tuner: first tap plays', once, '| a second tap on the same stop plays again:', (await count(d, /play_media/)) - once); await d.close();
+    const off = await open('page=music&look=glass&mview=dial&moff=office'); await M(off).locator('.dname[aria-label="Show Office in the player"]').click(); await off.waitForTimeout(300); console.log('sleep fade offered for an offline speaker:', await M(off).locator('.dsleep').count()); await off.close();
+    const k = await open('page=music&look=glass&mview=desk'); await clear(k); const jb = await M(k).locator('.jog').boundingBox(); await k.mouse.click(jb.x + jb.width / 2 + 20, jb.y + 30); await k.waitForTimeout(300);
+    console.log('a tap on the jog wheel seeks:', await count(k, /media_seek|next_track|previous_track/)); await k.close();
+    const s = await open('page=music&look=glass&mtab=shelves&shelf=Max'); await M(s).getByRole('button', { name: 'Edit', exact: true }).click(); await s.waitForTimeout(200);
+    for (const x of '1234') await M(s).locator('fh-pin').getByRole('button', { name: x, exact: true }).click(); await s.waitForTimeout(300);
+    const n0 = await M(s).locator('.crate .st').count(); await M(s).locator('.crate .st .x').first().click(); await s.waitForTimeout(500); const n1 = await M(s).locator('.crate .st').count(), t = await toast(s);
+    await M(s).locator('.toast button').click(); await s.waitForTimeout(600); console.log('shelf remove:', n0, '→', n1, '|', t, '| undo:', await M(s).locator('.crate .st').count(), '|', (await calls(s, /todo\.add_item/)).slice(0, 60)); await s.close(); }
+  // 10. play and Whole house skip a speaker that cannot be reached, and say so
+  { const o = await open('page=music&look=glass&mview=house&moff=office'); await clear(o); await M(o).locator('.wholeh').click(); await o.waitForTimeout(500);
+    console.log('whole house with one offline:', await toast(o), '| office joined:', /office/.test(await calls(o, /media_player\.join/)));
+    await M(o).locator('.mzone[data-zone="media_player.office"] .zname').click(); await o.waitForTimeout(200); await clear(o); await M(o).locator('.nowbar .ngo').click(); await o.waitForTimeout(300);
+    console.log('play on an offline speaker:', await toast(o), '| calls:', await count(o, /media_play/)); await o.close();
+    const f = await open('page=music&look=glass&mview=house&fail=1'); await M(f).locator('.nowbar .ngo').click(); await f.waitForTimeout(700); console.log('a failed call says so calmly:', await toast(f)); await f.close(); }
+  // 11. faces, not initials, for the children; the waiting song's cover on its chooser; a picture with each state
+  { const j = await open('page=music&look=glass&mtab=juke&juke=1');
+    console.log('jukebox: coins with a face', await M(j).locator('.coin .fpic svg').count(), 'of', await M(j).locator('.coin').count(), '| covers for waiting songs:', await M(j).locator('.coin .has').count(), '| ticks:', await M(j).locator('.coin .has', { hasText: '✓' }).count(),
+      '| states with a picture:', await M(j).locator('.when i').count(), 'of', await M(j).locator('.when').count(), '| faces on the picks:', await M(j).locator('.pickrow .init svg').count()); await j.close();
+    const s = await open('page=music&look=glass&mtab=shelves'); console.log('shelf owners with a face:', await M(s).locator('.pchip .avatar svg').count(), 'of', await M(s).locator('.pchip').count()); await s.close(); }
+  // 12. calm mode: nothing on the Music page runs, not even once
+  { for (const q of ['look=glass&mview=scene', 'look=fridge&mview=house', 'look=orbit&mview=desk']) { const o = await open(`page=music&${q}&calm=1`); await o.waitForTimeout(1400);
+      console.log(`calm, ${q}: animations`, await o.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return r.getAnimations().filter((a) => a.constructor.name === 'CSSAnimation').length; })); await o.close(); } }
+  // 4 to 6. sizes and names: the view's share of the page, type sizes, one name per job, tabs that do not move
+  { const l = await open('page=music&look=glass&mview=list'); const tabs = M(l).locator('[role=tab]'); const y0 = await tabs.evaluateAll((e) => e.map((x) => Math.round(x.getBoundingClientRect().top)));
+    await tabs.nth(1).click(); await l.waitForTimeout(400); const y1 = await M(l).locator('[role=tab]').evaluateAll((e) => e.map((x) => Math.round(x.getBoundingClientRect().top)));
+    console.log('tabs keep one line when the selection changes:', new Set([...y0, ...y1]).size === 1, '| every tab named:', (await M(l).locator('[role=tab]').evaluateAll((e) => e.every((x) => !!x.getAttribute('aria-label')))));
+    await M(l).locator('[role=tab]').first().click(); await l.waitForTimeout(300);
+    console.log('list: names from the house map:', (await M(l).locator('.sn2').allInnerTexts()).join(', '), '| states:', [...new Set(await M(l).locator('.rst').allInnerTexts())].join(', '), '| move button:', await M(l).locator('.moveb').first().evaluate((e) => Math.round(e.getBoundingClientRect().height) + ' px / ' + getComputedStyle(e).fontSize)); await l.close();
+    const w = await ctx.newPage(); await w.setViewportSize({ width: 1920, height: 1080 }); await w.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await w.goto('http://localhost:4782/?look=glass&page=music&mview=desk'); await w.waitForFunction('window.__ready === true'); await w.waitForTimeout(700);
+    console.log('wide screen: tab words shown in the title row:', await M(w).locator('.tabs.inline button span').evaluateAll((e) => e.filter((x) => x.getClientRects().length).length)); await w.close(); }
+}

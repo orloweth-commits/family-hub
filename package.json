@@ -1,15 +1,16 @@
 {
   "name": "family-hub",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "private": true,
   "type": "module",
   "description": "A glassy, themeable family planner card for Home Assistant wall panels.",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && node scripts/check-looks.mjs && vite build",
+    "build": "tsc --noEmit && node scripts/check-looks.mjs && node scripts/check-motion.mjs && vite build",
     "typecheck": "tsc --noEmit",
     "check:looks": "node scripts/check-looks.mjs",
+    "check:motion": "node scripts/check-motion.mjs",
     "shots": "node scripts/shots.mjs",
     "test:fit": "node scripts/tests/audit.mjs",
     "test:click": "node scripts/tests/click-base.mjs && node scripts/tests/click-music.mjs",

@@ -15,7 +15,9 @@ export interface Hass {
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
   callWS<T>(msg: Record<string, unknown>): Promise<T>;
   services?: Record<string, Record<string, unknown>>;
-  connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => void> };
+  connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => unknown>; /** the websocket itself, for the binary sound frames of a voice pipeline */ socket?: { send(data: ArrayBufferLike | ArrayBufferView): void } };
+  /** makes a path from Home Assistant (such as spoken audio) into a full address */
+  hassUrl?: (path?: string) => string;
   fetchWithAuth?: (path: string, init?: RequestInit) => Promise<Response>;
   areas?: Record<string, { area_id: string; name: string; icon?: string | null }>;
   devices?: Record<string, { id: string; area_id?: string | null; name?: string | null; name_by_user?: string | null }>;
@@ -127,6 +129,8 @@ export interface FamilyHubConfig {
   /** calendar events containing these words are shown only as a discreet chip */
   private?: string[];
   meds?: MedConfig[];
+  /** Ask for the parent PIN before recording or removing medicine (default true when a PIN is set). */
+  meds_pin?: boolean;
   /** a to-do list that keeps the record of other medicine given (paracetamol and the like), so every screen shows the same record; without it the record stays on this screen only */
   med_log?: string;
   /** the medicines offered when logging something else; Paracetamol and Ibuprofen unless set */
@@ -148,6 +152,8 @@ export interface FamilyHubConfig {
   /** the red hold-to-send button on the house-info sheet: notify services to alert (e.g. notify.mobile_app_dads_phone), as a critical alert that sounds through silent mode */
   emergency?: { notify: string[]; who?: string; message?: string };
   home_hide?: string[];
+  /** Ask: a chat with an AI helper for the children (the speech-bubble button in the header). `agent` is a conversation entity; `pipeline` is the id of an Assist pipeline, for talking instead of typing; `name` is what the helper is called (default "Ask"). After any child's bedtime and in quiet hours it opens only with the parent PIN, unless `pin_after_bedtime` is false. What the helper may talk about is set in Home Assistant, on the agent itself. */
+  chat?: { agent: string; pipeline?: string; name?: string; pin_after_bedtime?: boolean };
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */
@@ -161,6 +167,8 @@ export interface CalEvent {
   allDay: boolean;
   colour: ColourSlot;
   who: string;
+  /** where it is, when the calendar says */
+  location?: string;
 }
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);

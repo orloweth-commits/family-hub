@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs|chat, &chat=off, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -15,22 +15,27 @@ const now = new Date();
 const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
 const at = (d, h, m = 0) => { const x = new Date(mon); x.setDate(x.getDate() + d); x.setHours(h, m, 0, 0); return x; };
 const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
-const ev = (d, h, m, title, mins = 60) => ({ summary: title, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
+const ev = (d, h, m, title, mins = 60, location) => ({ summary: title, location, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
 const allDay = (d, title) => ({ summary: title, start: { date: ymd(at(d,0)) }, end: { date: ymd(at(d+1,0)) } });
 const CAL = {
   'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
   'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
   'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
-  'calendar.riley': [ev(1,16,0,'Swimming squad',90), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
-  'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
-  'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120)]
+  'calendar.riley': [ev(1,16,0,'Swimming squad',90,'Aquatic centre, pool 2'), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
+  'calendar.charlie': [ev(0,15,45,'Tennis',60,'Tennis club'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
+  'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120,'Sampleton community hall, 12 Example Parade')]
 };
+// &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
+if (q.get('events') === 'none') for (const k of Object.keys(CAL)) CAL[k] = [];
+if (q.get('events') === 'many') CAL['calendar.family'].push(...Array.from({ length: 12 }, (_, i) => ev(1, 7 + i, 15, ['Assembly', 'Excursion note due', 'Dentist check-up', 'Scooter park', 'Band rehearsal', 'Swimming lesson', 'Parent meeting', 'Haircut', 'Library', 'Tennis coaching', 'Dinner with Nan', 'Pack for camp'][i], 30)));
+if (q.get('events') === 'long') { CAL['calendar.family'].push(ev(1, 9, 0, 'Whole-school end of year assembly and presentation morning followed by the class picnic at the foreshore reserve', 90), ev(2, 10, 0, 'Supercalifragilisticexpialidocious-rehearsal', 60)); CAL['calendar.max'].push(ev(3, 9, 0, 'Kindy orientation for next year, bring hat, water bottle, spare clothes and the signed forms', 120)); }
 const TODOS = {
   'todo.shopping_list': q.get('long') ? ['Milk','Bananas','Sourdough loaf','Chicken thighs','Pasta','Dishwasher tablets','Greek yoghurt','Frozen peas','Apples','Carrots','Rice','Butter','Tomatoes','Mince','Wraps','Orange juice','Toilet paper','Cheese','Honey','Oats','Broccoli','Salmon'].map((x) => [x]) : [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
   'todo.family_music': [['Dinner Party Essentials','needs_action','apple_music://playlist/1 | ' + doodle('#264653','#e9c46a','#e76f51')],['Housework Hits!','needs_action','spotify://playlist/2 | ' + doodle('#8ecae6','#023047','#ffb703')],['ABC Jazz','needs_action','radio://abcjazz']],
   'todo.riley_music': [['Minecraft – Volume Alpha','needs_action','apple_music://album/3 | ' + doodle('#2a9d8f','#264653','#e9c46a')],['Clarinet Classics','needs_action','spotify://playlist/4 | @calm']],
   'todo.charlie_music': [['Trumpet Heroes','needs_action','spotify://playlist/5 | ' + doodle('#f4a261','#e76f51','#264653')]],
   'todo.max_music': [['Bluey the Album','needs_action','apple_music://album/6 | ' + doodle('#48cae4','#03045e','#ffb703')],['Dinosaur Stomp','needs_action','spotify://album/7 | ' + doodle('#80b918','#2b9348','#ffff3f')],['Bluey Sleepy Time','needs_action','spotify://playlist/8 | ' + doodle('#3a0ca3','#f72585','#4cc9f0') + ' | @calm']],
+  'todo.rewards_owed': [],
   'todo.reminders': [['Bins out – recycling week'],['Charlie – library bag'],['Riley – sign excursion form']],
   'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Brush teeth','needs_action','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
     ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Clarinet practice 15 min','needs_action','@grow @after'],
@@ -40,6 +45,7 @@ const TODOS = {
   'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Breakfast','needs_action','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
     ['Bath','needs_action','+10 @routine @bed'],['Teeth','needs_action','+10 @routine @bed'],['Story time','needs_action','+10 @routine @bed']]
 };
+if (q.get('empty')) { TODOS['todo.shopping_list'] = []; TODOS['todo.reminders'] = []; }
 const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', description = ''], i) => ({ uid: `${id}-${i}`, summary, status, description }));
 const store = Object.fromEntries(Object.keys(TODOS).map((k) => [k, items(k)]));
 const subs = {};
@@ -58,6 +64,8 @@ const hass = {
       st('sensor.home_extended_text_0', q.get('wx') === 'rain' ? 'Cloudy. Very high chance of rain, most likely in the morning. The chance of a thunderstorm.' : 'Sunny. Light winds becoming south-westerly 15 to 25 km/h in the early afternoon.'), st('sensor.home_uv_max_index_0', '9'), st('sensor.home_uv_start_time_0', new Date(new Date().setHours(8, 40, 0, 0)).toISOString()), st('sensor.home_uv_end_time_0', new Date(new Date().setHours(16, 10, 0, 0)).toISOString()),
       st('sensor.home_rain_chance_0', q.get('wx') === 'rain' ? '90' : '5'), st('sensor.home_rain_amount_range_0', q.get('wx') === 'rain' ? '4 to 10' : '0'), st('sensor.home_fire_danger_0', 'Moderate'), st('sensor.home_astronomical_sunrise_time_0', new Date(new Date().setHours(5, 11, 0, 0)).toISOString()), st('sensor.home_astronomical_sunset_time_0', new Date(new Date().setHours(18, 51, 0, 0)).toISOString()),
       st('sensor.home_warnings', q.get('wx') === 'rain' ? '1' : '0', { warnings: q.get('wx') === 'rain' ? [{ short_title: 'Severe Thunderstorm Warning', phase: 'new', expiry_time: new Date(Date.now() + 3600000).toISOString() }] : [] })]),
+    // daily medicine helpers: last given yesterday morning (so today reads as due); &meds=new is a helper nobody has ever set, &meds=missing has none
+    ...(q.get('meds') === 'missing' ? [] : ['riley_am', 'charlie_am'].flatMap((id) => { const never = q.get('meds') === 'new', d = new Date(); d.setHours(0, 0, 0, 0); const ts = never ? d.getTime() / 1000 : d.getTime() / 1000 - 17 * 3600; return [st(`input_datetime.fh_med_${id}`, 'x', { timestamp: ts }), st(`input_text.fh_med_${id}_by`, never ? 'unknown' : 'Sam')]; })),
     st('person.alex', 'home'), st('person.sam', 'not_home'),
     st('media_player.lounge', 'playing', { friendly_name: 'Lounge', media_title: 'ABC Jazz', media_artist: 'Radio' }),
     st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
@@ -89,6 +97,7 @@ const hass = {
   callService: async (domain, service, data = {}, target = {}) => {
     const id = target.entity_id ?? data.entity_id;
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
+    if (domain === 'calendar' && service === 'create_event') (CAL[id] ??= []).push({ summary: data.summary, location: data.location, start: data.start_date ? { date: data.start_date } : { dateTime: new Date(data.start_date_time).toISOString() }, end: data.end_date ? { date: data.end_date } : { dateTime: new Date(data.end_date_time).toISOString() } });
     const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
     if (domain === 'media_player' && service === 'join') { const all = [id, ...data.group_members]; all.forEach((m) => upd(m, { group_members: all })); }
     if (domain === 'media_player' && service === 'unjoin') { const g = S[id].attributes.group_members ?? []; g.forEach((m) => upd(m, { group_members: m === id ? [] : g.filter((x) => x !== id) })); }
@@ -97,13 +106,17 @@ const hass = {
     if (domain === 'media_player' && service === 'media_pause') upd(id, {}, 'paused');
     if (domain === 'music_assistant' && service === 'play_media' && data.enqueue === 'play') upd(id, { media_title: String(data.media_id).split('/').pop(), media_artist: data.radio_mode ? 'Radio' : 'Test', media_content_id: data.media_id }, 'playing');
     if (domain === 'music_assistant' && service === 'transfer_queue') { upd(id, { media_title: S[data.source_player].attributes.media_title }, 'playing'); upd(data.source_player, {}, 'idle'); }
+    if (domain === 'input_datetime' && service === 'set_datetime') { if (!S[id]) throw new Error('no such entity'); upd(id, { timestamp: data.timestamp }); el.hass = { ...hass }; }
+    if (domain === 'input_text' && service === 'set_value') { if (!S[id]) throw new Error('no such entity'); upd(id, {}, data.value); el.hass = { ...hass }; }
     if (domain === 'switch') upd(id, {}, service === 'turn_on' ? 'on' : 'off');
+    // lights and plain toggles answer too, so a held switch can be seen to land
+    if ((domain === 'light' && /^turn_(on|off)$/.test(service)) || (domain === 'homeassistant' && service === 'toggle')) { for (const x of [].concat(data?.entity_id ?? id ?? []).flatMap((e) => e === 'all' ? Object.keys(S).filter((k) => k.startsWith('light.')) : [e])) if (S[x] && /^(light|switch|fan)\./.test(x)) { upd(x, {}, service === 'toggle' ? (S[x].state === 'on' ? 'off' : 'on') : service === 'turn_on' ? 'on' : 'off'); el.hass = { ...el.hass, states: { ...el.hass.states, [x]: S[x] } }; } }
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }
       if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
-      if (service === 'remove_item') store[id] = store[id].filter((x) => x.uid !== data.item);
+      if (service === 'remove_item') store[id] = store[id].filter((x) => ![].concat(data.item).includes(x.uid));
       if (service === 'add_item' && data.description) store[id][store[id].length - 1].description = data.description;
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
@@ -111,6 +124,10 @@ const hass = {
   callApi: async (_m, path, body) => { if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
+    // Ask: a pretend helper that answers after a moment and echoes the topic (&slow=<ms> and &fail=1 apply here too)
+    if (msg.type === 'conversation/process') { (window.__calls ||= []).push('ws.conversation/process ' + JSON.stringify(msg)); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 600))); if (q.get('fail')) throw new Error('Home Assistant did not answer');
+      const t = String(msg.text).replace(/[?.!]+$/, ''), topic = t.replace(/^(tell me (about )?|play |why (is|are|do|does) )/i, '');
+      return { conversation_id: msg.conversation_id || 'demo-1', response: { speech: { plain: { speech: /joke/i.test(t) ? 'Here is a joke! Why did the kangaroo cross the road? Because it was the chicken’s day off.' : `Good question! You asked about ${topic}. Here is something friendly and short about ${topic}, just for the preview.` } } } }; }
     if (msg.type === 'config_entries/get') return [{ entry_id: 'ma1', domain: 'music_assistant' }];
     if (msg.type === 'media_source/browse_media') return { children: [{ title: 'ABC Kids listen', media_content_id: 'media-source://radio_browser/abckids' }, { title: 'ABC Jazz', media_content_id: 'media-source://radio_browser/abcjazz' }] };
     if (msg.type === 'call_service' && msg.service === 'search') { const n = msg.service_data.name; const mk = (t, name, sub) => ({ media_type: t, name, uri: `demo://${t}/${name.replace(/\W+/g, '-')}`, image: t === 'radio' ? null : doodle('#' + (name.length * 123457 % 0xffffff).toString(16).padStart(6, '0'), '#ffffff', '#222222'), artists: sub ? [{ name: sub }] : [] });
@@ -124,7 +141,17 @@ const hass = {
     }
     return {};
   },
-  connection: { subscribeMessage: async (cb, msg) => { (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
+  connection: {
+    // Ask by voice: a pretend Assist pipeline. It counts the sound frames it is sent (window.__frames) and, after about a second of sound, "hears" a question and answers it; &voice=silent hears nothing
+    socket: { send: (f) => { const fr = (window.__frames ||= { n: 0, bytes: 0, id: null, end: 0 }); fr.id = f[0]; if (f.length === 1) fr.end++; else { fr.n++; fr.bytes += f.length - 1; } window.__onFrame?.(); } },
+    subscribeMessage: async (cb, msg) => { if (msg.type === 'assist_pipeline/run') { (window.__calls ||= []).push('ws.assist_pipeline/run ' + JSON.stringify(msg)); let done = false; const later = (ms, type, data) => setTimeout(() => cb({ type, data }), ms);
+        later(50, 'run-start', { runner_data: { stt_binary_handler_id: 7 } });
+        window.__onFrame = () => { if (done || (window.__frames?.bytes ?? 0) < 32000) return; done = true;
+          if (q.get('voice') === 'silent') { later(100, 'error', { code: 'stt-no-text-recognized', message: 'No text recognized' }); return; }
+          later(100, 'stt-end', { stt_output: { text: 'What do koalas eat?' } }); later(700, 'intent-end', { intent_output: { conversation_id: 'demo-1', response: { speech: { plain: { speech: 'Koalas eat gum leaves, and they sleep for most of the day.' } } } } }); later(800, 'tts-end', { tts_output: { url: '/api/tts_proxy/demo.mp3' } }); later(900, 'run-end', {}); };
+        return () => { window.__unsubbed = (window.__unsubbed || 0) + 1; }; }
+      if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
+      (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
 };
 const el = document.createElement('family-hub-card');
 el.setConfig({
@@ -141,13 +168,17 @@ el.setConfig({
     { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],
   grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
   parent_pin: '1234', meds: [{ id: 'riley_am', who: 'Riley', label: 'Morning dose', time: '06:30' }, { id: 'charlie_am', who: 'Charlie', label: 'Morning dose', time: '06:30' }], parents: ['Alex', 'Sam'], bins: { day: 1, always: ['green'], alternate: ['yellow', 'red'], anchor: '2026-11-09' }, babysitter: { address: '1 Example Street, Sampleton', lines: ['Mum: 0400 000 001', 'Dad: 0400 000 002', 'Nan next door: 0400 000 003', 'Max is allergic to nothing but dislikes peas', 'Torch and first-aid kit are in the laundry cupboard'], wifi: { name: 'Example-Guest', password: 'welcome-in' } }, emergency: { notify: ['notify.mobile_app_demo_one', 'notify.mobile_app_demo_two'], who: 'Mum and Dad' }, morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
-  idle_seconds: 0
+  idle_seconds: 0,
+  // &chat=off leaves the Ask button out
+  ...(q.get('chat') === 'off' ? {} : { chat: { agent: 'conversation.demo_chat', pipeline: 'demo' } })
 });
 // &juke=1 starts with tonight's jukebox picks waiting
 if (q.get('juke')) try { localStorage.setItem('fh-juke', JSON.stringify({ day: new Date().toDateString(), on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] })); } catch {}
 // &moff=office,rileys_homepod makes those home speakers unreachable; &mextra=1 adds a speaker that is not in the house map (as when the panel is somewhere else)
 for (const n of (q.get('moff') || '').split(',').filter(Boolean)) { const id = 'media_player.' + n; if (hass.states[id]) hass.states[id] = { ...hass.states[id], state: 'unavailable', attributes: { friendly_name: hass.states[id].attributes.friendly_name } }; }
 if (q.get('mextra')) { hass.states['media_player.boardroom'] = { entity_id: 'media_player.boardroom', state: 'idle', attributes: { friendly_name: 'Boardroom', volume_level: 0.5, group_members: [] } }; hass.entities['media_player.boardroom'] = { entity_id: 'media_player.boardroom', platform: 'music_assistant', device_id: 'ma_boardroom' }; }
+// &slow=<ms> makes every call to Home Assistant take that long; &fail=1 makes every call fail
+if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) { const real = hass[fn]; hass[fn] = async (...a) => { if (fn === 'callWS' && a[0] && a[0].type !== 'call_service') return real(...a); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 300))); if (q.get('fail')) throw new Error('Home Assistant did not answer'); return real(...a); }; }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;
