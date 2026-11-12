@@ -7,7 +7,7 @@ const PORT = Number(process.env.PORT || 4795);
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
-const LOOKS = [['glass', 'look=glass&theme=sea'], ['fridge', 'look=fridge'], ['orbit', 'look=orbit']];
+const LOOKS = [['glass', 'look=glass&theme=sea'], ['fridge', 'look=fridge'], ['orbit', 'look=orbit'], ['sports', 'look=sports']];
 const THEMES = ['sunset', 'reef', 'bush', 'space'].map((t) => ['glass-' + t, 'look=glass&theme=' + t]);
 const ALL = [
   ['planner-week', 'page=planner'], ['planner-day', 'page=planner&view=day'], ['planner-month', 'page=planner&view=month'],

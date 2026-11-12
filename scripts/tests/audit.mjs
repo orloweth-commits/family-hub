@@ -2,7 +2,7 @@
 // and (CHECKS=text,ring,contrast,target; all on by default, CHECKS=fit for the old behaviour) cut-off text, outlines and focus rings
 // that an overflow would clip, text under WCAG AA contrast measured from the painted pixels, and touch targets under 44 px.
 // TIME=HH:MM sets the clock; THEME= picks a Glass theme; MAX= caps the lines printed per check (default 8).
-// Usage: npm run build && PLAYWRIGHT=<path to playwright index.mjs> [CHROME=<chrome binary>] [VP=name:WxH,…] [PAGES=…] [LOOK=fridge] [SHOT=1] node scripts/tests/audit.mjs
+// Usage: npm run build && PLAYWRIGHT=<path to playwright index.mjs> [CHROME=<chrome binary>] [VP=name:WxH,…] [PAGES=…] [LOOK=glass|fridge|orbit|sports] [SHOT=1] node scripts/tests/audit.mjs
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
