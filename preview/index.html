@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -25,6 +25,10 @@ const CAL = {
   'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
   'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120)]
 };
+// &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
+if (q.get('events') === 'none') for (const k of Object.keys(CAL)) CAL[k] = [];
+if (q.get('events') === 'many') CAL['calendar.family'].push(...Array.from({ length: 12 }, (_, i) => ev(1, 7 + i, 15, ['Assembly', 'Excursion note due', 'Dentist check-up', 'Scooter park', 'Band rehearsal', 'Swimming lesson', 'Parent meeting', 'Haircut', 'Library', 'Tennis coaching', 'Dinner with Nan', 'Pack for camp'][i], 30)));
+if (q.get('events') === 'long') { CAL['calendar.family'].push(ev(1, 9, 0, 'Whole-school end of year assembly and presentation morning followed by the class picnic at the foreshore reserve', 90), ev(2, 10, 0, 'Supercalifragilisticexpialidocious-rehearsal', 60)); CAL['calendar.max'].push(ev(3, 9, 0, 'Kindy orientation for next year, bring hat, water bottle, spare clothes and the signed forms', 120)); }
 const TODOS = {
   'todo.shopping_list': q.get('long') ? ['Milk','Bananas','Sourdough loaf','Chicken thighs','Pasta','Dishwasher tablets','Greek yoghurt','Frozen peas','Apples','Carrots','Rice','Butter','Tomatoes','Mince','Wraps','Orange juice','Toilet paper','Cheese','Honey','Oats','Broccoli','Salmon'].map((x) => [x]) : [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
   'todo.family_music': [['Dinner Party Essentials','needs_action','apple_music://playlist/1 | ' + doodle('#264653','#e9c46a','#e76f51')],['Housework Hits!','needs_action','spotify://playlist/2 | ' + doodle('#8ecae6','#023047','#ffb703')],['ABC Jazz','needs_action','radio://abcjazz']],
@@ -40,6 +44,7 @@ const TODOS = {
   'todo.max_chores': [['Get dressed','completed','+10 @routine @am'],['Shoes on','completed','+10 @routine @am'],['Breakfast','needs_action','+10 @routine @am'],['Toys away','needs_action','+10 @routine @after'],['Wash hands','completed','+10 @routine @after'],
     ['Bath','needs_action','+10 @routine @bed'],['Teeth','needs_action','+10 @routine @bed'],['Story time','needs_action','+10 @routine @bed']]
 };
+if (q.get('empty')) { TODOS['todo.shopping_list'] = []; TODOS['todo.reminders'] = []; }
 const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', description = ''], i) => ({ uid: `${id}-${i}`, summary, status, description }));
 const store = Object.fromEntries(Object.keys(TODOS).map((k) => [k, items(k)]));
 const subs = {};
@@ -148,6 +153,8 @@ if (q.get('juke')) try { localStorage.setItem('fh-juke', JSON.stringify({ day: n
 // &moff=office,rileys_homepod makes those home speakers unreachable; &mextra=1 adds a speaker that is not in the house map (as when the panel is somewhere else)
 for (const n of (q.get('moff') || '').split(',').filter(Boolean)) { const id = 'media_player.' + n; if (hass.states[id]) hass.states[id] = { ...hass.states[id], state: 'unavailable', attributes: { friendly_name: hass.states[id].attributes.friendly_name } }; }
 if (q.get('mextra')) { hass.states['media_player.boardroom'] = { entity_id: 'media_player.boardroom', state: 'idle', attributes: { friendly_name: 'Boardroom', volume_level: 0.5, group_members: [] } }; hass.entities['media_player.boardroom'] = { entity_id: 'media_player.boardroom', platform: 'music_assistant', device_id: 'ma_boardroom' }; }
+// &slow=<ms> makes every call to Home Assistant take that long; &fail=1 makes every call fail
+if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) { const real = hass[fn]; hass[fn] = async (...a) => { if (fn === 'callWS' && a[0] && a[0].type !== 'call_service') return real(...a); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 300))); if (q.get('fail')) throw new Error('Home Assistant did not answer'); return real(...a); }; }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;
