@@ -140,7 +140,7 @@ console.log('bins:', await page.evaluate(() => { const c = document.querySelecto
 await page.getByRole('button', { name: 'Medication', exact: true }).click(); await page.waitForTimeout(300);
 const md = (sel, o) => page.locator('family-hub-card .sheet ' + sel, o);
 console.log('meds: daily rows:', await md('.card').count(), '|', (await md('.card b').first().innerText()), '| due:', await md('.card .muted').first().innerText());
-await md('.lead').click(); await page.waitForTimeout(200); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
+await md('.lead').click(); await page.waitForTimeout(300); console.log('meds: PIN asked before writing:', await page.locator('family-hub-card fh-pin').count()); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
 await md('.mchip', { hasText: 'Paracetamol' }).click(); await md('.mchip', { hasText: 'Charlie' }).click();
 await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: /^Sam$/ }).click();
 await md('.lead').click(); await page.waitForTimeout(400);
@@ -157,7 +157,7 @@ page = await open('look=glass', '08:10');
 const cap = () => page.locator('family-hub-card .capsule .cap').filter({ hasText: '💊' });
 console.log('meds chip, two overdue:', await cap().count(), '|', (await cap().first().innerText()).replace(/\s+/g, ' '));
 await cap().first().click(); await page.waitForTimeout(300);
-await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(400);
+await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(300); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(500);
 console.log('meds after one given:', (await cap().first().innerText()).replace(/\s+/g, ' '), '| row:', (await page.locator('family-hub-card .sheet .med2 .card b').nth(1).innerText()));
 await page.close();
 page = await open('look=glass&meds=new&sheet=meds', '08:10');

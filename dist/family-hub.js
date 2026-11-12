@@ -9032,7 +9032,7 @@ const an = "0.24.0", wr = "family-hub-theme", x0 = {
       Math.abs(c - this._z) > 0.01 && (this._z = Math.round(c * 100) / 100, this.requestUpdate());
     }, this._z = 1, this._touched = () => {
       this._lastTouch = Date.now(), this._idle && (this._idle = !1);
-    }, this._clip = {}, this._jarWas = null, this._medBusy = "", this._medLog = [], this._mx = { what: "", other: "", who: "", ago: 0, by: "", caps: !0 }, this._sosT = 0, this._sos = "", this._sosNote = "";
+    }, this._clip = {}, this._jarWas = null, this._medOpen = !1, this._medBusy = "", this._medLog = [], this._mx = { what: "", other: "", who: "", ago: 0, by: "", caps: !0 }, this._sosT = 0, this._sos = "", this._sosNote = "";
   }
   /** The child whose page is open, and his settings (config defaults + what a grown-up changed on the panel). */
   get _kidOn() {
@@ -9062,7 +9062,7 @@ const an = "0.24.0", wr = "family-hub-theme", x0 = {
     this._config.parent_pin ? this._pinAsk = { reason: t ? `Change ${t.name}’s settings?` : "Change the look?", run: e } : e();
   }
   willUpdate() {
-    this._config && (this._lk !== ht() && xi(this._lk), Cn(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1));
+    this._sheet !== "meds" && (this._medOpen = !1), this._config && (this._lk !== ht() && xi(this._lk), Cn(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1));
   }
   setConfig(t) {
     if (!t) throw new Error("Family Hub: missing configuration");
@@ -9363,6 +9363,15 @@ const an = "0.24.0", wr = "family-hub-theme", x0 = {
   _medStatus(t, e) {
     const i = this.hass?.states[`input_datetime.fh_med_${t}`], s = this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", o = ["unknown", "unavailable"].includes(s) ? "" : s, r = i?.attributes.timestamp ? new Date(i.attributes.timestamp * 1e3) : null, n = !!r && !o && r.getHours() === 0 && r.getMinutes() === 0 && r.getSeconds() === 0, c = r && !n && it(r, /* @__PURE__ */ new Date()) ? r : null, p = ha(this._now), d = Ft(e);
     return { given: c, by: o, due: !c && p >= d - 60, late: !c && p > d + 45, missing: !i || i.state === "unavailable" };
+  }
+  _medGuard(t, e) {
+    if (this._medOpen || !this._config.parent_pin || this._config.meds_pin === !1) {
+      e();
+      return;
+    }
+    this._pinAsk = { reason: t, run: () => {
+      this._medOpen = !0, e();
+    } };
   }
   async _giveMed(t, e) {
     const i = this.hass;
@@ -9978,12 +9987,16 @@ const an = "0.24.0", wr = "family-hub-theme", x0 = {
               <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px" aria-hidden="true">💊</span>
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${u.who ? `${u.who} – ` : ""}${u.label}</b><span class="muted">Due ${h(u.time)}</span></span>
                 <b style="font-size:15px;color:${x.given ? "var(--ok)" : x.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${x.given ? `✓ ${D(x.given)}${x.by ? ` · ${x.by}` : ""}` : x.missing ? "Not set up" : x.late ? "Overdue" : "Not yet"}</b></div>
-              ${x.missing ? l`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${u.id}</b>, so this cannot be recorded here.</span>` : x.given ? g : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((b) => l`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" ?disabled=${this._medBusy === u.id} @click=${() => this._giveMed(u.id, b)}>Given by ${b}</button>`)}</div>`}
+              ${x.missing ? l`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${u.id}</b>, so this cannot be recorded here.</span>` : x.given ? g : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((b) => l`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" ?disabled=${this._medBusy === u.id} @click=${() => this._medGuard("Record this medicine?", () => {
+        this._giveMed(u.id, b);
+      })}>Given by ${b}</button>`)}</div>`}
             </div>`;
     })}
           <span class="label">Given in the last two days</span>
           ${p.length ? p.map((u) => l`<div class="irow"><span style="min-width:0"><b>${u.who}</b> · ${u.what}<br><small class="muted">${u.at.toLocaleDateString("en-AU", { weekday: "short" })} ${D(u.at)}${u.by ? ` · ${u.by}` : ""} · ${d(u.at)}</small></span>
-            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${u.what} for ${u.who} from the record`} @click=${() => this._unlogMed(u)}>${A("close", 16)}</button></div>`) : l`<span class="iline muted">Nothing else has been given.</span>`}
+            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${u.what} for ${u.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
+      this._unlogMed(u);
+    })}>${A("close", 16)}</button></div>`) : l`<span class="iline muted">Nothing else has been given.</span>`}
         </div>
         <div class="icol">
           <span class="label">Something else given</span>
@@ -10003,7 +10016,9 @@ const an = "0.24.0", wr = "family-hub-theme", x0 = {
             ${s.ago ? l`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${s.ago} min ago</span>` : g}
           </div>
           ${e.length ? l`<span class="label">Given by</span><div class="mrow">${e.map((u) => f(s.by === u, u, () => n({ by: u })))}</div>` : g}
-          <button class="tap lead" style="height:56px;font-size:17px;margin-top:6px" @click=${() => this._logMed()}>Add to the record</button>
+          <button class="tap lead" style="height:56px;font-size:17px;margin-top:6px" @click=${() => this._medGuard("Add to the medicine record?", () => {
+      this._logMed();
+    })}>Add to the record</button>
           <span class="muted" style="font-size:12.5px;line-height:1.35">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.</span>
         </div>
       </div>`;

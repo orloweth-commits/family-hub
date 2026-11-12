@@ -127,6 +127,8 @@ export interface FamilyHubConfig {
   /** calendar events containing these words are shown only as a discreet chip */
   private?: string[];
   meds?: MedConfig[];
+  /** Ask for the parent PIN before recording or removing medicine (default true when a PIN is set). */
+  meds_pin?: boolean;
   /** a to-do list that keeps the record of other medicine given (paracetamol and the like), so every screen shows the same record; without it the record stays on this screen only */
   med_log?: string;
   /** the medicines offered when logging something else; Paracetamol and Ibuprofen unless set */

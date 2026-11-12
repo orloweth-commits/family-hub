@@ -78,6 +78,7 @@ export class FamilyHubCard extends LitElement {
     if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
   }
   protected willUpdate(): void {
+    if (this._sheet !== 'meds') this._medOpen = false;
     if (!this._config) return;
     if (this._lk !== getLook()) setLook(this._lk);
     setVolume(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1);
@@ -414,6 +415,12 @@ export class FamilyHubCard extends LitElement {
     const given = ts && !neverSet && sameDay(ts, new Date()) ? ts : null;
     const n = minsNow(this._now), t = hm(time);
     return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, missing: !st || st.state === 'unavailable' };
+  }
+  /** Recording or removing a dose is a grown-up's job: ask for the PIN once each time the sheet is opened (meds_pin: false turns this off). */
+  private _medOpen = false;
+  private _medGuard(reason: string, run: () => void): void {
+    if (this._medOpen || !this._config.parent_pin || this._config.meds_pin === false) { run(); return; }
+    this._pinAsk = { reason, run: () => { this._medOpen = true; run(); } };
   }
   private _medBusy = '';
   private async _giveMed(id: string, by: string): Promise<void> {
@@ -986,12 +993,12 @@ export class FamilyHubCard extends LitElement {
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${d.who ? `${d.who} – ` : ''}${d.label}</b><span class="muted">Due ${t12(d.time)}</span></span>
                 <b style="font-size:15px;color:${s.given ? 'var(--ok)' : s.late ? 'var(--danger, #dc2626)' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.missing ? 'Not set up' : s.late ? 'Overdue' : 'Not yet'}</b></div>
               ${s.missing ? html`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${d.id}</b>, so this cannot be recorded here.</span>`
-                : s.given ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" ?disabled=${this._medBusy === d.id} @click=${() => this._giveMed(d.id, p)}>Given by ${p}</button>`)}</div>`}
+                : s.given ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" ?disabled=${this._medBusy === d.id} @click=${() => this._medGuard('Record this medicine?', () => { void this._giveMed(d.id, p); })}>Given by ${p}</button>`)}</div>`}
             </div>`;
           })}
           <span class="label">Given in the last two days</span>
           ${recent.length ? recent.map((r) => html`<div class="irow"><span style="min-width:0"><b>${r.who}</b> · ${r.what}<br><small class="muted">${r.at.toLocaleDateString('en-AU', { weekday: 'short' })} ${fmtTime(r.at)}${r.by ? ` · ${r.by}` : ''} · ${since(r.at)}</small></span>
-            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${r.what} for ${r.who} from the record`} @click=${() => this._unlogMed(r)}>${icon('close', 16)}</button></div>`)
+            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${r.what} for ${r.who} from the record`} @click=${() => this._medGuard('Remove this from the record?', () => { void this._unlogMed(r); })}>${icon('close', 16)}</button></div>`)
             : html`<span class="iline muted">Nothing else has been given.</span>`}
         </div>
         <div class="icol">
@@ -1009,7 +1016,7 @@ export class FamilyHubCard extends LitElement {
             ${m.ago ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${m.ago} min ago</span>` : nothing}
           </div>
           ${parents.length ? html`<span class="label">Given by</span><div class="mrow">${parents.map((p) => pick(m.by === p, p, () => set({ by: p })))}</div>` : nothing}
-          <button class="tap lead" style="height:56px;font-size:17px;margin-top:6px" @click=${() => this._logMed()}>Add to the record</button>
+          <button class="tap lead" style="height:56px;font-size:17px;margin-top:6px" @click=${() => this._medGuard('Add to the medicine record?', () => { void this._logMed(); })}>Add to the record</button>
           <span class="muted" style="font-size:12.5px;line-height:1.35">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.</span>
         </div>
       </div>`;
