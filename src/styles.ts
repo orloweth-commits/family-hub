@@ -56,10 +56,10 @@ export const styles = css`
   [data-just] .check svg path { stroke-dasharray: 1; animation: tkdraw var(--m-2, 160ms) var(--e-out, ease) 40ms both; }
   @keyframes tkdraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
   .strike { background: linear-gradient(currentColor, currentColor) left 56% / 0 2px no-repeat; transition: background-size var(--m-3, 240ms) var(--e-out, ease), color var(--m-2, 160ms) ease; }
-  .done .strike { background-size: 100% 2px; color: var(--ink3); text-decoration: none; }
+  .done .strike { background-size: 100% 2px; color: var(--ink-done, var(--ink3)); text-decoration: none; }
   /* planner reminders: rows you can tick */
   .rem { width: calc(100% + 12px); min-height: 44px; height: 44px; padding: 0 6px; margin: 0 -6px; border-radius: 12px; text-align: left; }
-  .rem .check { width: 28px; height: 28px; border-width: 2.5px; display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background-color var(--m-1, 80ms) ease, border-color var(--m-1, 80ms) ease; }
+  .rem .check { width: 28px; height: 28px; border-width: 2.5px; display: inline-flex; align-items: center; justify-content: center; color: var(--on-ok, #fff); transition: background-color var(--m-1, 80ms) ease, border-color var(--m-1, 80ms) ease; }
   .rem.done .check { background: var(--ok); border-color: var(--ok); }
   .rem .content { flex: 1; min-width: 0; }
   .rem.tap:active { transform: none; }

@@ -1093,7 +1093,7 @@ export class FamilyHubCard extends LitElement {
         </button>`)}
       </div>`}
       <div style="display:flex;justify-content:space-between;align-items:center">
-        ${!lookById(this._look).themed ? html`<span></span>` : html`<button class="pill tap ghost" style="height:52px;padding:0 22px;font-size:16px" @click=${() => { const o = THEMES.filter((t) => t.id !== this._theme); this._setTheme(o[Math.floor(Math.random() * o.length)].id); }}>${icon('shuffle', 20)}Surprise me</button>`}
+        ${!lookById(this._look).themed ? html`<span></span>` : html`<button class="pill tap" style="height:52px;padding:0 22px;font-size:16px" @click=${() => { const o = THEMES.filter((t) => t.id !== this._theme); this._setTheme(o[Math.floor(Math.random() * o.length)].id); }}>${icon('shuffle', 20)}Surprise me</button>`}
         <span class="muted" style="font-size:12px">Family Hub v${VERSION}</span>
       </div>`;
   }

@@ -148,7 +148,7 @@ export class FhWeather extends LitElement {
     .wday .dn small { display: block; font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     .wday .lo { color: var(--ink2); text-align: right; }
-    .wday .wet { grid-column: 1 / -1; font-size: 12px; font-weight: 700; color: #2b84c8; margin-top: -2px; }
+    .wday .wet { grid-column: 1 / -1; font-size: 12px; font-weight: 700; color: var(--wet, #2b84c8); margin-top: -2px; }
     .track { height: 8px; border-radius: 4px; background: var(--track); position: relative; }
     .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 8px; }
 

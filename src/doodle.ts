@@ -53,10 +53,10 @@ export class FhDoodle extends LitElement {
     .ghead { display: flex; align-items: center; gap: 8px; }
     .tidy { height: 44px; padding: 0 14px; font-size: 14px; }
     .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .clearall { height: 44px; background: var(--danger, #dc2626); color: #fff; justify-content: center; }
+    .clearall { height: 44px; background: var(--danger, #dc2626); color: var(--on-danger, #fff); justify-content: center; }
     .snapbox { position: relative; display: block; }
     .snapbox .snap { width: 100%; display: block; }
-    .down { position: absolute; top: -6px; right: -6px; width: 44px; height: 44px; border-radius: 50%; background: var(--danger, #dc2626); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(0,0,0,.35); }
+    .down { position: absolute; top: -6px; right: -6px; width: 44px; height: 44px; border-radius: 50%; background: var(--danger, #dc2626); color: var(--on-danger, #fff); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(0,0,0,.35); }
     .snaps { padding: 6px 6px 2px 0; }
     .snap { aspect-ratio: 4/3; border-radius: 10px; background: #fff center / cover; box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); position: relative; }
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }

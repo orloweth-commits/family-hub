@@ -23,13 +23,14 @@ const drawings = looks.slice(looks.indexOf('little drawings the looks add'), loo
 const has = (txt, n) => new RegExp(`(?<![\\w-])${n}(?![\\w-])`).test(txt);
 
 const errors = [];
-for (const [id, tag] of [['FRIDGE', '@F'], ['ORBIT', '@O']]) {
+for (const [id, tag] of [['GLASS', '@G'], ['FRIDGE', '@F'], ['ORBIT', '@O']]) {
   const css = new RegExp(`const ${id} = \`([\\s\\S]*?)\`;`).exec(looks)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   if (css.includes('@keyframes')) errors.push(`${id}: keep @keyframes in KEYFRAMES, not in the look's rules`);
   for (const m of css.matchAll(/([^{}]+)\{[^{}]*!important[^{}]*\}/g)) errors.push(`${id}: no !important – if the base sets this inline, move it to a class or a token: "${m[1].trim()}"`);
   for (const rule of css.matchAll(/([^{}]+)\{[^{}]*\}/g)) for (const raw of rule[1].split(',')) {
     const sel = raw.trim();
-    if (!sel.startsWith(tag)) { errors.push(`${id}: selector is not scoped to the look: "${sel}"`); continue; }
+    // the tag may carry host state and a width limit: @O[data-phone] …, @O<700 …
+    if (!new RegExp(`^${tag}(<\\d+)?(\\[[\\w-]+(=[^\\]]*)?\\])*\\s`).test(sel)) { errors.push(`${id}: selector is not scoped to the look: "${sel}"`); continue; }
     if (/:nth-(last-)?(child|of-type)\((?!even|odd|\d*n)/.test(sel)) errors.push(`${id}: selects by position – use a data-nav / data-act id: "${sel}"`);
     let owners = null;
     for (const m of sel.replace(/\[[^\]]*\]/g, '').matchAll(/\.([a-zA-Z][\w-]*)/g)) {
@@ -48,4 +49,4 @@ for (const [tag, list] of Object.entries(partsByTag)) {
   for (const n of list) if (!has(src, n)) errors.push(`part "${n}" no longer exists in ${FILES[tag]} – update HOOKS and the looks that style it`);
 }
 if (errors.length) { console.error(`Looks check failed:\n - ${errors.join('\n - ')}`); process.exit(1); }
-console.log(`Looks check passed: ${roles.size} roles, ${owner.size} parts, 2 looks.`);
+console.log(`Looks check passed: ${roles.size} roles, ${owner.size} parts, 3 looks.`);

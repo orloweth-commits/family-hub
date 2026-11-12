@@ -26,6 +26,11 @@ export class FhAmbient extends LitElement {
     :host { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
     :host([front]) { z-index: 6; }
     @media (prefers-reduced-motion: reduce) { :host { display: none; } }
+    /* Visitors never pass behind (or in front of) the greeting, the clock and the date at the top left, or the dock along the bottom:
+       they slip out of sight there, the way they would behind a panel. Two boxes, because each mask can only say "keep this OR that". */
+    .cast, .keep { position: absolute; inset: 0; }
+    .cast { -webkit-mask-image: linear-gradient(to bottom, transparent 100px, #000 124px), linear-gradient(to right, transparent min(390px, 70%), #000 calc(min(390px, 70%) + 36px)); mask-image: linear-gradient(to bottom, transparent 100px, #000 124px), linear-gradient(to right, transparent min(390px, 70%), #000 calc(min(390px, 70%) + 36px)); }
+    .keep { -webkit-mask-image: linear-gradient(to top, transparent 104px, #000 128px), linear-gradient(to right, #000 calc(50% - 570px), transparent calc(50% - 534px), transparent calc(50% + 534px), #000 calc(50% + 570px)); mask-image: linear-gradient(to top, transparent 104px, #000 128px), linear-gradient(to right, #000 calc(50% - 570px), transparent calc(50% - 534px), transparent calc(50% + 534px), #000 calc(50% + 570px)); }
     .dot { position: absolute; left: var(--x); top: var(--y); border-radius: 50%; }
     .guest { position: absolute; left: 0; top: var(--y); will-change: transform; color: rgba(40,50,70,.55); }
     .guest[data-flip] svg { transform: scaleX(-1); }
@@ -84,7 +89,7 @@ export class FhAmbient extends LitElement {
   render(): TemplateResult | typeof nothing {
     if (this._still || !this._scene) return nothing;
     const g = this._guest;
-    return html`${this.front ? nothing : this._scene.always(this._ctx)}${g ? html`<span class="guest ${g.v.move}" data-kind=${g.v.id} ?data-flip=${g.flip} style="--y:${g.y.toFixed(1)}%;--x:${g.x.toFixed(1)}%;--t:${g.v.ms}ms">${g.v.art}</span>` : nothing}`;
+    return html`${this.front ? nothing : this._scene.always(this._ctx)}${g ? html`<div class="cast"><div class="keep"><span class="guest ${g.v.move}" data-kind=${g.v.id} ?data-flip=${g.flip} style="--y:${g.y.toFixed(1)}%;--x:${g.x.toFixed(1)}%;--t:${g.v.ms}ms">${g.v.art}</span></div></div>` : nothing}`;
   }
 }
 if (!customElements.get('fh-ambient')) customElements.define('fh-ambient', FhAmbient);
