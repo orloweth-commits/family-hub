@@ -104,6 +104,8 @@ export interface FamilyHubConfig {
   music_map?: MapFloorConfig[];
   /** speakers to leave off the Music page altogether, e.g. a TV that already plays through another speaker */
   music_hide?: string[];
+  /** Call a room: how loud a call is spoken (0–100, default 70; Music Assistant speakers only), and the voice: a language such as en-AU (the default) and, optionally, one of that language's voices by name */
+  call_volume?: number; call_language?: string; call_voice?: string;
   /** the moment pads on the mixing desk (up to four): what each one plays, where, and how loud */
   music_moments?: MomentConfig[];
   /** song or playlist (name or URI) for timed jobs tagged @song, and how long the Music page's sleep timer runs */

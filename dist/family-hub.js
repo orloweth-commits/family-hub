@@ -264,7 +264,7 @@ lt.elementStyles = [], lt.shadowRootOptions = { mode: "open" }, lt[wt("elementPr
  */
 const li = globalThis, Ri = (e) => e, ea = li.trustedTypes, Si = ea ? ea.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, Ke = "$lit$", H = `lit$${Math.random().toFixed(9).slice(2)}$`, ge = "?" + H, De = `<${ge}>`, et = document, Mt = () => et.createComment(""), Ct = (e) => e === null || typeof e != "object" && typeof e != "function", ci = Array.isArray, Xe = (e) => ci(e) || typeof e?.[Symbol.iterator] == "function", Sa = `[ 	
 \f\r]`, At = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, yi = /-->/g, Vi = />/g, E = RegExp(`>|${Sa}(?:([^\\s"'>=/]+)(${Sa}*=${Sa}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), vi = /'/g, wi = /"/g, ue = /^(?:script|style|textarea|title)$/i, Ue = (e) => (t, ...a) => ({ _$litType$: e, strings: t, values: a }), n = Ue(1), K = Ue(2), Kt = Symbol.for("lit-noChange"), m = Symbol.for("lit-nothing"), Ni = /* @__PURE__ */ new WeakMap(), $ = et.createTreeWalker(et, 129);
+\f\r"'\`<>=]|("|')|))|$)`, "g"), vi = /'/g, wi = /"/g, ue = /^(?:script|style|textarea|title)$/i, Ue = (e) => (t, ...a) => ({ _$litType$: e, strings: t, values: a }), n = Ue(1), g = Ue(2), Kt = Symbol.for("lit-noChange"), m = Symbol.for("lit-nothing"), Ni = /* @__PURE__ */ new WeakMap(), $ = et.createTreeWalker(et, 129);
 function fe(e, t) {
   if (!ci(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Si !== void 0 ? Si.createHTML(t) : t;
@@ -274,8 +274,8 @@ const Pe = (e, t) => {
   let o, s = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = At;
   for (let l = 0; l < a; l++) {
     const c = e[l];
-    let p, d, h = -1, g = 0;
-    for (; g < c.length && (r.lastIndex = g, d = r.exec(c), d !== null); ) g = r.lastIndex, r === At ? d[1] === "!--" ? r = yi : d[1] !== void 0 ? r = Vi : d[2] !== void 0 ? (ue.test(d[2]) && (o = RegExp("</" + d[2], "g")), r = E) : d[3] !== void 0 && (r = E) : r === E ? d[0] === ">" ? (r = o ?? At, h = -1) : d[1] === void 0 ? h = -2 : (h = r.lastIndex - d[2].length, p = d[1], r = d[3] === void 0 ? E : d[3] === '"' ? wi : vi) : r === wi || r === vi ? r = E : r === yi || r === Vi ? r = At : (r = E, o = void 0);
+    let p, d, h = -1, K = 0;
+    for (; K < c.length && (r.lastIndex = K, d = r.exec(c), d !== null); ) K = r.lastIndex, r === At ? d[1] === "!--" ? r = yi : d[1] !== void 0 ? r = Vi : d[2] !== void 0 ? (ue.test(d[2]) && (o = RegExp("</" + d[2], "g")), r = E) : d[3] !== void 0 && (r = E) : r === E ? d[0] === ">" ? (r = o ?? At, h = -1) : d[1] === void 0 ? h = -2 : (h = r.lastIndex - d[2].length, p = d[1], r = d[3] === void 0 ? E : d[3] === '"' ? wi : vi) : r === wi || r === vi ? r = E : r === yi || r === Vi ? r = At : (r = E, o = void 0);
     const U = r === E && e[l + 1].startsWith("/>") ? " " : "";
     s += r === At ? c + De : h >= 0 ? (i.push(p), c.slice(0, h) + Ke + c.slice(h) + H + U) : c + H + (h === -2 ? l : U);
   }
@@ -294,15 +294,15 @@ class jt {
     for (; (o = $.nextNode()) !== null && c.length < l; ) {
       if (o.nodeType === 1) {
         if (o.hasAttributes()) for (const h of o.getAttributeNames()) if (h.endsWith(Ke)) {
-          const g = d[r++], U = o.getAttribute(h).split(H), f = /([.?@])?(.*)/.exec(g);
+          const K = d[r++], U = o.getAttribute(h).split(H), f = /([.?@])?(.*)/.exec(K);
           c.push({ type: 1, index: s, name: f[2], strings: U, ctor: f[1] === "." ? Ee : f[1] === "?" ? _e : f[1] === "@" ? $e : qa }), o.removeAttribute(h);
         } else h.startsWith(H) && (c.push({ type: 6, index: s }), o.removeAttribute(h));
         if (ue.test(o.tagName)) {
-          const h = o.textContent.split(H), g = h.length - 1;
-          if (g > 0) {
+          const h = o.textContent.split(H), K = h.length - 1;
+          if (K > 0) {
             o.textContent = ea ? ea.emptyScript : "";
-            for (let U = 0; U < g; U++) o.append(h[U], Mt()), $.nextNode(), c.push({ type: 2, index: ++s });
-            o.append(h[g], Mt());
+            for (let U = 0; U < K; U++) o.append(h[U], Mt()), $.nextNode(), c.push({ type: 2, index: ++s });
+            o.append(h[K], Mt());
           }
         }
       } else if (o.nodeType === 8) if (o.data === ge) c.push({ type: 2, index: s });
@@ -851,71 +851,71 @@ const T = (e) => {
   }
 }, Ci = "family-hub-look", ji = "family-hub-look-options", zi = (e, t = 62) => {
   const a = e.getHours() % 12 * 30 + e.getMinutes() * 0.5, i = e.getMinutes() * 6;
-  return n`<svg class="aclock" aria-hidden="true" width=${t} height=${t} viewBox="0 0 116 116">${K`
+  return n`<svg class="aclock" aria-hidden="true" width=${t} height=${t} viewBox="0 0 116 116">${g`
     <circle cx="58" cy="58" r="53" fill="var(--paper)" stroke="var(--ink)" stroke-width="6"></circle>
-    ${Array.from({ length: 12 }, (o, s) => K`<rect x="56.5" y="11" width="3" height=${s % 3 ? 6 : 11} fill="var(--ink)" transform="rotate(${s * 30} 58 58)"></rect>`)}
+    ${Array.from({ length: 12 }, (o, s) => g`<rect x="56.5" y="11" width="3" height=${s % 3 ? 6 : 11} fill="var(--ink)" transform="rotate(${s * 30} 58 58)"></rect>`)}
     <rect x="55" y="30" width="6" height="30" rx="3" fill="var(--ink)" transform="rotate(${a} 58 58)"></rect>
     <rect x="56.25" y="17" width="3.5" height="43" rx="1.75" fill="var(--ink)" transform="rotate(${i} 58 58)"></rect>
     <circle cx="58" cy="58" r="4.5" fill="var(--danger)"></circle>`}</svg>`;
 }, Gi = (e, t, a = 76) => {
   const o = 2 * Math.PI * 43, s = t.getTime(), r = s + 12 * 36e5, l = (h) => {
-    const g = new Date(h);
-    return (g.getHours() % 12 + g.getMinutes() / 60) * 30;
+    const K = new Date(h);
+    return (K.getHours() % 12 + K.getMinutes() / 60) * 30;
   }, c = e.filter((h) => !h.allDay && h.end.getTime() > s && h.start.getTime() < r), p = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, d = t.getMinutes() * 6;
-  return n`<svg class="dial" aria-hidden="true" width=${a} height=${a} viewBox="0 0 100 100" fill="none">${K`
+  return n`<svg class="dial" aria-hidden="true" width=${a} height=${a} viewBox="0 0 100 100" fill="none">${g`
     <circle cx="50" cy="50" r=${43} stroke="var(--track)" stroke-width="8"></circle>
     ${c.map((h) => {
-    const g = Math.max(h.start.getTime(), s), U = Math.min(h.end.getTime(), r), f = Math.max(8, (U - g) / 36e5 * 30);
-    return K`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${f / 360 * o} ${o}" transform="rotate(${l(g) - 90} 50 50)"></circle>`;
+    const K = Math.max(h.start.getTime(), s), U = Math.min(h.end.getTime(), r), f = Math.max(8, (U - K) / 36e5 * 30);
+    return g`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${f / 360 * o} ${o}" transform="rotate(${l(K) - 90} 50 50)"></circle>`;
   })}
-    ${[0, 3, 6, 9].map((h) => K`<rect x="49" y="13" width="2" height="6" rx="1" fill="var(--ink2)" transform="rotate(${h * 30} 50 50)"></rect>`)}
+    ${[0, 3, 6, 9].map((h) => g`<rect x="49" y="13" width="2" height="6" rx="1" fill="var(--ink2)" transform="rotate(${h * 30} 50 50)"></rect>`)}
     <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${p} 50 50)"></rect>
     <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
 }, ko = (e, t, a = 360) => {
-  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, l = (h, g, U, f) => {
+  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, l = (h, K, U, f) => {
     const u = Math.max(U, r(h.start)), x = Math.min(f, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
     if (x <= u && !(r(h.start) >= U && r(h.start) < f)) return m;
     const q = Math.max(7, (Math.max(x, u) - u) * 30);
-    return K`<circle cx="100" cy="100" r=${g} stroke=${h.colour} stroke-width="15" stroke-dasharray="${q / 360 * i(g)} ${i(g)}" transform="rotate(${u % 12 * 30 - 90} 100 100)"></circle>`;
+    return g`<circle cx="100" cy="100" r=${K} stroke=${h.colour} stroke-width="15" stroke-dasharray="${q / 360 * i(K)} ${i(K)}" transform="rotate(${u % 12 * 30 - 90} 100 100)"></circle>`;
   }, c = e.filter((h) => !h.allDay), p = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, d = t ? t.getMinutes() * 6 : 0;
-  return n`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${a} height=${a} viewBox="0 0 200 200" fill="none">${K`
+  return n`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${a} height=${a} viewBox="0 0 200 200" fill="none">${g`
     <circle cx="100" cy="100" r=${84} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     <circle cx="100" cy="100" r=${62} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     ${c.map((h) => l(h, 62, 0, 12))}${c.map((h) => l(h, 84, 12, 24))}
-    ${Array.from({ length: 12 }, (h, g) => K`<rect x="99.4" y="6" width="1.2" height=${g % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${g * 30} 100 100)"></rect>`)}
-    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, g, U]) => K`<text x=${g} y=${U} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
+    ${Array.from({ length: 12 }, (h, K) => g`<rect x="99.4" y="6" width="1.2" height=${K % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${K * 30} 100 100)"></rect>`)}
+    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, K, U]) => g`<text x=${K} y=${U} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
     <text x="100" y="41.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
     <text x="100" y="19.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
-    ${t ? K`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${p} 100 100)"></rect>
+    ${t ? g`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${p} 100 100)"></rect>
       <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
       <circle cx="100" cy=${100 - (t.getHours() < 12 ? 62 : 84)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${p} 100 100)"></circle>
-      <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : K`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
+      <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : g`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
 }, Fo = (e, t, a = 230) => n`
-  <svg class="vinyl" aria-hidden="true" width=${a} height=${a} viewBox="0 0 200 200">${K`
+  <svg class="vinyl" aria-hidden="true" width=${a} height=${a} viewBox="0 0 200 200">${g`
     <rect x="4" y="4" width="192" height="192" rx="12" fill="#d9cdb4"></rect>
     <g class=${t ? "spin" : ""}>
       <circle cx="94" cy="104" r="80" fill="#17140f"></circle>
-      ${[70, 60, 50, 42].map((i) => K`<circle cx="94" cy="104" r=${i} fill="none" stroke="#3a342b" stroke-width="1.2"></circle>`)}
+      ${[70, 60, 50, 42].map((i) => g`<circle cx="94" cy="104" r=${i} fill="none" stroke="#3a342b" stroke-width="1.2"></circle>`)}
       <path d="M94 30 A74 74 0 0 1 160 80" fill="none" stroke="#5b5346" stroke-width="2" opacity=".6"></path>
       <clipPath id="fhlabel"><circle cx="94" cy="104" r="31"></circle></clipPath>
       <circle cx="94" cy="104" r="31" fill="#c2410c"></circle>
-      ${e ? K`<image href=${e} x="63" y="73" width="62" height="62" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhlabel)"></image>` : m}
+      ${e ? g`<image href=${e} x="63" y="73" width="62" height="62" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhlabel)"></image>` : m}
       <circle cx="94" cy="104" r="3.5" fill="#f4efe3"></circle>
     </g>
     <g transform="rotate(${t ? 24 : 6} 176 30)"><rect x="173" y="26" width="6" height="92" rx="3" fill="#8b8477"></rect><rect x="168" y="112" width="16" height="22" rx="3" fill="#26272b"></rect></g>
     <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`, Ro = (e, t, a, i = 230) => {
   const s = 2 * Math.PI * 92, r = Math.max(0, Math.min(1, t));
-  return n`<svg class="pring" aria-hidden="true" width=${i} height=${i} viewBox="0 0 200 200" fill="none">${K`
+  return n`<svg class="pring" aria-hidden="true" width=${i} height=${i} viewBox="0 0 200 200" fill="none">${g`
     <circle cx="100" cy="100" r=${92} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
     <circle cx="100" cy="100" r=${92} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${r * s} ${s}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray 1s linear"></circle>
     <clipPath id="fhdisc"><circle cx="100" cy="100" r="78"></circle></clipPath>
     <circle cx="100" cy="100" r="78" fill="rgba(255,255,255,.08)"></circle>
-    ${e ? K`<image href=${e} x="22" y="22" width="156" height="156" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhdisc)" opacity=${a ? 1 : 0.6}></image>` : K`<circle cx="100" cy="100" r="30" stroke="rgba(255,255,255,.3)" stroke-width="2"></circle><circle cx="100" cy="100" r="54" stroke="rgba(255,255,255,.16)" stroke-width="2"></circle>`}
+    ${e ? g`<image href=${e} x="22" y="22" width="156" height="156" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhdisc)" opacity=${a ? 1 : 0.6}></image>` : g`<circle cx="100" cy="100" r="30" stroke="rgba(255,255,255,.3)" stroke-width="2"></circle><circle cx="100" cy="100" r="54" stroke="rgba(255,255,255,.16)" stroke-width="2"></circle>`}
     <circle cx="100" cy="100" r="5" fill="var(--ground, #0a0f1e)"></circle>`}</svg>`;
 }, Ya = (e, t = 56) => {
   const a = 2 * Math.PI * 22, i = Math.max(0, Math.min(1, e));
-  return n`<svg class="tface" aria-hidden="true" width=${t} height=${t} viewBox="0 0 100 100" fill="none">${K`
+  return n`<svg class="tface" aria-hidden="true" width=${t} height=${t} viewBox="0 0 100 100" fill="none">${g`
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
     <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${i * a} ${a}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
@@ -1827,7 +1827,7 @@ ${e.evening ? `${a}[data-tod='eve'], ${a}[data-tod='night'] {${t(e.evening)}}
   pause: "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z",
   prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
   next: "M16 6h2v12h-2zM4 6v12l10.5-6z"
-}, b = (e, t = 22) => n`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${K`<path d=${Mo[e] ?? ""}></path>`}</svg>`, w = (e, t = 22) => n`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${K`<path d=${Co[e] ?? ""}></path>`}</svg>`, jo = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", V = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, zo = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), O = (e) => {
+}, b = (e, t = 22) => n`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${g`<path d=${Mo[e] ?? ""}></path>`}</svg>`, w = (e, t = 22) => n`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${g`<path d=${Co[e] ?? ""}></path>`}</svg>`, jo = (e) => /rain|pour|storm|lightning/.test(e) ? "rain" : /cloud|fog/.test(e) ? "cloud" : /night/.test(e) ? "moon" : "sun", V = (e) => e === "family" || e === void 0 ? "var(--p-family)" : `var(--p-${e})`, zo = (e) => e.toLowerCase().replace(/[^a-z0-9]+/g, "_"), O = (e) => {
   const t = zo(e.name);
   return {
     chores: e.chores ?? `todo.${t}_chores`,
@@ -2245,118 +2245,118 @@ const gi = Qo(class extends Bo {
   }
   return `M${i.join(" L")} Z`;
 }, L = "M30 240 C32 190 62 166 100 166 C138 166 168 190 170 240 Z", Qi = {
-  plain: () => K`<g class="av-pop"><rect width="200" height="240" fill="#dbeafe"></rect><circle cx="100" cy="120" r="82" fill="#bfdbfe"></circle></g>`,
-  beach: () => K`<g class="av-pop"><rect width="200" height="240" fill="#9fd8f5"></rect><circle cx="162" cy="46" r="18" fill="#ffd166"></circle><rect y="150" width="200" height="40" fill="#3a9ad9"></rect><rect y="168" width="200" height="4" fill="#bfe6f7"></rect><rect y="190" width="200" height="50" fill="#f1d39b"></rect></g>`,
-  pool: () => K`<g class="av-pop"><rect width="200" height="240" fill="#38bdf8"></rect><rect y="40" width="200" height="6" fill="#e0f2fe"></rect><rect y="100" width="200" height="6" fill="#e0f2fe"></rect><rect y="160" width="200" height="6" fill="#e0f2fe"></rect><rect y="70" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="130" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="190" width="200" height="4" fill="#ef4444" opacity=".7"></rect></g>`,
-  court: () => K`<g class="av-pop"><rect width="200" height="240" fill="#2563eb"></rect><rect x="12" y="12" width="176" height="216" fill="none" stroke="#fff" stroke-width="3"></rect><rect x="12" y="118" width="176" height="4" fill="#fff"></rect><rect x="98" y="12" width="4" height="216" fill="#fff" opacity=".6"></rect><circle cx="40" cy="60" r="7" fill="#d9f99d"></circle></g>`,
-  library: () => K`<g class="av-pop"><rect width="200" height="240" fill="#7c2d12"></rect>${[30, 80, 130, 180].map((e) => K`<rect y=${e + 34} width="200" height="6" fill="#451a03"></rect>${[8, 22, 34, 48, 60, 150, 162, 176, 188].map((t, a) => K`<rect x=${t} y=${e} width="10" height="34" fill=${["#dc2626", "#2563eb", "#16a34a", "#f59e0b", "#7c3aed"][(a + e) % 5]}></rect>`)}`)}</g>`,
-  sunset: () => K`<g class="av-pop"><rect width="200" height="240" fill="#f7a35c"></rect><rect y="96" width="200" height="144" fill="#e76f51"></rect><circle cx="100" cy="150" r="56" fill="#ffd166"></circle><rect y="190" width="200" height="50" fill="#9c3d54"></rect></g>`,
-  reef: () => K`<g class="av-pop"><rect width="200" height="240" fill="#1aa3b8"></rect><rect y="196" width="200" height="44" fill="#0e7490"></rect><circle cx="30" cy="60" r="6" fill="none" stroke="#d6fbff" stroke-width="2"></circle><circle cx="40" cy="40" r="4" fill="none" stroke="#d6fbff" stroke-width="2"></circle><circle cx="170" cy="80" r="7" fill="none" stroke="#d6fbff" stroke-width="2"></circle><path d="M12 240 C14 214 22 206 28 200 C30 214 26 226 30 240 Z" fill="#fb7185"></path><path d="M176 240 C178 220 186 208 192 204 C194 220 188 230 192 240 Z" fill="#fbbf24"></path></g>`,
-  volcano: () => K`<g class="av-pop"><rect width="200" height="240" fill="#fde68a"></rect><path d="M110 150 L150 40 L170 40 L200 150 Z" fill="#57534e"></path><path d="M150 40 L170 40 L164 70 L156 60 Z" fill="#f97316"></path><circle cx="162" cy="24" r="10" fill="#a8a29e" opacity=".7"></circle><rect y="150" width="200" height="90" fill="#65a30d"></rect><path d="M0 170 C20 150 30 170 40 160 C50 150 60 170 70 158" fill="none" stroke="#3f6212" stroke-width="5"></path></g>`,
-  stadium: () => K`<g class="av-pop"><rect width="200" height="240" fill="#1e293b"></rect><rect y="160" width="200" height="80" fill="#16a34a"></rect><rect y="196" width="200" height="6" fill="#86efac"></rect><circle cx="28" cy="28" r="10" fill="#fff7c2"></circle><circle cx="172" cy="28" r="10" fill="#fff7c2"></circle><rect x="26" y="38" width="4" height="122" fill="#64748b"></rect><rect x="170" y="38" width="4" height="122" fill="#64748b"></rect></g>`,
-  castle: () => K`<g class="av-pop"><rect width="200" height="240" fill="#c7d2fe"></rect><rect x="20" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="146" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="20" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="34" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="46" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="146" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="158" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="172" y="60" width="8" height="12" fill="#94a3b8"></rect><path d="M162 60 V30 L180 38 L162 46" fill="#dc2626" stroke="#475569" stroke-width="2"></path><rect y="190" width="200" height="50" fill="#4d7c0f"></rect></g>`,
-  rottnest: () => K`<g class="av-pop"><rect width="200" height="240" fill="#7dd3fc"></rect><rect y="140" width="200" height="50" fill="#22d3ee"></rect><rect y="152" width="200" height="38" fill="#0ea5e9"></rect><path d="M0 190 C40 176 70 184 100 180 C140 174 170 182 200 176 L200 240 L0 240 Z" fill="#fde7b0"></path><rect x="150" y="96" width="10" height="46" fill="#f5f5f4"></rect><path d="M146 96 L164 96 L155 84 Z" fill="#dc2626"></path><circle cx="40" cy="40" r="14" fill="#fde047"></circle></g>`,
-  forge: () => K`<g class="av-pop"><rect width="200" height="240" fill="#292524"></rect><rect y="180" width="200" height="60" fill="#44403c"></rect><path d="M120 180 L130 130 L190 130 L200 180 Z" fill="#57534e"></path><ellipse cx="160" cy="150" rx="22" ry="10" fill="#f97316" class="av-flame"></ellipse><ellipse cx="160" cy="146" rx="12" ry="6" fill="#fde047" class="av-flame"></ellipse><rect x="18" y="40" width="40" height="26" rx="3" fill="#78716c"></rect><rect x="24" y="66" width="6" height="40" fill="#78716c"></rect>${[[30, 20], [80, 30], [176, 24]].map(([e, t]) => K`<circle cx=${e} cy=${t} r="2" fill="#fb923c"></circle>`)}</g>`,
-  space: () => K`<g class="av-pop"><rect width="200" height="240" fill="#14163a"></rect><circle cx="38" cy="48" r="16" fill="#f0a35e"></circle><ellipse cx="38" cy="48" rx="27" ry="6" fill="none" stroke="#ffd7a8" stroke-width="2.5"></ellipse>${[[150, 30], [176, 74], [120, 18], [20, 120], [182, 140], [70, 22], [14, 190]].map(([e, t]) => K`<circle cx=${e} cy=${t} r="1.6" fill="#fff"></circle>`)}</g>`
+  plain: () => g`<g class="av-pop"><rect width="200" height="240" fill="#dbeafe"></rect><circle cx="100" cy="120" r="82" fill="#bfdbfe"></circle></g>`,
+  beach: () => g`<g class="av-pop"><rect width="200" height="240" fill="#9fd8f5"></rect><circle cx="162" cy="46" r="18" fill="#ffd166"></circle><rect y="150" width="200" height="40" fill="#3a9ad9"></rect><rect y="168" width="200" height="4" fill="#bfe6f7"></rect><rect y="190" width="200" height="50" fill="#f1d39b"></rect></g>`,
+  pool: () => g`<g class="av-pop"><rect width="200" height="240" fill="#38bdf8"></rect><rect y="40" width="200" height="6" fill="#e0f2fe"></rect><rect y="100" width="200" height="6" fill="#e0f2fe"></rect><rect y="160" width="200" height="6" fill="#e0f2fe"></rect><rect y="70" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="130" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="190" width="200" height="4" fill="#ef4444" opacity=".7"></rect></g>`,
+  court: () => g`<g class="av-pop"><rect width="200" height="240" fill="#2563eb"></rect><rect x="12" y="12" width="176" height="216" fill="none" stroke="#fff" stroke-width="3"></rect><rect x="12" y="118" width="176" height="4" fill="#fff"></rect><rect x="98" y="12" width="4" height="216" fill="#fff" opacity=".6"></rect><circle cx="40" cy="60" r="7" fill="#d9f99d"></circle></g>`,
+  library: () => g`<g class="av-pop"><rect width="200" height="240" fill="#7c2d12"></rect>${[30, 80, 130, 180].map((e) => g`<rect y=${e + 34} width="200" height="6" fill="#451a03"></rect>${[8, 22, 34, 48, 60, 150, 162, 176, 188].map((t, a) => g`<rect x=${t} y=${e} width="10" height="34" fill=${["#dc2626", "#2563eb", "#16a34a", "#f59e0b", "#7c3aed"][(a + e) % 5]}></rect>`)}`)}</g>`,
+  sunset: () => g`<g class="av-pop"><rect width="200" height="240" fill="#f7a35c"></rect><rect y="96" width="200" height="144" fill="#e76f51"></rect><circle cx="100" cy="150" r="56" fill="#ffd166"></circle><rect y="190" width="200" height="50" fill="#9c3d54"></rect></g>`,
+  reef: () => g`<g class="av-pop"><rect width="200" height="240" fill="#1aa3b8"></rect><rect y="196" width="200" height="44" fill="#0e7490"></rect><circle cx="30" cy="60" r="6" fill="none" stroke="#d6fbff" stroke-width="2"></circle><circle cx="40" cy="40" r="4" fill="none" stroke="#d6fbff" stroke-width="2"></circle><circle cx="170" cy="80" r="7" fill="none" stroke="#d6fbff" stroke-width="2"></circle><path d="M12 240 C14 214 22 206 28 200 C30 214 26 226 30 240 Z" fill="#fb7185"></path><path d="M176 240 C178 220 186 208 192 204 C194 220 188 230 192 240 Z" fill="#fbbf24"></path></g>`,
+  volcano: () => g`<g class="av-pop"><rect width="200" height="240" fill="#fde68a"></rect><path d="M110 150 L150 40 L170 40 L200 150 Z" fill="#57534e"></path><path d="M150 40 L170 40 L164 70 L156 60 Z" fill="#f97316"></path><circle cx="162" cy="24" r="10" fill="#a8a29e" opacity=".7"></circle><rect y="150" width="200" height="90" fill="#65a30d"></rect><path d="M0 170 C20 150 30 170 40 160 C50 150 60 170 70 158" fill="none" stroke="#3f6212" stroke-width="5"></path></g>`,
+  stadium: () => g`<g class="av-pop"><rect width="200" height="240" fill="#1e293b"></rect><rect y="160" width="200" height="80" fill="#16a34a"></rect><rect y="196" width="200" height="6" fill="#86efac"></rect><circle cx="28" cy="28" r="10" fill="#fff7c2"></circle><circle cx="172" cy="28" r="10" fill="#fff7c2"></circle><rect x="26" y="38" width="4" height="122" fill="#64748b"></rect><rect x="170" y="38" width="4" height="122" fill="#64748b"></rect></g>`,
+  castle: () => g`<g class="av-pop"><rect width="200" height="240" fill="#c7d2fe"></rect><rect x="20" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="146" y="70" width="34" height="120" fill="#94a3b8"></rect><rect x="20" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="34" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="46" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="146" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="158" y="60" width="8" height="12" fill="#94a3b8"></rect><rect x="172" y="60" width="8" height="12" fill="#94a3b8"></rect><path d="M162 60 V30 L180 38 L162 46" fill="#dc2626" stroke="#475569" stroke-width="2"></path><rect y="190" width="200" height="50" fill="#4d7c0f"></rect></g>`,
+  rottnest: () => g`<g class="av-pop"><rect width="200" height="240" fill="#7dd3fc"></rect><rect y="140" width="200" height="50" fill="#22d3ee"></rect><rect y="152" width="200" height="38" fill="#0ea5e9"></rect><path d="M0 190 C40 176 70 184 100 180 C140 174 170 182 200 176 L200 240 L0 240 Z" fill="#fde7b0"></path><rect x="150" y="96" width="10" height="46" fill="#f5f5f4"></rect><path d="M146 96 L164 96 L155 84 Z" fill="#dc2626"></path><circle cx="40" cy="40" r="14" fill="#fde047"></circle></g>`,
+  forge: () => g`<g class="av-pop"><rect width="200" height="240" fill="#292524"></rect><rect y="180" width="200" height="60" fill="#44403c"></rect><path d="M120 180 L130 130 L190 130 L200 180 Z" fill="#57534e"></path><ellipse cx="160" cy="150" rx="22" ry="10" fill="#f97316" class="av-flame"></ellipse><ellipse cx="160" cy="146" rx="12" ry="6" fill="#fde047" class="av-flame"></ellipse><rect x="18" y="40" width="40" height="26" rx="3" fill="#78716c"></rect><rect x="24" y="66" width="6" height="40" fill="#78716c"></rect>${[[30, 20], [80, 30], [176, 24]].map(([e, t]) => g`<circle cx=${e} cy=${t} r="2" fill="#fb923c"></circle>`)}</g>`,
+  space: () => g`<g class="av-pop"><rect width="200" height="240" fill="#14163a"></rect><circle cx="38" cy="48" r="16" fill="#f0a35e"></circle><ellipse cx="38" cy="48" rx="27" ry="6" fill="none" stroke="#ffd7a8" stroke-width="2.5"></ellipse>${[[150, 30], [176, 74], [120, 18], [20, 120], [182, 140], [70, 22], [14, 190]].map(([e, t]) => g`<circle cx=${e} cy=${t} r="1.6" fill="#fff"></circle>`)}</g>`
 }, Bi = { rottnest: "#7dd3fc", forge: "#57534e", plain: "#dbeafe", beach: "#9fd8f5", pool: "#38bdf8", court: "#2563eb", library: "#7c2d12", sunset: "#f7a35c", reef: "#1aa3b8", volcano: "#fde68a", stadium: "#16a34a", castle: "#c7d2fe", space: "#14163a" }, Yi = {
-  surfboard: () => K`<g class="av-pop d6"><g transform="rotate(-16 158 150)"><ellipse cx="158" cy="150" rx="17" ry="82" fill="#f97316"></ellipse><rect x="155" y="70" width="6" height="160" fill="#fff" opacity=".85"></rect></g></g>`,
-  skateboard: () => K`<g class="av-pop d6"><g transform="rotate(18 40 160)"><rect x="30" y="90" width="22" height="124" rx="11" fill="#7c3aed"></rect><rect x="34" y="98" width="14" height="108" rx="7" fill="#a78bfa"></rect><circle cx="28" cy="112" r="5" fill="#f5b301"></circle><circle cx="54" cy="112" r="5" fill="#f5b301"></circle><circle cx="28" cy="192" r="5" fill="#f5b301"></circle><circle cx="54" cy="192" r="5" fill="#f5b301"></circle></g></g>`,
-  bat: () => K`<g class="av-pop d6"><g transform="rotate(-24 160 150)"><rect x="152" y="70" width="8" height="40" rx="3" fill="#7c4a1e"></rect><rect x="146" y="106" width="20" height="104" rx="6" fill="#f3d9a4" stroke="#c9a46a" stroke-width="2"></rect></g></g>`,
-  racquet: () => K`<g class="av-pop d6"><g transform="rotate(24 160 120)"><ellipse cx="160" cy="98" rx="24" ry="30" fill="rgba(255,255,255,.25)" stroke="#16a34a" stroke-width="6"></ellipse><path d="M140 98 H180 M160 70 V126 M150 74 V122 M170 74 V122 M142 86 H178 M142 110 H178" stroke="#e5e7eb" stroke-width="1.4"></path><rect x="156" y="128" width="8" height="46" rx="3" fill="#111827"></rect></g><circle cx="182" cy="168" r="9" fill="#d9f99d" stroke="#a3e635" stroke-width="2"></circle></g>`,
-  scooter: () => K`<g class="av-pop d6"><rect x="20" y="118" width="6" height="104" rx="3" fill="#94a3b8" transform="rotate(-8 23 170)"></rect><rect x="6" y="114" width="30" height="7" rx="3.5" fill="#0f172a"></rect><rect x="18" y="220" width="72" height="9" rx="4.5" fill="#ef4444"></rect><circle cx="26" cy="232" r="7" fill="#111"></circle><circle cx="84" cy="232" r="7" fill="#111"></circle></g>`,
-  clarinet: () => K`<g class="av-pop d6"><g transform="rotate(20 150 180)"><rect x="146" y="112" width="10" height="114" rx="4" fill="#1f2937"></rect><rect x="148" y="104" width="6" height="10" rx="2" fill="#111"></rect><path d="M140 224 L162 224 L168 240 L134 240 Z" fill="#111827"></path>${[132, 150, 168, 186, 204].map((e) => K`<circle cx="151" cy=${e} r="2.6" fill="#d1d5db"></circle>`)}</g></g>`
+  surfboard: () => g`<g class="av-pop d6"><g transform="rotate(-16 158 150)"><ellipse cx="158" cy="150" rx="17" ry="82" fill="#f97316"></ellipse><rect x="155" y="70" width="6" height="160" fill="#fff" opacity=".85"></rect></g></g>`,
+  skateboard: () => g`<g class="av-pop d6"><g transform="rotate(18 40 160)"><rect x="30" y="90" width="22" height="124" rx="11" fill="#7c3aed"></rect><rect x="34" y="98" width="14" height="108" rx="7" fill="#a78bfa"></rect><circle cx="28" cy="112" r="5" fill="#f5b301"></circle><circle cx="54" cy="112" r="5" fill="#f5b301"></circle><circle cx="28" cy="192" r="5" fill="#f5b301"></circle><circle cx="54" cy="192" r="5" fill="#f5b301"></circle></g></g>`,
+  bat: () => g`<g class="av-pop d6"><g transform="rotate(-24 160 150)"><rect x="152" y="70" width="8" height="40" rx="3" fill="#7c4a1e"></rect><rect x="146" y="106" width="20" height="104" rx="6" fill="#f3d9a4" stroke="#c9a46a" stroke-width="2"></rect></g></g>`,
+  racquet: () => g`<g class="av-pop d6"><g transform="rotate(24 160 120)"><ellipse cx="160" cy="98" rx="24" ry="30" fill="rgba(255,255,255,.25)" stroke="#16a34a" stroke-width="6"></ellipse><path d="M140 98 H180 M160 70 V126 M150 74 V122 M170 74 V122 M142 86 H178 M142 110 H178" stroke="#e5e7eb" stroke-width="1.4"></path><rect x="156" y="128" width="8" height="46" rx="3" fill="#111827"></rect></g><circle cx="182" cy="168" r="9" fill="#d9f99d" stroke="#a3e635" stroke-width="2"></circle></g>`,
+  scooter: () => g`<g class="av-pop d6"><rect x="20" y="118" width="6" height="104" rx="3" fill="#94a3b8" transform="rotate(-8 23 170)"></rect><rect x="6" y="114" width="30" height="7" rx="3.5" fill="#0f172a"></rect><rect x="18" y="220" width="72" height="9" rx="4.5" fill="#ef4444"></rect><circle cx="26" cy="232" r="7" fill="#111"></circle><circle cx="84" cy="232" r="7" fill="#111"></circle></g>`,
+  clarinet: () => g`<g class="av-pop d6"><g transform="rotate(20 150 180)"><rect x="146" y="112" width="10" height="114" rx="4" fill="#1f2937"></rect><rect x="148" y="104" width="6" height="10" rx="2" fill="#111"></rect><path d="M140 224 L162 224 L168 240 L134 240 Z" fill="#111827"></path>${[132, 150, 168, 186, 204].map((e) => g`<circle cx="151" cy=${e} r="2.6" fill="#d1d5db"></circle>`)}</g></g>`
 }, Ji = {
-  footy: () => K`<g class="av-pop d6"><g transform="rotate(-28 150 212)"><ellipse cx="150" cy="212" rx="24" ry="15" fill="#b91c1c"></ellipse><path d="M140 212 H160 M144 208 V216 M150 208 V216 M156 208 V216" stroke="#fff" stroke-width="2" stroke-linecap="round"></path></g></g>`,
-  trumpet: () => K`<g class="av-pop d6"><g transform="rotate(-18 150 206)"><rect x="104" y="202" width="66" height="8" rx="3" fill="#e0a800"></rect><path d="M166 190 L192 178 L192 234 L166 222 Z" fill="#f5c400" stroke="#c99700" stroke-width="1.5"></path><rect x="124" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="134" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="144" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="98" y="200" width="8" height="12" rx="3" fill="#a16207"></rect></g></g>`,
-  books: () => K`<g class="av-pop d6"><rect x="36" y="214" width="56" height="12" rx="2" fill="#f59e0b"></rect><rect x="32" y="202" width="56" height="12" rx="2" fill="#dc2626"></rect><rect x="38" y="190" width="50" height="12" rx="2" fill="#2563eb"></rect><rect x="34" y="178" width="54" height="12" rx="2" fill="#16a34a"></rect><rect x="40" y="181" width="40" height="2" fill="#bbf7d0"></rect><rect x="38" y="205" width="40" height="2" fill="#fecaca"></rect></g>`,
-  truck: () => K`<g class="av-pop d6"><path d="M124 204 L162 196 L164 224 L126 224 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2"></path><rect x="162" y="202" width="26" height="24" rx="4" fill="#f97316"></rect><rect x="168" y="206" width="14" height="9" rx="2" fill="#bae6fd"></rect><circle cx="138" cy="230" r="8" fill="#111"></circle><circle cx="178" cy="230" r="8" fill="#111"></circle><circle cx="138" cy="230" r="3" fill="#9ca3af"></circle><circle cx="178" cy="230" r="3" fill="#9ca3af"></circle></g>`,
-  miniature: () => K`<g class="av-pop d6"><ellipse cx="160" cy="232" rx="20" ry="5" fill="#334155"></ellipse><path d="M150 230 L152 202 L168 202 L170 230 Z" fill="#7c3aed"></path><path d="M146 206 L154 206 L154 222 L146 222 Z" fill="#b91c1c" stroke="#fde68a" stroke-width="1.5"></path><circle cx="160" cy="194" r="9" fill="#9ca3af"></circle><rect x="153" y="192" width="14" height="3" fill="#1f2937"></rect><rect x="170" y="176" width="3" height="40" fill="#e5e7eb"></rect><rect x="166" y="206" width="11" height="3" fill="#a16207"></rect></g>`
+  footy: () => g`<g class="av-pop d6"><g transform="rotate(-28 150 212)"><ellipse cx="150" cy="212" rx="24" ry="15" fill="#b91c1c"></ellipse><path d="M140 212 H160 M144 208 V216 M150 208 V216 M156 208 V216" stroke="#fff" stroke-width="2" stroke-linecap="round"></path></g></g>`,
+  trumpet: () => g`<g class="av-pop d6"><g transform="rotate(-18 150 206)"><rect x="104" y="202" width="66" height="8" rx="3" fill="#e0a800"></rect><path d="M166 190 L192 178 L192 234 L166 222 Z" fill="#f5c400" stroke="#c99700" stroke-width="1.5"></path><rect x="124" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="134" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="144" y="190" width="6" height="13" rx="2" fill="#c99700"></rect><rect x="98" y="200" width="8" height="12" rx="3" fill="#a16207"></rect></g></g>`,
+  books: () => g`<g class="av-pop d6"><rect x="36" y="214" width="56" height="12" rx="2" fill="#f59e0b"></rect><rect x="32" y="202" width="56" height="12" rx="2" fill="#dc2626"></rect><rect x="38" y="190" width="50" height="12" rx="2" fill="#2563eb"></rect><rect x="34" y="178" width="54" height="12" rx="2" fill="#16a34a"></rect><rect x="40" y="181" width="40" height="2" fill="#bbf7d0"></rect><rect x="38" y="205" width="40" height="2" fill="#fecaca"></rect></g>`,
+  truck: () => g`<g class="av-pop d6"><path d="M124 204 L162 196 L164 224 L126 224 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2"></path><rect x="162" y="202" width="26" height="24" rx="4" fill="#f97316"></rect><rect x="168" y="206" width="14" height="9" rx="2" fill="#bae6fd"></rect><circle cx="138" cy="230" r="8" fill="#111"></circle><circle cx="178" cy="230" r="8" fill="#111"></circle><circle cx="138" cy="230" r="3" fill="#9ca3af"></circle><circle cx="178" cy="230" r="3" fill="#9ca3af"></circle></g>`,
+  miniature: () => g`<g class="av-pop d6"><ellipse cx="160" cy="232" rx="20" ry="5" fill="#334155"></ellipse><path d="M150 230 L152 202 L168 202 L170 230 Z" fill="#7c3aed"></path><path d="M146 206 L154 206 L154 222 L146 222 Z" fill="#b91c1c" stroke="#fde68a" stroke-width="1.5"></path><circle cx="160" cy="194" r="9" fill="#9ca3af"></circle><rect x="153" y="192" width="14" height="3" fill="#1f2937"></rect><rect x="170" y="176" width="3" height="40" fill="#e5e7eb"></rect><rect x="166" y="206" width="11" height="3" fill="#a16207"></rect></g>`
 }, Ii = {
-  quokka: () => K`<g class="av-pop d6"><ellipse cx="32" cy="214" rx="20" ry="22" fill="#a16207"></ellipse><ellipse cx="32" cy="220" rx="11" ry="13" fill="#d6b88a"></ellipse><circle cx="32" cy="186" r="14" fill="#a16207"></circle><circle cx="22" cy="176" r="5" fill="#a16207"></circle><circle cx="42" cy="176" r="5" fill="#a16207"></circle><circle cx="27" cy="184" r="2" fill="#111"></circle><circle cx="37" cy="184" r="2" fill="#111"></circle><ellipse cx="32" cy="191" rx="4" ry="3" fill="#3f2a14"></ellipse><path d="M27 195 Q32 200 37 195" fill="none" stroke="#3f2a14" stroke-width="1.6"></path></g>`,
-  raven: () => K`<g class="av-pop d6"><ellipse cx="32" cy="210" rx="16" ry="22" fill="#111827"></ellipse><circle cx="34" cy="184" r="11" fill="#111827"></circle><path d="M43 184 L58 188 L43 191 Z" fill="#78716c"></path><circle cx="37" cy="181" r="2.2" fill="#fbbf24"></circle><path d="M18 204 C6 214 10 230 20 232 Z" fill="#1f2937"></path><path d="M26 230 L22 240 M36 230 L38 240" stroke="#78716c" stroke-width="2.5"></path></g>`,
-  owl: () => K`<g class="av-pop d6"><ellipse cx="30" cy="206" rx="20" ry="24" fill="#a16207"></ellipse><ellipse cx="30" cy="212" rx="12" ry="14" fill="#fde68a"></ellipse><circle cx="22" cy="196" r="7" fill="#fff"></circle><circle cx="38" cy="196" r="7" fill="#fff"></circle><circle cx="22" cy="196" r="3" fill="#111"></circle><circle cx="38" cy="196" r="3" fill="#111"></circle><path d="M27 203 L33 203 L30 208 Z" fill="#f97316"></path><path d="M12 184 L18 176 L22 186 M48 184 L42 176 L38 186" fill="#a16207"></path></g>`,
-  dino: () => K`<g class="av-pop d6"><path d="M6 236 L18 202 C22 184 38 176 52 182 L66 166 C76 160 86 166 82 176 L72 186 C76 200 72 216 60 224 L60 238 L50 238 L48 228 L32 228 L30 238 L20 238 Z" fill="#0d9488"></path><circle cx="74" cy="171" r="2.4" fill="#111"></circle><path d="M30 186 L36 176 L40 186 M42 182 L48 172 L52 182" fill="#5eead4"></path><path d="M66 192 L58 198" stroke="#0f766e" stroke-width="3" stroke-linecap="round"></path></g>`,
-  turtle: () => K`<g class="av-pop d6"><ellipse cx="34" cy="220" rx="26" ry="15" fill="#16a34a"></ellipse><path d="M14 220 L54 220 M24 208 L28 232 M44 208 L40 232" stroke="#14532d" stroke-width="2"></path><circle cx="64" cy="216" r="8" fill="#4ade80"></circle><circle cx="66" cy="214" r="1.8" fill="#111"></circle><ellipse cx="16" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse><ellipse cx="50" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse></g>`,
-  dragon: () => K`<g class="av-pop d6"><path d="M8 236 C2 210 14 188 34 190 L52 160 L56 186 C70 194 70 218 56 230 L56 238 L44 238 L42 232 L26 232 L24 238 Z" fill="#16a34a"></path><path d="M24 192 L4 162 L34 182 Z" fill="#86efac"></path><path d="M36 190 L30 150 L50 178 Z" fill="#4ade80"></path><circle cx="56" cy="164" r="12" fill="#22c55e"></circle><circle cx="60" cy="161" r="2.6" fill="#111"></circle><path d="M50 152 L52 142 L56 152 M58 152 L62 143 L64 154" fill="#facc15"></path><path d="M66 168 C74 166 78 160 84 162" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round" class="av-flame"></path></g>`
+  quokka: () => g`<g class="av-pop d6"><ellipse cx="32" cy="214" rx="20" ry="22" fill="#a16207"></ellipse><ellipse cx="32" cy="220" rx="11" ry="13" fill="#d6b88a"></ellipse><circle cx="32" cy="186" r="14" fill="#a16207"></circle><circle cx="22" cy="176" r="5" fill="#a16207"></circle><circle cx="42" cy="176" r="5" fill="#a16207"></circle><circle cx="27" cy="184" r="2" fill="#111"></circle><circle cx="37" cy="184" r="2" fill="#111"></circle><ellipse cx="32" cy="191" rx="4" ry="3" fill="#3f2a14"></ellipse><path d="M27 195 Q32 200 37 195" fill="none" stroke="#3f2a14" stroke-width="1.6"></path></g>`,
+  raven: () => g`<g class="av-pop d6"><ellipse cx="32" cy="210" rx="16" ry="22" fill="#111827"></ellipse><circle cx="34" cy="184" r="11" fill="#111827"></circle><path d="M43 184 L58 188 L43 191 Z" fill="#78716c"></path><circle cx="37" cy="181" r="2.2" fill="#fbbf24"></circle><path d="M18 204 C6 214 10 230 20 232 Z" fill="#1f2937"></path><path d="M26 230 L22 240 M36 230 L38 240" stroke="#78716c" stroke-width="2.5"></path></g>`,
+  owl: () => g`<g class="av-pop d6"><ellipse cx="30" cy="206" rx="20" ry="24" fill="#a16207"></ellipse><ellipse cx="30" cy="212" rx="12" ry="14" fill="#fde68a"></ellipse><circle cx="22" cy="196" r="7" fill="#fff"></circle><circle cx="38" cy="196" r="7" fill="#fff"></circle><circle cx="22" cy="196" r="3" fill="#111"></circle><circle cx="38" cy="196" r="3" fill="#111"></circle><path d="M27 203 L33 203 L30 208 Z" fill="#f97316"></path><path d="M12 184 L18 176 L22 186 M48 184 L42 176 L38 186" fill="#a16207"></path></g>`,
+  dino: () => g`<g class="av-pop d6"><path d="M6 236 L18 202 C22 184 38 176 52 182 L66 166 C76 160 86 166 82 176 L72 186 C76 200 72 216 60 224 L60 238 L50 238 L48 228 L32 228 L30 238 L20 238 Z" fill="#0d9488"></path><circle cx="74" cy="171" r="2.4" fill="#111"></circle><path d="M30 186 L36 176 L40 186 M42 182 L48 172 L52 182" fill="#5eead4"></path><path d="M66 192 L58 198" stroke="#0f766e" stroke-width="3" stroke-linecap="round"></path></g>`,
+  turtle: () => g`<g class="av-pop d6"><ellipse cx="34" cy="220" rx="26" ry="15" fill="#16a34a"></ellipse><path d="M14 220 L54 220 M24 208 L28 232 M44 208 L40 232" stroke="#14532d" stroke-width="2"></path><circle cx="64" cy="216" r="8" fill="#4ade80"></circle><circle cx="66" cy="214" r="1.8" fill="#111"></circle><ellipse cx="16" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse><ellipse cx="50" cy="234" rx="6" ry="3" fill="#4ade80"></ellipse></g>`,
+  dragon: () => g`<g class="av-pop d6"><path d="M8 236 C2 210 14 188 34 190 L52 160 L56 186 C70 194 70 218 56 230 L56 238 L44 238 L42 232 L26 232 L24 238 Z" fill="#16a34a"></path><path d="M24 192 L4 162 L34 182 Z" fill="#86efac"></path><path d="M36 190 L30 150 L50 178 Z" fill="#4ade80"></path><circle cx="56" cy="164" r="12" fill="#22c55e"></circle><circle cx="60" cy="161" r="2.6" fill="#111"></circle><path d="M50 152 L52 142 L56 152 M58 152 L62 143 L64 154" fill="#facc15"></path><path d="M66 168 C74 166 78 160 84 162" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round" class="av-flame"></path></g>`
 }, Oi = {
-  mullet: (e) => K`<g class="av-pop d3" fill=${e.hairColour}><path d="M54 96 L48 156 C58 164 70 158 74 146 L74 100 Z"></path><path d="M146 96 L152 156 C142 164 130 158 126 146 L126 100 Z"></path></g>`,
-  surfer: (e) => K`<g class="av-pop d3" fill=${e.hairColour}><path d="M52 98 C46 136 52 162 66 166 L74 108 Z"></path><path d="M148 98 C154 136 148 162 134 166 L126 108 Z"></path></g>`,
-  pageboy: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M52 92 C48 120 50 140 58 148 L142 148 C150 140 152 120 148 92 Z"></path>`
-}, Ot = (e) => K`<path d=${e} fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5" stroke-linecap="round"></path>`, Di = {
-  fringe: (e) => K`<g class="av-pop d3"><path fill=${e.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
+  mullet: (e) => g`<g class="av-pop d3" fill=${e.hairColour}><path d="M54 96 L48 156 C58 164 70 158 74 146 L74 100 Z"></path><path d="M146 96 L152 156 C142 164 130 158 126 146 L126 100 Z"></path></g>`,
+  surfer: (e) => g`<g class="av-pop d3" fill=${e.hairColour}><path d="M52 98 C46 136 52 162 66 166 L74 108 Z"></path><path d="M148 98 C154 136 148 162 134 166 L126 108 Z"></path></g>`,
+  pageboy: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M52 92 C48 120 50 140 58 148 L142 148 C150 140 152 120 148 92 Z"></path>`
+}, Ot = (e) => g`<path d=${e} fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3.5" stroke-linecap="round"></path>`, Di = {
+  fringe: (e) => g`<g class="av-pop d3"><path fill=${e.hairColour} d="M55 102 C51 64 76 47 103 47 C131 47 151 65 146 102 C143 92 139 86 133 81 C122 87 106 90 90 88 C79 87 70 88 62 91 C59 94 57 98 55 102 Z"></path>
     <path fill=${e.hairColour} d="M60 90 C68 79 84 73 104 75 C96 80 90 85 86 89 C77 89 68 89 60 90 Z" opacity=".9"></path>
     ${Ot("M72 62 C84 53 100 51 116 54")}<path d="M92 86 C98 80 108 76 120 76" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2" stroke-linecap="round"></path></g>`,
-  styled: (e) => K`<g class="av-pop d3"><path fill=${e.hairColour} opacity=".5" d="M56 104 C55 90 57 80 63 74 L68 96 Z M144 104 C145 90 143 80 137 74 L132 96 Z"></path>
+  styled: (e) => g`<g class="av-pop d3"><path fill=${e.hairColour} opacity=".5" d="M56 104 C55 90 57 80 63 74 L68 96 Z M144 104 C145 90 143 80 137 74 L132 96 Z"></path>
     <path fill=${e.hairColour} d="M60 89 C59 74 66 63 77 57 Q76 50 80 45 Q84 51 87 54 Q88 45 94 40 Q96 48 98 52 Q102 42 109 38 Q109 47 110 52 Q115 44 123 42 Q120 49 121 55 Q127 51 133 52 Q129 57 130 61 C137 68 141 77 140 89 C132 80 118 76 100 76 C82 76 68 80 60 89 Z"></path>
     <path d="M80 68 Q85 60 90 52 M96 66 Q100 57 105 47 M111 66 Q115 58 120 50 M123 70 Q127 64 131 58" fill="none" stroke="rgba(0,0,0,.13)" stroke-width="2" stroke-linecap="round"></path>
     ${Ot("M82 63 C90 55 100 50 112 48")}</g>`,
-  crop: (e) => K`<g class="av-pop d3"><path fill=${e.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
+  crop: (e) => g`<g class="av-pop d3"><path fill=${e.hairColour} opacity=".55" d="M56 102 C55 90 57 82 62 76 L66 96 Z M144 102 C145 90 143 82 138 76 L134 96 Z"></path>
     <path fill=${e.hairColour} d="M60 90 C59 71 72 58 87 54 Q90 47 94 47 Q97 51 99 53 Q102 45 106 45 Q109 50 111 53 Q115 48 119 48 Q121 53 121 56 L129 55 C139 63 142 75 141 90 C133 81 118 76 100 76 C82 76 68 81 60 90 Z"></path>
     <path d="M80 66 Q84 61 88 59 M98 63 Q101 58 104 56 M114 63 Q118 59 122 58" fill="none" stroke="rgba(0,0,0,.14)" stroke-width="2" stroke-linecap="round"></path>${Ot("M80 60 C92 54 106 52 120 56")}</g>`,
-  mop: (e) => K`<g class="av-pop d3"><path fill=${e.hairColour} d="M51 106 C45 70 66 44 98 42 C131 40 155 64 149 106 C145 97 141 92 136 89 L133 97 C128 86 117 80 104 82 C92 80 81 84 71 91 L67 99 C61 96 55 99 51 106 Z"></path>
+  mop: (e) => g`<g class="av-pop d3"><path fill=${e.hairColour} d="M51 106 C45 70 66 44 98 42 C131 40 155 64 149 106 C145 97 141 92 136 89 L133 97 C128 86 117 80 104 82 C92 80 81 84 71 91 L67 99 C61 96 55 99 51 106 Z"></path>
     <path fill=${e.hairColour} d="M84 48 C80 42 82 37 88 35 C87 40 90 44 95 46 Z M104 45 C103 38 107 33 113 33 C110 37 110 41 113 45 Z M120 50 C124 44 129 42 134 43 C130 46 127 50 126 55 Z"></path>
     <path d="M84 84 C88 76 94 72 100 72 M110 82 C114 76 120 74 126 76" fill="none" stroke="rgba(0,0,0,.15)" stroke-width="2" stroke-linecap="round"></path>${Ot("M74 58 C86 50 102 48 118 52")}</g>`,
-  short: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
-  quiff: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 66 70 54 88 52 C92 32 126 26 142 44 C132 44 124 48 121 55 C138 62 146 76 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
-  swept: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M55 100 C52 64 76 48 104 48 C132 48 150 66 145 100 C140 86 130 78 118 76 C100 73 82 84 64 70 C61 80 58 90 55 100 Z"></path>`,
-  pageboy: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M54 102 C52 62 78 48 100 48 C122 48 148 62 146 102 C142 92 130 90 100 90 C70 90 58 92 54 102 Z"></path>`,
-  spiky: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M56 99 L57 70 L70 78 L73 50 L88 66 L98 40 L109 64 L123 47 L127 72 L141 64 L145 99 C134 83 120 76 100 76 C80 76 66 83 56 99 Z"></path>`,
-  curly: (e) => K`<g class="av-pop d3" fill=${e.hairColour}><path d="M57 98 C56 70 78 58 100 58 C124 58 145 70 144 98 C136 86 124 80 100 80 C78 80 64 86 57 98 Z"></path><circle cx="64" cy="82" r="14"></circle><circle cx="77" cy="63" r="15"></circle><circle cx="95" cy="54" r="16"></circle><circle cx="114" cy="55" r="16"></circle><circle cx="131" cy="66" r="15"></circle><circle cx="141" cy="84" r="13"></circle></g>`,
-  buzz: (e) => K`<path class="av-pop d3" fill=${e.hairColour} opacity=".88" d="M58 93 C60 64 80 55 100 55 C122 55 140 64 142 93 C130 81 116 77 100 77 C84 77 70 81 58 93 Z"></path>`,
-  surfer: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M55 102 C50 64 80 45 104 47 C133 50 151 70 145 104 C133 80 112 74 92 80 C77 85 63 93 55 102 Z"></path>`,
-  mohawk: (e) => K`<g class="av-pop d3" fill=${e.hairColour}><path opacity=".45" d="M60 94 C62 72 80 62 100 62 C120 62 138 72 140 94 C130 84 116 80 100 80 C84 80 70 84 60 94 Z"></path><path d="M88 82 L90 40 L100 24 L110 40 L112 82 Z"></path></g>`,
-  mullet: (e) => K`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`
+  short: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
+  quiff: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 66 70 54 88 52 C92 32 126 26 142 44 C132 44 124 48 121 55 C138 62 146 76 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`,
+  swept: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M55 100 C52 64 76 48 104 48 C132 48 150 66 145 100 C140 86 130 78 118 76 C100 73 82 84 64 70 C61 80 58 90 55 100 Z"></path>`,
+  pageboy: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M54 102 C52 62 78 48 100 48 C122 48 148 62 146 102 C142 92 130 90 100 90 C70 90 58 92 54 102 Z"></path>`,
+  spiky: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M56 99 L57 70 L70 78 L73 50 L88 66 L98 40 L109 64 L123 47 L127 72 L141 64 L145 99 C134 83 120 76 100 76 C80 76 66 83 56 99 Z"></path>`,
+  curly: (e) => g`<g class="av-pop d3" fill=${e.hairColour}><path d="M57 98 C56 70 78 58 100 58 C124 58 145 70 144 98 C136 86 124 80 100 80 C78 80 64 86 57 98 Z"></path><circle cx="64" cy="82" r="14"></circle><circle cx="77" cy="63" r="15"></circle><circle cx="95" cy="54" r="16"></circle><circle cx="114" cy="55" r="16"></circle><circle cx="131" cy="66" r="15"></circle><circle cx="141" cy="84" r="13"></circle></g>`,
+  buzz: (e) => g`<path class="av-pop d3" fill=${e.hairColour} opacity=".88" d="M58 93 C60 64 80 55 100 55 C122 55 140 64 142 93 C130 81 116 77 100 77 C84 77 70 81 58 93 Z"></path>`,
+  surfer: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M55 102 C50 64 80 45 104 47 C133 50 151 70 145 104 C133 80 112 74 92 80 C77 85 63 93 55 102 Z"></path>`,
+  mohawk: (e) => g`<g class="av-pop d3" fill=${e.hairColour}><path opacity=".45" d="M60 94 C62 72 80 62 100 62 C120 62 138 72 140 94 C130 84 116 80 100 80 C84 80 70 84 60 94 Z"></path><path d="M88 82 L90 40 L100 24 L110 40 L112 82 Z"></path></g>`,
+  mullet: (e) => g`<path class="av-pop d3" fill=${e.hairColour} d="M56 98 C55 62 78 50 100 50 C124 50 146 62 145 99 C138 84 126 76 100 76 C78 76 64 83 56 98 Z"></path>`
 }, Xi = {
-  island: (e) => K`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path>${[[60, 200], [96, 214], [130, 196], [146, 224], [74, 228], [112, 186]].map(([t, a]) => K`<circle cx=${t} cy=${a} r="6" fill="#fde047" opacity=".9"></circle><circle cx=${t} cy=${a} r="2.5" fill="#f97316"></circle>`)}<path d="M84 168 L100 190 L116 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
-  cloak: (e) => K`<g class="av-pop d1"><path d="M22 240 C26 186 56 150 100 150 C144 150 174 186 178 240 Z" fill="#1f2937"></path><path d=${L} fill=${e.topColour}></path><path d="M100 166 L100 240" stroke="#111827" stroke-width="3"></path><circle cx="100" cy="176" r="5" fill="#d4af37"></circle></g>`,
-  armour: () => K`<g class="av-pop d1"><path d=${L} fill="#64748b"></path><path d="M60 182 C80 172 120 172 140 182 L134 230 L66 230 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"></path><path d="M100 178 L100 230" stroke="#475569" stroke-width="2"></path><circle cx="48" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><circle cx="152" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><path d="M86 200 L100 192 L114 200 L100 212 Z" fill="#b91c1c"></path></g>`,
-  tee: (e) => K`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M84 168 Q100 182 116 168" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-linecap="round"></path></g>`,
-  hoodie: (e) => K`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M66 174 Q100 146 134 174 Q100 194 66 174 Z" fill="rgba(0,0,0,.22)"></path><path d="M92 182 L90 206 M108 182 L110 206" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><rect x="74" y="212" width="52" height="22" rx="8" fill="rgba(0,0,0,.12)"></rect></g>`,
-  polo: (e) => K`<g class="av-pop d1"><path d=${L} fill="#f8fafc"></path><path d="M80 168 L100 186 L120 168 L114 164 L100 176 L86 164 Z" fill=${e.topColour}></path><circle cx="100" cy="194" r="2" fill="#94a3b8"></circle><circle cx="100" cy="204" r="2" fill="#94a3b8"></circle><path d="M44 214 L60 210" stroke=${e.topColour} stroke-width="4"></path></g>`,
-  rashie: (e) => K`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M40 216 C70 200 130 200 160 216" fill="none" stroke="#fff" stroke-width="5" opacity=".8"></path><path d="M90 168 L100 176 L110 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
-  band: (e) => K`<g class="av-pop d1"><path d=${L} fill="#7f1d1d"></path><rect x="92" y="170" width="16" height="70" fill="#991b1b"></rect>${[184, 198, 212, 226].map((t) => K`<circle cx="88" cy=${t} r="3" fill="#facc15"></circle><circle cx="112" cy=${t} r="3" fill="#facc15"></circle>`)}<path d="M50 196 L70 182 M150 196 L130 182" stroke="#facc15" stroke-width="4" stroke-linecap="round"></path></g>`,
-  footy: () => K`<g class="av-pop d1"><clipPath id="fhBody"><path d=${L}></path></clipPath><g clip-path="url(#fhBody)"><rect y="160" width="200" height="80" fill="#1e3a8a"></rect><rect y="186" width="200" height="12" fill="#f5b301"></rect><rect y="210" width="200" height="12" fill="#f5b301"></rect></g><path d="M84 168 Q100 180 116 168" fill="none" stroke="#f5b301" stroke-width="4" stroke-linecap="round"></path></g>`,
-  wetsuit: () => K`<g class="av-pop d1"><path d=${L} fill="#111827"></path><path d="M40 240 C44 204 58 186 72 180 L78 240 Z" fill="#0ea5e9"></path><path d="M160 240 C156 204 142 186 128 180 L122 240 Z" fill="#0ea5e9"></path></g>`,
-  astro: () => K`<g class="av-pop d1"><path d=${L} fill="#e5e7eb"></path><rect x="78" y="196" width="44" height="30" rx="6" fill="#cbd5e1"></rect><circle cx="90" cy="211" r="4" fill="#ef4444"></circle><circle cx="104" cy="211" r="4" fill="#22c55e"></circle><rect x="112" y="207" width="6" height="8" rx="2" fill="#3b82f6"></rect></g>`
-}, Na = (e, t) => K`<ellipse cx=${t} cy="104" rx="5.2" ry="6.2" fill="#fff"></ellipse><circle cx=${t} cy="104.6" r="4.4" fill=${e}></circle><circle cx=${t} cy="104.6" r="2.2" fill="#141414"></circle><circle cx=${t + 1.6} cy="102.6" r="1.3" fill="#fff"></circle>`, Pi = {
-  normal: (e) => e.eyeColour && e.eyeColour !== "none" ? K`<g class="av-pop d4">${Na(e.eyeColour, 84)}${Na(e.eyeColour, 116)}</g>` : K`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><ellipse cx="116" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><circle cx="118" cy="101.5" r="1.6" fill="#fff"></circle></g>`,
-  happy: () => K`<g class="av-pop d4" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"><path d="M77 106 Q84 97 91 106"></path><path d="M109 106 Q116 97 123 106"></path></g>`,
-  wink: (e) => K`<g class="av-pop d4">${e.eyeColour && e.eyeColour !== "none" ? Na(e.eyeColour, 84) : K`<ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle>`}<path d="M109 105 Q116 99 123 105" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"></path></g>`
+  island: (e) => g`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path>${[[60, 200], [96, 214], [130, 196], [146, 224], [74, 228], [112, 186]].map(([t, a]) => g`<circle cx=${t} cy=${a} r="6" fill="#fde047" opacity=".9"></circle><circle cx=${t} cy=${a} r="2.5" fill="#f97316"></circle>`)}<path d="M84 168 L100 190 L116 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
+  cloak: (e) => g`<g class="av-pop d1"><path d="M22 240 C26 186 56 150 100 150 C144 150 174 186 178 240 Z" fill="#1f2937"></path><path d=${L} fill=${e.topColour}></path><path d="M100 166 L100 240" stroke="#111827" stroke-width="3"></path><circle cx="100" cy="176" r="5" fill="#d4af37"></circle></g>`,
+  armour: () => g`<g class="av-pop d1"><path d=${L} fill="#64748b"></path><path d="M60 182 C80 172 120 172 140 182 L134 230 L66 230 Z" fill="#94a3b8" stroke="#475569" stroke-width="2"></path><path d="M100 178 L100 230" stroke="#475569" stroke-width="2"></path><circle cx="48" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><circle cx="152" cy="196" r="16" fill="#94a3b8" stroke="#475569" stroke-width="2"></circle><path d="M86 200 L100 192 L114 200 L100 212 Z" fill="#b91c1c"></path></g>`,
+  tee: (e) => g`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M84 168 Q100 182 116 168" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="3" stroke-linecap="round"></path></g>`,
+  hoodie: (e) => g`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M66 174 Q100 146 134 174 Q100 194 66 174 Z" fill="rgba(0,0,0,.22)"></path><path d="M92 182 L90 206 M108 182 L110 206" stroke="#fff" stroke-width="3" stroke-linecap="round"></path><rect x="74" y="212" width="52" height="22" rx="8" fill="rgba(0,0,0,.12)"></rect></g>`,
+  polo: (e) => g`<g class="av-pop d1"><path d=${L} fill="#f8fafc"></path><path d="M80 168 L100 186 L120 168 L114 164 L100 176 L86 164 Z" fill=${e.topColour}></path><circle cx="100" cy="194" r="2" fill="#94a3b8"></circle><circle cx="100" cy="204" r="2" fill="#94a3b8"></circle><path d="M44 214 L60 210" stroke=${e.topColour} stroke-width="4"></path></g>`,
+  rashie: (e) => g`<g class="av-pop d1"><path d=${L} fill=${e.topColour}></path><path d="M40 216 C70 200 130 200 160 216" fill="none" stroke="#fff" stroke-width="5" opacity=".8"></path><path d="M90 168 L100 176 L110 168" fill="none" stroke="#fff" stroke-width="3"></path></g>`,
+  band: (e) => g`<g class="av-pop d1"><path d=${L} fill="#7f1d1d"></path><rect x="92" y="170" width="16" height="70" fill="#991b1b"></rect>${[184, 198, 212, 226].map((t) => g`<circle cx="88" cy=${t} r="3" fill="#facc15"></circle><circle cx="112" cy=${t} r="3" fill="#facc15"></circle>`)}<path d="M50 196 L70 182 M150 196 L130 182" stroke="#facc15" stroke-width="4" stroke-linecap="round"></path></g>`,
+  footy: () => g`<g class="av-pop d1"><clipPath id="fhBody"><path d=${L}></path></clipPath><g clip-path="url(#fhBody)"><rect y="160" width="200" height="80" fill="#1e3a8a"></rect><rect y="186" width="200" height="12" fill="#f5b301"></rect><rect y="210" width="200" height="12" fill="#f5b301"></rect></g><path d="M84 168 Q100 180 116 168" fill="none" stroke="#f5b301" stroke-width="4" stroke-linecap="round"></path></g>`,
+  wetsuit: () => g`<g class="av-pop d1"><path d=${L} fill="#111827"></path><path d="M40 240 C44 204 58 186 72 180 L78 240 Z" fill="#0ea5e9"></path><path d="M160 240 C156 204 142 186 128 180 L122 240 Z" fill="#0ea5e9"></path></g>`,
+  astro: () => g`<g class="av-pop d1"><path d=${L} fill="#e5e7eb"></path><rect x="78" y="196" width="44" height="30" rx="6" fill="#cbd5e1"></rect><circle cx="90" cy="211" r="4" fill="#ef4444"></circle><circle cx="104" cy="211" r="4" fill="#22c55e"></circle><rect x="112" y="207" width="6" height="8" rx="2" fill="#3b82f6"></rect></g>`
+}, Na = (e, t) => g`<ellipse cx=${t} cy="104" rx="5.2" ry="6.2" fill="#fff"></ellipse><circle cx=${t} cy="104.6" r="4.4" fill=${e}></circle><circle cx=${t} cy="104.6" r="2.2" fill="#141414"></circle><circle cx=${t + 1.6} cy="102.6" r="1.3" fill="#fff"></circle>`, Pi = {
+  normal: (e) => e.eyeColour && e.eyeColour !== "none" ? g`<g class="av-pop d4">${Na(e.eyeColour, 84)}${Na(e.eyeColour, 116)}</g>` : g`<g class="av-pop d4"><ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><ellipse cx="116" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle><circle cx="118" cy="101.5" r="1.6" fill="#fff"></circle></g>`,
+  happy: () => g`<g class="av-pop d4" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"><path d="M77 106 Q84 97 91 106"></path><path d="M109 106 Q116 97 123 106"></path></g>`,
+  wink: (e) => g`<g class="av-pop d4">${e.eyeColour && e.eyeColour !== "none" ? Na(e.eyeColour, 84) : g`<ellipse cx="84" cy="104" rx="5" ry="6.2" fill="#1d1d1f"></ellipse><circle cx="86" cy="101.5" r="1.6" fill="#fff"></circle>`}<path d="M109 105 Q116 99 123 105" fill="none" stroke="#1d1d1f" stroke-width="3.4" stroke-linecap="round"></path></g>`
 }, Hi = {
-  smile: () => K`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
-  cheeky: () => K`<g class="av-pop d4"><path d="M86 119 Q100 134 114 119 Q100 122.5 86 119 Z" fill="#5b2a22"></path><path d="M89.5 120 Q100 122.4 110.5 120 L109.5 123 Q100 124.6 90.5 123 Z" fill="#fffaf0"></path><path d="M93 129.5 Q100 132 107 129.5" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".6"></path></g>`,
-  grin: () => K`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
-  smirk: () => K`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
-  wow: () => K`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
+  smile: () => g`<path class="av-pop d4" d="M88 122 Q100 133 112 122" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
+  cheeky: () => g`<g class="av-pop d4"><path d="M86 119 Q100 134 114 119 Q100 122.5 86 119 Z" fill="#5b2a22"></path><path d="M89.5 120 Q100 122.4 110.5 120 L109.5 123 Q100 124.6 90.5 123 Z" fill="#fffaf0"></path><path d="M93 129.5 Q100 132 107 129.5" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".6"></path></g>`,
+  grin: () => g`<g class="av-pop d4"><path d="M83 118 Q100 140 117 118 Q100 122 83 118 Z" fill="#4a2018"></path><path d="M86.5 119.2 Q100 122.4 113.5 119.2 L112 124 Q100 126 88 124 Z" fill="#fff"></path><path d="M92 132 Q100 135 108 132" fill="none" stroke="#e8857a" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
+  smirk: () => g`<path class="av-pop d4" d="M89 125 Q103 129 113 119" fill="none" stroke="#3b1f14" stroke-width="3.4" stroke-linecap="round"></path>`,
+  wow: () => g`<ellipse class="av-pop d4" cx="100" cy="124" rx="5.5" ry="6.5" fill="#3b1f14"></ellipse>`
 }, Ei = {
-  zinc: () => K`<g class="av-pop d5"><path d="M93 104 Q100 100 107 104 L105 118 Q100 121 95 118 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"></path><path d="M70 112 L80 110 M120 110 L130 112" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"></path></g>`,
-  round: () => K`<g class="av-pop d5"><circle cx="84" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><circle cx="116" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><path d="M95 103 Q100 99 105 103" fill="none" stroke="#111" stroke-width="2.5"></path><path d="M79 99 L84 96" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
-  swim: () => K`<g class="av-pop d5"><path d="M52 102 H148" stroke="#0ea5e9" stroke-width="4"></path><ellipse cx="84" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><ellipse cx="116" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><path d="M95 104 H105" stroke="#0369a1" stroke-width="3"></path></g>`,
-  aviator: () => K`<g class="av-pop d5"><path d="M71 97 H97 Q97 118 84 118 Q71 118 71 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M103 97 H129 Q129 118 116 118 Q103 118 103 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M97 99 H103 M60 99 H71 M129 99 H140" stroke="#c9a227" stroke-width="2.2"></path></g>`,
-  shutter: () => K`<g class="av-pop d5" fill="none" stroke="#f5b301" stroke-width="3"><rect x="69" y="95" width="62" height="19" rx="5"></rect><path d="M71 101 H129 M71 107 H129 M100 95 V114"></path></g>`,
-  ski: () => K`<g class="av-pop d5"><path d="M50 104 H150" stroke="#111827" stroke-width="7"></path><rect x="67" y="92" width="66" height="24" rx="12" fill="rgba(80,200,255,.75)" stroke="#111827" stroke-width="3.5"></rect><path d="M76 98 L90 98" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".8"></path></g>`,
-  star: () => K`<g class="av-pop d5" fill="#ff4fa3" stroke="#be185d" stroke-width="2" stroke-linejoin="round"><path d=${Da(84, 104, 13)}></path><path d=${Da(116, 104, 13)}></path><path d="M95 104 H105" stroke-width="2.5"></path></g>`
+  zinc: () => g`<g class="av-pop d5"><path d="M93 104 Q100 100 107 104 L105 118 Q100 121 95 118 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"></path><path d="M70 112 L80 110 M120 110 L130 112" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"></path></g>`,
+  round: () => g`<g class="av-pop d5"><circle cx="84" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><circle cx="116" cy="104" r="11" fill="rgba(20,22,34,.88)" stroke="#111" stroke-width="2.5"></circle><path d="M95 103 Q100 99 105 103" fill="none" stroke="#111" stroke-width="2.5"></path><path d="M79 99 L84 96" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"></path></g>`,
+  swim: () => g`<g class="av-pop d5"><path d="M52 102 H148" stroke="#0ea5e9" stroke-width="4"></path><ellipse cx="84" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><ellipse cx="116" cy="104" rx="11" ry="8" fill="rgba(125,211,252,.85)" stroke="#0369a1" stroke-width="3"></ellipse><path d="M95 104 H105" stroke="#0369a1" stroke-width="3"></path></g>`,
+  aviator: () => g`<g class="av-pop d5"><path d="M71 97 H97 Q97 118 84 118 Q71 118 71 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M103 97 H129 Q129 118 116 118 Q103 118 103 97 Z" fill="rgba(30,44,70,.88)" stroke="#c9a227" stroke-width="2.2"></path><path d="M97 99 H103 M60 99 H71 M129 99 H140" stroke="#c9a227" stroke-width="2.2"></path></g>`,
+  shutter: () => g`<g class="av-pop d5" fill="none" stroke="#f5b301" stroke-width="3"><rect x="69" y="95" width="62" height="19" rx="5"></rect><path d="M71 101 H129 M71 107 H129 M100 95 V114"></path></g>`,
+  ski: () => g`<g class="av-pop d5"><path d="M50 104 H150" stroke="#111827" stroke-width="7"></path><rect x="67" y="92" width="66" height="24" rx="12" fill="rgba(80,200,255,.75)" stroke="#111827" stroke-width="3.5"></rect><path d="M76 98 L90 98" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".8"></path></g>`,
+  star: () => g`<g class="av-pop d5" fill="#ff4fa3" stroke="#be185d" stroke-width="2" stroke-linejoin="round"><path d=${Da(84, 104, 13)}></path><path d=${Da(116, 104, 13)}></path><path d="M95 104 H105" stroke-width="2.5"></path></g>`
 }, _i = {
-  knight: () => K`<g class="av-pop d5"><path d="M52 112 C48 60 72 40 100 40 C128 40 152 60 148 112 L140 112 L140 98 L60 98 L60 112 Z" fill="#94a3b8" stroke="#475569" stroke-width="2.5"></path><rect x="96" y="40" width="8" height="58" fill="#64748b"></rect><path d="M100 40 C96 22 112 16 120 24 C110 26 104 32 104 40 Z" fill="#b91c1c"></path></g>`,
-  cap: () => K`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#d62d20"></path><path d="M100 84 L170 90 C168 99 150 99 100 93 Z" fill="#b91c1c"></path></g>`,
-  backcap: () => K`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#2563eb"></path><path d="M58 86 L30 80 C30 72 44 70 58 76 Z" fill="#1d4ed8"></path><rect x="122" y="70" width="18" height="10" rx="4" fill="#bfdbfe"></rect></g>`,
-  beanie: () => K`<g class="av-pop d5"><path d="M53 94 C53 56 76 43 100 43 C124 43 147 56 147 94 Z" fill="#0f766e"></path><rect x="50" y="84" width="100" height="14" rx="7" fill="#115e59"></rect><circle cx="100" cy="40" r="9" fill="#f5b301"></circle></g>`,
-  swimcap: () => K`<g class="av-pop d5"><path d="M54 98 C52 58 76 44 100 44 C124 44 148 58 146 98 C136 90 120 86 100 86 C80 86 64 90 54 98 Z" fill="#0ea5e9"></path><path d="M70 64 Q100 52 130 64" fill="none" stroke="#e0f2fe" stroke-width="3" opacity=".7"></path></g>`,
-  bucket: () => K`<g class="av-pop d5"><path d="M64 84 C66 54 80 45 100 45 C120 45 134 54 136 84 Z" fill="#d6c38f"></path><ellipse cx="100" cy="86" rx="58" ry="11" fill="#c2ad74"></ellipse><rect x="65" y="74" width="70" height="7" fill="#8b7a4a"></rect></g>`,
-  dinohood: () => K`<g class="av-pop d5"><path d="M50 108 C46 60 74 40 100 40 C126 40 154 60 150 108 C146 92 132 82 100 82 C68 82 54 92 50 108 Z" fill="#16a34a"></path><path d="M70 46 L76 30 L84 42 L92 26 L100 40 L108 26 L116 42 L124 30 L130 46" fill="#facc15"></path><circle cx="76" cy="62" r="5" fill="#fff"></circle><circle cx="124" cy="62" r="5" fill="#fff"></circle><circle cx="76" cy="62" r="2.4" fill="#111"></circle><circle cx="124" cy="62" r="2.4" fill="#111"></circle></g>`,
-  headphones: () => K`<g class="av-pop d5"><path d="M52 106 C50 48 150 48 148 106" fill="none" stroke="#111827" stroke-width="7" stroke-linecap="round"></path><rect x="44" y="94" width="18" height="28" rx="8" fill="#ef4444"></rect><rect x="138" y="94" width="18" height="28" rx="8" fill="#ef4444"></rect></g>`,
-  wizard: () => K`<g class="av-pop d5"><ellipse cx="100" cy="80" rx="60" ry="11" fill="#312e81"></ellipse><path d="M66 80 L100 4 L134 80 Z" fill="#4338ca"></path><path d=${Da(100, 48, 8)} fill="#facc15"></path><circle cx="86" cy="66" r="2.5" fill="#fde68a"></circle><circle cx="116" cy="30" r="2" fill="#fde68a"></circle></g>`,
-  akubra: () => K`<g class="av-pop d5"><ellipse cx="100" cy="82" rx="72" ry="13" fill="#7a4a24"></ellipse><path d="M66 82 C66 54 78 42 100 42 C122 42 134 54 134 82 Z" fill="#8b5a2b"></path><rect x="66" y="70" width="68" height="9" fill="#3b2414"></rect></g>`,
-  crown: () => K`<g class="av-pop d5"><path d="M63 72 L68 38 L85 58 L100 30 L115 58 L132 38 L137 72 Z" fill="#f5b301" stroke="#b27f00" stroke-width="2.5" stroke-linejoin="round"></path><circle cx="100" cy="60" r="5" fill="#ef4444"></circle><circle cx="80" cy="64" r="3.5" fill="#3b82f6"></circle><circle cx="120" cy="64" r="3.5" fill="#22c55e"></circle></g>`,
-  helmet: () => K`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
+  knight: () => g`<g class="av-pop d5"><path d="M52 112 C48 60 72 40 100 40 C128 40 152 60 148 112 L140 112 L140 98 L60 98 L60 112 Z" fill="#94a3b8" stroke="#475569" stroke-width="2.5"></path><rect x="96" y="40" width="8" height="58" fill="#64748b"></rect><path d="M100 40 C96 22 112 16 120 24 C110 26 104 32 104 40 Z" fill="#b91c1c"></path></g>`,
+  cap: () => g`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#d62d20"></path><path d="M100 84 L170 90 C168 99 150 99 100 93 Z" fill="#b91c1c"></path></g>`,
+  backcap: () => g`<g class="av-pop d5"><path d="M53 90 C53 58 76 45 100 45 C124 45 147 58 147 90 Z" fill="#2563eb"></path><path d="M58 86 L30 80 C30 72 44 70 58 76 Z" fill="#1d4ed8"></path><rect x="122" y="70" width="18" height="10" rx="4" fill="#bfdbfe"></rect></g>`,
+  beanie: () => g`<g class="av-pop d5"><path d="M53 94 C53 56 76 43 100 43 C124 43 147 56 147 94 Z" fill="#0f766e"></path><rect x="50" y="84" width="100" height="14" rx="7" fill="#115e59"></rect><circle cx="100" cy="40" r="9" fill="#f5b301"></circle></g>`,
+  swimcap: () => g`<g class="av-pop d5"><path d="M54 98 C52 58 76 44 100 44 C124 44 148 58 146 98 C136 90 120 86 100 86 C80 86 64 90 54 98 Z" fill="#0ea5e9"></path><path d="M70 64 Q100 52 130 64" fill="none" stroke="#e0f2fe" stroke-width="3" opacity=".7"></path></g>`,
+  bucket: () => g`<g class="av-pop d5"><path d="M64 84 C66 54 80 45 100 45 C120 45 134 54 136 84 Z" fill="#d6c38f"></path><ellipse cx="100" cy="86" rx="58" ry="11" fill="#c2ad74"></ellipse><rect x="65" y="74" width="70" height="7" fill="#8b7a4a"></rect></g>`,
+  dinohood: () => g`<g class="av-pop d5"><path d="M50 108 C46 60 74 40 100 40 C126 40 154 60 150 108 C146 92 132 82 100 82 C68 82 54 92 50 108 Z" fill="#16a34a"></path><path d="M70 46 L76 30 L84 42 L92 26 L100 40 L108 26 L116 42 L124 30 L130 46" fill="#facc15"></path><circle cx="76" cy="62" r="5" fill="#fff"></circle><circle cx="124" cy="62" r="5" fill="#fff"></circle><circle cx="76" cy="62" r="2.4" fill="#111"></circle><circle cx="124" cy="62" r="2.4" fill="#111"></circle></g>`,
+  headphones: () => g`<g class="av-pop d5"><path d="M52 106 C50 48 150 48 148 106" fill="none" stroke="#111827" stroke-width="7" stroke-linecap="round"></path><rect x="44" y="94" width="18" height="28" rx="8" fill="#ef4444"></rect><rect x="138" y="94" width="18" height="28" rx="8" fill="#ef4444"></rect></g>`,
+  wizard: () => g`<g class="av-pop d5"><ellipse cx="100" cy="80" rx="60" ry="11" fill="#312e81"></ellipse><path d="M66 80 L100 4 L134 80 Z" fill="#4338ca"></path><path d=${Da(100, 48, 8)} fill="#facc15"></path><circle cx="86" cy="66" r="2.5" fill="#fde68a"></circle><circle cx="116" cy="30" r="2" fill="#fde68a"></circle></g>`,
+  akubra: () => g`<g class="av-pop d5"><ellipse cx="100" cy="82" rx="72" ry="13" fill="#7a4a24"></ellipse><path d="M66 82 C66 54 78 42 100 42 C122 42 134 54 134 82 Z" fill="#8b5a2b"></path><rect x="66" y="70" width="68" height="9" fill="#3b2414"></rect></g>`,
+  crown: () => g`<g class="av-pop d5"><path d="M63 72 L68 38 L85 58 L100 30 L115 58 L132 38 L137 72 Z" fill="#f5b301" stroke="#b27f00" stroke-width="2.5" stroke-linejoin="round"></path><circle cx="100" cy="60" r="5" fill="#ef4444"></circle><circle cx="80" cy="64" r="3.5" fill="#3b82f6"></circle><circle cx="120" cy="64" r="3.5" fill="#22c55e"></circle></g>`,
+  helmet: () => g`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
 function at(e, t = {}) {
-  const a = t.size ?? 200, i = t.crop === "head", o = a, s = i ? a : Math.round(a * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", l = t.age ?? "mid", c = l === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", p = l === "kid" ? 44 : 46, d = l === "teen" ? 46 : 44, h = K`<path d=${l === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, g = l !== "kid" ? K`<g class="av-pop d4" stroke=${e.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${l === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${l === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : m;
+  const a = t.size ?? 200, i = t.crop === "head", o = a, s = i ? a : Math.round(a * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", l = t.age ?? "mid", c = l === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", p = l === "kid" ? 44 : 46, d = l === "teen" ? 46 : 44, h = g`<path d=${l === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, K = l !== "kid" ? g`<g class="av-pop d4" stroke=${e.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${l === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${l === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : m;
   return n`<span class="avwrap ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${i ? "36 28 128 128" : "0 0 200 240"} width=${o} height=${s} role="img" aria-label=${t.label ?? "Avatar"}
       style="display:block;overflow:hidden;border-radius:${i ? "50%" : `${Math.round(a * 0.12)}px`}">
-      ${i ? K`<circle cx="100" cy="92" r="64" fill=${Bi[e.scene] ?? Bi.plain}></circle>` : (Qi[e.scene] ?? Qi.plain)(e)}
-      ${t.ring && i ? K`<circle cx="100" cy="92" r="60" fill="none" stroke=${t.ring} stroke-width="7"></circle>` : m}
+      ${i ? g`<circle cx="100" cy="92" r="64" fill=${Bi[e.scene] ?? Bi.plain}></circle>` : (Qi[e.scene] ?? Qi.plain)(e)}
+      ${t.ring && i ? g`<circle cx="100" cy="92" r="60" fill="none" stroke=${t.ring} stroke-width="7"></circle>` : m}
       <g class=${t.still ? "" : "av-bob"}>
         ${!i && Yi[e.gear] ? Yi[e.gear](e) : m}
         ${Oi[e.hair] ? Oi[e.hair](e) : m}
@@ -2369,10 +2369,10 @@ function at(e, t = {}) {
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
         <g class=${t.still ? "" : "av-blink"}>${(Pi[e.eyes] ?? Pi.normal)(e)}</g>
-        ${g}
-        ${e.freckles === "yes" ? K`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([U, f]) => K`<circle cx=${U} cy=${f} r="1.15"></circle>`)}</g>` : m}
+        ${K}
+        ${e.freckles === "yes" ? g`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([U, f]) => g`<circle cx=${U} cy=${f} r="1.15"></circle>`)}</g>` : m}
         ${h}
-        ${e.mole === "yes" ? K`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : m}
+        ${e.mole === "yes" ? g`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : m}
         ${(Hi[e.mouth] ?? Hi.smile)(e)}
         ${(Di[e.hair] ?? Di.short)(e)}
         ${Ei[e.eyewear] ? Ei[e.eyewear](e) : m}
@@ -2918,7 +2918,7 @@ const $o = [
     </div>`;
   }
   _hero() {
-    const t = this._e, a = this.hass, i = this._life, o = this._look, s = _(a, t.points), r = Xo(i), l = a.states[t.goal]?.state, c = Fe(i, this.kid.favourites, l && l !== "unknown" ? l : void 0), p = Re(i), d = c ? Math.max(4, Math.round((i - p) / Math.max(1, c.req - p) * 100)) : 100, h = (a.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), g = (this._now.getDay() + 6) % 7, U = this._goodToday(), f = [...h].filter((u, x) => u === "G" || x === g && U).length;
+    const t = this._e, a = this.hass, i = this._life, o = this._look, s = _(a, t.points), r = Xo(i), l = a.states[t.goal]?.state, c = Fe(i, this.kid.favourites, l && l !== "unknown" ? l : void 0), p = Re(i), d = c ? Math.max(4, Math.round((i - p) / Math.max(1, c.req - p) * 100)) : 100, h = (a.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), K = (this._now.getDay() + 6) % 7, U = this._goodToday(), f = [...h].filter((u, x) => u === "G" || x === K && U).length;
     return n`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => {
       this._jump++, this._sound(this.kid.sound ?? "tap"), this._picMode && T(`Hi ${this.kid.name}! You have ${Math.floor(s / this._star)} stars.`);
@@ -2937,7 +2937,7 @@ const $o = [
         <div class="stats">
           <div class="stat"><b>${s || "✨"}</b><span>${s ? "points to spend" : "Ready to start"}</span></div>
           <button class="stat tap" style="text-align:left" aria-label="Good days: ${f} this week. Grown-ups can mark a day off." @click=${() => this._openDays()}><span>Good days</span>
-            <div class="dots" aria-hidden="true">${[...h].map((u, x) => n`<i class="${u === "G" || x === g && U ? "g" : u === "O" ? "o" : ""} ${x === g ? "t" : ""}"></i>`)}</div>
+            <div class="dots" aria-hidden="true">${[...h].map((u, x) => n`<i class="${u === "G" || x === K && U ? "g" : u === "O" ? "o" : ""} ${x === K ? "t" : ""}"></i>`)}</div>
             <span>${f >= 5 ? "Full week ⭐" : `${f} this week`}</span></button>
         </div>`}
       ${this._wind ? n`<div class="nextup"><span style="font-size:13px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : c ? n`<div class="nextup">
@@ -2968,7 +2968,7 @@ const $o = [
   _jobs() {
     const { bt: t, slot: a, routineNow: i, jobs: o, grow: s, later: r, visible: l, todo: c, done: p, total: d } = this._block();
     this._nowUid = c[0]?.uid ?? "";
-    const h = d - p, g = 2 * Math.PI * 22, U = d ? p / d : 0, f = this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${ie(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${a === "am" ? "this morning" : a === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", u = this.oneAtATime && !this._showAll, x = Math.min(60, Z(t) - rt(this._now));
+    const h = d - p, K = 2 * Math.PI * 22, U = d ? p / d : 0, f = this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${ie(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${a === "am" ? "this morning" : a === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", u = this.oneAtATime && !this._showAll, x = Math.min(60, Z(t) - rt(this._now));
     return n`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._wind ? "Wind down" : this._picMode ? a === "am" ? "My morning" : a === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
@@ -2979,7 +2979,7 @@ const $o = [
         ${this._picMode ? n`<button class="round tap" style="width:52px;height:52px;font-size:24px" aria-label="Read my jobs" @click=${() => T(i.filter((q) => q.status !== "completed").map((q) => q.summary).join(". ") || "All done! Great job!")}>🔊</button>` : m}
         ${this._wind && x > 0 ? n`<span class="bedclock" role="img" aria-label="${x} minutes until bed">${B(tt(), "timer", { frac: x / 60, size: 52 })}<b>${x}<span>min</span></b></span>` : m}
         <div class="ring" role="img" aria-label="${p} of ${d} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${g} stroke-dashoffset=${g * (1 - U)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${p}/${d}</b></div>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${K} stroke-dashoffset=${K * (1 - U)} style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${p}/${d}</b></div>
       </div>
       ${u ? this._focusList(c, p, r.length) : n`<div class="list scrolly" data-fits @scroll=${G}>
         ${this._picMode ? n`<div class="pics">${i.map((q) => this._pic(q))}</div>` : n`
@@ -3317,10 +3317,10 @@ const ss = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
       return n`<div class="room ${p ? "lit" : ""}">
               <div class="rh"><h2>${l.name}</h2>${c.length ? n`<button class="toggle tap" role="switch" aria-label="${l.name} lights" aria-checked=${String(p)} @click=${() => this._room(l, !p)}></button>` : m}</div>
               ${l.ents.map((d) => {
-        const h = rs.has(d.state), g = d.attributes.brightness;
+        const h = rs.has(d.state), K = d.attributes.brightness;
         return n`<button class="dev tap ${h && d.entity_id.startsWith("light.") ? "on" : ""}" @click=${() => this._toggle(d)}>
                   <span class="dicon">${b(this._ic(d), 18)}</span><span class="n">${this._name(d, l.name)}</span>
-                  <span class="s">${d.entity_id.startsWith("light.") && h && g ? `${Math.round(g / 255 * 100)}%` : d.state.replace(/_/g, " ")}</span></button>`;
+                  <span class="s">${d.entity_id.startsWith("light.") && h && K ? `${Math.round(K / 255 * 100)}%` : d.state.replace(/_/g, " ")}</span></button>`;
       })}
             </div>`;
     })}
@@ -3451,7 +3451,7 @@ const ve = async (e) => {
   if (!i) return;
   const o = await pa(e, "music_assistant", "search", { config_entry_id: i, name: t, media_type: [a], limit: 8 }), s = (o[`${a}s`] ?? o[a] ?? []).map((d) => na(d, a)).filter((d) => d.uri), r = t.toLowerCase().trim(), l = r.split(/\s+/).filter((d) => d.length > 2), c = (d) => {
     const h = d.name.toLowerCase();
-    return l.filter((g) => h.includes(g)).length;
+    return l.filter((K) => h.includes(K)).length;
   }, p = [...s].sort((d, h) => c(h) - c(d))[0];
   return s.find((d) => d.name.toLowerCase().trim() === r) ?? s.find((d) => d.name.toLowerCase().includes(r)) ?? (p && c(p) > 0 ? p : void 0);
 }, vt = (e, t, a, i = "play", o = !1) => e.services?.music_assistant && ka(e, t) === "music_assistant" ? e.callService("music_assistant", "play_media", { media_id: a, enqueue: i, ...o ? { radio_mode: !0 } : {} }, { entity_id: t }) : e.callService("media_player", "play_media", { media_content_id: a, media_content_type: "music", ...i === "play" ? {} : { enqueue: i } }, { entity_id: t }), cs = async (e, t) => {
@@ -3521,47 +3521,47 @@ const ve = async (e) => {
   return `M${i.toFixed(1)} ${o.toFixed(1)} A${e} ${e} 0 ${a - t > 180 ? 1 : 0} 1 ${s.toFixed(1)} ${r.toFixed(1)}`;
 }, Ks = (e) => {
   const t = e.rooms.length, a = 360 / Math.max(t, 3), i = 9, o = 2 * Math.PI * 106, s = (r, l, c) => (p) => {
-    const d = p.currentTarget.ownerSVGElement, h = (g) => {
-      const U = d.getBoundingClientRect(), u = ((Math.atan2(g.clientY - (U.top + U.height / 2), g.clientX - (U.left + U.width / 2)) * 180 / Math.PI - l) % 360 + 360) % 360;
+    const d = p.currentTarget.ownerSVGElement, h = (K) => {
+      const U = d.getBoundingClientRect(), u = ((Math.atan2(K.clientY - (U.top + U.height / 2), K.clientX - (U.left + U.width / 2)) * 180 / Math.PI - l) % 360 + 360) % 360;
       return Zt((u > c + (360 - c) / 2 ? 0 : Math.min(u, c)) / c * 100);
     };
     if (!r.hasVol) {
       ot(p, () => {
-      }, (g) => {
-        g || e.toggle(r.id);
+      }, (K) => {
+        K || e.toggle(r.id);
       });
       return;
     }
-    ot(p, (g) => e.vol(r.id, h(g), !1), (g, U) => {
-      g ? e.vol(r.id, h(U), !0) : e.toggle(r.id);
+    ot(p, (K) => e.vol(r.id, h(K), !1), (K, U) => {
+      K ? e.vol(r.id, h(U), !0) : e.toggle(r.id);
     });
   };
   return n`<div class="dialwrap"><div class="bigdial" data-fits>
     <svg viewBox="0 0 400 400">
       <circle class="dplate" cx="200" cy="200" r="184"></circle>
-      ${e.now.playing ? K`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : m}
+      ${e.now.playing ? g`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : m}
       ${e.rooms.map((r, l) => {
-    const c = -90 + l * a + i / 2, p = a - i, d = c + p * Math.max(0.03, r.vol / 100), [h, g] = $a(152, d), U = r.live;
-    return K`<g class="darc" data-zone=${r.id} ?data-live=${U} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${e.over === r.id} style=${st(r)} role="slider" tabindex="0" aria-label=${Ra(r)}
+    const c = -90 + l * a + i / 2, p = a - i, d = c + p * Math.max(0.03, r.vol / 100), [h, K] = $a(152, d), U = r.live;
+    return g`<g class="darc" data-zone=${r.id} ?data-live=${U} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${e.over === r.id} style=${st(r)} role="slider" tabindex="0" aria-label=${Ra(r)}
           aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${s(r, c, p)} @keydown=${Fa(e, r)}>
           <path class="dhit" d=${Wa(152, c, c + p)}></path><path class="dtrack" d=${Wa(152, c, c + p)}></path>
-          ${r.hasVol ? K`<path class="dfill" d=${Wa(152, c, d)}></path><circle class="dknob" cx=${h} cy=${g} r="13"></circle>` : m}</g>`;
+          ${r.hasVol ? g`<path class="dfill" d=${Wa(152, c, d)}></path><circle class="dknob" cx=${h} cy=${K} r="13"></circle>` : m}</g>`;
   })}
       <circle class="dprogt" cx="200" cy="200" r="106"></circle>
       <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${e.now.frac * o} ${o}" transform="rotate(-90 200 200)"></circle>
     </svg>
     <button class="dcover tap" ?data-playing=${e.now.playing} style=${e.now.art ? `--art:url(${e.now.art})` : ""} aria-label=${e.now.playing ? "Pause" : "Play"} @click=${() => e.playPause()}><span>${w(e.now.playing ? "pause" : "play", 30)}</span></button>
     ${e.rooms.map((r, l) => {
-    const c = -90 + l * a + a / 2, p = Math.cos(c * Math.PI / 180), d = Math.sin(c * Math.PI / 180), h = p > 0.3 ? "0" : p < -0.3 ? "-100%" : "-50%", g = Math.abs(p) > 0.3 ? "-50%" : d > 0 ? "0" : "-100%";
-    return n`<button class="dlabel tap" style="left:${50 + 47.5 * p}%;top:${50 + 47.5 * d}%;transform:translate(${h},${g});text-align:${p > 0.3 ? "left" : p < -0.3 ? "right" : "center"}" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => e.focus(r.id)}>
+    const c = -90 + l * a + a / 2, p = Math.cos(c * Math.PI / 180), d = Math.sin(c * Math.PI / 180), h = p > 0.3 ? "0" : p < -0.3 ? "-100%" : "-50%", K = Math.abs(p) > 0.3 ? "-50%" : d > 0 ? "0" : "-100%";
+    return n`<button class="dlabel tap" style="left:${50 + 47.5 * p}%;top:${50 + 47.5 * d}%;transform:translate(${h},${K});text-align:${p > 0.3 ? "left" : p < -0.3 ? "right" : "center"}" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => e.focus(r.id)}>
         <b>${r.asleep ? "☾ " : ""}${r.name}</b><span>${Te(r)}</span></button>`;
   })}
   </div></div>`;
 }, gs = (e) => {
   const t = e.rooms.filter((p) => p.live && p.hasVol), a = t.length ? Math.round(t.reduce((p, d) => p + d.vol, 0) / t.length) : 0, i = (p) => {
     if (!t.length) return;
-    const d = t.map((f) => [f.id, f.vol]), h = p.clientY, g = Math.max(40, p.currentTarget.getBoundingClientRect().height), U = (f, u) => {
-      const x = (h - f.clientY) / g * 100;
+    const d = t.map((f) => [f.id, f.vol]), h = p.clientY, K = Math.max(40, p.currentTarget.getBoundingClientRect().height), U = (f, u) => {
+      const x = (h - f.clientY) / K * 100;
       for (const [q, R] of d) e.vol(q, Zt(R + x), u);
     };
     ot(p, (f) => U(f, !1), (f, u) => {
@@ -3572,12 +3572,12 @@ const ve = async (e) => {
     return n`<div class="strip" data-zone=${p.id} ?data-live=${p.live} ?data-playing=${p.playing} ?data-asleep=${p.asleep} ?data-focus=${p.focus} ?data-hot=${e.over === p.id} style=${st(p)}>
       <button class="sname tap" aria-pressed=${String(p.focus)} aria-label="Show ${p.name} in the player" @click=${() => e.focus(p.id)}>${p.name}</button>
       <button class="lamp tap" aria-pressed=${String(p.live)} aria-label="${p.inmix ? "Remove" : "Add"} ${p.name} ${p.inmix ? "from" : "to"} the music" @click=${() => e.toggle(p.id)}>${p.asleep && !p.live ? "☾" : p.live ? "ON" : "OFF"}</button>
-      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (h, g) => n`<i ?data-lit=${9 - g < d} ?data-peak=${9 - g >= d - 2 && 9 - g < d}></i>`)}</span>
+      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (h, K) => n`<i ?data-lit=${9 - K < d} ?data-peak=${9 - K >= d - 2 && 9 - K < d}></i>`)}</span>
         <div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label=${Ra(p)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${p.vol} @pointerdown=${Ai(e, p, (h) => h.getBoundingClientRect().height)} @keydown=${Fa(e, p)}>
           <i class="slot"></i>${p.hasVol ? n`<i class="run" style="height:${p.vol}%"></i><i class="fcap" style="bottom:${p.vol}%"></i>` : m}</div></div>
       <span class="sval">${p.hasVol ? p.vol : "–"}</span></div>`;
   }, s = (p) => {
-    const d = p.currentTarget.getBoundingClientRect(), h = d.left + d.width / 2, g = d.top + d.height / 2, U = (q) => Math.atan2(q.clientY - g, q.clientX - h) * 180 / Math.PI;
+    const d = p.currentTarget.getBoundingClientRect(), h = d.left + d.width / 2, K = d.top + d.height / 2, U = (q) => Math.atan2(q.clientY - K, q.clientX - h) * 180 / Math.PI;
     let f = U(p), u = 0;
     const x = (q) => {
       const R = U(q);
@@ -3624,9 +3624,9 @@ const ve = async (e) => {
     <span class="chit" role="slider" tabindex="0" aria-label=${Ra(u)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${u.vol} @keydown=${Fa(e, u)}><span class="cone" aria-hidden="true"><i></i></span>
     <span class="ctext"><b>${u.asleep ? "☾ " : ""}${u.name}</b><span>${u.live ? u.hasVol ? `Volume ${u.vol}` : u.title || "Music" : u.asleep ? "Asleep" : "Plug in to play"}</span></span>
     ${u.hasVol ? n`<span class="cknob" aria-hidden="true" style="--turn:${-135 + u.vol * 2.7}deg"><i></i></span>` : m}</span>
-    <button class="sock tap" data-notrack aria-pressed=${String(c(u))} aria-label="${u.inmix || u.focus ? "Remove" : "Add"} ${u.name} ${u.inmix || u.focus ? "from" : "to"} the music" @click=${() => e.toggle(u.id)}>${c(u) ? "" : "＋"}</button></div>`, h = e.rooms.map((u, x) => [u, x]).filter(([u]) => c(u)), g = (u) => 39 + (u - (h.length - 1) / 2) * Math.min(9, 60 / Math.max(1, h.length)), U = h.map(([u, x], q) => {
-    const k = g(q), A = 76, F = l(x), N = 9 + Math.abs(F - k) * 0.18;
-    return K`<path class="wire" ?data-playing=${u.playing} style="${st(u)};animation-delay:${-q * 0.4}s" d="M${70.6} ${k} C${70.6 + 3.4} ${k + N}, ${A - 3.4} ${F + N}, ${A} ${F}"></path>`;
+    <button class="sock tap" data-notrack aria-pressed=${String(c(u))} aria-label="${u.inmix || u.focus ? "Remove" : "Add"} ${u.name} ${u.inmix || u.focus ? "from" : "to"} the music" @click=${() => e.toggle(u.id)}>${c(u) ? "" : "＋"}</button></div>`, h = e.rooms.map((u, x) => [u, x]).filter(([u]) => c(u)), K = (u) => 39 + (u - (h.length - 1) / 2) * Math.min(9, 60 / Math.max(1, h.length)), U = h.map(([u, x], q) => {
+    const k = K(q), A = 76, F = l(x), N = 9 + Math.abs(F - k) * 0.18;
+    return g`<path class="wire" ?data-playing=${u.playing} style="${st(u)};animation-delay:${-q * 0.4}s" d="M${70.6} ${k} C${70.6 + 3.4} ${k + N}, ${A - 3.4} ${F + N}, ${A} ${F}"></path>`;
   }), f = (u, x) => {
     const q = o + x, R = q === i, k = 0.5 + (x - (s.length - 1) / 2) / Math.max(3, s.length - 1);
     return n`<button class="sleeve tap" ?data-front=${R} style="z-index:${10 - Math.abs(q - i)};--x:${k};--tilt:${(-9 + 17 * k).toFixed(1)}deg;--art:${u.img ? `url(${u.img})` : `linear-gradient(135deg, var(--p-${q % 5 + 1}), var(--p-${(q + 2) % 5 + 1}))`}"
@@ -3649,63 +3649,63 @@ const ve = async (e) => {
         <div class="tplat"><button class="cdisc tap" ?data-playing=${e.now.playing} style=${e.now.art ? `--art:url(${e.now.art})` : ""} aria-label=${e.now.playing ? "Pause" : "Play"} @click=${() => e.playPause()}></button>
           <i class="tarm" aria-hidden="true" style="--arm:${e.now.lead ? (12 + 18 * e.now.frac).toFixed(1) : 0}deg"><i></i></i><i class="tpivot" aria-hidden="true"></i></div>
         <span class="ttitle"><b>${e.now.title}</b><span>${e.now.artist || (e.now.lead ? "" : "Drop a record here")}</span></span>
-        ${h.map((u, x) => n`<i class="jack" aria-hidden="true" style="top:${g(x) / 78 * 100}%"></i>`)}
+        ${h.map((u, x) => n`<i class="jack" aria-hidden="true" style="top:${K(x) / 78 * 100}%"></i>`)}
       </div>
       <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => e.prev()}>${w("prev", 28)}</button>
         <button class="tkey go tap" data-go aria-label=${e.now.playing ? "Pause" : "Play"} @click=${() => e.playPause()}>${w(e.now.playing ? "pause" : "play", 30)}</button>
         <button class="tkey tap" aria-label="Next" @click=${() => e.next()}>${w("next", 28)}</button></div>
     </div>
     ${e.rooms.map(d)}</div>`;
-}, Us = K`<path class="amoon" d="M66 22a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`, We = {
+}, Us = g`<path class="amoon" d="M66 22a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`, We = {
   sea: (e, t) => {
     const a = 22 + 62 * t;
-    return K`<g class="bob">
+    return g`<g class="bob">
     <path class="ahull" d="M12 98H88L76 114H24Z"></path><path class="aline" d="M50 98V14"></path>
-    ${e.live ? K`<path class="afill" d="M54 92V${92 - a}L${54 + a * 0.52} 92Z"></path><path class="afill soft" d="M46 92V${92 - a * 0.7}L${46 - a * 0.32} 92Z"></path>${e.playing ? K`<path class="aflag" d="M50 14l18 6-18 6z"></path>` : m}` : K`<rect class="aidle" x="46" y="30" width="8" height="62" rx="4"></rect>`}</g>`;
+    ${e.live ? g`<path class="afill" d="M54 92V${92 - a}L${54 + a * 0.52} 92Z"></path><path class="afill soft" d="M46 92V${92 - a * 0.7}L${46 - a * 0.32} 92Z"></path>${e.playing ? g`<path class="aflag" d="M50 14l18 6-18 6z"></path>` : m}` : g`<rect class="aidle" x="46" y="30" width="8" height="62" rx="4"></rect>`}</g>`;
   },
   reef: (e, t) => {
     const a = 20 + 22 * t;
-    return K`<g class="swim">
+    return g`<g class="swim">
     <path class=${e.live ? "afill" : "aidle"} d="M${50 - a} 70L${50 - a * 1.8} ${70 - a * 0.62}V${70 + a * 0.62}Z"></path>
     <ellipse class=${e.live ? "afill edge" : "aidle edge"} cx="50" cy="70" rx=${a * 1.15} ry=${a * 0.74}></ellipse>
     <circle class="aeye" cx=${50 + a * 0.6} cy=${70 - a * 0.16} r=${Math.max(3, a * 0.15)}></circle><circle class="apupil" cx=${50 + a * 0.65} cy=${70 - a * 0.16} r=${Math.max(1.5, a * 0.07)}></circle></g>
-    ${e.playing ? K`<circle class="abub" cx=${58 + a} cy="52" r="3"></circle><circle class="abub late" cx=${66 + a} cy="60" r="4.5"></circle>` : m}`;
+    ${e.playing ? g`<circle class="abub" cx=${58 + a} cy="52" r="3"></circle><circle class="abub late" cx=${66 + a} cy="60" r="4.5"></circle>` : m}`;
   },
   space: (e, t) => {
     const a = 9 + 21 * t;
-    return K`${e.playing ? K`<circle class="aglow" cx="50" cy="68" r=${a + 9}></circle>` : m}
+    return g`${e.playing ? g`<circle class="aglow" cx="50" cy="68" r=${a + 9}></circle>` : m}
     <circle class=${e.live ? "afill" : "aidle edge"} cx="50" cy="68" r=${a}></circle>
-    ${e.live ? K`<ellipse class="aring" cx="50" cy="68" rx=${a * 1.75} ry=${a * 0.42}></ellipse>` : m}`;
+    ${e.live ? g`<ellipse class="aring" cx="50" cy="68" rx=${a * 1.75} ry=${a * 0.42}></ellipse>` : m}`;
   },
   bush: (e, t) => {
     const a = 18 + 66 * t;
-    return K`<path class="alog" d="M26 112l44-12 4 8-44 12z"></path><path class="alog" d="M74 112l-44-12-4 8 44 12z"></path>
-    ${e.live ? K`<g class="flick"><path class="aflame" d="M50 ${106 - a}C${50 + a * 0.5} ${106 - a * 0.42},${50 + a * 0.34} 106,50 106C${50 - a * 0.34} 106,${50 - a * 0.5} ${106 - a * 0.42},50 ${106 - a}Z"></path>
-      <path class="aflame in" d="M50 ${106 - a * 0.56}C${50 + a * 0.26} ${106 - a * 0.22},${50 + a * 0.18} 106,50 106C${50 - a * 0.18} 106,${50 - a * 0.26} ${106 - a * 0.22},50 ${106 - a * 0.56}Z"></path></g>` : K`<circle class="aember" cx="50" cy="102" r="5"></circle>`}`;
+    return g`<path class="alog" d="M26 112l44-12 4 8-44 12z"></path><path class="alog" d="M74 112l-44-12-4 8 44 12z"></path>
+    ${e.live ? g`<g class="flick"><path class="aflame" d="M50 ${106 - a}C${50 + a * 0.5} ${106 - a * 0.42},${50 + a * 0.34} 106,50 106C${50 - a * 0.34} 106,${50 - a * 0.5} ${106 - a * 0.42},50 ${106 - a}Z"></path>
+      <path class="aflame in" d="M50 ${106 - a * 0.56}C${50 + a * 0.26} ${106 - a * 0.22},${50 + a * 0.18} 106,50 106C${50 - a * 0.18} 106,${50 - a * 0.26} ${106 - a * 0.22},50 ${106 - a * 0.56}Z"></path></g>` : g`<circle class="aember" cx="50" cy="102" r="5"></circle>`}`;
   },
   sunset: (e, t) => {
     const a = e.live ? 92 - 72 * t : 96;
-    return K`<path class="aline thin" d="M50 ${a + 12}Q${56} ${(a + 126) / 2} 50 114"></path>
+    return g`<path class="aline thin" d="M50 ${a + 12}Q${56} ${(a + 126) / 2} 50 114"></path>
     <g class="sway"><path class=${e.live ? "afill edge" : "aidle edge"} d="M50 ${a - 16}L64 ${a}L50 ${a + 16}L36 ${a}Z"></path><path class="aline thin" d="M50 ${a - 16}V${a + 16}M36 ${a}H64"></path></g>`;
   },
   fridge: (e, t) => {
     const a = 102 - 84 * (e.hasVol ? t : 0);
-    return K`<path class="aline" d="M50 14C53 44 47 76 50 106"></path>${[0, 1, 2, 3, 4].map((i) => K`<path class="aline thin" d="M43 ${18 + i * 21}h14"></path>`)}
+    return g`<path class="aline" d="M50 14C53 44 47 76 50 106"></path>${[0, 1, 2, 3, 4].map((i) => g`<path class="aline thin" d="M43 ${18 + i * 21}h14"></path>`)}
     <g class="jig"><circle class="ashade" cx="52" cy=${a + 4} r="17"></circle><circle class=${e.live ? "afill" : "aidle"} cx="50" cy=${a} r="17"></circle><text class="ainit" x="50" y=${a + 6}>${e.name[0]}</text></g>`;
   },
   orbit: (e, t) => {
     const a = 8 + 18 * t;
-    return K`<circle class="aorbit" cx="50" cy="68" r="38"></circle>${e.playing ? K`<circle class="aglow" cx="50" cy="68" r=${a + 8}></circle>` : m}
+    return g`<circle class="aorbit" cx="50" cy="68" r="38"></circle>${e.playing ? g`<circle class="aglow" cx="50" cy="68" r=${a + 8}></circle>` : m}
     <circle class=${e.live ? "afill" : "aidle edge"} cx="50" cy="68" r=${a}></circle>`;
   }
 }, Me = {
-  sea: K`<path class="bg1 drift" d="M-40 62q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path><path class="bg2 drift slow" d="M-40 80q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path>`,
-  reef: K`<path class="bgweed" d="M6 100q-5 -14 1 -26q-6 -10 1 -22"></path><path class="bgweed b" d="M94 100q5 -12 -1 -24q5 -10 -1 -20"></path>`,
-  space: K`${[[8, 14], [22, 40], [40, 8], [63, 22], [81, 12], [93, 44], [52, 50]].map(([e, t], a) => K`<circle class="bgstar" style="animation-delay:${-a * 0.5}s" cx=${e} cy=${t} r=".7"></circle>`)}`,
-  bush: K`<path class="bg2" d="M0 96h100"></path>${[[12, 30], [88, 22], [50, 14], [70, 44]].map(([e, t], a) => K`<circle class="bgfly" style="animation-delay:${-a * 0.8}s" cx=${e} cy=${t} r=".8"></circle>`)}`,
-  sunset: K`<path class="bg2" d="M0 96q25 -8 50 0t50 0"></path>`,
-  fridge: K``,
-  orbit: K``
+  sea: g`<path class="bg1 drift" d="M-40 62q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path><path class="bg2 drift slow" d="M-40 80q10 -5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0"></path>`,
+  reef: g`<path class="bgweed" d="M6 100q-5 -14 1 -26q-6 -10 1 -22"></path><path class="bgweed b" d="M94 100q5 -12 -1 -24q5 -10 -1 -20"></path>`,
+  space: g`${[[8, 14], [22, 40], [40, 8], [63, 22], [81, 12], [93, 44], [52, 50]].map(([e, t], a) => g`<circle class="bgstar" style="animation-delay:${-a * 0.5}s" cx=${e} cy=${t} r=".7"></circle>`)}`,
+  bush: g`<path class="bg2" d="M0 96h100"></path>${[[12, 30], [88, 22], [50, 14], [70, 44]].map(([e, t], a) => g`<circle class="bgfly" style="animation-delay:${-a * 0.8}s" cx=${e} cy=${t} r=".8"></circle>`)}`,
+  sunset: g`<path class="bg2" d="M0 96q25 -8 50 0t50 0"></path>`,
+  fridge: g``,
+  orbit: g``
 }, fs = (e) => {
   const t = {}, a = e.rooms.filter((r) => r.stream), i = e.rooms.filter((r) => !r.stream), o = Math.min(14, (66 - 9 * Math.max(0, e.streams.length - 1)) / Math.max(1, a.length));
   let s = 30;
@@ -3739,14 +3739,14 @@ const ve = async (e) => {
   }, 8);
 }, qs = (e, t) => {
   const a = We[t], i = fs(e), o = e.sdrag, s = (r) => (l, c) => {
-    const p = (h) => Math.hypot((i[h.id][0] - (l.clientX - c.left) / c.width * 100) / 100 * c.width, (i[h.id][1] - (l.clientY - c.top) / c.height * 100) / 100 * c.height), d = e.rooms.filter((h) => h.id !== r.id).sort((h, g) => p(h) - p(g))[0];
+    const p = (h) => Math.hypot((i[h.id][0] - (l.clientX - c.left) / c.width * 100) / 100 * c.width, (i[h.id][1] - (l.clientY - c.top) / c.height * 100) / 100 * c.height), d = e.rooms.filter((h) => h.id !== r.id).sort((h, K) => p(h) - p(K))[0];
     d && p(d) < 96 ? d.stream && d.stream !== r.stream ? e.join(r.id, d.stream) : !d.stream && r.stream && e.join(d.id, r.stream) : r.stream && !r.lead && !e.rooms.some((h) => h.id !== r.id && h.stream === r.stream && p(h) < 170) && e.leave(r.id);
   };
   return n`<div class="vscene" data-kind=${t} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${Me[t]}
       ${e.streams.map((r) => {
     const l = e.rooms.filter((c) => c.stream === r && o?.id !== c.id);
-    return l.length > 1 ? K`<path class="tie" style="--c:${l[0].colour || "var(--stream, var(--primary))"}" d="M${l.map((c) => `${i[c.id][0]} ${i[c.id][1]}`).join(" L")}"></path>` : m;
+    return l.length > 1 ? g`<path class="tie" style="--c:${l[0].colour || "var(--stream, var(--primary))"}" d="M${l.map((c) => `${i[c.id][0]} ${i[c.id][1]}`).join(" L")}"></path>` : m;
   })}</svg>
     <div class="sun">${Ce(e)}<span class="suntx"><b>${e.now.title}</b><span>${e.now.lead ? "Drag me to a room" : "Pick something to play"}</span></span></div>
     ${e.rooms.map((r, l) => {
@@ -3757,11 +3757,11 @@ const ve = async (e) => {
   </div>`;
 }, Xt = [36, 58], Ma = 82, bs = (e, t) => {
   const a = We[t], i = e.sdrag, o = (p) => Xt[Math.min(Xt.length - 1, e.streams.indexOf(p))], s = (p) => (d, h) => {
-    const g = d.target.closest(".vscene") ?? document.body, U = getComputedStyle(g), f = Number(U.getPropertyValue("--sq")) || 0.42, u = Number(U.getPropertyValue("--k")) || 1, x = Math.hypot(d.clientX - (h.left + h.width / 2), (d.clientY - (h.top + h.height * 0.46)) / f) / h.height * 100 / u, q = [...e.streams.map((k) => [o(k), k]), [Ma, ""]], [, R] = q.sort((k, A) => Math.abs(k[0] - x) - Math.abs(A[0] - x))[0];
+    const K = d.target.closest(".vscene") ?? document.body, U = getComputedStyle(K), f = Number(U.getPropertyValue("--sq")) || 0.42, u = Number(U.getPropertyValue("--k")) || 1, x = Math.hypot(d.clientX - (h.left + h.width / 2), (d.clientY - (h.top + h.height * 0.46)) / f) / h.height * 100 / u, q = [...e.streams.map((k) => [o(k), k]), [Ma, ""]], [, R] = q.sort((k, A) => Math.abs(k[0] - x) - Math.abs(A[0] - x))[0];
     R && R !== p.stream ? e.join(p.id, R) : !R && p.stream && !p.lead && e.leave(p.id);
   }, r = e.rooms.filter((p) => !p.stream), l = (p) => {
-    const d = p.stream ? e.rooms.filter((f) => f.stream === p.stream) : r, h = d.indexOf(p), g = p.stream ? e.streams.indexOf(p.stream) : 0, U = p.stream ? (g * 47 + h * 360 / d.length) % 360 : (100 + h * 360 / Math.max(1, d.length)) % 360;
-    return n`<div class="arm" ?data-moving=${p.playing} ?data-away=${i?.id === p.id} style="--a:${U};--r:${p.stream ? o(p.stream) : Ma};--t:${p.stream ? 70 + g * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
+    const d = p.stream ? e.rooms.filter((f) => f.stream === p.stream) : r, h = d.indexOf(p), K = p.stream ? e.streams.indexOf(p.stream) : 0, U = p.stream ? (K * 47 + h * 360 / d.length) % 360 : (100 + h * 360 / Math.max(1, d.length)) % 360;
+    return n`<div class="arm" ?data-moving=${p.playing} ?data-away=${i?.id === p.id} style="--a:${U};--r:${p.stream ? o(p.stream) : Ma};--t:${p.stream ? 70 + K * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
       <div class="actor planet" data-zone=${p.id} ?data-live=${p.live} ?data-playing=${p.playing} ?data-asleep=${p.asleep} ?data-focus=${p.focus} ?data-hot=${e.over === p.id && e.lifted !== p.id} style=${st(p)} @pointerdown=${je(e, p, s(p))}>${ti(e, p, a)}</div></div></div></div></div>`;
   }, c = i ? e.rooms.find((p) => p.id === i.id) : void 0;
   return n`<div class="vscene orbits" data-kind=${t} data-fits>
@@ -4029,7 +4029,7 @@ const ve = async (e) => {
   }
 }, ga = class ga extends W {
   constructor() {
-    super(...arguments), this.lookCtl = new J(this), this.fitCtl = new ft(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.moments = [], this._jog = null, this._momentOn = null, this._momentBusy = "", this._padSet = St("fh-moments", {}), this.theme = "", this._view = St("fh-music-view", ""), this._dv = {}, this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === ja() ? t : { day: ja(), on: !1, who: "", picks: [] })(St("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = St("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "";
+    super(...arguments), this.lookCtl = new J(this), this.fitCtl = new ft(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.moments = [], this.callVolume = 70, this.callLanguage = "en-AU", this.callVoice = "", this._jog = null, this._momentOn = null, this._momentBusy = "", this._padSet = St("fh-moments", {}), this.theme = "", this._view = St("fh-music-view", ""), this._dv = {}, this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === ja() ? t : { day: ja(), on: !1, who: "", picks: [] })(St("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = St("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "";
   }
   get _pads() {
     return (this.moments.length ? this.moments : ys).slice(0, 4);
@@ -4211,14 +4211,14 @@ const ve = async (e) => {
         colour: X && X.entity_id !== i?.entity_id ? `var(--p-${[3, 5, 4, 2][s.indexOf(X.entity_id) % 4]})` : "",
         title: String(X?.attributes.media_title ?? "")
       };
-    }))), l = Number(o.media_duration) || 0, c = o.media_position_updated_at ? new Date(o.media_position_updated_at).getTime() : 0, p = t?.state === "playing", d = l ? Math.min(l, (Number(o.media_position) || 0) + (p && c ? (this._now - c) / 1e3 : 0)) : 0, h = l ? d / l : 0, g = this._pads, U = this._jog, f = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
+    }))), l = Number(o.media_duration) || 0, c = o.media_position_updated_at ? new Date(o.media_position_updated_at).getTime() : 0, p = t?.state === "playing", d = l ? Math.min(l, (Number(o.media_position) || 0) + (p && c ? (this._now - c) / 1e3 : 0)) : 0, h = l ? d / l : 0, K = this._pads, U = this._jog, f = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
     const u = this.kids.find((A) => A.name === this._shelf), x = !!u && yt(u.bedtime), q = this._items[this._shelf] ?? [], R = x ? q.filter((A) => A.calm) : q, k = Math.max(0, Math.min(R.length - 1, this._crateAt));
     return {
       rooms: r,
-      moments: g.map((A) => ({ name: A.name, icon: A.icon ?? Vs.find(([F]) => F.test(A.name))?.[1] ?? "🎵", on: f === A.name, busy: this._momentBusy === A.name })),
+      moments: K.map((A) => ({ name: A.name, icon: A.icon ?? Vs.find(([F]) => F.test(A.name))?.[1] ?? "🎵", on: f === A.name, busy: this._momentBusy === A.name })),
       moment: (A) => {
-        !this._momentBusy && g[A] && this._moment(g[A]);
+        !this._momentBusy && K[A] && this._moment(K[A]);
       },
       jog: { turn: U, at: d, read: U === null ? l ? Ht(d) : "" : l ? Ht(Math.max(0, Math.min(l, d + U / 360 * 120))) : Math.abs(U) < 60 ? "" : U > 0 ? "Next" : "Back", len: l, says: l ? `${Ht(d)} of ${Ht(l)}` : "No length" },
       jogTo: (A, F) => this._jogTo(A, F, d, l),
@@ -4300,10 +4300,10 @@ const ve = async (e) => {
           this._say(`Couldn’t find “${t.find ?? t.name}” to play`);
           return;
         }
-        const g = p[0], U = p.map((f) => f.entity_id);
-        for (const f of this._mix(g)) U.includes(f) || a.callService("media_player", "unjoin", {}, { entity_id: f });
+        const K = p[0], U = p.map((f) => f.entity_id);
+        for (const f of this._mix(K)) U.includes(f) || a.callService("media_player", "unjoin", {}, { entity_id: f });
         if (typeof t.volume == "number") for (const f of U) this._svc("volume_set", { volume_level: Math.max(0, Math.min(100, t.volume)) / 100 }, f);
-        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, g.entity_id), this._lastUri = h.uri, await vt(a, g.entity_id, h.uri, "play"), U.length > 1 && await a.callService("media_player", "join", { group_members: U.slice(1) }, { entity_id: g.entity_id }).catch((f) => this._say(`Couldn’t add every room: ${f?.message ?? "error"}`)), this._focus = g.entity_id, this._momentOn = { name: t.name, lead: g.entity_id }, this._say(`${t.name}: ${h.name === t.name ? "" : `${h.name} `}in ${s ? "every room" : p.map((f) => this._name(f)).join(" and ")}`);
+        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, K.entity_id), this._lastUri = h.uri, await vt(a, K.entity_id, h.uri, "play"), U.length > 1 && await a.callService("media_player", "join", { group_members: U.slice(1) }, { entity_id: K.entity_id }).catch((f) => this._say(`Couldn’t add every room: ${f?.message ?? "error"}`)), this._focus = K.entity_id, this._momentOn = { name: t.name, lead: K.entity_id }, this._say(`${t.name}: ${h.name === t.name ? "" : `${h.name} `}in ${s ? "every room" : p.map((f) => this._name(f)).join(" and ")}`);
       } catch (h) {
         this._say(`${t.name} couldn’t start: ${h?.message ?? "error"}`);
       } finally {
@@ -4343,8 +4343,8 @@ const ve = async (e) => {
       const d = ht(t, a, p);
       return d && i.add(d.entity_id), d;
     }, l = this.map.map((p) => ({ name: p.name ?? "", rooms: (p.rooms ?? []).map((d) => {
-      const h = (d.zones ?? (d.player ? [{ player: d.player, name: d.name }] : [])).map((U) => ({ name: U.name ?? "", p: r(U.player) })).filter((U) => !!U.p).map((U) => ({ ...U, name: U.name || String(U.p.attributes.friendly_name ?? "") })), g = (d.kids ?? []).map((U) => this.kids.find((f) => f.name === U)).filter((U) => !!U).map((U) => Z(Nt(U.bedtime)));
-      return { name: d.name ?? h[0]?.name ?? "", size: d.size ?? Math.max(1, h.length), stairs: !!d.stairs, asleep: g.length > 0 && (o >= Math.min(...g) || o < s), zones: h };
+      const h = (d.zones ?? (d.player ? [{ player: d.player, name: d.name }] : [])).map((U) => ({ name: U.name ?? "", p: r(U.player) })).filter((U) => !!U.p).map((U) => ({ ...U, name: U.name || String(U.p.attributes.friendly_name ?? "") })), K = (d.kids ?? []).map((U) => this.kids.find((f) => f.name === U)).filter((U) => !!U).map((U) => Z(Nt(U.bedtime)));
+      return { name: d.name ?? h[0]?.name ?? "", size: d.size ?? Math.max(1, h.length), stairs: !!d.stairs, asleep: K.length > 0 && (o >= Math.min(...K) || o < s), zones: h };
     }).filter((d) => d.stairs || d.zones.length) })).filter((p) => p.rooms.some((d) => d.zones.length)), c = a.filter((p) => !i.has(p.entity_id)).map((p) => ({ name: String(p.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(p.attributes.friendly_name ?? ""), p }] }));
     return c.length && l.push({ name: l.length ? "Other" : "", rooms: c }), l;
   }
@@ -4359,8 +4359,8 @@ const ve = async (e) => {
     if (t.target.closest(".zname, .join, .puck") || typeof a.attributes.volume_level != "number") return;
     const i = t.currentTarget, o = a.entity_id, s = t.clientY, r = Math.round(a.attributes.volume_level * 100), l = i.getBoundingClientRect().height * Ca;
     let c = !1, p = r;
-    const d = (g) => {
-      !c && Math.abs(g.clientY - s) < 6 || (c = !0, p = Math.max(0, Math.min(100, Math.round(r + (s - g.clientY) / l * 100))), this._setVol(o, p, !1));
+    const d = (K) => {
+      !c && Math.abs(K.clientY - s) < 6 || (c = !0, p = Math.max(0, Math.min(100, Math.round(r + (s - K.clientY) / l * 100))), this._setVol(o, p, !1));
     }, h = () => {
       i.removeEventListener("pointermove", d), i.removeEventListener("pointerup", h), i.removeEventListener("pointercancel", h), c && this._setVol(o, p, !0);
     };
@@ -4383,7 +4383,7 @@ const ve = async (e) => {
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(x)) return "all";
       const q = o ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
       return q && x(q) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(x)?.dataset.zone ?? "";
-    }, g = (f) => {
+    }, K = (f) => {
       const u = l.getBoundingClientRect();
       if (!(!this._carry && !s && Math.hypot(f.clientX - c, f.clientY - p) < 10)) {
         if (!this._carry && !s && a.flick && Math.abs(f.clientX - c) > Math.abs(f.clientY - p) * 1.4 && (s = !0), s) {
@@ -4393,7 +4393,7 @@ const ve = async (e) => {
         this._carry = { from: i?.entity_id, item: o, art: d, x: (f.clientX - u.left) / u.width * 100, y: (f.clientY - u.top) / u.height * 100, over: h(f.clientX, f.clientY) };
       }
     }, U = () => {
-      r.removeEventListener("pointermove", g), r.removeEventListener("pointerup", U), r.removeEventListener("pointercancel", U);
+      r.removeEventListener("pointermove", K), r.removeEventListener("pointerup", U), r.removeEventListener("pointercancel", U);
       const f = this._carry;
       if (this._carry = null, s) {
         this._carried = Date.now();
@@ -4420,7 +4420,7 @@ const ve = async (e) => {
         this._focus = u.entity_id, this._shelfPlay(o, u);
       });
     };
-    r.setPointerCapture(t.pointerId), r.addEventListener("pointermove", g), r.addEventListener("pointerup", U), r.addEventListener("pointercancel", U);
+    r.setPointerCapture(t.pointerId), r.addEventListener("pointermove", K), r.addEventListener("pointerup", U), r.addEventListener("pointercancel", U);
   }
   /** The house in small: rooms as buttons, for choosing where to call or where a record goes. */
   _mini(t, a, i = !1) {
@@ -4433,21 +4433,21 @@ const ve = async (e) => {
   }
   _house() {
     const t = this._cur, a = this._mix(t), i = t && this._leader(t), o = this._floors, s = this._carry, r = [...new Set(this._list.map((c) => this._leader(c)?.entity_id).filter((c) => !!c && c !== i?.entity_id))], l = (c, p) => {
-      const d = c.p, h = d.attributes, g = d.entity_id, U = this._leader(d), f = U?.state === "playing", u = g === t?.entity_id, x = a.includes(g), q = g in this._dv ? this._dv[g] : typeof h.volume_level == "number" ? Math.round(h.volume_level * 100) : null, R = U && U.entity_id !== i?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(U.entity_id) % 4]})` : "", k = U ? `${f ? "" : "Paused · "}${U.attributes.media_title ?? "Music"}` : p ? "Asleep" : "Quiet", A = U?.attributes.entity_picture ? `--art:url(${U.attributes.entity_picture})` : "";
-      return n`<div class="mzone" data-zone=${g} ?data-focus=${u} ?data-live=${!!U} ?data-playing=${f} ?data-asleep=${p} ?data-hot=${s?.over === g && s.from !== g} style=${R} @pointerdown=${(F) => this._volDown(F, d)}>
+      const d = c.p, h = d.attributes, K = d.entity_id, U = this._leader(d), f = U?.state === "playing", u = K === t?.entity_id, x = a.includes(K), q = K in this._dv ? this._dv[K] : typeof h.volume_level == "number" ? Math.round(h.volume_level * 100) : null, R = U && U.entity_id !== i?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(U.entity_id) % 4]})` : "", k = U ? `${f ? "" : "Paused · "}${U.attributes.media_title ?? "Music"}` : p ? "Asleep" : "Quiet", A = U?.attributes.entity_picture ? `--art:url(${U.attributes.entity_picture})` : "";
+      return n`<div class="mzone" data-zone=${K} ?data-focus=${u} ?data-live=${!!U} ?data-playing=${f} ?data-asleep=${p} ?data-hot=${s?.over === K && s.from !== K} style=${R} @pointerdown=${(F) => this._volDown(F, d)}>
         ${U && q !== null ? n`<span class="pool" style="height:${Math.max(6, q) * Ca}%"></span>` : m}
         ${U ? n`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (q ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${u ? n`<b></b>` : m}</span>` : m}
-        ${s && U?.entity_id !== g ? n`<span class="land" aria-hidden="true"></span>` : m}
+        ${s && U?.entity_id !== K ? n`<span class="land" aria-hidden="true"></span>` : m}
         <button class="zname tap" aria-pressed=${String(u)} aria-label="${c.name}: ${k}${q !== null ? `, volume ${q}` : ""}" @click=${() => {
-        this._focus = g;
+        this._focus = K;
       }}><b>${p ? "☾ " : ""}${c.name}</b><span>${k}${U && q !== null ? ` · ${q}` : ""}</span></button>
         ${u ? m : n`<button class="join tap" aria-pressed=${String(x)} aria-label="${x ? "Remove" : "Add"} ${c.name} ${x ? "from" : "to"} the music" @click=${() => {
-        x ? this._join(g) : this._gentle(g, () => this._join(g));
+        x ? this._join(K) : this._gentle(K, () => this._join(K));
       }}>${x ? "✓" : "＋"}</button>`}
         ${q !== null ? n`<button class="grab" role="slider" aria-label="Volume in ${c.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${q} style="bottom:${Math.max(6, q) * Ca}%" @keydown=${(F) => this._volKey(F, d)}><i></i></button>` : m}
-        ${U?.entity_id === g ? n`<span class="puck" role="button" tabindex="0" ?data-lifted=${s?.from === g} style=${A} aria-label="${U.attributes.media_title ?? "Music"} in ${c.name}. Tap to ${f ? "pause" : "play"}, drag to move it to another room."
+        ${U?.entity_id === K ? n`<span class="puck" role="button" tabindex="0" ?data-lifted=${s?.from === K} style=${A} aria-label="${U.attributes.media_title ?? "Music"} in ${c.name}. Tap to ${f ? "pause" : "play"}, drag to move it to another room."
           @pointerdown=${(F) => this._carryDown(F, { lead: U })} @keydown=${(F) => {
-        (F.key === "Enter" || F.key === " ") && (F.preventDefault(), this._focus = g, this._svc("media_play_pause", {}, g));
+        (F.key === "Enter" || F.key === " ") && (F.preventDefault(), this._focus = K, this._svc("media_play_pause", {}, K));
       }}></span>` : m}
       </div>`;
     };
@@ -4460,12 +4460,12 @@ const ve = async (e) => {
   _sideShelf() {
     const t = Dt(this.hass), a = this._cur, i = this._carry;
     t && !this._shelfAsked && (this._shelfAsked = !0, this._loadShelves());
-    const o = this.kids.find((f) => f.name === this._shelf), s = !!o && yt(o.bedtime), r = this._items[this._shelf] ?? [], l = s ? r.filter((f) => f.calm) : r, c = 9, p = l.length > c ? l.slice(0, c - 1) : l, d = oa(this._shelfNames), h = l.length <= 4 ? 2 : 3, g = (f) => V(this.kids.find((u) => u.name === f)?.colour ?? "family"), U = (f) => {
+    const o = this.kids.find((f) => f.name === this._shelf), s = !!o && yt(o.bedtime), r = this._items[this._shelf] ?? [], l = s ? r.filter((f) => f.calm) : r, c = 9, p = l.length > c ? l.slice(0, c - 1) : l, d = oa(this._shelfNames), h = l.length <= 4 ? 2 : 3, K = (f) => V(this.kids.find((u) => u.name === f)?.colour ?? "family"), U = (f) => {
       Date.now() - this._carried < 400 || !a || this._gentle(a.entity_id, () => this._shelfPlay(f, a));
     };
     return n`<div class="mshelf" role="group" aria-label="Shelf">
       ${t ? n`<div class="shead"><b>${s ? "🌙 " : ""}${this._shelf === "Family" ? "Family shelf" : `${this._shelf}’s shelf`}</b>
-          ${this._shelfNames.map((f) => n`<button class="swho tap" style="--c:${g(f)}" aria-pressed=${String(this._shelf === f)} aria-label=${f === "Family" ? "Family shelf" : `${f}’s shelf`} @click=${() => {
+          ${this._shelfNames.map((f) => n`<button class="swho tap" style="--c:${K(f)}" aria-pressed=${String(this._shelf === f)} aria-label=${f === "Family" ? "Family shelf" : `${f}’s shelf`} @click=${() => {
       this._shelf = f;
     }}><i>${d[f] ?? f[0]}</i></button>`)}</div>
         ${p.length ? n`<div class="srecs" style="--cols:${h};--rows:${Math.ceil(Math.min(l.length, c) / h)}">${p.map((f, u) => n`<button class="srec tap" ?data-lifted=${i?.item === f} aria-label="${f.name}. Tap to play in ${this._name(a)}, or drag it onto a room."
@@ -4548,7 +4548,7 @@ const ve = async (e) => {
   }
   /* ---------------- call a room ---------------- */
   _call(t = !1) {
-    const a = this._callMsg.trim(), i = this._callTo.length ? this._callTo : [], o = Object.keys(this.hass.states).filter((s) => s.startsWith("tts.")).sort((s, r) => Number(r.includes("cloud")) - Number(s.includes("cloud")))[0];
+    const a = this._callMsg.trim(), i = this._callTo.length ? this._callTo : [], o = Object.keys(this.hass.states).filter((K) => K.startsWith("tts.")).sort((K, U) => Number(U.includes("cloud")) - Number(K.includes("cloud")))[0];
     if (!a) {
       this._say("Pick or type a message first");
       return;
@@ -4570,8 +4570,16 @@ const ve = async (e) => {
       return;
     }
     this._lastCall = Date.now();
-    for (const s of i) this.hass.callService("tts", "speak", { media_player_entity_id: s, message: a, cache: !0 }, { entity_id: o }).catch((r) => this._say(`Couldn’t call ${this._name(this.hass.states[s])}: ${r?.message ?? "error"}`));
-    this._say(`Calling ${i.length === 1 ? this._name(this.hass.states[i[0]]) : `${i.length} rooms`}`);
+    const s = this.hass, r = this.callLanguage, l = this.callVoice ? { options: { voice: this.callVoice } } : {}, c = Math.max(0, Math.min(100, Math.round(this.callVolume))), p = (K) => (U) => this._say(`Couldn’t call ${this._name(s.states[K])}: ${U?.message ?? "error"}`), d = (K) => {
+      s.callService("tts", "speak", { media_player_entity_id: K, message: a, cache: !0, ...r ? { language: r } : {}, ...l }, { entity_id: o }).catch(() => s.callService("tts", "speak", { media_player_entity_id: K, message: a, cache: !0 }, { entity_id: o })).catch(p(K));
+    }, h = i.filter((K) => !!s.services?.music_assistant?.play_announcement && s.entities?.[K]?.platform === "music_assistant");
+    for (const K of i) h.includes(K) || d(K);
+    h.length && s.callApi("POST", "tts_get_url", { engine_id: o, message: a, cache: !0, ...r ? { language: r } : {}, ...l }).then((K) => {
+      if (!K?.url) throw new Error("no speech");
+      for (const U of h) s.callService("music_assistant", "play_announcement", { url: K.url, announce_volume: c }, { entity_id: U }).catch(() => d(U));
+    }).catch(() => {
+      for (const K of h) d(K);
+    }), this._say(`Calling ${i.length === 1 ? this._name(this.hass.states[i[0]]) : `${i.length} rooms`}`);
   }
   /* ---------------- render ---------------- */
   render() {
@@ -4597,12 +4605,12 @@ const ve = async (e) => {
       ${this._msg ? n`<div class="toast" role="status">${this._msg}</div>` : m}`;
   }
   _hero(t) {
-    const a = t.attributes, i = t.state === "playing", o = a.entity_picture ? `url(${a.entity_picture})` : "", s = typeof a.volume_level == "number" ? Math.round(a.volume_level * 100) : null, r = this._mix(t).length, l = this._q, c = Number(a.media_duration) || 0, p = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, d = c ? Math.min(c, (Number(a.media_position) || 0) + (i && p ? (this._now - p) / 1e3 : 0)) : 0, h = c ? d / c : 0, g = B(tt(), "player", { img: a.entity_picture, frac: h, playing: i });
+    const a = t.attributes, i = t.state === "playing", o = a.entity_picture ? `url(${a.entity_picture})` : "", s = typeof a.volume_level == "number" ? Math.round(a.volume_level * 100) : null, r = this._mix(t).length, l = this._q, c = Number(a.media_duration) || 0, p = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, d = c ? Math.min(c, (Number(a.media_position) || 0) + (i && p ? (this._now - p) / 1e3 : 0)) : 0, h = c ? d / c : 0, K = B(tt(), "player", { img: a.entity_picture, frac: h, playing: i });
     return n`<section class="glass stage" style=${o ? `--art:${o}` : ""} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${i ? "" : "animation:none;background:rgba(255,255,255,.5)"}"></span>
         <span style="font-size:13px;font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i ? "Playing in" : "Ready in"} ${this._name(t)}${r ? ` + ${r} more` : ""}</span></div>
-      <div class="deck">${g === m ? n`<div class="cover ${i ? "" : "paused"}"></div>` : g}</div>
+      <div class="deck">${K === m ? n`<div class="cover ${i ? "" : "paused"}"></div>` : K}</div>
       <div class="titles" style="display:flex;flex-direction:column;gap:2px;min-width:0">
         <span class="display" style="font-size:24px;font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_title ?? (t.state === "off" ? "Off" : "Nothing playing")}</span>
         <span style="font-size:15px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_artist ?? a.media_album_name ?? "Search, pick from a shelf or tap a station"}</span>
@@ -4631,8 +4639,8 @@ const ve = async (e) => {
     const t = this._cur, a = this._mix(t), i = Dt(this.hass), o = Object.keys(this.hass.states).find((p) => p.startsWith("media_player.") && this.hass.entities?.[p]?.platform === "sonos"), s = o && this.hass.states[o].attributes.source === "TV" ? o : "", r = (p, d) => {
       const h = s && se(this.hass, s, p);
       if (!h) return m;
-      const g = this.hass.states[h].state === "on";
-      return n`<button class="pill tap" aria-pressed=${String(g)} style=${g ? "background:var(--primary);color:var(--on-primary)" : ""} @click=${() => this.hass.callService("switch", g ? "turn_off" : "turn_on", {}, { entity_id: h })}>${d} ${g ? "on" : "off"}</button>`;
+      const K = this.hass.states[h].state === "on";
+      return n`<button class="pill tap" aria-pressed=${String(K)} style=${K ? "background:var(--primary);color:var(--on-primary)" : ""} @click=${() => this.hass.callService("switch", K ? "turn_off" : "turn_on", {}, { entity_id: h })}>${d} ${K ? "on" : "off"}</button>`;
     }, l = this._mode, c = la.find((p) => p.id === l);
     return n`${this._viewAsk ? Fs(l, (p) => {
       this._view = p, Et("fh-music-view", p), this._viewAsk = !1;
@@ -4655,17 +4663,17 @@ const ve = async (e) => {
         ${s ? n`<span class="soft">TV sound</span>${r(/^switch\..*night_sound$/, "Night")}${r(/^switch\..*speech_enhancement$/, "Clear speech")}` : m}
       </div>
       ${l === "house" ? this._house() : l === "dial" ? Ks(this._vctx()) : l === "desk" ? gs(this._vctx()) : l === "cables" ? us(this._vctx()) : l === "scene" ? ks(this._vctx()) : n`<div class="grid scrolly" data-fits @scroll=${G}>${this._list.map((p) => {
-      const d = p.attributes, h = p.state === "playing", g = p.entity_id === t?.entity_id, U = a.includes(p.entity_id), f = typeof d.volume_level == "number" ? Math.round(d.volume_level * 100) : null;
-      return n`<div class="spk ${g ? "focus" : U ? "inmix" : ""}">
-        <div class="top"><button class="rsel tap" aria-pressed=${String(g)} @click=${() => {
+      const d = p.attributes, h = p.state === "playing", K = p.entity_id === t?.entity_id, U = a.includes(p.entity_id), f = typeof d.volume_level == "number" ? Math.round(d.volume_level * 100) : null;
+      return n`<div class="spk ${K ? "focus" : U ? "inmix" : ""}">
+        <div class="top"><button class="rsel tap" aria-pressed=${String(K)} @click=${() => {
         this._focus = p.entity_id;
       }}>
           <span class="thumb ${h ? "eq" : ""}" style=${d.entity_picture ? `--art:url(${d.entity_picture})` : ""}>${h ? n`<i></i><i></i><i></i>` : b("music", 20)}</span>
           <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.friendly_name}</span>
             <span class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${U ? `With ${this._name(t)}` : h ? d.media_title ?? "Playing" : p.state[0].toUpperCase() + p.state.slice(1)}</span></span></button>
-          ${g ? m : n`<button class="join tap" aria-pressed=${String(U)} aria-label="${U ? "Remove" : "Add"} ${d.friendly_name} ${U ? "from" : "to"} the music" @click=${() => this._join(p.entity_id)}>${U ? "✓" : "＋"}</button>`}</div>
+          ${K ? m : n`<button class="join tap" aria-pressed=${String(U)} aria-label="${U ? "Remove" : "Add"} ${d.friendly_name} ${U ? "from" : "to"} the music" @click=${() => this._join(p.entity_id)}>${U ? "✓" : "＋"}</button>`}</div>
         ${f !== null ? n`<input type="range" min="0" max="100" .value=${String(f)} aria-label="Volume in ${d.friendly_name}" @change=${(u) => this._svc("volume_set", { volume_level: Number(u.target.value) / 100 }, p.entity_id)}>` : m}
-        ${!g && !U && i && t?.state === "playing" ? n`<button class="pill tap" style="height:36px;font-size:13px;align-self:flex-start" @click=${() => this._move(p)}>Move the music here</button>` : m}
+        ${!K && !U && i && t?.state === "playing" ? n`<button class="pill tap" style="height:36px;font-size:13px;align-self:flex-start" @click=${() => this._move(p)}>Move the music here</button>` : m}
       </div>`;
     })}</div>`}`;
   }
@@ -5123,6 +5131,9 @@ ga.styles = [I, Ki, Rs, C`
   map: { attribute: !1 },
   hide: { attribute: !1 },
   moments: { attribute: !1 },
+  callVolume: { type: Number },
+  callLanguage: {},
+  callVoice: {},
   _jog: { state: !0 },
   _momentOn: { state: !0 },
   _padSet: { state: !0 },
@@ -5469,13 +5480,13 @@ const Ws = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Ua = class Ua exte
   }
   render() {
     if (!this.hass) return m;
-    const t = rt(this._now), a = this.kids.map((h) => ({ k: h, ...this._leave(h) })), i = a.filter((h) => h.at - t > -5).sort((h, g) => h.at - g.at)[0], o = i ? i.at - t : -99, s = (h) => z(new Date(new Date(this._now).setHours(Math.floor(h / 60), h % 60, 0, 0))), r = i ? a.filter((h) => h.at === i.at).length === a.length ? "everyone leaves" : `${a.filter((h) => h.at === i.at).map((h) => h.k.name).join(" & ")} leaves` : "", l = this._now, c = this.privateWords.map((h) => h.toLowerCase()), p = this._team(), d = p.total > 0 && p.done === p.total;
+    const t = rt(this._now), a = this.kids.map((h) => ({ k: h, ...this._leave(h) })), i = a.filter((h) => h.at - t > -5).sort((h, K) => h.at - K.at)[0], o = i ? i.at - t : -99, s = (h) => z(new Date(new Date(this._now).setHours(Math.floor(h / 60), h % 60, 0, 0))), r = i ? a.filter((h) => h.at === i.at).length === a.length ? "everyone leaves" : `${a.filter((h) => h.at === i.at).map((h) => h.k.name).join(" & ")} leaves` : "", l = this._now, c = this.privateWords.map((h) => h.toLowerCase()), p = this._team(), d = p.total > 0 && p.done === p.total;
     return n`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
         ${p.total ? n`<div class="team" role="img" aria-label="Team morning: ${p.done} of ${p.total} done">
-          ${p.total <= 18 ? n`<div class="stars">${Array.from({ length: p.total }, (h, g) => n`<i class=${g < p.done ? "on" : ""}>★</i>`)}</div>` : n`<div class="teambar"><div style="width:${p.done / p.total * 100}%"></div></div>`}
+          ${p.total <= 18 ? n`<div class="stars">${Array.from({ length: p.total }, (h, K) => n`<i class=${K < p.done ? "on" : ""}>★</i>`)}</div>` : n`<div class="teambar"><div style="width:${p.done / p.total * 100}%"></div></div>`}
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${d ? "Everyone’s ready – go team! 🎉" : "Team morning: every job done adds a star"}</span></div>` : m}
         <div style="display:flex;align-items:center;gap:14px;justify-content:flex-end;flex:1">
           ${o > 0 ? B(tt(), "timer", { frac: Math.min(1, o / 60), size: 64 }) : m}
@@ -5484,7 +5495,7 @@ const Ws = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Ua = class Ua exte
       </section>
       <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((h) => {
-      const g = O(h), U = Ut(this.hass.states[g.avatar]?.state, h.look ? Ut(h.look) : {}), f = (this._items[h.name] ?? []).filter((A) => A.lane === "routine" && A.slot === "am"), u = f.find((A) => A.status !== "completed"), x = this.events.filter((A) => j(A.start, l) && !c.some((F) => A.title.toLowerCase().includes(F)) && (A.who === h.name || A.colour === "family" || A.title.toLowerCase().includes(h.name.toLowerCase()))), q = this._bring(h, x), R = a.find((A) => A.k === h), k = R.at - t;
+      const K = O(h), U = Ut(this.hass.states[K.avatar]?.state, h.look ? Ut(h.look) : {}), f = (this._items[h.name] ?? []).filter((A) => A.lane === "routine" && A.slot === "am"), u = f.find((A) => A.status !== "completed"), x = this.events.filter((A) => j(A.start, l) && !c.some((F) => A.title.toLowerCase().includes(F)) && (A.who === h.name || A.colour === "family" || A.title.toLowerCase().includes(h.name.toLowerCase()))), q = this._bring(h, x), R = a.find((A) => A.k === h), k = R.at - t;
       return n`<button class="glass kcol tap" style="--kid:${V(h.colour)}" @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: h.name }))}>
             <div class="khead">${at(U, { size: 60, crop: "head", jump: this._cheer, age: h.age, ring: V(h.colour) })}<h2>${h.name}</h2></div>
             <div class="lchip ${k <= 0 && k > -5 ? "now" : k <= 10 && k > 0 ? "soon" : ""}"><span>Leave ${s(R.at)}${R.why !== "school" ? ` · ${R.why}` : ""}</span><span>${k > 0 ? `${k} min` : k > -5 ? "Go!" : "✓"}</span></div>
@@ -5620,7 +5631,7 @@ fa.styles = [I, Ki, C`
   `], fa.properties = { hass: { attribute: !1 }, calendars: { attribute: !1 }, defaultCal: {}, _t: { state: !0 }, _day: { state: !0 }, _time: { state: !0 }, _dur: { state: !0 }, _cal: { state: !0 }, _busy: { state: !0 }, _err: { state: !0 }, _caps: { state: !0 } };
 let oi = fa;
 customElements.get("fh-add-event") || customElements.define("fh-add-event", oi);
-const ze = "0.15.0", de = "family-hub-theme", Cs = {
+const ze = "0.15.1", de = "family-hub-theme", Cs = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -5852,8 +5863,8 @@ const ze = "0.15.0", de = "family-hub-theme", Cs = {
       try {
         const p = await this.hass.callApi("GET", `calendars/${c.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(a.toISOString())}`), d = c.name ?? this.hass.states[c.entity]?.attributes.friendly_name ?? c.entity;
         for (const h of p) {
-          const g = !!h.start?.date, U = g ? /* @__PURE__ */ new Date(`${h.start.date}T00:00:00`) : new Date(h.start.dateTime), f = g ? /* @__PURE__ */ new Date(`${h.end.date}T00:00:00`) : new Date(h.end.dateTime);
-          r.push({ title: h.summary ?? "(busy)", start: U, end: f, allDay: g, colour: c.colour, who: d });
+          const K = !!h.start?.date, U = K ? /* @__PURE__ */ new Date(`${h.start.date}T00:00:00`) : new Date(h.start.dateTime), f = K ? /* @__PURE__ */ new Date(`${h.end.date}T00:00:00`) : new Date(h.end.dateTime);
+          r.push({ title: h.summary ?? "(busy)", start: U, end: f, allDay: K, colour: c.colour, who: d });
         }
       } catch (p) {
         l++, console.warn("Family Hub: calendar fetch failed", c.entity, p);
@@ -6041,9 +6052,9 @@ const ze = "0.15.0", de = "family-hub-theme", Cs = {
   // ---------- render ----------
   render() {
     if (!this._config) return m;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, a = Yt(t?.theme ?? this._theme), i = this._isNight(), s = M(this._lk).themed ? `${Jt(a)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), l = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", c = this._kp, p = this._config.calm === !1 ? !1 : c ? c.calm : this._config.calm === !0, d = this._now.getHours(), h = d < 5 || d >= 21 ? "rgba(10,20,60,.28)" : d < 7 ? "rgba(255,170,150,.16)" : d >= 17 && d < 19 ? "rgba(255,150,60,.14)" : d >= 19 ? "rgba(30,40,110,.2)" : "transparent", g = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? "");
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, a = Yt(t?.theme ?? this._theme), i = this._isNight(), s = M(this._lk).themed ? `${Jt(a)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), l = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", c = this._kp, p = this._config.calm === !1 ? !1 : c ? c.calm : this._config.calm === !0, d = this._now.getHours(), h = d < 5 || d >= 21 ? "rgba(10,20,60,.28)" : d < 7 ? "rgba(255,170,150,.16)" : d >= 17 && d < 19 ? "rgba(255,150,60,.14)" : d >= 19 ? "rgba(30,40,110,.2)" : "transparent", K = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? "");
     return i ? n`<div class="fh" lang="en-AU" data-tod="night" style=${`${s}--z:${this._z}`}>${this._night()}</div>` : n`
-      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${g ? "rainy" : ""}" data-tod=${l} ?data-calm=${p} style=${`${s}--tod:${h};--z:${this._z}`}>
+      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${K ? "rainy" : ""}" data-tod=${l} ?data-calm=${p} style=${`${s}--tod:${h};--z:${this._z}`}>
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -6078,7 +6089,7 @@ const ze = "0.15.0", de = "family-hub-theme", Cs = {
         }}></fh-home>`;
       case "music":
         return n`<fh-music .hass=${this.hass} .players=${t.music_players ?? []} .stations=${t.radio ?? []} .source=${t.radio_source ?? "media-source://radio_browser/country/AU"} .preferred=${this._musicFocus || (t.music_player ?? "")}
-        .kids=${t.kids ?? []} .people=${t.people ?? []} .pin=${String(t.parent_pin ?? "")} .quiet=${t.quiet ?? {}} .sleepMinutes=${t.music_sleep_minutes ?? 30} .map=${t.music_map ?? []} .hide=${t.music_hide ?? []} .moments=${t.music_moments ?? []} .theme=${this._theme}></fh-music>`;
+        .kids=${t.kids ?? []} .people=${t.people ?? []} .pin=${String(t.parent_pin ?? "")} .quiet=${t.quiet ?? {}} .sleepMinutes=${t.music_sleep_minutes ?? 30} .map=${t.music_map ?? []} .hide=${t.music_hide ?? []} .moments=${t.music_moments ?? []} .callVolume=${t.call_volume ?? 70} .callLanguage=${t.call_language ?? "en-AU"} .callVoice=${t.call_voice ?? ""} .theme=${this._theme}></fh-music>`;
       case "doodle":
         return n`<fh-doodle .hass=${this.hass} .artists=${(t.kids ?? []).map((i) => i.name)}></fh-doodle>`;
       case "morning":
@@ -6230,10 +6241,10 @@ const ze = "0.15.0", de = "family-hub-theme", Cs = {
     const a = /* @__PURE__ */ new Date(), i = Array.from({ length: 7 }, (s, r) => v(t, r)), o = i.map((s) => j(s, a) ? "1.4fr" : "1fr").join(" ");
     return n`<div class="week fade" style="grid-template-columns:${o}">
       ${i.map((s) => {
-      const r = this._eventsOn(s), l = j(s, a), c = r.filter((g) => !this._private(g.title)), p = r.filter((g) => this._private(g.title)), d = ta(s), h = this._clip[d] ?? 0;
+      const r = this._eventsOn(s), l = j(s, a), c = r.filter((K) => !this._private(K.title)), p = r.filter((K) => this._private(K.title)), d = ta(s), h = this._clip[d] ?? 0;
       return n`<div class="col ${l ? "today" : ""}">
           <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700)">${Wt(s)}</span><span class="num">${s.getDate()}</span>${B(this._lk, "day", { arcs: this._arcs(c) })}${p.length ? n`<span class="pchip" title="Private reminder">💊</span>` : m}</div>
-          <div class="evs" data-day=${d}>${c.map((g) => this._evCard(g))}</div>
+          <div class="evs" data-day=${d}>${c.map((K) => this._evCard(K))}</div>
           ${h ? n`<button class="more tap" @click=${() => {
         this._anchor = s, this._view = "day";
       }}>+${h} more</button>` : m}
