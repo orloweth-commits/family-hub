@@ -33,46 +33,60 @@ export class FhGroceries extends LitElement {
   readonly fitCtl = new FitController(this as never);
   static styles = [styles, keysCss, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
-    .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
-    .items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
-    .item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 9px 12px; border-radius: 14px; background: var(--chip); width: 100%; text-align: left; }
-    .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink3); }
+    /* one layout however long the list is: the list keeps its width, so the keyboard never moves under a finger */
+    .list { width: 520px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+    .items { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 8px; align-content: start; padding: 6px; margin: -6px; }
+    .items > :not(.item) { grid-column: 1 / -1; }
+    .item { display: flex; align-items: center; gap: 10px; min-height: 44px; /* token */ padding: 7px 10px; border-radius: 14px; background: var(--chip); width: 100%; min-width: 0; text-align: left; }
+    .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: #fff; }
-    .done .txt { color: var(--ink3); }
-    .txt { flex: 1; font-size: 17px; font-weight: var(--w-semi, 600); }
-    .tag { font-size: 12px; font-weight: var(--w-bold, 700); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
-    .items[data-fit] { gap: 3px; }
-    .items[data-fit] .item { padding: 6px 10px; }
-    .items[data-fit] .txt { font-size: 15px; }
-    .items[data-fit] .box { width: 22px; height: 22px; }
-    .list:has(.items[data-fit='2']), .list:has(.items[data-fit='3']) { width: 560px; }
-    .items[data-fit='2'], .items[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; align-content: start; }
-    .items[data-fit='2'] > :not(.item), .items[data-fit='3'] > :not(.item) { grid-column: 1 / -1; }
-    .items[data-fit='2'] .tag, .items[data-fit='3'] .tag { display: none; }
-    /* the wider list borrows room from the keyboard, so its keys slim down a little */
-    .list:has(.items[data-fit='2']) + .add .key, .list:has(.items[data-fit='3']) + .add .key { width: 52px; height: 58px; }
-    .list:has(.items[data-fit='2']) + .add .key.wide, .list:has(.items[data-fit='3']) + .add .key.wide { width: 78px; }
-    .list:has(.items[data-fit='2']) + .add .key.space, .list:has(.items[data-fit='3']) + .add .key.space { width: 340px; }
-    :host([data-shape='tall']) .items[data-fit='3'] { grid-template-columns: repeat(3, 1fr); }
-    :host([data-shape='tall']) .items[data-fit] .tag { display: inline; }
-    :host([data-shape='tall']) .add .key:not(.wide):not(.space) { width: 64px !important; height: 64px !important; }
-    :host([data-shape='tall']) .add .key.space { width: 420px !important; }
-    :host([data-shape='tall']) .add .key.wide { width: 96px !important; }
+    .done .strike { color: var(--ink2); }
+    .txt { flex: 1; min-width: 0; font-size: 16px; font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
+    .tag { font-size: 13px; font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .label { font-size: 13px; }
+    .note { font-size: 13px; }
+    .trolley { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
+    .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .failed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; font-size: 17px; font-weight: var(--w-semi, 600); padding: 16px; }
+    .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); }
+    /* two columns leave no room for the aisle chip; the list is still sorted by aisle. Phones show it. */
+    :host(:not([data-phone])) .tag { display: none; }
+    :host([data-shape='tall']) .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    :host([data-shape='tall']) .add .key:not(.wide):not(.space) { width: 64px; height: 64px; }
+    :host([data-shape='tall']) .add .key.space { width: 420px; }
+    :host([data-shape='tall']) .add .key.wide { width: 96px; }
     :host([data-shape='tall']) { flex-direction: column; }
-    :host([data-shape='tall']) .list { width: auto !important; flex: 1; min-height: 0; }
+    :host([data-shape='tall']) .list { width: auto; flex: 1; min-height: 0; }
     :host([data-shape='tall']) .add { flex: 0 0 auto; }
-    :host([data-phone]) { flex: none; }
-    :host([data-phone]) .add { order: -1; padding: 14px; border-radius: 22px; }
-    :host([data-phone]) .list { flex: none; padding: 14px; border-radius: 22px; }
-    :host([data-phone]) .items { overflow: visible; flex: none; display: flex !important; }
-    :host([data-phone]) .items .tag { display: inline !important; }
+    :host([data-phone]) { flex: none; flex-direction: column; min-width: 0; }
+    :host([data-phone]) .add { order: -1; padding: 14px; border-radius: 22px; flex: none; }
+    :host([data-phone]) .list { flex: none; width: auto; padding: 14px; border-radius: 22px; }
+    :host([data-phone]) .items { overflow: visible; flex: none; grid-template-columns: minmax(0, 1fr); padding: 0; margin: 0; }
+    :host([data-phone]) .keys { display: none; }
+    :host([data-phone]) .entry { flex-wrap: wrap; }
+    :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: 20px; }
+    :host([data-phone]) .entry .lead { height: 52px; flex: 0 0 auto; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
-    .field { flex: 1; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
+    .entry { display: flex; gap: 10px; align-items: center; min-width: 0; }
+    .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
-    .field::placeholder { color: var(--ink3); font-weight: 500; }
-    .keys { flex: 1; justify-content: flex-end; }
-    .chip { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+    .field::placeholder { color: var(--ink2); font-weight: 500; }
+    .entry .lead { height: 60px; padding: 0 26px; font-size: 18px; flex-shrink: 0; }
+    .usuals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .usuals > span { font-size: 13px; font-weight: var(--w-bold, 700); margin-right: 4px; }
+    /* the keyboard takes the room that is left: taller keys, not an empty band above them */
+    .keys { flex: 1; min-height: 0; justify-content: center; }
+    :host(:not([data-shape='tall']):not([data-phone])) .krow { flex: 1 1 52px; max-height: 78px; min-height: 44px; }
+    :host(:not([data-shape='tall']):not([data-phone])) .key { height: 100%; width: 56px; }
+    :host(:not([data-shape='tall']):not([data-phone])) .key.wide { width: 86px; }
+    :host(:not([data-shape='tall']):not([data-phone])) .key.space { width: 380px; }
+    .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .toast.act { display: flex; align-items: center; gap: 14px; pointer-events: auto; padding: 8px 8px 8px 22px; }
+    .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: 15px; font-weight: var(--w-heavy, 800); }
+    .toast .undo:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   `];
 
   static properties = {
@@ -84,7 +98,7 @@ export class FhGroceries extends LitElement {
     _items: { state: true },
     _typed: { state: true },
     _caps: { state: true },
-    _toast: { state: true }
+    _toast: { state: true }, _undo: { state: true }, _failed: { state: true }, _hidden: { state: true }
   };
 
   hass?: Hass;
@@ -98,8 +112,15 @@ export class FhGroceries extends LitElement {
   private _unsub?: () => void;
   private _subFor = '';
   private _toastTimer?: number;
+  /** what the toast's Undo button does, while it is offered */
+  private _undo?: () => void;
+  /** the list could not be loaded: say so, rather than showing an empty list */
+  private _failed = false;
+  /** ticked items that were just cleared: out of sight at once, removed for good when the Undo window closes */
+  private _hidden: string[] = [];
+  private _clearTimer?: number;
 
-  disconnectedCallback(): void { super.disconnectedCallback(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
@@ -110,21 +131,24 @@ export class FhGroceries extends LitElement {
     this._unsub?.();
     this._subFor = this.entity;
     const conn = this.hass?.connection;
-    if (!conn) return;
+    if (!conn) { this._failed = true; return; }
     try {
-      this._unsub = await conn.subscribeMessage<{ items: TodoItem[] }>((m) => { this._items = m.items; }, { type: 'todo/item/subscribe', entity_id: this.entity });
-    } catch (e) { console.warn('Family Hub: grocery subscribe failed', e); }
+      this._unsub = await conn.subscribeMessage<{ items: TodoItem[] }>((m) => { this._items = m.items; this._failed = false; }, { type: 'todo/item/subscribe', entity_id: this.entity });
+      this._failed = false;
+    } catch (e) { console.warn('Family Hub: grocery subscribe failed', e); this._failed = true; }
   }
 
-  private _say(m: string): void { this._toast = m; clearTimeout(this._toastTimer); this._toastTimer = window.setTimeout(() => { this._toast = ''; }, 2600); }
+  private _say(m: string, undo?: () => void): void { this._toast = m; this._undo = undo; clearTimeout(this._toastTimer); this._toastTimer = window.setTimeout(() => { this._toast = ''; this._undo = undefined; }, undo ? 6000 : 2600); }
 
   private _add(name = this._typed): void {
     const n = name.trim();
-    if (!n || !this.hass) return;
-    const nice = n.charAt(0).toUpperCase() + n.slice(1);
+    if (!n) { this._say('Type something first'); return; }
+    if (!this.hass) return;
+    const nice = n.charAt(0).toUpperCase() + n.slice(1), typed = name === this._typed;
     if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
-    this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity });
-    this._typed = ''; this._caps = true;
+    // a failed add says so and gives the words back, so nothing typed is lost
+    Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity })).catch(() => { this._say(`Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
+    if (typed) { this._typed = ''; this._caps = true; }
   }
   private _toggle(i: TodoItem): void {
     // the touch is answered at once: the tick, its sound and the service call all happen now. The row keeps its place for a few seconds, so a slip can be tapped back.
@@ -137,14 +161,30 @@ export class FhGroceries extends LitElement {
     clearTimeout(this._tk[i.uid]?.t);
     this._tk = { ...this._tk, [i.uid]: { to, was: this._tk[i.uid]?.was ?? i.status, t: window.setTimeout(() => { const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; }, 4000) } };
     this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
-    this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity });
+    Promise.resolve(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).catch(() => {
+      clearTimeout(this._tk[i.uid]?.t); const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; this._say(`Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); });
   }
   private _tk: Record<string, { to: string; was: string; t: number }> = {};
   private _just = '';
   /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
   private _shown(i: TodoItem): string { return this._tk[i.uid]?.to ?? i.status; }
   private _group(i: TodoItem): string { return this._tk[i.uid]?.was ?? i.status; }
-  private _clearDone(): void { this.hass?.callService('todo', 'remove_completed_items', {}, { entity_id: this.entity }); }
+  /** Clearing takes the ticked items out of sight at once; they are only removed when the Undo window closes (or the page is left). */
+  private _clearDone(): void {
+    this._commitClear();
+    const ids = this._items.filter((i) => this._group(i) === 'completed' && this._shown(i) === 'completed').map((i) => i.uid);
+    if (!ids.length) return;
+    this._hidden = ids;
+    this._clearTimer = window.setTimeout(() => this._commitClear(), 6000);
+    this._say(`Cleared ${ids.length} ticked ${ids.length === 1 ? 'item' : 'items'}`, () => { clearTimeout(this._clearTimer); this._clearTimer = undefined; this._hidden = []; this._say('Put back'); });
+  }
+  private _commitClear(): void {
+    clearTimeout(this._clearTimer); this._clearTimer = undefined;
+    const ids = this._hidden; if (!ids.length) return;
+    this._hidden = [];
+    Promise.resolve(this.hass?.callService('todo', 'remove_item', { item: ids }, { entity_id: this.entity })).catch(() => { if (this.isConnected) this._say('Couldn’t clear the ticked items. Try again'); });
+    if (this._undo) { this._toast = ''; this._undo = undefined; }
+  }
 
   private _send(r: GroceryRecipient): void {
     const left = this._items.filter((i) => i.status === 'needs_action');
@@ -160,45 +200,47 @@ export class FhGroceries extends LitElement {
 
   render(): TemplateResult {
     const open = this._items.filter((i) => this._group(i) === 'needs_action');
-    const done = this._items.filter((i) => this._group(i) === 'completed');
+    const done = this._items.filter((i) => this._group(i) === 'completed' && !this._hidden.includes(i.uid));
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
     return html`
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
           <h1 class="t-title">Groceries</h1>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${open.length} to buy</span>
+          ${this._failed ? nothing : html`<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${open.length} to buy</span>`}
         </div>
-        <div class="items scrolly" data-fits @scroll=${scrollCue}>
+        ${this._failed ? html`<div class="failed" role="alert"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span>Can’t reach the shopping list.</span>
+          <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
+        <div class="items scrolly" @scroll=${scrollCue}>
           ${sorted.map((i) => this._row(i))}
-          ${done.length ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          ${done.length ? html`<div class="trolley">
             <span class="label">In the trolley</span>
-            <button class="tap muted" style="font-size:13px;font-weight:var(--w-bold, 700)" @click=${() => this._clearDone()}>Clear ${done.length}</button></div>
+            <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>
             ${done.map((i) => this._row(i))}` : nothing}
-          ${!this._items.length ? html`<div class="empty"><span style="color:var(--accent)">${icon('cart', 40)}</span><span>Nothing on the list yet</span></div>` : nothing}
-        </div>
-        <span class="muted" style="font-size:12px">Also live in the Home Assistant app – tick things off in the shop.</span>
+          ${!open.length && !done.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:17px;font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:15px">Type an item or tap a usual to add it.</span></div>` : nothing}
+        </div>`}
+        <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1">Send the list to</span>
+          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((r) => html`<button class="who glass tap" @click=${() => this._send(r)}>
             <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
           ${!this.recipients.length ? html`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>` : nothing}
         </div>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div class="entry">
           <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
             @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
-          <button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" @click=${() => this._add()}>Add</button>
+          <button class="tap lead" @click=${() => this._add()}>Add</button>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-          <span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-right:4px">Usuals</span>
-          ${this.usuals.map((u) => html`<button class="chip quick tap" @click=${() => this._add(u)}>+ ${u}</button>`)}
+        <div class="usuals">
+          <span class="muted">Usuals</span>
+          ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${() => this._add(u)}>+ ${u}</button>`)}
         </div>
         ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
       </section>
-      ${this._toast ? html`<div class="toast" role="status">${this._toast}</div>` : nothing}`;
+      ${this._toast ? html`<div class="toast ${this._undo ? 'act' : ''}" role="status"><span>${this._toast}</span>${this._undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : nothing}</div>` : nothing}`;
   }
 
   private _row(i: TodoItem): TemplateResult {
