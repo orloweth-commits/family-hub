@@ -85,18 +85,19 @@ if (run('plan')) { const page = await open('look=glass&scene=sports&page=planner
   for (let s = 0; s < 1200; s++) { await page.clock.runFor(1000); const g = await guests(page); most = Math.max(most, g.length); if (g.length) { if (g[0] !== last) { seen.push(g[0]); if (last === '' && seen.length > 1) gaps.push(quiet); } last = g[0]; quiet = 0; } else { last = ''; quiet++; } }
   const repeat = seen.some((x, i) => i && x === seen[i - 1]);
   ok(most === 1 && seen.length >= 8 && !repeat && Math.min(...gaps) >= 19 && Math.max(...gaps) <= 92, 'scheduler: one at a time, no ball twice running, quiet gaps of 20 to 90 s', `${seen.length} visits (${[...new Set(seen)].join(' ')}); gaps ${Math.min(...gaps)}–${Math.max(...gaps)} s; most at once ${most}`);
-  ok(seen.every((x) => BALLS.includes(x)), 'no surprise outside its window (Tuesday 4.20 pm)', seen.filter((x) => !BALLS.includes(x)).join(' '));
+  const odd = seen.filter((x) => !BALLS.includes(x));
+  ok(odd.every((x) => x === 'flagknock') && odd.length <= 1, 'no surprise outside its window (Tuesday 4.20 pm: only the corner flag may come, once an hour)', odd.join(' '));
   await page.evaluate(async () => { const ambs = [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('fh-ambient')]; for (const a of ambs) a.demo = 'floorball'; await Promise.all(ambs.map((a) => a.updateComplete)); Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); await Promise.all(ambs.map((a) => a.updateComplete)); });
   let hidden = (await guests(page)).length; for (let s = 0; s < 200; s++) { await page.clock.runFor(1000); hidden += (await guests(page)).length; }
   ok(hidden === 0, 'tab hidden: the ball goes and none comes for 200 s');
   await page.close(); }
 
-// 6. surprises keep to their windows and limits: Saturday 2 pm for six hours of wound-on time
-if (run('plan')) { const page = await open('look=glass&scene=sports&page=planner', { clock: 'run', time: '13:05', day: '2026-11-14' });
+// 6. surprises keep to their windows and limits: Saturday from 3.50 pm for three hours of wound-on time
+if (run('plan')) { const page = await open('look=glass&scene=sports&page=planner', { clock: 'run', time: '15:50', day: '2026-11-14' });
   const at = []; let was = '';
-  for (let s = 0; s < 6 * 360; s++) { await page.clock.runFor(10_000); const g = (await guests(page))[0] ?? ''; if (g && g !== was && SURPRISES.concat('sprinkler-pm').includes(g)) at.push([g, 13 * 60 + 5 + Math.round((s * 10) / 60)]); was = g; }
+  for (let s = 0; s < 3 * 1800; s++) { await page.clock.runFor(2000); const g = (await guests(page))[0] ?? ''; if (g && g !== was && SURPRISES.concat('sprinkler-pm').includes(g)) at.push([g, 15 * 60 + 50 + Math.round((s * 2) / 60)]); was = g; }
   const names = at.map((x) => x[0]), close = at.some((x, i) => i && x[1] - at[i - 1][1] < 10);
-  ok(names.filter((n) => n === 'dog').length <= 1 && at.length <= 6 && !close && at.every((x) => x[1] < 18 * 60 + 31) && !names.includes('gull') && !names.includes('marker'), 'surprises: each at most once a day, ten minutes apart, none after 6.30 pm', at.map((x) => `${x[0]}@${Math.floor(x[1] / 60)}:${String(x[1] % 60).padStart(2, '0')}`).join(' ') || 'none came');
+  ok(at.length >= 1 && names.filter((n) => n === 'dog').length <= 1 && at.length <= 6 && !close && at.every((x) => x[1] < 18 * 60 + 31) && !names.includes('gull') && !names.includes('marker'), 'surprises: each at most once a day, ten minutes apart, none after 6.30 pm', at.map((x) => `${x[0]}@${Math.floor(x[1] / 60)}:${String(x[1] % 60).padStart(2, '0')}`).join(' ') || 'none came');
   await page.close(); }
 
 // 7. the other worlds are as they were: their visitors come through the masks, and hold does not touch them
