@@ -3860,7 +3860,7 @@ const Ze = async (e) => {
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left .35s cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
   .tneedle::before { content: ''; position: absolute; left: -6px; top: -5px; width: 18px; height: 18px; border-radius: 50%; background: inherit; }
   .tneedle[data-on] { opacity: 1; }
-  .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; touch-action: none; }
   .dplate { fill: var(--chip); }
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
   .dhit { fill: none; stroke: transparent; stroke-width: 46; }
@@ -4144,7 +4144,7 @@ const Ze = async (e) => {
   }
 }, qa = class qa extends z {
   constructor() {
-    super(...arguments), this.lookCtl = new P(this), this.fitCtl = new kt(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.lock = !0, this.moments = [], this.callVolume = 70, this.callLanguage = "en-AU", this.callVoice = "", this._jog = null, this._momentOn = null, this._momentBusy = "", this._sleepAt = null, this._padSet = Wt("fh-moments", {}), this.theme = "", this._view = Wt("fh-music-view", ""), this._dv = {}, this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._radioTried = 0, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === Ja() ? t : { day: Ja(), on: !1, who: "", picks: [] })(Wt("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = Wt("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "";
+    super(...arguments), this.lookCtl = new P(this), this.fitCtl = new kt(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.lock = !0, this.moments = [], this.callVolume = 70, this.callLanguage = "en-AU", this.callVoice = "", this._jog = null, this._momentOn = null, this._momentBusy = "", this._sleepAt = null, this._padSet = Wt("fh-moments", {}), this.theme = "", this._view = Wt("fh-music-view", ""), this._dv = {}, this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._cleared = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._radioTried = 0, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === Ja() ? t : { day: Ja(), on: !1, who: "", picks: [] })(Wt("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = Wt("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "";
   }
   get _pads() {
     return (this.moments.length ? this.moments : Ys).slice(0, 4);
@@ -4254,21 +4254,30 @@ const Ze = async (e) => {
         this._say(`Couldn’t find ${t.name} – check the station list`);
         return;
       }
-      this.hass.callService("media_player", "play_media", { entity_id: a.entity_id, media_content_id: i, media_content_type: "music" }).then(() => {
-        ea[a.entity_id] = t.name, this.requestUpdate(), this._say(`${t.name} in ${this._name(a)}`);
-      }).catch((o) => this._say(`${this._name(a)} couldn’t play that: ${o?.message ?? "error"}`));
+      this._gentle(a.entity_id, () => {
+        this.hass.callService("media_player", "play_media", { entity_id: a.entity_id, media_content_id: i, media_content_type: "music" }).then(() => {
+          ea[a.entity_id] = t.name, this.requestUpdate(), this._say(`${t.name} in ${this._name(a)}`);
+        }).catch((o) => this._say(`${this._name(a)} couldn’t play that: ${o?.message ?? "error"}`));
+      });
     }
   }
   /* ---------------- transport ---------------- */
+  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a grown-up first. Pausing, turning down and leaving never ask. */
   _svc(t, a = {}, i = this._cur?.entity_id) {
-    i && this.hass.callService("media_player", t, { entity_id: i, ...a });
+    if (!i) return;
+    const o = this.hass.states[i]?.state, s = t === "media_play" || t === "media_play_pause" && o !== "playing" && o !== "buffering", r = () => {
+      this.hass.callService("media_player", t, { entity_id: i, ...a }).catch((n) => this._say(`${this._name(this.hass.states[i])} didn’t respond: ${n?.message ?? "error"}`));
+    };
+    s ? this._gentle(i, r) : r();
   }
   _start(t, a = "play", i = !1, o = this._cur) {
     if (!o) {
       this._say("No speaker to play on");
       return;
     }
-    this._lastUri = t.uri, jt(this.hass, o.entity_id, t.uri, a, i).then(() => this._say(a === "play" ? `${i ? "Radio from " : ""}${t.name} on ${this._name(o)}` : a === "next" ? `${t.name} plays next` : `${t.name} added to the queue`)).catch((s) => this._say(`${this._name(o)} couldn’t play that: ${s?.message ?? "error"}`));
+    this._gentle(o.entity_id, () => {
+      this._lastUri = t.uri, jt(this.hass, o.entity_id, t.uri, a, i).then(() => this._say(a === "play" ? `${i ? "Radio from " : ""}${t.name} on ${this._name(o)}` : a === "next" ? `${t.name} plays next` : `${t.name} added to the queue`)).catch((s) => this._say(`${this._name(o)} couldn’t play that: ${s?.message ?? "error"}`));
+    });
   }
   _heart() {
     const t = this._cur && Ue(this.hass, this._cur.entity_id, /^button\..*favou?rite_current_song$/);
@@ -4287,11 +4296,20 @@ const Ze = async (e) => {
   /* ---------------- rooms ---------------- */
   _join(t) {
     const a = this._cur;
-    !a || t === a.entity_id || (this._mix(a).includes(t) ? this.hass.callService("media_player", "unjoin", {}, { entity_id: t }) : this.hass.callService("media_player", "join", { group_members: [t] }, { entity_id: a.entity_id }).catch((i) => this._say(`Couldn’t add that room: ${i?.message ?? "error"}`)));
+    !a || t === a.entity_id || (this._mix(a).includes(t) ? this.hass.callService("media_player", "unjoin", {}, { entity_id: t }) : this._gentle(t, () => {
+      this.hass.callService("media_player", "join", { group_members: [t] }, { entity_id: a.entity_id }).catch((i) => this._say(`Couldn’t add that room: ${i?.message ?? "error"}`));
+    }));
   }
   /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
   _wholeHouse(t) {
-    this._floors.some((a) => a.rooms.some((i) => i.asleep && i.zones.length)) ? this._guard("Some bedrooms are asleep. Play in the whole house anyway?", t) : t();
+    this._floors.some((a) => a.rooms.some((i) => i.asleep && i.zones.length)) ? this._guard("Some bedrooms are asleep. Play in the whole house anyway?", () => {
+      this._cleared = "*";
+      try {
+        t();
+      } finally {
+        this._cleared = "";
+      }
+    }) : t();
   }
   _everywhere(t, a = this._cur) {
     if (a)
@@ -4300,6 +4318,10 @@ const Ze = async (e) => {
   }
   _move(t, a = this._cur) {
     if (a) {
+      if (this._asleep(t.entity_id) && this._cleared !== t.entity_id && this._cleared !== "*") {
+        this._gentle(t.entity_id, () => this._move(t, a));
+        return;
+      }
       if (!ta(this.hass)) {
         this.hass.callService("media_player", "join", { group_members: [t.entity_id] }, { entity_id: a.entity_id }).then(() => this._say(`${this._name(t)} added (moving music needs Music Assistant)`)).catch((i) => this._say(`Couldn’t add that room: ${i?.message ?? "error"}`));
         return;
@@ -4513,7 +4535,14 @@ const Ze = async (e) => {
       this._say(`${this._name(this._list.find((i) => i.entity_id === t))} is offline`);
       return;
     }
-    this._asleep(t) ? this._guard(`${this._name(this.hass.states[t])} is in a bedroom after bedtime. Play there anyway?`, a) : a();
+    this._asleep(t) && this._cleared !== t && this._cleared !== "*" ? this._guard(`${this._name(this.hass.states[t])} is in a bedroom after bedtime. Play there anyway?`, () => {
+      this._cleared = t;
+      try {
+        a();
+      } finally {
+        this._cleared = "";
+      }
+    }) : a();
   }
   _volDown(t, a) {
     if (t.target.closest(".zname, .join, .puck") || typeof a.attributes.volume_level != "number") return;
@@ -4667,7 +4696,13 @@ const Ze = async (e) => {
   }
   _shelfPlay(t, a) {
     const i = this.kids.find((s) => s.name === this._shelf), o = a ?? this._shelfRoom(i);
-    this._start(t, "play", !1, o), i && o && Mt(i.bedtime) && ri(this.hass, o.entity_id, this.sleepMinutes) && window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400);
+    if (!o) {
+      this._start(t, "play", !1, o);
+      return;
+    }
+    this._gentle(o.entity_id, () => {
+      this._start(t, "play", !1, o), i && Mt(i.bedtime) && ri(this.hass, o.entity_id, this.sleepMinutes) && window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400);
+    });
   }
   _pin(t, a) {
     const i = this._pinTo, o = Tt(t);
@@ -4697,7 +4732,9 @@ const Ze = async (e) => {
   _feed(t = !1) {
     const a = this._cur, i = this._juke;
     if (!i.on || !a || !this.hass) return !1;
-    const o = a.state !== "playing" && a.state !== "buffering", s = String(a.attributes.media_content_id ?? ""), r = !!this._q?.next && this._q.next.name === this._fedName;
+    const o = a.state !== "playing" && a.state !== "buffering", s = String(a.attributes.media_content_id ?? "");
+    if (o && this._asleep(a.entity_id)) return !1;
+    const r = !!this._q?.next && this._q.next.name === this._fedName;
     if (!(t || o) && (!this._q || r) || !t && !o && this._fedFor === s) return !1;
     const n = this._nextPick();
     return n ? (this._fedFor = s, this._fedName = n.name, n.done = !0, this._saveJuke({ picks: [...i.picks] }), this._lastUri = n.uri, jt(this.hass, a.entity_id, n.uri, t || o ? "play" : this._q?.next ? "replace_next" : "add").catch((c) => this._say(`Couldn’t queue ${n.name}: ${c?.message ?? "error"}`)), this._qKey = "", !0) : !1;

@@ -206,5 +206,30 @@ page = await open('look=fridge&page=music&mtab=shelves&shelf=Max', '19:10'); awa
 console.log('wind-down shelf items:', await M(page).locator('.st').count(), '| banner:', await M(page).locator('.banner').innerText());
 await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('bedtime play:', await calls(page, /play_media|fh_music_sleep/));
 await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') }); await page.close();
+// after bedtime every way of starting music in a sleeping bedroom asks a grown-up first (not only "add this room")
+{ const pinUp = async (pg) => await M(pg).locator('fh-pin').count() === 1, shut = async (pg) => { await M(pg).locator('fh-pin button[aria-label="Cancel"]').click().catch(() => {}); await pg.waitForTimeout(200); };
+  const quiet = async (pg) => !(await calls(pg, /media_play|play_media|media_player\.join|transfer_queue/));
+  const b = await open('page=music&look=glass&mview=house', '20:30');
+  await M(b).locator('.mzone[data-zone="media_player.charlies_homepod"] .puck').click(); await b.waitForTimeout(300);
+  console.log('paused record in a sleeping room asks first:', await pinUp(b), '| nothing sent:', await quiet(b)); await shut(b);
+  await M(b).locator('.mzone[data-zone="media_player.rileys_homepod"] .zname').click(); await b.waitForTimeout(200);
+  await M(b).locator('.nowbar .ngo').click(); await b.waitForTimeout(300);
+  console.log('play key with a sleeping room in focus asks first:', await pinUp(b), '| nothing sent:', await quiet(b)); await shut(b);
+  await M(b).locator('[role=tab][aria-label="Radio"]').click(); await b.waitForTimeout(400); await M(b).locator('.presets .st').first().click(); await b.waitForTimeout(300);
+  console.log('radio with a sleeping room in focus asks first:', await pinUp(b), '| nothing sent:', await quiet(b)); await b.close();
+  const s = await open('page=music&look=glass&mtab=shelves&shelf=Riley', '20:30');
+  await M(s).locator('.covers .st').first().click(); await s.waitForTimeout(300);
+  console.log('a sleeping child’s own shelf asks first:', await pinUp(s), '| nothing sent:', await quiet(s));
+  for (const d of '1234') await M(s).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await s.waitForTimeout(400);
+  console.log('with the PIN it plays, asked once:', !(await pinUp(s)), await calls(s, /play_media/)); await s.close();
+  const l = await open('page=music&look=glass&mview=list', '20:30');
+  await M(l).locator('.spk', { hasText: 'Riley' }).locator('.join').click(); await l.waitForTimeout(300);
+  console.log('list view add of a sleeping room asks first:', await pinUp(l), '| nothing sent:', await quiet(l)); await l.close();
+  const d = await open('page=music&look=glass&mview=house', '16:20');
+  await M(d).locator('.mzone[data-zone="media_player.rileys_homepod"] .zname').click(); await M(d).locator('.nowbar .ngo').click(); await d.waitForTimeout(300);
+  console.log('daytime: no PIN:', !(await pinUp(d))); await d.close(); }
+// the Big Dial's arcs must be draggable by finger (the browser must not take the gesture for scrolling)
+{ const t = await open('page=music&look=glass&mview=dial');
+  console.log('dial arcs take touch drags:', await t.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.bigdial > svg')).touchAction)); await t.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

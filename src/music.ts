@@ -389,6 +389,8 @@ export class FhMusic extends LitElement {
   private _shelfTo = '';
   private _tab: Tab = 'rooms';
   private _focus = '';
+  /** The bedroom a grown-up has just allowed (set only while that one action runs). */
+  private _cleared = '';
   private _thumbs: Record<string, string> = {};
   private _resolved: Record<string, string> = {};
   private _loaded = false;
@@ -498,19 +500,25 @@ export class FhMusic extends LitElement {
     const p = this._cur, id = this._resolved[st.name];
     if (!p) return;
     if (!id) { this._say(`Couldn’t find ${st.name} – check the station list`); return; }
-    this.hass!.callService('media_player', 'play_media', { entity_id: p.entity_id, media_content_id: id, media_content_type: 'music' })
+    this._gentle(p.entity_id, () => { this.hass!.callService('media_player', 'play_media', { entity_id: p.entity_id, media_content_id: id, media_content_type: 'music' })
       .then(() => { LAST[p.entity_id] = st.name; this.requestUpdate(); this._say(`${st.name} in ${this._name(p)}`); })
-      .catch((e: any) => this._say(`${this._name(p)} couldn’t play that: ${e?.message ?? 'error'}`));
+      .catch((e: any) => this._say(`${this._name(p)} couldn’t play that: ${e?.message ?? 'error'}`)); });
   }
 
   /* ---------------- transport ---------------- */
-  private _svc(service: string, data: Record<string, unknown> = {}, id = this._cur?.entity_id): void { if (id) this.hass!.callService('media_player', service, { entity_id: id, ...data }); }
+  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a grown-up first. Pausing, turning down and leaving never ask. */
+  private _svc(service: string, data: Record<string, unknown> = {}, id = this._cur?.entity_id): void {
+    if (!id) return;
+    const st = this.hass!.states[id]?.state, starts = service === 'media_play' || (service === 'media_play_pause' && st !== 'playing' && st !== 'buffering');
+    const run = (): void => { this.hass!.callService('media_player', service, { entity_id: id, ...data }).catch((e: any) => this._say(`${this._name(this.hass!.states[id])} didn’t respond: ${e?.message ?? 'error'}`)); };
+    if (starts) this._gentle(id, run); else run();
+  }
   private _start(m: MediaHit, mode: 'play' | 'next' | 'add' = 'play', radio = false, room = this._cur): void {
     if (!room) { this._say('No speaker to play on'); return; }
-    this._lastUri = m.uri;
+    this._gentle(room.entity_id, () => { this._lastUri = m.uri;
     play(this.hass!, room.entity_id, m.uri, mode, radio)
       .then(() => this._say(mode === 'play' ? `${radio ? 'Radio from ' : ''}${m.name} on ${this._name(room)}` : mode === 'next' ? `${m.name} plays next` : `${m.name} added to the queue`))
-      .catch((e: any) => this._say(`${this._name(room)} couldn’t play that: ${e?.message ?? 'error'}`));
+      .catch((e: any) => this._say(`${this._name(room)} couldn’t play that: ${e?.message ?? 'error'}`)); });
   }
   private _heart(): void {
     const b = this._cur && sibling(this.hass!, this._cur.entity_id, /^button\..*favou?rite_current_song$/);
@@ -528,10 +536,10 @@ export class FhMusic extends LitElement {
   private _join(id: string): void {
     const p = this._cur; if (!p || id === p.entity_id) return;
     if (this._mix(p).includes(id)) this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id });
-    else this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`));
+    else this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); });
   }
   /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
-  private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', run); else run(); }
+  private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   private _everywhere(on: boolean, p = this._cur): void {
     if (!p) return;
     if (on) this.hass!.callService('media_player', 'join', { group_members: this._list.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id) }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t group every room: ${e?.message ?? 'error'}`));
@@ -539,6 +547,7 @@ export class FhMusic extends LitElement {
   }
   private _move(to: HassEntity, from = this._cur): void {
     if (!from) return;
+    if (this._asleep(to.entity_id) && this._cleared !== to.entity_id && this._cleared !== '*') { this._gentle(to.entity_id, () => this._move(to, from)); return; }
     if (!hasMa(this.hass!)) { this.hass!.callService('media_player', 'join', { group_members: [to.entity_id] }, { entity_id: from.entity_id }).then(() => this._say(`${this._name(to)} added (moving music needs Music Assistant)`)).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); return; }
     this.hass!.callService('music_assistant', 'transfer_queue', { source_player: from.entity_id, auto_play: true }, { entity_id: to.entity_id })
       .then(() => { this._focus = to.entity_id; this._say(`Music moved to ${this._name(to)}`); }).catch((e: any) => this._say(`Couldn’t move the music: ${e?.message ?? 'error'}`));
@@ -661,7 +670,7 @@ export class FhMusic extends LitElement {
   }
   private _asleep(id: string): boolean { return this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.some((z) => z.p.entity_id === id))); }
   /** Bedrooms after bedtime need a grown-up (when a PIN is set) before music goes there. */
-  private _gentle(id: string, run: () => void): void { if (this._off(this._list.find((p) => p.entity_id === id) ?? this.hass!.states[id])) { this._say(`${this._name(this._list.find((p) => p.entity_id === id))} is offline`); return; } if (this._asleep(id)) this._guard(`${this._name(this.hass!.states[id])} is in a bedroom after bedtime. Play there anyway?`, run); else run(); }
+  private _gentle(id: string, run: () => void): void { if (this._off(this._list.find((p) => p.entity_id === id) ?? this.hass!.states[id])) { this._say(`${this._name(this._list.find((p) => p.entity_id === id))} is offline`); return; } if (this._asleep(id) && this._cleared !== id && this._cleared !== '*') this._guard(`${this._name(this.hass!.states[id])} is in a bedroom after bedtime. Play there anyway?`, () => { this._cleared = id; try { run(); } finally { this._cleared = ''; } }); else run(); }
   private _volDown(e: PointerEvent, p: HassEntity): void {
     if ((e.target as HTMLElement).closest('.zname, .join, .puck') || typeof p.attributes.volume_level !== 'number') return;
     const el = e.currentTarget as HTMLElement, id = p.entity_id, y0 = e.clientY, v0 = Math.round(p.attributes.volume_level * 100), h = el.getBoundingClientRect().height * POOL;
@@ -794,9 +803,12 @@ export class FhMusic extends LitElement {
   private _shelfPlay(m: ShelfItem, to?: HassEntity): void {
     const kid = this.kids.find((k) => k.name === this._shelf);
     const room = to ?? this._shelfRoom(kid);
-    this._start(m, 'play', false, room);
-    // at wind-down a child's shelf plays quietly towards sleep
-    if (kid && room && windDown(kid.bedtime)) { if (sleepIn(this.hass!, room.entity_id, this.sleepMinutes)) window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); }
+    if (!room) { this._start(m, 'play', false, room); return; }
+    this._gentle(room.entity_id, () => {
+      this._start(m, 'play', false, room);
+      // at wind-down a child's shelf plays quietly towards sleep
+      if (kid && windDown(kid.bedtime)) { if (sleepIn(this.hass!, room.entity_id, this.sleepMinutes)) window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); }
+    });
   }
   private _pin(to: string, calm: boolean): void {
     const m = this._pinTo, e = shelfEntity(to); if (!m) return;
@@ -818,6 +830,7 @@ export class FhMusic extends LitElement {
     const p = this._cur, j = this._juke;
     if (!j.on || !p || !this.hass) return false;
     const idle = p.state !== 'playing' && p.state !== 'buffering', track = String(p.attributes.media_content_id ?? '');
+    if (idle && this._asleep(p.entity_id)) return false; // never starts by itself in a bedroom after bedtime
     // what follows the current song is already one of tonight's picks: nothing to do yet
     const ours = !!this._q?.next && this._q.next.name === this._fedName;
     if (!(ended || idle) && (!this._q || ours)) return false;

@@ -409,7 +409,7 @@ export const viewsCss = css`
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left .35s cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
   .tneedle::before { content: ''; position: absolute; left: -6px; top: -5px; width: 18px; height: 18px; border-radius: 50%; background: inherit; }
   .tneedle[data-on] { opacity: 1; }
-  .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; touch-action: none; }
   .dplate { fill: var(--chip); }
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
   .dhit { fill: none; stroke: transparent; stroke-width: 46; }
