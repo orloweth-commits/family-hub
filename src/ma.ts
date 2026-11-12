@@ -106,6 +106,13 @@ export const sleepIn = (h: Hass, player: string, minutes: number): boolean => {
   return false;
 };
 
+/** Call off a sleep fade started by sleepIn. */
+export const sleepOff = (h: Hass, player: string): boolean => {
+  if (h.states['script.fh_music_sleep']) { h.callService('script', 'turn_off', {}, { entity_id: 'script.fh_music_sleep' }); return true; }
+  if (platform(h, player) === 'sonos') { h.callService('sonos', 'clear_sleep_timer', {}, { entity_id: player }); return true; }
+  return false;
+};
+
 /** A shelf is a to-do list: the item's name is the title, its description holds "uri | picture | @calm". */
 export const shelfEntity = (name: string): string => `todo.${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_music`;
 export const loadShelf = async (h: Hass, entity: string): Promise<ShelfItem[]> => {
