@@ -8,6 +8,7 @@ import './groceries';
 import './kid';
 import './home';
 import './music';
+import './weather';
 import './doodle';
 import './morning';
 import './addevent';
@@ -24,15 +25,15 @@ import {
 import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getShape, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 type View = 'day' | 'week' | 'month';
-type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
+type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.22.0';
+const VERSION = '0.23.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
   partlycloudy: 'Partly cloudy', pouring: 'Pouring', rainy: 'Rain', snowy: 'Snow', 'snowy-rainy': 'Sleet', sunny: 'Sunny', windy: 'Windy', 'windy-variant': 'Windy'
 };
-const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-add-event';
+const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event';
 
 
 export class FamilyHubCard extends LitElement {
@@ -546,6 +547,7 @@ export class FamilyHubCard extends LitElement {
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
+      case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass} .artists=${(c.kids ?? []).map((k) => k.name)}></fh-doodle>`;
       case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
         .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
@@ -618,7 +620,7 @@ export class FamilyHubCard extends LitElement {
         ${kid ? this._kidCapsule(kid) : this._capsule()}
         <div class="right">
           ${w && !kid ? html`
-            <div class="glass weather">
+            <button class="glass weather tap" aria-label="Weather" @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
               <span style="color:var(--accent)">${icon(weatherIcon(w.state), 28)}</span>
               <span style="display:flex;flex-direction:column;line-height:1.15">
                 <span style="font-weight:var(--w-bold, 700);font-size:20px">${temp !== undefined ? `${Math.round(temp)}°` : '–'}${wx.max !== undefined ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)"> · top ${Math.round(wx.max)}°</span>` : nothing}</span>
@@ -626,7 +628,7 @@ export class FamilyHubCard extends LitElement {
               </span>
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">🧢 UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">🥵 Hot</span>` : nothing}
-            </div>` : nothing}
+            </button>` : nothing}
           ${(c.people ?? []).length && !kid ? html`
             <div class="glass presence" role="list" aria-label="Who is home">
               ${c.people!.map((p) => {
@@ -801,6 +803,7 @@ export class FamilyHubCard extends LitElement {
       ${item('cart', 'Groceries', () => { this._page = 'groceries'; }, this._page === 'groceries')}
       ${item('pencil', 'Doodle', () => { this._page = 'doodle'; }, this._page === 'doodle')}
       ${item('music', 'Music', () => { this._page = 'music'; }, this._page === 'music')}
+      ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep" aria-hidden="true"></span>
       <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}><span style="color:var(--accent)">${icon('bulb', 26)}</span>All on</button>

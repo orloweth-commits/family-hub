@@ -83,7 +83,7 @@ export const styles = css`
   .kids { display: flex; gap: 6px; padding: 6px; border-radius: 999px; }
   .kid { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; background: var(--chip); font-weight: var(--w-semi, 600); font-size: 15px; }
   .right { display: flex; align-items: center; gap: 10px; }
-  .weather { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 999px; }
+  .weather { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 999px; text-align: left; }
   .badge { padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, #f59e0b 22%, var(--chip)); font-size: 13px; font-weight: var(--w-heavy, 800); white-space: nowrap; }
   .badge.hot { background: color-mix(in srgb, #dc2626 22%, var(--chip)); }
   /* one row: chips that do not fit wrap out of sight, lowest priority first */
@@ -236,7 +236,7 @@ export const styles = css`
   :host([data-phone]) .clock { min-width: 0; flex: 1 1 auto; }
   :host([data-phone]) .clock .hm { font-size: 42px; }
   :host([data-phone]) .right { flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex: 1 1 auto; }
-  :host([data-phone]) .right > button { width: 44px !important; height: 44px !important; }
+  :host([data-phone]) .right > button.round { width: 44px !important; height: 44px !important; }
   :host([data-phone]) .weather { padding: 6px 12px; }
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
   :host([data-phone]) header { flex-wrap: wrap; }

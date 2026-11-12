@@ -66,7 +66,8 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
-    'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave']
+    'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
+    'fh-weather': ['wnow', 'wtemp', 'wtip', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
   }
 };
 
@@ -503,6 +504,23 @@ const FRIDGE = `
 
   /* night: the kitchen clock keeps watch */
   @F .night .big { font-weight: 400; }
+  /* weather: today is a note under a magnet, the week is a strip torn off a calendar, the maps are a photo taped to the door */
+  @F .wnow, @F .wweek, @F .whours, @F .wmaps { background: var(--note, var(--paper)); border-radius: 3px; box-shadow: 0 6px 8px rgba(0,0,0,.18); }
+  @F .wnow { rotate: calc(var(--tilt, 1) * -.6deg); }
+  @F .wweek { rotate: calc(var(--tilt, 1) * .5deg); background: var(--paper); }
+  @F .wmaps { background: #fff; padding: 12px 12px 8px; }
+  @F .wmaps .mbox { border-radius: 2px; }
+  @F .wtemp { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 86px; font-weight: 700; }
+  @F .wtip { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); border-radius: 3px 14px 3px 12px; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; line-height: 1.1; }
+  @F .wfact { background: transparent; border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 28%, transparent); padding: 4px 2px 6px; }
+  @F .wday { border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 22%, transparent); }
+  @F .wday.today { background: transparent; box-shadow: inset 0 0 0 2.5px var(--primary); border-radius: 14px 18px 12px 20px; rotate: calc(var(--tilt, 1) * -.6deg); border-bottom-color: transparent; }
+  @F .wbar { border-radius: 2px; box-shadow: 0 0 0 1.5px var(--ink); }
+  @F .wwarn { border-radius: 3px; rotate: calc(var(--tilt, 1) * 1deg); }
+  @F .sky .cloud { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  @F .sky .disc, @F .sky .moon, @F .sky .bolt { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  @F .sky .rays, @F .sky .drop { stroke-width: 4; }
+  @F .hchart .line { stroke-dasharray: 1 7; stroke-width: 4.5; }
 `;
 
 const ORBIT = `
@@ -707,6 +725,21 @@ const ORBIT = `
 
   /* night: only the dial and the time */
   @O .night .big { font-weight: 300; }
+  /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
+  @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
+  @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
+  @O .wfact { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 14px; }
+  @O .wday.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
+  @O .wbar { box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent); }
+  @O .wwarn { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 2px var(--danger); }
+  @O .wcomp circle { stroke: var(--accent); opacity: .8; stroke-dasharray: 2 5; }
+  @O .sky .cloud { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+  @O .sky .disc, @O .sky .moon { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+  @O .sky .rays { stroke: var(--accent); stroke-width: 2.5; }
+  @O .sky .bolt { fill: none; stroke: var(--accent); stroke-width: 2; }
+  @O .hchart .area { opacity: .08; }
+  @O .hchart .line { stroke-width: 2; }
+  @O .mbox { border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
 `;
 
 const KEYFRAMES = `
