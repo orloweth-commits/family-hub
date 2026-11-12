@@ -24,7 +24,7 @@ export class FhAddEvent extends LitElement {
     .field { flex: 1; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chips button { height: 40px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
-    .chips button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .chips button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   `];
   static properties = { hass: { attribute: false }, calendars: { attribute: false }, defaultCal: {}, _t: { state: true }, _day: { state: true }, _time: { state: true }, _dur: { state: true }, _cal: { state: true }, _busy: { state: true }, _err: { state: true }, _caps: { state: true } };
   hass?: Hass;
@@ -69,7 +69,7 @@ export class FhAddEvent extends LitElement {
         <h2 class="t-head">Add to the calendar</h2><span style="flex:1"></span>
         <button class="round tap" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 18)}</button></div>
       <div style="display:flex;gap:10px"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="What’s on" placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; }}>
-        <button class="pill tap primary" style="height:58px;padding:0 24px;font-size:17px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button></div>
+        <button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button></div>
       ${this._err ? html`<span style="color:#dc2626;font-weight:var(--w-semi, 600)">${this._err}</span>` : ''}
       <div class="chips">${Array.from({ length: 8 }, (_, i) => html`<button class="tap" aria-pressed=${String(this._day === i)} @click=${() => { this._day = i; }}>${i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${fmtDow(addDays(today, i))} ${addDays(today, i).getDate()}`}</button>`)}</div>
       <div class="chips">${TIMES.map((t) => html`<button class="tap" aria-pressed=${String(this._time === t)} @click=${() => { this._time = t; }}>${t === 'All day' ? t : new Date(2000, 0, 1, Number(t.slice(0, 2)), Number(t.slice(3))).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }).replace(' ', '').toLowerCase()}</button>`)}

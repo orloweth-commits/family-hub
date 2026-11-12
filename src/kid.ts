@@ -59,7 +59,7 @@ export class FhKid extends LitElement {
     .dots i.t { box-shadow: 0 0 0 2px var(--chip-strong), 0 0 0 4px var(--kid); }
     .daybtns { display: grid; grid-template-columns: repeat(7, 76px); gap: 10px; }
     .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-bold, 700); }
-    .daybtns button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .daybtns button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .daybtns button span { font-size: 12px; font-weight: var(--w-semi, 600); opacity: .85; }
     .nextup { width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 18px; background: var(--chip); padding: 8px 12px 8px 8px; }
     .jobs { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
@@ -154,7 +154,7 @@ export class FhKid extends LitElement {
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
     .tab { flex: 1; height: 40px; border-radius: 999px; font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); }
-    .tab[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .feel button { font-size: 30px; width: 46px; height: 46px; border-radius: 50%; }
     .feel button:active { background: var(--chip-strong); }
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }

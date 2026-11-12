@@ -103,7 +103,7 @@ export class FhMusic extends LitElement {
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
     .bubble { min-height: 62px; padding: 8px 16px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform .2s cubic-bezier(.2,1.4,.4,1), background .2s; }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
-    .bubble[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); transform: scale(1.03); }
+    .bubble[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: scale(1.03); }
     .sayit { height: 52px; padding: 0 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
     .map.snug { flex: none; }
     .map.snug .floor { flex: none; height: 100px; min-height: 0; }
@@ -112,7 +112,7 @@ export class FhMusic extends LitElement {
     .mz + .mz { border-left: 2px dashed var(--track); }
     .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.15; font-size: 12.5px; font-weight: var(--w-bold, 700); }
     .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
-    .mz[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .mz[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
     .shout { display: flex; animation: shout .7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes shout { from { transform: rotate(-8deg) scale(.95); } to { transform: rotate(6deg) scale(1.1); } }
@@ -153,10 +153,10 @@ export class FhMusic extends LitElement {
     .tabs { display: flex; gap: 8px; }
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: transform .22s cubic-bezier(.2,1.4,.4,1), background .2s, color .2s; }
-    .tabs button[aria-selected='true'] { background: var(--primary); color: var(--on-primary); transform: translateY(-3px); box-shadow: 0 8px 14px -8px color-mix(in srgb, var(--primary) 80%, transparent); }
+    .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: translateY(calc(-3px * var(--m-d, 1))); }
     .tabs button[aria-selected='true'] .i { animation: nod .5s ease-out; }
     .acts .seg button { height: 44px; color: var(--ink); }
-    .acts .seg button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
+    .acts .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     @keyframes nod { 30% { transform: rotate(-14deg) scale(1.2); } 65% { transform: rotate(8deg); } }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
     .grid[data-fit] { gap: 6px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
