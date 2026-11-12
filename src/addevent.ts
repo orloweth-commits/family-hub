@@ -21,23 +21,47 @@ interface Place { name: string; detail: string }
 export class FhAddEvent extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, keysCss, css`
-    :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.3); }
-    :host([data-phone]) { position: fixed; align-items: flex-start; padding-top: 12px; }
-    :host([data-phone]) .box { width: 96%; max-height: 88vh; padding: 14px; }
-    :host([data-phone]) .keys { display: none; }
+    /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
+    :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); }
+    :host([data-under]) { padding-top: var(--top, 110px); }
+    :host([data-phone]) { position: fixed; align-items: flex-start; padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px)); }
+    :host([data-phone]) .box { width: 100%; padding: 14px 14px 0; }
+    :host([data-phone]) .keys, :host([data-keys='off']) .keys { display: none; }
     :host([data-phone]) .when { flex-direction: column; }
-    .box { width: min(1100px, 94%); max-height: 96%; overflow-y: auto; border-radius: 30px; padding: 16px 20px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; position: relative; }
+    :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
+    :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
+    :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(4, 1fr); }
+    :host([data-phone]) .durs button { min-width: 0; }
+    :host([data-phone]) .sum { display: none; }
+    :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
+    :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }
+    .box { width: min(1000px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; border-radius: 30px; padding: 14px 20px 16px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; position: relative; }
+    .box > * { flex-shrink: 0; }
+    .sum { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); }
+    /* the keyboard is as wide as the sheet (up to 900 px), so the keys are as big as the sheet allows */
+    .box .keys { width: 100%; max-width: 900px; align-self: center; }
+    .box .keys .key, .box .keys.compact .key { flex: 1 1 0; width: auto; min-width: 0; }
+    .box .keys .key.wide, .box .keys.compact .key.wide { flex: 1.5 1 0; width: auto; }
+    .box .keys .key.space, .box .keys.compact .key.space { flex: 0 1 62%; width: auto; }
     .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
     .field.on { box-shadow: inset 0 0 0 3px var(--primary); }
+    .box .field:focus-visible { outline: none; }
     .field.where { height: 48px; font-size: 19px; }
-    .wherebox { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .wherebox > .pin { font-size: 24px; line-height: 1; width: 30px; text-align: center; }
-    .places { position: absolute; left: 38px; right: 0; top: 52px; z-index: 5; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; gap: 2px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 14px 34px rgba(0,0,0,.28); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+    /* what and where share a row, with Add at its end */
+    .what { display: flex; gap: 10px; align-items: center; }
+    .what > .field { flex: 1.5 1 0; height: 60px; }
+    .wherebox { position: relative; flex: 1 1 0; display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .wherebox .field.where { height: 60px; font-size: 18px; padding: 0 14px; }
+    :host([data-phone]) .what { flex-direction: column; align-items: stretch; }
+    :host([data-phone]) .what > .field, :host([data-phone]) .wherebox { flex: none; }
+    .wherebox > .pin { line-height: 0; width: 30px; display: flex; justify-content: center; color: var(--accent); }
+    .places { position: absolute; left: 0; right: 0; top: 64px; min-width: 320px; z-index: 5; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; gap: 2px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 14px 34px rgba(0,0,0,.28); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
     .places button { min-height: 44px; padding: 5px 12px; border-radius: 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: var(--w-bold, 700); }
     .places button small { font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .places .note { font-size: 12px; color: var(--ink2); padding: 2px 12px 4px; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .chips button { height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
+    .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .chips button.calbtn { width: 48px; padding: 0; justify-content: center; background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
     .when { display: flex; gap: 16px; align-items: stretch; }
@@ -62,7 +86,7 @@ export class FhAddEvent extends LitElement {
     .side { display: flex; flex-direction: column; gap: 6px; }
     .allday { height: 44px; padding: 0 14px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
     .durs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .durs button { height: 40px; min-width: 62px; border-radius: 10px; background: var(--chip-strong); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .durs button { height: 44px; min-width: 66px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
     .durs button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
 
     /* the calendar that opens from the end of the day row */
@@ -71,7 +95,7 @@ export class FhAddEvent extends LitElement {
     .mnav b { flex: 1; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); }
     .mnav button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
     .mgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-    .mgrid span { font-size: 12px; font-weight: 800; color: var(--ink2); padding: 2px 0; }
+    .mgrid span { font-size: 13px; font-weight: 800; color: var(--ink2); padding: 2px 0; }
     .mgrid button { height: 44px; border-radius: 12px; font-size: 16px; font-weight: var(--w-semi, 600); font-variant-numeric: tabular-nums; }
     .mgrid button.td { box-shadow: inset 0 0 0 2px var(--accent); }
     .mgrid button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
@@ -112,7 +136,31 @@ export class FhAddEvent extends LitElement {
     if (h === 0) this._date = addDays(startOfDay(n), 1);
   }
 
+  /** On a short screen with a mouse (a laptop) the on-screen keyboard is left out: there is a real one, and the sheet then fits. */
+  private _hardKeys = false;
+  protected firstUpdated(): void {
+    // focus moves into the sheet (the card puts it back on the opener when the sheet closes)
+    const first = this.renderRoot.querySelector<HTMLElement>(getShape() === 'phone' ? '.box' : 'input.field');
+    first?.focus({ preventScroll: true });
+  }
+  private _onKey = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape' && this._pick) { e.preventDefault(); this._pick = false; }
+    else if (e.key === 'Tab') { // focus stays in the sheet while it is open
+      const all = [...this.renderRoot.querySelectorAll<HTMLElement>('button:not([disabled]), input, [tabindex="0"]')].filter((x) => x.offsetParent !== null && !x.closest('.keys'));
+      const at = all.indexOf((this.renderRoot as ShadowRoot).activeElement as HTMLElement);
+      if (all.length && (e.shiftKey ? at <= 0 : at === all.length - 1)) { e.preventDefault(); all[e.shiftKey ? all.length - 1 : 0].focus(); }
+    }
+  };
+  /** One line that says what will be added: "Dentist · Tue 17 Nov · 5:00 pm · 1 h · Charlie". */
+  private _summary(): string {
+    const cal = this._cal || this.defaultCal || this.calendars[0]?.entity, c = this.calendars.find((x) => x.entity === cal);
+    const day = this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }).replace(/,/g, '');
+    const dur = this._dur < 60 ? `${this._dur} min` : `${this._dur / 60} h`;
+    return [this._t.trim(), day, ...(this._all ? ['all day'] : [`${this._h}:${pad(this._m)} ${this._pm ? 'pm' : 'am'}`, dur]), c?.name ?? this.hass?.states[cal ?? '']?.attributes.friendly_name ?? ''].filter(Boolean).join(' · ');
+  }
+
   private _key(k: string): void {
+    this._err = '';
     if (this._in === 'where') { [this._loc] = typeKey(this._loc, k, !this._loc.length || /\s$/.test(this._loc) ? true : false); this._lookUp(); }
     else [this._t, this._caps] = typeKey(this._t, k, this._caps);
   }
@@ -169,6 +217,14 @@ export class FhAddEvent extends LitElement {
     this._setDrum(which, (cur + d + list.length) % list.length);
   }
   protected updated(_ch: PropertyValues): void {
+    // sit under the header when the sheet fits there; hide the on-screen keyboard on a short screen that has a real one
+    const box = this.renderRoot.querySelector<HTMLElement>('.box');
+    if (box && getShape() !== 'phone') {
+      const cs = getComputedStyle(this), top = parseFloat(cs.getPropertyValue('--top')) || 110, bot = parseFloat(cs.paddingBottom) || 0;
+      const hard = this.clientHeight < 700 && typeof matchMedia === 'function' && matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (hard !== this._hardKeys) { this._hardKeys = hard; this.setAttribute('data-keys', hard ? 'off' : 'on'); this.requestUpdate(); return; }
+      this.toggleAttribute('data-under', box.scrollHeight <= this.clientHeight - top - bot + 1);
+    }
     // keep each drum resting on its value (unless a finger is spinning it)
     for (const [which, list, v] of [['h', HOURS, this._h], ['m', MINS, this._m]] as const) {
       const el = this.renderRoot.querySelector<HTMLElement>(`.drum[data-d='${which}']`);
@@ -205,8 +261,11 @@ export class FhAddEvent extends LitElement {
   }
 
   private async _save(): Promise<void> {
+    // a second tap while the first is being saved must not add the event twice
+    if (this._busy) return;
     const cal = this._cal || this.defaultCal || this.calendars[0]?.entity;
     if (!this._t.trim() || !cal || !this.hass) { this._err = 'Add a title first'; return; }
+    const summary = this._summary();
     const d = this._date;
     const data: Record<string, unknown> = { summary: this._t.trim() };
     if (this._loc.trim()) data.location = this._loc.trim();
@@ -218,9 +277,9 @@ export class FhAddEvent extends LitElement {
     this._busy = true; this._err = '';
     try {
       await this.hass.callService('calendar', 'create_event', data, { entity_id: cal });
-      this.dispatchEvent(new CustomEvent('saved', { detail: this._t.trim() }));
-    } catch (e: any) { this._err = `Couldn’t add it: ${e?.message ?? 'error'}`; }
-    finally { this._busy = false; }
+      // stays busy: the sheet closes on "saved", so there is nothing left to tap twice
+      this.dispatchEvent(new CustomEvent('saved', { detail: summary }));
+    } catch (e: any) { this._err = `Couldn’t add it: ${e?.message ?? 'Home Assistant did not answer'}`; this._busy = false; }
   }
 
   render(): TemplateResult {
@@ -229,31 +288,33 @@ export class FhAddEvent extends LitElement {
     const short = shortNames(this.calendars.map((c) => c.name ?? c.entity));
     const phone = getShape() === 'phone', far = !Array.from({ length: 7 }, (_, i) => addDays(today, i)).some((d) => same(d, this._date));
     const list = this._in === 'where' ? (this._found ?? (this._loc.trim().length < 3 ? this._zones() : [])) : [];
-    return html`<div class="glass box" role="dialog" aria-label="Add to the calendar" @click=${(e: Event) => e.stopPropagation()}>
-      <div style="display:flex;gap:10px;align-items:center">
-        <h2 class="t-head">Add to the calendar</h2><span style="flex:1"></span>
-        <button class="round tap" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 18)}</button></div>
-      <div style="display:flex;gap:10px"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${phone ? 'text' : 'none'} aria-label="What’s on" placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; }}>
-        <button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button></div>
-      ${this._err ? html`<span style="color:var(--danger, #dc2626);font-weight:var(--w-semi, 600)">${this._err}</span>` : ''}
-      <div class="wherebox"><span class="pin" aria-hidden="true">📍</span>
-        <input class="field where ${this._in === 'where' ? 'on' : ''}" inputmode=${phone ? 'text' : 'none'} aria-label="Where" placeholder="Where? Type a place or an address (optional)" .value=${this._loc}
+    const sum = this._summary(), soft = phone || this._hardKeys;
+    const add = html`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button>`;
+    return html`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label="Add to the calendar" @click=${(e: Event) => e.stopPropagation()} @keydown=${this._onKey}>
+      <div style="display:flex;gap:12px;align-items:center">
+        <h2 class="t-head" style="white-space:nowrap">Add to the calendar</h2>
+        <span class="sum" aria-live="polite">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>
+        <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 20)}</button></div>
+      <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
+          @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') void this._save(); }}>
+      <div class="wherebox"><span class="pin" aria-hidden="true">${icon('pin', 24)}</span>
+        <input class="field where ${this._in === 'where' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="Where" placeholder="Where? (optional)" .value=${this._loc}
           @focus=${() => { this._in = 'where'; }} @input=${(e: Event) => { this._loc = (e.target as HTMLInputElement).value; this._lookUp(); }}>
         ${list.length ? html`<div class="places" role="listbox" aria-label="Places">
           ${list.map((p) => html`<button class="tap" role="option" aria-selected="false" @click=${() => this._choose(p)}>${p.name}${p.detail ? html`<small>${p.detail}</small>` : nothing}</button>`)}
           ${this._found ? html`<span class="note">Places: © OpenStreetMap contributors, found by Photon</span>` : nothing}
         </div>` : nothing}
       </div>
+        ${phone ? nothing : add}</div>
+      ${this._err ? html`<span class="err" role="alert">${this._err}</span>` : ''}
       <div class="when">
         <div class="left">
-          <span class="sub">Which day</span>
-          <div class="chips days">
+          <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (_, i) => { const d = addDays(today, i); return html`<button class="tap" aria-pressed=${String(same(d, this._date))} @click=${() => { this._date = d; }}>${i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${fmtDow(d)} ${d.getDate()}`}</button>`; })}
             ${far ? html`<button class="tap" aria-pressed="true" @click=${() => { this._shown = this._date; this._pick = true; }}>${this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === today.getFullYear() ? undefined : 'numeric' })}</button>` : nothing}
             <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => { this._shown = this._date; this._pick = true; }}>${icon('calendar', 22)}</button>
           </div>
-          <span class="sub">Whose calendar</span>
-          <div class="chips">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="init" style="--c:${slotVar(c.colour)}" aria-hidden="true">${short[c.name ?? c.entity] ?? ''}</span>${c.name ?? c.entity}</button>`)}</div>
+          <div class="chips cals" role="group" aria-label="Whose calendar">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="init" style="--c:${slotVar(c.colour)}" aria-hidden="true">${short[c.name ?? c.entity] ?? ''}</span>${c.name ?? c.entity}</button>`)}</div>
         </div>
         <div class="dialbox" ?data-off=${this._all} role="group" aria-label="What time">
           <div class="drums">${this._drum('h')}<span class="colon" aria-hidden="true">:</span>${this._drum('m')}</div>
@@ -263,11 +324,12 @@ export class FhAddEvent extends LitElement {
           </div>
           <div class="side">
             <button class="tap allday" aria-pressed=${String(this._all)} @click=${() => { sfx('tap'); this._all = !this._all; }}>All day</button>
-            <div class="durs" role="group" aria-label="How long">${[30, 60, 90, 120].map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${m < 60 ? `${m} min` : `${m / 60} hr`}</button>`)}</div>
+            <div class="durs" role="group" aria-label="How long">${[30, 60, 90, 120].map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${m < 60 ? `${m} min` : `${m / 60} h`}</button>`)}</div>
           </div>
         </div>
       </div>
       ${keyboard((k) => this._key(k), this._in === 'where' ? !this._loc.length || /\s$/.test(this._loc) : this._caps, () => { this._caps = !this._caps; }, true, true)}
+      ${phone ? html`<div class="afoot"><span class="sum">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>${add}</div>` : nothing}
       ${this._pick ? this._monthGrid() : nothing}
     </div>`;
   }

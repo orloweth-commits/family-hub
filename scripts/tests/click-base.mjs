@@ -137,7 +137,8 @@ await page.close();
 // 11. the medication pill and record; bin night
 page = await open('look=glass', '19:40');
 console.log('bins:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); const f = (y, m, d) => { const r = c._bins(new Date(y, m, d)); return r.night.toDateString().slice(0, 10) + '=' + r.bins.join('+'); }; return [f(2026, 10, 9), f(2026, 10, 12), f(2026, 10, 16), f(2026, 10, 23), f(2026, 10, 3)].join(' | '); }));
-await page.getByRole('button', { name: 'Medication', exact: true }).click(); await page.waitForTimeout(300);
+console.log('meds: round pill button hidden beside the chip:', await page.locator('family-hub-card header [data-act=meds]').isHidden());
+await page.locator('family-hub-card .capsule .cap[data-kind=med]').click(); await page.waitForTimeout(300);
 const md = (sel, o) => page.locator('family-hub-card .sheet ' + sel, o);
 console.log('meds: daily rows:', await md('.card').count(), '|', (await md('.card b').first().innerText()), '| due:', await md('.card .muted').first().innerText());
 await md('.lead').click(); await page.waitForTimeout(300); console.log('meds: PIN asked before writing:', await page.locator('family-hub-card fh-pin').count()); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
@@ -154,7 +155,7 @@ await page.close();
 
 // 12. medication: one chip for two boys; a helper nobody has set is not a dose; a missing helper says so; "Given by" records and clears the chip
 page = await open('look=glass', '08:10');
-const cap = () => page.locator('family-hub-card .capsule .cap').filter({ hasText: '💊' });
+const cap = () => page.locator('family-hub-card .capsule .cap[data-kind=med]');
 console.log('meds chip, two overdue:', await cap().count(), '|', (await cap().first().innerText()).replace(/\s+/g, ' '));
 await cap().first().click(); await page.waitForTimeout(300);
 await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(300); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(500);
@@ -165,6 +166,96 @@ console.log('meds never set: rows read', (await page.locator('family-hub-card .s
 await page.close();
 page = await open('look=glass&meds=missing&sheet=meds', '08:10');
 console.log('meds helper missing:', (await page.locator('family-hub-card .sheet .med2 .card').first().innerText()).replace(/\s+/g, ' ').slice(0, 140), '| buttons:', await page.getByRole('button', { name: /Given by/ }).count());
+await page.close();
+// 13. header: one row, chips whole or absent, a due medication chip beside the running timer at 7:10 am, "overdue 6:30 am" not cut in Orbit
+const hdr = () => page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, hd = r.querySelector('header'), vis = (e) => e.offsetParent !== null;
+  const caps = [...hd.querySelectorAll('.capsule .cap')].filter(vis), top = hd.getBoundingClientRect().top;
+  return { chips: caps.map((e) => e.innerText.replace(/\s+/g, ' ').trim()).join(' | '), wrapped: caps.filter((e) => e.getBoundingClientRect().top - top > 40).length, cut: caps.filter((e) => e.scrollWidth > e.clientWidth + 1 || [...e.querySelectorAll('span,b')].some((x) => x.scrollWidth > x.clientWidth + 1 && !x.classList.contains('ell'))).length,
+    heights: [...new Set([...hd.querySelectorAll('.capsule .cap, .right > *')].filter(vis).map((e) => e.offsetHeight))].join(','), over: hd.scrollWidth - hd.clientWidth, pill: !!hd.querySelector('[data-act=meds]') && vis(hd.querySelector('[data-act=meds]')) }; });
+for (const lk of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1280, 800], [1312, 668], [1920, 1080]]) {
+  page = await open('look=' + lk, '07:10'); await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(500);
+  const r = await hdr(); console.log(`header ${lk} ${w}x${h} 7:10:`, /due/.test(r.chips) && /\d:\d\d/.test(r.chips) && !r.wrapped && !r.cut && r.heights === '52' && r.over <= 0 && !r.pill ? 'ok' : 'WRONG', JSON.stringify(r)); await page.close(); }
+page = await open('look=orbit', '08:10'); await page.setViewportSize({ width: 1280, height: 800 });
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass, S = { ...h.states }; S['input_datetime.fh_med_riley_am'] = { ...S['input_datetime.fh_med_riley_am'], attributes: { timestamp: Date.now() / 1000 } }; S['input_text.fh_med_riley_am_by'] = { ...S['input_text.fh_med_riley_am_by'], state: 'Alex' }; c.hass = { ...h, states: S }; }); await page.waitForTimeout(400);
+{ const r = await hdr(); console.log('header orbit, one overdue:', /Charlie: overdue 6:30 am/.test(r.chips) && !r.cut && !r.wrapped ? 'ok' : 'WRONG', JSON.stringify(r)); }
+await page.setViewportSize({ width: 1280, height: 800 }); await page.close();
+
+// 14. planner: a failed load is not an empty week; empty week and empty day say so; Try again loads
+page = await open('look=glass');
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'); window.__api = c.hass.callApi; c.hass.callApi = async () => { throw new Error('offline'); }; c._fetchedKey = ''; c._refresh(); }); await page.waitForTimeout(400);
+console.log('calendars failed:', (await page.locator('family-hub-card .calfail').innerText()).replace(/\s+/g, ' '), '| empty state shown:', await page.locator('family-hub-card .quiet, family-hub-card .freeday').count());
+await page.evaluate(() => { document.querySelector('family-hub-card').hass.callApi = window.__api; }); await page.getByRole('button', { name: 'Try again' }).click(); await page.waitForTimeout(400);
+console.log('after Try again: events', await page.locator('family-hub-card .week .ev').count(), '| error left:', await page.locator('family-hub-card .calfail').count());
+await page.close(); page = await open('look=glass&events=none');
+console.log('empty week:', (await page.locator('family-hub-card .quiet').innerText()).replace(/\s+/g, ' '));
+await page.getByRole('button', { name: 'Day', exact: true }).click(); await page.waitForTimeout(400);
+console.log('empty day:', (await page.locator('family-hub-card .freeday').innerText()).replace(/\s+/g, ' '), '| picture:', await page.locator('family-hub-card .freeday svg').count());
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, calendars: [] }); }); await page.waitForTimeout(300);
+console.log('no calendars: Add buttons on the planner:', await page.locator('family-hub-card .planner [data-act=add], family-hub-card .planner .quiet').count());
+await page.close();
+
+// 15. right rail: three reminders at 1280x800, "+N more" when they are cut, and a list that cannot load says so
+page = await open('look=glass'); const rail = (sel) => page.locator('family-hub-card aside ' + sel);
+console.log('reminders shown:', await rail('.rem').count(), '| jar is its own card:', await rail('.jar').count(), await rail('.rems .jarpic').count() === 0);
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c._reminders = Array.from({ length: 8 }, (_, i) => ({ uid: 'x' + i, summary: 'Reminder ' + (i + 1) })); }); await page.waitForTimeout(400);
+console.log('eight reminders:', await rail('.rem').count(), 'shown,', await rail('.remmore').innerText(), '| cut off:', await rail('.remlist').evaluate((e) => e.scrollHeight > e.clientHeight + 1));
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.hass.callWS = async () => { throw new Error('offline'); }; return c._loadReminders(); }); await page.waitForTimeout(300);
+console.log('reminders failed:', (await rail('.remfail').innerText()).replace(/\s+/g, ' '), '| says All done:', await rail('.rems').getByText('All done').count());
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'), S = { ...c.hass.states }; delete S['todo.reminders']; c.hass = { ...c.hass, states: S }; return c._loadReminders(); }); await page.waitForTimeout(300);
+console.log('reminders list missing:', (await rail('.remfail').innerText()).replace(/\s+/g, ' '));
+await page.close();
+
+// 16. kitchen timer: Cancel with Undo, the readout opens the sheet, a failure says so, a missing timer says so
+page = await open('look=glass'); await page.evaluate(() => { window.__calls = []; });
+await rail('.tcancel').click(); await page.waitForTimeout(300);
+console.log('timer cancel:', await page.evaluate(() => window.__calls.filter((c) => /^timer\./.test(c)).join(' ')), '| toast:', (await page.locator('family-hub-card .toast').innerText()).replace(/\s+/g, ' '));
+await page.locator('family-hub-card .toast button').click(); await page.waitForTimeout(300);
+console.log('timer undo:', await page.evaluate(() => window.__calls.filter((c) => /timer\.start/.test(c)).join(' ')), '| toast:', await page.locator('family-hub-card .toast').innerText());
+await rail('.tread').click(); await page.waitForTimeout(300);
+console.log('readout opens the sheet:', await page.getByRole('dialog', { name: 'Kitchen timer' }).count(), '| Cancel there too:', await page.locator('family-hub-card .sheet').getByRole('button', { name: 'Cancel the kitchen timer' }).innerText());
+await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'), S = { ...c.hass.states }; delete S['timer.kitchen']; c.hass = { ...c.hass, states: S }; }); await page.waitForTimeout(300);
+console.log('no timer helper:', (await rail('.tmr').innerText()).replace(/\s+/g, ' '), '| buttons:', await rail('.tmr button').count());
+await page.close(); page = await open('look=glass&fail=1'); const toast = async () => (await page.locator('family-hub-card .toast').innerText().catch(() => '(no toast)')).replace(/\s+/g, ' ');
+await rail('.quick').first().click(); await page.waitForTimeout(700); console.log('timer add fails:', await toast());
+await rail('.tcancel').click(); await page.waitForTimeout(700); console.log('timer cancel fails:', await toast());
+await page.locator('family-hub-card [data-nav=lights-on]').click(); await page.waitForTimeout(700); console.log('all on fails:', await toast());
+await page.locator('family-hub-card [data-nav=lights-off]').click(); await page.waitForTimeout(700); console.log('all off fails:', await toast());
+await page.getByRole('button', { name: 'Pause' }).click(); await page.waitForTimeout(700); console.log('pause fails:', await toast());
+await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, announce_script: 'script.dinner' }); return c._dinnerGo(); }); await page.waitForTimeout(300); console.log('dinner fails:', await toast());
+await page.close();
+
+// 17. sheets: focus goes in, Escape closes, focus goes back to the opener; no sheet over the header or the dock; toasts
+page = await open('look=glass');
+const info = page.getByRole('button', { name: 'House info' }); await info.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(400);
+const where = () => page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, a = r.activeElement; return a ? (a.closest('.sheet') ? 'in the sheet' : a.getAttribute('aria-label') || a.className) : 'nowhere'; });
+console.log('sheet open:', await page.getByRole('dialog', { name: 'House info' }).count(), '| focus:', await where(), '| phone links:', await page.locator('family-hub-card .sheet a[href^="tel:"]').count());
+await page.keyboard.press('Escape'); await page.waitForTimeout(300); console.log('after Escape: sheets', await page.locator('family-hub-card .sheet').count(), '| focus:', await where());
+for (const s of ['sitter', 'meds', 'timer', 'themes']) { await page.evaluate((x) => { document.querySelector('family-hub-card')._sheet = x; }, s); await page.waitForTimeout(500);
+  console.log(`sheet ${s} between header and dock:`, await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, b = r.querySelector('.scrim > .sheet').getBoundingClientRect(), h = r.querySelector('header').getBoundingClientRect(), d = r.querySelector('nav.dock').getBoundingClientRect(); return b.top >= h.bottom - 1 && b.bottom <= d.top + 1 ? 'ok' : `WRONG ${Math.round(b.top)}–${Math.round(b.bottom)} vs ${Math.round(h.bottom)}–${Math.round(d.top)}`; }), '| close button:', await page.locator('family-hub-card .sheet .xbtn').evaluate((e) => e.offsetWidth + 'x' + e.offsetHeight)); }
+await page.keyboard.press('Escape'); await page.locator('family-hub-card .presence').click(); await page.waitForTimeout(300);
+console.log('toast:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, w = r.querySelector('.toasts'), t = w.querySelector('.toast').getBoundingClientRect(), f = r.querySelector('.fh').getBoundingClientRect(); return `role=${w.getAttribute('role')} live=${w.getAttribute('aria-live')} off-centre=${Math.round(Math.abs((t.left + t.right) / 2 - (f.left + f.right) / 2))}px strip-takes-taps=${getComputedStyle(w).pointerEvents !== 'none'}`; }));
+await page.close();
+
+// 18. add sheet: the error clears on typing, the toast reads like the summary, two quick taps add one event
+page = await open('look=glass&sheet=add&slow=500', '14:20');
+await ae('button.lead').click(); await page.waitForTimeout(200); console.log('add: no title:', await ae('.err').innerText());
+for (const k of ['S', 'w', 'i', 'm']) await ae('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
+console.log('add: error after typing:', await ae('.err').count(), '| summary:', await ae('.sum').first().innerText(), '| chip heights:', await ae('.chips button, .durs button, .ampm button, .allday').evaluateAll((els) => [...new Set(els.map((e) => e.offsetHeight))].join(',')));
+await page.evaluate(() => { window.__calls = []; }); const sum = await ae('.sum').first().innerText();
+await ae('button.lead').dblclick(); await ae('button.lead').click({ force: true, timeout: 500 }).catch(() => {}); await page.waitForTimeout(1500);
+console.log('add: events created by three quick taps:', await page.evaluate(() => window.__calls.filter((c) => /create_event/.test(c)).length), '| toast matches summary:', (await page.locator('family-hub-card .toast').innerText()).trim() === 'Added: ' + sum);
+await page.close();
+
+// 19. PIN pad: says what it unlocks, typed digits and Backspace work, a wrong PIN is told in words, Escape cancels
+page = await open('look=glass&page=kid&kid=0'); const pin = (sel) => page.locator('family-hub-card > fh-pin ' + sel).or(page.locator('family-hub-card fh-pin ' + sel)).first();
+await page.locator('family-hub-card [data-act=looks]').click(); await page.waitForTimeout(300);
+console.log('pin: reason:', await pin('h2').innerText(), '| focus inside:', await page.evaluate(() => !!document.querySelector('family-hub-card').shadowRoot.querySelector('fh-pin').shadowRoot.activeElement));
+await page.keyboard.type('12'); await page.keyboard.press('Backspace'); await page.waitForTimeout(100); console.log('pin: after 1, 2, Backspace:', await pin('.dots').getAttribute('aria-label'));
+await page.keyboard.type('999'); await page.waitForTimeout(600); console.log('pin: wrong:', await pin('.note').innerText(), '|', await pin('.dots').getAttribute('aria-label'));
+await page.keyboard.press('Escape'); await page.waitForTimeout(300); console.log('pin: after Escape:', await page.locator('family-hub-card fh-pin').count(), 'pads,', await page.locator('family-hub-card .sheet').count(), 'sheets');
+await page.locator('family-hub-card [data-act=looks]').click(); await page.waitForTimeout(300); await page.keyboard.type('1234'); await page.waitForTimeout(400);
+console.log('pin: right PIN typed opens:', await page.locator('family-hub-card .sheet').getAttribute('aria-label'));
 await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
