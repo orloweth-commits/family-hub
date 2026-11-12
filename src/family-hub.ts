@@ -25,7 +25,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.20.0';
+const VERSION = '0.21.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -42,7 +42,7 @@ export class FamilyHubCard extends LitElement {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
-    _reminders: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
+    _reminders: { state: true }, _remTk: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
   };
 
@@ -83,7 +83,10 @@ export class FamilyHubCard extends LitElement {
   private _now = new Date();
   private _toast = '';
   private _wx: { max?: number; min?: number; uv?: number; rain?: number } = {};
-  private _reminders: { summary: string }[] = [];
+  private _reminders: { uid: string; summary: string }[] = [];
+  /** reminders ticked a moment ago: they stay a few seconds so a slip can be tapped back */
+  private _remTk: Record<string, number> = {};
+  private _remJust = '';
   private _awakeUntil = 0;
   private _nightManual = false;
   private _page: Page = 'planner';
@@ -321,12 +324,24 @@ export class FamilyHubCard extends LitElement {
       this._wx = { max: f?.temperature, min: f?.templow, uv: f?.uv_index, rain: f?.precipitation };
     } catch { this._wx = {}; }
   }
+  /** Ticking a reminder completes it in its to-do list straight away. It stays, struck through, for four seconds; tapping it again in that time puts it back. */
+  private _tickReminder(r: { uid: string; summary: string }): void {
+    const t = this._config.reminders; if (!t || !this.hass) return;
+    const undo = r.uid in this._remTk;
+    clearTimeout(this._remTk[r.uid]);
+    if (undo) { const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; }
+    else this._remTk = { ...this._remTk, [r.uid]: window.setTimeout(() => { const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; this._reminders = this._reminders.filter((x) => x.uid !== r.uid); this._loadReminders(); }, 4000) };
+    sfx(undo ? 'untick' : 'tick');
+    this._remJust = r.uid; window.setTimeout(() => { if (this._remJust === r.uid) this._remJust = ''; }, 700);
+    this.hass.callService('todo', 'update_item', { item: r.uid, status: undo ? 'needs_action' : 'completed' }, { entity_id: t }).catch(() => { this._say('Couldn’t tick that off. Is Home Assistant reachable?'); const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; });
+    if (!undo) this._say(`Done: ${r.summary}. Tap it again to undo.`, 4000);
+  }
   private async _loadReminders(): Promise<void> {
     const t = this._config.reminders;
     if (!t || !this.hass?.states[t]) { this._reminders = []; return; }
     try {
-      const res = await this.hass.callWS<{ items: { summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: t });
-      this._reminders = res.items.filter((i) => i.status === 'needs_action').slice(0, 5);
+      const res = await this.hass.callWS<{ items: { uid: string; summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: t });
+      this._reminders = res.items.filter((i) => i.status === 'needs_action' || i.uid in this._remTk).slice(0, 5);
     } catch { this._reminders = []; }
   }
 
@@ -747,12 +762,12 @@ export class FamilyHubCard extends LitElement {
         <div class="grid3">${[1, 5, 10].map((n) => html`<button class="tap quick" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       </section>
 
-      <section class="glass card" aria-label="Reminders" style="flex:1;min-height:0">
+      <section class="glass card scrolly" aria-label="Reminders" style="flex:1;min-height:0;overflow-y:auto">
         ${this.hass?.states['input_number.family_jar'] ? html`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">🫙</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:var(--w-bold, 700)">Family jar · ${jar >= target ? 'full! 🎉' : `${jar}/${target}`}</span>
           <div class="xpbar meter"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></div>` : nothing}
         <span class="label">Reminders</span>
-        ${this._reminders.length ? this._reminders.map((r) => html`<div class="rem"><span class="ring check"></span><span class="content">${r.summary}</span></div>`)
+        ${this._reminders.length ? this._reminders.map((r) => { const done = r.uid in this._remTk; return html`<button class="rem tap ${done ? 'done' : ''}" ?data-just=${this._remJust === r.uid} aria-pressed=${String(done)} @click=${() => this._tickReminder(r)}><span class="ring check">${done ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span><span class="content"><span class="strike">${r.summary}</span></span></button>`; })
           : html`<span class="muted" style="font-size:14px">${c.reminders ? 'All done!' : 'Pick a to-do list for reminders in the card settings.'}</span>`}
       </section>
     </aside>`;

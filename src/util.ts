@@ -123,13 +123,14 @@ let level = 1;
 /** 1 = full, lower = softer, 0 = interface sounds off. Alarms ignore this. */
 export const setVolume = (v: number): void => { level = Math.max(0, Math.min(1, v)); };
 export const setMuted = (m: boolean): void => { muted = m; };
-const ac = (): AudioContext | null => {
-  if (muted) return null;
+/** Quiet hours mute everything except sounds marked `always` (the kitchen timer's alarm: someone set it on purpose). */
+const ac = (force = false): AudioContext | null => {
+  if (muted && !force) return null;
   try { ctx = ctx ?? new (window.AudioContext || (window as any).webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; } catch { return null; }
 };
 const tone = (f: number, t0: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, glide?: number, always = false): void => {
   if (!always) { if (level <= 0) return; vol *= level; }
-  const a = ac(); if (!a) return;
+  const a = ac(always); if (!a) return;
   const o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.setValueAtTime(f, a.currentTime + t0);
   if (glide) o.frequency.exponentialRampToValueAtTime(glide, a.currentTime + t0 + dur);

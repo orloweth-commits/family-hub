@@ -323,12 +323,13 @@ export class FhKid extends LitElement {
     this._busy.add(c.uid);
     const prev = this._chores;
     this._chores = prev.map((x) => x.uid === c.uid ? { ...x, status: done ? 'needs_action' : 'completed' } : x);
+    // the sound answers the touch, not Home Assistant
+    this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
       await this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores });
       await this._award(c, done ? -1 : 1);
-      if (done) { delete ticks[c.uid]; lsSet('fh-ticks', ticks); this._sound('untick'); return; }
+      if (done) { delete ticks[c.uid]; lsSet('fh-ticks', ticks); return; }
       ticks[c.uid] = Date.now(); lsSet('fh-ticks', ticks);
-      this._sound(c.lane === 'job' ? 'coin' : 'tick');
       this._jump++;
       const id = Date.now();
       const text = c.lane === 'grow' ? '🌱' : c.pts ? (this._picMode ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
