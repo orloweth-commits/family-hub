@@ -29,7 +29,7 @@ export class FhMorning extends LitElement {
     .tstar path { fill: none; stroke: var(--ink2); stroke-width: 1.500; stroke-linejoin: round; }
     .tstar.lit path { fill: #f5b301; stroke: #8a5a00; }
     .tstar.lit { animation: starpop var(--m-5, 900ms) cubic-bezier(.3,1.8,.5,1) both; }
-    .label { font-size: 13px; }
+    .label { font-size: 14px; }
     @keyframes starpop { from { transform: scale(calc(1 - .8 * var(--m-d, 1))) rotate(calc(-40deg * var(--m-d, 1))); } }
     .teambar { width: 100%; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
     .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; box-shadow: inset 0 0 0 1.5px #8a5a00; transition: width var(--mt-5, 900ms); }

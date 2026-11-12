@@ -15,15 +15,15 @@ const now = new Date();
 const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
 const at = (d, h, m = 0) => { const x = new Date(mon); x.setDate(x.getDate() + d); x.setHours(h, m, 0, 0); return x; };
 const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
-const ev = (d, h, m, title, mins = 60) => ({ summary: title, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
+const ev = (d, h, m, title, mins = 60, location) => ({ summary: title, location, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
 const allDay = (d, title) => ({ summary: title, start: { date: ymd(at(d,0)) }, end: { date: ymd(at(d+1,0)) } });
 const CAL = {
   'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
   'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
   'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
-  'calendar.riley': [ev(1,16,0,'Swimming squad',90), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
-  'calendar.charlie': [ev(0,15,45,'Tennis'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
-  'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120)]
+  'calendar.riley': [ev(1,16,0,'Swimming squad',90,'Aquatic centre, pool 2'), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
+  'calendar.charlie': [ev(0,15,45,'Tennis',60,'Tennis club'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
+  'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120,'Sampleton community hall, 12 Example Parade')]
 };
 // &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
 if (q.get('events') === 'none') for (const k of Object.keys(CAL)) CAL[k] = [];
@@ -35,6 +35,7 @@ const TODOS = {
   'todo.riley_music': [['Minecraft – Volume Alpha','needs_action','apple_music://album/3 | ' + doodle('#2a9d8f','#264653','#e9c46a')],['Clarinet Classics','needs_action','spotify://playlist/4 | @calm']],
   'todo.charlie_music': [['Trumpet Heroes','needs_action','spotify://playlist/5 | ' + doodle('#f4a261','#e76f51','#264653')]],
   'todo.max_music': [['Bluey the Album','needs_action','apple_music://album/6 | ' + doodle('#48cae4','#03045e','#ffb703')],['Dinosaur Stomp','needs_action','spotify://album/7 | ' + doodle('#80b918','#2b9348','#ffff3f')],['Bluey Sleepy Time','needs_action','spotify://playlist/8 | ' + doodle('#3a0ca3','#f72585','#4cc9f0') + ' | @calm']],
+  'todo.rewards_owed': [],
   'todo.reminders': [['Bins out – recycling week'],['Charlie – library bag'],['Riley – sign excursion form']],
   'todo.riley_chores': [['Make bed','completed','@routine @am'],['Pack school bag','completed','@routine @am'],['Brush teeth','needs_action','@routine @am'],['Homework','needs_action','@routine @after'],['Unpack school bag','completed','@routine @after'],
     ['Unpack the dishwasher','needs_action','+10 @job'],['Set the table','needs_action','+10 @job @after'],['Tidy room','completed','+15 @job'],['Clarinet practice 15 min','needs_action','@grow @after'],
@@ -96,6 +97,7 @@ const hass = {
   callService: async (domain, service, data = {}, target = {}) => {
     const id = target.entity_id ?? data.entity_id;
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
+    if (domain === 'calendar' && service === 'create_event') (CAL[id] ??= []).push({ summary: data.summary, location: data.location, start: data.start_date ? { date: data.start_date } : { dateTime: new Date(data.start_date_time).toISOString() }, end: data.end_date ? { date: data.end_date } : { dateTime: new Date(data.end_date_time).toISOString() } });
     const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
     if (domain === 'media_player' && service === 'join') { const all = [id, ...data.group_members]; all.forEach((m) => upd(m, { group_members: all })); }
     if (domain === 'media_player' && service === 'unjoin') { const g = S[id].attributes.group_members ?? []; g.forEach((m) => upd(m, { group_members: m === id ? [] : g.filter((x) => x !== id) })); }
@@ -108,7 +110,7 @@ const hass = {
     if (domain === 'input_text' && service === 'set_value') { if (!S[id]) throw new Error('no such entity'); upd(id, {}, data.value); el.hass = { ...hass }; }
     if (domain === 'switch') upd(id, {}, service === 'turn_on' ? 'on' : 'off');
     // lights and plain toggles answer too, so a held switch can be seen to land
-    if ((domain === 'light' && /^turn_(on|off)$/.test(service)) || (domain === 'homeassistant' && service === 'toggle')) { for (const x of [].concat(data?.entity_id ?? id ?? [])) if (S[x] && /^(light|switch|fan)\./.test(x)) { upd(x, {}, service === 'toggle' ? (S[x].state === 'on' ? 'off' : 'on') : service === 'turn_on' ? 'on' : 'off'); el.hass = { ...el.hass, states: { ...el.hass.states, [x]: S[x] } }; } }
+    if ((domain === 'light' && /^turn_(on|off)$/.test(service)) || (domain === 'homeassistant' && service === 'toggle')) { for (const x of [].concat(data?.entity_id ?? id ?? []).flatMap((e) => e === 'all' ? Object.keys(S).filter((k) => k.startsWith('light.')) : [e])) if (S[x] && /^(light|switch|fan)\./.test(x)) { upd(x, {}, service === 'toggle' ? (S[x].state === 'on' ? 'off' : 'on') : service === 'turn_on' ? 'on' : 'off'); el.hass = { ...el.hass, states: { ...el.hass.states, [x]: S[x] } }; } }
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }

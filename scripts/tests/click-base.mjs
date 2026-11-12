@@ -100,7 +100,7 @@ await ae('.calbtn').click(); await page.waitForTimeout(200);
 console.log('add: month picker:', await ae('.month .mnav b').innerText(), '| days:', await ae('.month .mgrid button').count());
 await ae('.month button[aria-label="Year after"]').first().click().catch(() => console.log('add: no year step'));
 await ae('.month .mgrid button:not(:disabled)', { hasText: /^17$/ }).first().click(); await page.waitForTimeout(200);
-console.log('add: far date chip:', await ae('.days button[aria-pressed=true]').innerText());
+console.log('add: far date chip:', await ae('.farchip').innerText());
 await ae('input[aria-label="Where"]').focus();
 for (const k of ['B', 'e', 'a', 't']) await ae('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
 await page.waitForTimeout(900);
@@ -143,14 +143,14 @@ console.log('meds: round pill button hidden beside the chip:', await page.locato
 await page.locator('family-hub-card .capsule .cap[data-kind=med]').click(); await page.waitForTimeout(300);
 const md = (sel, o) => page.locator('family-hub-card .sheet ' + sel, o);
 console.log('meds: daily rows:', await md('.card').count(), '|', (await md('.card b').first().innerText()), '| due:', await md('.card .muted').first().innerText());
-await md('.lead').click(); await page.waitForTimeout(300); console.log('meds: PIN asked before writing:', await page.locator('family-hub-card fh-pin').count()); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
+await md('[data-act=log]').click(); await page.waitForTimeout(300); console.log('meds: PIN asked before writing:', await page.locator('family-hub-card fh-pin').count()); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
 await md('.mchip', { hasText: 'Paracetamol' }).click(); await md('.mchip', { hasText: 'Charlie' }).click();
 await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: /^Sam$/ }).click();
-await md('.lead').click(); await page.waitForTimeout(400);
+await md('[data-act=log]').click(); await page.waitForTimeout(400);
 console.log('meds: record:', (await md('.irow').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ')).join(' || '));
 await md('.mchip', { hasText: 'Other' }).click();
 for (const k of ['Z', 'y', 'r']) await md('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
-await md('.mchip', { hasText: 'Riley' }).click(); await md('.lead').click(); await page.waitForTimeout(400);
+await md('.mchip', { hasText: 'Riley' }).click(); await md('[data-act=log]').click(); await page.waitForTimeout(400);
 console.log('meds: records now:', await md('.irow').count(), '| newest:', (await md('.irow').first().innerText()).replace(/\s+/g, ' '));
 await md('.irow button').first().click(); await page.waitForTimeout(300); console.log('meds: after removing one:', await md('.irow').count());
 await page.close();
@@ -191,7 +191,7 @@ const sent = await page.evaluate(() => (window.__calls || []).filter((c) => c.st
 console.log('chat: Enter on a real keyboard:', (await bubbles()).slice(-2)[0], '| calls:', sent.length, '| only these go to Home Assistant:', Object.keys(sent[2]).sort().join(','), '| thread kept:', sent[2].conversation_id, '| one call for two quick taps:', sent.filter((c) => /animal|joke/.test(c.text)).length === 1);
 await shot(page, 'c-chat');
 await page.getByRole('button', { name: 'For grown-ups' }).click(); await page.waitForTimeout(300); console.log('chat: grown-ups record asks for the PIN:', await page.getByRole('dialog', { name: 'Parent PIN' }).count());
-for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400);
+for (const d of '1234') await page.locator('family-hub-card fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400);
 console.log('chat: record rows:', await CH('.rec').count(), '| stored keys:', await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('fh-chat-log'))[0]).join(',')));
 await CH('.pill', { hasText: 'Clear' }).click(); await page.waitForTimeout(200); console.log('chat: after Clear:', await CH('.rec').count(), '| stored:', await page.evaluate(() => localStorage.getItem('fh-chat-log')));
 await CH('.pill', { hasText: 'Back' }).click(); await CH('.pill', { hasText: 'Start again' }).click(); await page.waitForTimeout(200); console.log('chat: Start again leaves', (await bubbles()).length, 'bubble (the greeting)');
@@ -225,7 +225,7 @@ for (const lk of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1280, 800]
   const r = await hdr(); console.log(`header ${lk} ${w}x${h} 7:10:`, /due/.test(r.chips) && /\d:\d\d/.test(r.chips) && !r.wrapped && !r.cut && r.heights === '52' && r.over <= 0 && !r.pill ? 'ok' : 'WRONG', JSON.stringify(r)); await page.close(); }
 page = await open('look=orbit', '08:10'); await page.setViewportSize({ width: 1280, height: 800 });
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass, S = { ...h.states }; S['input_datetime.fh_med_riley_am'] = { ...S['input_datetime.fh_med_riley_am'], attributes: { timestamp: Date.now() / 1000 } }; S['input_text.fh_med_riley_am_by'] = { ...S['input_text.fh_med_riley_am_by'], state: 'Alex' }; c.hass = { ...h, states: S }; }); await page.waitForTimeout(400);
-{ const r = await hdr(); console.log('header orbit, one overdue:', /Charlie: overdue 6:30 am/.test(r.chips) && !r.cut && !r.wrapped ? 'ok' : 'WRONG', JSON.stringify(r)); }
+{ const r = await hdr(); console.log('header orbit, one overdue:', /Overdue 6:30 am · Charlie/.test(r.chips) && !r.cut && !r.wrapped ? 'ok' : 'WRONG', JSON.stringify(r)); }
 await page.setViewportSize({ width: 1280, height: 800 }); await page.close();
 
 // 14. planner: a failed load is not an empty week; empty week and empty day say so; Try again loads
@@ -318,9 +318,9 @@ await page.close();
     console.log(`looks: ${look} chosen look card is ring + tick, text AA:`, await Q(o, `(() => { ${lum} const c = document.querySelector('family-hub-card').shadowRoot, on = c.querySelector(".looks .tcard[aria-pressed='true']"), off = c.querySelector(".looks .tcard[aria-pressed='false']"), cs = getComputedStyle(on), sheet = getComputedStyle(c.querySelector('.sheet')).backgroundColor; const bg = /rgba?\\(0, 0, 0, 0\\)/.test(cs.backgroundColor) || cs.backgroundColor === getComputedStyle(off).backgroundColor; return bg && cs.boxShadow !== 'none' && getComputedStyle(on, '::after').content.includes('✓') && CR(getComputedStyle(on.querySelector('.muted')).color, /, 0\\)$/.test(cs.backgroundColor) || /rgba/.test(cs.backgroundColor) ? sheet : cs.backgroundColor) >= 4.5; })()`),
       '| surprise is not a filled hero:', await o.getByRole('button', { name: 'Surprise me' }).count() === 0 || !(await o.getByRole('button', { name: 'Surprise me' }).evaluate((b) => b.classList.contains('primary'))));
     await o.close(); }
-  // medication: one filled action; in Fridge and Orbit "Given by" is an outline
+  // medication: while a daily medicine is overdue its "Given by" buttons are the filled actions, and "Add to the record" is an outline until a medicine is chosen
   for (const look of ['fridge', 'orbit']) { o = await open(`look=${look}&page=planner&sheet=meds`, '08:10');
-    console.log(`looks: ${look} medication has one filled action:`, await Q(o, `(() => { const c = document.querySelector('family-hub-card').shadowRoot, s = c.querySelector('.sheet'), prim = getComputedStyle(s.querySelector('.lead')).backgroundColor; return [...s.querySelectorAll('button')].filter((b) => getComputedStyle(b).backgroundColor === prim).length === 1; })()`));
+    console.log(`looks: ${look} overdue medication: "Given by" filled, "Add to the record" outlined:`, await Q(o, `(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet'), filled = (b) => { const c = getComputedStyle(b); return !/^(rgba\\(0, 0, 0, 0\\)|transparent)$/.test(c.backgroundColor) || c.backgroundImage !== 'none'; }; return [...s.querySelectorAll('[data-act=given]')].every(filled) && !filled(s.querySelector('[data-act=log]')); })()`));
     await o.close(); }
   // Fridge sheets are one paper note with a hair of tilt, and calm mode takes the tilt, the jiggle and the ambient life away
   o = await open('look=fridge&page=planner&sheet=timer');
@@ -449,7 +449,7 @@ await page.close();
   const rd = await p.getByRole('button', { name: 'Read my jobs' }).boundingBox(), tabs = await p.locator('fh-kid .tabcard').boundingBox(), feel = await p.locator('fh-kid section[aria-label="How are you feeling"]').boundingBox();
   console.log('Max on the wall: reader', Math.round(rd.width) + ' px, centre y', Math.round(rd.y + rd.height / 2), '(> 540) | stars panel below feelings:', tabs.y > feel.y, '| reward pictures:', (await p.locator('fh-kid .rw .rpic').allInnerTexts()).join(' '), '| reward stars drawn:', await p.locator('fh-kid .rw .sstar').count());
   await p.getByRole('button', { name: /My look/ }).click(); await p.waitForTimeout(300);
-  console.log('My look with a job left: studio open', await p.locator('fh-studio').count(), '| says:', await toastOf(p, 'fh-kid'));
+  console.log('My look with a job left: studio open', await p.locator('fh-studio').count(), '| toast (expect none):', JSON.stringify(await toastOf(p, 'fh-kid')), '| button reads:', (await p.locator('fh-kid .studio').innerText()).trim(), '| padlock:', await p.locator('fh-kid .studio[data-locked] svg').count());
   await p.locator('fh-kid .pic.big').click(); await p.waitForTimeout(1200);
   const see = p.getByRole('button', { name: 'See what I did' }), sb2 = await see.boundingBox(), tb = await p.locator('fh-kid .toast').boundingBox().catch(() => null);
   console.log('Max all done: picture', await p.locator('fh-kid .party svg').count() > 0, '| button', Math.round(sb2.height) + ' px high | toast over the button:', !!tb && tb.y < sb2.y + sb2.height && tb.y + tb.height > sb2.y && tb.x < sb2.x + sb2.width && tb.x + tb.width > sb2.x);
@@ -561,5 +561,160 @@ page = await open('look=glass'); await page.setViewportSize({ width: 844, height
 console.log('phone on its side: phone arrangement', await page.evaluate(() => document.querySelector('family-hub-card').hasAttribute('data-phone')), '| scale', await page.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.fh')).zoom));
 await page.setViewportSize({ width: 1280, height: 800 }); await page.waitForTimeout(400); console.log('back to a wide screen: view', await page.evaluate(() => document.querySelector('family-hub-card')._view));
 await page.close();
+// ---- round 3 ----
+{ const calls = (p) => p.evaluate(() => (window.__calls ?? []).join('\n'));
+const toastOf = async (p, host) => (await p.locator(`${host} .toast`).allInnerTexts()).join(' ').replace(/\s+/g, ' ').trim();
+// R1. a call that fails does not claim success: the grocery list to a phone, and Call a room
+page = await open('look=glass&page=groceries&fail=1');
+await page.locator('fh-groceries .who', { hasText: 'Sam' }).click(); await page.waitForTimeout(900);
+console.log('R1 send list, call fails: says', JSON.stringify(await toastOf(page, 'fh-groceries')), '| claims sent:', /List sent/.test(await toastOf(page, 'fh-groceries')));
+await page.close(); page = await open('look=glass&page=groceries&slow=1200');
+await page.locator('fh-groceries .who', { hasText: 'Sam' }).click(); await page.waitForTimeout(500);
+console.log('R1 send list, slow: both buttons off while sending', await page.locator('fh-groceries .who:disabled').count(), '| toast yet:', JSON.stringify(await toastOf(page, 'fh-groceries')));
+await page.waitForTimeout(1200); console.log('R1 send list, answered:', await toastOf(page, 'fh-groceries'), '| buttons back:', await page.locator('fh-groceries .who:disabled').count() === 0);
+await page.close(); page = await open('look=glass&page=music&mtab=call&fail=1');
+{ const M = page.locator('fh-music'); await M.getByRole('button', { name: 'Office' }).click(); await M.getByRole('button', { name: 'Dinner’s ready!' }).click(); await M.getByRole('button', { name: /Say it/ }).click(); await page.waitForTimeout(1600);
+  const t = await toastOf(page, 'fh-music'); console.log('R1 call a room, call fails: says', JSON.stringify(t), '| claims calling:', /^Calling/.test(t)); }
+await page.close(); page = await open('look=glass&page=music&mtab=call&slow=1000');
+{ const M = page.locator('fh-music'); await M.getByRole('button', { name: 'Office' }).click(); await M.getByRole('button', { name: 'Dinner’s ready!' }).click(); await M.getByRole('button', { name: /Say it/ }).click(); await page.waitForTimeout(400);
+  console.log('R1 call a room, slow: Say it off while calling', await M.locator('.sayit:disabled').count(), '| toast yet:', JSON.stringify(await toastOf(page, 'fh-music')));
+  await page.waitForTimeout(2600); console.log('R1 call a room, answered:', await toastOf(page, 'fh-music')); }
+await page.close();
+// R2. add event: "where" is kept and shown; a save that fails after the sheet is closed is said by the card; a save that hangs times out
+page = await open('look=glass&page=planner&sheet=add');
+{ const A = (s) => page.locator('fh-add-event ' + s);
+  await A('input[aria-label="What’s on"]').fill('Swim meet'); await A('input[aria-label="Where"]').fill('Sample pool, 3 Example Road'); await page.waitForTimeout(200);
+  console.log('R2a summary line:', (await A('.sum').first().innerText()).trim());
+  await A('input[aria-label="What’s on"]').focus(); await A('button.lead').click(); await page.waitForTimeout(700);
+  console.log('R2a toast:', await toastOf(page, 'family-hub-card'));
+  await page.locator('family-hub-card .seg button', { hasText: 'Day' }).click(); await page.waitForTimeout(600);
+  console.log('R2a day rows with a place:', (await page.locator('family-hub-card .dayrow .loc').allInnerTexts()).map((t) => t.trim()).join(' | '));
+  await page.locator('family-hub-card .seg button', { hasText: 'Week' }).click(); await page.waitForTimeout(600);
+  console.log('R2a week cards with a place:', await page.locator('family-hub-card .ev .loc').count(), '| each on one line:', await page.locator('family-hub-card .ev .loc').evaluateAll((els) => els.filter((e) => e.offsetParent).every((e) => e.offsetHeight < 22))); }
+await page.close(); page = await open('look=glass&page=planner&sheet=add&slow=1500&fail=1');
+{ const A = (s) => page.locator('fh-add-event ' + s);
+  await A('input[aria-label="What’s on"]').fill('Dentist'); await A('button.lead').click(); await A('.xbtn').click(); await page.waitForTimeout(600);
+  console.log('R2b sheet closed while saving:', await page.locator('fh-add-event').count() === 0, '| toast yet:', JSON.stringify(await toastOf(page, 'family-hub-card')));
+  await page.waitForTimeout(1600); console.log('R2b after the save failed:', await toastOf(page, 'family-hub-card')); }
+await page.close(); page = await open('look=glass&page=planner&sheet=add&slow=40000');
+{ const A = (s) => page.locator('fh-add-event ' + s);
+  await A('input[aria-label="What’s on"]').fill('Dentist'); await A('button.lead').click(); await page.waitForTimeout(300);
+  const busy = await A('button.lead').isDisabled(); await page.clock.fastForward(15_500); await page.waitForTimeout(300);
+  console.log('R2c hanging save: Add off while waiting', busy, '| after 15 s:', (await A('.err').innerText()).trim(), '| Add back on:', !(await A('button.lead').isDisabled())); }
+await page.close();
+// R3. undo where a tap cannot be taken back: a reminder, "Given by", and All on
+page = await open('look=glass&page=planner');
+{ const rems = () => page.locator('family-hub-card button.rem').count(), tb = page.locator('family-hub-card .toast button', { hasText: 'Undo' });
+  const n0 = await rems(); await page.locator('family-hub-card button.rem').first().click(); await page.waitForTimeout(400);
+  console.log('R3a reminder ticked: toast', JSON.stringify(await toastOf(page, 'family-hub-card')), '| Undo button:', await tb.count());
+  await page.clock.fastForward(4300); await page.waitForTimeout(500);
+  console.log('R3a after 4 s the row has left:', await rems() === n0 - 1, '| Undo still offered:', await tb.count());
+  await tb.click(); await page.waitForTimeout(600);
+  console.log('R3a after Undo: rows', await rems(), 'of', n0, '| put back in the list:', /update_item[^\n]*needs_action/.test(await calls(page)), '|', await toastOf(page, 'family-hub-card'));
+  await page.locator('family-hub-card button.rem').first().click(); await page.waitForTimeout(300); await page.clock.fastForward(8300); await page.waitForTimeout(400);
+  console.log('R3a Undo gone after 8 s:', await tb.count() === 0); }
+await page.close(); page = await open('look=glass&sheet=meds', '08:10');
+{ const st = () => page.evaluate(() => { const s = document.querySelector('family-hub-card').hass.states; return [s['input_datetime.fh_med_riley_am'].attributes.timestamp, s['input_text.fh_med_riley_am_by'].state].join(' '); }), was = await st();
+  const hero = await page.locator('family-hub-card .sheet [data-act=given]').first().evaluate((b) => getComputedStyle(b).backgroundColor + getComputedStyle(b).backgroundImage), log = page.locator('family-hub-card .sheet [data-act=log]');
+  const filled = (c) => !/^(rgba\(0, 0, 0, 0\)|transparent)none$/.test(c);
+  console.log('R13 overdue medicine: "Given by" filled', filled(hero), '| "Add to the record" filled before a medicine is chosen:', filled(await log.evaluate((b) => getComputedStyle(b).backgroundColor + getComputedStyle(b).backgroundImage)));
+  await page.locator('family-hub-card .sheet .mchip', { hasText: 'Paracetamol' }).click(); await page.waitForTimeout(700);
+  console.log('R13 after choosing a medicine: "Add to the record" filled', filled(await log.evaluate((b) => getComputedStyle(b).backgroundColor + getComputedStyle(b).backgroundImage)));
+  await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(300); for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(500);
+  const tb = page.locator('family-hub-card .toast button', { hasText: 'Undo' });
+  console.log('R3b given: toast', JSON.stringify(await toastOf(page, 'family-hub-card')), '| Undo:', await tb.count(), '| helpers changed:', (await st()) !== was);
+  await page.clock.fastForward(6000); await page.waitForTimeout(200); console.log('R3b Undo still there after 6 s:', await tb.count());
+  await tb.click(); await page.waitForTimeout(600);
+  console.log('R3b after Undo: helpers back to before', (await st()) === was, '| no second PIN in the same session:', await page.locator('family-hub-card fh-pin').count() === 0, '| row:', (await page.locator('family-hub-card .sheet .med2 .card').first().innerText()).replace(/\s+/g, ' ').slice(0, 60), '|', await toastOf(page, 'family-hub-card'));
+  await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(500); await page.locator('family-hub-card .sheet').press('Escape'); await page.waitForTimeout(400);
+  await tb.click(); await page.waitForTimeout(400); console.log('R3b Undo after the sheet is closed asks for the PIN:', await page.locator('family-hub-card fh-pin').count()); }
+await page.close(); page = await open('look=glass&page=home');
+{ const lit = () => page.evaluate(() => Object.values(document.querySelector('family-hub-card').hass.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').map((s) => s.entity_id).sort().join(',')), on0 = await lit();
+  const allOn = page.locator('family-hub-card .dock [data-nav=lights-on]'), tb = page.locator('family-hub-card .toast button', { hasText: 'Undo' });
+  await allOn.click(); await page.waitForTimeout(600); const on1 = await lit();
+  console.log('R3c All on: lights on', on0.split(',').filter(Boolean).length, '->', on1.split(',').length, '| Undo:', await tb.count());
+  await tb.click(); await page.waitForTimeout(600); const on2 = await lit();
+  console.log('R3c Undo turns off only what it turned on:', on2 === on0, '| turn_off named:', ((await calls(page)).split('\n').filter((c) => /light\.turn_off/.test(c)).pop() || '').slice(0, 110)); }
+await page.close(); page = await open('look=glass&page=home&slow=1200');
+{ await page.evaluate(() => { window.__calls = []; }); const allOn = page.locator('family-hub-card .dock [data-nav=lights-on]'), allOff = page.locator('family-hub-card .dock [data-nav=lights-off]');
+  await allOn.click(); await page.waitForTimeout(100); await allOn.click(); await allOff.click(); await page.waitForTimeout(1800);
+  console.log('R3c three taps while in flight: calls sent', (await calls(page)).split('\n').filter((c) => /^light\./.test(c)).length); }
+await page.close(); page = await open('look=glass&page=home', '19:45');
+{ await page.evaluate(() => { window.__calls = []; }); await page.locator('family-hub-card .dock [data-nav=lights-on]').click(); await page.waitForTimeout(400);
+  console.log('R3c All on after a bedtime: PIN pad', await page.locator('family-hub-card > fh-pin, family-hub-card fh-pin').count(), (await page.locator('family-hub-card fh-pin h2').first().innerText()).trim(), '| called before the PIN:', /light\.turn_on/.test(await calls(page)));
+  for (const d of '1234') await page.locator('family-hub-card fh-pin').first().getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
+  console.log('R3c after the PIN:', /light\.turn_on/.test(await calls(page)), '|', await toastOf(page, 'family-hub-card')); }
+await page.close();
+// R4. rewards: after Yes the row keeps its place and a second tap in the list does nothing for 600 ms; a spend that needs a grown-up leaves a line
+page = await open('look=glass&page=kid&kid=0');
+{ const K = (s) => page.locator('fh-kid ' + s), spends = async () => ((await calls(page)).match(/fh_add_points[^\n]*"points":-/g) || []).length;
+  await page.getByRole('button', { name: /Extra screen time/ }).click(); await page.waitForTimeout(300);
+  const ask = await K('.rw.ask').boundingBox(), next = await K('.rw').nth(1).boundingBox();
+  await K('.rw.ask').getByRole('button', { name: 'Yes' }).click(); await page.mouse.click(next.x + next.width / 2, next.y + next.height / 2); await page.waitForTimeout(150);
+  const after = await K('.rw').first().boundingBox(), n1 = await K('.rw').nth(1).boundingBox();
+  console.log('R4 straight after Yes: row keeps its height', Math.round(after.height) === Math.round(ask.height), '| next row has not moved:', Math.round(n1.y) === Math.round(next.y), '| second tap opened another ask or PIN:', (await K('.rw.ask:not([data-held])').count()) + (await page.locator('fh-kid fh-pin, family-hub-card > fh-pin').count()), '| spends:', await spends());
+  await page.waitForTimeout(1900); console.log('R4 after 600 ms the row is back to one line:', Math.round((await K('.rw').first().boundingBox()).height) < Math.round(ask.height), '| waiting line for a small reward:', await K('.owedline').count());
+  await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass, id = Object.keys(h.states).find((k) => /riley.*points$/.test(k) && !/life|total/.test(k)); c.hass = { ...h, states: { ...h.states, [id]: { ...h.states[id], state: '300' } } }; }); await page.waitForTimeout(300);
+  await page.getByRole('button', { name: /Pick the family movie/ }).click(); await page.waitForTimeout(300); for (const d of '1234') await page.locator('fh-pin').first().getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(700);
+  console.log('R4 a reward that needs a grown-up:', (await K('.owedline').innerText().catch(() => 'NO LINE')).replace(/\s+/g, ' ').trim()); }
+await page.close();
+// R5. Home: one PIN does not open the front door; the window shows, counts down and can be closed
+page = await open('look=glass&page=home');
+{ const H = page.locator('fh-home'), pad = () => H.locator('fh-pin').count(), type = async () => { for (const d of '1234') await H.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(500); };
+  await H.getByRole('button', { name: /Garage door/ }).click(); await page.waitForTimeout(300); await type();
+  console.log('R5 after the PIN for the garage: chip', JSON.stringify((await H.locator('.unl').innerText().catch(() => '')).replace(/\s+/g, ' ').trim()));
+  await page.evaluate(() => { window.__calls = []; }); await H.getByRole('button', { name: /Front door/ }).click(); await page.waitForTimeout(300);
+  console.log('R5 front door inside the window: PIN asked again', await pad(), '| lock called without it:', /lock\./.test(await calls(page)));
+  await H.locator('fh-pin').getByRole('button', { name: /Cancel|Close/ }).first().click().catch(() => page.keyboard.press('Escape')); await page.waitForTimeout(300);
+  await H.getByRole('button', { name: /Garage door/ }).click(); await page.waitForTimeout(300);
+  console.log('R5 the same garage door again inside the window: PIN asked', await pad(), '| cover called:', /cover\./.test(await calls(page)));
+  await H.getByRole('button', { name: /Grown-ups/ }).click(); await page.waitForTimeout(300); console.log('R5 automations inside the window: PIN asked', await pad(), '| list open:', await H.getByRole('button', { name: 'Hide' }).count());
+  await page.clock.fastForward(20_000); await page.waitForTimeout(1200); const t1 = (await H.locator('.unl b').innerText()).trim();
+  await H.locator('.unl').getByRole('button', { name: 'Lock now' }).click(); await page.waitForTimeout(300);
+  console.log('R5 countdown after 20 s:', t1, '| Lock now: chip gone', await H.locator('.unl').count() === 0);
+  await H.getByRole('button', { name: /Garage door/ }).click(); await page.waitForTimeout(300); console.log('R5 after Lock now the garage asks again:', await pad()); }
+await page.close();
+// R6. planner week: nothing is hidden while it would fit, and "+N more" is a pill directly under the last event shown
+for (const q of ['look=glass&page=planner&events=long', 'look=orbit&page=planner&events=long', 'look=fridge&page=planner&events=many', 'look=glass&page=planner&events=many']) { page = await open(q);
+  console.log('R6', q.replace(/look=|&page=planner&events=/g, ' ').trim() + ':', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; return [...r.querySelectorAll('.week > .col')].map((c) => { const evs = [...c.querySelectorAll('.ev')], shown = evs.filter((e) => e.style.display !== 'none'), hid = evs.filter((e) => e.style.display === 'none'), pill = c.querySelector('.more .mpill'); if (!hid.length) return null;
+    const top = (e) => { let t = 0; for (let x = e; x && x !== c; x = x.offsetParent) t += x.offsetTop; return t; }, bot = (e) => top(e) + e.offsetHeight, bottom = c.clientHeight - parseFloat(getComputedStyle(c).paddingBottom), last = shown.length ? shown[shown.length - 1] : null, free = bottom - bot(pill), smallest = Math.min(...hid.map((e) => { e.style.display = ''; const h = e.offsetHeight; e.style.display = 'none'; return h; }));
+    return `${shown.length} shown, ${pill.textContent.trim()} (${parseFloat(getComputedStyle(pill).fontSize)} px), pill ${last ? Math.round(top(pill) - bot(last)) : 0} px under the last event, a hidden event would fit: ${smallest + 6 <= free}`; }).filter(Boolean).join(' ; ') || 'nothing hidden'; }));
+  await page.close(); }
+// R11. Music: Whole house shows that it is joined; a volume jump of more than 30 in one drag can be taken back
+page = await open('look=glass&page=music&mview=dial');
+{ const M = page.locator('fh-music'), wh = M.locator('.wholeb');
+  console.log('R11 tab words beside the icons at 1280x800 (Dial):', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')), '| row overflows:', await M.locator('.mhead').evaluate((h) => h.scrollWidth > h.clientWidth + 1));
+  const before = await wh.getAttribute('aria-pressed'); await wh.click(); await page.waitForTimeout(900);
+  console.log('R11 Whole house: pressed before', before, '| after joining', await wh.getAttribute('aria-pressed'), '|', (await toastOf(page, 'fh-music')).slice(0, 40));
+  const r = await page.evaluate(async () => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'), id = 'media_player.office', v0 = Math.round(m.hass.states[id].attributes.volume_level * 100);
+    m._setVol(id, v0 + 10, false); m._setVol(id, v0 + 45, false); m._setVol(id, v0 + 45, true); await new Promise((r) => setTimeout(r, 500)); const btn = m.shadowRoot.querySelector('.toast button'), label = btn?.textContent.trim(); btn?.click(); await new Promise((r) => setTimeout(r, 500));
+    return { v0, label, back: Math.round(m.hass.states[id].attributes.volume_level * 100) }; });
+  console.log('R11 volume dragged from', r.v0, 'to', r.v0 + 45, ': toast offers', JSON.stringify(r.label), '| after tapping it:', r.back); }
+await page.close();
+// R15. Doodle: Stick it up with no artist asks who drew it; Escape closes the question and the viewer
+page = await open('look=glass&page=doodle');
+{ const D = page.locator('fh-doodle'), pad = await D.locator('canvas').boundingBox();
+  await page.mouse.move(pad.x + 80, pad.y + 80); await page.mouse.down(); await page.mouse.move(pad.x + 200, pad.y + 160, { steps: 5 }); await page.mouse.up();
+  await D.getByRole('button', { name: /Stick it up/ }).click(); await page.waitForTimeout(300);
+  console.log('R15 no artist chosen: asks', JSON.stringify(await D.locator('.whobox h2').innerText().catch(() => '')), '| faces:', await D.locator('.whobox .artist').count(), '| stuck up yet:', await D.locator('.easel.stick').count());
+  await page.keyboard.press('Escape'); await page.waitForTimeout(200); console.log('R15 Escape closes the question:', await D.locator('.whobox').count() === 0);
+  await D.locator('.snap').first().click(); await page.waitForTimeout(200); const open1 = await D.locator('button.view').count(); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  console.log('R15 viewer open', open1, '| after Escape:', await D.locator('button.view').count()); }
+await page.close();
+// R16. Ask: the AI note is under the subtitle and in view; the keyboard has punctuation and digits; the three options share a row
+for (const [w, h] of [[1280, 800], [1312, 668]]) { page = await open('look=glass&page=planner&sheet=chat'); await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(500);
+  await page.locator('fh-chat input.field').click(); await page.waitForTimeout(300);
+  const n = await page.locator('family-hub-card .ainote').boundingBox(), sub = await page.locator('family-hub-card .chatsheet .shead .muted').boundingBox(), tops = await page.locator('fh-chat .opts .pill').evaluateAll((els) => [...new Set(els.map((e) => Math.round(e.getBoundingClientRect().top)))].length);
+  for (const k of ['Question mark', 'Full stop']) await page.locator('fh-chat .keys').getByRole('button', { name: k }).click(); await page.locator('fh-chat .keys .key', { hasText: /^7$/ }).click();
+  console.log(`R16 ${w}x${h}: note`, parseFloat(await page.locator('family-hub-card .ainote').evaluate((e) => getComputedStyle(e).fontSize)), 'px,', Math.round(n.y - (sub.y + sub.height)), 'px under the subtitle, in view:', n.y + n.height <= h, '| option rows:', tops, '| typed with the keys:', JSON.stringify(await page.locator('fh-chat input.field').inputValue()));
+  await page.setViewportSize({ width: 1280, height: 800 }); await page.close(); }
+// R17. small things: the PIN pad does not open over a sheet that did not ask; a stale timer is over; the weather chip has words
+page = await open('look=glass&page=planner&sheet=timer', '19:45');
+{ await page.evaluate(() => document.querySelector('family-hub-card')._allOn()); await page.waitForTimeout(400); // the dock is under the scrim; a toast's Undo is the way a PIN could be asked for over a sheet
+  console.log('R17 a PIN asked for while the timer sheet is open: PIN pad', await page.locator('family-hub-card fh-pin').count(), '| says:', await toastOf(page, 'family-hub-card'));
+  await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass; c.hass = { ...h, states: { ...h.states, 'timer.kitchen': { ...h.states['timer.kitchen'], state: 'active', attributes: { ...h.states['timer.kitchen'].attributes, finishes_at: new Date(Date.now() - 90_000).toISOString() } }, 'weather.home': { ...h.states['weather.home'], state: 'unavailable' } } }; }); await page.waitForTimeout(500);
+  console.log('R17 timer that finished 90 s ago: treated as running', await page.evaluate(() => document.querySelector('family-hub-card')._timerLeft() !== null), '| weather chip:', (await page.locator('family-hub-card header .wsub').innerText().catch(() => '(chip hidden)')).trim()); }
+await page.close();
+}
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

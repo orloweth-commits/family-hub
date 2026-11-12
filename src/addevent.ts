@@ -65,10 +65,21 @@ export class FhAddEvent extends LitElement {
     .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .chips button.calbtn { width: 48px; padding: 0; justify-content: center; background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    /* each set of chips is one row: seven days in a grid, and the calendars side by side (a long name is cut, never wrapped under the others) */
+    .chips.days { display: grid; grid-template-columns: 1.15fr 1.5fr repeat(5, 1fr); gap: 6px; }
+    .chips.days button { min-width: 0; padding: 0 4px; justify-content: center; white-space: nowrap; overflow: hidden; }
+    .chips.cals { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, auto); justify-content: start; gap: 6px; }
+    .chips.cals button { min-width: 0; padding: 0 11px 0 9px; }
+    .rowhead { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+    .rowhead .sub { flex: 1; }
+    .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
+    .rowhead .calbtn { background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    .rowhead .farchip { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
+    :host([data-phone]) .chips.days, :host([data-phone]) .chips.cals { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
+    :host([data-phone]) .chips.days button, :host([data-phone]) .chips.cals button { flex: 0 0 auto; padding: 0 13px; }
     .when { display: flex; gap: 16px; align-items: stretch; }
-    .when > .left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px; justify-content: center; }
-    .sub { font-size: 12px; font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+    .when > .left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+    .sub { font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
 
     /* the time dial: two drums that spin, and am / pm beside them */
     .dialbox { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 22px; background: var(--chip); }
@@ -158,7 +169,7 @@ export class FhAddEvent extends LitElement {
     const cal = this._cal || this.defaultCal || this.calendars[0]?.entity, c = this.calendars.find((x) => x.entity === cal);
     const day = this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }).replace(/,/g, '');
     const dur = this._dur < 60 ? `${this._dur} min` : `${this._dur / 60} h`;
-    return [this._t.trim(), day, ...(this._all ? ['all day'] : [`${this._h}:${pad(this._m)} ${this._pm ? 'pm' : 'am'}`, dur]), c?.name ?? this.hass?.states[cal ?? '']?.attributes.friendly_name ?? ''].filter(Boolean).join(' · ');
+    return [this._t.trim(), day, ...(this._all ? ['all day'] : [`${this._h}:${pad(this._m)} ${this._pm ? 'pm' : 'am'}`, dur]), c?.name ?? this.hass?.states[cal ?? '']?.attributes.friendly_name ?? '', this._loc.trim() ? `at ${this._loc.trim().split(',')[0]}` : ''].filter(Boolean).join(' · ');
   }
 
   private _key(k: string): void {
@@ -277,12 +288,28 @@ export class FhAddEvent extends LitElement {
       data.start_date_time = local(s); data.end_date_time = local(new Date(s.getTime() + this._dur * 60_000));
     }
     this._busy = true; this._err = '';
+    // an answer that takes more than 15 s: say so and let Add be tapped again
+    const gen = ++this._saveGen;
+    const wait = window.setTimeout(() => { if (gen !== this._saveGen || !this._busy) return; this._busy = false; this._err = 'Still waiting. Try again?'; }, FhAddEvent.WAIT);
+    const gone = (): boolean => !this.isConnected || this.hasAttribute('data-closing');
     try {
       await this.hass.callService('calendar', 'create_event', data, { entity_id: cal });
+      clearTimeout(wait);
+      if (gen !== this._saveGen) return; // a second try is on its way and will speak for itself
       // stays busy: the sheet closes on "saved", so there is nothing left to tap twice
+      this._busy = true; this._err = '';
       this.dispatchEvent(new CustomEvent('saved', { detail: summary }));
-    } catch (e: any) { this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false; }
+    } catch {
+      clearTimeout(wait);
+      if (gen !== this._saveGen) return;
+      this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false;
+      // the sheet was closed while this was on its way: the card says it instead
+      if (gone()) this.dispatchEvent(new CustomEvent('failed', { detail: this._t.trim() }));
+    }
   }
+  private _saveGen = 0;
+  /** how long a save may take before the sheet says it is still waiting */
+  static WAIT = 15_000;
 
   render(): TemplateResult {
     const today = startOfDay(new Date());
@@ -311,12 +338,13 @@ export class FhAddEvent extends LitElement {
       ${this._err ? html`<span class="err" role="alert">${this._err}</span>` : ''}
       <div class="when">
         <div class="left">
+          <div class="rowhead"><span class="sub" id="dayl">Which day</span>
+            ${far ? html`<button class="tap farchip" aria-pressed="true" @click=${() => { this._shown = this._date; this._pick = true; }}>${this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === today.getFullYear() ? undefined : 'numeric' })}</button>` : nothing}
+            <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => { this._shown = this._date; this._pick = true; }}>${icon('calendar', 22)}<span>Other date</span></button></div>
           <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (_, i) => { const d = addDays(today, i); return html`<button class="tap" aria-pressed=${String(same(d, this._date))} @click=${() => { this._date = d; }}>${i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${fmtDow(d)} ${d.getDate()}`}</button>`; })}
-            ${far ? html`<button class="tap" aria-pressed="true" @click=${() => { this._shown = this._date; this._pick = true; }}>${this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === today.getFullYear() ? undefined : 'numeric' })}</button>` : nothing}
-            <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => { this._shown = this._date; this._pick = true; }}>${icon('calendar', 22)}</button>
           </div>
-          <div class="chips cals" role="group" aria-label="Whose calendar">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="init" style="--c:${slotVar(c.colour)}" aria-hidden="true">${short[c.name ?? c.entity] ?? ''}</span>${c.name ?? c.entity}</button>`)}</div>
+          <div class="chips cals" role="group" aria-label="Whose calendar" style="--n:${this.calendars.length}">${this.calendars.map((c) => html`<button class="tap" aria-pressed=${String(cal === c.entity)} @click=${() => { this._cal = c.entity; }}><span class="init" style="--c:${slotVar(c.colour)}" aria-hidden="true">${short[c.name ?? c.entity] ?? ''}</span><span class="ell">${c.name ?? c.entity}</span></button>`)}</div>
         </div>
         <div class="dialbox" ?data-off=${this._all} role="group" aria-label="What time">
           <div class="drums">${this._drum('h')}<span class="colon" aria-hidden="true">:</span>${this._drum('m')}</div>

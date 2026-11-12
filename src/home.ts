@@ -85,19 +85,38 @@ export class FhHome extends LitElement {
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
     .grown { height: 44px; /* token */ font-size: 15px; }
+    /* while the PIN window is open the page says so, counts it down and offers to close it */
+    .unl { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-size: 15px; font-weight: var(--w-semi, 600); }
+    .unl .ut { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; line-height: 1; }
+    .unl b { font-variant-numeric: tabular-nums; font-weight: var(--w-heavy, 800); }
+    .unl .pill { height: 44px; /* token */ font-size: 15px; white-space: nowrap; }
+    :host([data-phone]) .unl .ut > span { white-space: normal; }
     .none { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; color: var(--ink2); }
     .none b { font-size: 22px; font-weight: var(--w-heavy, 800); color: var(--ink); }
     .none span { font-size: 16px; line-height: 1.4; max-width: 460px; }
     .tipline { font-size: 15px; line-height: 1.35; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
   hass?: Hass;
   pin = '';
   hideScripts: string[] = [];
   hide: string[] = [];
   private _all = false;
   private _unlocked = 0;
+  /** the door or cover the window was opened for ('' when it was opened for something else): only that one may be used again without the PIN */
+  private _unlockedFor = '';
+  private _askFor = '';
+  private _tick = 0;
+  private _tickT?: number;
+  static WINDOW = 60_000;
+  private _open(forId: string): void {
+    this._unlocked = Date.now() + FhHome.WINDOW; this._unlockedFor = forId;
+    clearInterval(this._tickT);
+    this._tickT = window.setInterval(() => { this._tick++; if (Date.now() >= this._unlocked) this._lockNow(); }, 1000);
+  }
+  private _lockNow(): void { clearInterval(this._tickT); this._tickT = undefined; this._unlocked = 0; this._unlockedFor = ''; this._all = false; }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._lockNow(); }
   private _askPin: (() => void) | null = null;
   private _went = '';
   /** entities whose call has been running for more than a quarter of a second */
@@ -152,8 +171,8 @@ export class FhHome extends LitElement {
     if (gone(e)) { this._tell(`${name} is not responding`); return; }
     if (d === 'media_player') this.dispatchEvent(new CustomEvent('music', { detail: id }));
     // doors are a grown-up's job: the lock and the garage (any cover) both ask for the PIN
-    else if (d === 'lock') { const un = e.state === 'locked'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('lock', un ? 'unlock' : 'lock', { entity_id: id }), `${name} ${un ? 'unlocked' : 'locked'}`); }); }
-    else if (d === 'cover') { const shut = e.state === 'closed' || e.state === 'closing'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('cover', shut ? 'open_cover' : 'close_cover', { entity_id: id }), `${name} ${shut ? 'opening' : 'closing'}`); }); }
+    else if (d === 'lock') { const un = e.state === 'locked'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('lock', un ? 'unlock' : 'lock', { entity_id: id }), `${name} ${un ? 'unlocked' : 'locked'}`); }, id, `${un ? 'Unlock' : 'Lock'} ${name}?`); }
+    else if (d === 'cover') { const shut = e.state === 'closed' || e.state === 'closing'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('cover', shut ? 'open_cover' : 'close_cover', { entity_id: id }), `${name} ${shut ? 'opening' : 'closing'}`); }, id, `${shut ? 'Open' : 'Close'} ${name}?`); }
     else { const to = !this._on(e); void this._call(id, name, () => this.hass!.callService('homeassistant', 'toggle', { entity_id: id }), undefined, SWITCHED.includes(d) ? { [id]: to } : undefined); }
   }
   private _room(r: Room, on: boolean): void {
@@ -165,10 +184,12 @@ export class FhHome extends LitElement {
     this._went = ''; requestAnimationFrame(() => { this._went = s.entity_id; });
     void this._call(s.entity_id, name, () => this.hass!.callService('script', 'turn_on', { entity_id: s.entity_id }), `${name} started`);
   }
-  private _guard(fn: () => void): void {
+  /** Grown-ups only. One PIN opens a short window for the quiet things (automations); a door or a cover always asks again unless the window was opened for that same one. */
+  private _askWhy = '';
+  private _guard(fn: () => void, device = '', why = ''): void {
     if (!this.pin) { this._tell('Set a parent PIN to change this from the panel.'); return; }
-    if (Date.now() < this._unlocked) { fn(); return; }
-    this._askPin = fn;
+    if (Date.now() < this._unlocked && (!device || this._unlockedFor === device)) { fn(); return; }
+    this._askFor = device; this._askWhy = why; this._askPin = fn;
   }
 
   private _name(e: HassEntity, room: string): string {
@@ -210,16 +231,18 @@ export class FhHome extends LitElement {
     const autos = Object.values(h.states).filter((s) => s.entity_id.startsWith('automation.') && (this._all || labelled(s.entity_id)));
     const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     const lost = rooms.reduce((n, r) => n + r.ents.filter(gone).length, 0);
+    const left = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1000));
     const cols = this._columns(rooms, shape === 'phone' ? 1 : rooms.length > 9 ? 4 : 3);
     return html`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
-          ${rooms.length ? html`<span class="muted" style="font-size:15px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div></div>
+          ${rooms.length ? html`<span class="muted" style="font-size:15px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div>
+          ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for grown-ups"><span class="ut">${DRAWN.unlocked}<span>Unlocked for grown-ups · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e));
             return html`<div class="room ${lit ? 'lit' : ''}">
-              <div class="rh"><h2>${r.name}</h2>${lights.length ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} @click=${() => this._room(r, !lit)}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
+              <div class="rh"><h2>${r.name}</h2>${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} @click=${() => this._room(r, !lit)}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
               ${r.ents.map((e) => this._dev(e, r.name))}
             </div>`; })}</div>`)}
         </div>` : html`<div class="none"><span style="color:var(--accent)">${icon('home', 44)}</span><b>No rooms to show yet</b>
@@ -243,7 +266,7 @@ export class FhHome extends LitElement {
           </div>
         </section>
       </div>
-      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { const f = this._askPin!; this._askPin = null; this._unlocked = Date.now() + 5 * 60_000; f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
+      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} reason=${this._askWhy || 'Grown-ups only'} @ok=${() => { const f = this._askPin!; this._askPin = null; this._open(this._askFor); f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
   }
 }
 if (!customElements.get('fh-home')) customElements.define('fh-home', FhHome);

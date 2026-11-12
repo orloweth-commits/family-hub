@@ -136,8 +136,8 @@ export const dayDial = (arcs: DialArc[], now: Date | undefined, size = 360): Tem
     ${timed.map((a) => seg(a, AM, 0, 12))}${timed.map((a) => seg(a, PM, 12, 24))}
     ${Array.from({ length: 12 }, (_, i) => svg`<rect x="99.4" y="6" width="1.2" height=${i % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${i * 30} 100 100)"></rect>`)}
     ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([n, x, y]) => svg`<text class="dh" x=${x} y=${y} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${n}</text>`)}
-    <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
-    <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
+    <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
+    <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
     ${now ? svg`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${hh} 100 100)"></rect>
       <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${mm} 100 100)"></rect>
       <circle cx="100" cy=${100 - (now.getHours() < 12 ? AM : PM)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${hh} 100 100)"></circle>
@@ -306,7 +306,7 @@ const FRIDGE = `
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color var(--m-5, 900ms) ease; }
   @F .glass.round { border-radius: 50%; }
-  @F .label { letter-spacing: .05em; font-size: 13px; }
+  @F .label { letter-spacing: .05em; font-size: 14px; }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
   @F .pill.primary, @F .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
   /* the lead action is a chunky plastic push-button; pressing any plastic button sends it down onto its edge */
@@ -329,8 +329,6 @@ const FRIDGE = `
   @F .dialbox { background: rgba(38,39,43,.06); border-radius: 8px; }
   @F .drums { background: var(--paper); border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink); }
   /* medication: who gave it is a choice (an outline); adding to the record is the one filled action */
-  @F .med2 .pill.primary { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 600; }
-  @F .med2 .pill.primary:active { transform: none; box-shadow: inset 0 0 0 3px var(--ink); }
 
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
@@ -365,7 +363,7 @@ const FRIDGE = `
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
   @F .ev .t { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: 13px; font-weight: 500; }
+  @F .ev .w { font-size: 14px; font-weight: 500; }
   @F .ev.next { box-shadow: none; }
   /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
   @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -402,13 +400,13 @@ const FRIDGE = `
 
   /* dock: a row of fridge magnets */
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
-  @F .dock .item { font-weight: 600; font-size: 14px; height: 78px; gap: 3px; border-radius: 0; }
+  @F .dock .item { font-weight: 600; font-size: 15px; height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #ffd75a; }
   @F .dock .item[data-nav='lights-off'] svg.i { background: #4a4f55; color: #fff; }
   @F .dock .item[data-nav='dinner'] svg.i { background: var(--danger); color: #fff; }
   @F .dock .item[aria-current='page'] { background: transparent; }
-  @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 4px var(--paper), 0 0 0 6.5px var(--ink), 0 6px 6px 4px rgba(0,0,0,.2); }
+  @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5.5px var(--ink); }
   @F .dock .kidbtn .avatar { box-shadow: 0 4px 5px rgba(0,0,0,.28); }
   @F .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4.5px var(--kidc), 0 -3px 6px 3px rgba(0,0,0,.14); }
@@ -487,7 +485,7 @@ const FRIDGE = `
   @F .mroom { background: var(--paper); border-radius: 3px 10px 4px 12px; box-shadow: inset 0 0 0 3px var(--ink), 0 5px 7px rgba(0,0,0,.18); }
   @F .mstairs { border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink); }
   @F .mzone[data-focus] { background: var(--note); box-shadow: inset 0 0 0 3px var(--ink); }
-  @F .pool { background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
+  @F .pool { left: 3px; right: 3px; bottom: 3px; border-radius: 0 0 8px 2px; background: repeating-linear-gradient(115deg, transparent 0 8px, color-mix(in srgb, var(--c) 34%, transparent) 8px 10px), color-mix(in srgb, var(--c) 30%, var(--paper)); }
   @F .mzone[data-playing] .pool { animation: scribble .7s steps(2, jump-none) infinite; animation-iteration-count: var(--loops, infinite); }
   @F .puck { border-color: var(--magnet); box-shadow: 0 4px 0 #b9b2a2, 0 6px 8px rgba(0,0,0,.25); }
   @F .mshelf { background: var(--note); border-radius: 4px; transform: rotate(.5deg); box-shadow: 0 5px 8px rgba(0,0,0,.16); }
@@ -543,7 +541,7 @@ const FRIDGE = `
 
   /* doodle: paint-pot magnets, and finished pictures taped up as polaroids */
   @F .pad { border-radius: 2px; }
-  @F .ink { box-shadow: 0 3px 0 rgba(0,0,0,.22), inset 0 -3px 0 rgba(0,0,0,.14); }
+  @F .ink { box-shadow: 0 3px 0 rgba(0,0,0,.22), inset 0 -3px 0 rgba(0,0,0,.14), inset 0 0 0 1.5px rgba(0,0,0,.5); }
   @F .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink); }
   @F .gallery { background: transparent; box-shadow: none; padding: 8px 2px; }
   @F .snaps { gap: 26px 12px; padding: 12px 6px; }
@@ -645,7 +643,7 @@ const ORBIT = `
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: 13px; }
+  @O .ev .w { font-weight: 400; font-size: 14px; }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
   /* what is over keeps its outline and loses its fill; the words stay readable */
   @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }
@@ -669,7 +667,7 @@ const ORBIT = `
 
   /* dock: a line of rings */
   @O .dock { background: transparent; border-color: transparent; gap: 6px; padding: 0; }
-  @O .dock .item { font-size: 13px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
+  @O .dock .item { font-size: 15px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
   @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
@@ -689,7 +687,9 @@ const ORBIT = `
   /* outlined controls light their line when pressed; they never shrink. Shift is a ring, and yellow only while it is latched */
   @O .key:active { background: var(--chip-strong); transform: none; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .key[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
-  @O .tabs { background: rgba(255,255,255,.07); }
+  @O .tabs { background: transparent; }
+  @O .ctab { background: var(--ground, #0a0f1e); color: var(--ink); box-shadow: inset 0 0 0 2px var(--c); }
+  @O .ctab[aria-pressed='true'] { background: color-mix(in srgb, var(--c) 22%, var(--ground, #0a0f1e)); box-shadow: inset 0 0 0 3px var(--c); }
   @O .tab { font-weight: 500; }
   @O .tab[aria-pressed='true'] { font-weight: 600; }
 
@@ -705,9 +705,9 @@ const ORBIT = `
   @O .jobs .done .check { border-color: var(--ok); }
   @O .pic.now { box-shadow: 0 0 0 3px var(--accent); }
   @O .sec { margin-top: 12px; }
-  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--kid); }
+  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--ink); }
   @O .sec span { font-weight: 400; }
-  @O .plus { background: color-mix(in srgb, var(--kid) 20%, transparent); color: var(--kid); font-weight: 600; }
+  @O .plus { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
   @O .rw { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
   @O .rw .n { font-weight: 400; }
@@ -837,7 +837,6 @@ const ORBIT = `
   /* sheets: chips are rings, the chosen one is yellow; who gave a medicine is a ring too, so adding to the record is the one filled action */
   @O .mchip, @O .chips button, @O .durs button, @O .ampm button, @O .allday { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
   @O .mchip[aria-pressed='true'], @O .chips button[aria-pressed='true'], @O .durs button[aria-pressed='true'], @O .ampm button[aria-pressed='true'], @O .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
-  @O .med2 .pill.primary { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
 
   /* phone, and anything narrower than 700 px: the day ring sits above the list instead of beside it */
   @O[data-phone] .dayview, @O<700 .dayview { flex-direction: column; align-items: stretch; gap: 16px; }

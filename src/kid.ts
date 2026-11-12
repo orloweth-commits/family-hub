@@ -56,12 +56,12 @@ export class FhKid extends LitElement {
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
-    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; }
-    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
+    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; }
+    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     .stat { border-radius: 18px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
     .stat b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .stat span { font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .stat span { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     /* good days: one filled dot for each day earned, and nothing drawn for the days that were not */
     .dots { display: flex; gap: 5px; min-height: 14px; }
     .dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink2); }
@@ -69,7 +69,7 @@ export class FhKid extends LitElement {
     .daybtns { display: grid; grid-template-columns: repeat(7, 76px); gap: 10px; }
     .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-bold, 700); }
     .daybtns button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .daybtns button span { font-size: 13px; font-weight: var(--w-semi, 600); }
+    .daybtns button span { font-size: 14px; font-weight: var(--w-semi, 600); }
     .nextup { width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 18px; background: var(--chip); padding: 8px 12px 8px 8px; }
     .jobs { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
     .list { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
@@ -97,7 +97,7 @@ export class FhKid extends LitElement {
     :host([data-phone]) .daybtns { grid-template-columns: repeat(4, 1fr); }
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
     .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
-    .sec span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .sec span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
     /* the touch is answered on the way down, before Home Assistant or even the click: the tile lights and the check pops */
     .job[data-just], .pic[data-just] { background: var(--chip-strong); }
@@ -113,7 +113,7 @@ export class FhKid extends LitElement {
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
     .focus .label { font-size: 14px; margin-top: 4px; }
-    .label { font-size: 13px; }
+    .label { font-size: 14px; }
     .pill { font-size: 15px; }
     .job.big { min-height: 96px; padding: 16px 18px; }
     .job.big .box { width: 52px; height: 52px; font-size: 26px; }
@@ -168,6 +168,8 @@ export class FhKid extends LitElement {
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
     .side > .card { flex-shrink: 0; }
+    /* a small child's controls sit low: the jar card above them takes up the spare height, so there is no empty band between the cards */
+    .side.low > .card:first-child { flex: 1 0 auto; justify-content: center; }
     .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
@@ -177,20 +179,22 @@ export class FhKid extends LitElement {
     .rw .stars { max-width: 100px; }
     .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
     .rw .cost.notyet { box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
+    .rw.ask[data-held] { pointer-events: none; }
     .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); }
     .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
-    .wk .init { min-width: 20px; height: 20px; font-size: 13px; }
-    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 13px; }
+    .wk .init { min-width: 20px; height: 20px; font-size: 14px; }
+    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
     .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .bedclock b span { font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
+    .bedclock b span { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
     .ring { position: relative; width: 52px; height: 52px; }
     .ring svg { transform: rotate(-90deg); }
-    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: var(--w-heavy, 800); }
+    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
     .tab { flex: 1; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
@@ -202,7 +206,7 @@ export class FhKid extends LitElement {
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
     .unl { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px; font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
+    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))); } }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
     ${unsafeCSS(avatarCss)}
@@ -215,7 +219,7 @@ export class FhKid extends LitElement {
     privateWords: { attribute: false }, quiet: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
-    _drawn: { state: true }, _spend: { state: true }
+    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }
   };
 
   hass?: Hass;
@@ -237,6 +241,7 @@ export class FhKid extends LitElement {
   private _bursts: { id: number; text: string }[] = [];
   private _confetti = 0;
   private _studio = false;
+  private _lookSaid = false;
   private _celebrate: Unlock[] | null = null;
   private _pinAsk: { reason: string; run: () => void } | null = null;
   private _days = false;
@@ -244,6 +249,23 @@ export class FhKid extends LitElement {
   private _drawn = false;
   /** the reward being asked about ("Spend 50 points?") */
   private _spend = '';
+  /** the reward whose "Yes" was just tapped: its row keeps its place for a moment, so a second tap cannot land on the row below */
+  private _held = '';
+  private _heldAt = 0;
+  /** rewards this child has spent on that still wait for a grown-up */
+  private _owed: string[] = [];
+  private _owedSeen = '';
+  private async _loadOwed(): Promise<void> {
+    const id = this.owed, name = this.kid.name;
+    if (!id || !this.hass?.states[id]) return;
+    try {
+      const res = await this.hass.callWS<{ items: { summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: id });
+      if (name !== this.kid.name) return;
+      const mine = res.items.filter((i) => i.status === 'needs_action' && i.summary.startsWith(`${name}: `)).map((i) => i.summary.slice(name.length + 2));
+      this._owed = [...new Set(mine)].filter((n) => this._needsAdult(n));
+    } catch { /* the line is simply left as it was */ }
+  }
+  private _needsAdult(name: string): boolean { const r = (this.kid.rewards ?? DEFAULT_REWARDS).find((x) => x.name === name); return !r || (r.approve ?? r.cost >= 60); }
   private _msg = '';
   private _practice: { uid: string; end: number; mins: number } | null = null;
   private _now = new Date();
@@ -296,7 +318,8 @@ export class FhKid extends LitElement {
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
-    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._loadWeek(); }
+    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._lookSaid = false; this._loadWeek(); }
+    { const key = `${this.kid.name}|${this.hass.states[this.owed]?.state ?? ''}`; if (key !== this._owedSeen) { this._owedSeen = key; void this._loadOwed(); } }
     if (!this._drawn && !this._drawWait) { this._drawWait = true; const go = (): void => { this._drawWait = false; this._drawn = true; };
       if ('requestIdleCallback' in window) (window as any).requestIdleCallback(go, { timeout: 200 }); else requestAnimationFrame(() => requestAnimationFrame(go)); }
     if (ch.has('hass')) this._checkUnlocks();
@@ -342,7 +365,7 @@ export class FhKid extends LitElement {
       try {
         const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.id}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
         for (const r of rows) {
-          const title: string = r.summary ?? '(busy)';
+          const title: string = String(r.summary ?? '').trim() || '(busy)';
           if (priv.some((w) => title.toLowerCase().includes(w))) continue;
           out.push({ title, start: r.start?.date ? new Date(`${r.start.date}T00:00:00`) : new Date(r.start.dateTime), allDay: !!r.start?.date, family: c.family });
         }
@@ -452,6 +475,7 @@ export class FhKid extends LitElement {
   private _costWords(r: RewardConfig): string { const n = Math.max(1, Math.round(r.cost / this._star)); return this._picMode ? `${n} star${n === 1 ? '' : 's'}` : `${r.cost} points`; }
   /** First tap on a reward: never spends. It says where the child stands, or asks "Spend 50 points?" in the row (or for the PIN, for the big ones). */
   private _rewardTap(r: RewardConfig): void {
+    if (Date.now() - this._heldAt < 600) return; // a second tap straight after "Yes" is not a choice
     const have = num(this.hass, this._e.points);
     if (have < r.cost) {
       this._sound('locked');
@@ -484,6 +508,7 @@ export class FhKid extends LitElement {
     if (r.dj ?? /\bdj\b|dinner music/i.test(r.name)) lsSet('fh-dj', { kid: this.kid.name, day: new Date().toDateString() });
     if (this._picMode) say(`Yay! ${r.name}!`);
     this._say(needs ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${r.name}.` : `Nice saving, ${this.kid.name}! ${r.name} – your pick.`);
+    if (needs && !this._owed.includes(r.name)) this._owed = [...this._owed, r.name];
   }
 
   private _feelPick(f: string): void {
@@ -536,9 +561,9 @@ export class FhKid extends LitElement {
       ${this._hero()}
       ${missing ? html`<section class="glass jobs"><div class="empty"><h2 class="t-sub">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${e.chores}</b> and <b>${e.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
-      <div class="side scrolly" @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._jar()}${this._windChat()}`
+      <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._jar()}${this._windChat()}`
         // a small child's own controls sit low on a wall panel: his stars and what is coming up go under the feelings card, the jar (nothing to press) goes on top
-        : this._picMode ? html`${this._jar()}<span style="flex:1 1 0"></span>${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
+        : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
       ${this._confetti && !this._wind ? keyed(this._confetti, confetti(this._confetti)) : nothing}
       ${this._celebrate ? this._celebration() : nothing}
@@ -567,28 +592,28 @@ export class FhKid extends LitElement {
           <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
       : html`
         <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp meter"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
-          <span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600);text-align:right">${li.need - li.into} more to ${li.nextRank}</span></div>
+          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600);text-align:right">${li.need - li.into} more to ${li.nextRank}</span></div>
         <div class="stats">
           <div class="stat"><b>${pts || '✨'}</b><span>${pts ? 'points to spend' : 'Ready to start'}</span></div>
           <div class="stat" role="group" aria-label="Good days: ${goodCount} this week"><span>Good days</span>
             <div class="dots" aria-hidden="true">${Array.from({ length: goodCount }, () => html`<i class="g"></i>`)}</div>
             <span>${goodCount >= 5 ? 'Full week ⭐' : goodCount ? `${goodCount} this week` : 'A fresh week'}</span></div>
         </div>`}
-      ${this._wind ? html`<div class="nextup"><span style="font-size:13px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>`
+      ${this._wind ? html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>`
         : nx ? html`<div class="nextup">
         <span class="shimmer" style="border-radius:50%;line-height:0;width:46px;height:46px;flex-shrink:0">${this._drawn ? renderAvatar(applyItem(look, nx.cat, nx.id, nx.swatch), { size: 46, crop: 'head', still: true, age: this.kid.age }) : nothing}</span>
         <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${goal === nx.id ? '♥ Saving for' : 'Next'}: ${nx.label}</span>
           <div class="xp meter" style="height:7px"><div style="width:${pct}%"></div></div>
-          ${this._picMode ? nothing : html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
-      </div>` : html`<div class="nextup"><span style="font-size:13px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
-      ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
+          ${this._picMode ? nothing : html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
+      </div>` : html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
+      ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind ? nothing : (() => {
-        const wait = this.oneAtATime && this._block().todo.length > 0;
-        return html`${wait ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
-          <button class="pill tap studio" style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => {
-            // the words above the button are a promise, so the button keeps it: jobs first, said gently (aloud for a child who cannot read it)
-            if (wait) { const m = `Jobs first, then ${this._picMode ? 'your look' : 'the studio'}.`; this._sound('tap'); this._say(m); if (this._picMode) say(m); return; }
-            this._studio = true; this._sound('tap'); }}>${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}</button>`;
+        const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
+        return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => {
+            // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
+            if (wait) { this._sound('locked'); if (this._picMode && !this._lookSaid) { this._lookSaid = true; say(`Jobs first, then your look. ${left} to go.`); } return; }
+            this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button>`;
       })()}
     </section>`;
   }
@@ -698,12 +723,13 @@ export class FhKid extends LitElement {
 
   private _rewards(): TemplateResult {
     const have = num(this.hass, this._e.points), list = this.kid.rewards ?? DEFAULT_REWARDS, st = this._star;
-    return html`${list.map((r, i) => {
+    return html`${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
-        if (this._spend === r.name && ok) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?">
+        const held = this._held === r.name;
+        if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held}>
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${r.name}</span></span>
-          <button class="tap" @click=${() => this._redeem(r)}>${tickSvg(18)}Yes</button><button class="tap save" @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
+          <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${tickSvg(18)}Yes</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
         return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" aria-label="${r.name}: ${ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
@@ -722,7 +748,7 @@ export class FhKid extends LitElement {
 
   private _windCard(): TemplateResult {
     return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      <span class="muted" style="font-size:13px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
+      <span class="muted" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
   }
 
   private _jar(): TemplateResult {

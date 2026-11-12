@@ -167,6 +167,8 @@ export interface CalEvent {
   allDay: boolean;
   colour: ColourSlot;
   who: string;
+  /** where it is, when the calendar says */
+  location?: string;
 }
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);

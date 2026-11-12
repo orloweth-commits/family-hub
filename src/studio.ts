@@ -24,23 +24,25 @@ export class FhStudio extends LitElement {
     .tabs button { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
-    .label { font-size: 13px; }
+    .label { font-size: 14px; }
+    /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
+    :host(:not([data-shape='tall'])) .toast { left: 18px; right: auto; margin: 0; max-width: 344px; bottom: 84px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
-    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; grid-auto-rows: max-content; padding: 6px; }
+    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; grid-auto-rows: max-content; padding: 6px 6px 18px; }
     .lock { display: inline-flex; align-items: center; gap: 3px; }
     .lock svg { flex-shrink: 0; }
     .cell { position: relative; display: flex; } .cell > .tile { flex: 1; min-width: 0; }
-    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 13px; font-weight: var(--w-bold, 700); text-align: center; }
+    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 15px; font-weight: var(--w-bold, 700); text-align: center; }
     .tile[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--chip-strong); }
     .tile.locked .av { filter: grayscale(1) brightness(.85); opacity: .55; }
-    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); z-index: 2; }
+    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); z-index: 2; }
     .cell > .heart { z-index: 2; }
     .sw { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .sw button { width: 44px; height: 44px; /* token */ border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
     .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
-    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); }
+    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
@@ -120,7 +122,7 @@ export class FhStudio extends LitElement {
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
       <section class="glass mirror">
         <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
-          <button class="round tap" aria-label="Back" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('left', 18)}</button>
+          <button class="round tap" aria-label=${dirty ? 'Back, and keep this look' : 'Back'} @click=${() => { if (dirty) void this._save(); else this.dispatchEvent(new CustomEvent('close')); }}>${icon('left', 18)}</button>
           <h1 class="t-title" style="flex:1">${this.kid.name}’s studio</h1>
           <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${icon('shuffle', 18)}</button>
         </div>

@@ -14,7 +14,7 @@ export const startOfMonthGrid = (d: Date): Date => startOfWeek(new Date(d.getFul
 
 const loc = 'en-AU';
 export const fmtTime = (d: Date): string =>
-  d.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit', hour12: true }).replace(/\s?([ap])\.?m\.?/i, ' $1m').toLowerCase();
+  d.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit', hour12: true }).replace(/\s?([ap])\.?m\.?/i, '\u00a0$1m').toLowerCase(); // a no-break space: a time never wraps as "11:00 / am"
 export const fmtClock = (d: Date): { hm: string; ampm: string } => {
   const h = d.getHours();
   return { hm: `${h % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')}`, ampm: h < 12 ? 'am' : 'pm' };

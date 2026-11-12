@@ -183,7 +183,7 @@ export const dialView = (c: Ctx): TemplateResult => {
     <div class="dlabels">${c.rooms.map((r, i) => {
       const am = -90 + i * seg + seg / 2, co = Math.cos((am * Math.PI) / 180), si = Math.sin((am * Math.PI) / 180), [quieter, louder] = steps(c, r);
       const tx = co > 0.3 ? '0' : co < -0.3 ? '-100%' : '-50%', ty = Math.abs(co) > 0.3 ? '-50%' : si > 0 ? '0' : '-100%';
-      return html`<div class="dlabel" data-side=${co > 0.3 ? 'r' : co < -0.3 ? 'l' : 'm'} ?data-held=${c.held === r.id} ?data-offline=${r.offline} style="left:${50 + 50.5 * co}%;top:${50 + 50.5 * si}%;transform:translate(${tx},${ty})">
+      return html`<div class="dlabel" data-side=${co > 0.3 ? 'r' : co < -0.3 ? 'l' : 'm'} ?data-held=${c.held === r.id} ?data-offline=${r.offline} style="left:${50 + 50.5 * co + (Math.abs(co) > 0.3 && Math.abs(si) > 0.5 ? 7 * Math.sign(co) : 0)}%;top:${50 + 50.5 * si}%;transform:translate(${tx},${ty})">
         <button class="dname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><b>${r.asleep ? '☾ ' : ''}${r.name}${link(r)}</b><span>${state(r)}</span></button>
         ${r.hasVol && !r.offline ? html`<span class="dstep">${quieter}<b class="vnum" aria-hidden="true">${r.vol}</b>${louder}</span>` : nothing}</div>`;
     })}</div>
@@ -493,9 +493,9 @@ export const viewsCss = css`
   .dn > span { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .dn b, .dn span span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dn b { font-size: 15px; font-weight: var(--w-bold, 700); } .dn span span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dnone { margin: 0; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
-  .dcoins { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .dcoin { width: 48px; height: 48px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
-  .dcoin[data-now] { transform: scale(1.18); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); margin: 0 6px; }
+  .dcoins { display: flex; flex-wrap: nowrap; gap: 3px; align-items: center; margin: 0 -8px; padding: 7px 6px; overflow-x: auto; scrollbar-width: none; }
+  .dcoin { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
+  .dcoin[data-now] { box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); margin: 0 4px; }
   .dwho { margin: 0; font-size: 15px; font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
   .dsleep { min-height: 52px; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 16px; padding: 4px 8px 4px 4px; }
   .dsleep svg { width: 48px; height: 48px; flex-shrink: 0; } .swt { fill: var(--track); stroke: var(--ink2); stroke-width: 1.5; } .sww { fill: var(--accent); }
@@ -505,7 +505,7 @@ export const viewsCss = css`
   .tuner { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 720px); height: 62px; position: relative; border-radius: 20px; background: var(--chip); touch-action: none; cursor: ew-resize; outline: none; user-select: none; -webkit-user-select: none; }
   .tuner:focus-visible { box-shadow: 0 0 0 3px var(--ink); }
   .tticks { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink2) 0 1.5px, transparent 1.5px 14.4px); opacity: .7; -webkit-mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); -webkit-mask-composite: source-over; mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); }
-  .tstop { position: absolute; bottom: 9px; transform: translateX(-50%); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: 15px; line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
   .tstop[data-on] { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .tstop:only-of-type { max-width: 90%; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left var(--mt-4, 400ms) cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }

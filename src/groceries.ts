@@ -92,7 +92,7 @@ export class FhGroceries extends LitElement {
   `];
 
   static properties = {
-    _tk: { state: true }, _just: { state: true },
+    _tk: { state: true }, _just: { state: true }, _sending: { state: true },
     hass: { attribute: false },
     entity: {},
     usuals: { attribute: false },
@@ -204,7 +204,9 @@ export class FhGroceries extends LitElement {
     if (this._undo) { this._toast = ''; this._undo = undefined; }
   }
 
-  private _send(r: GroceryRecipient): void {
+  private _sending = '';
+  private async _send(r: GroceryRecipient): Promise<void> {
+    if (this._sending) return;
     const left = this._items.filter((i) => i.status === 'needs_action');
     if (!left.length) { this._say('The list is empty'); return; }
     const svc = r.notify?.replace(/^notify\./, '');
@@ -212,8 +214,12 @@ export class FhGroceries extends LitElement {
     const grouped = new Map<string, string[]>();
     for (const i of left) { const a = aisleOf(i.summary)[0]; grouped.set(a, [...(grouped.get(a) ?? []), i.summary]); }
     const message = [...grouped].map(([a, xs]) => `${a}: ${xs.join(', ')}`).join('\n');
-    this.hass.callService('notify', svc, { title: `Groceries (${left.length})`, message, data: { url: '/todo?entity_id=' + this.entity } });
-    this._say(`List sent to ${r.name}’s phone`);
+    // say it was sent only when Home Assistant took it
+    this._sending = r.name;
+    let ok = false;
+    try { await this.hass.callService('notify', svc, { title: `Groceries (${left.length})`, message, data: { url: '/todo?entity_id=' + this.entity } }); ok = true; } catch { /* told below */ }
+    this._sending = '';
+    if (this.isConnected) this._say(ok ? `List sent to ${r.name}’s phone` : `The list didn’t reach ${r.name}’s phone. Try again`);
   }
 
   render(): TemplateResult {
@@ -243,7 +249,7 @@ export class FhGroceries extends LitElement {
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
-          ${this.recipients.map((r) => html`<button class="who glass tap" @click=${() => this._send(r)}>
+          ${this.recipients.map((r) => html`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === r.name} aria-busy=${this._sending === r.name ? 'true' : nothing} @click=${() => void this._send(r)}>
             <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
           ${!this.recipients.length ? html`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>` : nothing}
         </div>

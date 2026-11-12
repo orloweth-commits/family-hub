@@ -73,7 +73,7 @@ export class FhDoodle extends LitElement {
     /* who drew it and the hero travel together: on a narrow easel they drop to a second row, still at the right */
     .sign { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px; margin-left: auto; }
     .artists { display: flex; align-items: center; gap: 6px; }
-    .artists > .muted { font-size: 13px; font-weight: var(--w-bold, 700); margin-right: 2px; }
+    .artists > .muted { font-size: 14px; font-weight: var(--w-bold, 700); margin-right: 2px; }
     .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.15; }
     .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: 24px; }
     .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
@@ -98,11 +98,14 @@ export class FhDoodle extends LitElement {
     .stick { animation: stick var(--m-5, 900ms) cubic-bezier(.2,1.3,.4,1); }
     @keyframes stick { 40% { transform: scale(calc(1 - .6 * var(--m-d, 1))) translate(calc(60% * var(--m-d, 1)), calc(-10% * var(--m-d, 1))) rotate(calc(8deg * var(--m-d, 1))); opacity: .6; } }
     .view { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; border-radius: 28px; }
+    .whobox { width: min(560px, 92%); border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+    .whofaces { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .whofaces .artist { min-width: 84px; min-height: 84px; background: var(--chip); }
     .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
   `];
 
   static properties = { hass: { attribute: false }, artists: { attribute: false }, kids: { attribute: false }, pin: {}, _tidy: { state: true }, _askPin: { state: true }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
-    _blank: { state: true }, _pics: { state: true }, _view: { state: true }, _msg: { state: true }, _stick: { state: true } };
+    _blank: { state: true }, _pics: { state: true }, _view: { state: true }, _msg: { state: true }, _stick: { state: true }, _askWho: { state: true } };
   hass?: Hass;
   private _ink = INKS[0];
   private _size = 10;
@@ -121,6 +124,10 @@ export class FhDoodle extends LitElement {
   private _view = '';
   private _msg = '';
   private _stick = false;
+  /** "Who drew it?": asked when a doodle is stuck up with no artist chosen */
+  private _askWho = false;
+  private _esc = (e: KeyboardEvent): void => { if (e.key !== 'Escape' || (!this._view && !this._askWho)) return; e.stopPropagation(); this._view = ''; this._askWho = false; };
+  connectedCallback(): void { super.connectedCallback(); window.addEventListener('keydown', this._esc, true); }
   private _strokes: (Stroke | null)[] = [];
   private _cur: Stroke | null = null;
   private _ctx?: CanvasRenderingContext2D;
@@ -140,7 +147,7 @@ export class FhDoodle extends LitElement {
     this._ro.observe(wrap);
     this._loadFridge();
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); this._ro?.disconnect(); }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._ro?.disconnect(); window.removeEventListener('keydown', this._esc, true); }
 
   private _fit(wrap: HTMLElement): void {
     const c = this._canvas!, dpr = window.devicePixelRatio || 1, w = wrap.clientWidth, h = wrap.clientHeight;
@@ -226,8 +233,11 @@ export class FhDoodle extends LitElement {
     return new Promise((r) => out.toBlob(r, 'image/png'));
   }
 
-  private async _toFridge(): Promise<void> {
+  private async _toFridge(asked = false): Promise<void> {
     if (this._blank) { this._say('Draw something first!'); return; }
+    // no artist chosen: ask, faces first, so the picture carries a name (it can still go up without one)
+    if (!asked && !this._artist && this.artists.length) { this._askWho = true; return; }
+    this._askWho = false;
     const blob = await this._png();
     if (!blob) return;
     const d = new Date(), stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`;
@@ -333,6 +343,10 @@ export class FhDoodle extends LitElement {
           : html`<span class="muted" style="font-size:15px;line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { this._askPin = false; this._tidy = true; }} @cancel=${() => { this._askPin = false; }}></fh-pin>` : nothing}
+      ${this._askWho ? html`<div class="view" @click=${(e: Event) => { if (e.target === e.currentTarget) this._askWho = false; }}><section class="glass sheet whobox" role="dialog" aria-modal="true" aria-label="Who drew it?">
+        <h2 class="t-head">Who drew it?</h2>
+        <div class="whofaces">${this.artists.map((a) => html`<button class="artist tap" @click=${() => { this._artist = a; void this._toFridge(true); }}>${this._face(a)}<span>${a}</span></button>`)}</div>
+        <div style="display:flex;gap:10px;justify-content:center"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => { this._askWho = false; }}>Not yet</button><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => void this._toFridge(true)}>No name</button></div></section></div>` : nothing}
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}
       ${msg ? html`<div class="toast" role="status" ?data-closing=${msgOut}>${msg}</div>` : nothing}`;
   }

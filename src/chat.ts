@@ -101,6 +101,8 @@ export class FhChat extends LitElement {
     .field::placeholder { color: var(--ink2); font-weight: 500; }
     .send .lead { height: 56px; padding: 0 26px; font-size: 18px; }
     button[disabled] { opacity: .45; }
+    /* Send with nothing to send: an outline that still reads, not a faded fill */
+    .send .lead[disabled] { opacity: 1; background: transparent; color: var(--ink2); border: 2px solid var(--ink2); }
     .pill.opt[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
     .keys { align-items: center; }
     .ctl { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
@@ -112,9 +114,9 @@ export class FhChat extends LitElement {
     .starters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
     .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
-    .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-    .opts .pill { font-size: 15px; }
-    .small { font-size: 13px; line-height: 1.35; color: var(--ink2); }
+    .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
+    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 8px; justify-content: center; white-space: nowrap; gap: 4px; }
+    .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
     :host(:not([data-phone])) .ctl > * { flex-shrink: 0; }
@@ -341,7 +343,7 @@ export class FhChat extends LitElement {
           <button type="button" class="pill tap opt kb" style="height:56px;padding:0 16px" aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>
           <button type="submit" class="tap lead" ?disabled=${this._busy || !this._typed.trim()}>Send</button>
         </form>
-        ${this._keys ? keyboard((k) => this._press(k), this._caps, () => { this._caps = !this._caps; }, true) : nothing}
+        ${this._keys ? keyboard((k) => this._press(k), this._caps, () => { this._caps = !this._caps; }, true, true, true) : nothing}
       </div>
       <div class="ctl">
         ${voice ? html`<div class="voice">
@@ -356,7 +358,6 @@ export class FhChat extends LitElement {
           <button class="pill tap" @click=${() => { this._reset(); this._grown = false; }}>Start again</button>
           <button class="pill tap opt" aria-pressed=${String(this._grown)} @click=${() => { if (this._grown) this._grown = false; else this._openLog(); }}>For grown-ups</button>
         </div>
-        <p class="small">Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.</p>
       </div>`;
   }
 

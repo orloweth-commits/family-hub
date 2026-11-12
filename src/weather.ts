@@ -2,7 +2,8 @@ import { LitElement, html, svg, css, nothing, type TemplateResult, type Property
 import { styles } from './styles';
 import { LookController, getLook } from './looks';
 import type { Hass, HassEntity } from './types';
-import { FitController, changed, sfx, say } from './util';
+import { FitController, changed, motion, sfx, say } from './util';
+import { icon } from './icons';
 import './radar';
 
 /** What the page reads besides the weather entity. Every part is optional and found by itself where it can be. */
@@ -94,7 +95,7 @@ const speakerIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria
 const TITLES: Record<string, [string, string, string, string]> = {
   glass: ['Right now', 'The next hours', 'The week ahead', 'From above'],
   fridge: ['Today', 'Later on', 'This week', 'Rain and wind'],
-  orbit: ['Surface conditions', 'Next 24 hours', 'Seven-day outlook', 'Ground scan']
+  orbit: ['Weather now', 'Next 24 hours', 'Seven-day outlook', 'Rain radar and wind']
 };
 
 
@@ -128,7 +129,7 @@ export class FhWeather extends LitElement {
     /* advice a child can act on: up to three pictures of what to wear or take, and a button that says it aloud */
     .wtip { display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 10px; border-radius: 16px; background: var(--chip); }
     .tips { flex: 1; min-width: 0; display: flex; gap: 6px; justify-content: space-around; }
-    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; }
     .tipone svg { width: 64px; height: 64px; flex-shrink: 0; }
     .speak { width: 52px; height: 52px; /* token */ border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .said { font-size: 15px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
@@ -140,17 +141,20 @@ export class FhWeather extends LitElement {
     .wfact.wide { grid-column: span 6; flex-direction: row; align-items: center; gap: 12px; }
     .wfact.stack { flex-direction: column; align-items: flex-start; gap: 1px; }
     .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
-    .wfact small { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
+    .wfact small { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
     /* the card tightens in steps until it fits: the Bureau's paragraph goes first, then the least urgent readings */
     .wnow[data-fit] { gap: 8px; }
     .wnow[data-fit] .said { display: none; }
-    .wnow[data-fit='2'] .x2, .wnow[data-fit='3'] .x2, .wnow[data-fit='3'] .x3 { display: none; }
+    .wnow[data-fit='2'] .tipone svg, .wnow[data-fit='3'] .tipone svg { width: 40px; height: 40px; }
+    .wnow[data-fit='2'] .wtip, .wnow[data-fit='3'] .wtip { padding: 4px 6px 4px 10px; }
+    .wnow[data-fit='2'] .tipone, .wnow[data-fit='3'] .tipone { flex-direction: row; justify-content: center; gap: 6px; }
+    .wnow[data-fit='3'] .x3 { display: none; }
     .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: 50px; }
     .wnow[data-fit='3'] { gap: 6px; padding-top: 12px; padding-bottom: 12px; }
     .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .wcomp { flex-shrink: 0; }
     .wcomp .ring { fill: none; stroke: var(--ink2); stroke-width: 1.5; opacity: .5; }
-    .wcomp text { font-size: 13px; font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
+    .wcomp text { font-size: 14px; font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
     .wcomp .needle { fill: var(--accent); transform-origin: 32px 32px; }
     .wcomp .sway { transform-origin: 32px 32px; animation: sway 3.600s ease-in-out infinite; animation-play-state: var(--motion, running); }
     @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
@@ -160,18 +164,18 @@ export class FhWeather extends LitElement {
     .hscroll::-webkit-scrollbar { display: none; }
     .hscroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
     /* whole hours only: the columns are sized to the strip, and an edge with more beyond it fades */
-    .hscroll[data-more-r] { -webkit-mask-image: linear-gradient(to left, transparent, #000 28px); mask-image: linear-gradient(to left, transparent, #000 28px); }
-    .hscroll[data-more-l] { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px); mask-image: linear-gradient(to right, transparent, #000 28px); }
-    .hscroll[data-more-l][data-more-r] { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
+    .hhead { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: -8px 0 -6px; }
+    .hhead h2 { flex: 1; min-width: 0; }
+    .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .hchart { display: block; }
-    .hchart text { font-size: 13px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
-    .hchart .wind { font-size: 13px; }
+    .hchart text { font-size: 14px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
+    .hchart .wind { font-size: 14px; }
     .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
     .hchart .rainbar { fill: #3b9ae1; }
-    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: 13px; font-weight: 700; }
-    .hchart .day { font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
+    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: 14px; font-weight: 700; }
+    .hchart .day { font-size: 14px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
     .hchart .split { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .5; }
 
     /* week */
@@ -179,10 +183,10 @@ export class FhWeather extends LitElement {
     .wday { display: grid; grid-template-columns: 52px 40px 1fr; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 14px; min-height: 52px; }
     .wday.today { background: var(--chip); }
     .wday .dn { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .wday .dn small { display: block; font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wday .dn small { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     .wday .lo { color: var(--ink2); text-align: right; }
-    .wday .wet { grid-column: 1 / -1; font-size: 13px; font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
+    .wday .wet { grid-column: 1 / -1; font-size: 14px; font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
     .track { height: 8px; border-radius: 4px; background: var(--track); position: relative; }
     .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 8px; }
 
@@ -194,7 +198,7 @@ export class FhWeather extends LitElement {
     .mbox { flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; position: relative; background: var(--chip-soft); }
     .mbox iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: 15px; line-height: 1.4; max-width: 340px; }
-    .credit { font-size: 13px; color: var(--ink2); padding: 0 6px; }
+    .credit { font-size: 14px; color: var(--ink2); padding: 0 6px; }
     .off { grid-column: 1 / -1; align-items: center; justify-content: center; text-align: center; gap: 8px; }
     .off p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 520px; }
     .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); margin-top: 6px; }
@@ -222,10 +226,12 @@ export class FhWeather extends LitElement {
     @keyframes flash { 0%, 100% { opacity: 1; } 6% { opacity: .2; } 9% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } }
   `];
 
-  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _failed: { state: true }, _hw: { state: true } };
+  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _failed: { state: true }, _hw: { state: true } };
   /** width of one hour's column, so the strip always shows whole hours */
   private _hw = 58;
   private _ro?: ResizeObserver;
+  private _moreL = false;
+  private _moreR = false;
   hass?: Hass;
   entity = '';
   page: WeatherPageConfig = {};
@@ -250,8 +256,9 @@ export class FhWeather extends LitElement {
     if (!el || !el.clientWidth) return;
     const w = el.clientWidth / Math.max(1, Math.floor(el.clientWidth / 58));
     if (Math.abs(w - this._hw) > 0.05) { this._hw = w; return; }
-    el.toggleAttribute('data-more-r', el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
-    el.toggleAttribute('data-more-l', el.scrollLeft > 4);
+    const r = el.scrollWidth - el.scrollLeft - el.clientWidth > 4, l = el.scrollLeft > 4;
+    el.toggleAttribute('data-more-r', r); el.toggleAttribute('data-more-l', l);
+    if (r !== this._moreR || l !== this._moreL) { this._moreR = r; this._moreL = l; }
   }
   private _snapTimer?: number;
   /** After a swipe the strip settles on a whole hour. */
@@ -411,8 +418,11 @@ export class FhWeather extends LitElement {
     const lo = Math.min(...temps), hi = Math.max(...temps), y = (t: number) => 98 - ((t - lo) / Math.max(1, hi - lo)) * 24;
     const x = (i: number) => i * W + W / 2;
     const pts = hs.map((h, i) => `${x(i)} ${y(h.temperature ?? lo)}`);
+    const step = (dir: number): void => { const el = this.renderRoot.querySelector<HTMLElement>('.hscroll'); if (el) el.scrollTo({ left: Math.round((el.scrollLeft + dir * el.clientWidth) / this._hw) * this._hw, behavior: motion(this).travel ? 'smooth' : 'auto' }); };
     return html`<section class="glass whours">
-      <h2>${this._titles()[1]}</h2>
+      <div class="hhead"><h2>${this._titles()[1]}</h2>
+        <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => step(-1)}>${icon('left', 20)}</button>
+        <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => step(1)}>${icon('right', 20)}</button></div>
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
         <svg class="hchart" width=${n * W} height=${H} viewBox="0 0 ${n * W} ${H}">
           ${svg`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${n * W} y1="0" y2="0">${hs.map((h, i) => svg`<stop offset=${i / (n - 1)} stop-color=${tcol(h.temperature ?? lo)}></stop>`)}</linearGradient></defs>
@@ -421,7 +431,7 @@ export class FhWeather extends LitElement {
           ${hs.map((h, i) => {
             const d = new Date(h.datetime), p = h.precipitation_probability ?? 0, newDay = i > 0 && d.getHours() === 0;
             return svg`
-              ${newDay ? svg`<path class="split" d="M${i * W} 18V${H - 4}"></path><text class="day" x=${i * W + 4} y="11" style="text-anchor:start">${d.toLocaleDateString('en-AU', { weekday: 'short' })}</text>` : nothing}
+              ${newDay ? svg`<path class="split" d="M${i * W} 18V${H - 4}"></path><text class="day" x=${i * W + 4} y="12.5" style="text-anchor:start">${d.toLocaleDateString('en-AU', { weekday: 'short' })}</text>` : nothing}
               <text x=${x(i)} y=${newDay ? 26 : 13}>${i === 0 ? 'Now' : hourLabel(d)}</text>
               <svg class="sky" x=${x(i) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${glyph(h.condition)}</svg>
               <circle cx=${x(i)} cy=${y(h.temperature ?? lo)} r="3.5" fill=${tcol(h.temperature ?? lo)}></circle>

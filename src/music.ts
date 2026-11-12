@@ -75,7 +75,7 @@ export class FhMusic extends LitElement {
     .helpb { color: var(--ink); }
     .body { position: relative; }
     /* the hint: one quiet line in the toolbar beside "?", shown for four seconds the first time a view is opened and whenever "?" is tapped. It is never laid over the view. On a wide screen it borrows the search field's place while it shows. */
-    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
+    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
     .mhead[data-one][data-hinting] .finder { display: none; }
@@ -117,7 +117,7 @@ export class FhMusic extends LitElement {
     .map.snug .mstairs { flex-basis: 36px; }
     /* the little house: each room is a button, so the room leaves space for its focus ring */
     .map.snug .mroom { overflow: visible; } .map.snug .mz:first-child { border-radius: 16px 0 0 16px; } .map.snug .mz:last-child { border-radius: 0 16px 16px 0; } .map.snug .mz:only-child { border-radius: 16px; }
-    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 14px; position: relative; transition: background var(--m-2, 160ms); }
+    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 15px; position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
     .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
     .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
@@ -128,6 +128,7 @@ export class FhMusic extends LitElement {
     /* shelves: a crate of records next to the house */
     .shelfrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .crate { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+    .chiprow.dividers { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 3px 3px; margin: -4px -3px -3px; } .chiprow.dividers .pchip { flex: 0 1 auto; min-width: 44px; white-space: nowrap; }
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
     .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
     .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
@@ -176,7 +177,7 @@ export class FhMusic extends LitElement {
     .spk .sn2 { font-size: 16px; line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .spk .top { display: flex; align-items: center; gap: 10px; }
     .spk .rsel { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; min-height: 44px; }
-    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .moveb { height: 44px; font-size: 15px; align-self: flex-start; }
     .thumb { width: 44px; height: 44px; border-radius: 12px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: 7px; }
     .eq i { width: 4px; border-radius: 2px; background: #fff; animation: eq .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); box-shadow: 0 0 4px rgba(0,0,0,.4); }
@@ -200,7 +201,7 @@ export class FhMusic extends LitElement {
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 6px; }
     .covers[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 14px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
+    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
     .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
     .st .lbl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
@@ -221,18 +222,18 @@ export class FhMusic extends LitElement {
     .coin .face { position: relative; } .fpic { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     /* someone with a song waiting wears its cover, not a tick */
     .coin .has { position: absolute; right: -6px; bottom: -6px; width: 26px; height: 26px; border-radius: 7px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--chip-strong), 0 2px 4px rgba(0,0,0,.3); }
-    .coin .cnext { height: 16px; font-size: 13px; font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .coin .cnext { height: 16px; font-size: 14px; font-weight: var(--w-heavy, 800); color: var(--ink); }
     .coin[data-next] .face { box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .jcovers { flex: 1; min-height: 0; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: var(--w-semi, 600); }
+    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
     .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background var(--m-2, 160ms); flex-shrink: 0; }
     .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .jsw[aria-checked='true'] i { background: var(--ok); }
     .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
+    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
@@ -244,19 +245,19 @@ export class FhMusic extends LitElement {
     .pickrow .pcover .art { position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; box-shadow: 0 8px 14px -8px rgba(0,0,0,.5); background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; }
     .pcover .init { position: absolute; left: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); font-size: 13px; box-shadow: 0 0 0 2.5px var(--chip-strong); }
     .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
-    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 13px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
+    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 14px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
     .when i { font-style: normal; display: inline-flex; }
     .pickrow[data-next] .when { background: var(--primary); color: var(--on-primary); }
     .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
     .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
-    .soft { color: var(--ink2); font-size: 13px; font-weight: var(--w-semi, 600); }
+    .soft { color: var(--ink2); font-size: 14px; font-weight: var(--w-semi, 600); }
 
     /* ---- the house: rooms you can see, music you can pick up ---- */
     .map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; position: relative; user-select: none; -webkit-user-select: none; }
     .floor { flex: 1 1 0; min-height: 96px; display: flex; gap: 8px; }
-    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 13px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
     .mroom { flex: var(--size, 1) 1 0; min-width: 0; display: flex; border-radius: 20px; background: var(--chip-soft); overflow: hidden; }
     /* the stairs: treads seen from above between two rails (level lines, so they never look like the slanted hatch of a speaker that is offline) */
     .mstairs { flex: 0 0 54px; border-radius: 10px; background: repeating-linear-gradient(to bottom, var(--ink3) 0 2.5px, transparent 2.5px 16px) 9px 0 / calc(100% - 18px) 100% no-repeat, var(--chip-soft); box-shadow: inset 5px 0 0 var(--ink3), inset -5px 0 0 var(--ink3); }
@@ -301,7 +302,11 @@ export class FhMusic extends LitElement {
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
     .grab { position: absolute; right: 6px; bottom: var(--lvl); width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; outline: none; border-radius: 12px; transition: bottom var(--mt-2, 160ms) ease-out; z-index: 1; }
     .grab i { display: block; width: 52px; height: 14px; box-sizing: border-box; border-radius: 7px; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--c), 0 2px 5px rgba(0,0,0,.3); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
-    .mzone:not([data-live]) .grab i { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); }
+    .mzone:not([data-live]) .grab i { background: var(--knob-quiet, var(--chip-strong)); box-shadow: inset 0 0 0 3px var(--ink3); }
+    .mzone:not([data-live]):not([data-offline])::after { content: ''; position: absolute; right: 31px; bottom: var(--r0); top: var(--r1); width: 6px; border-radius: 3px; background: var(--track); pointer-events: none; }
+    /* Orbit keeps mint for "done": a paused room's handle is grey, and the jukebox switch is yellow when on */
+    :host([data-look='orbit']) .mzone[data-live]:not([data-playing]) .grab i { box-shadow: inset 0 0 0 3px var(--ink2), 0 2px 5px rgba(0,0,0,.3); }
+    :host([data-look='orbit']) .jsw[aria-checked='true'] i { background: var(--accent); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
     .puck { position: absolute; left: 50%; bottom: 12px; width: 68px; height: 68px; margin-left: -40px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; touch-action: none; cursor: grab;
       background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
@@ -316,7 +321,7 @@ export class FhMusic extends LitElement {
     .maprow > .map { min-width: 0; }
     .mshelf { flex: 0 0 clamp(236px, 25%, 310px); min-width: 0; border-radius: 22px; background: var(--chip); padding: 12px; display: flex; flex-direction: column; gap: 10px; user-select: none; -webkit-user-select: none; }
     .shead { display: flex; align-items: center; justify-content: flex-start; gap: 4px; flex-wrap: wrap; }
-    .shead b { flex: 1 1 100%; min-width: 0; font-size: 13px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shead b { flex: 1 1 100%; min-width: 0; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .swho { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
@@ -325,11 +330,13 @@ export class FhMusic extends LitElement {
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 26px; font-size: 13px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 13px; font-weight: var(--w-bold, 700); }
-    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .srec span { max-width: 100%; height: 26px; font-size: 15px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
     .wholeh b { display: block; font-size: 16px; font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wholeh[data-joined] { border-style: solid; border-color: var(--ink2); background: var(--sel-bg); color: var(--sel-ink); } .wholeh[data-joined] span span { color: inherit; }
+    .wholeb[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .wholeh[data-open] { border-color: var(--primary); animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     .wholeh[data-hot] { border-style: solid; border-color: var(--primary); background: color-mix(in srgb, var(--primary) 22%, transparent); transform: scale(1.03); animation: none; }
     /* each room's speaker: louder music sends its ripples further */
@@ -369,13 +376,13 @@ export class FhMusic extends LitElement {
     /* ---- polish pass ---- */
     /* the tab pictures in the title row get their words when the page is wide enough */
     .panel { container: panel / inline-size; }
-    @container panel (min-width: 1500px) { .tabs.inline button { flex: 0 0 auto; padding: 0 14px; } .tabs.inline button span { display: inline; } }
+    .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } .tabs.inline[data-words] button span { display: inline; }
     /* Whole house is a plain button: play is the one filled key in the toolbar */
     .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: 15px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .acts .pill[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     /* the house: a room's volume is a level you can see, with its number inside and a bar to hold. The level runs between the quieter button at the bottom and the louder button under the ＋. */
-    .pool, .grab, .zvol { --r0: 56px; --r1: 104px; --lvl: calc(var(--r0) + (100% - var(--r0) - var(--r1)) * var(--v, 0) / 100); }
-    @container zone (max-height: 219px) { .pool, .grab, .zvol { --r0: 14px; --r1: 58px; } .mzone > .vstep { display: none; } }
+    .pool, .grab, .zvol, .mzone::after { --r0: 56px; --r1: 104px; --lvl: calc(var(--r0) + (100% - var(--r0) - var(--r1)) * var(--v, 0) / 100); }
+    @container zone (max-height: 219px) { .pool, .grab, .zvol, .mzone::after { --r0: 14px; --r1: 58px; } .mzone > .vstep { display: none; } }
     @container zone (max-width: 139px) { .puck { left: 44%; } }
     .zvol { position: absolute; left: 12px; bottom: 8px; font-size: 20px; line-height: 1; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; pointer-events: none; transform-origin: left bottom; transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
     .mzone:not([data-live]) .zvol { color: var(--ink2); }
@@ -394,7 +401,7 @@ export class FhMusic extends LitElement {
 
   static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _held: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
-    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true } };
+    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true } };
   hass?: Hass;
   players: string[] = [];
   stations: (string | StationConfig)[] = [];
@@ -507,7 +514,8 @@ export class FhMusic extends LitElement {
     if (el) { const t = window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250), done = (): void => { clearTimeout(t); el.removeAttribute('data-busy'); el.removeAttribute('aria-busy'); }; p.then(done, done); }
     return p;
   }
-  private _say(m: string, undo?: () => void): void { this._msg = m; this._undo = undo ?? null; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
+  private _undoLabel = 'Undo';
+  private _say(m: string, undo?: () => void, label = 'Undo'): void { this._msg = m; this._undo = undo ?? null; this._undoLabel = label; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
   /** Something did not work: say so plainly and calmly, and keep the detail for the console. */
   private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(`${what}. Try again in a moment.`); }
   private _undo: (() => void) | null = null;
@@ -568,11 +576,23 @@ export class FhMusic extends LitElement {
   /** A room view other than the list takes the whole page: the player steps aside and its controls move into the bar above the view. */
   private get _full(): boolean { return this._tab === 'rooms' && this._mode !== 'list' && !this._peek && !!this._cur; }
   protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); }
+  /** Beside a full-page view the tabs are icons; they get their words back whenever the row has room for them (the search field may shrink to make it). */
+  private _fitTabs(): void {
+    const tabs = this.renderRoot.querySelector<HTMLElement>('.mhead[data-one] .tabs.inline'), head = tabs?.parentElement;
+    if (!tabs || !head) return;
+    tabs.setAttribute('data-words', '');
+    const fin = head.querySelector<HTMLElement>('.finder'), nb = head.querySelector<HTMLElement>('.nowbar');
+    // the search field and the hint share one place: whichever is showing must keep at least 118 px, so the words do not come and go with the hint
+    const slot = fin?.offsetParent ? fin : head.querySelector<HTMLElement>('.hint[data-on]');
+    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230);
+    if (!ok) tabs.removeAttribute('data-words');
+  }
   protected updated(ch: PropertyValues): void {
     // a change of tab fades its body in and its icon nods; arriving on the page does neither (the page itself is what arrives)
     if (ch.has('_tab') && ch.get('_tab') !== undefined) { const m = motion(this, '--m-3');
       this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
       this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
+    this._fitTabs();
     const p = this._cur;
     if (!this.hass || !p) return;
     // refresh "up next" when the track or the room changes
@@ -647,9 +667,16 @@ export class FhMusic extends LitElement {
   /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
   private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
+  /** True when the music that is playing is already in every room that can be reached. */
+  private get _allJoined(): boolean {
+    const src = this._source(); if (!src) return false;
+    const lead = this._leader(src) ?? src, mix = this._mix(lead), others = this._list.filter((x) => !this._off(x) && x.entity_id !== lead.entity_id);
+    return others.length > 0 && others.every((x) => mix.includes(x.entity_id));
+  }
   private _spread(): void {
     const src = this._source();
     if (!src) { this._say('Nothing is playing yet'); return; }
+    if (this._allJoined) { this._say(`Already playing in the whole house. “Just ${this._name(this._leader(src) ?? src)}” takes the other rooms out.`); return; }
     this._wholeHouse(() => { this._focus = src.entity_id; this._everywhere(true, src); });
   }
   private _everywhere(on: boolean, p = this._cur): void {
@@ -681,16 +708,22 @@ export class FhMusic extends LitElement {
   /** A room's volume as shown: the one being dragged or just sent, else what Home Assistant reports. */
   private _volOf(p?: HassEntity): number | null { if (!p) return null; const id = p.entity_id; return id in this._dv ? this._dv[id] : typeof p.attributes.volume_level === 'number' ? Math.round(p.attributes.volume_level * 100) : null; }
   /** Show a volume while it is dragged; on `commit` send it. If Home Assistant refuses, the thumb glides back to what the speaker really has and the page says so. */
-  private _setVol(id: string, to: number, commit: boolean): void {
+  private _volFrom: Record<string, number> = {};
+  private _setVol(id: string, to: number, commit: boolean, back = false): void {
     const v = Math.max(0, Math.min(100, Math.round(to)));
+    const p = this._list.find((x) => x.entity_id === id), real = typeof p?.attributes.volume_level === 'number' ? Math.round(p.attributes.volume_level * 100) : null;
+    // where a drag started, so a slip of more than 30 points can be taken back
+    if (!commit && !(id in this._volFrom) && real !== null) this._volFrom[id] = real;
     this._dv = { ...this._dv, [id]: v }; this._held = commit ? '' : id;
     if (!commit) return;
+    const from = this._volFrom[id]; delete this._volFrom[id];
+    if (!back && from !== undefined && Math.abs(v - from) > 30) this._say(`${this._name(p)}: volume ${from} to ${v}`, () => this._setVol(id, from, true, true), `Back to ${from}`);
     const clear = (): void => { if (this._dv[id] === v) { const { [id]: _gone, ...rest } = this._dv; this._dv = rest; } };
     this._h.callService('media_player', 'volume_set', { entity_id: id, volume_level: v / 100 })
       .then(() => { window.setTimeout(clear, 900); }, (e: unknown) => { clear(); this._oops(`Couldn’t change the volume in ${this._name(this._list.find((x) => x.entity_id === id))}`, e); }); // hold the new level until Home Assistant reports it
   }
   /** A drag that was called off (the page scrolled instead): forget what was shown. */
-  private _volDrop(id: string): void { const { [id]: _gone, ...rest } = this._dv; this._dv = rest; this._held = ''; }
+  private _volDrop(id: string): void { const { [id]: _gone, ...rest } = this._dv; this._dv = rest; this._held = ''; delete this._volFrom[id]; }
   private _volStep(id: string, by: number): void { const v = this._volOf(this._list.find((x) => x.entity_id === id)); if (v !== null) this._setVol(id, v + by, true); }
   /** A person's face: a child's avatar, head only (as in the dock); an initial for anyone without one. */
   private _face(name: string, size: number): TemplateResult | string {
@@ -933,8 +966,8 @@ export class FhMusic extends LitElement {
               <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i><span>${m.name}</span></button>`)}
             ${list.length > MAX ? html`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => { this._tab = 'shelves'; }}>＋${list.length - show.length}<span>more</span></button>` : nothing}</div>`
           : html`<div class="snone">${icon('sleeve', 34)}<span>${wind ? 'Nothing calm pinned yet.' : 'Nothing pinned yet.'}<br>Search for music, then tap Pin.</span></div>`}` : html`<span style="flex:1"></span>`}
-      <button class="wholeh tap" data-drop="all" ?data-open=${!!drag} ?data-hot=${drag?.over === 'all'} @click=${() => this._spread()}>
-        ${icon('home', 26)}<span><b>Whole house</b><span>${drag ? 'Drop it here' : 'Drop music here'}</span></span></button>
+      <button class="wholeh tap" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-joined=${this._allJoined} ?data-open=${!!drag} ?data-hot=${drag?.over === 'all'} @click=${() => this._spread()}>
+        ${this._allJoined ? icon('check', 26) : icon('home', 26)}<span><b>Whole house</b><span>${drag ? 'Drop it here' : this._allJoined ? 'Playing in every room' : 'Drop music here'}</span></span></button>
     </div>`;
   }
 
@@ -1018,7 +1051,9 @@ export class FhMusic extends LitElement {
     const now = minsNow(), wake = hm(this.quiet.end ?? '06:30');
     return this.kids.some((k) => kidSpeaker(this.hass!, k, this._list)?.entity_id === id && (now >= hm(bedtimeFor(k.bedtime)) || now < wake));
   }
-  private _call(checked = false): void {
+  private _calling = false;
+  private async _call(checked = false): Promise<void> {
+    if (this._calling) return;
     const msg = this._callMsg.trim(), to = this._callTo.length ? this._callTo : [];
     const tts = Object.keys(this.hass!.states).filter((e) => e.startsWith('tts.')).sort((a, b) => Number(b.includes('cloud')) - Number(a.includes('cloud')))[0];
     if (!to.length) { this._say('Choose a room first'); return; }
@@ -1027,20 +1062,25 @@ export class FhMusic extends LitElement {
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     // each room's own bedtime comes first; the household's quiet time covers the rest
     const quiet = isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30'), abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
-    if (!checked && this.pin && (quiet || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `${this._name(this.hass!.states[abed[0]])} is asleep. Call anyway?` : quiet ? 'Quiet time. Call anyway?' : 'A typed message needs a grown-up.', run: () => this._call(true) }; return; }
+    if (!checked && this.pin && (quiet || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `${this._name(this.hass!.states[abed[0]])} is asleep. Call anyway?` : quiet ? 'Quiet time. Call anyway?' : 'A typed message needs a grown-up.', run: () => void this._call(true) }; return; }
     this._lastCall = Date.now();
     const h = this._h, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
-    const failed = (id: string) => (e: unknown): void => this._oops(`Couldn’t call ${this._name(h.states[id])}`, e);
+    // each room answers true when Home Assistant took the call; the toast says "Calling" only for rooms that did
     // the plain way: Home Assistant speaks on the speaker at whatever volume it is set to. If the voice has no such language, it speaks in its own.
-    const speak = (id: string): void => { h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice }, { entity_id: tts })
-      .catch(() => h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts })).catch(failed(id)); };
+    const speak = (id: string): Promise<boolean> => Promise.resolve(h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice }, { entity_id: tts }))
+      .catch(() => h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts })).then(() => true, (e: unknown) => { console.warn('Family Hub: call failed', id, e); return false; });
     // Music Assistant speakers can be told how loud to say it: make the speech once, then announce it in each room at the call volume
     const ma = to.filter((id) => !!h.services?.music_assistant?.play_announcement && (h.entities?.[id] as { platform?: string } | undefined)?.platform === 'music_assistant');
-    for (const id of to) if (!ma.includes(id)) speak(id);
-    if (ma.length) h.callApi<{ url?: string }>('POST', 'tts_get_url', { engine_id: tts, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice })
-      .then((r) => { if (!r?.url) throw new Error('no speech'); for (const id of ma) h.callService('music_assistant', 'play_announcement', { url: r.url, announce_volume: vol }, { entity_id: id }).catch(() => speak(id)); })
-      .catch(() => { for (const id of ma) speak(id); });
-    this._say(`Calling ${to.length === 1 ? this._name(this.hass!.states[to[0]]) : `${to.length} rooms`}`);
+    const jobs: Promise<boolean>[] = to.filter((id) => !ma.includes(id)).map(speak);
+    if (ma.length) { const url = Promise.resolve(h.callApi<{ url?: string }>('POST', 'tts_get_url', { engine_id: tts, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice })).then((r) => r?.url ?? '', () => '');
+      for (const id of ma) jobs.push(url.then((u) => u ? Promise.resolve(h.callService('music_assistant', 'play_announcement', { url: u, announce_volume: vol }, { entity_id: id })).then(() => true, () => speak(id)) : speak(id))); }
+    this._calling = true;
+    const done = await Promise.all(jobs), okIds = to.filter((id) => done[[...to.filter((x) => !ma.includes(x)), ...ma].indexOf(id)]);
+    this._calling = false;
+    if (!this.isConnected) return;
+    const nm = (ids: string[]): string => ids.length === 1 ? this._name(h.states[ids[0]]) : `${ids.length} rooms`;
+    if (okIds.length === to.length) this._say(`Calling ${nm(to)}`);
+    else { this._lastCall = 0; this._say(okIds.length ? `Calling ${nm(okIds)}. ${nm(to.filter((id) => !okIds.includes(id)))} didn’t answer` : `The call didn’t go through. Try again in a moment.`); }
   }
 
   /* ---------------- render ---------------- */
@@ -1064,7 +1104,7 @@ export class FhMusic extends LitElement {
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>Undo</button>` : nothing}</div>`;
+      <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>${this._undoLabel}</button>` : nothing}</div>`;
   }
 
   private _hero(p: HassEntity): TemplateResult {
@@ -1107,7 +1147,7 @@ export class FhMusic extends LitElement {
     const cur = this._cur, mine = cur && this._leader(cur), mode = this._mode, off = this._offline;
     return html`
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change the view" @click=${() => { sfx('tap'); this._viewAsk = true; }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
-        ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${icon('home', 20)}Whole house</button>`}
+        ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${this._allJoined ? icon('check', 20) : icon('home', 20)}Whole house</button>`}
         ${mine && this._mix(mine).length ? html`<button class="pill tap" style="font-size:15px" @click=${() => this._everywhere(false, mine)}>Just ${this._name(mine)}</button>` : nothing}
         ${off.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${off.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${off.length === this._list.length ? 'Every speaker is offline' : `${off.length} ${off.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(true)}>?</button>
@@ -1278,7 +1318,7 @@ export class FhMusic extends LitElement {
         <div class="bubbles">${CALLS.map((m, i) => html`<button class="bubble tap" aria-pressed=${String(this._callMsg === m)} @click=${() => pick(m)}><span class="bpic" aria-hidden="true">${CALL_PIC[i]}</span>${m}</button>`)}</div></div>`}
       <div class="sayrow">${this._ckeys ? html`<span class="qpics" role="group" aria-label="Ready messages">${CALLS.map((m, i) => html`<button class="qpic tap" aria-pressed=${String(this._callMsg === m)} aria-label=${m} @click=${() => pick(m)}>${CALL_PIC[i]}</button>`)}</span>` : nothing}
         <input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
-        <button class="pill tap primary sayit" @click=${() => this._call()}>${icon('megaphone', 22)} Say it</button>
+        <button class="pill tap primary sayit" ?disabled=${this._calling} ?data-busy=${this._calling} aria-busy=${this._calling ? 'true' : nothing} @click=${() => void this._call()}>${icon('megaphone', 22)} Say it</button>
         ${this._ckeys ? html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" aria-label="Hide the keyboard" @click=${() => { this._ckeys = false; }}>${icon('close', 22)}</button>` : nothing}</div>
       ${this._ckeys ? html`<div style="margin:auto 0 0">${keyboard((k) => { [this._callMsg, this._caps] = typeKey(this._callMsg, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>`
         : html`<span class="soft" style="font-size:14px">It is spoken over the music in that room, then the music carries on.</span>`}`;
