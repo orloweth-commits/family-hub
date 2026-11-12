@@ -37,8 +37,8 @@ export class FhGroceries extends LitElement {
     .items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
     .item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 9px 12px; border-radius: 14px; background: var(--chip); width: 100%; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink3); }
-    .done .box { background: var(--ok); border-color: var(--ok); color: #fff; }
-    .done .txt { color: var(--ink3); }
+    .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
+    .done .txt { color: var(--ink-done, var(--ink3)); }
     .txt { flex: 1; font-size: 17px; font-weight: var(--w-semi, 600); }
     .tag { font-size: 12px; font-weight: var(--w-bold, 700); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
     .items[data-fit] { gap: 3px; }

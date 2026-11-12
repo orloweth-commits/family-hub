@@ -91,7 +91,7 @@ export class FhKid extends LitElement {
     .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
     .sec span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
-    .job .box { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: var(--w-heavy, 800); transition: all .25s cubic-bezier(.2,1.4,.4,1); }
+    .job .box { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--on-ok, #fff); font-weight: var(--w-heavy, 800); transition: all .25s cubic-bezier(.2,1.4,.4,1); }
     /* a tap anywhere on the row ticks the job (the row listens; the button inside keeps it reachable by keyboard and screen reader) */
     .job { cursor: pointer; }
     .job > .hit { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; text-align: left; min-height: 44px; }
@@ -116,7 +116,7 @@ export class FhKid extends LitElement {
     .feel.three { justify-content: space-around; }
     .feel.three button { font-size: 46px; width: 72px; height: 72px; }
     .job.done .box { background: var(--ok); border-color: var(--ok); transform: scale(1.08); }
-    .job.done .t { color: var(--ink3); text-decoration: line-through; }
+    .job.done .t { color: var(--ink-done, var(--ink3)); text-decoration: line-through; }
     .job .t { flex: 1; font-size: 18px; font-weight: var(--w-semi, 600); }
     .plus { font-size: 14px; font-weight: var(--w-heavy, 800); padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--kid) 22%, transparent); white-space: nowrap; }
     .grow { background: color-mix(in srgb, var(--ok) 18%, transparent); }
