@@ -52,7 +52,7 @@ await page.getByRole('button', { name: 'Add', exact: true }).click(); await page
 await page.close();
 page = await open('look=fridge&sheet=add');
 for (const k of ['s', 'w', 'i', 'm']) await page.locator('fh-add-event .key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
-console.log('add-event typed:', await page.locator('fh-add-event input').inputValue()); await shot(page, 'c-add-fridge');
+console.log('add-event typed:', await page.locator('fh-add-event input').first().inputValue()); await shot(page, 'c-add-fridge');
 await page.close();
 
 // 6. wind-down: bedtime wedge (Max's bedtime 7:30 pm, at 7:10 pm)
@@ -85,6 +85,71 @@ console.log('weather clipped:', await wx('section').evaluateAll((els) => els.fil
 await page.close();
 page = await open('look=orbit&page=weather&bom=0');
 console.log('weather without sensors:', (await page.locator('fh-weather .wtemp').innerText()).replace(/\s+/g, ''), '| facts:', await page.locator('fh-weather .wfact').count(), '| days:', await page.locator('fh-weather .wday').count());
+await page.close();
+
+// 10. the notes of 12 November: time dial, date picker, place finder, emergency button, tidy the fridge, who is home
+page = await open('look=glass&sheet=add', '14:20');
+const ae = (sel, o) => page.locator('fh-add-event ' + sel, o);
+console.log('add: time chips gone:', await ae('.chips button', { hasText: /^\d\d:\d\d$/ }).count() === 0, '| drums:', await ae('.drum').count(), '| starts at:', await ae('.drum i[data-on]').allInnerTexts(), await ae('.ampm button[aria-pressed=true]').innerText());
+await ae('.drum').first().evaluate((d) => { d.scrollTop += 44 * 2; }); await page.waitForTimeout(500);
+await ae('.ampm button', { hasText: /^am$/ }).click();
+console.log('add: after spinning two hours and am:', await ae('.drum i[data-on]').allInnerTexts(), await ae('.ampm button[aria-pressed=true]').innerText());
+await ae('.calbtn').click(); await page.waitForTimeout(200);
+console.log('add: month picker:', await ae('.month .mnav b').innerText(), '| days:', await ae('.month .mgrid button').count());
+await ae('.month button[aria-label="Year after"]').first().click().catch(() => console.log('add: no year step'));
+await ae('.month .mgrid button:not(:disabled)', { hasText: /^17$/ }).first().click(); await page.waitForTimeout(200);
+console.log('add: far date chip:', await ae('.days button[aria-pressed=true]').innerText());
+await ae('input[aria-label="Where"]').focus();
+for (const k of ['B', 'e', 'a', 't']) await ae('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
+await page.waitForTimeout(900);
+console.log('add: places offered:', await ae('.places button').allInnerTexts());
+await ae('.places button').first().click(); console.log('add: where is now:', await ae('input[aria-label="Where"]').inputValue());
+await ae('input[aria-label="What’s on"]').focus();
+for (const k of ['S', 'w', 'i', 'm']) await ae('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
+await page.evaluate(() => { window.__calls = []; }); await ae('button.lead').click(); await page.waitForTimeout(400);
+console.log('add: saved as:', await page.evaluate(() => (window.__calls || []).filter((c) => /create_event/.test(c)).join(' ')));
+await page.close();
+page = await open('look=glass&sheet=sitter', '18:20');
+const sos = page.locator('family-hub-card .sosbtn');
+console.log('info: contacts:', await page.locator('family-hub-card .irow').count(), '| address:', await page.locator('family-hub-card .sosaddr').innerText(), '| button:', await sos.getAttribute('aria-label'));
+await page.evaluate(() => { window.__calls = []; });
+await sos.dispatchEvent('pointerdown'); await page.waitForTimeout(400); await sos.dispatchEvent('pointerup'); await page.waitForTimeout(200);
+console.log('info: a short press sends:', await page.evaluate(() => (window.__calls || []).filter((c) => /notify/.test(c)).length), '|', await page.locator('family-hub-card .sosnote').innerText());
+await sos.dispatchEvent('pointerdown'); await page.waitForTimeout(1900);
+console.log('info: a held press sends:', await page.evaluate(() => (window.__calls || []).filter((c) => /notify/.test(c)).map((c) => c.slice(0, 90)).join(' || ')), '|', await page.locator('family-hub-card .sosnote').innerText());
+await page.close();
+page = await open('look=glass');
+await page.locator('family-hub-card .presence').click(); await page.waitForTimeout(200);
+console.log('who is home says:', await page.locator('family-hub-card .toast').first().innerText());
+await page.close();
+page = await open('look=fridge&page=doodle');
+await page.evaluate(() => localStorage.setItem('family-hub-fridge', JSON.stringify([{ title: 'doodle-20261110-101010-max', url: 'data:image/png;base64,iVBORw0KGgo=' }, { title: 'doodle-20261109-101010', url: 'data:image/png;base64,iVBORw0KGgo=' }])));
+await page.close(); page = await open('look=fridge&page=doodle');
+const dd = (sel) => page.locator('fh-doodle ' + sel);
+console.log('doodle: on the fridge:', await dd('.snap').count(), '| crosses before PIN:', await dd('.down').count());
+await dd('.tidy').click(); await page.waitForTimeout(200); console.log('doodle: PIN asked:', await page.locator('fh-doodle fh-pin').count());
+for (const k of ['1', '2', '3', '4']) await page.locator('fh-doodle fh-pin button', { hasText: new RegExp('^' + k + '$') }).first().click();
+await page.waitForTimeout(300); console.log('doodle: crosses after PIN:', await dd('.down').count());
+await dd('.down').first().click(); await page.waitForTimeout(300); console.log('doodle: after taking one down:', await dd('.snap').count());
+await dd('.clearall').click(); await page.waitForTimeout(300); console.log('doodle: after taking all down:', await dd('.snap').count());
+await page.close();
+
+// 11. the medication pill and record; bin night
+page = await open('look=glass', '19:40');
+console.log('bins:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); const f = (y, m, d) => { const r = c._bins(new Date(y, m, d)); return r.night.toDateString().slice(0, 10) + '=' + r.bins.join('+'); }; return [f(2026, 10, 9), f(2026, 10, 12), f(2026, 10, 16), f(2026, 10, 23), f(2026, 10, 3)].join(' | '); }));
+await page.getByRole('button', { name: 'Medication', exact: true }).click(); await page.waitForTimeout(300);
+const md = (sel, o) => page.locator('family-hub-card .sheet ' + sel, o);
+console.log('meds: daily rows:', await md('.card').count(), '|', (await md('.card b').first().innerText()), '| due:', await md('.card .muted').first().innerText());
+await md('.lead').click(); await page.waitForTimeout(200); console.log('meds: nothing chosen:', await page.locator('family-hub-card .toast').first().innerText());
+await md('.mchip', { hasText: 'Paracetamol' }).click(); await md('.mchip', { hasText: 'Charlie' }).click();
+await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: '− 5 min' }).click(); await md('.mchip', { hasText: /^Sam$/ }).click();
+await md('.lead').click(); await page.waitForTimeout(400);
+console.log('meds: record:', (await md('.irow').allInnerTexts()).map((t) => t.replace(/\s+/g, ' ')).join(' || '));
+await md('.mchip', { hasText: 'Other' }).click();
+for (const k of ['Z', 'y', 'r']) await md('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
+await md('.mchip', { hasText: 'Riley' }).click(); await md('.lead').click(); await page.waitForTimeout(400);
+console.log('meds: records now:', await md('.irow').count(), '| newest:', (await md('.irow').first().innerText()).replace(/\s+/g, ' '));
+await md('.irow button').first().click(); await page.waitForTimeout(300); console.log('meds: after removing one:', await md('.irow').count());
 await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

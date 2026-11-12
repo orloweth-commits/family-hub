@@ -368,13 +368,18 @@ export const sceneView = (c: Ctx): TemplateResult => { const kind = sceneKind(c.
 
 /** The picker: a card for each way of seeing the rooms. */
 export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: () => void): TemplateResult => html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-  <section class="glass sheet" role="dialog" aria-modal="true" aria-label="How to show the rooms" style="width:min(640px,94%);gap:14px">
-    <h2 class="t-head">How would you like to see the rooms?</h2>
+  <section class="glass sheet" role="dialog" aria-modal="true" aria-label="Switcheroo: how to show the rooms" style="width:min(640px,94%);gap:14px">
+    <h2 class="t-head" style="display:flex;align-items:center;gap:12px"><i class="pinw" aria-hidden="true"></i>Switcheroo!</h2><span class="muted" style="margin-top:-8px">Pick a way to see the rooms.</span>
     <div class="vgrid">${VIEWS.map((v) => html`<button class="vcard tap" aria-pressed=${String(v.id === current)} @click=${() => pick(v.id)}>${icon(v.icon, 34)}<b>${v.name}</b><span>${v.about}</span></button>`)}</div>
     <button class="pill tap" style="align-self:flex-end" @click=${close}>Close</button></section></div>`;
 
 export const viewsCss = css`
-  .viewbtn { height: 44px; padding: 0 14px 0 12px; border-radius: 14px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: var(--w-bold, 700); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 40%, transparent); }
+  /* Switcheroo: the one button that changes how the rooms are shown. Same name, same pinwheel, on every view. */
+  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
+  .pinw { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(#ff5d5d 0 60deg, #ffb13d 0 120deg, #ffe14a 0 180deg, #4fd27a 0 240deg, #45b7f5 0 300deg, #a877f2 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.75), 0 1px 3px rgba(0,0,0,.3); position: relative; animation: pinw 9s linear infinite; animation-play-state: var(--motion, running); }
+  .pinw::after { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+  .viewbtn:active .pinw { animation-duration: .5s; }
+  @keyframes pinw { to { transform: rotate(360deg); } }
   .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .vcard { min-height: 112px; padding: 12px 10px; border-radius: 20px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; transition: transform .2s cubic-bezier(.2,1.4,.4,1); }
   .vcard b { font-size: 16px; font-weight: var(--w-bold, 700); } .vcard span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }

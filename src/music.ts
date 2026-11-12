@@ -4,7 +4,8 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, shortNames, windDown } from './util';
+import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, sfx, shortNames, windDown } from './util';
+import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import { VIEWS, crateView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
@@ -158,11 +159,12 @@ export class FhMusic extends LitElement {
     .acts .seg button { height: 44px; color: var(--ink); }
     .acts .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     @keyframes nod { 30% { transform: rotate(-14deg) scale(1.2); } 65% { transform: rotate(8deg); } }
-    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
+    .grid { flex: 1; min-height: 0; overflow: auto; padding: 4px; margin: -4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; align-content: start; }
     .grid[data-fit] { gap: 6px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
     .spk { border-radius: 20px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; --rail: var(--track); --knob: var(--primary); }
     .spk.focus { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
     .spk.inmix { box-shadow: 0 0 0 3px var(--ok); }
+    .spk .sn2 { font-size: 15px; line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .spk .top { display: flex; align-items: center; gap: 10px; }
     .spk .rsel { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; min-height: 44px; }
     .grid[data-fit] .spk input { margin: 6px 0; }
@@ -978,7 +980,7 @@ export class FhMusic extends LitElement {
   private _oneRow(): TemplateResult {
     const cur = this._cur, mix = this._mix(cur), mode = this._mode, view = VIEWS.find((v) => v.id === mode)!;
     return html`
-        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
+        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Switcheroo: change how the rooms are shown. Now: ${view.name}" @click=${() => { sfx('tap'); this._viewAsk = true; }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
         ${this._offline.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${this._offline.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${this._offline.length === this._list.length ? 'Every speaker is offline' : `${this._offline.length} ${this._offline.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
@@ -1007,8 +1009,8 @@ export class FhMusic extends LitElement {
       return html`<button class="pill tap" aria-pressed=${String(on)} style=${on ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => this.hass!.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id })}>${label} ${on ? 'on' : 'off'}</button>`;
     };
     const mode = this._mode, house = mode !== 'list', view = VIEWS.find((v) => v.id === mode)!;
-    return html`${this._viewAsk ? viewPicker(mode, (v) => { this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; }, () => { this._viewAsk = false; }) : nothing}${this._one ? html`<span class="coach" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>` : html`<div class="acts">
-        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
+    return html`${this._viewAsk ? viewPicker(mode, (v) => { const was = this._view; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v !== was) this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b); sfx('done'); }); }, () => { this._viewAsk = false; }) : nothing}${this._one ? html`<span class="coach" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>` : html`<div class="acts">
+        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Switcheroo: change how the rooms are shown. Now: ${view.name}" @click=${() => { sfx('tap'); this._viewAsk = true; }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
         ${this._offline.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${this._offline.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${this._offline.length === this._list.length ? 'Every speaker is offline' : `${this._offline.length} ${this._offline.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
@@ -1026,7 +1028,7 @@ export class FhMusic extends LitElement {
       return html`<div class="spk ${focus ? 'focus' : inmix ? 'inmix' : ''}" ?data-offline=${this._off(p)}>
         <div class="top"><button class="rsel tap" aria-pressed=${String(focus)} @click=${() => { this._focus = p.entity_id; }}>
           <span class="thumb ${playing ? 'eq' : ''}" style=${a.entity_picture ? `--art:url(${a.entity_picture})` : ''}>${playing ? html`<i></i><i></i><i></i>` : icon('music', 20)}</span>
-          <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.friendly_name}</span>
+          <span style="display:flex;flex-direction:column;min-width:0;gap:2px"><span class="sn2">${a.friendly_name}</span>
             <span class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${inmix ? `With ${this._name(cur)}` : playing ? (a.media_title ?? 'Playing') : this._off(p) ? 'Offline' : p.state[0].toUpperCase() + p.state.slice(1)}</span></span></button>
           ${focus ? nothing : html`<button class="join tap" aria-pressed=${String(inmix)} aria-label="${inmix ? 'Remove' : 'Add'} ${a.friendly_name} ${inmix ? 'from' : 'to'} the music" @click=${() => this._join(p.entity_id)}>${inmix ? '✓' : '＋'}</button>`}</div>
         ${vol !== null ? html`<input type="range" min="0" max="100" .value=${String(vol)} aria-label="Volume in ${a.friendly_name}" @change=${(e: Event) => this._svc('volume_set', { volume_level: Number((e.target as HTMLInputElement).value) / 100 }, p.entity_id)}>` : nothing}

@@ -4,6 +4,7 @@ import { LookController } from './looks';
 import { FitController } from './util';
 import { icon } from './icons';
 import type { Hass } from './types';
+import './pin';
 
 const INKS = ['#1d1d1f', '#e63946', '#f77f00', '#fcbf49', '#2a9d8f', '#118ab2', '#7b2cbf', '#ff70a6', '#8d5a3b', '#ffffff'];
 const SIZES = [4, 10, 22];
@@ -49,6 +50,14 @@ export class FhDoodle extends LitElement {
     .acts { display: flex; gap: 8px; align-items: center; }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+    .ghead { display: flex; align-items: center; gap: 8px; }
+    .tidy { height: 44px; padding: 0 14px; font-size: 14px; }
+    .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+    .clearall { height: 44px; background: var(--danger, #dc2626); color: #fff; justify-content: center; }
+    .snapbox { position: relative; display: block; }
+    .snapbox .snap { width: 100%; display: block; }
+    .down { position: absolute; top: -6px; right: -6px; width: 44px; height: 44px; border-radius: 50%; background: var(--danger, #dc2626); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(0,0,0,.35); }
+    .snaps { padding: 6px 6px 2px 0; }
     .snap { aspect-ratio: 4/3; border-radius: 10px; background: #fff center / cover; box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); position: relative; }
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }
     .snap::before { content: ''; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 3px rgba(0,0,0,.3); }
@@ -59,12 +68,15 @@ export class FhDoodle extends LitElement {
     .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet .4s cubic-bezier(.2,1.2,.3,1); }
   `];
 
-  static properties = { hass: { attribute: false }, artists: { attribute: false }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
+  static properties = { hass: { attribute: false }, artists: { attribute: false }, pin: {}, _tidy: { state: true }, _askPin: { state: true }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
     _blank: { state: true }, _pics: { state: true }, _view: { state: true }, _msg: { state: true }, _stick: { state: true } };
   hass?: Hass;
   private _ink = INKS[0];
   private _size = 10;
   artists: string[] = [];
+  pin = '';
+  private _tidy = false;
+  private _askPin = false;
   private _stamp = '';
   private _artist = '';
   private _erase = false;
@@ -207,6 +219,25 @@ export class FhDoodle extends LitElement {
     this._loadFridge();
   }
 
+  /** Taking drawings down is a grown-up's job: the PIN first, then each drawing shows a cross, and there is one button for the lot. */
+  private _tidyStart(): void {
+    if (this._tidy) { this._tidy = false; return; }
+    if (this.pin) this._askPin = true; else this._tidy = true;
+  }
+  private async _takeDown(list: Pic[]): Promise<void> {
+    let failed = 0;
+    for (const p of list) {
+      if (p.id) {
+        try { await this.hass!.callWS({ type: 'media_source/local_source/remove', media_content_id: p.id }); } catch { failed++; }
+      } else {
+        try { const keep = (JSON.parse(localStorage.getItem(LOCAL_KEY) ?? '[]') as Pic[]).filter((x) => x.title !== p.title); localStorage.setItem(LOCAL_KEY, JSON.stringify(keep)); } catch { failed++; }
+      }
+    }
+    await this._loadFridge();
+    if (!this._pics.length) this._tidy = false;
+    this._say(failed ? 'Some drawings could not be taken down. Sign in to Home Assistant as an administrator and try again.' : list.length > 1 ? 'The fridge is clear' : 'Taken down');
+  }
+
   private async _loadFridge(): Promise<void> {
     let pics: Pic[] = [];
     try { pics = JSON.parse(localStorage.getItem(LOCAL_KEY) ?? '[]'); } catch { /* */ }
@@ -249,10 +280,13 @@ export class FhDoodle extends LitElement {
         </div>
       </section>
       <section class="glass gallery" aria-label="The fridge">
-        <span class="label">The fridge</span>
-        ${this._pics.length ? html`<div class="snaps">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<button class="snap tap" aria-label="View doodle" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span class="by">${by}</span>` : ''}</button>`; })}</div>`
+        <div class="ghead"><span class="label" style="flex:1">The fridge</span>
+          ${this._pics.length ? html`<button class="pill tap tidy" aria-pressed=${String(this._tidy)} @click=${() => this._tidyStart()}>${this._tidy ? 'Done' : 'Tidy up'}</button>` : nothing}</div>
+        ${this._tidy ? html`<button class="pill tap clearall" @click=${() => this._takeDown(this._pics)}>${icon('close', 16)}Take them all down</button>` : nothing}
+        ${this._pics.length ? html`<div class="snaps">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<span class="snapbox"><button class="snap tap" aria-label="View doodle${by ? ` by ${by}` : ''}" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span class="by">${by}</span>` : ''}</button>${this._tidy ? html`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([p])}>${icon('close', 18)}</button>` : nothing}</span>`; })}</div>`
           : html`<span class="muted" style="font-size:14px">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
+      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { this._askPin = false; this._tidy = true; }} @cancel=${() => { this._askPin = false; }}></fh-pin>` : nothing}
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}
       ${this._msg ? html`<div class="toast" role="status">${this._msg}</div>` : nothing}`;
   }

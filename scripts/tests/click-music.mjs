@@ -125,7 +125,7 @@ const M = (page) => page.locator('fh-music');
       console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
-    await M(v).getByRole('button', { name: /Change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
+    await M(v).getByRole('button', { name: /change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
     if (view === 'dial') {
       // the big dial's surroundings: the tuner plays a favourite and then a station, a face opens the search for that person, the sleep fade starts a timer
       const dv = await open('look=glass&page=music&mview=dial&juke=1'); await dv.evaluate(() => { (window.__calls ||= []).length = 0; });

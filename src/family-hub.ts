@@ -14,6 +14,7 @@ import './morning';
 import './addevent';
 import './pin';
 import { loadFonts } from './fonts';
+import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
@@ -22,12 +23,12 @@ import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek
 } from './dates';
-import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getShape, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getShape, setMuted, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.23.0';
+const VERSION = '0.24.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -39,11 +40,11 @@ const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh
 export class FamilyHubCard extends LitElement {
   readonly fitCtl = new FitController(this as never);
   readonly lookCtl = new LookController(this);
-  static styles = [styles, css`${unsafeCSS(avatarCss)}`];
+  static styles = [styles, keysCss, css`${unsafeCSS(avatarCss)}`];
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _undo: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }
   };
@@ -419,6 +420,61 @@ export class FamilyHubCard extends LitElement {
     this._say(`Logged – given by ${by}`);
   }
 
+  /* ----- other medicine given (paracetamol and the like): a plain record, newest first ----- */
+  private _medLog: { at: Date; who: string; what: string; by: string; uid?: string }[] = [];
+  private _mx: { what: string; other: string; who: string; ago: number; by: string; caps: boolean } = { what: '', other: '', who: '', ago: 0, by: '', caps: true };
+  private static MED_KEY = 'family-hub-med-log';
+  private async _loadMedLog(): Promise<void> {
+    const parse = (t: string, uid?: string) => { const [at, who, what, by] = t.split('|'); const d = new Date(at); return Number.isNaN(d.getTime()) || !what ? null : { at: d, who, what, by: by ?? '', uid }; };
+    const id = this._config.med_log;
+    let rows: (ReturnType<typeof parse>)[] = [];
+    if (id && this.hass?.states[id]) {
+      try { rows = (await this.hass.callWS<{ items: { uid: string; summary: string }[] }>({ type: 'todo/item/list', entity_id: id })).items.map((i) => parse(i.summary, i.uid)); } catch { /* shown as empty */ }
+    } else {
+      try { rows = (JSON.parse(localStorage.getItem(FamilyHubCard.MED_KEY) ?? '[]') as string[]).map((t) => parse(t)); } catch { /* */ }
+    }
+    this._medLog = rows.filter((r): r is NonNullable<typeof r> => !!r).sort((x, y) => y.at.getTime() - x.at.getTime());
+  }
+  private async _logMed(): Promise<void> {
+    const m = this._mx, what = (m.what === 'other' ? m.other : m.what).trim();
+    if (!what || !m.who) { this._say(!what ? 'Choose the medicine first.' : 'Choose who it was for.'); return; }
+    const at = new Date(Date.now() - m.ago * 60000), line = `${at.toISOString()}|${m.who}|${what}|${m.by}`;
+    const id = this._config.med_log;
+    try {
+      if (id && this.hass?.states[id]) await this.hass.callService('todo', 'add_item', { item: line }, { entity_id: id });
+      else { const all = JSON.parse(localStorage.getItem(FamilyHubCard.MED_KEY) ?? '[]') as string[]; localStorage.setItem(FamilyHubCard.MED_KEY, JSON.stringify([line, ...all].slice(0, 60))); }
+      sfx('tick'); this._say(`Logged: ${what} for ${m.who} at ${fmtTime(at)}`);
+      this._mx = { what: '', other: '', who: '', ago: 0, by: m.by, caps: true };
+      await this._loadMedLog();
+    } catch { this._say('That could not be saved. Try again.'); }
+  }
+  private async _unlogMed(r: { at: Date; who: string; what: string; by: string; uid?: string }): Promise<void> {
+    const id = this._config.med_log;
+    try {
+      if (r.uid && id) await this.hass!.callService('todo', 'remove_item', { item: r.uid }, { entity_id: id });
+      else { const line = `${r.at.toISOString()}|${r.who}|${r.what}|${r.by}`; localStorage.setItem(FamilyHubCard.MED_KEY, JSON.stringify((JSON.parse(localStorage.getItem(FamilyHubCard.MED_KEY) ?? '[]') as string[]).filter((t) => t !== line))); }
+      await this._loadMedLog(); this._say('Removed from the record');
+    } catch { this._say('That could not be removed.'); }
+  }
+
+  /** Which bins go out on the bin night of the week `d` falls in: the weekly ones, plus whichever of the alternating ones has its turn. */
+  private _bins(d: Date): { night: Date; bins: string[] } | null {
+    const b = this._config.bins;
+    if (!b) return null;
+    const night = addDays(d, (b.day - d.getDay() + 7) % 7), alt = b.alternate ?? [];
+    let turn: string[] = [];
+    if (alt.length) {
+      const a0 = b.anchor ? new Date(`${b.anchor}T00:00:00`) : new Date(2026, 0, 5);
+      const weeks = Math.round((new Date(night.getFullYear(), night.getMonth(), night.getDate()).getTime() - a0.getTime()) / (7 * 86400000));
+      turn = [alt[((weeks % alt.length) + alt.length) % alt.length]];
+    }
+    return { night, bins: [...(b.always ?? []), ...turn] };
+  }
+  private _binDots(bins: string[]): TemplateResult {
+    const col: Record<string, string> = { green: '#2e9e4f', yellow: '#f2c230', red: '#d93a3a', blue: '#2f7fd6', purple: '#8b5cf6' };
+    return html`${bins.map((n) => html`<i class="bin" style="background:${col[n.toLowerCase()] ?? 'var(--ink2)'}" aria-hidden="true"></i>`)}`;
+  }
+
   // ---------- actions ----------
   /** Toasts stay long enough for a slow reader: at least 4.5 s, longer for longer messages. */
   private _say(msg: string, ms = Math.max(4500, msg.split(/\s+/).length * 450)): void {
@@ -548,7 +604,7 @@ export class FamilyHubCard extends LitElement {
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
       case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
-      case 'doodle': return html`<fh-doodle .hass=${this.hass} .artists=${(c.kids ?? []).map((k) => k.name)}></fh-doodle>`;
+      case 'doodle': return html`<fh-doodle .hass=${this.hass} .artists=${(c.kids ?? []).map((k) => k.name)} .pin=${String(c.parent_pin ?? '')}></fh-doodle>`;
       case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
         .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
@@ -576,9 +632,11 @@ export class FamilyHubCard extends LitElement {
     if (msg && !msg.alarm) chips.push([4, html`<span class="cap">${msg.t}</span>`]);
     for (const m of c.meds ?? []) {
       const s = this._medStatus(m.id, m.time);
-      if (s.due) chips.push([s.late ? 0 : 2, html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${() => { this._sheet = 'meds'; }}>💊 ${s.late ? 'Overdue' : 'Due'} ${m.time}</button>`]);
+      if (s.due) chips.push([s.late ? 0 : 2, html`<button class="cap tap ${s.late ? 'hot' : ''}" @click=${() => { this._sheet = 'meds'; }}>💊 ${m.who ? `${m.who}: ` : ''}${s.late ? 'overdue' : 'due'} ${((t: string) => { const [h, mi] = t.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; })(m.time)}</button>`]);
       else if (s.given && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" @click=${() => { this._sheet = 'meds'; }}>💊 ✓ ${fmtTime(s.given)}</button>`]);
     }
+    const bn = this._bins(this._now);
+    if (bn && sameDay(bn.night, this._now) && bn.bins.length) chips.push([this._now.getHours() >= 16 ? 2 : 5, html`<span class="cap" aria-label=${`Bin night: ${bn.bins.join(' and ')} bins go out tonight`}>🗑 Bins tonight ${this._binDots(bn.bins)}<span class="ell">${bn.bins.join(' + ')}</span></span>`]);
     const now = Date.now();
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title));
     if (next) {
@@ -611,7 +669,7 @@ export class FamilyHubCard extends LitElement {
     const temp = w?.attributes.temperature;
     const wx = this._wx, kid = this._kidOn;
     return html`
-      <header>
+      <header ?data-tight=${!kid && !!(c.meds?.length || c.med_log) && !!(c.babysitter || c.emergency)}>
         <div class="clock">
           ${lookArt(this._lk, 'clock', { now, arcs: this._arcs(this._eventsOn(now, this._soon)) })}
           <span style="font-size:16px;font-weight:var(--w-semi, 600)" class="muted">${greeting(now)}${kid ? `, ${kid.name}` : c.family_name ? `, ${c.family_name}` : ''}</span>
@@ -630,15 +688,17 @@ export class FamilyHubCard extends LitElement {
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">🥵 Hot</span>` : nothing}
             </button>` : nothing}
           ${(c.people ?? []).length && !kid ? html`
-            <div class="glass presence" role="list" aria-label="Who is home">
+            <button class="glass presence tap" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
+              <span class="phome" aria-hidden="true">${icon('home', 18)}</span>
               ${c.people!.map((p) => {
                 const home = p.entity ? h?.states[p.entity]?.state === 'home' : true;
-                return html`<span class="avatar ${home ? '' : 'away'}" role="listitem" aria-label="${p.name}, ${home ? 'home' : 'away'}" title="${p.name} – ${home ? 'home' : 'away'}" style="--c:${slotVar(p.colour)}">${this._short[p.name] ?? p.name[0]}</span>`;
+                return html`<span class="avatar ${home ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}">${this._short[p.name] ?? p.name[0]}</span>`;
               })}
-            </div>` : nothing}
+            </button>` : nothing}
           ${kid ? nothing : html`<button class="glass tap round" style="width:52px;height:52px" data-act="assist" aria-label="Ask Home Assistant" @click=${() => this._assist()}>${icon('mic', 22)}</button>`}
           <button class="glass tap round" style="width:52px;height:52px" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon('palette')}</button>
-          ${c.babysitter && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
+          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:22px" data-act="meds" aria-label="Medication" @click=${() => { this._sheet = 'meds'; this._loadMedLog(); }}>💊</button>` : nothing}
+          ${(c.babysitter || c.emergency) && !kid ? html`<button class="glass tap round" style="width:52px;height:52px;font-size:20px" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>ℹ️</button>` : nothing}
           <button class="glass tap round" style="width:52px;height:52px" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
         </div>
       </header>`;
@@ -829,11 +889,11 @@ export class FamilyHubCard extends LitElement {
     const s = this._sheet;
     if (!s) return nothing;
     const close = () => { this._sheet = ''; };
-    if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''}
+    if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .places=${this._config.address_search !== false}
       @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { close(); this._say(`Added “${e.detail}”`); this._fetchedKey = ''; this._refresh(); this._loadSoon(); }}></fh-add-event>`;
     const body = s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info' }[s] ?? 'Panel'} style=${s === 'themes' ? '' : s === 'kidprefs' ? 'width:min(860px,94%);gap:14px' : 'width:min(640px,92%)'}>${body}</section></div>`;
+      <section class="glass sheet" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info' }[s] ?? 'Panel'} style=${s === 'themes' ? '' : s === 'sitter' || s === 'meds' ? 'width:min(860px,94%)' : s === 'kidprefs' ? 'width:min(860px,94%);gap:14px' : 'width:min(640px,92%)'}>${body}</section></div>`;
   }
   private _sheetHead(title: string, sub = ''): TemplateResult {
     return html`<div style="display:flex;align-items:flex-start;gap:16px">
@@ -892,17 +952,51 @@ export class FamilyHubCard extends LitElement {
         <div class="seg" role="group" aria-label="Sounds">${(['full', 'soft', 'off'] as const).map((v) => html`<button class="tap" aria-pressed=${String(p.sound === v)} @click=${() => this._setKidPref({ sound: v })}>${v[0].toUpperCase() + v.slice(1)}</button>`)}</div></div>`;
   }
   private _medsBody(): TemplateResult {
-    const parents = this._config.parents ?? (this._config.people ?? []).map((p) => p.name);
+    const c = this._config, parents = c.parents ?? (c.people ?? []).map((p) => p.name), kids = (c.kids ?? []).map((k) => k.name);
+    const m = this._mx, extras = c.med_extras ?? ['Paracetamol', 'Ibuprofen'], now = this._now;
+    const set = (patch: Partial<typeof m>) => { this._mx = { ...m, ...patch }; };
+    const at = new Date(now.getTime() - m.ago * 60000);
+    const recent = this._medLog.filter((r) => now.getTime() - r.at.getTime() < 48 * 3_600_000);
+    const since = (d: Date) => { const mins = Math.max(0, Math.round((now.getTime() - d.getTime()) / 60000)); return mins < 60 ? `${mins} min ago` : mins < 48 * 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min ago` : ''; };
+    const t12 = (hhmm: string) => { const [h, mi] = hhmm.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+    const pick = (on: boolean, label: string, go: () => void) => html`<button class="tap mchip" aria-pressed=${String(on)} @click=${go}>${label}</button>`;
     return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.')}
-      ${(this._config.meds ?? []).map((m) => {
-        const s = this._medStatus(m.id, m.time);
-        return html`<div class="card" style="background:var(--chip);border-radius:20px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">💊</span>
-            <span style="flex:1;display:flex;flex-direction:column"><b style="font-size:18px">${m.who ? `${m.who} – ` : ''}${m.label}</b><span class="muted">Due ${m.time}</span></span>
-            <b style="font-size:16px;color:${s.given ? 'var(--ok)' : s.late ? '#dc2626' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.late ? 'Overdue' : 'Not yet'}</b></div>
-          ${s.given ? nothing : html`<div style="display:flex;gap:10px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:50px;padding:0 20px;font-size:16px" @click=${() => this._giveMed(m.id, p)}>Given by ${p}</button>`)}</div>`}
-        </div>`;
-      })}`;
+      <div class="med2">
+        <div class="icol">
+          <span class="label">Every day</span>
+          ${(c.meds ?? []).map((d) => {
+            const s = this._medStatus(d.id, d.time);
+            return html`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px" aria-hidden="true">💊</span>
+                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${d.who ? `${d.who} – ` : ''}${d.label}</b><span class="muted">Due ${t12(d.time)}</span></span>
+                <b style="font-size:15px;color:${s.given ? 'var(--ok)' : s.late ? 'var(--danger, #dc2626)' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.late ? 'Overdue' : 'Not yet'}</b></div>
+              ${s.given ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap primary" style="height:46px;padding:0 16px;font-size:15px" @click=${() => this._giveMed(d.id, p)}>Given by ${p}</button>`)}</div>`}
+            </div>`;
+          })}
+          <span class="label">Given in the last two days</span>
+          ${recent.length ? recent.map((r) => html`<div class="irow"><span style="min-width:0"><b>${r.who}</b> · ${r.what}<br><small class="muted">${r.at.toLocaleDateString('en-AU', { weekday: 'short' })} ${fmtTime(r.at)}${r.by ? ` · ${r.by}` : ''} · ${since(r.at)}</small></span>
+            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${r.what} for ${r.who} from the record`} @click=${() => this._unlogMed(r)}>${icon('close', 16)}</button></div>`)
+            : html`<span class="iline muted">Nothing else has been given.</span>`}
+        </div>
+        <div class="icol">
+          <span class="label">Something else given</span>
+          <div class="mrow">${extras.map((x) => pick(m.what === x, x, () => set({ what: x })))}${pick(m.what === 'other', 'Other…', () => set({ what: 'other' }))}</div>
+          ${m.what === 'other' ? html`<input class="field" style="height:48px;font-size:18px" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${m.other} @input=${(e: Event) => set({ other: (e.target as HTMLInputElement).value })}>
+            ${keyboard((k) => { const [t, caps] = typeKey(m.other, k, m.caps); set({ other: t, caps }); }, m.caps, () => set({ caps: !m.caps }), true)}` : nothing}
+          <span class="label">For</span>
+          <div class="mrow">${kids.map((k) => pick(m.who === k, k, () => set({ who: k })))}</div>
+          <span class="label">When</span>
+          <div class="mrow" style="align-items:center">
+            <button class="tap mchip" aria-label="Five minutes earlier" @click=${() => set({ ago: Math.min(24 * 60, m.ago + 5) })}>− 5 min</button>
+            <b class="display" style="font-size:24px;min-width:104px;text-align:center;font-variant-numeric:tabular-nums" aria-live="polite">${m.ago ? fmtTime(at) : 'Now'}</b>
+            <button class="tap mchip" aria-label="Five minutes later" ?disabled=${m.ago === 0} @click=${() => set({ ago: Math.max(0, m.ago - 5) })}>+ 5 min</button>
+            ${m.ago ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${m.ago} min ago</span>` : nothing}
+          </div>
+          ${parents.length ? html`<span class="label">Given by</span><div class="mrow">${parents.map((p) => pick(m.by === p, p, () => set({ by: p })))}</div>` : nothing}
+          <button class="tap lead" style="height:56px;font-size:17px;margin-top:6px" @click=${() => this._logMed()}>Add to the record</button>
+          <span class="muted" style="font-size:12.5px;line-height:1.35">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.</span>
+        </div>
+      </div>`;
   }
   private _timerBody(): TemplateResult {
     const left = this._timerLeft() ?? 0, mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
@@ -912,11 +1006,75 @@ export class FamilyHubCard extends LitElement {
       <div class="grid3" style="gap:10px">${[1, 5, 10].map((n) => html`<button class="tap quick" style="height:56px;font-size:18px" @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center" @click=${() => { this.hass?.callService('timer', 'cancel', { entity_id: 'timer.kitchen' }); this._sheet = ''; }}>Cancel timer</button>`;
   }
+  /** In words, who is home and who is away. */
+  private _whoHome(): string {
+    const ppl = this._config.people ?? [], here = ppl.filter((p) => !p.entity || this.hass?.states[p.entity]?.state === 'home').map((p) => p.name), out = ppl.filter((p) => !here.includes(p.name)).map((p) => p.name);
+    const join = (n: string[]) => n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}` : n[0];
+    return [here.length ? `${join(here)} ${here.length > 1 ? 'are' : 'is'} home` : '', out.length ? `${join(out)} ${out.length > 1 ? 'are' : 'is'} away` : ''].filter(Boolean).join(' · ') + '.';
+  }
+  private _sosT = 0;
+  private _sos: '' | 'hold' | 'sending' | 'sent' | 'failed' = '';
+  private _sosNote = '';
+  /** Hold for a second and a half: long enough that a small hand leaning on the glass does not send it. */
+  private _sosDown(): void {
+    if (this._sos === 'sending') return;
+    this._sos = 'hold'; this.requestUpdate();
+    clearTimeout(this._sosT);
+    this._sosT = window.setTimeout(() => this._sosSend(), 1500);
+  }
+  private _sosUp(): void { if (this._sos === 'hold') { clearTimeout(this._sosT); this._sos = ''; this._sosNote = 'Keep holding until the bar is full.'; this.requestUpdate(); } }
+  private async _sosSend(): Promise<void> {
+    const e = this._config.emergency, to = e?.notify ?? [];
+    this._sos = 'sending'; this._sosNote = ''; this.requestUpdate();
+    const at = fmtTime(new Date());
+    const results = await Promise.allSettled(to.map((svc) => {
+      const [domain, service] = svc.includes('.') ? svc.split('.') : ['notify', svc];
+      return this.hass!.callService(domain, service, {
+        title: '🚨 Emergency at home',
+        message: e?.message ?? `The emergency button on the family panel was pressed at ${at}. Call home now.`,
+        // loud even on silent or Do Not Disturb: iPhone (critical alert) and Android (alarm channel)
+        data: { push: { sound: { name: 'default', critical: 1, volume: 1 }, 'interruption-level': 'critical' }, ttl: 0, priority: 'high', channel: 'alarm_stream', tag: 'fh-emergency' }
+      });
+    }));
+    const ok = results.filter((r) => r.status === 'fulfilled').length;
+    this._sos = ok ? 'sent' : 'failed';
+    this._sosNote = ok === to.length ? `Sent to ${ok === 1 ? 'one phone' : `${ok} phones`} at ${at}. If it is serious, call 000 now.` : ok ? `Sent to ${ok} of ${to.length} phones. Ring them as well.` : 'It could not be sent. Ring them on the numbers below.';
+    sfx(ok ? 'done' : 'tap'); this.requestUpdate();
+  }
   private _sitterBody(): TemplateResult {
-    const b = this._config.babysitter!;
-    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters and visitors')}
-      <div class="card" style="background:#fee2e2;color:#7f1d1d;border-radius:20px"><b style="font-size:20px">Emergency: 000</b><span>Poisons Information Centre: 13 11 26</span></div>
-      ${(b.lines ?? []).map((l) => html`<div style="font-size:17px;font-weight:var(--w-semi, 600);padding:4px 2px">${l}</div>`)}`;
+    const c = this._config, b = c.babysitter ?? {}, e = c.emergency, now = this._now;
+    // a line such as "Dad: 0400 000 000" is a contact; anything else is a note
+    const phone = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/;
+    const contacts = [...(b.contacts ?? []), ...(b.lines ?? []).map((l) => phone.exec(l)).filter((m): m is RegExpExecArray => !!m).map((m) => ({ name: m[1], phone: m[2].trim() }))];
+    const notes = [...(b.lines ?? []).filter((l) => !phone.test(l)), ...(b.notes ?? [])];
+    const beds = (c.kids ?? []).filter((k) => k.bedtime).map((k) => ({ name: k.name, at: bedtimeFor(k.bedtime, now) }));
+    const tonight = this._eventsOn(now, this._soon).filter((x) => !x.allDay && x.end > now && !this._private(x.title)).slice(0, 4);
+    const t12 = (hhmm: string) => { const [h, m] = hhmm.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+    const h3 = (t: string) => html`<span class="label">${t}</span>`;
+    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors')}
+      <div class="sos">
+        <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
+          ${b.address ? html`<span class="sosaddr">You are at <b>${b.address}</b></span>` : nothing}</div>
+        ${e?.notify?.length ? html`<button class="sosbtn tap" data-s=${this._sos} aria-label=${`Hold to alert ${e.who ?? 'the parents'}`} aria-describedby="sosnote"
+          @pointerdown=${() => this._sosDown()} @pointerup=${() => this._sosUp()} @pointerleave=${() => this._sosUp()} @pointercancel=${() => this._sosUp()}
+          @keydown=${(ev: KeyboardEvent) => { if ((ev.key === 'Enter' || ev.key === ' ') && !ev.repeat) this._sosDown(); }} @keyup=${() => this._sosUp()} @contextmenu=${(ev: Event) => ev.preventDefault()}>
+          <i aria-hidden="true"></i><span aria-hidden="true" style="font-size:26px">🚨</span>
+          <span><b>${this._sos === 'sending' ? 'Sending…' : this._sos === 'sent' ? 'Alert sent' : `Alert ${e.who ?? 'the parents'}`}</b><small>${this._sos === 'sent' ? 'Hold again to send another' : 'Press and hold'}</small></span></button>` : nothing}
+      </div>
+      <span id="sosnote" role="status" class="sosnote">${this._sosNote}</span>
+      <div class="info2">
+        <div class="icol">
+          ${contacts.length ? html`${h3('Who to ring')}${contacts.map((p) => html`<div class="irow"><b>${p.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${p.phone}</span></div>`)}` : nothing}
+          ${b.wifi ? html`${h3('Wi-Fi')}<div class="irow"><b>${b.wifi.name}</b><span>${b.wifi.password ?? ''}</span></div>` : nothing}
+          ${(c.people ?? []).length ? html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>` : nothing}
+        </div>
+        <div class="icol">
+          ${beds.length ? html`${h3('Bedtimes tonight')}${beds.map((k) => html`<div class="irow"><b>${k.name}</b><span>${t12(k.at)}</span></div>`)}` : nothing}
+          ${tonight.length ? html`${h3('Still on today')}${tonight.map((x) => html`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${fmtTime(x.start)}</span></div>`)}` : nothing}
+          ${this._bins(now) ? html`${h3('Bin night')}<div class="irow"><b>${sameDay(this._bins(now)!.night, now) ? 'Tonight' : this._bins(now)!.night.toLocaleDateString('en-AU', { weekday: 'long' })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(this._bins(now)!.bins)}${this._bins(now)!.bins.join(' + ')}</span></div>` : nothing}
+          ${notes.length ? html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}` : nothing}
+        </div>
+      </div>`;
   }
 
   private _night(): TemplateResult {

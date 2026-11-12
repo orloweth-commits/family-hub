@@ -108,6 +108,27 @@ calendars:
   - { entity: calendar.riley, colour: 3, name: Riley }
 ```
 
+### House info, emergency button, medication and bin night
+
+```yaml
+babysitter:                   # the "i" button: house info for sitters, grandparents and visitors
+  address: 1 Example Street, Sampleton
+  lines:                      # "Name: number" becomes a contact; anything else is a note
+    - "Mum: 0400 000 001"
+    - "Torch and first-aid kit are in the laundry cupboard"
+  wifi: { name: Example-Guest, password: welcome-in }
+emergency:                    # a red hold-to-send button on that sheet
+  notify: [notify.mobile_app_mums_phone, notify.mobile_app_dads_phone]
+  who: Mum and Dad
+meds:                         # the pill button: daily medication, ticked off by a grown-up
+  - { id: riley_am, who: Riley, label: Morning dose, time: "06:30" }
+med_log: todo.medicine_record # where "something else given" (paracetamol and the like) is kept; without it, on this screen only
+bins: { day: 1, always: [green], alternate: [yellow, red], anchor: "2026-11-09" }   # Monday; yellow went out on the anchor date
+address_search: true          # look places up while adding an event (Photon, OpenStreetMap data, Australia only)
+```
+
+The emergency button must be held for a second and a half, then sends a critical alert (it sounds through silent mode) to each phone through the Home Assistant app. Each daily medication needs two helpers: `input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`. The medication record shows what was given and when; it gives no advice on doses.
+
 ### Weather page
 
 With `weather:` set, the dock gains a **Weather** page (and the weather chip in the header opens it): what it is doing now, the next 24 hours, a seven-day outlook, a rain radar and a wind map, drawn in the language of whichever look and world is on.

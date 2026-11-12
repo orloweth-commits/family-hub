@@ -11,11 +11,13 @@ const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 export const typeKey = (text: string, k: string, caps: boolean): [string, boolean] => {
   if (k === 'del') { const t = text.slice(0, -1); return [t, !t.length]; }
   if (k === ' ') return [text + ' ', caps];
+  if (/\d/.test(k)) return [text + k, caps];
   return [text + (caps ? k.toUpperCase() : k), false];
 };
 
-export const keyboard = (press: (k: string) => void, caps: boolean, flipCaps: () => void, compact = false): TemplateResult => html`
+export const keyboard = (press: (k: string) => void, caps: boolean, flipCaps: () => void, compact = false, digits = false): TemplateResult => html`
   <div class="keys ${compact ? 'compact' : ''}" role="group" aria-label="Keyboard">
+    ${digits ? html`<div class="krow">${[...'1234567890'].map((k) => html`<button class="key" @click=${() => press(k)}>${k}</button>`)}</div>` : nothing}
     ${ROWS.map((r, i) => html`<div class="krow">
       ${i === 2 ? html`<button class="key wide" aria-label="Capital letter" aria-pressed=${String(caps)} @click=${flipCaps}>⇧</button>` : nothing}
       ${[...r].map((k) => html`<button class="key" @click=${() => press(k)}>${caps ? k.toUpperCase() : k}</button>`)}
