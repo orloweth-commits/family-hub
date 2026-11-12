@@ -169,6 +169,8 @@ export interface CalEvent {
   who: string;
   /** where it is, when the calendar says */
   location?: string;
+  /** the calendar's own notes about it, shown as plain text when the event is opened */
+  description?: string;
 }
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);

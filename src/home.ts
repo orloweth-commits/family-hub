@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass, HassEntity } from './types';
-import { FitController, getShape } from './util';
+import { FitController, getNarrow, getShape } from './util';
 import './pin';
 
 const CONTROL = ['light', 'switch', 'fan', 'cover', 'lock', 'climate', 'media_player', 'input_boolean'];
@@ -47,6 +47,14 @@ export class FhHome extends LitElement {
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
     :host([data-shape='tall']) .side > section { flex: 1 1 0; min-width: 0; }
+    /* tablets narrower than the canvas: two columns of rooms beside a narrower side; under 900 px the side drops below and the page scrolls */
+    :host([data-shape='wide'][data-n2]) .side { width: 272px; gap: 12px; }
+    :host([data-shape='wide'][data-n2]) .rooms { padding: 14px; }
+    :host([data-shape='wide'][data-n3]) { flex-direction: column; overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]) .rooms { flex: none; }
+    :host([data-shape='wide'][data-n3]) .rgrid { overflow: visible; flex: none; }
+    :host([data-shape='wide'][data-n3]) .side { width: auto; flex-direction: row; flex-shrink: 0; }
+    :host([data-shape='wide'][data-n3]) .side > section { flex: 1 1 0; min-width: 0; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .rooms { padding: 14px; border-radius: 22px; }
     :host([data-phone]) .rgrid { overflow: visible; flex: none; flex-direction: column; align-items: stretch; }
@@ -232,7 +240,7 @@ export class FhHome extends LitElement {
     const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     const lost = rooms.reduce((n, r) => n + r.ents.filter(gone).length, 0);
     const left = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1000));
-    const cols = this._columns(rooms, shape === 'phone' ? 1 : rooms.length > 9 ? 4 : 3);
+    const cols = this._columns(rooms, shape === 'phone' ? 1 : shape === 'wide' && getNarrow() >= 2 ? 2 : getNarrow() >= 1 ? 3 : rooms.length > 9 ? 4 : 3);
     return html`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>

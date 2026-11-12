@@ -544,6 +544,13 @@ export const viewsCss = css`
   :host([data-shape='tall']:not([data-phone])) .dmid { grid-column: 1 / -1; grid-row: 1; }
   :host([data-shape='tall']:not([data-phone])) .dcard { grid-row: 2; width: auto; height: auto; justify-self: stretch; align-self: stretch; }
   :host([data-shape='tall']:not([data-phone])) .dturn { grid-column: 2; } :host([data-shape='tall']:not([data-phone])) .tuner { grid-row: 3; }
+  /* a landscape tablet narrower than the canvas: the two cards stack at the left and the dial keeps the rest, so nothing runs off the side */
+  :host([data-shape='wide'][data-n2]) .dialwrap { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
+  :host([data-shape='wide'][data-n2]) .dmid { grid-column: 2; padding: 0 118px; }
+  :host([data-shape='wide'][data-n2]) .dcard { grid-column: 1; grid-row: 1; width: auto; justify-self: stretch; height: auto; max-height: calc(50% - 5px); }
+  :host([data-shape='wide'][data-n2]) .dnext { align-self: start; } :host([data-shape='wide'][data-n2]) .dturn { align-self: end; }
+  :host([data-n1]) .dcoins { flex-wrap: wrap; overflow: visible; }
+  :host([data-stack]) .dialwrap { grid-template-rows: minmax(260px, 1fr) auto auto; }
   :host([data-phone]) .dialwrap { flex: none; display: flex; flex-direction: column; container-type: normal; gap: 12px; } :host([data-phone]) .dmid { padding: 0; }
   :host([data-phone]) .bigdial { height: auto; aspect-ratio: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; } :host([data-phone]) .bigdial > svg { position: static; width: 250px; height: 250px; }
   :host([data-phone]) .dcover { left: calc(50% - 60px); top: 65px; width: 120px; height: 120px; }

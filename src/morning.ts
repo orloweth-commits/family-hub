@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { confetti, fxCss } from './fx';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
-import { addDays, fmtTime, sameDay, startOfDay } from './dates';
+import { addDays, fmtTime, sameDay, startOfDay, whenOn } from './dates';
 import { kidEntities, slotVar, type BringRule, type CalEvent, type Hass, type KidConfig } from './types';
 import { changed, hm, minsNow, parseChore, sfx, type Chore, type ParsedChore } from './util';
 
@@ -13,6 +13,15 @@ const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const onDay = (ev: CalEvent, d: Date): boolean => { const s = startOfDay(d), e = addDays(s, 1); return ev.start < e && ev.end > s && !(ev.allDay && ev.end.getTime() === s.getTime()); };
 const star = (on: boolean): TemplateResult => html`<svg class="tstar ${on ? 'lit' : ''}" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>`;
 
+/** A picture for something to bring or wear, for a child who cannot read yet: the emoji already in its name, or one that fits the words. */
+const TILE_PICS: [RegExp, string][] = [[/hat|cap/i, '🧢'], [/sunscreen|sun cream/i, '🧴'], [/library|book|reader/i, '📚'], [/swim|bathers|togs|towel/i, '🩱'], [/sport|uniform|shirt/i, '👕'], [/shoe|runner|boot/i, '👟'], [/jumper|jacket|coat|rain/i, '🧥'],
+  [/lunch|sandwich/i, '🥪'], [/fruit|snack|crunch/i, '🍎'], [/water|drink|bottle/i, '🚰'], [/trumpet/i, '🎺'], [/clarinet|recorder|flute/i, '🎶'], [/violin|guitar/i, '🎻'], [/music|instrument|band/i, '🎵'], [/homework|note|form|slip/i, '📝'],
+  [/tennis|racquet/i, '🎾'], [/ball|soccer|footy|netball/i, '⚽'], [/scooter|bike|helmet/i, '🛴'], [/toy|teddy|show/i, '🧸'], [/art|paint|smock/i, '🎨']];
+export const tileOf = (item: string): [string, string] => {
+  const m = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/u.exec(item);
+  const name = item.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, '').trim() || item;
+  return [m ? m[0] : TILE_PICS.find(([re]) => re.test(item))?.[1] ?? '🎒', name];
+};
 /**
  * "Out the door": the school-morning board.
  * Progress is shown for the team as a whole (one row of stars everyone fills together, and one pooled line of words), never child
@@ -38,7 +47,12 @@ export class FhMorning extends LitElement {
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
     .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
     :host([data-shape='tall']) .board { flex-wrap: wrap; }
-    :host([data-shape='tall']) .kcols { grid-template-columns: 1fr; }
+    :host([data-phone]) .kcols { grid-template-columns: 1fr; }
+    /* a tablet narrower than the canvas: the columns keep their pictures at full size and the board scrolls */
+    :host([data-n3]) { overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-n3]) .kcols { flex: 1 0 auto; gap: 10px; }
+    :host([data-n3]) .kcol { padding: 12px; overflow: visible; }
+    :host([data-n3]) .board { padding: 10px 14px; gap: 12px; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .kcols { flex: none; }
     :host([data-phone]) .board > div { flex: 1 1 100% !important; justify-content: flex-start !important; }
@@ -53,8 +67,24 @@ export class FhMorning extends LitElement {
     .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
     .lchip.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
     .lchip.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
+    /* what the whole family has on is said once, across the top, not in every column */
+    .fam { border-radius: 22px; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; flex-shrink: 0; }
+    .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .fam .fev .mt { color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; }
+    /* the lower half of each column is for someone who cannot read yet: a bar that fills as leaving time comes, and a picture for each thing to bring or wear */
+    .klow { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
+    .kgo { display: flex; flex-direction: column; gap: 6px; }
+    .kgo .gobar { position: relative; height: 28px; border-radius: 14px; background: var(--track); box-shadow: inset 0 0 0 2px var(--ink2); overflow: hidden; }
+    .kgo .gobar > i { position: absolute; inset: 0 auto 0 0; width: var(--f, 0%); min-width: 14px; border-radius: 14px; background: var(--kid); transition: width var(--mt-5, 900ms) var(--e-out, ease); }
+    .kgo .gobar > span { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; line-height: 1; }
+    .kgo.soon .gobar { box-shadow: inset 0 0 0 3px var(--accent); }
+    .kgo.now .gobar { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+    .tile { min-width: 76px; min-height: 84px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; }
+    .tile .te { font-size: 40px; line-height: 1.1; }
+    .tile .tl { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
     .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
-    .mev2 .mt { width: 72px; color: var(--ink2); flex-shrink: 0; }
+    .mev2 .mt { width: 76px; color: var(--ink2); flex-shrink: 0; }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
@@ -144,6 +174,9 @@ export class FhMorning extends LitElement {
     const today = this._now;
     const priv = this.privateWords.map((w) => w.toLowerCase());
     const team = this._team(), ready = team.total > 0 && team.done === team.total;
+    // what the whole family has on (the family calendar, not naming one child) is said once across the top
+    const fam = this.events.filter((ev) => onDay(ev, today) && ev.colour === 'family' && !priv.some((w) => ev.title.toLowerCase().includes(w)) && !this.kids.some((k) => ev.who === k.name || ev.title.toLowerCase().includes(k.name.toLowerCase())))
+      .map((ev, i) => ({ ev, i, k: whenOn(ev, today).sort })).sort((x, y) => x.k - y.k || x.i - y.i).map((x) => x.ev);
     return html`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
@@ -157,21 +190,27 @@ export class FhMorning extends LitElement {
           <div style="text-align:right"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
             <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
       </section>
+      ${fam.length ? html`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${fam.slice(0, 4).map((ev) => html`<span class="fev"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></span>`)}</section>` : nothing}
       <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((k) => {
           const e = kidEntities(k);
           const look = decodeLook(this.hass!.states[e.avatar]?.state, k.look ? decodeLook(k.look) : {});
-          const evs = this.events.filter((ev) => onDay(ev, today) && !priv.some((w) => ev.title.toLowerCase().includes(w)) && (ev.who === k.name || ev.colour === 'family' || ev.title.toLowerCase().includes(k.name.toLowerCase())));
+          const evs = this._own(k);
           const bring = this._bring(k, evs);
           const lv = legs.find((l) => l.k === k)!, kl = lv.at - nowM;
-          return html`<button class="glass kcol tap" style="--kid:${slotVar(k.colour)}" @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
+          const goCls = kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : '';
+          return html`<button class="glass kcol tap" style="--kid:${slotVar(k.colour)}" aria-label=${`${k.name}: ${kl > 0 ? `leaves at ${t12(lv.at)}, in ${kl} minutes` : kl > -5 ? 'time to go' : 'has left'}${bring.length ? `. Bring and wear: ${bring.map((x) => tileOf(x)[1]).join(', ')}` : ''}. Opens ${k.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
             <div class="khead">${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2></div>
-            <div class="lchip ${kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : ''}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
-
-            ${bring.length ? html`<span class="label">Bring</span><div class="bring">${bring.map((b) => html`<span>${b}</span>`)}</div>` : nothing}
             <span class="label">Today</span>
-            ${evs.length ? evs.slice(0, 4).map((ev) => html`<div class="mev2"><span class="mt">${ev.allDay || !sameDay(ev.start, today) ? (ev.allDay || !sameDay(ev.end, today) ? 'All day' : `Until ${fmtTime(ev.end)}`) : fmtTime(ev.start)}</span><span>${ev.title}</span></div>`)
+            ${evs.length ? evs.slice(0, 3).map((ev) => html`<div class="mev2"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></div>`)
               : html`<span class="muted" style="font-size:15px">Just school today</span>`}
+            <div class="klow">
+              <div class="kgo ${goCls}" data-part="countdown">
+                <div class="gobar" style="--f:${Math.round(Math.max(0, Math.min(1, 1 - kl / 60)) * 100)}%"><i></i><span aria-hidden="true">${kl > -5 ? '🚪' : '✓'}</span></div>
+                <div class="lchip ${goCls}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
+              </div>
+              ${bring.length ? html`<div class="tiles" data-part="bring">${bring.map((x) => { const [pic, name] = tileOf(x); return html`<span class="tile"><span class="te" aria-hidden="true">${pic}</span><span class="tl">${name}</span></span>`; })}</div>` : nothing}
+            </div>
           </button>`;
         })}
       </div>

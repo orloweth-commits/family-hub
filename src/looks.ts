@@ -1,6 +1,6 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 import { loadFonts } from './fonts';
-import { getShape, onShape } from './util';
+import { getNarrow, getShape, onShape } from './util';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -211,7 +211,9 @@ export const LOOKS: LookDef[] = [
       '--ground': '#9d927b', '--paper': '#eadfc6', '--note': '#e3d39b', '--note-today': '#e7c651', '--rule': '#cbbe9f', '--margin': '#d6a391', '--magnet': '#e6dcc6',
       '--shadow': '0 5px 8px rgba(0,0,0,.2)',
       // the evening ground is darker: the quiet inks go darker with it, so small words on the bare fridge keep 4.5:1
-      '--ink2': '#2a2824', '--ink3': '#3d3a35', '--ink-done': '#3d3a35'
+      '--ink2': '#2a2824', '--ink3': '#3d3a35', '--ink-done': '#3d3a35',
+      // and the coloured words (Overdue, Due, a tick) darken too, so they keep 4.5:1 on the evening paper
+      '--danger': '#8f1d18', '--ok': '#0f5a2f', '--accent': '#7a3c00'
     }
   },
   {
@@ -224,7 +226,7 @@ export const LOOKS: LookDef[] = [
     vars: {
       // same hue per person as every other look, lifted for a dark ground
       '--p-1': '#7cb7ff', '--p-2': '#ff8fb1', '--p-3': '#6ee7c0', '--p-4': '#ff9f6b', '--p-5': '#c9a7ff', '--p-family': '#cbd5e1', '--on-person': '#0a0f1e',
-      '--ink': '#e8ecf7', '--ink2': '#b4bcd6', '--ink3': '#98a2c2', '--ground': '#0a0f1e', '--danger': '#ff8a7a', '--ink-done': '#a3acc9', '--wet': '#8fcbff', '--on-danger': '#0a0f1e',
+      '--ink': '#e8ecf7', '--ink2': '#b4bcd6', '--ink3': '#98a2c2', '--ground': '#0a0f1e', '--danger': '#ff8a7a', '--ink-done': '#b9c1da', '--wet': '#8fcbff', '--on-danger': '#0a0f1e',
       '--glass': '#121a31', '--glass-line': 'rgba(255,255,255,.12)', '--shadow': 'none', '--ctl-line': 'rgba(255,255,255,.44)',
       '--chip': 'rgba(255,255,255,.09)', '--chip-strong': 'rgba(255,255,255,.17)', '--chip-soft': 'rgba(255,255,255,.05)', '--chip-faint': 'rgba(255,255,255,.025)', '--track': 'rgba(255,255,255,.28)', '--on-ok': '#0a0f1e',
       // ink-filled = an action; yellow = now / current; mint = done
@@ -261,10 +263,11 @@ export const setLook = (id: LookId): void => {
 };
 function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [])); }
 
-/** Keeps a component's `data-look` host attribute in step with the chosen look. */
+/** Keeps a component's `data-look` host attribute in step with the chosen look, and its shape attributes in step with the screen.
+ *  A page that sets `stackNarrow` takes its portrait arrangement (data-shape="tall", plus data-stack) on a landscape screen under 900 px wide. */
 export class LookController implements ReactiveController {
   private _off?: () => void;
-  private _shape = (): void => { const s = getShape(); this.host.setAttribute('data-shape', s === 'phone' ? 'tall' : s); this.host.toggleAttribute('data-phone', s === 'phone'); };
+  private _shape = (): void => { const s = getShape(), stack = s === 'wide' && getNarrow() >= 3 && !!(this.host as { stackNarrow?: boolean }).stackNarrow; this.host.setAttribute('data-shape', s === 'phone' || stack ? 'tall' : s); this.host.toggleAttribute('data-stack', stack); this.host.toggleAttribute('data-phone', s === 'phone'); const n = getNarrow(); for (const i of [1, 2, 3]) this.host.toggleAttribute('data-n' + i, n >= i); };
   private _on = (): void => { this.host.setAttribute('data-look', current); this._shape(); this.host.requestUpdate(); };
   constructor(private host: ReactiveControllerHost & HTMLElement) { host.addController(this); }
   hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this._shape(); }

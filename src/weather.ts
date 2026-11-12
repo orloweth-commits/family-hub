@@ -117,6 +117,15 @@ export class FhWeather extends LitElement {
     :host([data-shape='tall']) .wweek { grid-area: 1 / 2; }
     :host([data-shape='tall']) .whours { grid-area: 2 / 1 / 3 / 3; }
     :host([data-shape='tall']) .wmaps { grid-area: 3 / 1 / 4 / 3; }
+    /* tablets narrower than the canvas: narrower side columns; under 900 px the portrait arrangement, and the page scrolls */
+    :host([data-shape='wide'][data-n1]) { grid-template-columns: 290px minmax(0, 1fr) 264px; }
+    :host([data-shape='wide'][data-n2]) { grid-template-columns: 252px minmax(0, 1fr) 252px; gap: 12px; }
+    :host([data-shape='wide'][data-n2]) section { padding: 14px; }
+    :host([data-shape='wide'][data-n3]) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: max-content max-content 380px; overflow-y: auto; }
+    :host([data-shape='wide'][data-n3]) .wnow { overflow: visible; grid-area: 1 / 1; }
+    :host([data-shape='wide'][data-n3]) .wweek { grid-area: 1 / 2; }
+    :host([data-shape='wide'][data-n3]) .whours { grid-area: 2 / 1 / 3 / 3; }
+    :host([data-shape='wide'][data-n3]) .wmaps { grid-area: 3 / 1 / 4 / 3; }
     :host([data-phone]) { display: flex; flex-direction: column; flex: none; }
     :host([data-phone]) .wmaps { height: 420px; }
     :host([data-phone]) section { border-radius: 22px; }

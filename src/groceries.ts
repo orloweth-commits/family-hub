@@ -69,6 +69,17 @@ export class FhGroceries extends LitElement {
     :host([data-phone]) .entry { flex-wrap: wrap; }
     :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: 20px; }
     :host([data-phone]) .entry .lead { height: 52px; flex: 0 0 auto; }
+    /* tablets narrower than the canvas: the list narrows so the keyboard keeps whole keys; under 900 px the two stack and the page scrolls */
+    :host([data-shape='wide'][data-n1]) .list { width: 440px; }
+    :host([data-shape='wide'][data-n2]) .list { width: 372px; padding: 16px; }
+    :host([data-n2]) .add { padding: 16px; }
+    :host([data-n2]) .krow, :host([data-n2]) .keys { gap: 6px; }
+    :host([data-shape='wide'][data-n3]) { flex-direction: column; overflow-y: auto; gap: 12px; }
+    :host([data-shape='wide'][data-n3]) .add { order: -1; flex: none; gap: 10px; }
+    :host([data-shape='wide'][data-n3]) .krow { flex: 0 0 48px; }
+    :host([data-shape='wide'][data-n3]) .list { width: auto; flex: none; }
+    :host([data-shape='wide'][data-n3]) .items { overflow: visible; flex: none; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    :host([data-shape='tall'][data-n3]) .add .key.space { width: 380px; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .entry { display: flex; gap: 10px; align-items: center; min-width: 0; }
     .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);

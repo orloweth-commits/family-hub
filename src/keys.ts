@@ -40,4 +40,8 @@ export const keysCss = css`
   .keys.compact .key.wide { width: 84px; font-size: 18px; }
   .keys.compact .key.space { width: 420px; font-size: 16px; }
   .keys .krow.pk .key.space, .keys.compact .krow.pk .key.space { width: 240px; }
+  /* in a box narrower than the row, the keys give way together (never under a 44 px target) rather than running off the edge */
+  .keys, .krow { min-width: 0; }
+  .keys .key { flex-shrink: 1; min-width: 44px; }
+  .keys .key.space { min-width: 0; }
 `;

@@ -49,6 +49,22 @@ export class FhDoodle extends LitElement {
     :host([data-shape='tall']) .brushes .rule { display: none; }
     :host([data-shape='tall']) .gallery { width: auto; max-height: 260px; }
     :host([data-shape='tall']) .snaps { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    /* tablets narrower than the canvas: the fridge narrows; under 900 px it drops below the easel and the page scrolls to it */
+    :host([data-shape='wide'][data-n2]) .gallery { width: 190px; padding: 12px; }
+    :host([data-shape='wide'][data-n2]) .snaps { grid-template-columns: 1fr; }
+    :host([data-shape='wide'][data-n3]) { flex-wrap: wrap; overflow-y: auto; align-content: flex-start; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]) .brushes, :host([data-shape='wide'][data-n3]) .easel { height: 100%; }
+    :host([data-shape='wide'][data-n3]) .gallery { width: auto; flex: 1 1 100%; }
+    :host([data-shape='wide'][data-n3]) .snaps { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); overflow: visible; }
+    /* opened from the page of a child who cannot read: the colours, stamps and brushes run along the bottom edge, where he can reach */
+    :host([low]:not([data-phone])) { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto; overflow: visible; }
+    :host([low]:not([data-phone])) .easel { grid-area: 1 / 1; height: auto; }
+    :host([low]:not([data-phone])) .gallery { grid-area: 1 / 2; }
+    :host([low]:not([data-phone])) .brushes { grid-area: 2 / 1 / 3 / 3; width: auto !important; height: auto; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)) !important; overflow: visible; padding: 10px 14px; }
+    :host([low]:not([data-phone])) .brushes .rule { display: none; }
+    :host([low][data-shape='tall']:not([data-phone])), :host([low][data-n3]:not([data-phone])) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(280px, 1fr) auto auto; overflow-y: auto; }
+    :host([low][data-shape='tall']:not([data-phone])) .gallery, :host([low][data-n3]:not([data-phone])) .gallery { grid-area: 2 / 1; width: auto; max-height: 200px; flex: none; }
+    :host([low][data-shape='tall']:not([data-phone])) .brushes, :host([low][data-n3]:not([data-phone])) .brushes { grid-area: 3 / 1; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .easel { min-height: 440px; }
     :host([data-phone]) .hint { font-size: 22px; text-align: center; padding: 0 20px; }

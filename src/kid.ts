@@ -87,6 +87,22 @@ export class FhKid extends LitElement {
     :host([data-shape='tall']) .hero { width: auto; grid-column: 1; grid-row: 1; }
     :host([data-shape='tall']) .side { width: auto; grid-column: 2; grid-row: 1; max-height: 560px; }
     :host([data-shape='tall']) .jobs { grid-column: 1 / -1; grid-row: 2; }
+    /* tablets narrower than the canvas: the side columns narrow first; under 900 px the jobs come first at full width and the page scrolls */
+    :host([data-shape='wide'][data-n1]) .hero { width: 290px; }
+    :host([data-shape='wide'][data-n1]) .side { width: 272px; }
+    :host([data-shape='wide'][data-n2]) .hero { width: 256px; padding: 14px 12px; }
+    :host([data-shape='wide'][data-n2]) .side { width: 256px; }
+    :host([data-shape='wide'][data-n2]) .side > .card { padding: 12px; }
+    :host([data-n1]) .feel button, :host([data-n1]) .side .round { flex-shrink: 0; min-width: 44px; }
+    :host([data-shape='wide'][data-n3]) { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(max-content, 1fr) max-content; overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]) .jobs { grid-column: 1 / -1; grid-row: 1; }
+    :host([data-shape='wide'][data-n3]) .hero { width: auto; grid-column: 1; grid-row: 2; }
+    :host([data-shape='wide'][data-n3]) .side { width: auto; grid-column: 2; grid-row: 2; max-height: none; overflow: visible; }
+    :host([data-shape='wide'][data-n3]) .list, :host([data-shape='wide'][data-n3]) .focus { overflow: visible; flex: none; }
+    :host([data-shape='wide'][data-n3]) .side > .tabcard { overflow: visible; }
+    /* portrait and shorter than its canvas: the jobs keep a usable height (the side column scrolls inside itself), and the page scrolls a little if it must */
+    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(400px, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .side { max-height: 440px; }
     :host([data-phone]) { display: flex; flex-direction: column; gap: 12px; flex: none; }
     :host([data-phone]) .jobs { order: 1; flex: none; }
     :host([data-phone]) .hero { order: 2; }
@@ -161,6 +177,7 @@ export class FhKid extends LitElement {
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
     .avph { display: block; width: 186px; max-width: 100%; aspect-ratio: 200 / 240; border-radius: 22px; background: var(--chip-soft); }
+    .askbtn { width: 100%; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
     .avbtn { position: relative; flex: 0 1 223px; min-height: 110px; display: flex; justify-content: center; }
     .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 223px; }
@@ -187,7 +204,7 @@ export class FhKid extends LitElement {
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
-    .wk .init { min-width: 20px; height: 20px; font-size: 13px; }
+    .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
     .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
     .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -216,7 +233,7 @@ export class FhKid extends LitElement {
   private _nowUid = '';
   static properties = {
     hass: { attribute: false }, kid: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
-    privateWords: { attribute: false }, quiet: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
+    privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
     _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }
@@ -231,6 +248,8 @@ export class FhKid extends LitElement {
   jarReward = 'a family treat';
   privateWords: string[] = [];
   quiet = false;
+  /** the helper is set up: a picture-mode child gets an "Ask" button on his own page */
+  ask = false;
   /** one job at a time: Now / Next / Later, and "first jobs, then studio" */
   oneAtATime = false;
   private _showAll = false;
@@ -609,8 +628,11 @@ export class FhKid extends LitElement {
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind ? nothing : (() => {
         const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
-        return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
-          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => {
+        // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
+        const askOn = this._picMode && this.ask;
+        return html`${askOn ? html`<button class="askbtn tap" data-act="ask" style="margin-top:auto" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
+          ${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);${askOn ? '' : 'margin-top:auto'}">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait || askOn ? '' : 'margin-top:auto'}" @click=${() => {
             // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
             if (wait) { this._sound('locked'); if (this._picMode && !this._lookSaid) { this._lookSaid = true; say(`Jobs first, then your look. ${left} to go.`); } return; }
             this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button>`;

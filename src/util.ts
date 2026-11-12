@@ -68,6 +68,10 @@ let shape: Shape = 'wide';
 const shapeSubs = new Set<() => void>();
 export const getShape = (): Shape => shape;
 export const setShape = (s: Shape): void => { if (s !== shape) { shape = s; shapeSubs.forEach((f) => f()); } };
+/** How much narrower than the design canvas a tablet is: 0 (wide enough), 1 (under 1240 px), 2 (under 1100 px), 3 (under 900 px). Components carry data-n1…data-n3, cumulatively. */
+let narrow = 0;
+export const getNarrow = (): number => narrow;
+export const setNarrow = (n: number): void => { if (n !== narrow) { narrow = n; shapeSubs.forEach((f) => f()); } };
 export const onShape = (f: () => void): (() => void) => { shapeSubs.add(f); return () => shapeSubs.delete(f); };
 
 /**

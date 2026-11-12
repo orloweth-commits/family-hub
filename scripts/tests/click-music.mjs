@@ -3,13 +3,14 @@ import http from 'node:http'; import fs from 'node:fs'; import path from 'node:p
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const PORT = Number(process.env.PORT || 4782); // PORT= moves the test server when another run holds the usual port
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
-  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(4782);
+  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 const errs = [];
 const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
-  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:4782/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const calls = (page, re) => page.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).slice(-3).join(' || '), re.source);
 const M = (page) => page.locator('fh-music');
 // ONLY=polish runs just the polish-pass tests at the end of this file
@@ -352,7 +353,7 @@ async function polish() {
     console.log('slow Home Assistant: busy at once:', early, '| busy after 250 ms:', await M(s).locator('[data-busy]').count(), '| cleared when it answers:', (await s.waitForTimeout(1400), await M(s).locator('[data-busy]').count())); await s.close();
     // on a phone a swipe up the page that starts on a slider scrolls and changes nothing; a slide along it sets the volume
     const pc = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }), ph = await pc.newPage(); ph.on('pageerror', (e) => errs.push(String(e)));
-    await ph.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await ph.goto('http://localhost:4782/?look=glass&page=music&mview=list'); await ph.waitForFunction('window.__ready === true'); await ph.waitForTimeout(700);
+    await ph.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await ph.goto('http://localhost:' + PORT + '/?look=glass&page=music&mview=list'); await ph.waitForFunction('window.__ready === true'); await ph.waitForTimeout(700);
     const cdp = await pc.newCDPSession(ph), rail = M(ph).locator('.spk[data-zone="media_player.alexs_homepod"] .vrail'); await rail.scrollIntoViewIfNeeded(); await ph.waitForTimeout(300);
     const touch = async (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
     const swipe = async (x0, y0, x1, y1) => { await touch('touchStart', x0, y0); for (let i = 1; i <= 8; i++) { await touch('touchMove', x0 + ((x1 - x0) * i) / 8, y0 + ((y1 - y0) * i) / 8); await ph.waitForTimeout(30); } await touch('touchEnd'); await ph.waitForTimeout(500); };
@@ -406,6 +407,6 @@ async function polish() {
     console.log('tabs keep one line when the selection changes:', new Set([...y0, ...y1]).size === 1, '| every tab named:', (await M(l).locator('[role=tab]').evaluateAll((e) => e.every((x) => !!x.getAttribute('aria-label')))));
     await M(l).locator('[role=tab]').first().click(); await l.waitForTimeout(300);
     console.log('list: names from the house map:', (await M(l).locator('.sn2').allInnerTexts()).join(', '), '| states:', [...new Set(await M(l).locator('.rst').allInnerTexts())].join(', '), '| move button:', await M(l).locator('.moveb').first().evaluate((e) => Math.round(e.getBoundingClientRect().height) + ' px / ' + getComputedStyle(e).fontSize)); await l.close();
-    const w = await ctx.newPage(); await w.setViewportSize({ width: 1920, height: 1080 }); await w.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await w.goto('http://localhost:4782/?look=glass&page=music&mview=desk'); await w.waitForFunction('window.__ready === true'); await w.waitForTimeout(700);
+    const w = await ctx.newPage(); await w.setViewportSize({ width: 1920, height: 1080 }); await w.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await w.goto('http://localhost:' + PORT + '/?look=glass&page=music&mview=desk'); await w.waitForFunction('window.__ready === true'); await w.waitForTimeout(700);
     console.log('wide screen: tab words shown in the title row:', await M(w).locator('.tabs.inline button span').evaluateAll((e) => e.filter((x) => x.getClientRects().length).length)); await w.close(); }
 }

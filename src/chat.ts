@@ -124,6 +124,23 @@ export class FhChat extends LitElement {
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: 16px; line-height: 1.35; }
     .rec .small { font-weight: var(--w-semi, 600); }
+    .send .kb { font-size: 15px; }
+    /* opened from the page of a child who cannot read: the talk button and the six pictures sit in the lower half, where he can reach; the conversation is above */
+    :host([low]) { flex-direction: column; gap: 12px; }
+    :host([low]) .conv { flex: 1 1 0; min-height: 0; }
+    :host([low]) .ctl { flex: 0 0 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; align-items: center; }
+    :host([low]) .voice { flex-direction: column; gap: 6px; min-height: 0; text-align: center; max-width: 150px; }
+    :host([low]) .voice b { font-size: 16px; }
+    :host([low]) .ctl > .starters { grid-template-columns: repeat(3, 1fr); overflow: visible; }
+    :host([low]) .ctl > .nomic { max-width: 220px; }
+    :host([low]) .opts { grid-column: 1 / -1; margin-top: 0; }
+    :host([low][data-phone]) .ctl { display: flex; }
+    /* a landscape tablet under 900 px wide: one column of pictures (it scrolls), and the options wrap */
+    :host([data-shape='wide'][data-n3]:not([low])) .starters { grid-template-columns: 1fr; }
+    :host([data-shape='wide'][data-n3]:not([data-phone])) .ctl { overflow-y: auto; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { flex-shrink: 0; overflow: visible; }
+    :host([data-n3]) .opts { flex-wrap: wrap; }
+    :host([data-n3]) .opts .pill { flex: 1 1 auto; }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .conv { flex: 1 1 0; min-height: 0; }
     :host([data-shape='tall']) .ctl { flex: 0 0 auto; }

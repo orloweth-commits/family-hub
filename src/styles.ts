@@ -130,6 +130,7 @@ export const styles = css`
   .cap[hidden] { display: none; }
   .cap .mwho { max-width: 18ch; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
+  .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
   .cap.hot { background: #c81e1e; color: #fff; border-color: #c81e1e; animation: hotring 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
@@ -142,7 +143,7 @@ export const styles = css`
   .sos000 > b { font-size: 22px; font-weight: var(--w-heavy, 800); }
   .sosaddr { margin-top: 4px; font-size: 16px; }
   .sosbtn { position: relative; overflow: hidden; flex: 0 0 290px; min-height: 84px; border-radius: 20px; padding: 0 18px; background: #c81e1e; color: #fff; display: flex; align-items: center; gap: 12px; text-align: left; box-shadow: 0 6px 0 #7f1212, 0 12px 18px rgba(127,18,18,.35); touch-action: none; -webkit-user-select: none; user-select: none; }
-  .sosbtn b { display: block; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: 13px; font-weight: var(--w-semi, 600); opacity: .9; }
+  .sosbtn b { display: block; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: 14px; font-weight: var(--w-semi, 600); }
   .sosbtn > span { position: relative; }
   .sosbtn > i { position: absolute; inset: 0; background: rgba(255,255,255,.3); transform: scaleX(0); transform-origin: left; }
   .sosbtn[data-s='hold'] { transform: translateY(4px); box-shadow: 0 2px 0 #7f1212; }
@@ -164,7 +165,7 @@ export const styles = css`
   .med2 .icol > .label:first-child { margin-top: 0; }
   .irow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); }
   .irow b { font-weight: var(--w-bold, 700); min-width: 0; }
-  a.irow { color: inherit; text-decoration: none; min-height: 46px; box-sizing: border-box; align-items: center; }
+  a.irow { color: inherit; text-decoration: none; min-height: 48px; box-sizing: border-box; align-items: center; }
   a.irow .display { text-decoration: underline; text-underline-offset: 3px; }
   .iline { font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.35; padding: 2px 2px; }
   :host([data-phone]) .sos { flex-direction: column; } :host([data-phone]) .sosbtn { flex: none; } 
@@ -174,6 +175,8 @@ export const styles = css`
 
   /* body */
   .body { display: flex; gap: var(--gap); flex: 1; min-height: 0; }
+  /* a page never pushes the body wider than the screen: it gives way and reflows inside */
+  .body > * { min-width: 0; }
   .planner { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
   .bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .seg { display: flex; padding: 3px; border-radius: 12px; background: var(--track); }
@@ -196,6 +199,21 @@ export const styles = css`
   .pchip { margin-left: auto; font-size: 13px; opacity: .7; }
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 14px; }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
+  /* an event is a button: it opens its details */
+  button.ev, button.dayrow { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  button.ev { align-items: stretch; }
+  .ev.tap:active, .dayrow.tap:active { transform: none; opacity: .8; }
+  .ev:focus-visible, .dayrow:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
+  .cap.evcap { cursor: pointer; color: inherit; font-family: inherit; }
+  /* the details of one event: read-only */
+  .evtitle { overflow-wrap: anywhere; }
+  .evd { display: flex; flex-direction: column; gap: 10px; padding-left: 14px; border-left: 6px solid var(--c, var(--p-family)); }
+  .evrow { display: flex; align-items: flex-start; gap: 12px; font-size: 18px; font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .evrow .evic { flex: 0 0 26px; display: flex; justify-content: center; padding-top: 1px; color: var(--ink2); }
+  .evrow .evtx { min-width: 0; overflow-wrap: anywhere; }
+  .evrow.evday { font-size: 20px; font-weight: var(--w-bold, 700); }
+  .evpart { font-size: 16px; }
+  .evnotes { margin: 4px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: 16px; line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
   .ev .t { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); }
   .ev .n { font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .evs { position: relative; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; padding: 3px; margin: -3px; }
@@ -372,6 +390,35 @@ export const styles = css`
   :host([data-shape='tall']) .dock .sep { margin: 0 3px; }
   :host([data-shape='tall']) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+  /* tablets narrower than the canvas (data-n1 under 1240 px, data-n2 under 1100 px, data-n3 under 900 px): nothing is scaled down;
+     the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
+  :host([data-n2]) .fh { --rail: 224px; }
+  :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
+  :host([data-n2]) .dock .item { min-width: 62px; }
+  :host([data-n2]) .dock .sep { margin: 0 3px; }
+  :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
+  :host([data-n3]) .dock .item .kn { max-width: 60px; }
+  :host([data-n3]) nav.dock { padding: 6px; }
+  :host([data-n3]) .planner { padding: 12px 14px 14px; gap: 10px; border-radius: 22px; }
+  :host([data-n3]) .bar { gap: 8px; }
+  :host([data-n3]) .bar > div:first-child { min-width: 0 !important; flex: 1 1 150px; }
+  :host([data-n3]) .legend { gap: 6px 12px; }
+  /* a short month keeps every day a full target and scrolls inside the planner */
+  :host([data-n3]) .month, :host([data-n2]) .month { grid-auto-rows: minmax(44px, 1fr); overflow-y: auto; }
+  :host([data-shape='wide'][data-n2]) aside { overflow-y: auto; scrollbar-width: none; }
+  :host([data-shape='wide'][data-n2]) aside > .card.rems { min-height: 120px; }
+  :host([data-n2]) .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  :host([data-n3]) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :host([data-n3]) .sheet { padding: 18px 18px; border-radius: 26px; }
+  :host([data-n3]) .info2 { columns: 2 220px; }
+  :host([data-n3]) .sosbtn { flex-basis: 240px; }
+  /* portrait and narrower than its canvas: the header keeps one row of controls and puts its chips on a second */
+  :host([data-shape='tall']) .fh[data-compact] header { height: auto; max-height: none; }
+  :host([data-shape='tall'][data-n3]) .weather .wsub, :host([data-shape='tall'][data-n3]) .weather .wtop, :host([data-shape='tall'][data-n3]) .weather .badge, :host([data-shape='tall'][data-n3]) .presence { display: none; }
+  :host([data-shape='tall'][data-n3]) .right { gap: 8px; }
+  :host([data-shape='tall'][data-n3]) aside > .card.rems { min-height: 100px; }
+  :host([data-shape='tall']) .planner { min-height: 0; }
+
   /* phones: one column that scrolls, with the dock fixed along the bottom. Nothing here applies to any other screen. */
   :host([data-phone]) { height: auto; }
   :host([data-phone]) .fh { height: auto; min-height: calc((100vh - var(--header-height, 0px)) / var(--z, 1)); overflow: visible; padding: 12px 12px 92px; gap: 12px; }
@@ -404,7 +451,7 @@ export const styles = css`
   :host([data-phone]) aside { flex-direction: column; }
   :host([data-phone]) nav.dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 9; max-width: none; overflow-x: auto; justify-content: flex-start; padding: 6px; border-radius: 22px; scrollbar-width: none; }
   :host([data-phone]) nav.dock::-webkit-scrollbar { display: none; }
-  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 12px; }
+  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 13px; }
   :host([data-phone]) nav.dock[data-more] { -webkit-mask-image: linear-gradient(to left, transparent, #000 36px); mask-image: linear-gradient(to left, transparent, #000 36px); }
   :host([data-phone]) .dock .kidbtn .avatar { width: 34px !important; height: 34px !important; }
 

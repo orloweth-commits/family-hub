@@ -78,6 +78,10 @@ export class FhAddEvent extends LitElement {
     :host([data-phone]) .chips.days, :host([data-phone]) .chips.cals { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
     :host([data-phone]) .chips.days button, :host([data-phone]) .chips.cals button { flex: 0 0 auto; padding: 0 13px; }
     .when { display: flex; gap: 16px; align-items: stretch; }
+    /* under 900 px wide the day chips keep the full width and the time dial sits below them, so every chip stays a whole target */
+    :host([data-n3]:not([data-phone])) .when { flex-direction: column; gap: 10px; }
+    :host([data-n3]:not([data-phone])) .dialbox { justify-content: center; }
+    :host([data-n3]:not([data-phone])) .chips.cals { display: flex; flex-wrap: wrap; }
     .when > .left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
     .sub { font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
 
