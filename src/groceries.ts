@@ -4,7 +4,7 @@ import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { getShape, FitController, scrollCue } from './util';
+import { getShape, FitController, scrollCue, sfx } from './util';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -34,10 +34,10 @@ export class FhGroceries extends LitElement {
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
     .list { width: 420px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
     .items { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
-    .item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 14px; background: var(--chip); width: 100%; text-align: left; }
+    .item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 9px 12px; border-radius: 14px; background: var(--chip); width: 100%; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink3); }
     .done .box { background: var(--ok); border-color: var(--ok); color: #fff; }
-    .done .txt { color: var(--ink3); text-decoration: line-through; }
+    .done .txt { color: var(--ink3); }
     .txt { flex: 1; font-size: 17px; font-weight: var(--w-semi, 600); }
     .tag { font-size: 12px; font-weight: var(--w-bold, 700); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
     .items[data-fit] { gap: 3px; }
@@ -75,6 +75,7 @@ export class FhGroceries extends LitElement {
   `];
 
   static properties = {
+    _tk: { state: true }, _just: { state: true },
     hass: { attribute: false },
     entity: {},
     usuals: { attribute: false },
@@ -125,8 +126,19 @@ export class FhGroceries extends LitElement {
     this._typed = ''; this._caps = true;
   }
   private _toggle(i: TodoItem): void {
-    this.hass?.callService('todo', 'update_item', { item: i.uid, status: i.status === 'completed' ? 'needs_action' : 'completed' }, { entity_id: this.entity });
+    // the touch is answered at once: the tick, its sound and the service call all happen now. The row keeps its place for a few seconds, so a slip can be tapped back.
+    const to = this._shown(i) === 'completed' ? 'needs_action' : 'completed';
+    sfx(to === 'completed' ? 'tick' : 'untick');
+    clearTimeout(this._tk[i.uid]?.t);
+    this._tk = { ...this._tk, [i.uid]: { to, was: this._tk[i.uid]?.was ?? i.status, t: window.setTimeout(() => { const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; }, 4000) } };
+    this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
+    this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity });
   }
+  private _tk: Record<string, { to: string; was: string; t: number }> = {};
+  private _just = '';
+  /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
+  private _shown(i: TodoItem): string { return this._tk[i.uid]?.to ?? i.status; }
+  private _group(i: TodoItem): string { return this._tk[i.uid]?.was ?? i.status; }
   private _clearDone(): void { this.hass?.callService('todo', 'remove_completed_items', {}, { entity_id: this.entity }); }
 
   private _send(r: GroceryRecipient): void {
@@ -142,8 +154,8 @@ export class FhGroceries extends LitElement {
   }
 
   render(): TemplateResult {
-    const open = this._items.filter((i) => i.status === 'needs_action');
-    const done = this._items.filter((i) => i.status === 'completed');
+    const open = this._items.filter((i) => this._group(i) === 'needs_action');
+    const done = this._items.filter((i) => this._group(i) === 'completed');
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
     return html`
       <section class="glass list" aria-label="Shopping list">
@@ -186,10 +198,10 @@ export class FhGroceries extends LitElement {
 
   private _row(i: TodoItem): TemplateResult {
     const [aisle, colour] = aisleOf(i.summary);
-    const doneCls = i.status === 'completed' ? 'done' : '';
-    return html`<button class="item row tap fade ${doneCls}" aria-pressed=${String(i.status === 'completed')} @click=${() => this._toggle(i)}>
-      <span class="box check">${i.status === 'completed' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
-      <span class="txt content">${i.summary}</span>
+    const ticked = this._shown(i) === 'completed', doneCls = ticked ? 'done' : '';
+    return html`<button class="item row tap fade ${doneCls}" ?data-just=${this._just === i.uid} aria-pressed=${String(ticked)} @click=${() => this._toggle(i)}>
+      <span class="box check">${ticked ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
+      <span class="txt content"><span class="strike">${i.summary}</span></span>
       <span class="tag" style="color:color-mix(in srgb, var(${colour}) 62%, var(--ink));background:color-mix(in srgb, var(${colour}) 14%, transparent)">${aisle}</span>
     </button>`;
   }

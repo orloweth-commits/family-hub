@@ -276,5 +276,17 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
       const solid = [...c.querySelectorAll('button')].filter((b) => cs(b).backgroundColor === cs(lead[0]).backgroundColor && b.offsetParent).length;
       return { leads: lead.length, leadH: Math.round(lead[0].getBoundingClientRect().height), sameFillAsLead: solid, selected: cs(seg).backgroundColor, unselected: cs(off).backgroundColor, selText: cs(seg).color, pressMs: cs(c.querySelector('.tap')).transitionDuration.split(',')[0].trim() }; });
     console.log(`grammar, ${look}:`, JSON.stringify(r)); await o.close(); } }
+// 0.21.0: the tick. Planner reminders tick off their to-do item; rows answer the touch and keep their place for four seconds
+{ const C = (pg) => pg.locator('family-hub-card');
+  const pl = await open('look=glass&page=planner'); const rems = C(pl).locator('button.rem'); const n0 = await rems.count(), first = (await rems.first().textContent()).trim();
+  const h = Math.round((await rems.first().boundingBox()).height); await rems.first().click(); await pl.waitForTimeout(250);
+  console.log('reminder rows:', n0, '| height:', h, '| ticked at once:', await rems.first().evaluate((e) => e.classList.contains('done') && !!e.querySelector('.check svg')), '|', await calls(pl, /todo\.update_item/));
+  await rems.first().click(); await pl.waitForTimeout(250); console.log('tapped again puts it back:', await rems.first().evaluate((e) => !e.classList.contains('done')), '|', (await calls(pl, /todo\.update_item/)).includes('needs_action'));
+  await rems.first().click(); await pl.waitForTimeout(4700); console.log('after four seconds it has gone:', n0, '→', await rems.count(), '| still listed:', (await rems.allTextContents()).some((t) => t.trim() === first)); await pl.close();
+  const g = await open('look=glass&page=groceries'); const G = g.locator('fh-groceries'); const row = G.locator('button.item:not(.done)').first(), name = (await row.locator('.txt').textContent()).trim();
+  const before = await G.locator('button.item').allTextContents(); await row.click(); await g.waitForTimeout(250);
+  const mid = await G.locator('button.item').allTextContents();
+  console.log('grocery ticked at once and stays put:', await G.locator('button.item', { hasText: name }).first().evaluate((e) => e.classList.contains('done')), JSON.stringify(before) === JSON.stringify(mid), '| min row height:', Math.min(...await G.locator('button.item').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)))));
+  await g.waitForTimeout(4300); console.log('then moves to the trolley:', JSON.stringify(await G.locator('button.item').allTextContents()) !== JSON.stringify(mid)); await g.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

@@ -45,6 +45,20 @@ export const styles = css`
   .tap { transition: transform var(--m-2, 160ms) var(--e-spring, ease) 60ms, opacity var(--m-3, 240ms) ease 60ms, background-color .3s ease, box-shadow .25s ease; }
   .tap:active { transform: scale(calc(1 - var(--press, .03) * var(--m-d, 1))); opacity: .84; transition: transform var(--m-1, 80ms) var(--e-out, ease), opacity var(--m-1, 80ms) ease; }
   .row.tap:active, .job.tap:active, .pic.tap:active, .dev.tap:active, .room.tap:active, .st.tap:active, .card.tap:active { transform: none; }
+  /* the tick: the same small sequence wherever a row is ticked off. The row carries data-just for a moment after the touch:
+     the check pops, the tick is drawn in one stroke, and the words are struck through from the left. */
+  [data-just] .check { animation: tkpop var(--m-3, 240ms) var(--e-spring, ease); }
+  @keyframes tkpop { 45% { transform: scale(calc(1 + .16 * var(--m-d, 1))); } }
+  [data-just] .check svg path { stroke-dasharray: 1; animation: tkdraw var(--m-2, 160ms) var(--e-out, ease) 40ms both; }
+  @keyframes tkdraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .strike { background: linear-gradient(currentColor, currentColor) left 56% / 0 2px no-repeat; transition: background-size var(--m-3, 240ms) var(--e-out, ease), color var(--m-2, 160ms) ease; }
+  .done .strike { background-size: 100% 2px; color: var(--ink3); text-decoration: none; }
+  /* planner reminders: rows you can tick */
+  .rem { width: 100%; min-height: 44px; padding: 4px 6px; margin: -2px -6px; border-radius: 12px; text-align: left; }
+  .rem .check { width: 28px; height: 28px; border-width: 2.5px; display: inline-flex; align-items: center; justify-content: center; color: #fff; transition: background-color var(--m-1, 80ms) ease, border-color var(--m-1, 80ms) ease; }
+  .rem.done .check { background: var(--ok); border-color: var(--ok); }
+  .rem .content { flex: 1; min-width: 0; }
+  .rem.tap:active { transform: none; }
   /* the lead action: the one thing a page or sheet is for */
   .lead { height: 52px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
