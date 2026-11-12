@@ -260,5 +260,11 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   console.log('clear then undo:', gone, '→', await M(j).locator('.pickrow').count()); await j.close();
   const q = await open('page=music&look=glass&mview=scene'); await q.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.fh').setAttribute('data-calm', '')); await q.waitForTimeout(600);
   console.log('calm mode, animations still running:', await q.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return r.getAnimations ? r.getAnimations().filter((a) => a.playState === 'running').length : -1; })); await q.close(); }
+// 0.18.0: on a wide screen the view's controls share the title row, so the view gets the height
+{ for (const v of ['house', 'cables', 'desk', 'scene', 'dial']) { const o = await open('page=music&look=glass&mview=' + v);
+    const b = await M(o).locator(v === 'house' ? '.map' : v === 'cables' ? '.rig' : v === 'desk' ? '.desk' : v === 'scene' ? '.vscene' : '.dialwrap').first().boundingBox();
+    console.log(`stage height, ${v}:`, Math.round(b?.height ?? 0), '| view button in the title row:', await M(o).locator('.mhead .viewbtn').count() === 1, '| hint shows then goes on a touch:', await M(o).locator('.coach[data-on]').count(), '→', (await o.mouse.click(640, 400), await o.waitForTimeout(200), await M(o).locator('.coach[data-on]').count())); await o.close(); }
+  const t = await open('page=music&look=glass&mview=house'); await t.setViewportSize({ width: 800, height: 1280 }); await t.waitForTimeout(500);
+  console.log('portrait keeps the two rows:', await M(t).locator('.acts .viewbtn').count() === 1); await t.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
