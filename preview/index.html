@@ -112,7 +112,7 @@ const hass = {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }
       if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
-      if (service === 'remove_item') store[id] = store[id].filter((x) => x.uid !== data.item);
+      if (service === 'remove_item') store[id] = store[id].filter((x) => ![].concat(data.item).includes(x.uid));
       if (service === 'add_item' && data.description) store[id][store[id].length - 1].description = data.description;
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
@@ -146,6 +146,7 @@ const hass = {
           if (q.get('voice') === 'silent') { later(100, 'error', { code: 'stt-no-text-recognized', message: 'No text recognized' }); return; }
           later(100, 'stt-end', { stt_output: { text: 'What do koalas eat?' } }); later(700, 'intent-end', { intent_output: { conversation_id: 'demo-1', response: { speech: { plain: { speech: 'Koalas eat gum leaves, and they sleep for most of the day.' } } } } }); later(800, 'tts-end', { tts_output: { url: '/api/tts_proxy/demo.mp3' } }); later(900, 'run-end', {}); };
         return () => { window.__unsubbed = (window.__unsubbed || 0) + 1; }; }
+      if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
       (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
 };
 const el = document.createElement('family-hub-card');

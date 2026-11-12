@@ -2,7 +2,7 @@ import { LitElement, html, svg, css, nothing, type TemplateResult, type Property
 import { styles } from './styles';
 import { LookController, getLook } from './looks';
 import type { Hass, HassEntity } from './types';
-import { FitController, changed, sfx } from './util';
+import { FitController, changed, sfx, say } from './util';
 import './radar';
 
 /** What the page reads besides the weather entity. Every part is optional and found by itself where it can be. */
@@ -73,13 +73,30 @@ const glyph = (cond = ''): TemplateResult => {
 };
 const sky = (cond: string | undefined, size: number): TemplateResult => html`<svg class="sky" viewBox="0 0 64 64" width=${size} height=${size} role="img" aria-label=${COND[cond ?? ''] ?? cond ?? ''}>${glyph(cond)}</svg>`;
 
+/* ---- what to wear and take, drawn: a child who cannot read yet still gets the advice ---- */
+type TipId = 'sun' | 'rain' | 'jumper' | 'water' | 'inside' | 'blanket' | 'outside';
+const TIP_WORDS: Record<TipId, string> = { sun: 'Hat and sunscreen', rain: 'Raincoat', jumper: 'Jumper', water: 'Water bottle', inside: 'Stay inside', blanket: 'Extra blanket', outside: 'Play outside' };
+const TIP_ART: Record<TipId, TemplateResult> = {
+  sun: svg`<ellipse cx="26" cy="38" rx="23" ry="6.500" fill="#f4c95d" stroke="#8a5a00" stroke-width="2.500"></ellipse><path d="M12 37c0-11 6-18 14-18s14 7 14 18z" fill="#ffe08a" stroke="#8a5a00" stroke-width="2.500" stroke-linejoin="round"></path><path d="M12.500 33.500h27" stroke="#d1495b" stroke-width="4"></path>
+    <rect x="43" y="30" width="15" height="27" rx="4" fill="#fff" stroke="#8a5a00" stroke-width="2.500"></rect><rect x="46" y="23" width="9" height="7" rx="2" fill="#f77f00" stroke="#8a5a00" stroke-width="2.500"></rect><circle cx="50.500" cy="43.500" r="4" fill="#ffc533"></circle>`,
+  rain: svg`<path d="M22 12c3 4 17 4 20 0l12 9-5 9-5-3v29H20V27l-5 3-5-9z" fill="#ffd23f" stroke="#7a5200" stroke-width="2.500" stroke-linejoin="round"></path><path d="M22 12c1 8 5 12 10 12s9-4 10-12" fill="#f4b400" stroke="#7a5200" stroke-width="2.500" stroke-linejoin="round"></path><path d="M32 24v32" stroke="#7a5200" stroke-width="2.500"></path><circle cx="35.500" cy="33" r="1.800" fill="#7a5200"></circle><circle cx="35.500" cy="43" r="1.800" fill="#7a5200"></circle>
+    <path d="M7 40l-2 6M57 38l-2 6M9 52l-2 6" stroke="#3b9ae1" stroke-width="3" stroke-linecap="round"></path>`,
+  jumper: svg`<path d="M23 12h18l14 8-3 30h-8l1-18-2 24H21l-2-24 1 18h-8L9 20z" fill="#2a9d8f" stroke="#12423c" stroke-width="2.500" stroke-linejoin="round"></path><path d="M23 12c2 5 16 5 18 0" fill="none" stroke="#12423c" stroke-width="2.500"></path><path d="M21 50h22M21 30l5 4 6-4 6 4 5-4" fill="none" stroke="#e9f5f3" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"></path>`,
+  water: svg`<rect x="25" y="6" width="14" height="8" rx="2.500" fill="#118ab2" stroke="#0b3954" stroke-width="2.500"></rect><path d="M22 14h20l3 8v32a4 4 0 0 1-4 4H23a4 4 0 0 1-4-4V22z" fill="#bfe9ff" stroke="#0b3954" stroke-width="2.500" stroke-linejoin="round"></path><path d="M19.500 34c5-3 8 3 12.500 0s8 3 12.500 0V54a4 4 0 0 1-4 4H23.500a4 4 0 0 1-4-4z" fill="#3b9ae1"></path><path d="M19 22h26" stroke="#0b3954" stroke-width="2.500"></path>`,
+  inside: svg`<path d="M8 30L32 10l24 20" fill="none" stroke="#5c3d2e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 28v28h36V28L32 13z" fill="#ffe8c2" stroke="#5c3d2e" stroke-width="2.500" stroke-linejoin="round"></path><path d="M34 28l-8 12h6l-3 10 10-13h-6l4-9z" fill="#ffd21f" stroke="#b27f00" stroke-width="1.500" stroke-linejoin="round"></path>`,
+  blanket: svg`<path d="M6 22v32M6 44h52v10M58 44v-8a6 6 0 0 0-6-6H24v14" fill="none" stroke="#5c3d2e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="15" cy="34" r="5.500" fill="#ffd9b8" stroke="#5c3d2e" stroke-width="2.500"></circle><path d="M24 32h28a4 4 0 0 1 4 4v8H24z" fill="#7b8cde" stroke="#39428a" stroke-width="2.500" stroke-linejoin="round"></path><path d="M46 8a8 8 0 1 0 8 10 7 7 0 0 1-8-10z" fill="#f4dc7a" stroke="#8a6d00" stroke-width="1.500"></path>`,
+  outside: svg`<circle cx="46" cy="18" r="9" fill="#ffc533"></circle><circle cx="26" cy="40" r="17" fill="#ef476f" stroke="#7d1535" stroke-width="2.500"></circle><path d="M12 31c9 2 17 2 28-1M11 47c10-3 20-3 30 1M26 23v34" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round"></path>`
+};
+const tipPic = (id: TipId, size = 64): TemplateResult => html`<svg viewBox="0 0 64 64" width=${size} height=${size} aria-hidden="true">${TIP_ART[id]}</svg>`;
+const speakerIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`;
+
 /** How each look and world talks about the weather. */
 const TITLES: Record<string, [string, string, string, string]> = {
   glass: ['Right now', 'The next hours', 'The week ahead', 'From above'],
   fridge: ['Today', 'Later on', 'This week', 'Rain and wind'],
   orbit: ['Surface conditions', 'Next 24 hours', 'Seven-day outlook', 'Ground scan']
 };
-const MASCOT: Record<string, string> = { sea: '🐬', sunset: '⛵', reef: '🐠', bush: '🦘', space: '🚀', fridge: '🧲', orbit: '🛰️' };
+
 
 /** Weather: what it is doing now, the next hours, the week, and the rain and wind seen from above. */
 export class FhWeather extends LitElement {
@@ -108,36 +125,53 @@ export class FhWeather extends LitElement {
     .wtemp { font-size: 62px; line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
     .wtemp sup { font-size: .45em; vertical-align: top; position: relative; top: .1em; }
     .cond { font-size: 17px; font-weight: var(--w-bold, 700); }
-    .wtip { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.3; }
-    .wtip .m { font-size: 22px; line-height: 1; }
-    .said { font-size: 14px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .facts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    /* advice a child can act on: up to three pictures of what to wear or take, and a button that says it aloud */
+    .wtip { display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 10px; border-radius: 16px; background: var(--chip); }
+    .tips { flex: 1; min-width: 0; display: flex; gap: 6px; justify-content: space-around; }
+    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .tipone svg { width: 64px; height: 64px; flex-shrink: 0; }
+    .speak { width: 52px; height: 52px; /* token */ border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .said { font-size: 15px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
+    .facts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 12px; }
     .wfact { grid-column: span 2; }
     .wfact.half { grid-column: span 3; }
-    .wfact.two { grid-column: span 4; }
-    .wfact { border-radius: 14px; background: var(--chip-soft); padding: 6px 10px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    /* facts are readings, not controls: plain figures on ruled lines, with no filled or outlined tile to tap */
+    .wfact { border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); padding: 6px 2px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .wfact.wide { grid-column: span 6; flex-direction: row; align-items: center; gap: 12px; }
-    .wfact.col { flex-direction: column; align-items: flex-start; gap: 1px; }
-    .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .wfact small { font-size: 12.500px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wfact.stack { flex-direction: column; align-items: flex-start; gap: 1px; }
+    .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
+    .wfact small { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
+    /* the card tightens in steps until it fits: the Bureau's paragraph goes first, then the least urgent readings */
+    .wnow[data-fit] { gap: 8px; }
+    .wnow[data-fit] .said { display: none; }
+    .wnow[data-fit='2'] .x2, .wnow[data-fit='3'] .x2, .wnow[data-fit='3'] .x3 { display: none; }
+    .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: 50px; }
+    .wnow[data-fit='3'] { gap: 6px; padding-top: 12px; padding-bottom: 12px; }
     .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .wcomp { flex-shrink: 0; }
     .wcomp .ring { fill: none; stroke: var(--ink2); stroke-width: 1.5; opacity: .5; }
-    .wcomp text { font-size: 9px; font-weight: 700; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
+    .wcomp text { font-size: 13px; font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
     .wcomp .needle { fill: var(--accent); transform-origin: 32px 32px; }
     .wcomp .sway { transform-origin: 32px 32px; animation: sway 3.600s ease-in-out infinite; animation-play-state: var(--motion, running); }
     @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
 
     /* hours */
-    .hscroll { overflow-x: auto; overflow-y: hidden; margin: 0 -6px; padding: 0 6px; scrollbar-width: none; }
+    .hscroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
     .hscroll::-webkit-scrollbar { display: none; }
-    .hchart text { font-size: 12px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
+    .hscroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
+    /* whole hours only: the columns are sized to the strip, and an edge with more beyond it fades */
+    .hscroll[data-more-r] { -webkit-mask-image: linear-gradient(to left, transparent, #000 28px); mask-image: linear-gradient(to left, transparent, #000 28px); }
+    .hscroll[data-more-l] { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px); mask-image: linear-gradient(to right, transparent, #000 28px); }
+    .hscroll[data-more-l][data-more-r] { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
+    .hchart { display: block; }
+    .hchart text { font-size: 13px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
+    .hchart .wind { font-size: 13px; }
     .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
     .hchart .rainbar { fill: #3b9ae1; }
-    .hchart .raintxt { fill: #2b84c8; font-size: 11px; font-weight: 700; }
-    .hchart .day { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--accent); }
+    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: 13px; font-weight: 700; }
+    .hchart .day { font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
     .hchart .split { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .5; }
 
     /* week */
@@ -145,20 +179,25 @@ export class FhWeather extends LitElement {
     .wday { display: grid; grid-template-columns: 52px 40px 1fr; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 14px; min-height: 52px; }
     .wday.today { background: var(--chip); }
     .wday .dn { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .wday .dn small { display: block; font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wday .dn small { display: block; font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     .wday .lo { color: var(--ink2); text-align: right; }
-    .wday .wet { grid-column: 1 / -1; font-size: 12px; font-weight: 700; color: var(--wet, #2b84c8); margin-top: -2px; }
+    .wday .wet { grid-column: 1 / -1; font-size: 13px; font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
     .track { height: 8px; border-radius: 4px; background: var(--track); position: relative; }
     .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 8px; }
 
     /* maps */
     .mhead { display: flex; align-items: center; gap: 10px; padding: 2px 6px 0; }
     .mhead h2 { flex: 1; }
+    .mhead .seg button { font-size: 15px; }
+    .mhead .seg button[aria-pressed='false'] { color: var(--ink); }
     .mbox { flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; position: relative; background: var(--chip-soft); }
     .mbox iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: 15px; line-height: 1.4; max-width: 340px; }
-    .credit { font-size: 11px; color: var(--ink2); padding: 0 6px; }
+    .credit { font-size: 13px; color: var(--ink2); padding: 0 6px; }
+    .off { grid-column: 1 / -1; align-items: center; justify-content: center; text-align: center; gap: 8px; }
+    .off p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 520px; }
+    .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); margin-top: 6px; }
 
     /* the drawn sky */
     .sky { flex-shrink: 0; overflow: visible; }
@@ -183,7 +222,10 @@ export class FhWeather extends LitElement {
     @keyframes flash { 0%, 100% { opacity: 1; } 6% { opacity: .2; } 9% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } }
   `];
 
-  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _failed: { state: true } };
+  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _failed: { state: true }, _hw: { state: true } };
+  /** width of one hour's column, so the strip always shows whole hours */
+  private _hw = 58;
+  private _ro?: ResizeObserver;
   hass?: Hass;
   entity = '';
   page: WeatherPageConfig = {};
@@ -198,8 +240,27 @@ export class FhWeather extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
     this._timer = window.setInterval(() => this._load(), 10 * 60000);
+    if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this._measure()); this._ro.observe(this); }
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); }
+  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); this._ro?.disconnect(); }
+  protected updated(): void { this._measure(); }
+  /** Size the hour columns so a whole number of them fills the strip, and mark the edges that have more beyond them. */
+  private _measure(): void {
+    const el = this.renderRoot.querySelector('.hscroll') as HTMLElement | null;
+    if (!el || !el.clientWidth) return;
+    const w = el.clientWidth / Math.max(1, Math.floor(el.clientWidth / 58));
+    if (Math.abs(w - this._hw) > 0.05) { this._hw = w; return; }
+    el.toggleAttribute('data-more-r', el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+    el.toggleAttribute('data-more-l', el.scrollLeft > 4);
+  }
+  private _snapTimer?: number;
+  /** After a swipe the strip settles on a whole hour. */
+  private _hscrolled(e: Event): void {
+    const el = e.currentTarget as HTMLElement;
+    this._measure();
+    clearTimeout(this._snapTimer);
+    this._snapTimer = window.setTimeout(() => { const to = Math.min(el.scrollWidth - el.clientWidth, Math.round(el.scrollLeft / this._hw) * this._hw); if (Math.abs(to - el.scrollLeft) > 1) el.scrollTo({ left: to, behavior: 'smooth' }); }, 140);
+  }
 
   /** The Bureau's sensors, found by what they are called unless the config names them. */
   private get _obs(): string {
@@ -267,35 +328,32 @@ export class FhWeather extends LitElement {
     const max = sensor ?? this._today()?.uv_index ?? (hours.length ? Math.max(...hours.map((h) => h.uv_index ?? 0)) : undefined);
     return { max, from: clock(txt(this._f('uv_start_time'))), to: clock(txt(this._f('uv_end_time'))) };
   }
-  /** One plain sentence a child can act on: the most important thing about today. */
-  private _tip(): string {
-    const t = this._today(), uv = this._uv(), now = new Date();
+  /** Up to three things to wear or take today, most important first, with the sentence that is read aloud for each. */
+  private _tips(): { id: TipId; say: string }[] {
+    const t = this._today(), uv = this._uv(), now = new Date(), out: { id: TipId; say: string }[] = [];
     const chance = num(this._f('rain_chance')) ?? t?.precipitation_probability ?? 0;
-    const gust = num(this._o('gust_speed_kilometre')) ?? 0;
     const top = t?.temperature, temp = num(this._o('temp')) ?? this.hass?.states[this.entity]?.attributes.temperature;
     const state = this.hass?.states[this.entity]?.state ?? '';
     const night = now.getHours() >= 19 || now.getHours() < 5;
-    if (/lightning/.test(state)) return 'Storms about. Stay inside until the thunder has gone.';
-    if (/rain|pour/.test(state)) return 'It is raining. Raincoat or umbrella if you go out.';
-    if (!night && chance >= 60) return `Rain is likely today (${Math.round(chance)}%). Pack a raincoat.`;
-    if (!night && top !== undefined && top >= 35) return `A very hot day, up to ${Math.round(top)}°. Water bottle, hat and shade.`;
-    if (!night && (uv.max ?? 0) >= 3) return `Sun is strong today (UV ${Math.round(uv.max!)}). Hat and sunscreen${uv.from && uv.to ? ` from ${uv.from} to ${uv.to}` : ''}.`;
-    if (gust >= 45) return 'Very windy. Hold on to your hat.';
-    if (temp !== undefined && temp < 14) return 'It is chilly. Jumper weather.';
-    if (night) return t?.templow !== undefined && t.templow < 12 ? 'A cold night coming. Extra blanket.' : 'A calm night. Sleep well.';
-    if (chance >= 30) return `It might rain later (${Math.round(chance)}%).`;
-    return 'A good day to be outside.';
+    if (/lightning/.test(state)) out.push({ id: 'inside', say: 'Storms about. Stay inside until the thunder has gone.' });
+    if (/rain|pour/.test(state)) out.push({ id: 'rain', say: 'It is raining. Raincoat or umbrella if you go out.' });
+    else if (!night && chance >= 60) out.push({ id: 'rain', say: 'Rain is likely today. Pack a raincoat.' });
+    if (!night && (uv.max ?? 0) >= 3 && !/lightning|rain|pour/.test(state)) out.push({ id: 'sun', say: `The sun is strong today. Hat and sunscreen${uv.from && uv.to ? ` from ${uv.from} to ${uv.to}` : ''}.` });
+    if (!night && top !== undefined && top >= 30) out.push({ id: 'water', say: `A hot day, up to ${Math.round(top)} degrees. Take your water bottle.` });
+    if (temp !== undefined && temp < 14) out.push({ id: 'jumper', say: 'It is chilly. Put a jumper on.' });
+    if (night && !out.length && t?.templow !== undefined && t.templow < 12) out.push({ id: 'blanket', say: 'A cold night coming. Extra blanket.' });
+    if (!out.length) out.push(night ? { id: 'blanket', say: 'A calm night. Sleep well.' } : { id: 'outside', say: 'A good day to be outside.' });
+    return out.slice(0, 3);
   }
-
   /* ---------------- drawing ---------------- */
 
   private _titles(): [string, string, string, string] { return TITLES[getLook()] ?? TITLES.glass; }
 
   private _compass(bearing: unknown): TemplateResult {
     const d = deg(bearing);
-    return html`<svg class="wcomp" viewBox="0 0 64 64" width="58" height="58" aria-hidden="true">
-      ${svg`<circle class="ring" cx="32" cy="32" r="22"></circle>
-        <text x="32" y="5">N</text><text x="59" y="32">E</text><text x="32" y="59.5">S</text><text x="5" y="32">W</text>
+    return html`<svg class="wcomp" viewBox="0 -8 64 72" width="56" height="63" aria-hidden="true">
+      ${svg`<circle class="ring" cx="32" cy="32" r="24"></circle>
+        <text x="32" y="-1">N</text>
         ${d === undefined ? nothing : svg`<g class="sway"><path class="needle" transform="rotate(${d + 180} 32 32)" d="M32 13l6.5 16h-4.500v19h-4v-19h-4.500z"></path></g>`}`}
     </svg>`;
   }
@@ -312,7 +370,10 @@ export class FhWeather extends LitElement {
     const warns = ((this.hass?.states[this._warnId]?.attributes.warnings ?? []) as { short_title?: string; title?: string; phase?: string; expiry_time?: string }[])
       .filter((x) => x.phase !== 'cancelled' && (!x.expiry_time || new Date(x.expiry_time).getTime() > Date.now()));
     const fact = (big: unknown, small: string, cls = '') => html`<div class="wfact ${cls}"><b>${big}</b><small>${small}</small></div>`;
-    return html`<section class="glass wnow scrolly">
+    const tips = this._tips(), night = new Date().getHours() >= 19 || new Date().getHours() < 5;
+    // three thirds when they fit; with the fire danger (a long word that must not be cut) the small readings pair up in halves
+    const small = [chance !== undefined, since !== undefined, hum !== undefined, !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
+    return html`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
       <div class="top">
@@ -325,15 +386,18 @@ export class FhWeather extends LitElement {
       <div class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">
         ${feels !== undefined ? html`Feels like ${Math.round(feels)}°` : nothing}${t?.temperature !== undefined ? html`${feels !== undefined ? ' · ' : ''}Top ${Math.round(t.temperature)}°` : nothing}${t?.templow !== undefined && t.templow !== t.temperature ? html` · Low ${Math.round(t.templow)}°` : nothing}
       </div>
-      <div class="wtip"><span class="m" aria-hidden="true">${MASCOT[getLook() === 'glass' ? this.theme : getLook()] ?? '🌤️'}</span><span>${this._tip()}</span></div>
+      <div class="wtip" role="group" aria-label="What to wear today">
+        <div class="tips">${tips.map((x) => html`<span class="tipone">${tipPic(x.id)}<span>${TIP_WORDS[x.id]}</span></span>`)}</div>
+        <button class="speak tap" aria-label="Read the advice aloud" @click=${() => { sfx('tap'); say(tips.map((x) => x.say).join(' ')); }}>${speakerIcon}</button>
+      </div>
       <div class="facts">
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
-        ${chance !== undefined ? fact(`${Math.round(chance)}%`, range && range !== '0' ? `Rain · ${range} mm` : 'Chance of rain') : nothing}
-        ${since !== undefined ? fact(`${since} mm`, 'Since 9 am') : nothing}
-        ${hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity') : nothing}
-        ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)} · ${uvWord(uv.max)}`, uv.from && uv.to && uv.max >= 3 ? `Cover up ${uv.from} to ${uv.to}` : 'No sun protection needed', 'wide col') : nothing}
-        ${rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', fire ? 'two' : 'wide col') : nothing}
-        ${fire ? fact(fire, 'Fire danger') : nothing}
+        ${chance !== undefined ? fact(`${Math.round(chance)}%`, range && range !== '0' ? `Rain · ${range} mm` : 'Chance of rain', half) : nothing}
+        ${since !== undefined ? fact(`${since} mm`, 'Since 9 am', `${half} x3`) : nothing}
+        ${hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity', `${half} x3`) : nothing}
+        ${fire ? fact(fire, 'Fire danger', half) : nothing}
+        ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)} · ${uvWord(uv.max)}`, uv.max >= 3 ? (uv.from && uv.to ? `Cover up ${uv.from} to ${uv.to}` : night ? 'Cover up in the daytime' : 'Cover up today') : 'No sun protection needed', 'wide stack') : nothing}
+        ${rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', 'wide stack x2') : nothing}
       </div>
       ${said ? html`<p class="said">${said}</p>` : nothing}
     </section>`;
@@ -342,14 +406,14 @@ export class FhWeather extends LitElement {
   private _hoursChart(): TemplateResult {
     const now = Date.now() - 30 * 60000;
     const hs = this._hours.filter((h) => new Date(h.datetime).getTime() >= now).slice(0, 24);
-    if (hs.length < 2) return html`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:14px">Hour-by-hour weather is not available from this forecast.</p></section>`;
-    const W = 58, H = 158, n = hs.length, temps = hs.map((h) => h.temperature ?? 0);
+    if (hs.length < 2) return html`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:15px;margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
+    const W = this._hw, H = 158, n = hs.length, temps = hs.map((h) => h.temperature ?? 0);
     const lo = Math.min(...temps), hi = Math.max(...temps), y = (t: number) => 98 - ((t - lo) / Math.max(1, hi - lo)) * 24;
     const x = (i: number) => i * W + W / 2;
     const pts = hs.map((h, i) => `${x(i)} ${y(h.temperature ?? lo)}`);
     return html`<section class="glass whours">
       <h2>${this._titles()[1]}</h2>
-      <div class="hscroll" tabindex="0" role="img" aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
+      <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
         <svg class="hchart" width=${n * W} height=${H} viewBox="0 0 ${n * W} ${H}">
           ${svg`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${n * W} y1="0" y2="0">${hs.map((h, i) => svg`<stop offset=${i / (n - 1)} stop-color=${tcol(h.temperature ?? lo)}></stop>`)}</linearGradient></defs>
           <path class="area" fill="url(#tg)" d="M${x(0)} 122L${pts.join('L')}L${x(n - 1)} 122z"></path>
@@ -362,7 +426,7 @@ export class FhWeather extends LitElement {
               <svg class="sky" x=${x(i) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${glyph(h.condition)}</svg>
               <circle cx=${x(i)} cy=${y(h.temperature ?? lo)} r="3.5" fill=${tcol(h.temperature ?? lo)}></circle>
               <text class="tv" x=${x(i)} y=${y(h.temperature ?? lo) - 9}>${Math.round(h.temperature ?? 0)}°</text>
-              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text x=${x(i)} y="146" style="font-size:11px;opacity:.75">${h.wind_speed !== undefined ? `${Math.round(h.wind_speed)} km/h` : ''}</text>`}`;
+              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? `${Math.round(h.wind_speed)} km/h` : ''}</text>`}`;
           })}`}
         </svg>
       </div>
@@ -375,7 +439,7 @@ export class FhWeather extends LitElement {
     const lo = Math.min(...lows), hi = Math.max(...highs), span = Math.max(1, hi - lo);
     return html`<section class="glass wweek">
       <h2>${this._titles()[2]}</h2>
-      ${!days.length ? html`<p class="muted" style="font-size:14px">${this._failed ? 'The forecast could not be loaded. It will try again shortly.' : 'Loading the forecast…'}</p>` : html`
+      ${!days.length ? html`<p class="muted" style="font-size:15px;margin:0">${this._failed ? 'The forecast could not be loaded. It will try again shortly.' : 'Loading the forecast…'}</p>` : html`
       <div class="days" role="list">
         ${days.map((d, i) => {
           const dt = new Date(d.datetime), isToday = dt.toDateString() === today, p = d.precipitation_probability ?? 0;
@@ -421,7 +485,12 @@ export class FhWeather extends LitElement {
   }
 
   protected render(): TemplateResult {
-    if (!this.entity || !this.hass?.states[this.entity]) return html`<section class="glass" style="grid-column:1 / -1"><h2>Weather</h2><p class="muted">Add a weather entity to the card (<code>weather: weather.your_town</code>) to see the forecast here.</p></section>`;
+    if (!this.entity) return html`<section class="glass off"><h2>Weather</h2><p class="muted">Add a weather entity to the card (<code>weather: weather.your_town</code>) to see the forecast here.</p></section>`;
+    // a weather entity that is set up but missing or not answering is a passing fault, not a set-up job
+    const st = this.hass?.states[this.entity];
+    if (!st || st.state === 'unavailable' || st.state === 'unknown') return html`<section class="glass off" role="status">${sky('cloudy', 72)}<h2>Weather is not available right now</h2>
+      <p class="muted">Home Assistant cannot reach the forecast at the moment. It will come back here by itself.</p>
+      <button class="retry tap" @click=${() => { this._loadedFor = ''; this.requestUpdate(); }}>Try again</button></section>`;
     return html`${this._now()}${this._maps()}${this._week()}${this._hoursChart()}`;
   }
 }

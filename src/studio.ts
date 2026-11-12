@@ -3,13 +3,14 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import { avatarCss, applyItem, CATALOGUE, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
-import { say, sfx } from './util';
+import { FitController, say, scrollCue, sfx } from './util';
 import { confetti, fxCss } from './fx';
 import { kidEntities, num, slotVar, type Hass, type KidConfig } from './types';
 
 /** Avatar Studio: try on everything, locked items show what they need. */
 export class FhStudio extends LitElement {
   readonly lookCtl = new LookController(this);
+  readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .mirror { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
@@ -20,19 +21,24 @@ export class FhStudio extends LitElement {
     :host([data-shape='tall']) .mirror { width: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-    .tabs button { height: 40px; padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .tabs button { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
+    .pill { font-size: 15px; }
+    .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
+    .label { font-size: 13px; }
     .tabs button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .heart { position: absolute; bottom: 34px; right: 6px; width: 32px; height: 32px; border-radius: 50%; background: var(--chip-strong); font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
-    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; padding: 4px; }
-    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 12px; font-weight: var(--w-bold, 700); text-align: center; }
+    .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+    .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; grid-auto-rows: max-content; padding: 6px; }
+    .lock { display: inline-flex; align-items: center; gap: 3px; }
+    .lock svg { flex-shrink: 0; }
+    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 13px; font-weight: var(--w-bold, 700); text-align: center; }
     .tile[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--chip-strong); }
     .tile.locked .av { filter: grayscale(1) brightness(.85); opacity: .55; }
-    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(15,15,20,.78); color: #fff; font-size: 11px; font-weight: var(--w-heavy, 800); }
+    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(15,15,20,.78); color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); }
     .sw { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .sw button { width: 36px; height: 36px; border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
+    .sw button { width: 44px; height: 44px; /* token */ border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
     .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
-    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 10px; font-weight: var(--w-heavy, 800); }
+    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
@@ -117,7 +123,7 @@ export class FhStudio extends LitElement {
         </div>
         <button class="tap" style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:14px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
+          <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
         <div style="display:flex;gap:10px;width:100%;margin-top:auto;z-index:1">
           <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
@@ -130,13 +136,13 @@ export class FhStudio extends LitElement {
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
             style="background:${s[0]}" @click=${() => this._pick(cat, s, true)}></button>`; })}</div>` : nothing}
-        <div class="grid">
+        <div class="grid scrolly" @scroll=${scrollCue}>
           ${cat.items.map((it) => {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
               <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
-              ${locked ? html`<span class="lock">${surprise ? '🌱' : `🔒 ${this._picMode ? '★' : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
-              ${locked && !surprise && !this._picMode ? html`<span class="heart tap" role="button" aria-label="Make ${it[1]} my goal" @click=${(e: Event) => { e.stopPropagation(); this._setGoal(it); }}>${this._goal === it[0] ? '❤️' : '♡'}</span>` : nothing}
+              ${locked ? html`<span class="lock">${surprise ? '🌱' : html`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? html`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
+              ${locked && !surprise && !this._picMode ? html`<span class="heart tap" role="button" aria-label="Make ${it[1]} my goal" @click=${(e: Event) => { e.stopPropagation(); this._setGoal(it); }}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === it[0] ? '#e11d48' : 'none'} stroke=${this._goal === it[0] ? '#9f1239' : 'currentColor'} stroke-width="2" stroke-linejoin="round"></path></svg></span>` : nothing}
             </button>`;
           })}
         </div>

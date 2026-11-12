@@ -1,9 +1,10 @@
-import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
+import { LitElement, html, css, svg, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
 import { FitController } from './util';
 import { icon } from './icons';
-import type { Hass } from './types';
+import { kidEntities, slotVar, type Hass, type KidConfig } from './types';
+import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import './pin';
 
 const INKS = ['#1d1d1f', '#e63946', '#f77f00', '#fcbf49', '#2a9d8f', '#118ab2', '#7b2cbf', '#ff70a6', '#8d5a3b', '#ffffff'];
@@ -13,13 +14,32 @@ const ROOT = 'media-source://media_source/local/.';
 
 interface Pic { title: string; url: string; id?: string }
 interface Stroke { ink: string; size: number; erase: boolean; hue: number; pts: [number, number, number, number, number][]; stamp?: string }
-const STAMPS = ['🦖', '🐉', '🚚', '⭐', '❤️', '🌈', '🏄', '🎺'];
+/** Stamps: [what is stamped, its spoken name]. 'clarinet' has no emoji, so it is drawn. */
+const STAMPS: [string, string][] = [['🦖', 'Dinosaur'], ['🐉', 'Dragon'], ['🚚', 'Truck'], ['⭐', 'Star'], ['❤️', 'Heart'], ['🌈', 'Rainbow'], ['🏄', 'Surfer'], ['🎺', 'Trumpet'],
+  ['🛴', 'Scooter'], ['🎾', 'Tennis ball'], ['clarinet', 'Clarinet'], ['🏊', 'Swimmer'], ['📖', 'Book']];
+const INK_NAMES = ['Black', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Pink', 'Brown', 'White'];
+/** A clarinet, drawn in a 48 box: on the stamp button (SVG) and on the paper (the same shapes on the canvas). */
+const clarinetSvg = (s = 30): TemplateResult => html`<svg viewBox="0 0 48 48" width=${s} height=${s} aria-hidden="true"><g transform="rotate(40 24 24)"><rect x="21" y="3" width="6" height="7" rx="2" fill="#8d5a3b"></rect><rect x="20" y="9" width="8" height="27" rx="2" fill="#1d1d1f"></rect><path d="M20 35 h8 l4 9 h-16 z" fill="#1d1d1f"></path><rect x="19.500" y="15" width="9" height="2" fill="#d4d4d8"></rect><rect x="19.500" y="29" width="9" height="2" fill="#d4d4d8"></rect><circle cx="24" cy="20" r="1.600" fill="#d4d4d8"></circle><circle cx="24" cy="24.500" r="1.600" fill="#d4d4d8"></circle></g></svg>`;
+const drawClarinet = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void => {
+  const k = size / 48; ctx.save(); ctx.translate(x, y); ctx.rotate((40 * Math.PI) / 180); ctx.scale(k, k); ctx.translate(-24, -24);
+  ctx.fillStyle = '#8d5a3b'; ctx.fillRect(21, 3, 6, 7); ctx.fillStyle = '#1d1d1f'; ctx.fillRect(20, 9, 8, 27);
+  ctx.beginPath(); ctx.moveTo(20, 35); ctx.lineTo(28, 35); ctx.lineTo(32, 44); ctx.lineTo(16, 44); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#d4d4d8'; ctx.fillRect(19.5, 15, 9, 2); ctx.fillRect(19.5, 29, 9, 2);
+  for (const cy of [20, 24.5]) { ctx.beginPath(); ctx.arc(24, cy, 1.6, 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+};
+/* drawn icons: a block eraser, a chalkboard on its stand, a sheet of paper and a horseshoe magnet */
+const eraserIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:24px" aria-hidden="true"><path d="M4.500 15.500 13 7l5.500 5.500L11 20H7.500z"></path><path d="M9.500 10.500 15 16"></path><path d="M11 20h9"></path></svg>`;
+const boardIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.500"></rect><path d="M8 20l2-4M16 20l-2-4M7 9.500c1.500-1.500 3 1.500 4.500 0s3 1.500 4.500 0"></path></svg>`;
+const paperIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4M9 12h6M9 16h6"></path></svg>`;
+const magnetIcon = svg`<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 3h5v9a3 3 0 0 0 6 0V3h5v9a8 8 0 0 1-16 0z" fill="currentColor"></path><path d="M4 3h5v4H4zM15 3h5v4h-5z" fill="#fff" stroke="currentColor" stroke-width="1.500" stroke-linejoin="round"></path></svg>`;
 
 /** Doodle pad with undo, rainbow brush, chalkboard mode and a shared "fridge" gallery. */
 export class FhDoodle extends LitElement {
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
+    ${unsafeCSS(avatarCss)}
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .brushes { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }
     .brushes[data-fit='1'] { width: 190px; grid-template-columns: repeat(3, 1fr); }
@@ -45,35 +65,50 @@ export class FhDoodle extends LitElement {
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background .4s; }
     .pad.chalk { background: #23332b; }
     canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
-    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: rgba(0,0,0,.12); }
-    .chalk .hint { color: rgba(255,255,255,.18); }
-    .acts { display: flex; gap: 8px; align-items: center; }
+    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: #6b6a66; }
+    .chalk .hint { color: #c9d3cd; }
+    /* the bar wraps rather than squeezing anything: the hero keeps its words on one line */
+    .acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .acts .pill { font-size: 15px; white-space: nowrap; }
+    /* who drew it and the hero travel together: on a narrow easel they drop to a second row, still at the right */
+    .sign { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px; margin-left: auto; }
+    .artists { display: flex; align-items: center; gap: 6px; }
+    .artists > .muted { font-size: 13px; font-weight: var(--w-bold, 700); margin-right: 2px; }
+    .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: 24px; }
+    .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+    .stickup { height: 52px; /* token */ padding: 0 22px; font-size: 17px; white-space: nowrap; flex-shrink: 0; }
+    .stampbtn { font-size: 26px; }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
     .ghead { display: flex; align-items: center; gap: 8px; }
-    .tidy { height: 44px; padding: 0 14px; font-size: 14px; }
+    .tidy { height: 44px; padding: 0 14px; font-size: 15px; }
+    .gallery .label { font-size: 13px; }
+    .clearall { font-size: 15px; }
     .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .clearall { height: 44px; background: var(--danger, #dc2626); color: var(--on-danger, #fff); justify-content: center; }
     .snapbox { position: relative; display: block; }
     .snapbox .snap { width: 100%; display: block; }
     .down { position: absolute; top: -6px; right: -6px; width: 44px; height: 44px; border-radius: 50%; background: var(--danger, #dc2626); color: var(--on-danger, #fff); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(0,0,0,.35); }
-    .snaps { padding: 6px 6px 2px 0; }
+    .snaps { padding: 14px 14px 16px 12px; }
     .snap { aspect-ratio: 4/3; border-radius: 10px; background: #fff center / cover; box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); position: relative; }
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }
     .snap::before { content: ''; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 3px rgba(0,0,0,.3); }
-    .snap .by { position: absolute; bottom: -8px; right: -4px; background: var(--chip-strong); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: var(--w-heavy, 800); text-transform: capitalize; }
+    .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: 13px; font-weight: var(--w-heavy, 800); text-transform: capitalize; }
     .stick { animation: stick .9s cubic-bezier(.2,1.3,.4,1); }
     @keyframes stick { 0% { transform: scale(1); } 40% { transform: scale(.4) translate(60%, -10%) rotate(8deg); opacity: .6; } 100% { transform: scale(1); opacity: 1; } }
     .view { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; border-radius: 28px; }
     .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet .4s cubic-bezier(.2,1.2,.3,1); }
   `];
 
-  static properties = { hass: { attribute: false }, artists: { attribute: false }, pin: {}, _tidy: { state: true }, _askPin: { state: true }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
+  static properties = { hass: { attribute: false }, artists: { attribute: false }, kids: { attribute: false }, pin: {}, _tidy: { state: true }, _askPin: { state: true }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
     _blank: { state: true }, _pics: { state: true }, _view: { state: true }, _msg: { state: true }, _stick: { state: true } };
   hass?: Hass;
   private _ink = INKS[0];
   private _size = 10;
   artists: string[] = [];
+  /** the children, for their faces on the artist buttons (a non-reader signs with his picture) */
+  kids: KidConfig[] = [];
   pin = '';
   private _tidy = false;
   private _askPin = false;
@@ -157,6 +192,7 @@ export class FhDoodle extends LitElement {
   private _drawStamp(st: Stroke): void {
     const ctx = this._ctx!, dpr = window.devicePixelRatio || 1, [x, y] = st.pts[0];
     ctx.globalCompositeOperation = 'source-over';
+    if (st.stamp === 'clarinet') { drawClarinet(ctx, x, y, (38 + st.size * 3.6) * dpr); return; }
     ctx.font = `${(30 + st.size * 3) * dpr}px system-ui, "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(st.stamp!, x, y);
@@ -254,16 +290,24 @@ export class FhDoodle extends LitElement {
     this._pics = pics;
   }
 
+  /** The child's own avatar head (as the dock draws it), or their initial when there is no look to draw. */
+  private _face(name: string): TemplateResult {
+    const k = this.kids.find((x) => x.name === name);
+    if (!k) return html`<span class="avatar" style="background:var(--p-family)">${name[0]}</span>`;
+    const raw = this.hass?.states[kidEntities(k).avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
+    return html`<span class="avatar" aria-hidden="true" style="background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 56, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span>`;
+  }
+
   render(): TemplateResult {
     return html`
       <section class="glass brushes" data-fits aria-label="Brushes">
-        ${INKS.map((c) => html`<button class="ink tap" style="background:${c}" aria-label="Colour" aria-pressed=${String(!this._erase && !this._stamp && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; this._stamp = ''; }}></button>`)}
+        ${INKS.map((c, i) => html`<button class="ink tap" style="background:${c}" aria-label=${INK_NAMES[i] ?? 'Colour'} aria-pressed=${String(!this._erase && !this._stamp && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; this._stamp = ''; }}></button>`)}
         <button class="ink tap rainbow" aria-label="Rainbow" aria-pressed=${String(!this._erase && !this._stamp && this._ink === 'rainbow')} @click=${() => { this._ink = 'rainbow'; this._erase = false; this._stamp = ''; }}></button>
         <span class="rule"></span>
-        ${STAMPS.map((st) => html`<button class="size tap" style="font-size:26px" aria-label="Stamp" aria-pressed=${String(this._stamp === st)} @click=${() => { this._stamp = this._stamp === st ? '' : st; this._erase = false; }}>${st}</button>`)}
+        ${STAMPS.map(([st, name]) => html`<button class="size stampbtn tap" aria-label="${name} stamp" aria-pressed=${String(this._stamp === st)} @click=${() => { this._stamp = this._stamp === st ? '' : st; this._erase = false; }}>${st === 'clarinet' ? clarinetSvg() : st}</button>`)}
         <span class="rule"></span>
         ${SIZES.map((s) => html`<button class="size tap" aria-label="Brush ${s}" aria-pressed=${String(this._size === s)} @click=${() => { this._size = s; }}><i style="width:${Math.min(s, 22)}px;height:${Math.min(s, 22)}px"></i></button>`)}
-        <button class="size tap" aria-label="Eraser" aria-pressed=${String(this._erase)} @click=${() => { this._erase = !this._erase; }} style="font-size:22px">🧽</button>
+        <button class="size tap" aria-label="Eraser" aria-pressed=${String(this._erase)} @click=${() => { this._erase = !this._erase; if (this._erase) this._stamp = ''; }}>${eraserIcon}</button>
       </section>
       <section class="glass easel ${this._stick ? 'stick' : ''}">
         <div class="pad ${this._chalk ? 'chalk' : ''}">
@@ -273,10 +317,11 @@ export class FhDoodle extends LitElement {
         <div class="acts">
           <button class="pill tap" @click=${() => this._undoOne()}>${icon('left', 18)}Undo</button>
           <button class="pill tap" @click=${() => this._clear()}>${icon('close', 18)}Clear</button>
-          <button class="pill tap" @click=${() => { this._chalk = !this._chalk; if (this._chalk && this._ink === INKS[0]) this._ink = '#ffffff'; else if (!this._chalk && this._ink === '#ffffff') this._ink = INKS[0]; }}>${icon(this._chalk ? 'sun' : 'moon', 18)}${this._chalk ? 'Paper' : 'Chalkboard'}</button>
-          <span style="flex:1"></span>
-          ${this.artists.length ? html`<span class="muted" style="font-size:13px;font-weight:var(--w-bold, 700)">Artist</span>${this.artists.map((a) => html`<button class="pill tap" style=${this._artist === a ? 'background:var(--primary);color:var(--on-primary)' : ''} @click=${() => { this._artist = this._artist === a ? '' : a; }}>${a}</button>`)}` : ''}
-          <button class="pill tap primary" style="height:48px;padding:0 20px;font-size:16px" @click=${() => this._toFridge()}>${icon('star', 18)}Stick it on the fridge</button>
+          <button class="pill tap" @click=${() => { this._chalk = !this._chalk; if (this._chalk && this._ink === INKS[0]) this._ink = '#ffffff'; else if (!this._chalk && this._ink === '#ffffff') this._ink = INKS[0]; }}>${this._chalk ? paperIcon : boardIcon}${this._chalk ? 'Paper' : 'Chalkboard'}</button>
+          <div class="sign">
+          ${this.artists.length ? html`<div class="artists" role="group" aria-label="Who drew it"><span class="muted">Artist</span>${this.artists.map((a) => html`<button class="artist tap" aria-pressed=${String(this._artist === a)} @click=${() => { this._artist = this._artist === a ? '' : a; }}>${this._face(a)}<span>${a}</span></button>`)}</div>` : ''}
+          <button class="lead stickup tap" aria-label="Stick it up on the fridge" @click=${() => this._toFridge()}>${magnetIcon}Stick it up</button>
+          </div>
         </div>
       </section>
       <section class="glass gallery" aria-label="The fridge">
@@ -284,7 +329,7 @@ export class FhDoodle extends LitElement {
           ${this._pics.length ? html`<button class="pill tap tidy" aria-pressed=${String(this._tidy)} @click=${() => this._tidyStart()}>${this._tidy ? 'Done' : 'Tidy up'}</button>` : nothing}</div>
         ${this._tidy ? html`<button class="pill tap clearall" @click=${() => this._takeDown(this._pics)}>${icon('close', 16)}Take them all down</button>` : nothing}
         ${this._pics.length ? html`<div class="snaps">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<span class="snapbox"><button class="snap tap" aria-label="View doodle${by ? ` by ${by}` : ''}" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span class="by">${by}</span>` : ''}</button>${this._tidy ? html`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([p])}>${icon('close', 18)}</button>` : nothing}</span>`; })}</div>`
-          : html`<span class="muted" style="font-size:14px">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
+          : html`<span class="muted" style="font-size:15px;line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { this._askPin = false; this._tidy = true; }} @cancel=${() => { this._askPin = false; }}></fh-pin>` : nothing}
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}

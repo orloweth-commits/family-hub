@@ -536,7 +536,7 @@ const FRIDGE = `
   @F .dicon { background: var(--magnet); color: var(--ink); box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.12); }
   @F .dev.on .dicon { background: #ffd23f; color: #5b3a00; box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.14), 0 0 0 4px rgba(255,210,63,.4); }
   @F .toggle { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
-  @F .toggle[aria-checked='true'] { background: var(--ok); }
+  @F .toggle[aria-checked='true'], @F [aria-checked='true'] > .toggle { background: var(--ok); }
   @F .scene { background: var(--magnet); border-radius: 10px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.18); font-weight: 600; }
 
   /* doodle: paint-pot magnets, and finished pictures taped up as polaroids */
@@ -728,7 +728,7 @@ const ORBIT = `
   @O .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .dev.on .dicon { background: var(--accent); color: #0a0f1e; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
   @O .toggle { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .toggle[aria-checked='true'] { background: var(--accent); box-shadow: none; }
+  @O .toggle[aria-checked='true'], @O [aria-checked='true'] > .toggle { background: var(--accent); box-shadow: none; }
   @O .scene { background: transparent; border-radius: 20px; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
 
   /* doodle: the paper stays bright, the gallery is a row of framed portholes */
@@ -813,7 +813,7 @@ const ORBIT = `
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
   @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
   @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
-  @O .wfact { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 14px; }
+  @O .wfact { background: transparent; }
   @O .wday.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
   @O .wbar { box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent); }
   @O .wwarn { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 2px var(--danger); }
