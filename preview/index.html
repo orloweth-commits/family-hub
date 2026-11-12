@@ -46,10 +46,18 @@ const subs = {};
 const st = (entity_id, state, attributes = {}) => [entity_id, { entity_id, state: String(state), attributes }];
 const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3), st(`input_number.${s}_points`, pts), st(`input_number.${s}_lifetime_points`, life), st(`input_number.${s}_streak`, 3),
   st(`input_text.${s}_avatar`, ''), st(`input_text.${s}_week`, week), st(`input_text.${s}_goal`, ''), st(`input_number.${s}_grow`, 4), st(`calendar.${s}`, 'off', { friendly_name: s })];
+// the radar's list of pictures, so the page can be seen without the internet
+const realFetch = window.fetch.bind(window);
+window.fetch = async (u, o) => String(u).includes('rainviewer.com') ? new Response(JSON.stringify({ host: '/none', radar: { past: Array.from({ length: 12 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) - (11 - i) * 600, path: '/f' + i })) } })) : realFetch(u, o);
 const hass = {
   user: { name: 'Panel', is_admin: false },
+  config: { latitude: -31.95, longitude: 115.86 },
   states: Object.fromEntries([
-    st('weather.home', 'sunny', { temperature: 24, friendly_name: 'Home' }),
+    st('weather.home', q.get('wx') === 'rain' ? 'rainy' : 'sunny', { temperature: 24, humidity: 58, wind_speed: 14, wind_bearing: 'SW', friendly_name: 'Home' }),
+    ...(q.get('bom') === '0' ? [] : [st('sensor.town_temp', '24.3'), st('sensor.town_temp_feels_like', '23.1'), st('sensor.town_humidity', '58'), st('sensor.town_wind_speed_kilometre', '14'), st('sensor.town_wind_direction', 'SW'), st('sensor.town_gust_speed_kilometre', '26'), st('sensor.town_rain_since_9am', q.get('wx') === 'rain' ? '4.2' : '0'),
+      st('sensor.home_extended_text_0', q.get('wx') === 'rain' ? 'Cloudy. Very high chance of rain, most likely in the morning. The chance of a thunderstorm.' : 'Sunny. Light winds becoming south-westerly 15 to 25 km/h in the early afternoon.'), st('sensor.home_uv_max_index_0', '9'), st('sensor.home_uv_start_time_0', new Date(new Date().setHours(8, 40, 0, 0)).toISOString()), st('sensor.home_uv_end_time_0', new Date(new Date().setHours(16, 10, 0, 0)).toISOString()),
+      st('sensor.home_rain_chance_0', q.get('wx') === 'rain' ? '90' : '5'), st('sensor.home_rain_amount_range_0', q.get('wx') === 'rain' ? '4 to 10' : '0'), st('sensor.home_fire_danger_0', 'Moderate'), st('sensor.home_astronomical_sunrise_time_0', new Date(new Date().setHours(5, 11, 0, 0)).toISOString()), st('sensor.home_astronomical_sunset_time_0', new Date(new Date().setHours(18, 51, 0, 0)).toISOString()),
+      st('sensor.home_warnings', q.get('wx') === 'rain' ? '1' : '0', { warnings: q.get('wx') === 'rain' ? [{ short_title: 'Severe Thunderstorm Warning', phase: 'new', expiry_time: new Date(Date.now() + 3600000).toISOString() }] : [] })]),
     st('person.alex', 'home'), st('person.sam', 'not_home'),
     st('media_player.lounge', 'playing', { friendly_name: 'Lounge', media_title: 'ABC Jazz', media_artist: 'Radio' }),
     st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
@@ -108,7 +116,12 @@ const hass = {
     if (msg.type === 'call_service' && msg.service === 'search') { const n = msg.service_data.name; const mk = (t, name, sub) => ({ media_type: t, name, uri: `demo://${t}/${name.replace(/\W+/g, '-')}`, image: t === 'radio' ? null : doodle('#' + (name.length * 123457 % 0xffffff).toString(16).padStart(6, '0'), '#ffffff', '#222222'), artists: sub ? [{ name: sub }] : [] });
       return { response: { tracks: [mk('track', n + ' Theme Tune', n), mk('track', 'Dance Mode', n), mk('track', 'Keepy Uppy', n)], albums: [mk('album', n + ' the Album', n), mk('album', 'Dance Mode!', n)], playlists: [mk('playlist', n + ' Essentials'), mk('playlist', n + ' Sleepy Time')], artists: [mk('artist', n)], radio: [mk('radio', 'ABC Kids listen')], podcasts: [mk('podcast', n + ' Brekky Chats')], audiobooks: [mk('audiobook', n + ': The Beach and Other Stories')] } }; }
     if (msg.type === 'call_service' && msg.service === 'get_queue') { const e = msg.target.entity_id, a = hass.states[e].attributes; return { response: { [e]: hass.states[e].state === 'playing' ? { items: 5, shuffle_enabled: false, repeat_mode: 'off', current_item: { name: a.media_title }, next_item: window.__noNext ? null : { name: 'Keepy Uppy', media_item: { name: 'Keepy Uppy', artists: [{ name: 'Bluey' }] } } } : { items: 0 } } }; }
-    if (msg.type === 'call_service' && msg.domain === 'weather') return { response: { 'weather.home': { forecast: [{ temperature: 27, templow: 14, uv_index: 9, precipitation: 0 }] } } };
+    if (msg.type === 'call_service' && msg.domain === 'weather') {
+      const wet = q.get('wx') === 'rain', conds = wet ? ['rainy', 'pouring', 'lightning-rainy', 'cloudy', 'partlycloudy', 'sunny', 'sunny', 'windy'] : ['sunny', 'partlycloudy', 'sunny', 'cloudy', 'rainy', 'lightning-rainy', 'partlycloudy', 'sunny'];
+      const day0 = new Date(); day0.setHours(0, 0, 0, 0);
+      if (msg.service_data.type === 'hourly') { const h0 = new Date(); h0.setMinutes(0, 0, 0); return { response: { [msg.target.entity_id]: { forecast: Array.from({ length: 48 }, (_, i) => { const d = new Date(h0.getTime() + i * 3600000), hr = d.getHours(), night = hr < 6 || hr > 18; return { datetime: d.toISOString(), condition: wet && i < 9 ? (i % 4 === 2 ? 'pouring' : 'rainy') : night ? 'clear-night' : i % 5 === 3 ? 'partlycloudy' : 'sunny', temperature: Math.round(20 + 7 * Math.sin(((hr - 9) / 24) * Math.PI * 2)), precipitation_probability: wet && i < 9 ? 90 - i * 8 : i > 30 && i < 36 ? 40 : 0, wind_speed: 9 + (i * 7) % 16, wind_bearing: 'SSW', uv_index: night ? 0 : 8, humidity: 60 }; }) } } }; }
+      return { response: { [msg.target.entity_id]: { forecast: conds.map((c, i) => ({ datetime: new Date(day0.getTime() + i * 86400000).toISOString(), condition: c, temperature: [27, 29, 33, 24, 19, 21, 25, 28][i], templow: [14, 15, 18, 16, 12, 11, 13, 15][i], uv_index: 9, precipitation: /rain|pour/.test(c) ? 6 : 0, precipitation_probability: /rain|pour/.test(c) ? 80 : 5 })) } } };
+    }
     return {};
   },
   connection: { subscribeMessage: async (cb, msg) => { (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }

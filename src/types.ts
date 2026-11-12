@@ -10,6 +10,7 @@ export interface HassEntity {
 export interface Hass {
   states: Record<string, HassEntity>;
   user?: { name: string; is_admin: boolean };
+  config?: { latitude?: number; longitude?: number };
   callService(domain: string, service: string, data?: Record<string, unknown>, target?: Record<string, unknown>): Promise<unknown>;
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
   callWS<T>(msg: Record<string, unknown>): Promise<T>;
@@ -88,6 +89,8 @@ export interface FamilyHubConfig {
   /** whole design language: glass (default), fridge or orbit; the panel's palette button changes it */
   look?: LookId;
   weather?: string;
+  /** the Weather page: where to find the hourly forecast, the Bureau's sensors, and whether to show the radar and wind maps; false leaves the page out */
+  weather_page?: import('./weather').WeatherPageConfig | false;
   people?: PersonConfig[];
   kids?: KidConfig[];
   calendars?: CalendarConfig[];
