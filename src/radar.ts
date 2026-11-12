@@ -146,7 +146,7 @@ export class FhRadar extends LitElement {
     const mins = cur ? Math.max(0, Math.round((Date.now() / 1000 - cur.time) / 60)) : 0;
     return html`
       ${base.map((u, k) => html`<div class="layer ${k ? 'names' : 'map'}">${tiles.map((t) => html`<img alt="" draggable="false" style="left:${t.left}px;top:${t.top}px" src=${u.replace('{z}', String(z)).replace('{x}', String(t.x)).replace('{y}', String(t.y))}>`)}</div>`)}
-      ${fr.map((f, i) => Math.abs(i - this._i) <= 1 || (this._i === fr.length - 1 && i === 0) || this._play ? html`<div class="layer rain ${f === cur ? 'on' : ''}">${tiles.map((t) => html`<img alt="" draggable="false" style="left:${t.left}px;top:${t.top}px" src="${this._host}${f.path}/${TILE}/${z}/${t.x}/${t.y}/2/1_1.png">`)}</div>` : nothing)}
+      ${fr.map((f, i) => Math.abs(i - this._i) <= 1 || (this._i === fr.length - 1 && i === 0) || this._play ? html`<div class="layer rain ${f === cur ? 'on' : ''}">${tiles.map((t) => html`<img alt="" draggable="false" @error=${(e: Event) => { (e.target as HTMLElement).style.visibility = 'hidden'; }} @load=${(e: Event) => { (e.target as HTMLElement).style.visibility = ''; }} style="left:${t.left}px;top:${t.top}px" src="${this._host}${f.path}/${TILE}/${z}/${t.x}/${t.y}/2/1_1.png">`)}</div>` : nothing)}
       ${w ? html`<span class="home" style="left:${w / 2 + this._pan[0]}px;top:${h / 2 + this._pan[1]}px" aria-hidden="true"></span>` : nothing}
       ${this._err ? html`<p class="msg">The radar pictures could not be loaded. It will try again in a few minutes.</p>` : nothing}
       <div class="key" aria-hidden="true">Light<span></span>Heavy</div>

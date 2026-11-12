@@ -108,6 +108,27 @@ calendars:
   - { entity: calendar.riley, colour: 3, name: Riley }
 ```
 
+### Weather page
+
+With `weather:` set, the dock gains a **Weather** page (and the weather chip in the header opens it): what it is doing now, the next 24 hours, a seven-day outlook, a rain radar and a wind map, drawn in the language of whichever look and world is on.
+
+It works with any weather entity. With the [Bureau of Meteorology integration](https://github.com/bremor/bureau_of_meteorology) installed it also finds that integration's sensors by itself (feels-like, gusts, rain since 9 am, UV and sun-protection times, fire danger, sunrise and sunset, the Bureau's own words for the day, and warnings).
+
+```yaml
+weather: weather.my_suburb
+weather_page:                 # all optional; `weather_page: false` leaves the page out
+  hourly: weather.my_suburb_hourly   # found by itself when it is called <weather>_hourly
+  observations: my_town       # prefix of sensor.my_town_temp_feels_like and friends
+  forecast: my_suburb         # prefix of sensor.my_suburb_uv_max_index_0 and friends
+  warnings: sensor.my_suburb_warnings
+  radar: true                 # rain radar: RainViewer pictures over an Esri map
+  wind: true                  # wind map: an embedded Windy map
+  zoom: 6                     # radar zoom to start at, 4 to 7
+```
+
+The radar and wind maps load from the internet. The radar only ever asks for map squares a few hundred kilometres across, and the wind map is centred on your location rounded to a tenth of a degree (about 10 km), so the address of the house is not sent to either.
+
+
 Chore items are to-do list items whose description holds their points, e.g. `+10`. A nightly automation that
 re-opens completed chores and updates streaks keeps things fresh each day.
 

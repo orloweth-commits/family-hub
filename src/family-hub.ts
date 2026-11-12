@@ -27,7 +27,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.22.0';
+const VERSION = '0.23.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',

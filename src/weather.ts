@@ -93,7 +93,8 @@ export class FhWeather extends LitElement {
     .wmaps { grid-area: 1 / 2; padding: 12px; }
     .wweek { grid-area: 1 / 3 / 3 / 4; }
     .whours { grid-area: 2 / 2; padding-bottom: 10px; }
-    :host([data-shape='tall']) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto minmax(300px, 1fr); }
+    :host([data-shape='tall']) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: max-content max-content 380px; overflow-y: auto; }
+    :host([data-shape='tall']) .wnow { overflow: visible; }
     :host([data-shape='tall']) .wnow { grid-area: 1 / 1; }
     :host([data-shape='tall']) .wweek { grid-area: 1 / 2; }
     :host([data-shape='tall']) .whours { grid-area: 2 / 1 / 3 / 3; }
@@ -104,17 +105,20 @@ export class FhWeather extends LitElement {
 
     /* now */
     .top { display: flex; align-items: center; gap: 12px; }
-    .wtemp { font-size: 68px; line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+    .wtemp { font-size: 62px; line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
     .wtemp sup { font-size: .45em; vertical-align: top; position: relative; top: .1em; }
     .cond { font-size: 17px; font-weight: var(--w-bold, 700); }
     .wtip { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.3; }
     .wtip .m { font-size: 22px; line-height: 1; }
     .said { font-size: 14px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .facts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .wfact { grid-column: span 2; }
+    .wfact.half { grid-column: span 3; }
+    .wfact.two { grid-column: span 4; }
     .wfact { border-radius: 14px; background: var(--chip-soft); padding: 6px 10px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .wfact.wide { grid-column: span 2; flex-direction: row; align-items: center; gap: 12px; }
+    .wfact.wide { grid-column: span 6; flex-direction: row; align-items: center; gap: 12px; }
     .wfact.col { flex-direction: column; align-items: flex-start; gap: 1px; }
-    .wfact b { font-size: 17px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .wfact small { font-size: 12.500px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .wcomp { flex-shrink: 0; }
@@ -312,7 +316,7 @@ export class FhWeather extends LitElement {
       <h2>${this._titles()[0]}</h2>
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
       <div class="top">
-        ${sky(w?.state, 80)}
+        ${sky(w?.state, 72)}
         <div>
           <div class="wtemp display">${temp !== undefined ? html`${Math.round(temp)}<sup>°</sup>` : '–'}</div>
           <div class="cond">${COND[w?.state ?? ''] ?? w?.state ?? ''}</div>
@@ -324,12 +328,12 @@ export class FhWeather extends LitElement {
       <div class="wtip"><span class="m" aria-hidden="true">${MASCOT[getLook() === 'glass' ? this.theme : getLook()] ?? '🌤️'}</span><span>${this._tip()}</span></div>
       <div class="facts">
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
-        ${chance !== undefined ? fact(`${Math.round(chance)}%`, `Chance of rain${range && range !== '0' ? ` · ${range} mm` : ''}`) : nothing}
-        ${since !== undefined ? fact(`${since} mm`, 'Rain since 9 am') : nothing}
-        ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)}`, uv.from && uv.to && uv.max >= 3 ? `${uvWord(uv.max)} · cover up ${uv.from} to ${uv.to}` : uvWord(uv.max)) : nothing}
+        ${chance !== undefined ? fact(`${Math.round(chance)}%`, range && range !== '0' ? `Rain · ${range} mm` : 'Chance of rain') : nothing}
+        ${since !== undefined ? fact(`${since} mm`, 'Since 9 am') : nothing}
         ${hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity') : nothing}
-        ${rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', 'wide col') : nothing}
-        ${fire ? fact(fire, 'Fire danger', 'wide col') : nothing}
+        ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)} · ${uvWord(uv.max)}`, uv.from && uv.to && uv.max >= 3 ? `Cover up ${uv.from} to ${uv.to}` : 'No sun protection needed', 'wide col') : nothing}
+        ${rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', fire ? 'two' : 'wide col') : nothing}
+        ${fire ? fact(fire, 'Fire danger') : nothing}
       </div>
       ${said ? html`<p class="said">${said}</p>` : nothing}
     </section>`;
@@ -377,14 +381,14 @@ export class FhWeather extends LitElement {
           const dt = new Date(d.datetime), isToday = dt.toDateString() === today, p = d.precipitation_probability ?? 0;
           const l = d.templow ?? d.temperature ?? lo, h = d.temperature ?? hi, same = d.templow === undefined || d.templow === d.temperature;
           const name = isToday ? 'Today' : dt.toLocaleDateString('en-AU', { weekday: 'short' });
-          return html`<div class="wday ${isToday ? 'today' : ''}" role="listitem" aria-label=${`${isToday ? 'Today' : dt.toLocaleDateString('en-AU', { weekday: 'long' })}: ${COND[d.condition ?? ''] ?? ''}, ${same ? '' : `${Math.round(l)} to `}${Math.round(h)} degrees${p >= 20 ? `, ${Math.round(p)} percent chance of rain` : ''}`}>
+          return html`<div class="wday ${isToday ? 'today' : ''}" role="listitem" aria-label=${`${isToday ? 'Today' : dt.toLocaleDateString('en-AU', { weekday: 'long' })}: ${COND[d.condition ?? ''] ?? ''}, ${same ? '' : `${Math.round(l)} to `}${Math.round(h)} degrees${p >= 30 ? `, ${Math.round(p)} percent chance of rain` : ''}`}>
             <span class="dn">${name}<small>${dt.getDate()} ${dt.toLocaleDateString('en-AU', { month: 'short' })}</small></span>
             ${sky(i === 0 && d.condition === 'clear-night' ? 'clear-night' : d.condition, 38)}
             <span class="rng">
               <span class="lo">${same ? '' : `${Math.round(l)}°`}</span>
               <span class="track"><span class="wbar" style="left:${same ? ((h - lo) / span) * 100 - 4 : ((l - lo) / span) * 100}%;right:${100 - ((h - lo) / span) * 100}%;background:linear-gradient(90deg, ${tcol(l)}, ${tcol(h)})"></span></span>
               <span>${Math.round(h)}°</span>
-              ${p >= 20 ? html`<span class="wet">💧 ${Math.round(p)}%${d.precipitation ? ` · ${d.precipitation} mm` : ''}</span>` : nothing}
+              ${p >= 30 ? html`<span class="wet">💧 ${Math.round(p)}%${d.precipitation ? ` · ${d.precipitation} mm` : ''}</span>` : nothing}
             </span>
           </div>`;
         })}

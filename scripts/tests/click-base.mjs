@@ -70,5 +70,21 @@ console.log('presence:', await page.locator('family-hub-card .presence .avatar')
 await page.getByRole('button', { name: 'Groceries' }).click(); await page.waitForTimeout(400);
 console.log('scroll cue on groceries:', await page.locator('fh-groceries .items').evaluate((e) => e.hasAttribute('data-more') + ' (' + e.scrollHeight + '>' + e.clientHeight + ')'));
 await page.close();
+
+// 9. weather: the header chip opens the page; now, hours, week and the two maps; without the Bureau's sensors it still stands
+page = await open('look=glass&wx=rain');
+await page.getByRole('button', { name: 'Weather', exact: true }).first().click(); await page.waitForTimeout(600);
+const wx = (sel) => page.locator('fh-weather ' + sel);
+console.log('weather now:', (await wx('.wtemp').innerText()).replace(/\s+/g, ''), '|', await wx('.cond').innerText(), '| warn:', await wx('.wwarn').innerText(), '| tip:', await wx('.wtip').innerText());
+console.log('weather facts:', await wx('.wfact').count(), '| hours:', await wx('.hchart .tv').count(), '| days:', await wx('.wday').count(), '| today first:', await wx('.wday').first().getAttribute('aria-label'));
+console.log('radar frames:', await page.locator('fh-radar .ticks i').count(), '| zoom buttons:', await page.locator('fh-radar .zoom button').count());
+await page.getByRole('button', { name: 'Pause the radar' }).click(); console.log('radar paused:', await page.getByRole('button', { name: 'Play the radar' }).count());
+await page.getByRole('button', { name: 'Wind', exact: true }).click(); await page.waitForTimeout(200);
+console.log('wind map:', await wx('iframe').evaluate((f) => { const u = new URL(f.src); return u.host + ' lat=' + u.searchParams.get('lat') + ' lon=' + u.searchParams.get('lon'); }));
+console.log('weather clipped:', await wx('section').evaluateAll((els) => els.filter((e) => !e.classList.contains('wnow') && e.scrollHeight > e.clientHeight + 1).map((e) => e.className).join(',') || 'none'));
+await page.close();
+page = await open('look=orbit&page=weather&bom=0');
+console.log('weather without sensors:', (await page.locator('fh-weather .wtemp').innerText()).replace(/\s+/g, ''), '| facts:', await page.locator('fh-weather .wfact').count(), '| days:', await page.locator('fh-weather .wday').count());
+await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
