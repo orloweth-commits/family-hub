@@ -442,11 +442,11 @@ const FRIDGE = `
   @F .sname { background: var(--note); border-radius: 2px; box-shadow: 0 2px 3px rgba(0,0,0,.18); font-family: var(--font-content); }
   @F .lamp { box-shadow: 0 3px 0 rgba(0,0,0,.3); }
   @F .fcap { border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 rgba(0,0,0,.3); }
-  @F .slot { background: var(--ink); width: 4px; left: 20px; }
+  @F .slot { background: var(--ink); --rail-w: 4px; } /* music polish: the rail's thickness is a token now (one slider family), not a width and an offset */
   @F .jog { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 #b9b2a2; }
   @F .mpad { border-radius: 8px; box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.28); }
   @F .dart { border-radius: 4px; box-shadow: 0 0 0 3px var(--ink), 0 5px 6px rgba(0,0,0,.2); }
-  @F .cab { background: #2f2a26; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,.25); }
+  @F .cab { background: var(--paper); border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.2); } /* music polish: speaker tiles are the look's own paper, with ink text (was a dark slab with white text) */
   @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
   @F .sock[aria-pressed='true'] { background: var(--c); }
   @F .cdisc { box-shadow: 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.2); }
@@ -698,7 +698,7 @@ const ORBIT = `
   @O .lamp[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
   @O .fcap { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .slot { width: 2px; left: 21px; }
+  @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .mpad { box-shadow: none; }
   @O .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
@@ -710,7 +710,7 @@ const ORBIT = `
   @O .tkey { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .tkey[data-go] { background: var(--primary); color: var(--on-primary); box-shadow: none; }
   @O .vscene { box-shadow: inset 0 0 0 1px var(--glass-line); }
-  @O .aname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @O .aname { background: var(--ground); box-shadow: inset 0 0 0 1px var(--glass-line); } /* music polish: opaque, so an orbit never runs through a room's name */
   @O .join { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .join[aria-pressed='true'] { background: var(--ok); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
