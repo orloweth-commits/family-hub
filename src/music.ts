@@ -6,7 +6,7 @@ import { icon, solid } from './icons';
 import { slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
 import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, shortNames, windDown } from './util';
 import { keyboard, keysCss, typeKey } from './keys';
-import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
+import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import { VIEWS, crateView, deskView, dialView, sceneView, viewHint, viewPicker, viewsCss, type Ctx, type Room, type ViewId } from './musicviews';
 import './pin';
 
@@ -73,7 +73,9 @@ export class FhMusic extends LitElement {
     .acts [data-offnote] ~ .hint { visibility: hidden; height: 0; }
     /* a home speaker that cannot be reached keeps its place, greyed, and the page says how many */
     .offnote { height: 44px; padding: 0 14px 0 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: var(--w-bold, 700); white-space: nowrap; background: color-mix(in srgb, var(--accent) 26%, var(--chip-strong)); box-shadow: inset 0 0 0 2px var(--accent); }
-    [data-offline] { filter: grayscale(1); opacity: .55; }
+    /* offline: the picture fades, the words stay readable */
+    [data-offline] { filter: grayscale(1); }
+    [data-offline] :is(svg, .puck, .thumb, .cone, .well, .dtrack, .dfill, .dknob, input) { opacity: .45; }
     .mzone[data-offline], .mz[data-offline] { background: repeating-linear-gradient(135deg, transparent 0 10px, var(--track) 10px 12px); }
     :host([data-phone]) .nowbar { max-width: 100%; flex: 1 1 100%; order: 8; } :host([data-phone]) .tabs.inline { flex: 1 1 100%; }
     .panel { position: relative; }
@@ -194,6 +196,11 @@ export class FhMusic extends LitElement {
     .coin[aria-pressed='true'] .face { transform: translateY(-5px) scale(1.1); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c), 0 10px 14px -6px rgba(0,0,0,.4); }
     .coin .cname { font-size: 12.5px; font-weight: var(--w-bold, 700); }
     .coin[aria-pressed='true'] .cname { text-decoration: underline; text-underline-offset: 3px; }
+    .coin .face { position: relative; } .coin .has { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); font-size: 13px; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--chip-strong); }
+    .coin .cnext { height: 16px; font-size: 12px; font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .coin[data-next] .face { box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
+    .jcovers { flex: 1; min-height: 0; }
+    .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .tally { display: flex; gap: 3px; height: 7px; }
     .tally i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: var(--w-semi, 600); }
@@ -230,6 +237,7 @@ export class FhMusic extends LitElement {
     .mroom { flex: var(--size, 1) 1 0; min-width: 0; display: flex; border-radius: 20px; background: var(--chip); overflow: hidden; }
     .mstairs { flex: 0 0 54px; border-radius: 20px; background: repeating-linear-gradient(135deg, var(--track) 0 3px, transparent 3px 13px); }
     .mzone { flex: 1 1 0; min-width: 0; position: relative; touch-action: none; --c: var(--stream, var(--primary)); }
+    :host([data-phone]) .mzone { touch-action: pan-y; }
     .mzone + .mzone { border-left: 2px dashed var(--track); }
     .mzone[data-focus] { background: var(--chip-strong); box-shadow: inset 0 0 0 3px var(--primary); }
     .mzone[data-hot] { box-shadow: inset 0 0 0 4px var(--c); }
@@ -337,7 +345,7 @@ export class FhMusic extends LitElement {
 
   static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
-    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _now: { state: true }, _ckeys: { state: true } };
+    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true } };
   hass?: Hass;
   players: string[] = [];
   stations: (string | StationConfig)[] = [];
@@ -415,6 +423,8 @@ export class FhMusic extends LitElement {
   private _pinAsk: { reason: string; run: () => void } | null = null;
   private _pinTo: MediaHit | null = null;
   private _adding = false;
+  /** Someone is choosing a jukebox song from pictures. */
+  private _jpick = false;
   private _ckeys = false;
   private _now = Date.now();
   private _tick?: number;
@@ -426,7 +436,8 @@ export class FhMusic extends LitElement {
 
   connectedCallback(): void { super.connectedCallback(); this._tick = window.setInterval(() => { if (this._cur?.state === 'playing') this._now = Date.now(); }, 1000); }
   disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._tick); }
-  private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 3200); }
+  private _say(m: string, undo?: () => void): void { this._msg = m; this._undo = undo ?? null; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
+  private _undo: (() => void) | null = null;
 
   private get _list(): HassEntity[] {
     const h = this.hass!, found = rooms(h, this.players);
@@ -456,7 +467,8 @@ export class FhMusic extends LitElement {
   private get _everyone(): { name: string; colour: ColourSlot }[] { return [...this.people.filter((p) => !this.kids.some((k) => k.name === p.name)), ...this.kids.map((k) => ({ name: k.name, colour: k.colour }))]; }
   /** Tonight's DJ, if a child has cashed in the reward. */
   private get _dj(): string { const d = ls<{ kid: string; day: string } | null>('fh-dj', null); return d && d.day === today() ? d.kid : ''; }
-  private _name(p?: HassEntity): string { return String(p?.attributes.friendly_name ?? 'a speaker'); }
+  /** What the family calls it: the room's name on the map, else the speaker's own name. */
+  private _name(p?: HassEntity): string { if (!p) return 'a speaker'; for (const f of this._floors) for (const r of f.rooms) for (const z of r.zones) if (z.p.entity_id === p.entity_id) return z.name || r.name; return String(p.attributes.friendly_name ?? 'a speaker'); }
   private _mix(p?: HassEntity): string[] { return ((p?.attributes.group_members as string[] | undefined) ?? []).filter((id) => id !== p?.entity_id); }
   private _guard(reason: string, run: () => void): void { if (this.pin) this._pinAsk = { reason, run }; else run(); }
 
@@ -527,6 +539,8 @@ export class FhMusic extends LitElement {
   }
   private _sleep(): void {
     const p = this._cur; if (!p) return;
+    if (this._off(p)) { this._say(`${this._name(p)} is offline`); return; }
+    if (this._sleepAt && this._sleepAt.id === p.entity_id && this._sleepAt.until > Date.now()) { const off = sleepOff(this.hass!, p.entity_id); this._sleepAt = null; this._say(off ? `Sleep fade cancelled in ${this._name(p)}` : 'Couldn’t cancel the sleep fade'); return; }
     const ok = sleepIn(this.hass!, p.entity_id, this.sleepMinutes);
     if (ok) this._sleepAt = { id: p.entity_id, until: Date.now() + this.sleepMinutes * 60_000 };
     this._say(ok ? `${this._name(p)} will fade out in ${this.sleepMinutes} minutes` : 'The sleep timer needs the Family Hub sleep script in Home Assistant');
@@ -542,7 +556,18 @@ export class FhMusic extends LitElement {
   private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   private _everywhere(on: boolean, p = this._cur): void {
     if (!p) return;
-    if (on) this.hass!.callService('media_player', 'join', { group_members: this._list.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id) }, { entity_id: p.entity_id }).catch((e: any) => this._say(`Couldn’t group every room: ${e?.message ?? 'error'}`));
+    if (this._off(p)) { this._say(`${this._name(p)} is offline`); return; }
+    if (on) {
+      const h = this.hass!, was = this._mix(p), ids = this._list.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id);
+      // what each other room was doing, so one tap can put it back
+      const groups = this._list.filter((x) => x.entity_id !== p.entity_id && !was.includes(x.entity_id) && this._leader(x)?.entity_id === x.entity_id).map((x) => ({ id: x.entity_id, members: this._mix(x), playing: x.state === 'playing' }));
+      h.callService('media_player', 'join', { group_members: ids }, { entity_id: p.entity_id })
+        .then(() => this._say(`Playing in the whole house`, () => {
+          for (const id of ids) if (!was.includes(id)) h.callService('media_player', 'unjoin', {}, { entity_id: id });
+          window.setTimeout(() => { for (const g of groups) { if (g.members.length) h.callService('media_player', 'join', { group_members: g.members }, { entity_id: g.id }); if (g.playing) h.callService('media_player', 'media_play', {}, { entity_id: g.id }); } }, 600);
+          this._say('Put back as it was');
+        })).catch((e: any) => this._say(`Couldn’t group every room: ${e?.message ?? 'error'}`));
+    }
     else for (const id of this._mix(p)) this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id });
   }
   private _move(to: HassEntity, from = this._cur): void {
@@ -586,9 +611,9 @@ export class FhMusic extends LitElement {
     const chooser = [...people].sort((p1, p2) => Number(asked.has(p1.name)) - Number(asked.has(p2.name)) || turns(p1.name) - turns(p2.name))[0]?.name ?? '';
     const favs = (this._items.Family ?? []).slice(0, 4), stns = this._stations.filter((st) => !favs.some((m) => m.name.toLowerCase() === st.name.toLowerCase())).slice(0, Math.max(0, 7 - favs.length)), station = cur && playing ? LAST[cur.entity_id] : '';
     const stops = [...favs.map((m) => ({ name: m.name, on: playing && !station && this._lastUri === m.uri, go: () => { if (cur) this._gentle(cur.entity_id, () => { delete LAST[cur.entity_id]; this._shelfPlay(m, cur); }); } })), ...stns.map((st) => ({ name: st.name, on: station === st.name, go: () => { if (cur) this._gentle(cur.entity_id, () => this._play(st)); } }))];
-    const sl = this._sleepAt && this._sleepAt.until > Date.now() ? Math.max(1, Math.ceil((this._sleepAt.until - Date.now()) / 60_000)) : null;
+    const sl = this._sleepAt && this._sleepAt.id === cur?.entity_id && this._sleepAt.until > Date.now() ? Math.max(1, Math.ceil((this._sleepAt.until - Date.now()) / 60_000)) : null;
     return { rooms, dial: { next: upNext, more: waiting.length ? Math.max(0, waiting.length - 3) : Math.max(0, (this._q?.items ?? 0) - 2), turn: people.map((x) => ({ name: x.name, short: short[x.name] ?? x.name[0], colour: slotVar(x.colour), now: x.name === chooser })), chooser,
-        choose: (name) => { this._saveJuke({ who: name }); this._adding = true; this._prev = 'rooms'; this._tab = 'search'; this._keys = true; this._hits = null; this._text = ''; this._caps = true; },
+        choose: (name) => { this._saveJuke({ who: name }); this._prev = 'rooms'; this._tab = 'juke'; this._jpick = true; },
         sleep: { mins: this.sleepMinutes, left: sl }, sleepGo: () => this._sleep(), stops: stops.map((x) => ({ name: x.name, on: x.on })), tune: (i) => stops[i]?.go() },
       moments: pads.map((m) => ({ name: m.name, icon: m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵', on: lit === m.name, busy: this._momentBusy === m.name })), moment: (i) => { if (!this._momentBusy && pads[i]) this._moment(pads[i]); },
       jog: { turn: jog, at: pos, read: jog === null ? (dur ? clock(pos) : '') : dur ? clock(Math.max(0, Math.min(dur, pos + (jog / 360) * 120))) : Math.abs(jog) < 60 ? '' : jog > 0 ? 'Next' : 'Back', len: dur, says: dur ? `${clock(pos)} of ${clock(dur)}` : 'No length' },
@@ -672,7 +697,8 @@ export class FhMusic extends LitElement {
   /** Bedrooms after bedtime need a grown-up (when a PIN is set) before music goes there. */
   private _gentle(id: string, run: () => void): void { if (this._off(this._list.find((p) => p.entity_id === id) ?? this.hass!.states[id])) { this._say(`${this._name(this._list.find((p) => p.entity_id === id))} is offline`); return; } if (this._asleep(id) && this._cleared !== id && this._cleared !== '*') this._guard(`${this._name(this.hass!.states[id])} is in a bedroom after bedtime. Play there anyway?`, () => { this._cleared = id; try { run(); } finally { this._cleared = ''; } }); else run(); }
   private _volDown(e: PointerEvent, p: HassEntity): void {
-    if ((e.target as HTMLElement).closest('.zname, .join, .puck') || typeof p.attributes.volume_level !== 'number') return;
+    if (!e.isPrimary || (e.target as HTMLElement).closest('.zname, .join, .puck') || typeof p.attributes.volume_level !== 'number') return;
+    if (getShape() === 'phone' && !(e.target as HTMLElement).closest('.grab')) return; // on a phone the page scrolls here; the handle sets the volume
     const el = e.currentTarget as HTMLElement, id = p.entity_id, y0 = e.clientY, v0 = Math.round(p.attributes.volume_level * 100), h = el.getBoundingClientRect().height * POOL;
     let moved = false, v = v0;
     const move = (m: PointerEvent): void => {
@@ -692,7 +718,8 @@ export class FhMusic extends LitElement {
   }
   /** Pick something up and carry it to a room: the music itself (a tap pauses or plays it), or a record from a shelf. */
   private _carryDown(e: PointerEvent, what: { lead?: HassEntity; item?: ShelfItem; flick?: (dx: number) => void }): void {
-    const lead = what.lead, item = what.item; let flicking = false;
+    if (!e.isPrimary) return;
+    const lead = what.lead, item = what.item; let flicking = false, far = 0;
     if (lead) e.stopPropagation();
     const el = e.currentTarget as HTMLElement, panel = this.renderRoot.querySelector('.panel') as HTMLElement, x0 = e.clientX, y0 = e.clientY;
     const art = String(lead?.attributes.entity_picture ?? item?.img ?? '');
@@ -705,16 +732,21 @@ export class FhMusic extends LitElement {
     };
     const move = (m: PointerEvent): void => {
       const r = panel.getBoundingClientRect();
+      far = Math.max(far, Math.hypot(m.clientX - x0, m.clientY - y0));
       if (!this._carry && !flicking && Math.hypot(m.clientX - x0, m.clientY - y0) < 10) return;
+      // a flick that leaves the crate is someone carrying the record out of it
+      if (flicking) { const box = el.closest('.cratecol')?.getBoundingClientRect(); if (box && (m.clientX < box.left || m.clientX > box.right || m.clientY < box.top || m.clientY > box.bottom)) { flicking = false; what.flick!(0); } }
       // a sideways start flicks through the crate; any other way lifts the record out
-      if (!this._carry && !flicking && what.flick && Math.abs(m.clientX - x0) > Math.abs(m.clientY - y0) * 1.4) flicking = true;
+      if (!this._carry && !flicking && far < 60 && what.flick && Math.abs(m.clientX - x0) > Math.abs(m.clientY - y0) * 1.4) flicking = true;
       if (flicking) { what.flick!(m.clientX - x0); return; }
       this._carry = { from: lead?.entity_id, item, art, x: ((m.clientX - r.left) / r.width) * 100, y: ((m.clientY - r.top) / r.height) * 100, over: under(m.clientX, m.clientY) };
     };
     const up = (): void => {
       el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
-      const d = this._carry; this._carry = null;
+      let d = this._carry; this._carry = null;
       if (flicking) { this._carried = Date.now(); return; }
+      // small fingers wobble: a short slide that lands on nothing new was meant as a tap
+      if (d && far < 40 && (!d.over || d.over === lead?.entity_id)) d = null;
       if (!d) { if (lead) { this._focus = lead.entity_id; this._svc('media_play_pause', {}, lead.entity_id); } return; } // a record that was only tapped is played by its click
       this._carried = Date.now();
       const to = d.over && d.over !== 'all' ? this.hass!.states[d.over] : undefined;
@@ -846,7 +878,7 @@ export class FhMusic extends LitElement {
   private _addPick(m: MediaHit): void {
     const who = this._juke.who || this._everyone[0]?.name || 'Someone';
     this._saveJuke({ on: true, picks: [...this._juke.picks, { ...m, who, t: Date.now() }] });
-    this._say(`${who} added ${m.name}`); this._adding = false; this._tab = this._prev === 'rooms' ? 'rooms' : 'juke'; this._feed();
+    this._say(`${who} added ${m.name}`); this._adding = false; this._jpick = false; this._tab = this._prev === 'rooms' ? 'rooms' : 'juke'; this._feed();
   }
 
   /* ---------------- call a room ---------------- */
@@ -857,7 +889,8 @@ export class FhMusic extends LitElement {
     if (!to.length) { this._say('Pick a room first'); return; }
     if (!tts) { this._say('Home Assistant has no voice set up for speaking'); return; }
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
-    if (!checked && this.pin && isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30')) { this._pinAsk = { reason: 'Quiet time. Call anyway?', run: () => this._call(true) }; return; }
+    const quiet = isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30'), abed = to.filter((id) => this._asleep(id)), typed = !CALLS.includes(msg);
+    if (!checked && this.pin && (quiet || abed.length || typed)) { this._pinAsk = { reason: quiet ? 'Quiet time. Call anyway?' : abed.length ? `${this._name(this.hass!.states[abed[0]])} is asleep. Call anyway?` : 'A typed message needs a grown-up.', run: () => this._call(true) }; return; }
     this._lastCall = Date.now();
     const h = this.hass!, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
     const failed = (id: string) => (e: any): void => this._say(`Couldn’t call ${this._name(h.states[id])}: ${e?.message ?? 'error'}`);
@@ -891,7 +924,7 @@ export class FhMusic extends LitElement {
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      ${this._msg ? html`<div class="toast" role="status">${this._msg}</div>` : nothing}`;
+      <div class="toast" role="status">${this._msg || nothing}${this._msg && this._undo ? html` <button class="pill tap" style="height:36px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>Undo</button>` : nothing}</div>`;
   }
 
   private _hero(p: HassEntity): TemplateResult {
@@ -1029,19 +1062,30 @@ export class FhMusic extends LitElement {
   private _jukeTab(): TemplateResult {
     const j = this._juke, short = shortNames(this._everyone.map((p) => p.name)), col = (n: string): string => slotVar(this._everyone.find((p) => p.name === n)?.colour ?? 'family');
     const next = this._nextPick(), turns = (w: string): number => j.picks.filter((p) => p.done && p.who === w).length;
+    if (!this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
+    const asked = new Set(j.picks.filter((p) => !p.done).map((p) => p.who)), chooser = [...this._everyone].sort((a, b) => Number(asked.has(a.name)) - Number(asked.has(b.name)) || turns(a.name) - turns(b.name))[0]?.name ?? '';
+    const search = (): void => { this._jpick = false; this._adding = true; this._prev = this._prev === 'rooms' ? 'rooms' : 'juke'; this._tab = 'search'; this._keys = true; this._hits = null; this._text = ''; this._caps = true; };
+    if (this._jpick && j.who) {
+      // a turn starts with pictures: that person's own shelf, then the family's. No reading, no typing.
+      const seen = new Set<string>(), list = [...(this._items[j.who] ?? []), ...(this._items.Family ?? [])].filter((m) => !seen.has(m.uri) && !!seen.add(m.uri));
+      return html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>
+        ${list.length ? html`<div class="covers scrolly jcovers" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
+          <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.name}</span></button>`)}</div>`
+        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}`;
+    }
     const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
     const card = (p: Pick): TemplateResult => html`<div class="pickrow ${p.done ? 'played' : ''}" ?data-next=${p === next}>
       <span class="pcover"><i class="disc"></i><span class="art" style=${p.img ? `--art:url(${p.img})` : ''}>${p.img ? '' : icon('music', 26)}</span>
         <span class="init" style="--c:${col(p.who)}" role="img" aria-label=${p.who}>${short[p.who] ?? p.who[0]}</span></span>
       <span class="nm">${p.name}${p.sub ? html` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${p.sub}</span>` : nothing}</span>
-      <span class="when">${p.done ? 'Played' : p === next ? 'Next' : 'Waiting'}</span></div>`;
+      <span class="when">${p.done ? (this._q?.next?.name === p.name ? 'Up next' : 'Played') : p === next ? 'Next' : 'Waiting'}</span></div>`;
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
-      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft">Who’s choosing?</span>${this._everyone.map((p) => { const n = turns(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} aria-label="${p.name}, ${n} ${n === 1 ? 'turn' : 'turns'} so far" @click=${() => this._saveJuke({ who: p.name })}>
-        <span class="face">${short[p.name] ?? p.name[0]}</span><span class="cname">${p.name}</span><span class="tally" aria-hidden="true">${Array.from({ length: Math.min(n, 5) }, () => html`<i></i>`)}</span></button>`; })}</div>
-      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px" ?disabled=${!j.who} @click=${() => { this._adding = true; this._prev = 'juke'; this._tab = 'search'; this._keys = true; this._hits = null; this._text = ''; this._caps = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
+      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft">Who’s choosing?</span>${this._everyone.map((p) => html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${asked.has(p.name) ? ', has a song waiting' : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
+        <span class="face">${short[p.name] ?? p.name[0]}${asked.has(p.name) ? html`<i class="has">✓</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Next' : ''}</span></button>`)}</div>
+      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
-        <span class="soft" style="flex:1">Everyone gets a turn: the next song comes from whoever has had the fewest.</span>
-        ${j.picks.length ? html`<button class="pill tap" @click=${() => this._saveJuke({ picks: [] })}>Clear</button>` : nothing}</div>
+        <span class="soft" style="flex:1">Everyone gets a turn.</span>
+        ${j.picks.length ? html`<button class="pill tap" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
       ${j.picks.length ? html`<div class="picks scrolly" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
         : html`<div class="empty"><span style="color:var(--ink2)">${icon('jukebox', 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
@@ -1061,7 +1105,7 @@ export class FhMusic extends LitElement {
     const all = this._list.map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
     const flip = (id: string): void => { this._callTo = this._callTo.includes(id) ? this._callTo.filter((x) => x !== id) : [...this._callTo, id]; };
     const names = this._callTo.map((id) => this._name(this.hass!.states[id]));
-    return html`${this._ckeys ? html`<span class="soft">Calling ${names.length ? names.join(', ') : 'no rooms yet'}</span>` : html`<div class="callrow">
+    return html`${this._ckeys ? html`<div style="display:flex;align-items:center;gap:12px"><span class="soft" style="flex:1">Calling ${names.length ? names.join(', ') : 'no rooms yet'}</span><button class="pill tap" @click=${() => { this._ckeys = false; }}>Rooms and messages</button></div>` : html`<div class="callrow">
         <div class="callside"><span class="soft">Tap the rooms to call</span>
           ${this._mini((id) => this._callTo.includes(id), flip, true)}
           <button class="pill tap" style="align-self:flex-start" aria-pressed=${String(every)} @click=${() => { this._callTo = every ? [] : all; }}>Everyone</button></div>

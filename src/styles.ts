@@ -27,7 +27,7 @@ export const styles = css`
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
   .fh > header, .fh > .body, .fh > nav { position: relative; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
-  .fh[data-calm] { --loops: 1; --tilt: 0; --motion: paused; }
+  .fh[data-calm] { --loops: 0; --tilt: 0; --motion: paused; }
   .fh.idle *, .fh.idle::after { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; } }
   .glass {
@@ -171,7 +171,8 @@ export const styles = css`
   .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
   .opt[aria-checked='true'] .sw { background: var(--ok); }
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
-  .toast { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); z-index: 20; padding: 14px 22px; border-radius: 999px; background: rgba(15,15,20,.88); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn .3s ease both; }
+  .toast:empty { display: none; }
+  .toast { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: min(90%, 720px); box-sizing: border-box; text-align: center; pointer-events: none; bottom: 120px; z-index: 20; padding: 14px 22px; border-radius: 999px; background: rgba(15,15,20,.88); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn .3s ease both; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash .7s ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
   .night { position: absolute; inset: 0; z-index: 40; padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between; color: #ffb26b; text-align: left;
@@ -237,7 +238,8 @@ export const styles = css`
   :host([data-phone]) .scrim, :host([data-phone]) .night, :host([data-phone]) .alarm { position: fixed; }
   :host([data-phone]) .sheet { width: 94%; max-height: 84vh; overflow-y: auto; padding: 18px 16px; border-radius: 24px; }
   :host([data-phone]) .themes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  :host([data-phone]) .toast { position: fixed; bottom: 96px; max-width: 90%; text-align: center; border-radius: 20px; }
+  :host([data-phone]) .toast { position: fixed; bottom: 96px; border-radius: 20px; }
+  .toast button { pointer-events: auto; }
   :host([data-phone]) .night { padding: 32px 24px; }
   :host([data-phone]) .night .big { font-size: 92px; }
   :host([data-phone]) .night .nclock { flex-direction: column; align-items: flex-start; gap: 16px; }

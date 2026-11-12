@@ -231,5 +231,34 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
 // the Big Dial's arcs must be draggable by finger (the browser must not take the gesture for scrolling)
 { const t = await open('page=music&look=glass&mview=dial');
   console.log('dial arcs take touch drags:', await t.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.bigdial > svg')).touchAction)); await t.close(); }
+// review fixes (0.17.0): gestures, guards and undo
+{ const box = async (pg, sel) => await M(pg).locator(sel).first().boundingBox(), toast = async (pg) => (await M(pg).locator('.toast').textContent() ?? '').trim().replace(/\s+/g, ' ');
+  const c = await open('page=music&look=glass&mview=cables');
+  const sl = await box(c, '.sleeve[data-front]'), dk = await box(c, '[data-drop="deck"]');
+  await c.mouse.move(sl.x + sl.width / 2, sl.y + sl.height / 2); await c.mouse.down(); for (let i = 1; i <= 12; i++) await c.mouse.move(sl.x + sl.width / 2 + ((dk.x + dk.width / 2 - sl.x - sl.width / 2) * i) / 12, sl.y + sl.height / 2); await c.mouse.up(); await c.waitForTimeout(400);
+  console.log('crate: a record dragged straight across to the turntable plays:', !!(await calls(c, /play_media/))); await c.close();
+  const w = await open('page=music&look=glass&mview=house');
+  const rec = await box(w, '.srec'); await w.mouse.move(rec.x + rec.width / 2, rec.y + rec.height / 2); await w.mouse.down(); await w.mouse.move(rec.x + rec.width / 2 + 9, rec.y + rec.height / 2 + 11, { steps: 3 }); await w.mouse.up(); await w.waitForTimeout(500);
+  console.log('a wobbly tap on a shelf record still plays:', !!(await calls(w, /play_media/)));
+  await M(w).locator('[data-drop="all"]').first().click(); await w.waitForTimeout(500);
+  console.log('whole house says so and offers Undo:', await toast(w));
+  await M(w).locator('.toast button').click(); await w.waitForTimeout(900);
+  console.log('undo lets the rooms go:', !!(await calls(w, /unjoin/)), '|', await toast(w)); await w.close();
+  const d = await open('page=music&look=glass&mview=dial');
+  await M(d).locator('.dsleep').click(); await d.waitForTimeout(300); await M(d).locator('.dsleep').click(); await d.waitForTimeout(300);
+  console.log('sleep fade, second tap cancels:', await toast(d), '|', await calls(d, /script\.turn_off/)); await d.close();
+  const k = await open('page=music&look=glass&mtab=call', '19:45');
+  await M(k).locator('.mz[data-zone="media_player.charlies_homepod"]').click(); await M(k).locator('.bubble').first().click(); await M(k).locator('.sayit').click(); await k.waitForTimeout(300);
+  console.log('call to a sleeping room before quiet time asks first:', await M(k).locator('fh-pin').getAttribute('reason'), '| nothing said:', !(await calls(k, /play_announcement|tts/)));
+  for (let n = 0; n < 3; n++) { for (const x of '9999') await M(k).locator('fh-pin').getByRole('button', { name: x, exact: true }).click(); await k.waitForTimeout(600); }
+  console.log('three wrong PINs:', (await M(k).locator('fh-pin .note').textContent()).trim(), '| keys off:', await M(k).locator('fh-pin .grid button[disabled]').count()); await k.close();
+  const j = await open('page=music&look=glass&mtab=juke&juke=1');
+  await M(j).locator('.coin', { hasText: 'Max' }).click(); await j.waitForTimeout(500);
+  const pics = await M(j).locator('.jcovers .st').count(); await M(j).locator('.jcovers .st').first().click(); await j.waitForTimeout(400);
+  console.log('jukebox turn by pictures:', pics, '|', await toast(j), '| tallies shown:', await M(j).locator('.tally').count());
+  await M(j).getByRole('button', { name: 'Clear', exact: true }).click(); await j.waitForTimeout(300); const gone = await M(j).locator('.pickrow').count(); await M(j).locator('.toast button').click(); await j.waitForTimeout(300);
+  console.log('clear then undo:', gone, '→', await M(j).locator('.pickrow').count()); await j.close();
+  const q = await open('page=music&look=glass&mview=scene'); await q.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.fh').setAttribute('data-calm', '')); await q.waitForTimeout(600);
+  console.log('calm mode, animations still running:', await q.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return r.getAnimations ? r.getAnimations().filter((a) => a.playState === 'running').length : -1; })); await q.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

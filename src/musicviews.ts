@@ -152,9 +152,9 @@ export const deskView = (c: Ctx): TemplateResult => {
     const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
     return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
       <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}>${r.name}</button>
-      <button class="lamp tap" aria-pressed=${String(r.live)} aria-label="${r.inmix ? 'Remove' : 'Add'} ${r.name} ${r.inmix ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${r.offline ? '–' : r.asleep && !r.live ? '☾' : r.live ? 'ON' : 'OFF'}</button>
+      <button class="lamp tap" aria-pressed=${String(r.focus ? r.live : r.inmix)} ?data-other=${r.live && !r.focus && !r.inmix} aria-label=${r.focus ? `${r.live ? 'ON' : 'OFF'}: ${r.name} is the room in the player. ${r.playing ? 'Pause' : 'Play'}` : r.inmix ? `ON. Remove ${r.name} from the music` : r.live ? `${r.name} has other music. Swap it for this music` : `OFF. Add ${r.name} to the music`} @click=${() => { if (r.focus) c.playPause(); else c.toggle(r.id); }}>${r.offline ? '–' : r.asleep && !r.live ? '☾' : r.focus ? (r.live ? 'ON' : 'OFF') : r.inmix ? 'ON' : r.live ? '♪' : 'OFF'}</button>
       <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => html`<i ?data-lit=${9 - k < lit} ?data-peak=${9 - k >= lit - 2 && 9 - k < lit}></i>`)}</span>
-        <div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${slide(c, r, (el) => el.getBoundingClientRect().height)} @keydown=${keys(c, r)}>
+        <div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${(e: PointerEvent) => { const b = (e.currentTarget as Element).getBoundingClientRect(), y = e.clientY; slide(c, r, (el) => el.getBoundingClientRect().height, () => { if (r.hasVol) c.vol(r.id, clamp(((b.bottom - y) / b.height) * 100), true); })(e); }} @keydown=${keys(c, r)}>
           <i class="slot"></i>${r.hasVol ? html`<i class="run" style="height:${r.vol}%"></i><i class="fcap" style="bottom:${r.vol}%"></i>` : nothing}</div></div>
       <span class="sval">${r.hasVol ? r.vol : '–'}</span></div>`;
   };
@@ -275,8 +275,9 @@ const BACKDROP: Record<string, TemplateResult> = {
 const spots = (c: Ctx): Record<string, [number, number]> => {
   const out: Record<string, [number, number]> = {}, live = c.rooms.filter((r) => r.stream), idle = c.rooms.filter((r) => !r.stream);
   const step = Math.min(13, (58 - 8 * Math.max(0, c.streams.length - 1)) / Math.max(1, live.length)); let x = c.phone ? 16 : 40;
-  for (const s of c.streams) { const mem = live.filter((r) => r.stream === s).sort((p, q) => Number(q.lead) - Number(p.lead)); mem.forEach((r, j) => { out[r.id] = [x + j * (c.phone ? step * 2.2 : step), (idle.length ? (c.phone ? 38 : 27) : 44) + (j % 2 ? 6 : -4)]; }); x += mem.length * step + 8; }
-  idle.forEach((r, i) => { out[r.id] = [(c.phone ? 0 : 36) + ((i + 0.5) / idle.length) * (c.phone ? 100 : 62), (live.length ? (c.phone ? 66 : 68) : 50) + (i % 2 ? 6 : -6)]; });
+  for (const s of c.streams) { const mem = live.filter((r) => r.stream === s).sort((p, q) => Number(q.lead) - Number(p.lead)); mem.forEach((r, j) => { out[r.id] = [x + j * (c.phone ? step * 2.2 : step), (idle.length ? (c.phone ? 33 : 27) : 44) + (j % 2 ? 6 : -4)]; }); x += c.phone ? mem.length * step * 2.2 + 14 : mem.length * step + 8; }
+  idle.forEach((r, i) => { out[r.id] = [(c.phone ? 0 : 36) + ((i + 0.5) / idle.length) * (c.phone ? 100 : 58), (live.length ? (c.phone ? 70 : 68) : 50) + (i % 2 ? (c.phone ? 14 : 6) : (c.phone ? -12 : -6))]; });
+  if (c.phone) for (const k of Object.keys(out)) out[k][0] = Math.max(17, Math.min(83, out[k][0]));
   return out;
 };
 const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos' };
@@ -300,7 +301,7 @@ const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" data-drop
   aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>`;
 const grab = (c: Ctx, r: Room): TemplateResult | typeof nothing => (r.hasVol ? html`<span class="agrab" aria-hidden="true" @pointerdown=${(e: PointerEvent) => { e.stopPropagation(); slide(c, r, () => 150)(e); }}><i></i></span>` : nothing);
 const figure = (c: Ctx, r: Room, draw: (r: Room, v: number) => TemplateResult): TemplateResult => html`
-  <svg viewBox="0 0 100 120" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}>${r.asleep && !r.live ? moon : nothing}${draw(r, r.vol / 100)}</svg>
+  <svg viewBox="0 0 100 120" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}>${r.asleep ? moon : nothing}${draw(r, r.vol / 100)}</svg>
   ${grab(c, r)}
   <button class="aname tap" data-notrack aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><b>${r.name}</b><span>${state(r)}</span></button>`;
 const pct = (m: PointerEvent, b: DOMRect): [number, number] => [((m.clientX - b.left) / b.width) * 100, ((m.clientY - b.top) / b.height) * 100];
@@ -412,6 +413,8 @@ export const viewsCss = css`
   .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; touch-action: none; }
   .dplate { fill: var(--chip); }
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
+  .darc:focus-visible .dtrack { stroke: var(--ink); stroke-opacity: 1; } .darc:focus-visible .dknob { stroke: var(--ink); stroke-width: 5; }
+  .tuner:focus-visible, .jog:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   .dhit { fill: none; stroke: transparent; stroke-width: 46; }
   .dtrack { fill: none; stroke: var(--track); stroke-width: 26; stroke-linecap: round; }
   .dfill { fill: none; stroke: var(--ink3); stroke-width: 26; stroke-linecap: round; opacity: .55; transition: stroke .2s; }
@@ -472,10 +475,11 @@ export const viewsCss = css`
   .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
   .strip.master { background: var(--chip-soft); --c: var(--accent); margin-left: 4px; }
   .sname { width: 100%; min-height: 44px; padding: 2px 4px; border-radius: 8px; background: var(--chip-strong); font-size: 12.5px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-  .lamp { width: 46px; height: 46px; border-radius: 50%; background: var(--ink3); color: #fff; font-size: 11px; font-weight: var(--w-heavy, 800); flex-shrink: 0; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background .2s, box-shadow .2s; }
-  .lamp[aria-pressed='true'] { background: var(--ok); color: var(--on-ok, #fff); box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
+  .lamp { width: 46px; height: 46px; border-radius: 50%; background: #5b6472; color: #fff; font-size: 13px; font-weight: var(--w-heavy, 800); flex-shrink: 0; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background .2s, box-shadow .2s; }
+  .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
+  .lamp[data-other] { background: var(--c); font-size: 18px; }
   .master .lamp { background: var(--primary); color: var(--on-primary); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 8px; padding: 10px 0; }
@@ -495,6 +499,10 @@ export const viewsCss = css`
   .fader:focus-visible .fcap { outline: 3px solid var(--ink); outline-offset: 2px; }
   .sval { font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); }
   .desk[data-fit] .sname { font-size: 11px; } .desk[data-fit] .well { padding: 6px 0; }
+  :host([data-shape='tall']:not([data-phone])) .desk { flex-direction: column; gap: 12px; }
+  :host([data-shape='tall']:not([data-phone])) .dside { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 130px 64px; gap: 12px 16px; padding: 4px; }
+  :host([data-shape='tall']:not([data-phone])) .dnow { grid-column: 1; grid-row: 1; } :host([data-shape='tall']:not([data-phone])) .desk .tkeys { grid-column: 1; grid-row: 2; }
+  :host([data-shape='tall']:not([data-phone])) .dplay { grid-column: 2; grid-row: 1 / 3; } :host([data-shape='tall']:not([data-phone])) .dstrips { min-height: 0; }
   :host([data-phone]) .desk { flex: none; container-type: normal; flex-direction: column; gap: 14px; } :host([data-phone]) .dside { flex: none; gap: 12px; padding: 4px; } :host([data-phone]) .dnow { flex: none; height: 110px; } :host([data-phone]) .dplay { flex: none; height: 150px; }
   :host([data-phone]) .desk .tkeys { flex-basis: 60px; } :host([data-phone]) .dstrips { flex: none; height: 360px; overflow-x: auto; } :host([data-phone]) .strip { flex: 0 0 62px; }
 
@@ -651,7 +659,7 @@ export const viewsCss = css`
   .unsquash { width: 0; height: 0; transform: scaleY(calc(1 / var(--sq))); }
   .actor.planet { position: absolute; left: 0; top: 0; transform: translate(-50%, -42%); }
   .arm[data-away] { opacity: .25; } .actor.clone { pointer-events: none; }
-  .orbits .actor { width: clamp(108px, 24cqh, 160px); } .orbits .actor > svg { aspect-ratio: 108 / 84; margin-bottom: -14px; } .orbits .aname { min-height: 44px; padding: 0 8px; background: transparent; justify-content: flex-start; } .orbits .aname span { display: none; }
+  .orbits .actor { width: clamp(108px, 24cqh, 160px); } .orbits .actor > svg { aspect-ratio: 108 / 84; margin-bottom: -14px; } .orbits .aname { min-height: 44px; padding: 0 8px; background: transparent; justify-content: flex-start; } .orbits .aname span { font-size: 11px; }
   .orbits .actor[data-focus] .aname { background: transparent; box-shadow: none; } .orbits .actor[data-focus] .aname b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .afill { fill: var(--c); } .afill.soft { opacity: .6; } .afill.edge, .aidle.edge { stroke: #fff; stroke-width: 2.5; }
   .aidle { fill: var(--ink3); opacity: .75; } .ahull { fill: #fff; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
@@ -678,5 +686,5 @@ export const viewsCss = css`
   @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
   .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
   .vscene[data-fit] .aname span { display: none; }
-  :host([data-phone]) .vscene { flex: none; height: 470px; --k: .54; --sq: .9; } :host([data-phone]) .actor, :host([data-phone]) .orbits .actor { width: 92px; }
+  :host([data-phone]) .vscene { flex: none; height: 580px; --k: .54; --sq: .9; } :host([data-phone]) .actor, :host([data-phone]) .orbits .actor { width: 92px; }
 `;
