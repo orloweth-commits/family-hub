@@ -69,7 +69,7 @@ export class FhMusic extends LitElement {
     .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .nowbar .round { width: 44px; height: 44px; flex-shrink: 0; } .nowbar .ngo { background: var(--primary); color: var(--on-primary); }
-    .acts .hint { min-width: 0; }
+    .acts .hint { flex: 1; min-width: 0; }
     :host([data-phone]) .nowbar { max-width: 100%; flex: 1 1 100%; order: 8; } :host([data-phone]) .tabs.inline { flex: 1 1 100%; }
     .panel { position: relative; }
     .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; animation: fadeIn .28s ease-out; }
@@ -550,10 +550,10 @@ export class FhMusic extends LitElement {
       jogTo: (turn, commit) => this._jogTo(turn, commit, pos, dur), seekBy: (sec) => { if (dur) this._svc('media_seek', { seek_position: Math.max(0, Math.min(dur - 1, Math.round(pos + sec))) }); else this._svc(sec > 0 ? 'media_next_track' : 'media_previous_track'); },
       prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
       crate: { tabs: this._shelfNames.map((n) => ({ name: n, colour: slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family') })), who: this._shelf, pick: (n) => { this._shelf = n; this._crateAt = 0; }, items: crate, at: front, calm: wind, room: this._name(cur),
-        flick: (i) => { this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) this._crateAt = i; else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
+        play: (m) => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); }, flick: (i) => { this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) this._crateAt = i; else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this.hass!.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: any) => this._say(`Couldn’t add that room: ${e?.message ?? 'error'}`)); }); },
       leave: (id) => { this.hass!.callService('media_player', 'unjoin', {}, { entity_id: id }); },
-      look: getLook(), theme: this.theme, over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', shelf: this._items.Family ?? [],
+      look: getLook(), theme: this.theme, phone: getShape() === 'phone', over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', liftedItem: this._carry?.item ?? null, shelf: this._items.Family ?? [],
       now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), artist: String(a.media_artist ?? a.media_album_name ?? ''), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit),
       toggle: (id) => { if (id === cur?.entity_id) return; if (mix.includes(id)) this._join(id); else this._gentle(id, () => { if (curLead) this._join(id); else this._focus = id; }); },
@@ -893,7 +893,7 @@ export class FhMusic extends LitElement {
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change how the rooms are shown. Now: ${view.name}" @click=${() => { this._viewAsk = true; }}>${icon(view.icon, 22)}${view.name}</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap primary" data-drop="all" ?data-hot=${this._carry?.over === 'all'} @click=${() => this._wholeHouse(() => this._everywhere(true))}>Everywhere</button>`}
         ${mix.length ? html`<button class="pill tap" @click=${() => this._everywhere(false)}>Just ${this._name(cur)}</button>` : nothing}
-        <span class="soft hint" style="flex:1">${viewHint(mode, getLook(), this.theme)}</span>
+        <span class="soft hint">${viewHint(mode, getLook(), this.theme)}</span>
         ${mode !== 'list' && cur ? html`<div class="nowbar"><button class="nthumb tap" aria-pressed=${String(this._peek)} aria-label=${this._peek ? 'Hide the player' : 'Show the full player'} style=${cur.attributes.entity_picture ? `--art:url(${cur.attributes.entity_picture})` : ''} @click=${() => { this._peek = !this._peek; }}></button>
           <span class="ntx"><b>${cur.attributes.media_title ?? 'Nothing playing'}</b><span>${this._name(cur)}</span></span>
           <button class="round tap" aria-label="Previous" @click=${() => this._svc('media_previous_track')}>${solid('prev', 24)}</button>

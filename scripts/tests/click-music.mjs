@@ -76,6 +76,16 @@ const M = (page) => page.locator('fh-music');
       await sp.mouse.move(...from); await sp.mouse.down(); await sp.mouse.move((from[0] + on[0]) / 2, (from[1] + on[1]) / 2, { steps: 5 }); await sp.mouse.move(...on, { steps: 5 }); await sp.mouse.up(); await sp.waitForTimeout(600);
       console.log('orbit join:', (await calls(sp, /media_player\.join/)).slice(0, 110), '| rings:', await M(sp).locator('.ring').count(), '| moving:', await M(sp).locator('.arm[data-moving]').count());
       await sp.close();
+      // the shelf in the world: carry a buoy to a room, and another to the music itself
+      const sv = await open('look=glass&page=music&mview=scene'); await sv.evaluate(() => { (window.__calls ||= []).length = 0; });
+      const bu = async (i) => { const b = await M(sv).locator('.sitem .puck').nth(i).boundingBox(); return [b.x + b.width / 2, b.y + b.height / 2]; };
+      const carryTo = async (from, to) => { await sv.mouse.move(...from); await sv.mouse.down(); await sv.mouse.move(from[0] + 30, from[1] - 40, { steps: 4 }); await sv.mouse.move(...to, { steps: 6 }); await sv.mouse.up(); await sv.waitForTimeout(500); };
+      const ob = await M(sv).locator('.actor[data-zone="media_player.office"] > svg').boundingBox(); await carryTo(await bu(0), [ob.x + ob.width / 2, ob.y + ob.height / 2]);
+      let so = `scene shelf items: ${await M(sv).locator('.sitem').count()} | to a room: ${(await calls(sv, /play_media/)).slice(0, 96)}`;
+      await sv.evaluate(() => { window.__calls.length = 0; }); const sb2 = await M(sv).locator('.puck.spot').boundingBox(); await carryTo(await bu(1), [sb2.x + sb2.width / 2, sb2.y + sb2.height / 2]);
+      so += ` | to the music: ${(await calls(sv, /play_media/)).slice(0, 96)}`;
+      await M(sv).locator('.slabel').click(); await sv.waitForTimeout(300); so += ` | next shelf: ${await M(sv).locator('.slabel b').innerText()}`;
+      console.log(so); await sv.close();
       const pk = await M(v).locator('.puck.spot').boundingBox(), to = await M(v).locator('.actor[data-zone="media_player.lounge_room_sonos"]').boundingBox();
       await v.mouse.move(pk.x + 30, pk.y + 30); await v.mouse.down(); await v.mouse.move(pk.x + 120, pk.y + 100, { steps: 4 }); await v.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 5 }); await v.mouse.up(); await v.waitForTimeout(400);
       console.log('scene carry:', await calls(v, /transfer_queue/)); }

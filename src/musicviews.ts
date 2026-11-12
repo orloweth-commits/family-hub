@@ -21,11 +21,11 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
 const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
   sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.' };
 export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
-export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Drag the round handle for volume.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
+export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Carry a record from the shelf to a room.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
 export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
 export interface Ctx {
-  rooms: Room[]; look: string; theme: string; over: string; lifted: string;
+  rooms: Room[]; look: string; theme: string; /** a narrow screen: the shelf runs along the bottom, so the rooms have the full width */ phone: boolean; over: string; lifted: string; liftedItem: ShelfItem | null;
   /** the pieces of music playing, the one in the player first (each named by its leading speaker) */
   streams: string[];
   /** a room being carried round the scene, in percent of the scene */
@@ -34,7 +34,7 @@ export interface Ctx {
   now: { title: string; artist: string; art: string; playing: boolean; frac: number; lead: string };
   shelf: ShelfItem[];
   /** the record crate: a divider per person, that person's records, and which one is at the front */
-  crate: { tabs: { name: string; colour: string }[]; who: string; pick(name: string): void; items: ShelfItem[]; at: number; tap(i: number): void; flick(i: number): void; calm: boolean; room: string };
+  crate: { tabs: { name: string; colour: string }[]; who: string; pick(name: string): void; items: ShelfItem[]; at: number; tap(i: number): void; play(m: ShelfItem): void; flick(i: number): void; calm: boolean; room: string };
   prev(): void; next(): void;
   /** the mixing desk: four moment pads and a jog wheel */
   moments: { name: string; icon: string; on: boolean; busy: boolean }[]; moment(i: number): void;
@@ -245,12 +245,29 @@ const BACKDROP: Record<string, TemplateResult> = {
 /** Where each room floats: rooms sharing music swim together along the top, the rest wait along the bottom. */
 const spots = (c: Ctx): Record<string, [number, number]> => {
   const out: Record<string, [number, number]> = {}, live = c.rooms.filter((r) => r.stream), idle = c.rooms.filter((r) => !r.stream);
-  const step = Math.min(14, (66 - 9 * Math.max(0, c.streams.length - 1)) / Math.max(1, live.length)); let x = 30;
-  for (const s of c.streams) { const mem = live.filter((r) => r.stream === s).sort((p, q) => Number(q.lead) - Number(p.lead)); mem.forEach((r, j) => { out[r.id] = [x + j * step, (idle.length ? 36 : 52) + (j % 2 ? 6 : -6)]; }); x += mem.length * step + 9; }
-  idle.forEach((r, i) => { out[r.id] = [((i + 0.5) / idle.length) * 100, live.length ? 78 : 62]; });
+  const step = Math.min(13, (58 - 8 * Math.max(0, c.streams.length - 1)) / Math.max(1, live.length)); let x = c.phone ? 16 : 40;
+  for (const s of c.streams) { const mem = live.filter((r) => r.stream === s).sort((p, q) => Number(q.lead) - Number(p.lead)); mem.forEach((r, j) => { out[r.id] = [x + j * (c.phone ? step * 2.2 : step), (idle.length ? (c.phone ? 38 : 27) : 44) + (j % 2 ? 6 : -4)]; }); x += mem.length * step + 8; }
+  idle.forEach((r, i) => { out[r.id] = [(c.phone ? 0 : 36) + ((i + 0.5) / idle.length) * (c.phone ? 100 : 62), (live.length ? (c.phone ? 66 : 68) : 50) + (i % 2 ? 6 : -6)]; });
   return out;
 };
-const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
+const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos' };
+/** Previous, play and next, small, beside the title. */
+const sceneKeys = (c: Ctx): TemplateResult => html`<span class="skeys"><button class="round tap" aria-label="Previous" @click=${() => c.prev()}>${solid('prev', 22)}</button>
+  <button class="round tap primary" aria-label=${c.now.playing ? 'Pause' : 'Play'} @click=${() => c.playPause()}>${solid(c.now.playing ? 'pause' : 'play', 24)}</button>
+  <button class="round tap" aria-label="Next" @click=${() => c.next()}>${solid('next', 22)}</button></span>`;
+/** The shelf, drawn into the world along the bottom of the scene: buoys on the sea, shells on the reef, a constellation in space, lanterns in the bush, beach balls at sunset, photos pegged up on the fridge. Carry one to a room or to the music; tap it to play in the room in focus. */
+const sceneShelf = (c: Ctx, kind: string): TemplateResult => {
+  const k = c.crate, items = k.items.slice(0, 7), names = k.tabs.map((t) => t.name), next = names[(names.indexOf(k.who) + 1) % Math.max(1, names.length)];
+  const whose = k.who === 'Family' ? 'Family' : `${k.who}’s`, rows = Math.max(1, Math.ceil(items.length / 4));
+  const at = (i: number): string => `${(((i % 4) + 0.5) / 4) * 100} ${((Math.floor(i / 4) + 0.5) / rows) * 100}`, stars = kind === 'space' || kind === 'orbit', strung = kind === 'fridge' || kind === 'bush';
+  const line = stars ? `M${items.map((_, i) => at(i)).join(' L')}` : Array.from({ length: rows }, (_, r) => `M0 ${(r / rows) * 100 + 4} Q50 ${(r / rows) * 100 + 14} 100 ${(r / rows) * 100 + 4}`).join(' ');
+  return html`<div class="sshelf" data-kind=${kind}>
+    <button class="slabel tap" title="Show ${next === 'Family' ? 'the family' : `${next}’s`} shelf" @click=${() => k.pick(next)}><b>${k.calm ? '🌙 ' : ''}${whose} ${SHELF_NAME[kind] ?? 'shelf'}</b><span>${items.length ? 'Carry one to a room' : 'Pin music from Search'}</span></button>
+    <div class="sitems" style="--rows:${rows}">${items.length > 1 && (stars || strung) ? html`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${line}></path></svg>` : nothing}${items.map((m, i) => html`<button class="sitem tap" style="--i:${i};animation-delay:${-i * 0.55}s" ?data-lifted=${c.liftedItem === m} aria-label="${m.name}. Tap to play in ${k.room}, or drag it to a room or to the music."
+      @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => k.play(m)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i></button>`)}</div>
+  </div>`;
+};
+const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" data-drop="deck" ?data-hot=${c.over === 'deck'} ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
   aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>`;
 const grab = (c: Ctx, r: Room): TemplateResult | typeof nothing => (r.hasVol ? html`<span class="agrab" aria-hidden="true" @pointerdown=${(e: PointerEvent) => { e.stopPropagation(); slide(c, r, () => 150)(e); }}><i></i></span>` : nothing);
 const figure = (c: Ctx, r: Room, draw: (r: Room, v: number) => TemplateResult): TemplateResult => html`
@@ -279,10 +296,11 @@ const swimScene = (c: Ctx, kind: string): TemplateResult => {
   return html`<div class="vscene" data-kind=${kind} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}
       ${c.streams.map((s) => { const mem = c.rooms.filter((r) => r.stream === s && d?.id !== r.id); return mem.length > 1 ? svg`<path class="tie" style="--c:${mem[0].colour || 'var(--stream, var(--primary))'}" d="M${mem.map((r) => `${at[r.id][0]} ${at[r.id][1]}`).join(' L')}"></path>` : nothing; })}</svg>
-    <div class="sun">${sun(c)}<span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Drag me to a room' : 'Pick something to play'}</span></span></div>
+    <div class="sun">${sun(c)}<span class="suntx"><b>${c.now.title}</b><span>${c.now.artist || (c.now.lead ? 'Drag me to a room' : 'Pick something to play')}</span>${sceneKeys(c)}</span></div>
     ${c.rooms.map((r, i) => { const p = d?.id === r.id ? [d.x, d.y] : at[r.id];
       return html`<div class="actor free" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-held=${d?.id === r.id} ?data-hot=${c.over === r.id && c.lifted !== r.id}
         style="${col(r)};left:${p[0]}%;top:${p[1]}%;animation-delay:${-i * 0.45}s" @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div>`; })}
+    ${sceneShelf(c, kind)}
   </div>`;
 };
 
@@ -292,7 +310,7 @@ const orbitScene = (c: Ctx, kind: string): TemplateResult => {
   const draw = ACTORS[kind], d = c.sdrag, ringOf = (s: string): number => RINGS[Math.min(RINGS.length - 1, c.streams.indexOf(s))];
   const drop = (r: Room) => (m: PointerEvent, b: DOMRect): void => {
     const st = (m.target as Element).closest('.vscene') ?? document.body, g = getComputedStyle(st), sq = Number(g.getPropertyValue('--sq')) || 0.42, k = Number(g.getPropertyValue('--k')) || 1;
-    const rp = (Math.hypot(m.clientX - (b.left + b.width / 2), (m.clientY - (b.top + b.height * 0.46)) / sq) / b.height) * 100 / k;
+    const rp = (Math.hypot(m.clientX - (b.left + b.width / 2), (m.clientY - (b.top + b.height * 0.42)) / sq) / Math.min(b.height, b.width * 0.56)) * 100 / k;
     const opts: [number, string][] = [...c.streams.map((s) => [ringOf(s), s] as [number, string]), [PARK, '']];
     const [, to] = opts.sort((p, q) => Math.abs(p[0] - rp) - Math.abs(q[0] - rp))[0];
     if (to && to !== r.stream) c.join(r.id, to); else if (!to && r.stream && !r.lead) c.leave(r.id);
@@ -308,10 +326,11 @@ const orbitScene = (c: Ctx, kind: string): TemplateResult => {
   return html`<div class="vscene orbits" data-kind=${kind} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${BACKDROP[kind]}</svg>
     ${c.streams.slice(0, RINGS.length).map((s, k) => html`<span class="ring" style="--r:${RINGS[k]};--c:${k ? 'var(--p-3)' : 'var(--stream, var(--primary))'}"></span>`)}<span class="ring park" style="--r:${PARK}"></span>
-    <div class="sun">${html`<span class="suntx"><b>${c.now.title}</b><span>${c.now.lead ? 'Same orbit, same music' : 'Pick something to play'}</span></span>`}</div>
+    <div class="sun">${html`<span class="suntx"><b>${c.now.title}</b><span>${c.now.artist || (c.now.lead ? 'Same orbit, same music' : 'Pick something to play')}</span>${sceneKeys(c)}</span>`}</div>
     <div class="core">${sun(c)}</div>
     <div class="plane">${c.rooms.map(arm)}</div>
     ${held && d ? html`<div class="actor free clone" data-held ?data-live=${held.live} style="${col(held)};left:${d.x}%;top:${d.y}%">${figure(c, held, draw)}</div>` : nothing}
+    ${sceneShelf(c, kind)}
   </div>`;
 };
 
@@ -488,7 +507,7 @@ export const viewsCss = css`
   :host([data-phone]) .sock { left: auto; right: 6px; } :host([data-phone]) .wires, :host([data-phone]) .jack { display: none; }
 
   /* ---- scene ---- */
-  .vscene { flex: 1; min-height: 250px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; container-type: size; --sq: .42; --k: 1; }
+  .vscene { flex: 1; min-height: 250px; position: relative; border-radius: 22px; overflow: hidden; user-select: none; -webkit-user-select: none; container-type: size; --sq: .4; --k: .9; /* one orbit unit: a hundredth of the height, or less when the scene is narrow */ --u: min(1cqh, .56cqw); }
   .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .backdrop path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
   .bg1 { stroke: color-mix(in srgb, var(--primary) 55%, transparent); stroke-width: 3px; } .bg2 { stroke: var(--track); stroke-width: 3px; }
@@ -502,7 +521,7 @@ export const viewsCss = css`
   .puck.spot { position: static; margin: 0; width: clamp(64px, 18cqh, 96px); height: clamp(64px, 18cqh, 96px); flex-shrink: 0; }
   .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .suntx { display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .actor { width: clamp(124px, 48cqh, 230px); display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
+  .actor { width: clamp(112px, 38cqh, 190px); display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
   .actor.free { position: absolute; transform: translate(-50%, -50%); transition: left .6s cubic-bezier(.3,1.3,.5,1), top .6s cubic-bezier(.3,1.3,.5,1); }
   .actor[data-held] { transition: none; z-index: 5; cursor: grabbing; filter: drop-shadow(0 14px 12px rgba(0,0,0,.3)); }
   .actor[data-held] > svg { transform: scale(1.12); }
@@ -516,15 +535,57 @@ export const viewsCss = css`
   .actor[data-live] .agrab i { box-shadow: inset 0 0 0 2.5px var(--c), 0 2px 5px rgba(0,0,0,.25); }
   .aname { min-height: 44px; max-width: 120px; padding: 2px 10px; border-radius: 14px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
   .aname b { max-width: 100%; font-size: clamp(13px, 3.6cqh, 16px); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aname span { font-size: 11.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  /* the shelf in the world */
+  .skeys { display: flex; gap: 6px; margin-top: 6px; } .skeys .round { width: 44px; height: 44px; }
+  .puck.spot[data-hot] { box-shadow: 0 0 0 5px var(--accent), 0 8px 20px -6px rgba(0,0,0,.55); transform: scale(1.08); }
+  .sshelf { position: absolute; left: 0; bottom: 0; width: 31%; max-height: 52%; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; gap: 3cqh; padding: 0 12px 10px; pointer-events: none; }
+  .sshelf > *, .sitem { pointer-events: auto; }
+  .sitems { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.2cqh 8px; justify-items: center; position: relative; pointer-events: none; }
+  .sline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .sline path { fill: none; stroke: var(--ink2); stroke-width: 2px; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+  .sitem { width: min(100%, 15cqh, 84px); min-width: 44px; position: relative; display: flex; flex-direction: column; align-items: center; touch-action: none; border-radius: 50%; }
+  .sitem[data-lifted] .puck { opacity: .3; }
+  .sitem:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .sdeco { display: none; }
+  .slabel { min-height: 44px; max-width: 100%; padding: 4px 14px; border-radius: 14px; background: var(--chip-strong); display: flex; flex-direction: column; justify-content: center; text-align: left; line-height: 1.15; }
+  .slabel b { font-size: 14px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .slabel span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* sea: buoys, each with a little flag, bobbing on the swell */
+  .sshelf[data-kind='sea'] .sitems { margin-top: 3cqh; }
+  .sshelf[data-kind='sea'] .sitem { animation: abob 3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+  .sshelf[data-kind='sea'] .sdeco { display: block; position: absolute; left: 50%; bottom: 96%; width: 3px; height: 42%; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+  .sshelf[data-kind='sea'] .sdeco::after { content: ''; position: absolute; left: 3px; top: 0; border: 6px solid transparent; border-left: 10px solid var(--accent); border-right: 0; }
+  .sshelf[data-kind='sea'] .puck { border-color: #fff; box-shadow: 0 0 0 3px #d9482b, 0 8px 12px -6px rgba(0,0,0,.5); }
+  /* reef: each record rests in an open shell on the sea floor */
+  .sshelf[data-kind='reef'] .sdeco { display: block; position: absolute; left: -14%; right: -14%; bottom: -8%; height: 62%; border-radius: 0 0 999px 999px; background: repeating-conic-gradient(from -90deg at 50% 0, #ffd9c2 0 12deg, #f6b89a 12deg 24deg); box-shadow: inset 0 -3px 0 rgba(0,0,0,.14); }
+  .sshelf[data-kind='reef'] .puck { position: relative; left: auto; bottom: auto; margin-bottom: 14%; }
+  /* space and orbit: a constellation of favourites */
+  .sshelf[data-kind='space'] .sitem, .sshelf[data-kind='orbit'] .sitem { width: min(78%, 12cqh, 68px); }
+  .sshelf[data-kind='space'] .sitem:nth-of-type(odd), .sshelf[data-kind='orbit'] .sitem:nth-of-type(odd) { transform: translateY(-18%); }
+  .sshelf[data-kind='space'] .puck, .sshelf[data-kind='orbit'] .puck { box-shadow: 0 0 14px 3px color-mix(in srgb, var(--accent) 70%, transparent); animation: twinkle2 2.4s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
+  @keyframes twinkle2 { from { filter: brightness(.82); } to { filter: brightness(1.12); } }
+  .sshelf[data-kind='space'] .sline path, .sshelf[data-kind='orbit'] .sline path { stroke: var(--ink); stroke-dasharray: 1 7; opacity: .8; }
+  /* bush: lanterns strung between the trees */
+  .sshelf[data-kind='bush'] .sdeco { display: block; position: absolute; left: 50%; bottom: 96%; width: 2px; height: 30%; margin-left: -1px; background: var(--ink2); }
+  .sshelf[data-kind='bush'] .puck { box-shadow: 0 0 16px 4px rgba(255,214,102,.75); border-color: #ffe9a8; animation: twinkle2 1.8s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
+  /* sunset: beach balls on the sand */
+  .sshelf[data-kind='sunset'] .sdeco { display: block; position: absolute; inset: -7%; border-radius: 50%; background: conic-gradient(#e11d48 0 60deg, #fff 60deg 120deg, #f59e0b 120deg 180deg, #fff 180deg 240deg, #0ea5e9 240deg 300deg, #fff 300deg); box-shadow: 0 6px 8px -4px rgba(0,0,0,.4); }
+  .sshelf[data-kind='sunset'] .puck { position: relative; left: auto; bottom: auto; border: 0; box-shadow: none; transform: scale(.74); }
+  .sshelf[data-kind='sunset'] .sitem:active .sdeco { transform: rotate(40deg); transition: transform .3s; }
+  /* fridge door: photos pegged on a string */
+  .sshelf[data-kind='fridge'] .sitem { border-radius: 3px; transform: rotate(calc((var(--i) - 3) * 1.5deg)); margin-top: 8%; }
+  .sshelf[data-kind='fridge'] .puck { border-radius: 3px; border: 4px solid #fff; border-bottom-width: 13px; background: var(--art) center / cover; box-shadow: 0 4px 6px rgba(0,0,0,.28); }
+  .sshelf[data-kind='fridge'] .sdeco { display: block; position: absolute; left: 50%; top: -9%; width: 9px; height: 16px; margin-left: -4.5px; border-radius: 2px; background: #c9a36a; box-shadow: 0 1px 2px rgba(0,0,0,.3); z-index: 1; }
+  .sshelf[data-kind='fridge'] .slabel { background: var(--note, #fff6c4); border-radius: 2px; transform: rotate(-1.5deg); box-shadow: 0 3px 5px rgba(0,0,0,.2); }
+  :host([data-phone]) .sshelf { width: 100%; flex-direction: row; align-items: flex-end; gap: 8px; } :host([data-phone]) .sitems { flex: 1; grid-template-columns: repeat(7, 1fr); gap: 4px; } :host([data-phone]) .sitem { width: 100%; min-width: 0; max-width: 44px; } :host([data-phone]) .slabel span, :host([data-phone]) .sline { display: none; }
   /* orbits */
-  .ring { position: absolute; left: 50%; top: 46%; width: calc(var(--r) * var(--k) * 2cqh); height: calc(var(--r) * var(--k) * var(--sq) * 2cqh); transform: translate(-50%, -50%); border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--c) 70%, transparent); pointer-events: none; }
+  .ring { position: absolute; left: 50%; top: 42%; width: calc(var(--r) * var(--k) * 2 * var(--u)); height: calc(var(--r) * var(--k) * var(--sq) * 2 * var(--u)); transform: translate(-50%, -50%); border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--c) 70%, transparent); pointer-events: none; }
   .ring.park { border: 2px dashed var(--track); }
-  .core { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 1; border-radius: 50%; box-shadow: 0 0 34px 8px color-mix(in srgb, var(--accent) 55%, transparent); }
-  .plane { position: absolute; left: 50%; top: 46%; width: 0; height: 0; transform: scaleY(var(--sq)); }
+  .core { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 1; border-radius: 50%; box-shadow: 0 0 34px 8px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .plane { position: absolute; left: 50%; top: 42%; width: 0; height: 0; transform: scaleY(var(--sq)); }
   .arm { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotate(calc(var(--a) * 1deg)); }
   .arm[data-moving] { animation: orbit var(--t) linear infinite; animation-delay: calc(var(--a) / 360 * var(--t) * -1); animation-play-state: var(--motion, running); }
   @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .hold { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: translateX(calc(var(--r) * var(--k) * 1cqh)); }
+  .hold { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: translateX(calc(var(--r) * var(--k) * var(--u))); }
   .unspin { width: 0; height: 0; transform: rotate(calc(var(--a) * -1deg)); }
   .arm[data-moving] .unspin { animation: orbit var(--t) linear infinite reverse; animation-delay: calc(var(--a) / 360 * var(--t) * -1); animation-play-state: var(--motion, running); }
   .unsquash { width: 0; height: 0; transform: scaleY(calc(1 / var(--sq))); }
