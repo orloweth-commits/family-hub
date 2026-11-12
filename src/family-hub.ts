@@ -3,6 +3,7 @@ import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
 import { styles } from './styles';
 import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, lookPreview, setLook, type DialArc, type LookId, type LookOption } from './looks';
 import './ambient';
+import { spark } from './sparks';
 import './groceries';
 import './kid';
 import './home';
@@ -25,7 +26,7 @@ import { changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, pa
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer';
-const VERSION = '0.21.0';
+const VERSION = '0.22.0';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -202,6 +203,7 @@ export class FamilyHubCard extends LitElement {
   }
 
   protected updated(ch: PropertyValues): void {
+    if (ch.has('hass')) this._watchJar();
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor')) this._refresh();
     if (ch.has('hass')) this._checkAlarm();
     const root = this.renderRoot.querySelector('.fh');
@@ -332,6 +334,7 @@ export class FamilyHubCard extends LitElement {
     if (undo) { const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; }
     else this._remTk = { ...this._remTk, [r.uid]: window.setTimeout(() => { const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; this._reminders = this._reminders.filter((x) => x.uid !== r.uid); this._loadReminders(); }, 4000) };
     sfx(undo ? 'untick' : 'tick');
+    if (!undo) { const el = [...this.renderRoot.querySelectorAll('button.rem')].find((b) => b.textContent?.trim() === r.summary)?.querySelector('.check'); if (el) spark('tick', el); }
     this._remJust = r.uid; window.setTimeout(() => { if (this._remJust === r.uid) this._remJust = ''; }, 700);
     this.hass.callService('todo', 'update_item', { item: r.uid, status: undo ? 'needs_action' : 'completed' }, { entity_id: t }).catch(() => { this._say('Couldn’t tick that off. Is Home Assistant reachable?'); const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; });
     if (!undo) this._say(`Done: ${r.summary}. Tap it again to undo.`, 4000);
@@ -383,7 +386,14 @@ export class FamilyHubCard extends LitElement {
     const total = d && Number.isFinite(s) ? ((h * 60 + m) * 60 + s) * 1000 : 600_000;
     return left / Math.max(total, left, 1);
   }
-  private _addTimer(min: number): void { this.hass?.callService('script', 'fh_timer_add', { minutes: min }); sfx('tap'); }
+  private _jarWas: number | null = null;
+  /** A marble drops into the jar when its count goes up while someone is looking. */
+  private _watchJar(): void {
+    const v = Number(this.hass?.states['input_number.family_jar']?.state); if (!Number.isFinite(v)) return;
+    if (this._jarWas !== null && v > this._jarWas) { const j = this.renderRoot.querySelector('.jarpic'); if (j) { spark('marble', j); sfx('jar'); } }
+    this._jarWas = v;
+  }
+  private _addTimer(min: number): void { this.hass?.callService('script', 'fh_timer_add', { minutes: min }); sfx('tap'); const t = this.renderRoot.querySelector('.timerrow'); if (t) spark(this._timerLeft() !== null ? 'add' : 'rocket', t); }
   private _checkAlarm(): void {
     const m = panelMsg(this.hass);
     if (m?.alarm && m.ts && m.ts !== this._alarmSeen && Date.now() / 1000 - m.ts < 120) {
@@ -506,7 +516,7 @@ export class FamilyHubCard extends LitElement {
     if (night) return html`<div class="fh" lang="en-AU" data-tod="night" style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
     return html`
       <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} ?data-calm=${calm} style=${`${skin}--tod:${tod};--z:${this._z}`}>
-        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
+        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -763,7 +773,7 @@ export class FamilyHubCard extends LitElement {
       </section>
 
       <section class="glass card scrolly" aria-label="Reminders" style="flex:1;min-height:0;overflow-y:auto">
-        ${this.hass?.states['input_number.family_jar'] ? html`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">🫙</span>
+        ${this.hass?.states['input_number.family_jar'] ? html`<div style="display:flex;align-items:center;gap:10px"><span class="jarpic" style="font-size:24px">🫙</span>
           <span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:var(--w-bold, 700)">Family jar · ${jar >= target ? 'full! 🎉' : `${jar}/${target}`}</span>
           <div class="xpbar meter"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></div>` : nothing}
         <span class="label">Reminders</span>

@@ -9,6 +9,7 @@ import {
 import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
+import { spark } from './sparks';
 import { bedtimeFor, hm, changed, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import './pin';
@@ -323,7 +324,12 @@ export class FhKid extends LitElement {
     this._busy.add(c.uid);
     const prev = this._chores;
     this._chores = prev.map((x) => x.uid === c.uid ? { ...x, status: done ? 'needs_action' : 'completed' } : x);
-    // the sound answers the touch, not Home Assistant
+    // the sound and the spark answer the touch, not Home Assistant
+    if (!done) { const row = this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`), at = row?.querySelector('.check') ?? row;
+      if (at) { spark('tick', at); const words = c.summary.toLowerCase();
+        if (c.pts && !this._picMode) spark('points', at, { text: `+${c.pts}` });
+        if (row && /trumpet|clarinet|piano|practice|music/.test(words)) spark('tada', row, { variant: /clarinet/.test(words) ? 'clarinet' : undefined });
+        else if (row && /read|book|library/.test(words)) spark('book', row); } }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
       await this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores });
@@ -333,8 +339,7 @@ export class FhKid extends LitElement {
       this._jump++;
       const id = Date.now();
       const text = c.lane === 'grow' ? '🌱' : c.pts ? (this._picMode ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
-      this._bursts = [...this._bursts, { id, text }];
-      setTimeout(() => { this._bursts = this._bursts.filter((b) => b.id !== id); }, 1300);
+      if (this._picMode || !c.pts) { this._bursts = [...this._bursts, { id, text }]; setTimeout(() => { this._bursts = this._bursts.filter((b) => b.id !== id); }, 1300); }
       if (this._picMode) say(`${c.summary}. Done! ${c.pts ? 'Here’s a star!' : ''}`);
       this._maybeAllDone();
     } catch (err) {
@@ -354,7 +359,8 @@ export class FhKid extends LitElement {
     if (lsGet(key, false)) return;
     lsSet(key, true);
     const n = this.kid.name;
-    if (!this._wind) { this._confetti++; this._sound(((this.kid.sound as Sfx) ?? 'done')); setTimeout(() => this._sound('done'), 700); }
+    const card = this.renderRoot.querySelector('.jobs');
+    if (!this._wind) { if (card) { spark('done', card); window.setTimeout(() => spark(slot === 'bed' ? 'moon' : 'stomp', card), 700); } else this._confetti++; this._sound(((this.kid.sound as Sfx) ?? 'done')); setTimeout(() => this._sound('done'), 700); }
     if (this._picMode) say(slot === 'am' ? `You did your whole morning, ${n}!` : slot === 'bed' ? `All ready for bed, ${n}. Sleep well!` : `All done, ${n}!`);
     this._say(slot === 'bed' ? `All set for bed, ${n}. Sleep well.` : [`All done, ${n}. You stuck with it today.`, `That’s everything, ${n}. Nice and steady.`, `Legend effort, ${n}.`][Math.floor(Math.random() * 3)]);
   }
@@ -578,7 +584,7 @@ export class FhKid extends LitElement {
   private _row(c: ParsedChore, big = false, soon = false): TemplateResult {
     const d = c.status === 'completed', p = this._practice?.uid === c.uid ? this._practice : null;
     const left = p ? Math.max(0, p.end - this._now.getTime()) : 0;
-    return html`<div class="job row ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${big ? 'big' : ''} ${soon ? 'soonjob' : ''}" style="padding-right:10px" @click=${() => this._toggle(c)}>
+    return html`<div class="job row ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${big ? 'big' : ''} ${soon ? 'soonjob' : ''}" data-uid=${c.uid} style="padding-right:10px" @click=${() => this._toggle(c)}>
       <button class="tap hit" aria-pressed=${String(d)}>
         <span class="box check">${d ? '✓' : ''}</span>
         ${this.kid.mode === 'mixed' ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
@@ -591,7 +597,7 @@ export class FhKid extends LitElement {
 
   private _pic(c: ParsedChore, size: '' | 'big' | 'small' = ''): TemplateResult {
     const d = c.status === 'completed', stars = Math.max(1, Math.round(c.pts / this._star));
-    return html`<button class="pic tap ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${size}" aria-pressed=${String(d)} @click=${() => this._toggle(c)}>
+    return html`<button class="pic tap ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${size}" data-uid=${c.uid} aria-pressed=${String(d)} @click=${() => this._toggle(c)}>
       <span class="e" aria-hidden="true">${picFor(c)}</span><span class="pt">${c.summary}</span>
       ${c.pts && size !== 'small' ? html`<span class="stars">${'★'.repeat(stars)}</span>` : nothing}${d ? html`<span class="tick">✓</span>` : nothing}</button>`;
   }
