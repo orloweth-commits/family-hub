@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, sfx, shortNames, windDown } from './util';
+import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
@@ -46,14 +46,15 @@ export class FhMusic extends LitElement {
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; color: #fff; background: #111; }
     /* the cover, blurred and darkened behind the player. The blur is a backdrop filter over the picture, so nothing hangs outside the player and white text keeps its contrast on a bright cover. */
-    .stage .bg { position: absolute; inset: 0; background: var(--art) center / cover; transition: background .6s; }
-    .stage .bg::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,.5); -webkit-backdrop-filter: blur(40px) saturate(150%); backdrop-filter: blur(40px) saturate(150%); }
+    .stage .bg { position: absolute; inset: 0; background: var(--art) center / cover; transition: background var(--m-5, 900ms); }
+    .stage .bg::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,.64); -webkit-backdrop-filter: blur(40px) saturate(120%); backdrop-filter: blur(40px) saturate(120%); }
+    .stage { --ring-halo: #111; } .stage :is(button, [role='slider'], [role='switch'], [tabindex]):focus-visible { outline-color: #fff; }
     .stage > *:not(.bg) { position: relative; }
     .deck { flex: 1 1 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform .5s cubic-bezier(.2,1.2,.3,1); }
+    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform var(--mt-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
     .cover.paused { transform: scale(.9); }
     .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
-    .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width 1s linear; }
+    .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width calc(1s * var(--m-d, 1)) linear; }
     .ctl { display: flex; align-items: center; justify-content: space-between; }
     .ctl button { color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .ctl button[aria-pressed='true'] { background: rgba(255,255,255,.22); }
@@ -95,19 +96,19 @@ export class FhMusic extends LitElement {
     .mzone[data-offline], .mz[data-offline] { background: repeating-linear-gradient(135deg, transparent 0 10px, var(--track) 10px 12px); }
     :host([data-phone]) .nowbar { max-width: 100%; flex: 1 1 100%; order: 8; } :host([data-phone]) .tabs.inline { flex: 1 1 100%; }
     .panel { position: relative; }
-    .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; animation: fadeIn .28s ease-out; }
+    .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
     /* search is a field, not a tab: it is always in the same place and looks like somewhere to type */
     .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink2);
-      background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent), 0 6px 14px -8px rgba(0,0,0,.35); transition: box-shadow .2s; }
+      background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent), 0 6px 14px -8px rgba(0,0,0,.35); transition: box-shadow var(--m-2, 160ms); }
     .finder:active { box-shadow: inset 0 0 0 3px var(--primary); }
     .finder span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sbar { flex: 1; min-width: 0; display: flex; gap: 10px; animation: fadeIn .2s ease-out; }
+    .sbar { flex: 1; min-width: 0; display: flex; gap: 10px; animation: fadeIn var(--m-2, 160ms) ease-out; }
     .sbar .field { border-radius: 27px; padding: 0 22px; }
     /* calling: speech bubbles and a house to tap */
     .callrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .callside, .dropside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
-    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform .2s cubic-bezier(.2,1.4,.4,1), background .2s; }
+    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
     .bubble[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: scale(1.03); }
     .sayit { height: 52px; padding: 0 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
@@ -116,7 +117,7 @@ export class FhMusic extends LitElement {
     .map.snug .mstairs { flex-basis: 36px; }
     /* the little house: each room is a button, so the room leaves space for its focus ring */
     .map.snug .mroom { overflow: visible; } .map.snug .mz:first-child { border-radius: 16px 0 0 16px; } .map.snug .mz:last-child { border-radius: 0 16px 16px 0; } .map.snug .mz:only-child { border-radius: 16px; }
-    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 14px; position: relative; transition: background .2s; }
+    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 14px; position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
     .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
     .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
@@ -130,8 +131,8 @@ export class FhMusic extends LitElement {
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
     .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
     .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
-    .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform .25s cubic-bezier(.2,1.2,.3,1); }
-    .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform .3s cubic-bezier(.2,1.2,.3,1);
+    .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
+    .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1);
       background: radial-gradient(circle, #f4efe3 0 3%, var(--accent) 3.5% 16%, #17140f 16.5% 100%); }
     .crate .st:active .disc, .crate .st[data-lifted] .disc { transform: translateX(26%) scale(.94) rotate(40deg); }
     .crate .st[data-lifted] .img { transform: scale(.94); }
@@ -160,13 +161,13 @@ export class FhMusic extends LitElement {
     /* the places on the page: a picture each, and the one you are in stands up */
     .tabs { display: flex; gap: 8px; }
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
-      transition: background .2s, color .2s; }
+      transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .tabs button[aria-selected='true'] .i { animation: nod .5s ease-out; }
+    .tabs button[data-nod] .i { animation: nod var(--m-4, 400ms) ease-out; }
     .acts .seg button { height: 44px; color: var(--ink); }
     .acts .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    @keyframes nod { 30% { transform: rotate(-14deg) scale(1.2); } 65% { transform: rotate(8deg); } }
+    @keyframes nod { 30% { transform: rotate(calc(-14deg * var(--m-d, 1))) scale(calc(1 + .2 * var(--m-d, 1))); } 65% { transform: rotate(calc(8deg * var(--m-d, 1))); } }
     .grid { flex: 1; min-height: 0; overflow: auto; padding: 4px; margin: -4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(264px, 1fr)); gap: 10px; align-content: start; }
     .grid[data-fit] { gap: 6px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
     .spk { border-radius: 20px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; --rail: var(--track); }
@@ -200,7 +201,7 @@ export class FhMusic extends LitElement {
     .crate .covers { gap: 14px 6px; padding: 6px; }
     .covers[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
     .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 14px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
-    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-3))) center / cover no-repeat, #fff; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
+    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
     .st .lbl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
     .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 18px; font-weight: var(--w-heavy, 800); }
@@ -213,7 +214,7 @@ export class FhMusic extends LitElement {
     .coins .soft { align-self: center; margin-right: 6px; }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
-      box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform .22s cubic-bezier(.2,1.4,.4,1), box-shadow .2s; }
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
     .coin[aria-pressed='true'] .face { transform: translateY(-5px) scale(1.1); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c), 0 10px 14px -6px rgba(0,0,0,.4); }
     .coin .cname { font-size: 14px; font-weight: var(--w-bold, 700); }
     .coin[aria-pressed='true'] .cname { text-decoration: underline; text-underline-offset: 3px; }
@@ -225,13 +226,13 @@ export class FhMusic extends LitElement {
     .jcovers { flex: 1; min-height: 0; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: var(--w-semi, 600); }
-    .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background .2s; flex-shrink: 0; }
-    .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .22s cubic-bezier(.2,1.4,.4,1); }
+    .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background var(--m-2, 160ms); flex-shrink: 0; }
+    .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .jsw[aria-checked='true'] i { background: var(--ok); }
     .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform .25s cubic-bezier(.2,1.2,.3,1); }
+    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 14px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
@@ -265,7 +266,7 @@ export class FhMusic extends LitElement {
     .mzone[data-focus] { background: var(--chip-strong); box-shadow: inset 0 0 0 3px var(--primary); }
     .mzone[data-hot] { box-shadow: inset 0 0 0 4px var(--c); }
     .mzone[data-asleep] .zname b { opacity: .7; }
-    .pool { position: absolute; left: 0; right: 0; bottom: 0; height: var(--lvl); background: color-mix(in srgb, var(--c) 40%, transparent); transition: height .2s ease-out; pointer-events: none; }
+    .pool { position: absolute; left: 0; right: 0; bottom: 0; height: var(--lvl); background: color-mix(in srgb, var(--c) 40%, transparent); transition: height var(--mt-2, 160ms) ease-out; pointer-events: none; }
     .pool::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 8px; background: radial-gradient(circle at 12px 14px, color-mix(in srgb, var(--c) 40%, transparent) 11px, transparent 12px) 0 0 / 24px 8px repeat-x; }
     .mzone[data-playing] .pool::before { animation: wave 1.5s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes wave { to { background-position-x: 24px; } }
@@ -282,7 +283,7 @@ export class FhMusic extends LitElement {
     :host([data-look='glass'][data-theme='space']) .pool::after { background: radial-gradient(circle at 14px 20px, #fff 1.4px, transparent 2px), radial-gradient(circle at 52px 58px, #fff 1px, transparent 1.6px), radial-gradient(circle at 70px 14px, #fff 1.8px, transparent 2.4px), radial-gradient(circle at 30px 70px, #fff 1px, transparent 1.6px); background-size: 86px 84px; }
     :host([data-look='glass'][data-theme='space']) .mzone[data-playing] .pool::after { animation: twinkle 1.7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
-    :host([data-look='glass'][data-theme='bush']) .pool::before { height: 14px; background: radial-gradient(circle at 26px 30px, color-mix(in srgb, var(--c) 40%, transparent) 27px, transparent 28px) 0 0 / 52px 14px repeat-x; animation-duration: 4s; }
+    :host([data-look='glass'][data-theme='bush']) .pool::before { height: 14px; background: radial-gradient(circle at 26px 30px, color-mix(in srgb, var(--c) 40%, transparent) 27px, transparent 28px) 0 0 / 52px 14px repeat-x; animation-duration: var(--m-5, 900ms); }
     :host([data-look='glass'][data-theme='bush']) .pool::after { background: radial-gradient(circle at 20px 30px, #fff3a8 2.2px, transparent 3.4px), radial-gradient(circle at 78px 62px, #fff3a8 1.8px, transparent 3px), radial-gradient(circle at 50px 12px, #fff3a8 1.6px, transparent 2.8px); background-size: 104px 80px; }
     :host([data-look='glass'][data-theme='bush']) .mzone[data-playing] .pool::after { animation: fireflies 3.2s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes fireflies { from { opacity: .15; background-position: 0 0; } to { opacity: 1; background-position: 14px -10px; } }
@@ -298,7 +299,7 @@ export class FhMusic extends LitElement {
     .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
     .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
-    .grab { position: absolute; right: 6px; bottom: var(--lvl); width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; outline: none; border-radius: 12px; transition: bottom .2s ease-out; z-index: 1; }
+    .grab { position: absolute; right: 6px; bottom: var(--lvl); width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; outline: none; border-radius: 12px; transition: bottom var(--mt-2, 160ms) ease-out; z-index: 1; }
     .grab i { display: block; width: 52px; height: 14px; box-sizing: border-box; border-radius: 7px; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--c), 0 2px 5px rgba(0,0,0,.3); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
     .mzone:not([data-live]) .grab i { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
@@ -307,8 +308,8 @@ export class FhMusic extends LitElement {
     .mzone[data-playing] .puck { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes puck { to { transform: rotate(360deg); } }
     .puck[data-lifted] { opacity: .3; animation: none; }
-    .puck.fly { margin: -42px 0 0 -42px; width: 84px; height: 84px; bottom: auto; pointer-events: none; z-index: 5; animation: lift .18s ease-out; box-shadow: 0 20px 32px -8px rgba(0,0,0,.6); }
-    @keyframes lift { from { transform: scale(.7); } }
+    .puck.fly { margin: -42px 0 0 -42px; width: 84px; height: 84px; bottom: auto; pointer-events: none; z-index: 5; animation: lift var(--m-2, 160ms) ease-out; box-shadow: 0 20px 32px -8px rgba(0,0,0,.6); }
+    @keyframes lift { from { transform: scale(calc(1 - .3 * var(--m-d, 1))); } }
     .acts .pill[data-hot] { box-shadow: 0 0 0 4px var(--accent); }
     /* the map with its shelf: records to carry to a room, and somewhere to drop music for the whole house */
     .maprow { flex: 1; min-height: 0; display: flex; gap: 12px; }
@@ -317,17 +318,17 @@ export class FhMusic extends LitElement {
     .shead { display: flex; align-items: center; justify-content: flex-start; gap: 4px; flex-wrap: wrap; }
     .shead b { flex: 1 1 100%; min-width: 0; font-size: 13px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .swho { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform .22s cubic-bezier(.2,1.4,.4,1); }
+    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
     .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
     .srec { width: min(100%, calc(var(--row) - 30px)); min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
-    .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform .25s cubic-bezier(.2,1.4,.4,1); }
+    .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
     .srec span { max-width: 100%; height: 26px; font-size: 13px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 13px; font-weight: var(--w-bold, 700); }
     .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background .2s, border-color .2s, transform .2s cubic-bezier(.2,1.4,.4,1); }
+    .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
     .wholeh b { display: block; font-size: 16px; font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wholeh[data-open] { border-color: var(--primary); animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     .wholeh[data-hot] { border-style: solid; border-color: var(--primary); background: color-mix(in srgb, var(--primary) 22%, transparent); transform: scale(1.03); animation: none; }
@@ -503,7 +504,7 @@ export class FhMusic extends LitElement {
   }
   private _watch<T>(p: Promise<T>): Promise<T> {
     const el = Date.now() - this._pressAt < 1200 ? this._pressEl : null;
-    if (el) { const t = window.setTimeout(() => el.setAttribute('data-busy', ''), 250), done = (): void => { clearTimeout(t); el.removeAttribute('data-busy'); }; p.then(done, done); }
+    if (el) { const t = window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250), done = (): void => { clearTimeout(t); el.removeAttribute('data-busy'); el.removeAttribute('aria-busy'); }; p.then(done, done); }
     return p;
   }
   private _say(m: string, undo?: () => void): void { this._msg = m; this._undo = undo ?? null; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
@@ -567,6 +568,10 @@ export class FhMusic extends LitElement {
   private get _full(): boolean { return this._tab === 'rooms' && this._mode !== 'list' && !this._peek && !!this._cur; }
   protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); }
   protected updated(ch: PropertyValues): void {
+    // a change of tab fades its body in and its icon nods; arriving on the page does neither (the page itself is what arrives)
+    if (ch.has('_tab') && ch.get('_tab') !== undefined) { const m = motion(this, '--m-3');
+      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
+      this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
     const p = this._cur;
     if (!this.hass || !p) return;
     // refresh "up next" when the track or the room changes
@@ -1040,6 +1045,7 @@ export class FhMusic extends LitElement {
   /* ---------------- render ---------------- */
   render(): TemplateResult | typeof nothing {
     if (!this.hass) return nothing;
+    const [msg, msgOut] = linger(this, 'msg', this._msg ? { m: this._msg, undo: !!this._undo } : null);
     const p = this._cur, ma = hasMa(this.hass);
     const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
     const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
@@ -1057,7 +1063,7 @@ export class FhMusic extends LitElement {
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      <div class="toast" role="status">${this._msg || nothing}${this._msg && this._undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>Undo</button>` : nothing}</div>`;
+      <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>Undo</button>` : nothing}</div>`;
   }
 
   private _hero(p: HassEntity): TemplateResult {
@@ -1130,7 +1136,9 @@ export class FhMusic extends LitElement {
       return html`<button class="pill tap" style="font-size:15px" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
     };
     const mode = this._mode;
-    return html`${this._viewAsk ? viewPicker(mode, (v) => { const was = this._view; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v !== was) { clearTimeout(this._coachT); this._coach = false; this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b); sfx('done'); }); } }, () => { this._viewAsk = false; }) : nothing}${this._one ? nothing : html`<div class="acts">
+    return html`${this._viewAsk ? viewPicker(mode, (v) => { const was = this._view; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v !== was) { clearTimeout(this._coachT); this._coach = false; this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b, { burst: true }); sfx('done');
+      // the stage cross-fades to the new view (opacity only, --m-3)
+      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: motion(this, '--m-3').ms || 240, easing: 'ease-out' }); }); } }, () => { this._viewAsk = false; }) : nothing}${this._one ? nothing : html`<div class="acts">
         ${this._tools()}
         ${mode === 'house' && cur ? this._nowbar(cur) : mode !== 'list' && cur ? this._oneNow() : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
@@ -1251,7 +1259,7 @@ export class FhMusic extends LitElement {
       <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr));padding:6px;margin:-6px">${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
-          <span class="img" style=${th ? `--art:url(${th})` : `background:linear-gradient(135deg, var(--p-${(s.name.length % 5) + 1}), var(--primary));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
+          <span class="img" style=${th ? `--art:url(${th})` : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
       })}</div>`;
   }
 

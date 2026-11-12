@@ -28,14 +28,14 @@ export class FhMorning extends LitElement {
     .stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; line-height: 0; }
     .tstar path { fill: none; stroke: var(--ink2); stroke-width: 1.500; stroke-linejoin: round; }
     .tstar.lit path { fill: #f5b301; stroke: #8a5a00; }
-    .tstar.lit { animation: starpop .6s cubic-bezier(.3,1.8,.5,1) both; }
+    .tstar.lit { animation: starpop var(--m-5, 900ms) cubic-bezier(.3,1.8,.5,1) both; }
     .label { font-size: 13px; }
-    @keyframes starpop { from { transform: scale(.2) rotate(-40deg); } to { transform: none; } }
+    @keyframes starpop { from { transform: scale(calc(1 - .8 * var(--m-d, 1))) rotate(calc(-40deg * var(--m-d, 1))); } }
     .teambar { width: 100%; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
-    .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; transition: width .6s; }
+    .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; box-shadow: inset 0 0 0 1.5px #8a5a00; transition: width var(--mt-5, 900ms); }
     .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .leave.go { animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
-    @keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-10px) rotate(-2deg); } 70% { transform: translateY(0) rotate(1deg); } }
+    .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
+    @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
     .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
     :host([data-shape='tall']) .board { flex-wrap: wrap; }
     :host([data-shape='tall']) .kcols { grid-template-columns: 1fr; }
@@ -52,7 +52,7 @@ export class FhMorning extends LitElement {
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
     .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
     .lchip.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
-    .lchip.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop .7s cubic-bezier(.3,1.5,.5,1) 3; }
+    .lchip.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
     .mev2 .mt { width: 72px; color: var(--ink2); flex-shrink: 0; }
     ${unsafeCSS(avatarCss)}

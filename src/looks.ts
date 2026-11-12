@@ -165,7 +165,7 @@ export const ringPlayer = (img: string | undefined, frac: number, playing: boole
   const r = 92, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
   return html`<svg class="pring" aria-hidden="true" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
     <circle cx="100" cy="100" r=${r} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
-    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray 1s linear"></circle>
+    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffe08a)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <clipPath id="fhdisc"><circle cx="100" cy="100" r="78"></circle></clipPath>
     <circle cx="100" cy="100" r="78" fill="rgba(255,255,255,.08)"></circle>
     ${img ? svg`<image href=${img} x="22" y="22" width="156" height="156" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhdisc)" opacity=${playing ? 1 : 0.6}></image>`
@@ -178,7 +178,7 @@ export const timerFace = (frac: number, size = 56): TemplateResult => {
   const C = 2 * Math.PI * 22, f = Math.max(0, Math.min(1, frac));
   return html`<svg class="tface" aria-hidden="true" width=${size} height=${size} viewBox="0 0 100 100" fill="none">${svg`
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
-    <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray 1s linear"></circle>
+    <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
 };
 
@@ -294,15 +294,15 @@ const GLASS = `
 
 const FRIDGE = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
-  @F .fh { font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color 1.5s ease, color .45s ease; }
+  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
   @F .fh::before { display: none; }
-  @F .fh:not([data-calm]) { animation: fjig 37s linear infinite; }
+  @F .fh:not([data-calm]):not([data-tod='night']) { animation: fjig 37s linear infinite; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
   @F h1, @F h2 { font-family: 'Caveat', 'Fredoka', sans-serif; letter-spacing: 0; }
   @F h1 { line-height: .95; }
   @F h2 { line-height: 1; }
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color 1.5s ease; }
+  @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color var(--m-5, 900ms) ease; }
   @F .glass.round { border-radius: 50%; }
   @F .label { letter-spacing: .05em; font-size: 13px; }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
@@ -352,7 +352,7 @@ const FRIDGE = `
   @F .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
   @F .legend { font-size: 15px; font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
-  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color 1.5s ease; }
+  @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color var(--m-5, 900ms) ease; }
   @F .col:nth-child(even) { rotate: calc(var(--tilt, 1) * .8deg); }
   @F .col:nth-child(3n) { rotate: calc(var(--tilt, 1) * -.3deg); }
   @F .col.today { background: var(--note-today); box-shadow: 0 9px 14px rgba(0,0,0,.24); rotate: calc(var(--tilt, 1) * -1deg); }
@@ -409,7 +409,7 @@ const FRIDGE = `
   @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 4px var(--paper), 0 0 0 6.5px var(--ink), 0 6px 6px 4px rgba(0,0,0,.2); }
   @F .dock .kidbtn .avatar { box-shadow: 0 4px 5px rgba(0,0,0,.28); }
   @F .dock .kidbtn[aria-current='page'] { box-shadow: none; }
-  @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 4px var(--paper), 0 0 0 6.5px var(--kidc), 0 6px 6px 4px rgba(0,0,0,.2); }
+  @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4.5px var(--kidc), 0 -3px 6px 3px rgba(0,0,0,.14); }
   @F .dock .sep { background: transparent; margin: 0 2px; }
   @F .tcard { position: relative; border-radius: 4px; background: var(--paper); box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   /* the chosen look: a ring and a tick, never a fill */
@@ -595,7 +595,7 @@ const FRIDGE = `
 
 const ORBIT = `
   /* a ring always means time or progress · ink-filled = an action · yellow = now · mint = done */
-  @O .fh { font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
+  @O .fh { --ring-halo: #0a0f1e; --pg-from: scale(calc(1 - .01 * var(--m-d, 1))); font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
   /* a touch lights the line instead of shrinking the control; the lead action is a full moon with a halo */
   @O .tap:active { transform: none; opacity: 1; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -672,7 +672,7 @@ const ORBIT = `
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
-  @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 3px #0a0f1e, 0 0 0 6px var(--accent); }
+  @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
 
   /* lists */

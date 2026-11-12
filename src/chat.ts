@@ -93,7 +93,7 @@ export class FhChat extends LitElement {
     .bubble.wait { display: inline-flex; gap: 8px; align-items: center; min-height: 28px; padding: 18px 20px; }
     .bubble.wait i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; opacity: .7; animation: fhc-bounce 1.1s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
     .bubble.wait i:nth-child(2) { animation-delay: .15s; } .bubble.wait i:nth-child(3) { animation-delay: .3s; }
-    @keyframes fhc-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes fhc-in { from { opacity: 0; transform: translateY(calc(8px * var(--m-d, 1))); } }
     @keyframes fhc-bounce { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-7px); } }
     @keyframes fhc-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 55%, transparent); } 50% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--danger) 0%, transparent); } }
     .send { display: flex; gap: 10px; align-items: center; }
@@ -115,6 +115,10 @@ export class FhChat extends LitElement {
     .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
     .opts .pill { font-size: 15px; }
     .small { font-size: 13px; line-height: 1.35; color: var(--ink2); }
+    /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
+    :host(:not([data-phone])) .ctl { min-height: 0; }
+    :host(:not([data-phone])) .ctl > * { flex-shrink: 0; }
+    :host(:not([data-phone])) .ctl > .starters { flex-shrink: 1; min-height: 80px; overflow-y: auto; overscroll-behavior: contain; padding: 6px; margin: -6px; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: 16px; line-height: 1.35; }
     .rec .small { font-weight: var(--w-semi, 600); }

@@ -35,7 +35,9 @@ export class FhAddEvent extends LitElement {
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
     :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }
-    .box { width: min(1000px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; border-radius: 30px; padding: 14px 20px 16px; display: flex; flex-direction: column; gap: 9px; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; position: relative; }
+    .box { width: min(1000px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; border-radius: 30px; padding: 14px 20px 16px; display: flex; flex-direction: column; gap: 9px; animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; position: relative; }
+    :host { animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
+    :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     .box > * { flex-shrink: 0; }
     .sum { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); }
@@ -279,7 +281,7 @@ export class FhAddEvent extends LitElement {
       await this.hass.callService('calendar', 'create_event', data, { entity_id: cal });
       // stays busy: the sheet closes on "saved", so there is nothing left to tap twice
       this.dispatchEvent(new CustomEvent('saved', { detail: summary }));
-    } catch (e: any) { this._err = `Couldn’t add it: ${e?.message ?? 'Home Assistant did not answer'}`; this._busy = false; }
+    } catch (e: any) { this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false; }
   }
 
   render(): TemplateResult {

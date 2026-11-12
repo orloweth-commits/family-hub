@@ -44,7 +44,9 @@ const RING = () => { const A = window.__fhAudit, now = [], focus = {};
     let grow = 0; if (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) grow = parseFloat(cs.outlineWidth) + Math.max(0, parseFloat(cs.outlineOffset) || 0);
     for (const m of cs.boxShadow.matchAll(/(inset\s+)?rgba?\([^)]*\)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+(-?[\d.]+)px(\s+inset)?/g)) if (!m[1] && !m[6] && Number(m[4]) === 0 && Number(m[5]) > 0 && Number(m[2]) === 0 && Number(m[3]) === 0) grow = Math.max(grow, Number(m[5]));
     if (grow && over(grow) > 1) now.push(`${A.name(e)} "${A.label(e)}" outline cut ${Math.round(over(grow))}px`);
-    if (e.matches(sel) && !e.disabled && over(6) > 1.5) { const k = A.name(e); (focus[k] ??= { n: 0, px: 0, eg: A.label(e) }).n++; focus[k].px = Math.max(focus[k].px, Math.round(over(6))); } }
+    // no room for the usual ring (3 px, 3 px out): focus it as the keyboard would and see where its own ring is drawn (an inset ring needs no room)
+    const ringNeeds = () => { try { e.focus({ focusVisible: true, preventScroll: true }); const f = getComputedStyle(e), n = f.outlineStyle === 'none' ? 6 : parseFloat(f.outlineWidth) + parseFloat(f.outlineOffset); e.blur(); return Math.max(0, n); } catch { return 6; } };
+    if (e.matches(sel) && !e.disabled && over(6) > 1.5 && over(ringNeeds()) > 1.5) { const k = A.name(e); (focus[k] ??= { n: 0, px: 0, eg: A.label(e) }).n++; focus[k].px = Math.max(focus[k].px, Math.round(over(6))); } }
   return [...new Set(now), ...Object.entries(focus).map(([k, v]) => `${k} ×${v.n} (e.g. "${v.eg}") has no room for a focus ring: short by ${v.px}px`)]; };
 
 const TARGET = () => { const A = window.__fhAudit, small = {};
@@ -56,7 +58,13 @@ const TARGET = () => { const A = window.__fhAudit, small = {};
 
 // Contrast, stage 1: note every piece of text, then make all text see-through so a screenshot shows only what is behind it.
 const CONTRAST_COLLECT = () => { const A = window.__fhAudit, items = [];
-  for (const e of A.all()) { if (!A.shown(e) || e.closest('svg')) continue; const tr = A.textRect(e); if (!tr) continue; const cs = getComputedStyle(e); if (cs.webkitBackgroundClip === 'text') continue;
+  // with a sheet open, only the sheet is read: what lies under it is dimmed and out of reach on purpose
+  const modal = A.card.shadowRoot.querySelector('fh-pin, fh-add-event, .scrim'), under = (e) => { if (!modal) return false; for (let x = e; x; x = A.up(x)) if (x === modal) return false; return true; };
+  // text that something else is drawn over (a page scrolled under the phone's dock, a name under its picture) is not read either
+  const topAt = (x, y) => { let t = document.elementFromPoint(x, y); while (t?.shadowRoot) { const n = t.shadowRoot.elementFromPoint(x, y); if (!n || n === t) break; t = n; } return t; };
+  const within = (a, b) => { for (let x = a; x; x = A.up(x)) if (x === b) return true; return false; };
+  const covered = (e, r) => { const t = topAt((r.l + r.r) / 2, (r.t + r.b) / 2); return !!t && !within(t, e) && !within(e, t); };
+  for (const e of A.all()) { if (!A.shown(e) || e.closest('svg') || under(e)) continue; const tr = A.textRect(e); if (!tr) continue; if (covered(e, tr)) continue; const cs = getComputedStyle(e); if (cs.webkitBackgroundClip === 'text') continue;
     const box = A.clipBox(e, 'skip'); const r = { l: Math.max(tr.l, box.l, 0), t: Math.max(tr.t, box.t, 0), r: Math.min(tr.r, box.r, innerWidth), b: Math.min(tr.b, box.b, innerHeight) }; if (r.r - r.l < 3 || r.b - r.t < 3) continue;
     const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(cs.webkitTextFillColor && cs.webkitTextFillColor !== cs.color ? cs.webkitTextFillColor : cs.color); if (!m) continue;
     let a = m[4] === undefined ? 1 : Number(m[4]); for (let x = e; x; x = A.up(x)) a *= Number(getComputedStyle(x).opacity);

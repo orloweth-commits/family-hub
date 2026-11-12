@@ -26,7 +26,7 @@ export class FhRadar extends LitElement {
     .layer img { position: absolute; width: ${TILE}px; height: ${TILE}px; max-width: none; pointer-events: none; }
     .names { z-index: 2; }
     .home, .bar, .zoom, .key { z-index: 3; }
-    .rain { opacity: 0; transition: opacity .25s linear; }
+    .rain { opacity: 0; transition: opacity var(--m-3, 240ms) linear; }
     .rain.on { opacity: .82; }
     /* home is a pin standing on the spot, so the town's name on the map beside it stays readable */
     .home { position: absolute; width: 22px; height: 22px; margin: -41px 0 0 -11px; border-radius: 50% 50% 50% 0; rotate: -45deg; background: var(--accent); box-shadow: 0 0 0 2.5px #fff, 0 2px 6px rgba(0,0,0,.4); pointer-events: none; }
@@ -44,8 +44,8 @@ export class FhRadar extends LitElement {
     .zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; border-radius: 22px; background: var(--rbar, rgba(255,255,255,.88)); color: var(--rink, #14202e); box-shadow: 0 4px 14px rgba(0,0,0,.22); cursor: default; }
     .zoom button:disabled { opacity: .3; }
     .zoom b { font-size: 24px; line-height: 1; font-weight: 600; }
-    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rbar, rgba(255,255,255,.88)); color: var(--rink, #14202e); font-size: 13px; font-weight: 700; pointer-events: none; }
-    :host([dark]) .key { --rbar: rgba(16,24,44,.86); --rink: #eef3ff; }
+    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: 13px; font-weight: 700; pointer-events: none; }
+    :host([dark]) .key { --rkey: #10182c; --rink: #eef3ff; }
     .key b { font-weight: inherit; }
     .key span { width: 74px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #9ad7f5, #3b8fe0, #1f4fc4, #f7e33c, #f39a1e, #e0261c, #a31278); }
     .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 15px; font-weight: 600; color: var(--ink2); pointer-events: none; }

@@ -208,3 +208,39 @@ export const kidPrefs = (k: { name: string; mode?: string; look_id?: string; fon
 export const saveKidPrefs = (name: string, patch: Partial<KidPrefs>): void => {
   try { localStorage.setItem(prefKey(name), JSON.stringify({ ...(JSON.parse(localStorage.getItem(prefKey(name)) || '{}') as Partial<KidPrefs>), ...patch })); } catch { /* storage unavailable */ }
 };
+
+// ---------- motion and feedback helpers ----------
+const lingering = new WeakMap<object, Record<string, { last: unknown; until: number }>>();
+/** Lets something fade out before it leaves: while `v` is set it is returned as is; for `ms` after it clears, the last value
+ *  is returned with `true` (render it with data-closing), then the host renders again without it. Call it from render(). */
+export function linger<T>(host: { requestUpdate(): void }, key: string, v: T, ms = 160): [T, boolean] {
+  const m = lingering.get(host) ?? {}; lingering.set(host, m);
+  const e = m[key] ?? (m[key] = { last: v, until: 0 });
+  if (v) { e.last = v; e.until = 0; return [v, false]; }
+  if (!e.last) return [v, false];
+  if (!e.until) { e.until = Date.now() + ms; window.setTimeout(() => { if (e.until) { e.last = v; e.until = 0; host.requestUpdate(); } }, ms); }
+  return [e.last as T, true];
+}
+/** One call to Home Assistant from a control: after 250 ms without an answer the control shows it is waiting (data-busy, aria-busy)
+ *  until the answer comes. Resolves true when the call worked and false when it did not; it never throws, and never shows the error's own words. */
+export async function watched(el: Element | null | undefined, p: Promise<unknown> | undefined): Promise<boolean> {
+  const t = el ? window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250) : 0;
+  try { if (!p) throw new Error('not connected'); await p; return true; } catch { return false; }
+  finally { clearTimeout(t); el?.removeAttribute('data-busy'); el?.removeAttribute('aria-busy'); }
+}
+/** A motion token of the panel in milliseconds (--m-1 … --m-5), and whether things may travel (calm mode and reduce-motion say no). */
+export const motion = (el: Element, token = '--m-3'): { ms: number; travel: boolean } => {
+  const cs = getComputedStyle(el), raw = cs.getPropertyValue(token).trim(), n = parseFloat(raw) || 0;
+  return { ms: /ms$/.test(raw) ? n : n * 1000, travel: cs.getPropertyValue('--m-d').trim() !== '0' && !matchMedia('(prefers-reduced-motion: reduce)').matches };
+};
+/** Where the keyed children of a list are now, to hand to `flip` after the next render. */
+export const places = (root: ParentNode, sel: string): Map<string, DOMRect> => new Map([...root.querySelectorAll<HTMLElement>(sel)].map((e) => [e.dataset.key ?? '', e.getBoundingClientRect()]));
+/** Rows that changed place since `before` travel there over --m-3 instead of jumping (nothing moves in calm mode). */
+export const flip = (root: ParentNode, sel: string, before: Map<string, DOMRect>): void => {
+  for (const e of root.querySelectorAll<HTMLElement>(sel)) {
+    const was = before.get(e.dataset.key ?? ''); if (!was) continue;
+    const now = e.getBoundingClientRect(), dx = was.left - now.left, dy = was.top - now.top; if (Math.abs(dx) < 2 && Math.abs(dy) < 2) continue;
+    const m = motion(e); if (!m.travel) continue;
+    e.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: m.ms, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  }
+};

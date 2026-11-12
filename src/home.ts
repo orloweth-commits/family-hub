@@ -1,4 +1,4 @@
-import { LitElement, html, css, svg, nothing, type TemplateResult } from 'lit';
+import { LitElement, html, css, svg, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
@@ -52,13 +52,13 @@ export class FhHome extends LitElement {
     :host([data-phone]) .rgrid { overflow: visible; flex: none; flex-direction: column; align-items: stretch; }
     :host([data-phone]) .rcol { flex: none; }
     :host([data-phone]) .side { flex-direction: column; }
-    .room { border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .5s ease, background .5s ease; }
+    .room { border-radius: 22px; background: var(--chip); padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow var(--m-4, 400ms) ease, background var(--m-4, 400ms) ease; }
     /* a lit room glows at its edge; its background stays the theme's own, so the words on it keep their contrast in dark themes too */
     .room.lit { box-shadow: 0 0 0 2px color-mix(in srgb, #ffb703 75%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; min-height: 44px; }
     .rh h2 { flex: 1; min-width: 0; font-size: 19px; font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
     .dev { display: flex; align-items: center; gap: 10px; min-height: 52px; /* token */ padding: 4px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
-    .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: background-color .3s, color .3s, box-shadow .3s; }
+    .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: background-color var(--m-3, 240ms), color var(--m-3, 240ms), box-shadow var(--m-3, 240ms); }
     .dev.on .dicon { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
     .dev .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
     .dev .n { font-size: 15px; font-weight: var(--w-semi, 600); overflow-wrap: anywhere; }
@@ -73,14 +73,14 @@ export class FhHome extends LitElement {
     .side .label { font-size: 13px; }
     .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .scene { min-height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-size: 15px; font-weight: var(--w-bold, 700); text-align: left; line-height: 1.2; }
-    .scene.go { animation: go .8s ease; }
-    @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(1.04); } }
+    .scene.go { animation: go var(--m-5, 900ms) ease; }
+    @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(calc(1 + .04 * var(--m-d, 1))); } }
     .auto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 4px; border-radius: 12px; font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.25; }
     .auto > span:first-child { flex: 1; min-width: 0; }
     /* the switch: a 56 by 32 track inside a control at least 44 high (the row, or the room's "Lights" button) */
     .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
-    .toggle { display: block; width: 56px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color .25s; }
-    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform calc(.25s * var(--m-d, 1)) cubic-bezier(.2,1.4,.4,1); }
+    .toggle { display: block; width: 56px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-3, 240ms); }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
@@ -91,7 +91,7 @@ export class FhHome extends LitElement {
     .tipline { font-size: 15px; line-height: 1.35; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true } };
   hass?: Hass;
   pin = '';
   hideScripts: string[] = [];
@@ -130,11 +130,21 @@ export class FhHome extends LitElement {
 
   private _tell(m: string): void { this.dispatchEvent(new CustomEvent('say', { detail: m })); }
   /** One call to Home Assistant for a tile: shows it as busy if it takes a while, says what happened, and says so if it failed. */
-  private async _call(id: string, name: string, run: () => Promise<unknown>, done?: string): Promise<void> {
+  private async _call(id: string, name: string, run: () => Promise<unknown>, done?: string, hold?: Record<string, boolean>): Promise<void> {
     const t = window.setTimeout(() => { this._busy = [...this._busy, id]; }, 250);
-    try { await run(); if (done) this._tell(done); }
-    catch { this._tell(`${name} didn’t respond. Try again`); }
+    // a switch shows where it is going straight away and holds that until Home Assistant has answered; a failure puts it back
+    if (hold) this._opt = { ...this._opt, ...hold };
+    const release = (ids: string[]): void => { const o = { ...this._opt }; for (const k of ids) if (hold && o[k] === hold[k]) delete o[k]; this._opt = o; };
+    try { await run(); if (done) this._tell(done); if (hold) window.setTimeout(() => release(Object.keys(hold)), 1500); }
+    catch { if (hold) release(Object.keys(hold)); this._tell(`${name} didn’t respond. Try again`); }
     finally { clearTimeout(t); this._busy = this._busy.filter((x) => x !== id); }
+  }
+  /** what a switch shows: where a touch has sent it, until Home Assistant catches up */
+  private _opt: Record<string, boolean> = {};
+  private _on(e: HassEntity): boolean { return this._opt[e.entity_id] ?? ON.has(e.state); }
+  protected willUpdate(c: PropertyValues): void {
+    // Home Assistant has caught up with a touch: let go of the held state
+    if (c.has('hass') && this.hass) { const o = Object.entries(this._opt).filter(([id, on]) => ON.has(this.hass!.states[id]?.state ?? '') !== on); if (o.length !== Object.keys(this._opt).length) this._opt = Object.fromEntries(o); }
   }
 
   private _toggle(e: HassEntity, room: string): void {
@@ -144,11 +154,11 @@ export class FhHome extends LitElement {
     // doors are a grown-up's job: the lock and the garage (any cover) both ask for the PIN
     else if (d === 'lock') { const un = e.state === 'locked'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('lock', un ? 'unlock' : 'lock', { entity_id: id }), `${name} ${un ? 'unlocked' : 'locked'}`); }); }
     else if (d === 'cover') { const shut = e.state === 'closed' || e.state === 'closing'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('cover', shut ? 'open_cover' : 'close_cover', { entity_id: id }), `${name} ${shut ? 'opening' : 'closing'}`); }); }
-    else void this._call(id, name, () => this.hass!.callService('homeassistant', 'toggle', { entity_id: id }));
+    else { const to = !this._on(e); void this._call(id, name, () => this.hass!.callService('homeassistant', 'toggle', { entity_id: id }), undefined, SWITCHED.includes(d) ? { [id]: to } : undefined); }
   }
   private _room(r: Room, on: boolean): void {
     const ids = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)).map((e) => e.entity_id);
-    if (ids.length) void this._call(`room:${r.id}`, `${r.name} lights`, () => this.hass!.callService('light', on ? 'turn_on' : 'turn_off', { entity_id: ids }));
+    if (ids.length) void this._call(`room:${r.id}`, `${r.name} lights`, () => this.hass!.callService('light', on ? 'turn_on' : 'turn_off', { entity_id: ids }), undefined, Object.fromEntries(ids.map((id) => [id, on])));
   }
   private _scene(s: HassEntity): void {
     const name: string = s.attributes.friendly_name ?? s.entity_id;
@@ -185,9 +195,9 @@ export class FhHome extends LitElement {
   }
 
   private _dev(e: HassEntity, room: string): TemplateResult {
-    const d = dom(e), on = ON.has(e.state), off = gone(e), name = this._name(e, room), sw = SWITCHED.includes(d) && !off, pinned = d === 'lock' || d === 'cover';
+    const d = dom(e), on = this._on(e), off = gone(e), name = this._name(e, room), sw = SWITCHED.includes(d) && !off, pinned = d === 'lock' || d === 'cover';
     return html`<button class="dev tap ${on && d === 'light' ? 'on' : ''} ${off ? 'gone' : ''}" role=${sw ? 'switch' : nothing} aria-checked=${sw ? String(on) : nothing} aria-disabled=${off ? 'true' : nothing}
-      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the grown-ups’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} @click=${() => this._toggle(e, room)}>
+      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the grown-ups’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} @click=${() => this._toggle(e, room)}>
       <span class="dicon">${this._ic(e)}</span><span class="nm"><span class="n">${name}</span><span class="s">${this._state(e, on)}</span></span>
       ${sw ? html`<span class="toggle"></span>` : pinned && !off ? html`<span class="pinned">${DRAWN.locked}</span>` : nothing}</button>`;
   }
@@ -207,7 +217,7 @@ export class FhHome extends LitElement {
           ${rooms.length ? html`<span class="muted" style="font-size:15px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div></div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
-            const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => e.state === 'on');
+            const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e));
             return html`<div class="room ${lit ? 'lit' : ''}">
               <div class="rh"><h2>${r.name}</h2>${lights.length ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} @click=${() => this._room(r, !lit)}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
               ${r.ents.map((e) => this._dev(e, r.name))}

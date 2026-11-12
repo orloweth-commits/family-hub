@@ -4,7 +4,9 @@ import { LookController } from './looks';
 import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
-import { getShape, FitController, scrollCue, sfx } from './util';
+import { flip, getShape, FitController, linger, places, scrollCue, sfx, watched } from './util';
+/** a row that has just been touched: what it shows, where it sat, whether Home Assistant has answered yet (out), whether its four seconds are up (due) */
+interface Held { to: string; was: string; t: number; n: number; out: boolean; due: boolean; busy: boolean }
 import { spark } from './sparks';
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
@@ -125,6 +127,7 @@ export class FhGroceries extends LitElement {
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
     this.renderRoot.querySelectorAll('.scrolly').forEach(scrollCue);
+    if (this._places) { flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
   }
 
   private async _subscribe(): Promise<void> {
@@ -140,14 +143,14 @@ export class FhGroceries extends LitElement {
 
   private _say(m: string, undo?: () => void): void { this._toast = m; this._undo = undo; clearTimeout(this._toastTimer); this._toastTimer = window.setTimeout(() => { this._toast = ''; this._undo = undefined; }, undo ? 6000 : 2600); }
 
-  private _add(name = this._typed): void {
+  private _add(name = this._typed, el: Element | null = this.renderRoot.querySelector('.add .lead')): void {
     const n = name.trim();
     if (!n) { this._say('Type something first'); return; }
     if (!this.hass) return;
     const nice = n.charAt(0).toUpperCase() + n.slice(1), typed = name === this._typed;
     if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
     // a failed add says so and gives the words back, so nothing typed is lost
-    Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity })).catch(() => { this._say(`Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
+    void watched(el, Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity }))).then((ok) => { if (ok) return; this._say(`Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
     if (typed) { this._typed = ''; this._caps = true; }
   }
   private _toggle(i: TodoItem): void {
@@ -159,12 +162,24 @@ export class FhGroceries extends LitElement {
       // the last thing on the list: a ute delivers it (at most once a day)
       if (list && this._items.every((x) => x.uid === i.uid || this._shown(x) === 'completed') && localStorage.getItem('fh-truck') !== new Date().toDateString()) { try { localStorage.setItem('fh-truck', new Date().toDateString()); } catch { /* private mode */ } spark('truck', list); } }
     clearTimeout(this._tk[i.uid]?.t);
-    this._tk = { ...this._tk, [i.uid]: { to, was: this._tk[i.uid]?.was ?? i.status, t: window.setTimeout(() => { const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; }, 4000) } };
+    const n = (this._tk[i.uid]?.n ?? 0) + 1; // the latest touch on a row wins
+    const drop = (): void => { const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; };
+    const patch = (p: Partial<Held>): void => { const e = this._tk[i.uid]; if (e && e.n === n) this._tk = { ...this._tk, [i.uid]: { ...e, ...p } }; };
+    // the tick holds until Home Assistant has answered (however long that takes), and the row keeps its place for at least four seconds
+    this._tk = { ...this._tk, [i.uid]: { to, was: this._tk[i.uid]?.was ?? i.status, n, out: true, due: false, busy: false,
+      t: window.setTimeout(() => { const e = this._tk[i.uid]; if (!e || e.n !== n) return; if (e.out) patch({ due: true }); else drop(); }, 4000) } };
+    const slow = window.setTimeout(() => patch({ busy: true }), 250);
     this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
-    Promise.resolve(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).catch(() => {
-      clearTimeout(this._tk[i.uid]?.t); const { [i.uid]: _, ...rest } = this._tk; this._tk = rest; this._say(`Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); });
+    Promise.resolve(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).then(() => true, () => false).then((ok) => {
+      clearTimeout(slow); const e = this._tk[i.uid]; if (!e || e.n !== n) return;
+      if (!ok) { clearTimeout(e.t); drop(); this._say(`Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); return; }
+      if (e.due) drop(); else patch({ out: false, busy: false });
+    });
   }
-  private _tk: Record<string, { to: string; was: string; t: number }> = {};
+  private _tk: Record<string, Held> = {};
+  /** where the rows were before this render, so one that changes group can travel there */
+  private _places: Map<string, DOMRect> | null = null;
+  protected willUpdate(c: PropertyValues): void { this._places = this.hasUpdated && (c.has('_tk') || c.has('_items') || c.has('_hidden')) ? places(this.renderRoot, '.row[data-key]') : null; }
   private _just = '';
   /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
   private _shown(i: TodoItem): string { return this._tk[i.uid]?.to ?? i.status; }
@@ -199,6 +214,7 @@ export class FhGroceries extends LitElement {
   }
 
   render(): TemplateResult {
+    const [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, undo: !!this._undo } : null);
     const open = this._items.filter((i) => this._group(i) === 'needs_action');
     const done = this._items.filter((i) => this._group(i) === 'completed' && !this._hidden.includes(i.uid));
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
@@ -236,17 +252,17 @@ export class FhGroceries extends LitElement {
         </div>
         <div class="usuals">
           <span class="muted">Usuals</span>
-          ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${() => this._add(u)}>+ ${u}</button>`)}
+          ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${(e: Event) => this._add(u, e.currentTarget as Element)}>+ ${u}</button>`)}
         </div>
         ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
       </section>
-      ${this._toast ? html`<div class="toast ${this._undo ? 'act' : ''}" role="status"><span>${this._toast}</span>${this._undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : nothing}</div>` : nothing}`;
+      ${toast ? html`<div class="toast ${toast.undo ? 'act' : ''}" role="status" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : nothing}</div>` : nothing}`;
   }
 
   private _row(i: TodoItem): TemplateResult {
     const [aisle, colour] = aisleOf(i.summary);
     const ticked = this._shown(i) === 'completed', doneCls = ticked ? 'done' : '';
-    return html`<button class="item row tap fade ${doneCls}" ?data-just=${this._just === i.uid} aria-pressed=${String(ticked)} @click=${() => this._toggle(i)}>
+    return html`<button class="item row tap ${doneCls}" data-key=${i.uid} ?data-busy=${!!this._tk[i.uid]?.busy} aria-busy=${this._tk[i.uid]?.busy ? 'true' : nothing} ?data-just=${this._just === i.uid} aria-pressed=${String(ticked)} @click=${() => this._toggle(i)}>
       <span class="box check">${ticked ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span>
       <span class="txt content"><span class="strike">${i.summary}</span></span>
       <span class="tag" style="color:color-mix(in srgb, var(${colour}) 62%, var(--ink));background:color-mix(in srgb, var(${colour}) 14%, transparent)">${aisle}</span>

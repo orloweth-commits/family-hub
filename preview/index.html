@@ -107,6 +107,8 @@ const hass = {
     if (domain === 'input_datetime' && service === 'set_datetime') { if (!S[id]) throw new Error('no such entity'); upd(id, { timestamp: data.timestamp }); el.hass = { ...hass }; }
     if (domain === 'input_text' && service === 'set_value') { if (!S[id]) throw new Error('no such entity'); upd(id, {}, data.value); el.hass = { ...hass }; }
     if (domain === 'switch') upd(id, {}, service === 'turn_on' ? 'on' : 'off');
+    // lights and plain toggles answer too, so a held switch can be seen to land
+    if ((domain === 'light' && /^turn_(on|off)$/.test(service)) || (domain === 'homeassistant' && service === 'toggle')) { for (const x of [].concat(data?.entity_id ?? id ?? [])) if (S[x] && /^(light|switch|fan)\./.test(x)) { upd(x, {}, service === 'toggle' ? (S[x].state === 'on' ? 'off' : 'on') : service === 'turn_on' ? 'on' : 'off'); el.hass = { ...el.hass, states: { ...el.hass.states, [x]: S[x] } }; } }
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }

@@ -460,5 +460,82 @@ const mb = (await page.locator('fh-morning section, fh-morning .kcol').allInnerT
 console.log('morning board: "All set" or "Next" in a column:', /All set|Next\b/.test(mb), '| pooled line:', (/Morning jobs: \d+ to go between us/.exec(mb) ?? ['MISSING'])[0]);
 await page.close();
 }
+// ---- motion (polish round 2) ----
+{ const toast2 = async (p, host) => (await p.locator(`${host} .toast`).allInnerTexts()).join(' ').replace(/\s+/g, ' ').trim();
+  const deep = `window.deepAll = (sel) => { const out = []; const walk = (r) => { r.querySelectorAll('*').forEach((e) => { if (e.matches(sel)) out.push(e); if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return out; };
+    window.cssAnims = () => { const out = new Set(); const walk = (r) => { for (const a of r.getAnimations()) out.add(a); r.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return [...out].filter((a) => a.playState === 'running' && a.animationName && a.effect.getComputedTiming().iterations !== Infinity).map((a) => a.animationName); };`;
+  // press feedback: a held header button (a .glass.tap) shrinks and dims in Glass and Fridge
+  for (const look of ['glass', 'fridge']) { const p = await open(`look=${look}&page=planner`); const b = p.locator('family-hub-card header [data-act="night"]'), bb = await b.boundingBox();
+    const idle = await b.evaluate((e) => getComputedStyle(e).transform + ' ' + getComputedStyle(e).opacity);
+    await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down(); await p.waitForTimeout(300);
+    const held = await b.evaluate((e) => { const cs = getComputedStyle(e), m = /matrix\(([^,]+)/.exec(cs.transform); return { scale: m ? Number(m[1]) : 1, opacity: Number(cs.opacity) }; });
+    await p.mouse.move(2, 2); await p.mouse.up(); // let go off the button: nothing is pressed
+    console.log(`press feedback (${look}): idle ${idle} | held 300 ms: scale ${held.scale.toFixed(3)} opacity ${held.opacity.toFixed(2)} (expect < 1 and < 1)`); await p.close(); }
+  // page change: at most two animations per navigation (the page wrapper's fade and rise), none on the panels inside
+  for (const look of ['glass', 'fridge', 'orbit']) { const p = await open(`look=${look}&page=planner`); await p.evaluate(deep); const out = [];
+    for (const nav of ['Groceries', 'Music', 'Home', 'Planner', 'Riley']) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim() === n).click(), nav); await p.waitForTimeout(40); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`); await p.waitForTimeout(700); }
+    console.log(`animations per navigation (${look}; expect at most 2 each):`, out.join(' | '), '| page wrapper at rest: transform', await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform)); await p.close(); }
+  // exits: a sheet, the PIN pad, a toast and the night screen fade out before they go
+  { const p = await open('look=glass&page=planner&sheet=timer'); await p.evaluate(deep); const at = async (sel, ms) => { await p.waitForTimeout(ms); return p.locator(sel).count(); };
+    // timed inside the page, so the test's own round trips do not blur the 80 ms and 300 ms marks
+    const timed = (act, sel) => p.evaluate(([act, sel]) => new Promise((done) => { const n = () => deepAll(sel).length, t0 = performance.now(); (0, eval)(act); const r = {};
+      setTimeout(() => { r.at80 = n(); r.closing = deepAll(sel).filter((e) => e.hasAttribute('data-closing')).length; }, 80); setTimeout(() => { r.at300 = n(); r.ms = Math.round(performance.now() - t0); done(r); }, 300); }), [act, sel]);
+    let r = await timed(`deepAll('.sheet .xbtn')[0].click()`, '.scrim'); console.log('sheet exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
+    await p.locator('family-hub-card header [data-act="looks"]').click(); await p.waitForTimeout(400); const pad = await p.locator('fh-pin').count();
+    r = await timed(`deepAll('fh-pin')[0].shadowRoot.querySelector('.grid button').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }))`, 'fh-pin'); console.log('PIN pad exit: open', pad, '| there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
+    await p.evaluate(() => document.querySelector('family-hub-card')._say('Test line')); await p.waitForTimeout(300);
+    r = await timed(`(() => { const c = document.querySelector('family-hub-card'); c._toast = ''; })()`, '.toasts .toast'); console.log('toast exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
+    await p.getByRole('button', { name: 'Night mode' }).click(); await p.waitForTimeout(600); await p.evaluate(deep); await p.locator('family-hub-card .night').click();
+    await p.waitForTimeout(60); const started = await p.evaluate(() => cssAnims()); const n80 = await p.locator('family-hub-card .night[data-closing]').count(), n600 = await at('family-hub-card .night', 560);
+    console.log('night wake: black layer fading at 60 ms', n80, '| animations started:', started.join(',') || 'none', '(expect fhout only) | gone at 620 ms', n600 === 0); await p.close(); }
+  // calm mode: nothing travels on a page change, and looks' loops are stopped
+  { const p = await open('look=fridge&page=planner&calm=1'); await p.evaluate(deep);
+    await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim() === 'Groceries').click()); await p.waitForTimeout(40);
+    const tf = await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform);
+    console.log('calm page change: wrapper transform mid-entrance', tf, '(expect none or identity) | looping animations:', await p.evaluate(() => { const out = new Set(); const walk = (r) => { for (const a of r.getAnimations()) out.add(a); r.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return [...out].filter((a) => a.playState === 'running' && a.effect.getComputedTiming().iterations === Infinity).length; })); await p.close(); }
+  // slow and failing calls: the control shows it is waiting after 250 ms, holds what was asked, and a failure puts it back with a calm line
+  { let p = await open('look=glass&page=groceries&slow=3000'); await p.evaluate(deep); const name = (await p.locator('fh-groceries .row .strike').first().innerText()).trim();
+    const g = await p.evaluate(() => new Promise((done) => { const row = deepAll('.row[data-key]')[0], r = {}; row.click();
+      setTimeout(() => { r.at120 = deepAll('.row[data-key][data-busy]').length; }, 120); setTimeout(() => { r.at520 = deepAll('.row[data-key][data-busy]').length; r.aria = deepAll('.row[data-key][aria-busy="true"]').length; r.ticked = deepAll('.row[data-key].done[data-busy]').length; }, 520); setTimeout(() => { r.after = deepAll('.row[data-key][data-busy]').length; done(r); }, 3400); }));
+    console.log('slow grocery tick: busy at 120 ms', g.at120, '(expect 0) | busy at 520 ms', g.at520, 'aria-busy', g.aria, '| still ticked while waiting', g.ticked, '| busy after the answer', g.after, '|', name);
+    await p.close();
+    p = await open('look=glass&page=groceries&slow=500&fail=1'); const r2 = p.locator('fh-groceries .row').first(), n2 = (await r2.locator('.strike').innerText()).trim();
+    await r2.click(); await p.waitForTimeout(200); const held = await p.locator('fh-groceries .row.done').filter({ hasText: n2 }).count(); await p.waitForTimeout(700);
+    const said = await toast2(p, 'fh-groceries'); console.log('fail=1 grocery tick: held while out', held, '| put back', await p.locator('fh-groceries .row.done').filter({ hasText: n2 }).count() === 0, '| says:', said, '| raw error shown:', /did not answer|Error/.test(said));
+    await p.close();
+    p = await open('look=glass&page=planner&slow=5000'); await p.evaluate(deep);
+    const rm = await p.evaluate(() => new Promise((done) => { const r = {}; deepAll('button.rem')[0].click(); const n = (s) => deepAll('button' + s).length;
+      setTimeout(() => { r.busy = n('.rem[data-busy]'); }, 500); setTimeout(() => { r.held = n('.rem.done'); }, 4500); setTimeout(() => { r.gone = n('.rem.done') === 0; done(r); }, 5600); }));
+    console.log('slow reminder (5 s): busy at 500 ms', rm.busy, '| still struck through at 4.5 s, past its four seconds, because the answer is not in', rm.held, '| gone once it is', rm.gone);
+    await p.locator('family-hub-card nav [data-nav="lights-off"]').click(); await p.waitForTimeout(500); console.log('slow "All off": dock button busy', await p.locator('family-hub-card nav [data-nav="lights-off"][data-busy]').count());
+    await p.close();
+    p = await open('look=glass&page=planner&slow=400&fail=1'); await p.locator('family-hub-card .rem').first().click(); await p.waitForTimeout(900);
+    const ts = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 reminder: put back', await p.locator('family-hub-card .rem.done').count() === 0, '| says:', ts, '| raw error shown:', /did not answer|Error/.test(ts));
+    await p.locator('family-hub-card .tmr .quick, family-hub-card .tmr button').filter({ hasText: '+5' }).first().click(); await p.waitForTimeout(900); const tt = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 timer +5: says:', tt, '| raw error shown:', /did not answer|Error/.test(tt));
+    await p.close();
+    p = await open('look=glass&page=home&slow=3000'); const sw = p.locator('fh-home .dev[role="switch"]').first(), was = await sw.getAttribute('aria-checked'); await sw.click(); await p.waitForTimeout(500);
+    console.log('slow Home switch: flips at once', (await sw.getAttribute('aria-checked')) !== was, '| busy at 500 ms', (await sw.getAttribute('data-busy')) !== null); await p.waitForTimeout(3000); console.log('  after the answer: stays flipped', (await sw.getAttribute('aria-checked')) !== was, '| busy', (await sw.getAttribute('data-busy')) !== null);
+    await p.close();
+    p = await open('look=glass&page=home&slow=400&fail=1'); const sw2 = p.locator('fh-home .dev[role="switch"]').first(), was2 = await sw2.getAttribute('aria-checked'); await sw2.click(); await p.waitForTimeout(150); const flipped = (await sw2.getAttribute('aria-checked')) !== was2; await p.waitForTimeout(700);
+    console.log('fail=1 Home switch: flipped while out', flipped, '| put back', (await sw2.getAttribute('aria-checked')) === was2); await p.close(); }
+}
+// ---- a child asks for a chat: a chip for the grown-ups on the shared pages (polish round 2) ----
+{ const p = await open('look=glass&page=kid&kid=0');
+  await p.locator('fh-kid').getByRole('button', { name: 'sad' }).click(); await p.waitForTimeout(200); await p.getByRole('button', { name: /Chat later/ }).click(); await p.waitForTimeout(400);
+  const chip = p.locator('family-hub-card .capsule [data-kind="chat"]'), onKid = await chip.count();
+  await p.locator('family-hub-card nav .kidbtn').nth(1).click(); await p.waitForTimeout(400); const onOther = await chip.count();
+  await p.getByRole('button', { name: 'Planner' }).click(); await p.waitForTimeout(500);
+  const label = await chip.getAttribute('aria-label').catch(() => 'MISSING'), h = (await chip.boundingBox().catch(() => null))?.height;
+  await p.getByRole('button', { name: 'Groceries' }).click(); await p.waitForTimeout(400); const kept = await chip.count();
+  await chip.click(); await p.waitForTimeout(300);
+  console.log('chat chip: on his own page', onKid, '| on a brother’s page', onOther, '(expect 0 0) | on the planner:', label, '| height', Math.round(h ?? 0), '| still there on Groceries', kept, '| after a tap', await chip.count());
+  await p.close();
+  // the studio: the goal heart is a button of its own (not inside the tile), and the tabs say which is chosen
+  const s = await open('look=glass&page=kid&kid=1&studio=1'); const heart = s.locator('fh-studio button.heart').first(), hb = await heart.boundingBox();
+  const nested = await s.locator('fh-studio .tile .heart').count(), name0 = await heart.getAttribute('aria-label'); await heart.focus(); await s.keyboard.press('Enter'); await s.waitForTimeout(300);
+  console.log('studio heart: a button', await s.locator('fh-studio button.heart').count() > 0, '| inside a tile', nested, '(expect 0) | size', Math.round(hb.width) + 'x' + Math.round(hb.height), '| name:', name0, '→', await heart.getAttribute('aria-label'), '| pressed', await heart.getAttribute('aria-pressed'),
+    '| tabs selected:', await s.locator('fh-studio [role=tab][aria-selected="true"]').count(), 'of', await s.locator('fh-studio [role=tab]').count(), '| swatch', await s.locator('fh-studio .sw button').first().evaluate((e) => e.offsetWidth + 'x' + e.offsetHeight).catch(() => 'none on this tab'));
+  await s.close();
+  const k = await open('look=glass&page=kid&kid=2'); console.log('My look icons (expect 1 drawn, no emoji):', await k.locator('fh-kid .studio svg').count(), '|', (await k.locator('fh-kid .studio').innerText()).trim()); await k.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

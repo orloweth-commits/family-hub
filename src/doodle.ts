@@ -1,7 +1,7 @@
 import { LitElement, html, css, svg, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
-import { FitController } from './util';
+import { FitController, linger } from './util';
 import { icon } from './icons';
 import { kidEntities, slotVar, type Hass, type KidConfig } from './types';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
@@ -55,14 +55,14 @@ export class FhDoodle extends LitElement {
     :host([data-phone]) .acts { flex-wrap: wrap; }
     :host([data-phone]) .view { position: fixed; border-radius: 0; }
     .brushes .rule { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
-    .ink { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); transition: transform .2s cubic-bezier(.2,1.4,.4,1); flex-shrink: 0; }
+    .ink { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.12); transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); flex-shrink: 0; }
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .rainbow { background: conic-gradient(#e63946, #fcbf49, #2a9d8f, #118ab2, #7b2cbf, #e63946); }
     .size { width: 50px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .size[aria-pressed='true'] { background: var(--chip-strong); }
     .size i { border-radius: 50%; background: var(--ink); display: block; }
     .easel { flex: 1; min-width: 0; border-radius: 28px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-    .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background .4s; }
+    .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
     canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
     .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: #6b6a66; }
@@ -95,10 +95,10 @@ export class FhDoodle extends LitElement {
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }
     .snap::before { content: ''; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 3px rgba(0,0,0,.3); }
     .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: 13px; font-weight: var(--w-heavy, 800); text-transform: capitalize; }
-    .stick { animation: stick .9s cubic-bezier(.2,1.3,.4,1); }
-    @keyframes stick { 0% { transform: scale(1); } 40% { transform: scale(.4) translate(60%, -10%) rotate(8deg); opacity: .6; } 100% { transform: scale(1); opacity: 1; } }
+    .stick { animation: stick var(--m-5, 900ms) cubic-bezier(.2,1.3,.4,1); }
+    @keyframes stick { 40% { transform: scale(calc(1 - .6 * var(--m-d, 1))) translate(calc(60% * var(--m-d, 1)), calc(-10% * var(--m-d, 1))) rotate(calc(8deg * var(--m-d, 1))); opacity: .6; } }
     .view { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; border-radius: 28px; }
-    .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet .4s cubic-bezier(.2,1.2,.3,1); }
+    .view img { max-width: 92%; max-height: 92%; border-radius: 16px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
   `];
 
   static properties = { hass: { attribute: false }, artists: { attribute: false }, kids: { attribute: false }, pin: {}, _tidy: { state: true }, _askPin: { state: true }, _stamp: { state: true }, _artist: { state: true }, _ink: { state: true }, _size: { state: true }, _erase: { state: true }, _chalk: { state: true },
@@ -299,6 +299,7 @@ export class FhDoodle extends LitElement {
   }
 
   render(): TemplateResult {
+    const [msg, msgOut] = linger(this, 'msg', this._msg);
     return html`
       <section class="glass brushes" data-fits aria-label="Brushes">
         ${INKS.map((c, i) => html`<button class="ink tap" style="background:${c}" aria-label=${INK_NAMES[i] ?? 'Colour'} aria-pressed=${String(!this._erase && !this._stamp && this._ink === c)} @click=${() => { this._ink = c; this._erase = false; this._stamp = ''; }}></button>`)}
@@ -333,7 +334,7 @@ export class FhDoodle extends LitElement {
       </section>
       ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { this._askPin = false; this._tidy = true; }} @cancel=${() => { this._askPin = false; }}></fh-pin>` : nothing}
       ${this._view ? html`<button class="view" aria-label="Close" @click=${() => { this._view = ''; }}><img src=${this._view} alt="Doodle"></button>` : nothing}
-      ${this._msg ? html`<div class="toast" role="status">${this._msg}</div>` : nothing}`;
+      ${msg ? html`<div class="toast" role="status" ?data-closing=${msgOut}>${msg}</div>` : nothing}`;
   }
 }
 if (!customElements.get('fh-doodle')) customElements.define('fh-doodle', FhDoodle);

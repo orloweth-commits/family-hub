@@ -29,7 +29,7 @@ export const keyboard = (press: (k: string) => void, caps: boolean, flipCaps: ()
 export const keysCss = css`
   .keys { display: flex; flex-direction: column; gap: 8px; }
   .krow { display: flex; gap: 8px; justify-content: center; }
-  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform .1s ease; }
+  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform var(--mt-1, 80ms) ease; }
   .key:active { transform: scale(.92); background: var(--chip); }
   .key.wide { width: 96px; font-size: 20px; }
   .key.wide[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }

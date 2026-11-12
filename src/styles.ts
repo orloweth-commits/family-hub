@@ -19,7 +19,7 @@ export const styles = css`
     padding: var(--pad-y) var(--pad-x); display: flex; flex-direction: column; gap: var(--gap);
     font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink);
     background: var(--bg) center / cover no-repeat; -webkit-font-smoothing: antialiased;
-    transition: color .45s ease;
+    transition: color var(--m-4) ease;
   }
   .fh::before { content: ''; position: absolute; inset: 0; background: var(--tod, transparent); pointer-events: none; transition: background 60s linear; }
   .fh.rainy::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .18;
@@ -28,7 +28,8 @@ export const styles = css`
   .fh > header, .fh > .body, .fh > nav { position: relative; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
   /* one grammar under the three looks (claude/family-hub-foreground-spec.md): timings, the selected style, the lead action */
-  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03;
+  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
+    --mt-1: calc(var(--m-1) * var(--m-d)); --mt-2: calc(var(--m-2) * var(--m-d)); --mt-3: calc(var(--m-3) * var(--m-d)); --mt-4: calc(var(--m-4) * var(--m-d)); --mt-5: calc(var(--m-5) * var(--m-d));
     --sel-bg: var(--chip-strong); --sel-ink: var(--ink); --sel-ring: inset 0 0 0 2.5px var(--primary); --danger: #c62828;
     /* sizes: three control heights, the gutters, the right rail, and where sheets may sit (below the header, above the dock) */
     --ctl: 44px; --ctl-2: 52px; --ctl-3: 60px; --pad-y: 20px; --pad-x: 24px; --gap: 16px; --rail: 272px; --top: 110px; --bot: 122px; --scrim: rgba(6,16,28,.52); }
@@ -37,16 +38,28 @@ export const styles = css`
   .fh[data-calm] { --loops: 0; --tilt: 0; --motion: paused; --m-d: 0; }
   @media (prefers-reduced-motion: reduce) { .fh { --m-d: 0; } }
   .fh.idle *, .fh.idle::after { animation-play-state: paused !important; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; } }
+  /* reduce-motion: animations end at once and run once. Transitions need no blanket rule (it used to give every element a transition
+     of everything): fades keep their --m-* length and anything that travels uses --mt-*, which is zero here and in calm mode. */
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
   .glass {
     background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%);
     border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-line), var(--shadow);
-    transition: background-color .45s ease, border-color .45s ease;
-    animation: rise .6s cubic-bezier(.2,.8,.2,1) both;
+    transition: background-color var(--m-4, 400ms) ease, border-color var(--m-4, 400ms) ease;
   }
-  @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+  /* one entrance per navigation: the page wrapper fades in (--m-2) and rises 8 px (--m-3); the panels inside do not animate,
+     so nothing holds a transform after it ends and a press is always answered. A look may swap the rise (--pg-from). */
+  .body[data-in] { animation: pgfade var(--m-2) var(--e-out) backwards, pgmove var(--m-3) var(--e-out) backwards; }
+  @keyframes pgfade { from { opacity: 0; } }
+  @keyframes pgmove { from { transform: var(--pg-from, translateY(calc(8px * var(--m-d, 1)))); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(calc(14px * var(--m-d, 1))); } }
+  /* leaving: sheets (with their scrim), the PIN pad, toasts and the night screen fade out before they go */
+  .scrim[data-closing], .toast[data-closing], .night[data-closing], .sheetwrap[data-closing] { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
+  .night[data-closing] { animation-duration: var(--m-4, 400ms); }
+  @keyframes fhout { to { opacity: 0; } }
+  /* waiting for Home Assistant: a control whose call is still out after 250 ms dims until the answer comes */
+  [data-busy] { opacity: .6; cursor: progress; }
   /* a touch answers within 80 ms and stays visible for a glancing tap (the release waits 60 ms); wide things do not shrink */
-  .tap { transition: transform var(--m-2, 160ms) var(--e-spring, ease) 60ms, opacity var(--m-3, 240ms) ease 60ms, background-color .3s ease, box-shadow .25s ease; }
+  .tap { transition: transform var(--m-2, 160ms) var(--e-spring, ease) 60ms, opacity var(--m-3, 240ms) ease 60ms, background-color var(--m-3) ease, box-shadow var(--m-3) ease; }
   .tap:active { transform: scale(calc(1 - var(--press, .03) * var(--m-d, 1))); opacity: .84; transition: transform var(--m-1, 80ms) var(--e-out, ease), opacity var(--m-1, 80ms) ease; }
   .row.tap:active, .job.tap:active, .pic.tap:active, .dev.tap:active, .room.tap:active, .st.tap:active, .card.tap:active { transform: none; }
   /* the tick: the same small sequence wherever a row is ticked off. The row carries data-just for a moment after the touch:
@@ -67,11 +80,17 @@ export const styles = css`
   .lead { height: 52px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
   /* one focus ring and one disabled style for every control, in every component that shares this sheet */
-  :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--ring-halo, #fff); }
+  /* the ring has two tones: ink, with a halo of the opposite tone inside it (--ring-halo), so it shows on any coloured surface.
+     Rows and tiles that sit in a box that clips (lists that scroll, grids, the dock) carry the ring inside their own edge instead. */
+  :is(.rem, .row, .job, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button)[class]:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
+  input[type='range']:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 0 4px var(--ring-halo, #fff); }
+  /* words waiting in an empty field read as text, in every theme */
+  input::placeholder, textarea::placeholder { color: var(--ink2); opacity: 1; }
   :is(button, input)[disabled], [aria-disabled='true'] { opacity: .45; cursor: default; box-shadow: none !important; }
   .ghost { background: transparent; box-shadow: inset 0 0 0 2px var(--ink2); }
-  .fade { animation: fadeIn .35s cubic-bezier(.2,.8,.2,1); }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .fade { animation: fadeIn var(--m-3, 240ms) var(--e-out, ease); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(8px * var(--m-d, 1))); } }
   .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: live 2s ease-out infinite; animation-iteration-count: var(--loops, infinite); flex-shrink: 0; }
   @keyframes live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
   .muted { color: var(--ink2); }
@@ -107,7 +126,7 @@ export const styles = css`
   /* one row that never wraps: a chip that does not fit is taken out whole (lowest priority first), never cut through its words */
   .capsule { flex: 1; min-width: 0; display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 12px; height: 68px; padding: 8px; margin: -8px; overflow: hidden; }
   .cap { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; animation: fadeIn .4s ease both; }
+    border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
@@ -133,7 +152,7 @@ export const styles = css`
   .bin { display: inline-block; width: 12px; height: 15px; border-radius: 3px 3px 4px 4px; box-shadow: inset 0 3px 0 rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.18); flex-shrink: 0; margin: 0 1px; }
   .med2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; }
   .mrow { display: flex; flex-wrap: wrap; gap: 8px; }
-  .mchip { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
+  .mchip { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); }
   .mchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   :host([data-phone]) .med2 { grid-template-columns: 1fr; }
   /* house info: sections flow into up to three columns that end level */
@@ -192,7 +211,7 @@ export const styles = css`
   .dayrow.past { background: color-mix(in srgb, var(--c, transparent) 8%, transparent); border-left-color: color-mix(in srgb, var(--c, transparent) 45%, transparent); }
   .more { font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); min-height: 44px; flex-shrink: 0; padding: 6px 6px; border-radius: 10px; background: var(--chip-soft); text-align: left; }
   .xpbar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
-  .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width .8s; }
+  .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width var(--mt-5); }
 
   .daylist { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
   .daylist[data-fit] { gap: 6px; }
@@ -211,7 +230,7 @@ export const styles = css`
   .cell .mev { display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 0; height: 17px; line-height: 17px; font-size: 13px; font-weight: 500; white-space: nowrap; }
   .cell .mev > .ell { flex: 1; }
   .cell .mtop { display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 18px; flex-shrink: 0; font-size: 14px; font-weight: var(--w-bold, 700); }
-  .cell .mmore { padding: 0 6px; height: 18px; line-height: 18px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink2); font-size: 12px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+  .cell .mmore { padding: 0 6px; height: 18px; line-height: 18px; border-radius: 999px; background: var(--ink); color: var(--ring-halo, #fff); font-size: 12px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
 
   .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
   .empty .pic { color: var(--accent); line-height: 0; }
@@ -228,6 +247,9 @@ export const styles = css`
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
   .remmore { height: 18px; line-height: 18px; font-size: 13px; font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
+  .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
+  @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
+  [data-bump] { --ring-t: var(--mt-3); --ring-e: var(--e-out); }
   .tread { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; margin: 0 -6px; border-radius: 12px; font-size: 32px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
   /* compact frame: now playing is one row (the Music page has the rest) */
   .fh[data-compact] aside > .card.np { flex-direction: row; align-items: center; }
@@ -258,8 +280,9 @@ export const styles = css`
 
   /* sheets, toasts, night */
   /* one sheet system: a dark scrim, a sheet that the page does not read through, three widths, and never over the header or the dock */
-  .scrim { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: var(--top) var(--pad-x) var(--bot); background: var(--scrim); }
-  .sheet { position: relative; width: min(1000px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; border-radius: 32px; padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; outline: none; animation: sheet .38s cubic-bezier(.2,.9,.3,1.15) both; }
+  .scrim { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: var(--top) var(--pad-x) var(--bot); background: var(--scrim); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
+  @keyframes scrimin { from { opacity: 0; } }
+  .sheet { position: relative; width: min(1000px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; border-radius: 32px; padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; outline: none; animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
   .sheet > * { flex-shrink: 0; }
   .sheet[data-w='s'] { width: min(640px, 100%); } .sheet[data-w='m'] { width: min(860px, 100%); } .sheet[data-w='l'] { width: min(1000px, 100%); }
   .sheet.glass { background: linear-gradient(var(--glass), var(--glass)), linear-gradient(var(--glass), var(--glass)), var(--glass); }
@@ -271,8 +294,10 @@ export const styles = css`
   .sfoot > .muted { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; }
   .sfoot > .lead { flex-shrink: 0; }
   .sheet.chatsheet { width: min(1180px, 100%); height: min(736px, 100%); gap: 14px; overflow: hidden; }
+  /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
+  .sheet.chatsheet > fh-chat { flex-shrink: 1; }
   :host([data-phone]) .sheet.chatsheet { height: auto; overflow-y: auto; }
-  @keyframes sheet { from { opacity: 0; transform: scale(.94) translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes sheet { from { opacity: 0; transform: scale(calc(1 - .06 * var(--m-d, 1))) translateY(calc(12px * var(--m-d, 1))); } }
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
@@ -283,26 +308,26 @@ export const styles = css`
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; }
   .setlabel .muted { font-size: 13px; font-weight: 500; }
-  .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color .2s; }
-  .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+  .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); }
+  .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform var(--mt-2); }
   .opt[aria-checked='true'] .sw { background: var(--ok); }
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
   /* toasts: centred in a strip that lets touches through; only the toast's own box takes a tap */
   .toasts { position: absolute; left: 0; right: 0; bottom: calc(var(--bot) + 4px); z-index: 44; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
   .toast:empty { display: none; }
-  .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn .3s ease both; }
+  .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn var(--m-3, 240ms) var(--e-out, ease) backwards; }
   /* a page's own toast (it has no strip around it) sits centred above the dock; pages sit inside the card's body, so this is measured from the page's own bottom edge */
   :host(:not(family-hub-card)) .toast { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: min(90%, 720px); bottom: 16px; z-index: 44; }
   :host([data-phone]:not(family-hub-card)) .toast { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
   .toast button { flex-shrink: 0; height: 44px; padding: 0 18px; margin: -6px -10px -6px 0; border-radius: 999px; background: #fff; color: #111; font-size: 15px; font-weight: var(--w-bold, 700); }
   .toast button:focus-visible { outline-color: #fff; }
-  .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash .7s ease forwards; }
+  .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash var(--m-5) ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
   .night { position: absolute; inset: 0; z-index: 40; padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between; color: #ffb26b; text-align: left;
-    background: #000; animation: fadeIn .8s ease both;
+    background: #000; animation: scrimin var(--m-4, 400ms) ease backwards;
     /* drawings a look adds here are redrawn in the same dim amber as the digits */
     --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
-  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform 55s linear; }
+  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform calc(55s * var(--m-d, 1)) linear; }
   .night .nclock { display: flex; align-items: center; gap: 40px; }
   .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
@@ -312,7 +337,7 @@ export const styles = css`
     background: radial-gradient(circle, #f97316, #b91c1c); animation: alarmbg 1s ease-in-out infinite alternate !important; animation-play-state: running !important; }
   @keyframes alarmbg { from { filter: brightness(.9); } to { filter: brightness(1.15); } }
   .dglass { background: rgba(20,20,22,.42); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,.12); }
-  .breathe { animation: breathe 4s ease-in-out infinite; }
+  .breathe { animation: breathe 4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
   @keyframes pulse { 50% { opacity: .75; } }
 
