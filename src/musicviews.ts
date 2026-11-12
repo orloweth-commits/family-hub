@@ -13,7 +13,7 @@ export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
 export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
   { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Drag the music or a record to a room. Slide up or down for volume.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
-  { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob', hint: 'Drag round a room’s arc for volume. Tap the arc to add or drop the room.' },
+  { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob and a tuner', hint: 'Drag round an arc for louder. Tap an arc to add or drop the room. Slide the tuner to change the music.' },
   { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders, a jog wheel and pads', hint: 'Slide a fader for volume. Turn the wheel to move through the song. A pad starts a moment.' },
   { id: 'cables', name: 'Crate', icon: 'sleeve', about: 'Records, a turntable and cables', hint: 'Flick through the crate. Drop a record on the turntable or a speaker.' },
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
@@ -23,7 +23,7 @@ const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to sh
 export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? `${SCENE_HINT[sceneKind(look, theme)]} Carry a record from the shelf to a room.` : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
-export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
+export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; /** a home speaker that cannot be reached right now */ offline: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
 export interface Ctx {
   rooms: Room[]; look: string; theme: string; /** a narrow screen: the shelf runs along the bottom, so the rooms have the full width */ phone: boolean; over: string; lifted: string; liftedItem: ShelfItem | null;
   /** the pieces of music playing, the one in the player first (each named by its leading speaker) */
@@ -36,6 +36,9 @@ export interface Ctx {
   /** the record crate: a divider per person, that person's records, and which one is at the front */
   crate: { tabs: { name: string; colour: string }[]; who: string; pick(name: string): void; items: ShelfItem[]; at: number; tap(i: number): void; play(m: ShelfItem): void; flick(i: number): void; calm: boolean; room: string };
   prev(): void; next(): void;
+  /** the big dial's surroundings: what plays next, whose turn it is to choose, the sleep fade, and a tuner across favourites and stations */
+  dial: { next: { title: string; sub: string; art: string }[]; more: number; turn: { name: string; short: string; colour: string; now: boolean }[]; chooser: string; choose(name: string): void;
+    sleep: { mins: number; left: number | null }; sleepGo(): void; stops: { name: string; on: boolean }[]; tune(i: number): void };
   /** the mixing desk: four moment pads and a jog wheel */
   moments: { name: string; icon: string; on: boolean; busy: boolean }[]; moment(i: number): void;
   jog: { turn: number | null; at: number; read: string; len: number; says: string }; jogTo(turn: number, commit: boolean): void; seekBy(seconds: number): void;
@@ -66,8 +69,8 @@ const keys = (c: Ctx, r: Room) => (e: KeyboardEvent): void => {
   if (step && r.hasVol) { e.preventDefault(); c.vol(r.id, clamp(r.vol + step), true); }
   else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.toggle(r.id); }
 };
-const state = (r: Room): string => (r.live ? `${r.playing ? '' : 'Paused · '}${r.vol}` : r.asleep ? 'Asleep' : 'Off');
-const says = (r: Room): string => `${r.name}: ${r.live ? (r.playing ? 'playing' : 'paused') : r.asleep ? 'asleep' : 'off'}${r.hasVol ? `, volume ${r.vol}` : ''}. Up and down arrows change the volume, Enter adds or drops the room.`;
+const state = (r: Room): string => (r.offline ? 'Offline' : r.live ? `${r.playing ? '' : 'Paused · '}${r.vol}` : r.asleep ? 'Asleep' : 'Off');
+const says = (r: Room): string => r.offline ? `${r.name}: offline.` : `${r.name}: ${r.live ? (r.playing ? 'playing' : 'paused') : r.asleep ? 'asleep' : 'off'}${r.hasVol ? `, volume ${r.vol}` : ''}. Up and down arrows change the volume, Enter adds or drops the room.`;
 const col = (r: Room): string => (r.colour ? `--c:${r.colour}` : '');
 
 /* ---------------- the big dial ---------------- */
@@ -86,13 +89,28 @@ export const dialView = (c: Ctx): TemplateResult => {
     if (!r.hasVol) { track(e, () => { /* fixed volume */ }, (moved) => { if (!moved) c.toggle(r.id); }); return; }
     track(e, (m) => c.vol(r.id, at(m), false), (moved, m) => { if (moved) c.vol(r.id, at(m), true); else c.toggle(r.id); });
   };
-  return html`<div class="dialwrap"><div class="bigdial" data-fits>
+  const d = c.dial, ns = d.stops.length, onAt = d.stops.findIndex((s) => s.on), stopX = (i: number): number => ((i + 0.5) / Math.max(1, ns)) * 100;
+  // the tuner: slide the needle along the strip; it settles on the nearest stop and plays it. A tap on a stop does the same.
+  const tuneDown = (e: PointerEvent): void => {
+    const el = e.currentTarget as HTMLElement, needle = el.querySelector<HTMLElement>('.tneedle'), b = el.getBoundingClientRect();
+    const frac = (m: PointerEvent): number => Math.max(0, Math.min(1, (m.clientX - b.left) / b.width)), nearest = (m: PointerEvent): number => Math.max(0, Math.min(ns - 1, Math.round(frac(m) * ns - 0.5)));
+    if (!ns) return;
+    track(e, (m) => { if (needle) { needle.style.transition = 'none'; needle.style.left = `${frac(m) * 100}%`; } }, (_moved, m) => { if (needle) { needle.style.transition = ''; needle.style.left = `${stopX(nearest(m))}%`; } d.tune(nearest(m)); }, 4);
+  };
+  const tuneKey = (e: KeyboardEvent): void => { const s = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -1 : 0; if (s && ns) { e.preventDefault(); d.tune(Math.max(0, Math.min(ns - 1, (onAt < 0 ? (s > 0 ? -1 : ns) : onAt) + s))); } };
+  const left = d.sleep.left, wedge = left === null ? 0 : Math.max(0.02, Math.min(1, left / Math.max(1, d.sleep.mins))), wa = wedge * 2 * Math.PI, wx = 20 + 16 * Math.sin(wa), wy = 20 - 16 * Math.cos(wa);
+  return html`<div class="dialwrap">
+    <section class="dcard dnext" aria-label="Up next"><h3>Up next</h3>
+      ${d.next.length ? d.next.map((n) => html`<div class="dn"><i class="puck onshelf" style="--art:${n.art ? `url(${n.art})` : 'linear-gradient(135deg, var(--p-3), var(--p-5))'}"></i><span><b>${n.title}</b><span>${n.sub}</span></span></div>`)
+        : html`<p class="dnone">Nothing queued. Slide the tuner, or let someone choose.</p>`}
+      ${d.more > 0 ? html`<p class="dnone">+${d.more} more after that</p>` : nothing}</section>
+    <div class="dmid"><div class="bigdial" data-fits>
     <svg viewBox="0 0 400 400">
       <circle class="dplate" cx="200" cy="200" r="184"></circle>
       ${c.now.playing ? svg`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : nothing}
       ${c.rooms.map((r, i) => {
         const a0 = -90 + i * seg + gap / 2, span = seg - gap, a1 = a0 + span * Math.max(0.03, r.vol / 100), [kx, ky] = pol(152, a1), on = r.live;
-        return svg`<g class="darc" data-zone=${r.id} ?data-live=${on} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)} role="slider" tabindex="0" aria-label=${says(r)}
+        return svg`<g class="darc" data-zone=${r.id} ?data-live=${on} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)} role="slider" tabindex="0" aria-label=${says(r)}
           aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${down(r, a0, span)} @keydown=${keys(c, r)}>
           <path class="dhit" d=${arc(152, a0, a0 + span)}></path><path class="dtrack" d=${arc(152, a0, a0 + span)}></path>
           ${r.hasVol ? svg`<path class="dfill" d=${arc(152, a0, a1)}></path><circle class="dknob" cx=${kx} cy=${ky} r="13"></circle>` : nothing}</g>`;
@@ -107,7 +125,18 @@ export const dialView = (c: Ctx): TemplateResult => {
       return html`<button class="dlabel tap" style="left:${50 + 47.5 * co}%;top:${50 + 47.5 * si}%;transform:translate(${tx},${ty});text-align:${co > 0.3 ? 'left' : co < -0.3 ? 'right' : 'center'}" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}>
         <b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${state(r)}</span></button>`;
     })}
-  </div></div>`;
+  </div></div>
+    <section class="dcard dturn" aria-label="Whose turn"><h3>Whose turn</h3>
+      <div class="dcoins">${d.turn.map((t) => html`<button class="dcoin tap" style="--c:${t.colour}" ?data-now=${t.now} aria-label="${t.name} chooses a song${t.now ? ' (their turn)' : ''}" @click=${() => d.choose(t.name)}>${t.short}</button>`)}</div>
+      <p class="dwho">${d.chooser ? html`<b>${d.chooser}</b> chooses next` : 'Tap a face to choose a song'}</p>
+      <button class="dsleep tap" ?data-on=${left !== null} @click=${() => d.sleepGo()}>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${left !== null ? svg`<path class="sww" d="M20 20 L20 4 A16 16 0 ${wa > Math.PI ? 1 : 0} 1 ${wx.toFixed(2)} ${wy.toFixed(2)} Z"></path>` : nothing}</svg>
+        <span><b>Sleep fade</b><span>${left !== null ? `${left} min left` : `Fade out in ${d.sleep.mins} min`}</span></span></button></section>
+    <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, ns)} aria-valuenow=${onAt < 0 ? 1 : onAt + 1} aria-valuetext=${onAt < 0 ? 'Not tuned' : d.stops[onAt].name} @pointerdown=${tuneDown} @keydown=${tuneKey}>
+      <i class="tticks" aria-hidden="true"></i>
+      ${d.stops.map((s, i) => html`<span class="tstop" ?data-on=${s.on} style="left:${stopX(i)}%;max-width:${(100 / ns - 2).toFixed(1)}%">${s.name}</span>`)}
+      ${ns ? html`<i class="tneedle" aria-hidden="true" ?data-on=${onAt >= 0} style="left:${onAt < 0 ? 2 : stopX(onAt)}%"></i>` : html`<span class="tstop" style="left:50%">Pin music or add stations to fill the tuner</span>`}
+    </div></div>`;
 };
 
 /* ---------------- the mixing desk ---------------- */
@@ -121,9 +150,9 @@ export const deskView = (c: Ctx): TemplateResult => {
   };
   const strip = (r: Room): TemplateResult => {
     const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
-    return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
+    return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
       <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}>${r.name}</button>
-      <button class="lamp tap" aria-pressed=${String(r.live)} aria-label="${r.inmix ? 'Remove' : 'Add'} ${r.name} ${r.inmix ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${r.asleep && !r.live ? '☾' : r.live ? 'ON' : 'OFF'}</button>
+      <button class="lamp tap" aria-pressed=${String(r.live)} aria-label="${r.inmix ? 'Remove' : 'Add'} ${r.name} ${r.inmix ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${r.offline ? '–' : r.asleep && !r.live ? '☾' : r.live ? 'ON' : 'OFF'}</button>
       <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => html`<i ?data-lit=${9 - k < lit} ?data-peak=${9 - k >= lit - 2 && 9 - k < lit}></i>`)}</span>
         <div class="fader" role="slider" tabindex="0" aria-orientation="vertical" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @pointerdown=${slide(c, r, (el) => el.getBoundingClientRect().height)} @keydown=${keys(c, r)}>
           <i class="slot"></i>${r.hasVol ? html`<i class="run" style="height:${r.vol}%"></i><i class="fcap" style="bottom:${r.vol}%"></i>` : nothing}</div></div>
@@ -169,10 +198,10 @@ export const crateView = (c: Ctx): TemplateResult => {
   const y = (j: number): number => ((j + 0.5) / c.rooms.length) * 100;
   const plugged = (r: Room): boolean => r.focus ? r.live : r.inmix;
   const whose = k.who === 'Family' ? 'Family crate' : `${k.who}’s crate`;
-  const cab = (r: Room, j: number): TemplateResult => html`<div class="cab" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id}
+  const cab = (r: Room, j: number): TemplateResult => html`<div class="cab" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id}
       style="--top:${y(j)}%;--n:${c.rooms.length};${col(r)}" @pointerdown=${slide(c, r, () => 180, () => c.focus(r.id))}>
     <span class="chit" role="slider" tabindex="0" aria-label=${says(r)} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} @keydown=${keys(c, r)}><span class="cone" aria-hidden="true"><i></i></span>
-    <span class="ctext"><b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${r.live ? (r.hasVol ? `Volume ${r.vol}` : r.title || 'Music') : r.asleep ? 'Asleep' : 'Plug in to play'}</span></span>
+    <span class="ctext"><b>${r.asleep ? '☾ ' : ''}${r.name}</b><span>${r.offline ? 'Offline' : r.live ? (r.hasVol ? `Volume ${r.vol}` : r.title || 'Music') : r.asleep ? 'Asleep' : 'Plug in to play'}</span></span>
     ${r.hasVol ? html`<span class="cknob" aria-hidden="true" style="--turn:${-135 + r.vol * 2.7}deg"><i></i></span>` : nothing}</span>
     <button class="sock tap" data-notrack aria-pressed=${String(plugged(r))} aria-label="${r.inmix || r.focus ? 'Remove' : 'Add'} ${r.name} ${r.inmix || r.focus ? 'from' : 'to'} the music" @click=${() => c.toggle(r.id)}>${plugged(r) ? '' : '＋'}</button></div>`;
   const on = c.rooms.map((r, j) => [r, j] as [Room, number]).filter(([r]) => plugged(r)), jackY = (i: number): number => 39 + (i - (on.length - 1) / 2) * Math.min(9, 60 / Math.max(1, on.length));
@@ -298,7 +327,7 @@ const swimScene = (c: Ctx, kind: string): TemplateResult => {
       ${c.streams.map((s) => { const mem = c.rooms.filter((r) => r.stream === s && d?.id !== r.id); return mem.length > 1 ? svg`<path class="tie" style="--c:${mem[0].colour || 'var(--stream, var(--primary))'}" d="M${mem.map((r) => `${at[r.id][0]} ${at[r.id][1]}`).join(' L')}"></path>` : nothing; })}</svg>
     <div class="sun">${sun(c)}<span class="suntx"><b>${c.now.title}</b><span>${c.now.artist || (c.now.lead ? 'Drag me to a room' : 'Pick something to play')}</span>${sceneKeys(c)}</span></div>
     ${c.rooms.map((r, i) => { const p = d?.id === r.id ? [d.x, d.y] : at[r.id];
-      return html`<div class="actor free" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-held=${d?.id === r.id} ?data-hot=${c.over === r.id && c.lifted !== r.id}
+      return html`<div class="actor free" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-held=${d?.id === r.id} ?data-hot=${c.over === r.id && c.lifted !== r.id}
         style="${col(r)};left:${p[0]}%;top:${p[1]}%;animation-delay:${-i * 0.45}s" @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div>`; })}
     ${sceneShelf(c, kind)}
   </div>`;
@@ -320,7 +349,7 @@ const orbitScene = (c: Ctx, kind: string): TemplateResult => {
     const mem = r.stream ? c.rooms.filter((o) => o.stream === r.stream) : parked, j = mem.indexOf(r), k = r.stream ? c.streams.indexOf(r.stream) : 0;
     const a = r.stream ? (k * 47 + (j * 360) / mem.length) % 360 : (100 + (j * 360) / Math.max(1, mem.length)) % 360;
     return html`<div class="arm" ?data-moving=${r.playing} ?data-away=${d?.id === r.id} style="--a:${a};--r:${r.stream ? ringOf(r.stream) : PARK};--t:${r.stream ? 70 + k * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
-      <div class="actor planet" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-focus=${r.focus} ?data-hot=${c.over === r.id && c.lifted !== r.id} style=${col(r)} @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div></div></div></div></div>`;
+      <div class="actor planet" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id && c.lifted !== r.id} style=${col(r)} @pointerdown=${lift(c, r, drop(r))}>${figure(c, r, draw)}</div></div></div></div></div>`;
   };
   const held = d ? c.rooms.find((r) => r.id === d.id) : undefined;
   return html`<div class="vscene orbits" data-kind=${kind} data-fits>
@@ -352,8 +381,34 @@ export const viewsCss = css`
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* ---- dial ---- */
-  .dialwrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; container-type: size; }
-  .bigdial { height: 90%; max-height: 620px; aspect-ratio: 1; position: relative; user-select: none; -webkit-user-select: none; }
+  .dialwrap { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 10px 8px; container-type: size; }
+  .dmid { grid-column: 2; grid-row: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 clamp(70px, 9cqw, 118px); }
+  .bigdial { height: 88%; max-height: 620px; aspect-ratio: 1; position: relative; user-select: none; -webkit-user-select: none; }
+  .dcard { grid-row: 1; align-self: center; min-width: 0; max-height: 100%; border-radius: 24px; background: var(--chip); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .dcard h3 { margin: 0; font-size: 12px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dnext { grid-column: 1; justify-self: end; width: min(100%, 270px); } .dturn { grid-column: 3; justify-self: start; width: min(100%, 270px); }
+  .dn { display: flex; align-items: center; gap: 12px; min-width: 0; } .dn .puck.onshelf { width: 46px; flex: 0 0 46px; border-width: 2.5px; }
+  .dn > span { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .dn b, .dn span span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dn b { font-size: 15px; font-weight: var(--w-bold, 700); } .dn span span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dnone { margin: 0; font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .dcoins { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .dcoin { width: 48px; height: 48px; border-radius: 50%; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform .22s cubic-bezier(.2,1.4,.4,1); }
+  .dcoin[data-now] { transform: scale(1.18); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); margin: 0 6px; }
+  .dwho { margin: 0; font-size: 15px; font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
+  .dsleep { min-height: 52px; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 16px; padding: 4px 8px 4px 4px; }
+  .dsleep svg { width: 48px; height: 48px; flex-shrink: 0; } .swt { fill: var(--track); stroke: var(--ink2); stroke-width: 1.5; } .sww { fill: var(--accent); }
+  .dsleep > span { display: flex; flex-direction: column; line-height: 1.2; } .dsleep b { font-size: 15px; font-weight: var(--w-bold, 700); } .dsleep span span { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dsleep[data-on] { background: var(--chip-strong); }
+  /* the tuner: ticks like a radio dial, a stop for each favourite and station, and a needle to slide */
+  .tuner { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 720px); height: 62px; position: relative; border-radius: 20px; background: var(--chip); touch-action: none; cursor: ew-resize; outline: none; user-select: none; -webkit-user-select: none; }
+  .tuner:focus-visible { box-shadow: 0 0 0 3px var(--ink); }
+  .tticks { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink2) 0 1.5px, transparent 1.5px 14.4px); opacity: .7; -webkit-mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); -webkit-mask-composite: source-over; mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); }
+  .tstop { position: absolute; bottom: 9px; transform: translateX(-50%); font-size: 13px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .tstop[data-on] { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .tstop:only-of-type { max-width: 90%; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left .35s cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
+  .tneedle::before { content: ''; position: absolute; left: -6px; top: -5px; width: 18px; height: 18px; border-radius: 50%; background: inherit; }
+  .tneedle[data-on] { opacity: 1; }
   .bigdial > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .dplate { fill: var(--chip); }
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
@@ -378,7 +433,12 @@ export const viewsCss = css`
   .dlabel b { font-size: clamp(15px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); } .dlabel span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dlabel[aria-pressed='true'] b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .bigdial[data-fit] .dlabel b { font-size: 13px; }
-  :host([data-phone]) .dialwrap { flex: none; height: 360px; } :host([data-phone]) .bigdial { height: 62%; }
+  :host([data-shape='tall']:not([data-phone])) .dialwrap { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) auto auto; }
+  :host([data-shape='tall']:not([data-phone])) .dmid { grid-column: 1 / -1; grid-row: 1; }
+  :host([data-shape='tall']:not([data-phone])) .dcard { grid-row: 2; width: auto; justify-self: stretch; align-self: stretch; }
+  :host([data-shape='tall']:not([data-phone])) .dturn { grid-column: 2; } :host([data-shape='tall']:not([data-phone])) .tuner { grid-row: 3; }
+  :host([data-phone]) .dialwrap { flex: none; display: flex; flex-direction: column; container-type: normal; gap: 12px; } :host([data-phone]) .dmid { height: 330px; padding: 0; } :host([data-phone]) .bigdial { height: 62%; }
+  :host([data-phone]) .dcard { width: auto; align-self: stretch; } :host([data-phone]) .tuner { order: -1; width: 100%; } :host([data-phone]) .tstop { font-size: 11.5px; }
 
   /* ---- desk ---- */
   .dside { flex: 0 0 27%; min-width: 0; display: flex; flex-direction: column; gap: 3cqh; padding: 4px 8px 4px 4px; }

@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &long=1, &night=1, &studio=1). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -104,6 +104,7 @@ const hass = {
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
     if (msg.type === 'config_entries/get') return [{ entry_id: 'ma1', domain: 'music_assistant' }];
+    if (msg.type === 'media_source/browse_media') return { children: [{ title: 'ABC Kids listen', media_content_id: 'media-source://radio_browser/abckids' }, { title: 'ABC Jazz', media_content_id: 'media-source://radio_browser/abcjazz' }] };
     if (msg.type === 'call_service' && msg.service === 'search') { const n = msg.service_data.name; const mk = (t, name, sub) => ({ media_type: t, name, uri: `demo://${t}/${name.replace(/\W+/g, '-')}`, image: t === 'radio' ? null : doodle('#' + (name.length * 123457 % 0xffffff).toString(16).padStart(6, '0'), '#ffffff', '#222222'), artists: sub ? [{ name: sub }] : [] });
       return { response: { tracks: [mk('track', n + ' Theme Tune', n), mk('track', 'Dance Mode', n), mk('track', 'Keepy Uppy', n)], albums: [mk('album', n + ' the Album', n), mk('album', 'Dance Mode!', n)], playlists: [mk('playlist', n + ' Essentials'), mk('playlist', n + ' Sleepy Time')], artists: [mk('artist', n)], radio: [mk('radio', 'ABC Kids listen')], podcasts: [mk('podcast', n + ' Brekky Chats')], audiobooks: [mk('audiobook', n + ': The Beach and Other Stories')] } }; }
     if (msg.type === 'call_service' && msg.service === 'get_queue') { const e = msg.target.entity_id, a = hass.states[e].attributes; return { response: { [e]: hass.states[e].state === 'playing' ? { items: 5, shuffle_enabled: false, repeat_mode: 'off', current_item: { name: a.media_title }, next_item: window.__noNext ? null : { name: 'Keepy Uppy', media_item: { name: 'Keepy Uppy', artists: [{ name: 'Bluey' }] } } } : { items: 0 } } }; }
@@ -129,6 +130,11 @@ el.setConfig({
   parent_pin: '1234', morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
   idle_seconds: 0
 });
+// &juke=1 starts with tonight's jukebox picks waiting
+if (q.get('juke')) try { localStorage.setItem('fh-juke', JSON.stringify({ day: new Date().toDateString(), on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] })); } catch {}
+// &moff=office,rileys_homepod makes those home speakers unreachable; &mextra=1 adds a speaker that is not in the house map (as when the panel is somewhere else)
+for (const n of (q.get('moff') || '').split(',').filter(Boolean)) { const id = 'media_player.' + n; if (hass.states[id]) hass.states[id] = { ...hass.states[id], state: 'unavailable', attributes: { friendly_name: hass.states[id].attributes.friendly_name } }; }
+if (q.get('mextra')) { hass.states['media_player.boardroom'] = { entity_id: 'media_player.boardroom', state: 'idle', attributes: { friendly_name: 'Boardroom', volume_level: 0.5, group_members: [] } }; hass.entities['media_player.boardroom'] = { entity_id: 'media_player.boardroom', platform: 'music_assistant', device_id: 'ma_boardroom' }; }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;

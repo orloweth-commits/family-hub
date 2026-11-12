@@ -126,6 +126,27 @@ const M = (page) => page.locator('fh-music');
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
     await M(v).getByRole('button', { name: /Change how the rooms are shown/ }).click(); await v.waitForTimeout(200);
+    if (view === 'dial') {
+      // the big dial's surroundings: the tuner plays a favourite and then a station, a face opens the search for that person, the sleep fade starts a timer
+      const dv = await open('look=glass&page=music&mview=dial&juke=1'); await dv.evaluate(() => { (window.__calls ||= []).length = 0; });
+      const tb = await M(dv).locator('.tuner').boundingBox(), stops = await M(dv).locator('.tstop').allInnerTexts();
+      await dv.mouse.click(tb.x + tb.width * (0.5 / stops.length), tb.y + 40); await dv.waitForTimeout(500);
+      let dl = `tuner stops: ${stops.join(' | ')} | first: ${(await calls(dv, /play_media/)).slice(0, 92)}`;
+      const nb = await M(dv).locator('.tneedle').boundingBox(), lastX = tb.x + tb.width * ((stops.length - 0.5) / stops.length);
+      await dv.mouse.move(nb.x + 3, nb.y + 14); await dv.mouse.down(); await dv.mouse.move((nb.x + lastX) / 2, nb.y + 16, { steps: 4 }); await dv.mouse.move(lastX - 4, nb.y + 16, { steps: 4 }); await dv.mouse.up(); await dv.waitForTimeout(500);
+      dl += ` | slid to the last: ${(await calls(dv, /media_player\.play_media/)).split(' || ').pop().slice(0, 110)}`;
+      console.log(dl);
+      console.log('up next:', (await M(dv).locator('.dn b').allInnerTexts()).join(', '), '| whose turn:', await M(dv).locator('.dwho').innerText());
+      await M(dv).locator('.dsleep').click(); await dv.waitForTimeout(400); console.log('sleep fade:', (await calls(dv, /fh_music_sleep/)).slice(0, 80), '|', await M(dv).locator('.dsleep span span').innerText());
+      await M(dv).getByRole('button', { name: /^Riley chooses a song/ }).click(); await dv.waitForTimeout(400); console.log('a face opens the search:', await M(dv).locator('.banner').innerText().then((t) => t.slice(0, 44)));
+      await dv.close();
+      // locked to the house map: a speaker found elsewhere is not shown, a home speaker that cannot be reached stays, marked offline, and cannot be added
+      const lk = await open('look=glass&page=music&mview=house&moff=office,rileys_homepod&mextra=1'); await lk.evaluate(() => { (window.__calls ||= []).length = 0; });
+      console.log('locked: rooms', await M(lk).locator('.mzone').count(), '| boardroom shown:', await M(lk).locator('.mzone[data-zone="media_player.boardroom"]').count(), '| offline:', await M(lk).locator('.mzone[data-offline]').count(), '| note:', await M(lk).locator('.offnote').innerText(),
+        '| add buttons on offline rooms:', await M(lk).locator('.mzone[data-offline] .join').count());
+      await M(lk).locator('.wholeh').click(); await lk.waitForTimeout(400); console.log('whole house skips offline:', (await calls(lk, /media_player\.join/)).slice(0, 200));
+      await lk.close();
+    }
     if (view === 'dial') console.log('picker cards:', await M(v).locator('.vcard').count());
     await v.close();
   }

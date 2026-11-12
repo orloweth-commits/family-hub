@@ -62,7 +62,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
     'fh-home': ['room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -430,6 +430,8 @@ const FRIDGE = `
   @F .dtrack { stroke: color-mix(in srgb, var(--ink) 16%, var(--paper)); }
   @F .dknob { fill: var(--magnet); stroke: var(--ink); }
   @F .dcover { box-shadow: 0 0 0 4px var(--ink), 0 6px 0 rgba(0,0,0,.18); }
+  @F .dcard { background: var(--note); border-radius: 3px; box-shadow: 0 5px 8px rgba(0,0,0,.16); }
+  @F .tuner { background: var(--paper); border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
   @F .desk { background: var(--paper); border-radius: 5px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.14); }
   @F .strip[data-focus] { background: var(--note); }
   @F .sname { background: var(--note); border-radius: 2px; box-shadow: 0 2px 3px rgba(0,0,0,.18); font-family: var(--font-content); }
@@ -663,6 +665,7 @@ const ORBIT = `
   @O .dtrack { stroke: rgba(255,255,255,.14); stroke-width: 10; }
   @O .dknob { fill: var(--ground); stroke-width: 3; }
   @O .dcover { box-shadow: 0 0 0 1.5px var(--ink); }
+  @O .dcard, @O .tuner { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @O .desk { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .sname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
