@@ -177,7 +177,8 @@ export class FhKid extends LitElement {
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
     .avph { display: block; width: 186px; max-width: 100%; aspect-ratio: 200 / 240; border-radius: 22px; background: var(--chip-soft); }
-    .askbtn { width: 100%; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
+    .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
+    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
     .avbtn { position: relative; flex: 0 1 223px; min-height: 110px; display: flex; justify-content: center; }
     .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 223px; }
@@ -630,12 +631,12 @@ export class FhKid extends LitElement {
         const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
         // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
         const askOn = this._picMode && this.ask;
-        return html`${askOn ? html`<button class="askbtn tap" data-act="ask" style="margin-top:auto" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
-          ${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);${askOn ? '' : 'margin-top:auto'}">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
-          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait || askOn ? '' : 'margin-top:auto'}" @click=${() => {
+        return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
+          <div class="lowrow" style=${wait ? '' : 'margin-top:auto'}>${askOn ? html`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${() => {
             // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
             if (wait) { this._sound('locked'); if (this._picMode && !this._lookSaid) { this._lookSaid = true; say(`Jobs first, then your look. ${left} to go.`); } return; }
-            this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button>`;
+            this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button></div>`;
       })()}
     </section>`;
   }

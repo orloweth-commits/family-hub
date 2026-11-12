@@ -81,8 +81,11 @@ export class FhMusic extends LitElement {
     .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
-    .hint[data-wrap] { flex: 1 1 100%; order: 9; max-height: none; display: block; }
-    .mhead[data-hintrow] { flex-wrap: wrap; }
+    /* the hint is never cut, and never takes a row of its own on a wide screen (a tap takes the hint away, and a row that vanished under the finger would lose the tap):
+       the tab words go first, then the small player beside it, and the buttons after it in the row wait while it shows */
+    .mhead[data-hintwide] .nowbar { display: none; }
+    :host([data-shape='wide']) .acts .hint[data-on] ~ * { display: none; }
+    .hint[data-wrap] { max-height: none; display: block; }
     .mhead[data-one][data-hinting] .finder { display: none; }
     :host([data-full]) .stage { display: none; }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 52px; height: 48px; padding: 0; } .tabs.inline button span { display: none; }
@@ -331,11 +334,13 @@ export class FhMusic extends LitElement {
     .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
     .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
-    .srec { width: min(100%, calc(var(--row) - 34px)); min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
+    /* the label has the whole column (the record alone is sized by the row), so a long name is not cut */
+    .srec { width: 100%; min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
+    .srec .puck.onshelf { width: min(100%, max(44px, calc(var(--row) - 49px))); }
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 30px; font-size: 14px; line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .srec span { max-width: 100%; height: 45px; font-size: 14px; line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); }
     .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
@@ -374,7 +379,7 @@ export class FhMusic extends LitElement {
     :host([data-shape='tall']) { flex-direction: column; }
     /* a landscape tablet under 900 px wide: the same stack, and the page scrolls so the panel keeps a usable height */
     :host([data-stack]) { overflow-y: auto; gap: 12px; scrollbar-width: none; }
-    :host([data-stack]) .panel { flex: 0 0 660px; }
+    :host([data-stack]) .panel { flex: 0 0 780px; }
     :host([data-stack]) .stage { order: 2; }
     :host([data-shape='tall']) .stage { width: auto; flex-direction: row; flex-wrap: wrap; align-items: center; }
     :host([data-shape='tall']) .stage > *:not(.bg) { flex: 1 1 100%; }
@@ -598,18 +603,18 @@ export class FhMusic extends LitElement {
     const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230) && !cut();
     if (!ok) tabs.removeAttribute('data-words');
   }
-  /** A hint that would still be cut (or squeezed to a sliver) takes a row of its own, in whichever toolbar it sits. */
+  /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
   private _fitHint(): void {
-    const hint = this.renderRoot.querySelector<HTMLElement>('.hint[data-on]');
-    this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintrow]')?.removeAttribute('data-hintrow');
-    if (hint && (hint.scrollHeight > hint.clientHeight + 1 || hint.offsetWidth < 118)) { hint.setAttribute('data-wrap', ''); hint.closest('.mhead')?.setAttribute('data-hintrow', ''); }
+    const hint = this.renderRoot.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
+    if (cut()) hint!.closest('.mhead')?.setAttribute('data-hintwide', '');
+    if (cut()) hint!.setAttribute('data-wrap', '');
   }
   protected updated(ch: PropertyValues): void {
     // a change of tab fades its body in and its icon nods; arriving on the page does neither (the page itself is what arrives)
     if (ch.has('_tab') && ch.get('_tab') !== undefined) { const m = motion(this, '--m-3');
       this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
       this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
-    this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintrow]')?.removeAttribute('data-hintrow');
+    this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintwide]')?.removeAttribute('data-hintwide');
     this._fitTabs(); this._fitHint();
     const p = this._cur;
     if (!this.hass || !p) return;
