@@ -827,7 +827,7 @@ export class FamilyHubCard extends LitElement {
     if (night) return html`<div class="fh" lang="en-AU" data-tod="night" ?data-calm=${calm} style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
     return html`
       <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} ?data-calm=${calm} ?data-compact=${this._compact} style=${`${skin}--tod:${tod};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
+        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || nightOut || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || nightOut || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}

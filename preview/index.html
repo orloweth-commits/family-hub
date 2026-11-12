@@ -2,13 +2,15 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs|chat, &chat=off, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs|chat, &chat=off, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing, &scene=sports, &guest=<visitor id>). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
 const doodle = (bg, a, b) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="${bg}"/><circle cx="120" cy="130" r="60" fill="none" stroke="${a}" stroke-width="14"/><path d="M210 220 Q260 60 340 200" fill="none" stroke="${b}" stroke-width="16" stroke-linecap="round"/><path d="M40 250 H360" stroke="${a}" stroke-width="10" stroke-linecap="round"/></svg>`);
 try { localStorage.setItem('family-hub-fridge', JSON.stringify([{ title: 'doodle-20261110-161000-max', url: doodle('#fffdf7', '#e63946', '#118ab2') }, { title: 'doodle-20261109-171500-charlie', url: doodle('#fffdf7', '#2a9d8f', '#f77f00') }, { title: 'doodle-20261108-101500-riley', url: doodle('#23332b', '#ffffff', '#fcbf49') }, { title: 'doodle-20261107-101500', url: doodle('#fffdf7', '#7b2cbf', '#ff5d8f') }, { title: 'doodle-20261106-101500-max', url: doodle('#fffdf7', '#118ab2', '#e63946') }])); } catch {}
 try { localStorage.setItem('family-hub-look', look); localStorage.setItem('family-hub-theme', q.get('theme') || 'sea'); } catch {}
+// &scene=sports shows the Home Ground world, its sparks and its sounds whatever the look is (until the Sports look itself is in)
+if (q.get('scene')) window.__fhScene = q.get('scene');
 await import('../dist/family-hub.js');
 if (q.get('night')) window.__night = true;
 const now = new Date();

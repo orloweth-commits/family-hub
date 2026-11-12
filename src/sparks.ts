@@ -35,7 +35,7 @@
  *   spark('medal', rewardEl)                     a medal swings in on its ribbon when a reward is claimed
  * ------------------------------------------------------------------ */
 
-export type SparkLook = 'glass' | 'fridge' | 'orbit';
+export type SparkLook = 'glass' | 'fridge' | 'orbit' | 'sports';
 export type SparkKind = 'tick' | 'points' | 'done' | 'add' | 'marble' | 'ring' | 'sweep' | 'party' | 'stomp' | 'puff' | 'truck' | 'tada' | 'bounce' | 'zip' | 'splash' | 'salute' | 'rocket' | 'book' | 'quokka' | 'paint' | 'moon' | 'medal';
 export type SparkAt = Element | { x: number; y: number };
 export interface SparkOpts {
@@ -73,6 +73,8 @@ const CSS = `
 .spk-orbit .spk-d{fill:var(--c)}
 .spk-orbit .spk-sh,.spk-fridge .spk-sh{display:none}
 .spk-orbit .spk-g{fill:var(--gd);stroke:var(--ac);stroke-width:1.3}
+.spk-sports .spk-f{stroke:var(--ink);stroke-width:1.1}
+.spk-sports .spk-l{stroke:var(--ink)}
 `;
 
 type F = [transform: string, opacity: number, offset?: number, easing?: string];
@@ -463,11 +465,121 @@ const FX: Record<SparkKind, (e: E) => void> = {
   }
 };
 
+/* ---- Home Ground (the Sports look) ----
+ * Its own form for the kinds below; every other kind (`bounce` is already a tennis ball) draws its Glass form with an ink outline.
+ * Times follow the look's motion sheet: a tick is --m-3 then --m-2, a whistle pip --m-3, streamers --m-5, the little scenes about 2.2 s. */
+const CHK = '#f7f5ee', EIO = 'ease-in-out', HAIR = 'color-mix(in srgb,var(--ink) 40%,transparent)', CHALKRING = `border:2.5px solid ${CHK};box-shadow:0 0 0 1px ${HAIR},inset 0 0 0 1px ${HAIR}`;
+const SP_TENNIS = '<circle cx="7" cy="7" r="6.3" fill="#d9e63a" stroke="#7f8c18"/><path d="M2.6 2.6c2.8 2.4 2.8 6.4 0 8.8M11.4 2.6c-2.8 2.4-2.8 6.4 0 8.8" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>';
+const SP_SOCCER = '<circle cx="7" cy="7" r="6.3" fill="#fff" stroke="#2b2f36"/><path d="M7 4.3l2.6 1.9-1 3h-3.200l-1-3z" fill="#2b2f36"/><path d="M7 4.300V.9M9.600 6.200l3.300-1.100M8.600 9.200l2 2.800M5.400 9.200l-2 2.800M4.400 6.200L1.100 5.100" stroke="#2b2f36" stroke-width=".9" fill="none"/>';
+const SP_HOCKEY = '<circle cx="5" cy="5" r="4.3" fill="#fff" stroke="#6b737d"/><path d="M3 3.400a3 3 0 0 1 3.400-1" stroke="#b9bfc5" fill="none"/>';
+const SP_FLOOR = '<circle cx="9" cy="9" r="8.3" fill="#fff" stroke="#6b737d"/>' + [[9, 9], [13.8, 9], [4.2, 9], [11.4, 13.2], [6.6, 13.2], [11.4, 4.8], [6.6, 4.8]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.5" fill="#56606c"/>`).join('');
+const SP_GOAL = '<path d="M9 53V1M17 53V1M25 53V1M33 53V1M41 11V53M49 26V53M57 41V53M1 40h55M1 27h48M1 14h41" stroke="var(--ink)" stroke-width="1" opacity=".45" fill="none"/>';
+const SP_DOG = '<path class="spk-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.2" fill="none" stroke-linecap="round"/><g class="spk-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="spk-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g>'
+  + '<rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.5" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.5" r="1" fill="#2b2f36"/><circle cx="27" cy="-18.5" r="3.6" fill="#d9e63a" stroke="#7f8c18" stroke-width=".8"/>';
+const at = (x: number, y: number, more = ''): string => `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)${more}`;
+const SPORTS: Partial<Record<SparkKind, (e: E) => void>> = {
+  /* a small ball goes through the sticks, then a chalk tick pops in */
+  tick(e) {
+    const x = e.W / 2, y = e.H / 2, d = 'M4.5 11.5l4.5 5 9-12', pen = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+    const mark = art(e, x - 11, y - 11, 22, 22, `<path d="${d}" ${pen} stroke="var(--ok)" stroke-width="5.5"/><path d="${d}" ${pen} stroke="${CHK}" stroke-width="2.6"/>`, 'transform-origin:50% 55%');
+    if (e.calm) { A(e, mark, blink(), 540); return; }
+    A(e, art(e, x - 13, y - 16, 26, 32, '<path d="M4 31V2M22 31V2" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>'), [{ opacity: 0 }, { opacity: 0.9, offset: 0.12 }, { opacity: 0.9, offset: 0.7 }, { opacity: 0 }], 560);
+    A(e, circle(e, x, y, 8, 'background:var(--ac);border:1px solid var(--ink)'), K([['translate(-22px,16px) scale(1.5)', 1], ['translate(0,0) scale(1)', 1, 0.6], ['translate(8px,-14px) scale(.4)', 0]]), 240, 0, OUT);
+    A(e, mark, K([['scale(.5)', 0, 0, SPRING], ['scale(1)', 1, 0.3], ['scale(1)', 1, 0.8], ['scale(1)', 0]]), 540, 100);
+  },
+  /* streamers thrown in from both sides, kept inside the card */
+  done(e) {
+    confine(e);
+    const { W, H } = e;
+    if (e.calm) { wash(e, 'background:var(--ok)', 0.18); return; }
+    const n = e.o.soft ? 8 : 24, cols = ['var(--ac)', 'var(--ok)', '#4f9bd9', 'var(--ink)'];
+    for (let i = 0; i < n; i++) {
+      const dir = i % 2 === 0 ? 1 : -1, r = ((i * 37) % 100) / 100, x0 = dir > 0 ? -8 : W + 2, x1 = x0 + dir * (40 + r * W * 0.62), top = -10 + r * 20, y1 = H * (0.35 + ((i * 53) % 60) / 100);
+      A(e, el(e, `width:5px;height:${i % 3 === 0 ? 26 : 16}px;border-radius:2px;background:${cols[i % 4]}`), K([[at(x0, top, ' rotate(0deg)'), 1], [at((x0 + x1) / 2 + dir * 20, top + 6, ` rotate(${dir * 200}deg)`), 1, 0.35], [at(x1, y1, ` rotate(${dir * 420}deg)`), 1, 0.8], [at(x1 + dir * 6, y1 + 18, ` rotate(${dir * 480}deg)`), 0]]), 900, (i % 6) * 14, OUT);
+    }
+  },
+  /* a chalk ring where the new thing landed */
+  add(e) {
+    const x = e.W / 2, y = e.H / 2, d = clamp(Math.min(e.W, e.H) * 1.1, 32, 56);
+    if (e.calm) { A(e, circle(e, x, y, d * 0.6, CHALKRING), blink(), 500); return; }
+    A(e, circle(e, x, y, d, CHALKRING), K([['scale(.25)', 0], ['scale(.6)', 1, 0.25], ['scale(1)', 0.7, 0.7], ['scale(1.12)', 0]]), 520, 0, OUT);
+  },
+  /* one ball drops into the bag */
+  marble(e) {
+    const m = el(e, `left:${e.W / 2 - 7}px;top:${Math.min(e.H * 0.3, 16) - 7}px;width:14px;height:14px`), roll = art(e, 0, 0, 14, 14, BALL, 'transform-origin:50% 50%', m, false);
+    if (e.calm) { A(e, m, blink(), 520); return; }
+    A(e, m, K([['translateY(-23px) scale(.6)', 0, 0, OUT], ['translateY(-21px) scale(1)', 1, 0.14, IN], ['translateY(0) scale(1.14,.84)', 1, 0.48, 'ease-out'], ['translateY(-6px) scale(.97,1.03)', 1, 0.62, 'ease-in'], ['translateY(0) scale(1.06,.94)', 1, 0.75], ['translateY(0) scale(1)', 1, 0.82], ['translateY(5px) scale(.8)', 0]]), 680);
+    A(e, roll, [{ transform: 'rotate(-40deg)' }, { transform: `rotate(${e.dir * 250}deg)` }], 680, 0, 'ease-out', { fill: 'both' });
+    T(e, [0, -2.6, 1.9, -1, 0.4, 0], 380, 320);
+  },
+  /* two whistle pips */
+  ring(e) {
+    const x = e.W / 2, y = e.H / 2, d = clamp(e.H + 8, 40, 64), css = `border:3px solid var(--ac);box-shadow:0 0 0 1px ${HAIR},inset 0 0 0 1px ${HAIR}`;
+    if (e.calm) { A(e, circle(e, x, y, d, css), [{ opacity: 0.6 }, { opacity: 0 }], 400); return; }
+    [0, 220].forEach((dl) => A(e, circle(e, x, y, d, css), [{ transform: 'scale(.5)', opacity: 0.7 }, { transform: 'scale(1.7)', opacity: 0 }], 240, dl, OUT));
+  },
+  /* a hockey ball comes off the underside with a "tock" and skims away */
+  sweep(e) {
+    const { W, H } = e, hx = Math.min(W * 0.3, 120), run = clamp(W - hx - 10, 30, 380), ring = circle(e, hx, H, 28, CHALKRING);
+    if (e.calm) { A(e, ring, [{ opacity: 0.85 }, { opacity: 0 }], 400); return; }
+    A(e, ring, K([['scale(.3)', 0], ['scale(.3)', 0.85, 0.3, OUT], ['scale(1)', 0, 0.61], ['scale(1)', 0]]), 1300);
+    A(e, art(e, -5, -5, 10, 10, SP_HOCKEY), K([[at(hx - 130, H + 26), 1], [at(hx, H + 5), 1, 0.3], [at(hx + run * 0.35, H + 12), 1, 0.5, OUT], [at(hx + run, H + 12), 1, 0.9], [at(hx + run + 6, H + 12), 0]]), 1300);
+  },
+  /* the last thing off the list: a soccer ball into a net that bulges */
+  truck(e) {
+    confine(e);
+    const { W, H } = e, gx = Math.max(2, W - 72), gy = H - 4, tx = gx + 36, ty = gy - 9, sx = Math.min(W * 0.12, gx - 20), sy = Math.max(10, H * 0.5), ms = 2300;
+    const goal = el(e, `left:${gx}px;top:${gy - 54}px;width:64px;height:54px`, svg(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'));
+    const net = art(e, 0, 0, 64, 54, SP_GOAL, 'transform-origin:0 50%', goal, false), b = el(e, 'left:-7px;top:-7px;width:14px;height:14px'), turn = art(e, 0, 0, 14, 14, SP_SOCCER, 'transform-origin:50% 50%', b, false);
+    if (e.calm) { b.style.translate = `${tx}px ${ty}px`; A(e, goal, blink(), 1000); A(e, b, blink(), 1000); return; }
+    const P = [[sx, sy], [sx + (tx - sx) * 0.45, sy - 26], [tx - 4, ty - 70], [tx, ty - 21]], fly: F[] = Array.from({ length: 9 }, (_, i) => { const u = i / 8, v = 1 - u, q = (k: number): number => v * v * v * P[0][k] + 3 * v * v * u * P[1][k] + 3 * v * u * u * P[2][k] + u * u * u * P[3][k]; return [at(q(0), q(1)), 1, (u * 1000) / ms]; });
+    A(e, b, K([...fly, [at(tx + 3, ty), 1, 1300 / ms, 'ease-out'], [at(tx + 4, ty - 5), 1, 1420 / ms, 'ease-in'], [at(tx + 3, ty), 1, 1540 / ms], [at(tx + 3, ty), 1, 0.92], [at(tx + 3, ty), 0]]), ms);
+    A(e, turn, [{ transform: 'rotate(0deg)' }, { transform: 'rotate(460deg)', offset: 0.67 }, { transform: 'rotate(460deg)' }], ms, 0, 'linear', { fill: 'both' });
+    A(e, goal, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], ms);
+    A(e, net, [{ transform: 'scaleX(1)' }, { transform: 'scaleX(1)', offset: 1000 / ms, easing: OUT }, { transform: 'scaleX(1.16)', offset: 1140 / ms, easing: SPRING }, { transform: 'scaleX(1)', offset: 1500 / ms }, { transform: 'scaleX(1)' }], ms, 0, 'linear', { fill: 'both' });
+  },
+  /* a floorball held up on a puff of air */
+  puff(e) {
+    const x = clamp(e.W / 2, 12, Math.max(12, e.W - 12)), b = art(e, x - 9, -9, 18, 18, SP_FLOOR, 'transform-origin:50% 50%');
+    if (e.calm) { b.style.translate = '0 -12px'; A(e, b, blink(), 900); return; }
+    A(e, b, K([['translateY(4px) scale(.6)', 0, 0, OUT], ['translateY(-30px) rotate(0deg)', 1, 0.22, EIO], ['translateY(-25px) rotate(14deg)', 1, 0.36, EIO], ['translateY(-31px) rotate(-10deg)', 1, 0.5, EIO], ['translateY(-26px) rotate(12deg)', 1, 0.64, EIO], ['translateY(-30px) rotate(0deg)', 1, 0.78, IN], ['translateY(2px) scale(.7)', 0]]), 2000);
+    [0, 1, 2].forEach((i) => A(e, circle(e, x - 6 + i * 6, -6, 9, `background:${CHK};box-shadow:0 0 0 1px ${HAIR}`), K([['translateY(-12px) scale(.4)', 0], ['translateY(-8px) scale(.8)', 0.75, 0.3], ['translateY(2px) scale(1.25)', 0]]), 440, 380 + i * 120, 'linear', { iterations: 3, fill: 'both' }));
+  },
+  /* streamers unroll over the jar */
+  salute(e) {
+    confine(e);
+    const { W, H } = e, k = clamp((H * 0.85) / 88, 0.35, 1), cols = ['var(--ac)', 'var(--ok)', '#4f9bd9'], ms = 2200;
+    const ribs = cols.map((c, i) => art(e, W * (0.22 + 0.28 * i) - 8, -2, 16, 88, `<path d="M8 0q9 11 0 22t0 22 0 22 0 20" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`, `transform-origin:50% 0;scale:${k.toFixed(2)}`));
+    if (e.calm) { ribs.forEach((r) => A(e, r, blink(), 1000)); return; }
+    ribs.forEach((r, i) => { const d = i % 2 ? -1 : 1; A(e, r, K([['scaleY(0) rotate(0deg)', 1, 0, SPRING], ['scaleY(1) rotate(0deg)', 1, (400 + i * 60) / ms, EIO], [`scaleY(1) rotate(${6 * d}deg)`, 1, 800 / ms, EIO], [`scaleY(1) rotate(${-5 * d}deg)`, 1, 1200 / ms, EIO], [`scaleY(1) rotate(${3 * d}deg)`, 1, 1600 / ms, EIO], ['scaleY(1) rotate(0deg)', 1, 1900 / ms], ['scaleY(1) rotate(0deg)', 0]]), ms); });
+    for (let i = 0; i < 6; i++) A(e, el(e, `left:${W * (0.12 + 0.15 * i)}px;width:6px;height:11px;border-radius:2px;background:${[...cols, 'var(--ink)'][i % 4]}`), K([['translateY(-14px) rotate(0deg)', 1, 0, IN], [`translateY(${H + 12}px) rotate(${i % 2 ? 300 : -260}deg)`, 1, 0.92], [`translateY(${H + 12}px) rotate(0deg)`, 0]]), 1450, 150 + i * 90);
+  },
+  /* the timer is on: a tennis ball lands on the card's top edge, bounces twice and rolls off the end */
+  rocket(e) {
+    const x0 = clamp(e.W * 0.2, 12, 60), run = Math.max(40, e.W - x0 - 4), Y = -7, b = el(e, 'left:-7px;top:-7px;width:14px;height:14px'), turn = art(e, 0, 0, 14, 14, SP_TENNIS, 'transform-origin:50% 50%', b, false);
+    if (e.calm) { b.style.translate = `${x0 + run * 0.5}px ${Y}px`; A(e, b, blink(), 800); return; }
+    A(e, b, K([[at(x0, Y - 70), 0, 0, IN], [at(x0 + 1, Y - 66), 1, 0.03, IN], [at(x0 + 10, Y, ' scale(1.08,.92)'), 1, 0.205, 'ease-out'], [at(x0 + 26, Y - 22), 1, 0.285, 'ease-in'], [at(x0 + 42, Y, ' scale(1.05,.95)'), 1, 0.364, 'ease-out'], [at(x0 + 49, Y - 7), 1, 0.41, 'ease-in'], [at(x0 + 56, Y), 1, 0.455, OUT], [at(x0 + run, Y), 1, 0.773, IN], [at(x0 + run + 8, Y + 60), 0, 0.977], [at(x0 + run + 8, Y + 60), 0]]), 2200);
+    A(e, turn, [{ transform: 'rotate(0deg)' }, { transform: 'rotate(200deg)', offset: 0.455 }, { transform: 'rotate(900deg)', offset: 0.773 }, { transform: 'rotate(1100deg)' }], 2200, 0, 'linear', { fill: 'both' });
+  },
+  /* everyone is ready on time: the dog trots along the top of the card with the ball */
+  quokka(e) {
+    const d = e.dir, ms = 2300, g = el(e, 'left:0;top:0;width:0;height:0'), bob = el(e, `width:0;height:0;${d < 0 ? 'scale:-1 1' : ''}`, `<svg viewBox="-26 -30 60 31" width="60" height="31" style="left:-26px;top:-30px">${SP_DOG}</svg>`, g, false);
+    if (e.calm) { g.style.translate = `${d > 0 ? 34 : e.W - 34}px 0`; A(e, g, blink(), 1000); return; }
+    const a = d > 0 ? -34 : e.W + 34, z = d > 0 ? e.W + 34 : -34;
+    A(e, g, [{ transform: at(a, 0), opacity: 0 }, { transform: at(a + (z - a) * 0.07, 0), opacity: 1, offset: 0.07 }, { transform: at(a + (z - a) * 0.93, 0), opacity: 1, offset: 0.93 }, { transform: at(z, 0), opacity: 0 }], ms);
+    A(e, bob, [{ transform: 'translateY(0)' }, { transform: 'translateY(-2.2px)' }], 82, 0, EIO, { iterations: 28, direction: 'alternate', fill: 'both' });
+    ([['.spk-l1', '0 -10px', 26], ['.spk-l2', '4px -10px', -26], ['.spk-tail', '-14px -16px', -16]] as [string, string, number][]).forEach(([q, o, r]) => { const n = bob.querySelector<SVGElement>(q); if (!n) return; n.style.transformOrigin = o; A(e, n, [{ transform: `rotate(${r}deg)` }, { transform: `rotate(${-r}deg)` }, { transform: `rotate(${r}deg)` }], 164, 0, EIO, { iterations: 14, fill: 'both' }); });
+  },
+};
+
 /* ---- the stage ---- */
 const deepest = (x: number, y: number): Element | null => { let n = document.elementFromPoint(x, y); while (n?.shadowRoot) { const m = n.shadowRoot.elementFromPoint(x, y); if (!m || m === n) break; n = m; } return n; };
+/** the preview's `&scene=sports` draws the Sports forms whatever the look is */
+const forcedLook = (): string => { try { return String((globalThis as { __fhScene?: string }).__fhScene ?? ''); } catch { return ''; } };
 const lookOf = (n: Element): SparkLook => {
+  if (forcedLook() === 'sports') return 'sports';
   let c: Element | null = n;
-  while (c) { const h: Element | null = c.closest('[data-look]'); if (h) { const l = h.getAttribute('data-look'); return l === 'fridge' || l === 'orbit' ? l : 'glass'; } const r = c.getRootNode(); c = r instanceof ShadowRoot ? r.host : null; }
+  while (c) { const h: Element | null = c.closest('[data-look]'); if (h) { const l = h.getAttribute('data-look'); return l === 'fridge' || l === 'orbit' || l === 'sports' ? l : 'glass'; } const r = c.getRootNode(); c = r instanceof ShadowRoot ? r.host : null; }
   return 'glass';
 };
 const layerFor = (root: Node): HTMLElement => {
@@ -499,7 +611,8 @@ export function spark(kind: SparkKind, at: SparkAt, opts: SparkOpts = {}): Anima
     const e: E = { look, calm, o: opts, w, W, H, target: point ? null : target, rad: point ? '0' : cs.borderRadius || '0', font: cs.fontFamily || 'sans-serif', kid, dir: opts.dir === -1 ? -1 : 1,
       pal: ['--p-1', '--p-2', '--p-3', '--p-4', '--p-5', '--accent', '--primary'].map((n) => v(n)).filter(Boolean), plans: [], own: [] };
     if (!e.pal.length) e.pal = [pr, kid, GOLD];
-    fx(e);
+    const own = look === 'sports' ? SPORTS[kind] : undefined;
+    if (own) own(e); else { if (look === 'sports') e.look = 'glass'; fx(e); }
     const clean = (): void => { if (!layer.querySelector('.spk-fx')) { layer.remove(); layers.delete(layer); } };
     if (!e.plans.length || sparkCount() + w.querySelectorAll('[data-p]').length > SPARK_CAP) { clean(); return null; }
     layer.appendChild(w);
