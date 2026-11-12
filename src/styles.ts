@@ -287,9 +287,9 @@ export const styles = css`
   .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }
-  .dock .kidbtn { min-width: 80px; gap: 2px; }
+  .dock .kidbtn { min-width: 80px; gap: 5px; }
   .dock .kidbtn .avatar { overflow: hidden; }
-  .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px var(--chip-strong), 0 0 0 4.5px var(--kidc); }
+  .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
   .dock .sep { width: 1px; height: 36px; background: var(--track); margin: 0 6px; }
   .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
@@ -400,6 +400,7 @@ export const styles = css`
   :host([data-phone]) .dayrow > span:first-child { width: 64px !important; font-size: 14px !important; }
   :host([data-phone]) .month { min-height: 380px; }
   :host([data-phone]) .cell .mev { font-size: 0; gap: 0; }
+  :host([data-phone]) .cell .mmore { padding: 0 3px; font-size: 12px; }
   :host([data-phone]) aside { flex-direction: column; }
   :host([data-phone]) nav.dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 9; max-width: none; overflow-x: auto; justify-content: flex-start; padding: 6px; border-radius: 22px; scrollbar-width: none; }
   :host([data-phone]) nav.dock::-webkit-scrollbar { display: none; }

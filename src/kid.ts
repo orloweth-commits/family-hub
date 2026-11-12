@@ -187,7 +187,7 @@ export class FhKid extends LitElement {
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
-    .wk .init { min-width: 20px; height: 20px; font-size: 14px; }
+    .wk .init { min-width: 20px; height: 20px; font-size: 13px; }
     .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
     .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
