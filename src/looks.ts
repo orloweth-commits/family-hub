@@ -209,7 +209,9 @@ export const LOOKS: LookDef[] = [
     },
     evening: {
       '--ground': '#9d927b', '--paper': '#eadfc6', '--note': '#e3d39b', '--note-today': '#e7c651', '--rule': '#cbbe9f', '--margin': '#d6a391', '--magnet': '#e6dcc6',
-      '--shadow': '0 5px 8px rgba(0,0,0,.2)'
+      '--shadow': '0 5px 8px rgba(0,0,0,.2)',
+      // the evening ground is darker: the quiet inks go darker with it, so small words on the bare fridge keep 4.5:1
+      '--ink2': '#2a2824', '--ink3': '#3d3a35', '--ink-done': '#3d3a35'
     }
   },
   {

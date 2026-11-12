@@ -64,7 +64,7 @@ const CONTRAST_COLLECT = () => { const A = window.__fhAudit, items = [];
   const topAt = (x, y) => { let t = document.elementFromPoint(x, y); while (t?.shadowRoot) { const n = t.shadowRoot.elementFromPoint(x, y); if (!n || n === t) break; t = n; } return t; };
   const within = (a, b) => { for (let x = a; x; x = A.up(x)) if (x === b) return true; return false; };
   const covered = (e, r) => { const t = topAt((r.l + r.r) / 2, (r.t + r.b) / 2); return !!t && !within(t, e) && !within(e, t); };
-  for (const e of A.all()) { if (!A.shown(e) || e.closest('svg') || under(e)) continue; const tr = A.textRect(e); if (!tr) continue; if (covered(e, tr)) continue; const cs = getComputedStyle(e); if (cs.webkitBackgroundClip === 'text') continue;
+  for (const e of A.all()) { if (!A.shown(e) || e.closest('svg') || under(e)) continue; const tr = A.textRect(e); if (!tr) continue; if (covered(e, tr) || e.closest('[disabled], [aria-disabled="true"]')) continue; /* a control that is switched off is dimmed on purpose */ const cs = getComputedStyle(e); if (cs.webkitBackgroundClip === 'text') continue;
     const box = A.clipBox(e, 'skip'); const r = { l: Math.max(tr.l, box.l, 0), t: Math.max(tr.t, box.t, 0), r: Math.min(tr.r, box.r, innerWidth), b: Math.min(tr.b, box.b, innerHeight) }; if (r.r - r.l < 3 || r.b - r.t < 3) continue;
     const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(cs.webkitTextFillColor && cs.webkitTextFillColor !== cs.color ? cs.webkitTextFillColor : cs.color); if (!m) continue;
     let a = m[4] === undefined ? 1 : Number(m[4]); for (let x = e; x; x = A.up(x)) a *= Number(getComputedStyle(x).opacity);

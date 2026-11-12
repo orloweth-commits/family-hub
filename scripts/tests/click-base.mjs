@@ -537,5 +537,16 @@ await page.close();
     '| tabs selected:', await s.locator('fh-studio [role=tab][aria-selected="true"]').count(), 'of', await s.locator('fh-studio [role=tab]').count(), '| swatch', await s.locator('fh-studio .sw button').first().evaluate((e) => e.offsetWidth + 'x' + e.offsetHeight).catch(() => 'none on this tab'));
   await s.close();
   const k = await open('look=glass&page=kid&kid=2'); console.log('My look icons (expect 1 drawn, no emoji):', await k.locator('fh-kid .studio svg').count(), '|', (await k.locator('fh-kid .studio').innerText()).trim()); await k.close(); }
+// ---- the timer's digits roll and its ring sweeps when time is added; a ticked grocery row travels to the trolley (polish round 2) ----
+{ const lib = `window.deepAll = (sel) => { const out = []; const walk = (r) => { r.querySelectorAll('*').forEach((e) => { if (e.matches(sel)) out.push(e); if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return out; };`;
+  let p = await open('look=glass&page=planner'); await p.evaluate(lib);
+  const t = await p.evaluate(() => new Promise((res) => { const ring = () => deepAll('.timerrow *').filter((c) => /dasharray/.test(c.getAttribute('style') || '')).map((c) => getComputedStyle(c).transitionDuration)[0]; const idle = ring(); deepAll('.tmr button').find((x) => /\+5/.test(x.textContent)).click();
+    setTimeout(() => { const d = deepAll('.troll')[0], a = d?.getAnimations()[0]; res({ idle, ring: ring(), roll: a ? a.effect.getComputedTiming().duration + ' ms from ' + a.effect.getKeyframes()[0].transform : 'none' }); }, 120); }));
+  console.log('timer +5: digits roll', t.roll, '| ring sweep', t.idle, '→', t.ring); await p.close();
+  p = await open('look=glass&page=groceries'); await p.evaluate(lib);
+  const g = await p.evaluate(() => new Promise((res) => { const row = deepAll('.row[data-key]')[0], key = row.dataset.key, y0 = Math.round(row.getBoundingClientRect().top); row.click(); let seen = 'none';
+    const iv = setInterval(() => { const e = deepAll('.row[data-key]').find((x) => x.dataset.key === key), a = e?.getAnimations().find((x) => !x.animationName && !x.transitionProperty); if (a) seen = a.effect.getComputedTiming().duration + ' ms from ' + a.effect.getKeyframes()[0].transform; }, 20);
+    setTimeout(() => { clearInterval(iv); res({ y0, seen, y1: Math.round(deepAll('.row[data-key]').find((x) => x.dataset.key === key).getBoundingClientRect().top) }); }, 4700); }));
+  console.log('ticked grocery row: from y', g.y0, 'to', g.y1, '| travels:', g.seen); await p.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
