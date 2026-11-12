@@ -627,7 +627,7 @@ const ORBIT = `
   @O .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
   @O .right { gap: 6px; }
   @O .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); opacity: 1; }
-  @O .right > button.round { background: transparent; max-width: 46px; max-height: 46px; }
+  @O .right > button.round { background: transparent; }
 
   /* planner */
   @O .planner { background: transparent; border-color: transparent; padding: 6px 0 0; }

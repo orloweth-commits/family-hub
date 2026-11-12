@@ -291,6 +291,9 @@ export const styles = css`
   .toasts { position: absolute; left: 0; right: 0; bottom: calc(var(--bot) + 4px); z-index: 44; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
   .toast:empty { display: none; }
   .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn .3s ease both; }
+  /* a page's own toast (it has no strip around it) sits centred above the dock; pages sit inside the card's body, so this is measured from the page's own bottom edge */
+  :host(:not(family-hub-card)) .toast { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: min(90%, 720px); bottom: 16px; z-index: 44; }
+  :host([data-phone]:not(family-hub-card)) .toast { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
   .toast button { flex-shrink: 0; height: 44px; padding: 0 18px; margin: -6px -10px -6px 0; border-radius: 999px; background: #fff; color: #111; font-size: 15px; font-weight: var(--w-bold, 700); }
   .toast button:focus-visible { outline-color: #fff; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash .7s ease forwards; }
