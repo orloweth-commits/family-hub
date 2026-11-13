@@ -327,6 +327,9 @@ export class FhKid extends LitElement {
   private _subGen = 0;
   private _evFor = '';
   private _busy = new Set<string>();
+  /** ticks (and unticks) whose call to Home Assistant is still out: a list that arrives meanwhile, from an earlier call, must not take them back */
+  private _pending = new Map<string, Chore['status']>();
+  private _withPending(list: ParsedChore[]): ParsedChore[] { return this._pending.size ? list.map((x) => { const st = this._pending.get(x.uid); return st && x.status !== st ? { ...x, status: st } : x; }) : list; }
   private _tick?: number;
 
   connectedCallback(): void {
@@ -365,7 +368,7 @@ export class FhKid extends LitElement {
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
       const gen = ++this._subGen, list = e.chores;
-      this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { if (gen === this._subGen) this._chores = m.items.map(parseChore); }, { type: 'todo/item/subscribe', entity_id: list })
+      this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { if (gen === this._subGen) this._chores = this._withPending(m.items.map(parseChore)); }, { type: 'todo/item/subscribe', entity_id: list })
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
@@ -453,8 +456,9 @@ export class FhKid extends LitElement {
     this._busy.add(c.uid);
     const rowOf = (): Element | null => this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`);
     const slow = window.setTimeout(() => { const r = rowOf(); r?.setAttribute('data-busy', ''); r?.setAttribute('aria-busy', 'true'); }, 250);
-    const prev = this._chores;
-    this._chores = prev.map((x) => x.uid === c.uid ? { ...x, status: done ? 'needs_action' : 'completed' } : x);
+    const to: Chore['status'] = done ? 'needs_action' : 'completed';
+    this._pending.set(c.uid, to);
+    this._chores = this._chores.map((x) => x.uid === c.uid ? { ...x, status: to } : x);
     // the sound and the spark answer the touch, not Home Assistant
     if (!done) { const row = this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`), at = row?.querySelector('.check') ?? row;
       if (at) { spark('tick', at); const words = c.summary.toLowerCase();
@@ -463,7 +467,8 @@ export class FhKid extends LitElement {
         else if (row && /read|book|library/.test(words)) spark('book', row); } }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
-      await inTime(this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores }));
+      await inTime(this.hass!.callService('todo', 'update_item', { item: c.uid, status: to }, { entity_id: this._e.chores }));
+      this._pending.delete(c.uid); // saved: from here the list from Home Assistant is the truth for this job
       await inTime(this._award(c, done ? -1 : 1));
       if (done) { delete ticks[c.uid]; lsSet('fh-ticks', ticks); return; }
       ticks[c.uid] = Date.now(); lsSet('fh-ticks', ticks);
@@ -475,7 +480,8 @@ export class FhKid extends LitElement {
       this._maybeAllDone();
     } catch (err) {
       console.warn('Family Hub: chore update failed', err);
-      this._chores = prev;
+      // only this job goes back to how it was: the others ticked meanwhile keep their ticks
+      if (this._pending.delete(c.uid)) this._chores = this._chores.map((x) => x.uid === c.uid ? { ...x, status: c.status } : x);
       this._say(err instanceof SlowError ? SLOW_SAY : 'Couldn’t save that one – try again');
     } finally { this._busy.delete(c.uid); clearTimeout(slow); const r = rowOf(); r?.removeAttribute('data-busy'); r?.removeAttribute('aria-busy'); }
   }
@@ -639,7 +645,7 @@ export class FhKid extends LitElement {
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
-      <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
       ${this._picMode ? html`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
           <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}

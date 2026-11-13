@@ -223,6 +223,8 @@ export class FhMusic extends LitElement {
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
+    /* a family with a child who cannot read yet, on a tall wide screen (the wall panel): he reaches the lower half only, so the coins and "adds a song" go under the night's picks */
+    @media (min-height: 900px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
@@ -1139,7 +1141,7 @@ export class FhMusic extends LitElement {
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${one} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
         <div class="mhead" ?data-one=${one} ?data-hinting=${one && this._coach}><h1 class="t-title">Music</h1>${one ? this._tools() : nothing}
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, albums, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
@@ -1329,10 +1331,11 @@ export class FhMusic extends LitElement {
       <span class="when">${when(p)}</span></div>`;
     // whose song is waiting: that person's coin wears its cover (never a count of how many each has had)
     const theirs = (n: string): Pick | undefined => waiting.find((p) => p.who === n);
+    const jlow = this.kids.some((k) => k.mode === 'picture') ? 'jlow' : '';
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
-      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
+      <div class="coins ${jlow}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
         <span class="face"><span class="fpic">${this._face(p.name, 50)}</span>${w ? html`<i class="has" style=${w.img ? `--art:url(${w.img})` : ''}>${w.img ? nothing : solid('play', 12)}</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Next' : ''}</span></button>`; })}</div>
-      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
+      <div class="acts ${jlow}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:15px" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
         ${j.picks.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>

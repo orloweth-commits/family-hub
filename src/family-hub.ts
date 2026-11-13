@@ -1146,7 +1146,7 @@ export class FamilyHubCard extends LitElement {
           <div class="art" style=${m.attributes.entity_picture ? `--pic:url(${m.attributes.entity_picture})` : ''}></div>
           <div class="np-row" style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
             <span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.attributes.media_title ?? (m.state === 'off' ? 'Off' : 'Nothing playing')}</span>
-            <span class="muted" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${[m.attributes.media_artist, m.attributes.friendly_name].filter(Boolean).join(' · ')}</span>
+            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${[m.attributes.media_artist, m.attributes.friendly_name].filter(Boolean).join(' · ')}</span>
           </div>
         </div>
         <div class="ctl">

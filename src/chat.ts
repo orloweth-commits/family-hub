@@ -148,6 +148,23 @@ export class FhChat extends LitElement {
     :host([data-shape='tall']) .ctl { flex: 0 0 auto; }
     :host([data-shape='tall']) .starters { grid-template-columns: repeat(3, 1fr); }
     :host([data-shape='tall']) .opts { margin-top: 0; }
+    /* the on-screen keys are open on a portrait tablet (one column): the pictures step aside, so no key lies under them and the conversation keeps its room; they come back when the keys close */
+    :host([kb][data-shape='tall']) .ctl > .starters { display: none; }
+    :host([kb][data-shape='tall']) .ctl { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 10px 16px; }
+    :host([kb][data-shape='tall']) .voice { flex-direction: row; min-height: 0; max-width: none; gap: 10px; text-align: left; }
+    :host([kb][data-shape='tall']) .talk { width: 60px; height: 60px; }
+    :host([kb][data-shape='tall']) .talk svg { width: 30px; height: 30px; }
+    :host([kb][data-shape='tall']) .opts { flex: 1 1 320px; margin-top: 0; }
+    /* the keys are open in a child's low layout on a wide screen: back to two columns (conversation and keys on the left, talking and pictures on the right), because the keys and the pictures cannot share the lower half */
+    :host([kb][low][data-shape='wide']:not([data-phone])) { flex-direction: row; gap: 18px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .conv { flex: 2 1 0; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl { flex: 1 1 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice { flex-direction: row; gap: 16px; min-height: 100px; max-width: none; text-align: left; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: 20px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr 1fr; overflow-y: auto; }
+    :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
     :host([data-phone]) .thread { flex: none; height: 42vh; min-height: 220px; padding: 12px; border-radius: 18px; }
@@ -198,6 +215,7 @@ export class FhChat extends LitElement {
     this._reset();
   }
   protected updated(c: PropertyValues): void {
+    if (c.has('_keys')) this.toggleAttribute('kb', this._keys);
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
 

@@ -391,6 +391,8 @@ const GLASS = `
   /* the clock sits on its own pane of glass, so the greeting, the time and the date read over any photo and whatever drifts behind it */
   @G .clock { margin: -8px 0 -8px -14px; padding: 8px 18px 8px 14px; border-radius: 26px; background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 0 0 1px var(--glass-line); }
   @G[data-phone] .clock { margin: 0; padding: 6px 14px 8px; flex: 0 1 auto; }
+  /* phone month: the glass card's padding left each day 43 px wide; the days take 3 px back from the gaps between them, so each is a full 44 px target */
+  @G[data-phone] .cell { margin: 0 -1.5px; }
   /* the chosen look or background: a ring and a tick, never a fill */
   /* what is over is told by its ink, not by fading the whole card: the words stay readable */
   @G .ev.past, @G .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -543,6 +545,8 @@ const FRIDGE = `
   @F .row.big .content { font-size: 30px; }
   @F .row.big { background: var(--note); padding-left: 12px; }
   @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @F .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
   @F .key:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9b2a2; background: #f7f4ec; }
   @F .tab { font-weight: 600; }
@@ -567,7 +571,7 @@ const FRIDGE = `
   @F .side { border-radius: 0; overflow: visible; padding: 2px 4px; }
   @F .side > .card { rotate: calc(var(--tilt, 1) * .6deg); }
   @F .tabs { background: transparent; border-radius: 0; padding: 0; }
-  @F .rw { background: var(--chip-soft); border-radius: 8px; }
+  @F .rw { background: var(--chip-soft); color: var(--ink); border-radius: 8px; }
   @F .rw .n { font-weight: 500; font-size: 16px; }
   @F .rw button { font-weight: 600; background: #f5b301; color: #26272b; box-shadow: 0 3px 0 #a87400; }
   @F .rw button.save { background: var(--chip); color: var(--ink2); box-shadow: none; }
@@ -797,6 +801,8 @@ const ORBIT = `
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
   @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
   /* outlined controls light their line when pressed; they never shrink. Shift is a ring, and yellow only while it is latched */
   @O .key:active { background: var(--chip-strong); transform: none; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -823,7 +829,7 @@ const ORBIT = `
   @O .sec span { font-weight: 400; }
   @O .plus { background: var(--track); color: var(--ink); box-shadow: none; font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
-  @O .rw { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
+  @O .rw { background: transparent; color: var(--ink); border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
   @O .rw .n { font-weight: 400; }
   @O .rw button { font-weight: 600; }
   @O .rw button.save { background: var(--chip); color: var(--ink2); }
@@ -1011,6 +1017,8 @@ const SPORTS = `
   @S .check { border-radius: 8px; border: 2px solid var(--ink); background: var(--panel); }
   @S .done .check { background: var(--ok); border-color: var(--ok); color: var(--on-ok); }
   @S .field { background: transparent; box-shadow: none; border-radius: 0; border-bottom: 2.5px solid var(--ink); font-weight: 700; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @S .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   /* keys: bench-seat tiles that sink when pressed */
   @S .key { background: var(--panel2); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); font-weight: 700; }
   @S .key:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 1.5px var(--line); background: var(--panel); }
@@ -1174,7 +1182,8 @@ const SPORTS = `
 
   /* a child's page: his peg in the change room. Only his own progress is ever shown */
   @S .hero::before { display: none; }
-  @S .name { font-size: 44px; font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
+  /* the name is as big as its length allows (--nl, its letters, comes from the page), so a seven-letter name stays on one line beside the rank and is never broken mid-word */
+  @S .name { font-size: clamp(30px, calc(300px / var(--nl, 6)), 44px); font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
   @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
   @S .stat { background: var(--panel2); border-radius: 10px; }
   @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
@@ -1193,7 +1202,7 @@ const SPORTS = `
   @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
-  @S .rw { background: var(--panel2); border-radius: 10px; min-height: 52px; }
+  @S .rw { background: var(--panel2); color: var(--ink); border-radius: 10px; min-height: 52px; }
   @S .side { gap: 10px; border-radius: 14px; }
   @S .rw button { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .rw button.save { background: transparent; color: var(--ink2); box-shadow: none; text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
@@ -1368,13 +1377,25 @@ const SPORTS = `
   @S[data-shape='tall'] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
   @S[data-shape='tall'] .dock .item { min-width: 62px; }
   @S[data-shape='tall'] .dock .sep { margin: 0 4px 22px; }
+  /* small landscape tablets (under 1100 px): the touchline keeps its full width, and the balls stand closer so the first and last are never off the ground */
+  @S[data-n2] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
+  @S[data-n2] .dock .item { min-width: 62px; padding: 0 6px; flex-shrink: 0; }
+  @S[data-n2] .dock .sep { margin: 0 4px 22px; }
+  /* the kitchen timer's quick pills in the narrow rail (under 1240 px): the number over its unit, so “+10 min” keeps clear of the pill's ring at the full 15 px */
+  @S[data-n1] .quick { white-space: normal; word-spacing: 100vw; line-height: 1.05; padding: 0 4px; }
+  /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
+  @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
+  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
+  @S[data-n3] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
+  @S[data-n3] .dock .sep { margin: 0 2px 20px; }
+  @S[data-n3] .dock .kidbtn .avatar { scale: 1.08; }
   /* phone: the scoreboard shrinks; the dock is the touchline along the bottom */
   @S[data-phone] .sboard { --u: 34px; }
   @S[data-phone] .weather .verdict { display: none; }
   @S[data-phone] .night .sboard { --u: 84px; }
   @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
   @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
-  @S[data-phone] .dock .item { min-width: 64px; height: 74px; font-size: 14px; gap: 5px; }
+  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: 14px; gap: 5px; }
   @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
   @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }

@@ -24,6 +24,13 @@ export class FhStudio extends LitElement {
     .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .tabs.pics { display: flex; flex-wrap: wrap; }
     .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
+    .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
+    /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
+    :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .tabs { order: 3; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .sw { order: 2; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .grid { align-content: safe end; }
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
     .label { font-size: 14px; }
     /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
@@ -121,8 +128,8 @@ export class FhStudio extends LitElement {
     const dirty = !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
-      <section class="glass mirror">
-        <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
+      <section class="glass mirror ${this._picMode ? 'low' : ''}">
+        <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label=${dirty ? 'Back, and keep this look' : 'Back'} @click=${() => { if (dirty) void this._save(); else this.dispatchEvent(new CustomEvent('close')); }}>${icon('left', 18)}</button>
           <h1 class="t-title" style="flex:1">${this.kid.name}’s studio</h1>
           <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${icon('shuffle', 18)}</button>
@@ -131,12 +138,12 @@ export class FhStudio extends LitElement {
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
-        <div style="display:flex;gap:10px;width:100%;margin-top:auto;z-index:1">
+        <div class="sfoot">
           <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
           <button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>
         </div>
       </section>
-      <section class="glass shelf">
+      <section class="glass shelf ${this._picMode ? 'low' : ''}">
         <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="width:60px">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
