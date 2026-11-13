@@ -174,11 +174,11 @@ export class FamilyHubCard extends LitElement {
     for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) throw new Error(`Family Hub: "${c.entity}" isn't a calendar entity`);
     if (config.parent_pin !== undefined && !/^\d{4,8}$/.test(String(config.parent_pin))) throw new Error('Family Hub: parent_pin should be 4–8 digits (put it in quotes)');
     if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') throw new Error('Family Hub: sounds should be true, false or quiet');
+    if (config.keep_on !== undefined && !(Array.isArray(config.keep_on) && config.keep_on.every((x) => typeof x === 'string'))) throw new Error('Family Hub: keep_on should be a list of entity ids, e.g. [light.hallway_night]');
     this._config = config;
     let snd: string | null = null;
     try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
     this._snd = snd === 'on' || snd === 'quiet' || snd === 'off' ? snd : config.sounds === false ? 'off' : config.sounds === 'quiet' ? 'quiet' : 'on';
-    if (config.keep_on !== undefined && !(Array.isArray(config.keep_on) && config.keep_on.every((x) => typeof x === 'string'))) throw new Error('Family Hub: keep_on should be a list of entity ids, e.g. [light.hallway_night]');
     setSounds(this._snd === 'off' ? false : this._snd === 'quiet' ? 'quiet' : true);
     let saved: string | null = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
@@ -849,14 +849,6 @@ export class FamilyHubCard extends LitElement {
     if (!off.length) { this._say(what); return; }
     this._say(what, 10_000, { label: 'Undo', run: () => { void this._call('light', 'turn_off', { entity_id: off }).then((done) => { if (done) this._say('Back off'); }); } });
   }
-  private async _allOff(): Promise<void> {
-    if (this._sceneBusy) return;
-    const lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on'), kept = this._kept();
-    const on = lit.filter((s) => !kept.has(s.entity_id)).map((s) => s.entity_id);
-    // how many things stay on: the lights themselves, not the groups that only hold them
-    const stay = lit.filter((s) => kept.has(s.entity_id)), leaves = stay.filter((s) => !Array.isArray(s.attributes.entity_id)), n = (leaves.length || stay.length);
-    const keptSay = n ? ` (${n} thing${n === 1 ? '' : 's'} kept on)` : '';
-    if (!on.length) { this._say(n ? `Nothing else to turn off${keptSay}` : 'Everything’s already off'); return; }
   /**
    * What "All off" leaves alone: everything named in `keep_on`, anything inside a group named there, and any group that has one of
    * those inside it (switching the group off would switch its kept member off with it; its other members are still switched off one by one).
@@ -871,6 +863,14 @@ export class FamilyHubCard extends LitElement {
     for (let grew = true; grew;) { grew = false; for (const id of Object.keys(S)) if (!kept.has(id) && inside(id).some((m) => kept.has(m))) { kept.add(id); grew = true; } }
     return kept;
   }
+  private async _allOff(): Promise<void> {
+    if (this._sceneBusy) return;
+    const lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on'), kept = this._kept();
+    const on = lit.filter((s) => !kept.has(s.entity_id)).map((s) => s.entity_id);
+    // how many things stay on: the lights themselves, not the groups that only hold them
+    const stay = lit.filter((s) => kept.has(s.entity_id)), leaves = stay.filter((s) => !Array.isArray(s.attributes.entity_id)), n = (leaves.length || stay.length);
+    const keptSay = n ? ` (${n} thing${n === 1 ? '' : 's'} kept on)` : '';
+    if (!on.length) { this._say(n ? `Nothing else to turn off${keptSay}` : 'Everything’s already off'); return; }
     this._sceneBusy = true;
     const ok = await this._call('light', 'turn_off', { entity_id: on });
     this._sceneBusy = false;
