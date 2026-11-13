@@ -112,7 +112,7 @@ art:                                # the screensaver, the artwork and painted c
   cap: 40                           # stop painting when the month's reckoned spend reaches this many US dollars
   looks_per_day: 3                  # new looks each child may have painted in a day
 sounds: true                        # touch sounds from the panel's own speaker: true, "quiet" (softer) or false; the kitchen timer always sounds
-add_calendar: calendar.family
+add_calendar: calendar.family       # new events go here unless another calendar is picked
 babysitter: { title: House info, lines: ["Bedtime 7:30"] }
 calendars:
   - { entity: calendar.family, colour: family, name: Family }
@@ -213,6 +213,7 @@ All personal details live in your Home Assistant configuration, never in this re
 
 ## Pictures: the screensaver, painted characters and the nightly artwork
 
+- **Events.** Tap an event to see it. Where its calendar allows it, **Change** and **Delete** are offered (behind the parent PIN when one is set). New events can repeat (the usual choices, or every N days, weeks, months or years, on chosen days, ending never, on a date or after a number of times) and can carry notes. For one of a repeating series it asks which: just this one, this and later ones, or all of them. A calendar that cannot change an event in place (Google's, through Home Assistant) has the new one added first and the old one removed after.
 - **Screensaver.** After `art.idle_minutes` the page fades (2.5 s) into the artwork with a clock dressed for the look, a line or two of news (leaving time, the next event, the bins, the weather) and slow movement; the clock wanders so no pixel rests. A touch brings the hub back in a quarter of a second, and that touch presses nothing else. After the earliest bedtime among the children, until the end of quiet hours, it is a dim clock only. It never covers a running timer, an alarm, a call, an open sheet, the keyboard or a music session. The screen is never switched off; an optional `art.backlight` entity is dimmed instead, and nothing happens if that entity does not exist.
 - **Presence.** `sensor`: pair any occupancy, motion or presence `binary_sensor` in Home Assistant and choose it in Settings, Pictures; no YAML. `camera`: the browser looks at a 48 x 36 copy of the camera picture twice a second for movement; nothing is stored or sent, only "something moved". A camera needs a secure page: either open Home Assistant over https, or (Edge in kiosk mode) set the policies `OverrideSecurityRestrictionsOnInsecureOrigin` and `VideoCaptureAllowedUrls` to the panel's address. Settings says so when the camera cannot be reached.
 - **Painted characters.** Give a child a `sheet` (a character sheet image in Home Assistant's local media), a few words `about` him, and `look: "img=<file>"` for his starting picture: the picture then stands in for the drawn avatar everywhere, and his style studio paints his looks from the sheet through Home Assistant's `ai_task.generate_image` (hats, faces, clothes, gear, buddies, places, hair and moods; every word sent to the painter is in `src/wardrobe.ts`, a child never types one). Each combination is painted once and kept; `art.looks_per_day` limits new ones.
