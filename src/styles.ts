@@ -406,6 +406,20 @@ export const styles = css`
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
   .dock .sep { width: 1px; height: 36px; background: var(--track); margin: 0 6px; }
+  /* places to go and things done to the whole house are two groups: a wider gap stands between them */
+  .dock .sep.wide { margin: 0 18px; }
+  :host([data-n1]) .dock .sep.wide { margin: 0 8px; } :host([data-phone]) .dock .sep.wide { margin: 0 10px; }
+  .hb[data-act='more'] svg.i { stroke-width: 3.4; }
+  /* the More sheet: what left the header, as big named buttons */
+  .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
+  .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: 18px; font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: 14px; font-weight: var(--w-semi, 600); }
+  .morebtn svg.i { flex-shrink: 0; }
+  :host([data-phone]) .moregrid { grid-template-columns: 1fr; }
+  /* the planner at rest: today is larger (its column is widened where the week is drawn) and the other days step back */
+  .week { transition: grid-template-columns var(--mt-4) var(--e-out); }
+  .week .col { transition: opacity var(--m-4) ease; }
+  .week[data-rest] .col:not(.today) { opacity: .5; }
   .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
 
   /* sheets, toasts, night */

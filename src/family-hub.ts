@@ -44,8 +44,8 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.32.2';
+type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
+const VERSION = '0.33.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1163,7 +1163,9 @@ export class FamilyHubCard extends LitElement {
     const m = c.music_player ? this.hass?.states[c.music_player] : undefined;
     if (m?.state === 'playing' && this._page !== 'music' && this._page !== 'planner') chips.push([6, html`<button class="cap tap" data-kind="music" data-p="6" aria-label=${`Playing: ${m.attributes.media_title ?? 'music'}. Open Music`} @click=${() => { this._page = 'music'; }}>${icon('music', 20)}<span class="ell">${m.attributes.media_title ?? 'Playing'}</span></button>`]);
     // at most two chips, most urgent first; _fitHeader then takes out whole chips that do not fit the row
-    return html`<div class="capsule" aria-live="polite">${chips.sort((x, y) => x[0] - y[0]).slice(0, 2).map((x) => x[1])}</div>`;
+    // the header says two things at most: the one most urgent thing (medicine, the timer, someone asking for a chat, the bins, a message, the music) and what is next on the calendar
+    const nextUp = chips.find((x) => x[0] === 3), urgent = chips.filter((x) => x[0] !== 3).sort((x, y) => x[0] - y[0])[0];
+    return html`<div class="capsule" aria-live="polite">${[urgent, nextUp].filter((x): x is [number, TemplateResult] => !!x).map((x) => x[1])}</div>`;
   }
 
   /** On a child's page: only his own next event (and the kitchen timer in its last minute). */
@@ -1207,16 +1209,9 @@ export class FamilyHubCard extends LitElement {
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${icon('sun', 14)}UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
             </button>` : nothing}
-          ${tracked.length && !kid ? html`
-            <button class="glass presence tap" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
-              <span class="phome" aria-hidden="true">${icon('home', 18)}</span>
-              ${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}
-            </button>` : nothing}
           ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
-          <button class="glass tap round hb" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${kid ? icon('cog') : art('palette')}<span class="rl" aria-hidden="true">${kid ? 'Settings' : 'Looks'}</span></button>
-          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${art('pill')}<span class="rl" aria-hidden="true">Medicine</span></button>` : nothing}
-          ${!kid ? html`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${art('info')}<span class="rl" aria-hidden="true">House info</span></button>` : nothing}
-          <button class="glass tap round hb" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${art('moon')}<span class="rl" aria-hidden="true">Night</span></button>
+          ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`
+            : html`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${c.meds?.length || c.med_log ? 'medicine, ' : ''}house info, night${tracked.length ? ' and who is home' : ''}" aria-haspopup="dialog" @click=${() => { this._sheet = 'more'; }}>${icon('more')}<span class="rl" aria-hidden="true">More</span></button>`}
         </div>
       </header>`;
   }
@@ -1278,9 +1273,11 @@ export class FamilyHubCard extends LitElement {
   private _week(a: Date): TemplateResult {
     const today = new Date();
     const days = Array.from({ length: this._span }, (_, i) => addDays(a, i));
-    const cols = days.map((d) => (sameDay(d, today) ? '1.4fr' : '1fr')).join(' ');
+    // nobody has touched the panel for a minute: today takes more of the week and the other days step back, for a glance from across the room
+    const rest = this._idle && days.some((d) => sameDay(d, today)) && !this._sheet;
+    const cols = days.map((d) => (sameDay(d, today) ? (rest ? '2.3fr' : '1.4fr') : '1fr')).join(' ');
     const none = this._evKey === this._fetchedKey && !this._events.length;
-    return html`<div class="weekwrap"><div class="week" style="grid-template-columns:${cols}">
+    return html`<div class="weekwrap"><div class="week" ?data-rest=${rest} style="grid-template-columns:${cols}">
       ${days.map((d) => {
         const evs = this._eventsOn(d), isToday = sameDay(d, today);
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
@@ -1382,6 +1379,13 @@ export class FamilyHubCard extends LitElement {
     const item = (ic: string, label: string, on: () => void, current = false) =>
       html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
+    // on a child's page the dock is his face and the way home: nothing else to look at or press
+    if (this._page === 'kid' && kids[this._kid]) { const k = kids[this._kid], e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
+      return html`<nav class="glass dock" data-kid aria-label="Main" @click=${this._btnJust}>
+        <button class="item kidbtn tap" style="--kidc:${slotVar(k.colour)}" aria-current="page"><span class="avatar" style="width:44px;height:44px;background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 44, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span><span class="lb kn" data-t=${k.name}>${k.name}</span></button>
+        <span class="sep" aria-hidden="true"></span>
+        ${item('home', 'Home', () => { this._page = this._morningWindow() ? 'morning' : 'planner'; }, false)}
+      </nav>`; }
     return html`<nav class="glass dock" aria-label="Main" @click=${this._btnJust} @scroll=${(e: Event) => { const d = e.currentTarget as HTMLElement; d.toggleAttribute('data-more', d.scrollWidth - d.scrollLeft - d.clientWidth > 6); }}>
       ${kids.map((k, i) => {
         const e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state;
@@ -1398,7 +1402,7 @@ export class FamilyHubCard extends LitElement {
       ${item('music', 'Music', () => { this._page = 'music'; }, this._page === 'music')}
       ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
-      <span class="sep" aria-hidden="true"></span>
+      <span class="sep wide" aria-hidden="true"></span>
       <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26)}All on</button>
       <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26)}All off</button>
       ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${art('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
@@ -1454,10 +1458,25 @@ export class FamilyHubCard extends LitElement {
           <p class="ainote">${AI_NOTE}</p>
           ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? ''} .ttsVoice=${ch.tts_voice ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
-    const body = s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
+    const body = s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
-        data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
+        data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' || s === 'more' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
+  }
+  /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */
+  private _moreBody(): TemplateResult {
+    const c = this._config, h = this.hass, tracked = (c.people ?? []).filter((p) => p.entity);
+    const go = (act: string, ic: string, label: string, sub: string, run: () => void): TemplateResult =>
+      html`<button class="morebtn tap" data-act=${act} @click=${run}>${art(ic, 30)}<span><b>${label}</b><span class="muted">${sub}</span></span></button>`;
+    return html`${this._sheetHead('More', '', '')}
+      <div class="moregrid">
+        ${go('looks', 'palette', 'Looks', 'Change how the panel looks', () => { this._sheet = ''; this._openLooks(); })}
+        ${c.meds?.length || c.med_log ? go('meds', 'pill', 'Medicine', 'Given today, and the record', () => { this._sheet = 'meds'; void this._loadMedLog(); }) : nothing}
+        ${go('info', 'info', 'House info', 'For babysitters and visitors', () => { this._sheet = 'sitter'; })}
+        ${go('night', 'moon', 'Night', 'Dim the screen now', () => { this._sheet = ''; this._nightManual = true; })}
+      </div>
+      ${tracked.length ? html`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
+        <span class="phome" aria-hidden="true">${icon('home', 18)}</span>${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : nothing}`;
   }
   private _sheetHead(title: string, sub = '', ic = '', extra: TemplateResult | typeof nothing = nothing): TemplateResult {
     return html`<div class="shead">

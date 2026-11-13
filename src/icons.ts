@@ -44,7 +44,8 @@ const P: Record<string, string> = {
   desk: 'M6 4v16M12 4v16M18 4v16M4 9h4M10 15h4M16 7h4',
   plug: 'M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4',
   scene: 'M3 18h18M5.5 18l1.5 3h10l1.5-3M12 4v14M12 5l6 9h-6',
-  list: 'M4 6h16M4 12h16M4 18h16'
+  list: 'M4 6h16M4 12h16M4 18h16',
+  more: 'M5.5 12h.01M12 12h.01M18.5 12h.01'
 };
 const F: Record<string, string> = {
   play: 'M8 5.5v13l10.5-6.5z',

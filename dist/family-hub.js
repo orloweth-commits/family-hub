@@ -262,9 +262,9 @@ $a.elementStyles = [], $a.shadowRootOptions = { mode: "open" }, $a[qi("elementPr
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Sn = globalThis, ol = (a) => a, Rs = Sn.trustedTypes, rl = Rs ? Rs.createPolicy("lit-html", { createHTML: (a) => a }) : void 0, Nd = "$lit$", Be = `lit$${Math.random().toFixed(9).slice(2)}$`, Td = "?" + Be, wh = `<${Td}>`, ka = document, Fi = () => ka.createComment(""), _i = (a) => a === null || typeof a != "object" && typeof a != "function", Fn = Array.isArray, yh = (a) => Fn(a) || typeof a?.[Symbol.iterator] == "function", bo = `[ 	
-\f\r]`, Xa = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, nl = /-->/g, ll = />/g, Ee = RegExp(`>|${bo}(?:([^\\s"'>=/]+)(${bo}*=${bo}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), pl = /'/g, dl = /"/g, zd = /^(?:script|style|textarea|title)$/i, Wd = (a) => (t, ...e) => ({ _$litType$: a, strings: t, values: e }), l = Wd(1), b = Wd(2), wa = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), cl = /* @__PURE__ */ new WeakMap(), ha = ka.createTreeWalker(ka, 129);
+const Sn = globalThis, ol = (a) => a, Rs = Sn.trustedTypes, rl = Rs ? Rs.createPolicy("lit-html", { createHTML: (a) => a }) : void 0, Nd = "$lit$", Ze = `lit$${Math.random().toFixed(9).slice(2)}$`, Td = "?" + Ze, wh = `<${Td}>`, xa = document, Fi = () => xa.createComment(""), _i = (a) => a === null || typeof a != "object" && typeof a != "function", Fn = Array.isArray, yh = (a) => Fn(a) || typeof a?.[Symbol.iterator] == "function", bo = `[ 	
+\f\r]`, Xa = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, nl = /-->/g, ll = />/g, He = RegExp(`>|${bo}(?:([^\\s"'>=/]+)(${bo}*=${bo}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), pl = /'/g, dl = /"/g, zd = /^(?:script|style|textarea|title)$/i, Wd = (a) => (t, ...e) => ({ _$litType$: a, strings: t, values: e }), l = Wd(1), b = Wd(2), ka = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), cl = /* @__PURE__ */ new WeakMap(), ca = xa.createTreeWalker(xa, 129);
 function Cd(a, t) {
   if (!Fn(a) || !a.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return rl !== void 0 ? rl.createHTML(t) : t;
@@ -274,10 +274,10 @@ const vh = (a, t) => {
   let s, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = Xa;
   for (let n = 0; n < e; n++) {
     const p = a[n];
-    let d, c, h = -1, f = 0;
-    for (; f < p.length && (r.lastIndex = f, c = r.exec(p), c !== null); ) f = r.lastIndex, r === Xa ? c[1] === "!--" ? r = nl : c[1] !== void 0 ? r = ll : c[2] !== void 0 ? (zd.test(c[2]) && (s = RegExp("</" + c[2], "g")), r = Ee) : c[3] !== void 0 && (r = Ee) : r === Ee ? c[0] === ">" ? (r = s ?? Xa, h = -1) : c[1] === void 0 ? h = -2 : (h = r.lastIndex - c[2].length, d = c[1], r = c[3] === void 0 ? Ee : c[3] === '"' ? dl : pl) : r === dl || r === pl ? r = Ee : r === nl || r === ll ? r = Xa : (r = Ee, s = void 0);
-    const m = r === Ee && a[n + 1].startsWith("/>") ? " " : "";
-    o += r === Xa ? p + wh : h >= 0 ? (i.push(d), p.slice(0, h) + Nd + p.slice(h) + Be + m) : p + Be + (h === -2 ? n : m);
+    let c, d, h = -1, f = 0;
+    for (; f < p.length && (r.lastIndex = f, d = r.exec(p), d !== null); ) f = r.lastIndex, r === Xa ? d[1] === "!--" ? r = nl : d[1] !== void 0 ? r = ll : d[2] !== void 0 ? (zd.test(d[2]) && (s = RegExp("</" + d[2], "g")), r = He) : d[3] !== void 0 && (r = He) : r === He ? d[0] === ">" ? (r = s ?? Xa, h = -1) : d[1] === void 0 ? h = -2 : (h = r.lastIndex - d[2].length, c = d[1], r = d[3] === void 0 ? He : d[3] === '"' ? dl : pl) : r === dl || r === pl ? r = He : r === nl || r === ll ? r = Xa : (r = He, s = void 0);
+    const m = r === He && a[n + 1].startsWith("/>") ? " " : "";
+    o += r === Xa ? p + wh : h >= 0 ? (i.push(c), p.slice(0, h) + Nd + p.slice(h) + Ze + m) : p + Ze + (h === -2 ? n : m);
   }
   return [Cd(a, o + (a[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -286,40 +286,40 @@ class Ri {
     let s;
     this.parts = [];
     let o = 0, r = 0;
-    const n = t.length - 1, p = this.parts, [d, c] = vh(t, e);
-    if (this.el = Ri.createElement(d, i), ha.currentNode = this.el.content, e === 2 || e === 3) {
+    const n = t.length - 1, p = this.parts, [c, d] = vh(t, e);
+    if (this.el = Ri.createElement(c, i), ca.currentNode = this.el.content, e === 2 || e === 3) {
       const h = this.el.content.firstChild;
       h.replaceWith(...h.childNodes);
     }
-    for (; (s = ha.nextNode()) !== null && p.length < n; ) {
+    for (; (s = ca.nextNode()) !== null && p.length < n; ) {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(Nd)) {
-          const f = c[r++], m = s.getAttribute(h).split(Be), u = /([.?@])?(.*)/.exec(f);
+          const f = d[r++], m = s.getAttribute(h).split(Ze), u = /([.?@])?(.*)/.exec(f);
           p.push({ type: 1, index: o, name: u[2], strings: m, ctor: u[1] === "." ? Uh : u[1] === "?" ? qh : u[1] === "@" ? Ah : ro }), s.removeAttribute(h);
-        } else h.startsWith(Be) && (p.push({ type: 6, index: o }), s.removeAttribute(h));
+        } else h.startsWith(Ze) && (p.push({ type: 6, index: o }), s.removeAttribute(h));
         if (zd.test(s.tagName)) {
-          const h = s.textContent.split(Be), f = h.length - 1;
+          const h = s.textContent.split(Ze), f = h.length - 1;
           if (f > 0) {
             s.textContent = Rs ? Rs.emptyScript : "";
-            for (let m = 0; m < f; m++) s.append(h[m], Fi()), ha.nextNode(), p.push({ type: 2, index: ++o });
+            for (let m = 0; m < f; m++) s.append(h[m], Fi()), ca.nextNode(), p.push({ type: 2, index: ++o });
             s.append(h[f], Fi());
           }
         }
       } else if (s.nodeType === 8) if (s.data === Td) p.push({ type: 2, index: o });
       else {
         let h = -1;
-        for (; (h = s.data.indexOf(Be, h + 1)) !== -1; ) p.push({ type: 7, index: o }), h += Be.length - 1;
+        for (; (h = s.data.indexOf(Ze, h + 1)) !== -1; ) p.push({ type: 7, index: o }), h += Ze.length - 1;
       }
       o++;
     }
   }
   static createElement(t, e) {
-    const i = ka.createElement("template");
+    const i = xa.createElement("template");
     return i.innerHTML = t, i;
   }
 }
 function Qa(a, t, e = a, i) {
-  if (t === wa) return t;
+  if (t === ka) return t;
   let s = i !== void 0 ? e._$Co?.[i] : e._$Cl;
   const o = _i(t) ? void 0 : t._$litDirective$;
   return s?.constructor !== o && (s?._$AO?.(!1), o === void 0 ? s = void 0 : (s = new o(a), s._$AT(a, e, i)), i !== void 0 ? (e._$Co ??= [])[i] = s : e._$Cl = s), s !== void 0 && (t = Qa(a, s._$AS(a, t.values), s, i)), t;
@@ -335,17 +335,17 @@ let Kh = class {
     return this._$AM._$AU;
   }
   u(t) {
-    const { el: { content: e }, parts: i } = this._$AD, s = (t?.creationScope ?? ka).importNode(e, !0);
-    ha.currentNode = s;
-    let o = ha.nextNode(), r = 0, n = 0, p = i[0];
+    const { el: { content: e }, parts: i } = this._$AD, s = (t?.creationScope ?? xa).importNode(e, !0);
+    ca.currentNode = s;
+    let o = ca.nextNode(), r = 0, n = 0, p = i[0];
     for (; p !== void 0; ) {
       if (r === p.index) {
-        let d;
-        p.type === 2 ? d = new Ti(o, o.nextSibling, this, t) : p.type === 1 ? d = new p.ctor(o, p.name, p.strings, this, t) : p.type === 6 && (d = new Mh(o, this, t)), this._$AV.push(d), p = i[++n];
+        let c;
+        p.type === 2 ? c = new Ti(o, o.nextSibling, this, t) : p.type === 1 ? c = new p.ctor(o, p.name, p.strings, this, t) : p.type === 6 && (c = new Mh(o, this, t)), this._$AV.push(c), p = i[++n];
       }
-      r !== p?.index && (o = ha.nextNode(), r++);
+      r !== p?.index && (o = ca.nextNode(), r++);
     }
-    return ha.currentNode = ka, s;
+    return ca.currentNode = xa, s;
   }
   p(t) {
     let e = 0;
@@ -371,7 +371,7 @@ class Ti {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = Qa(this, t, e), _i(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== wa && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : yh(t) ? this.k(t) : this._(t);
+    t = Qa(this, t, e), _i(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== ka && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : yh(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -380,7 +380,7 @@ class Ti {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== g && _i(this._$AH) ? this._$AA.nextSibling.data = t : this.T(ka.createTextNode(t)), this._$AH = t;
+    this._$AH !== g && _i(this._$AH) ? this._$AA.nextSibling.data = t : this.T(xa.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     const { values: e, _$litType$: i } = t, s = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = Ri.createElement(Cd(i.h, i.h[0]), this.options)), i);
@@ -424,11 +424,11 @@ let ro = class {
   _$AI(t, e = this, i, s) {
     const o = this.strings;
     let r = !1;
-    if (o === void 0) t = Qa(this, t, e, 0), r = !_i(t) || t !== this._$AH && t !== wa, r && (this._$AH = t);
+    if (o === void 0) t = Qa(this, t, e, 0), r = !_i(t) || t !== this._$AH && t !== ka, r && (this._$AH = t);
     else {
       const n = t;
-      let p, d;
-      for (t = o[0], p = 0; p < o.length - 1; p++) d = Qa(this, n[i + p], e, p), d === wa && (d = this._$AH[p]), r ||= !_i(d) || d !== this._$AH[p], d === g ? t = g : t !== g && (t += (d ?? "") + o[p + 1]), this._$AH[p] = d;
+      let p, c;
+      for (t = o[0], p = 0; p < o.length - 1; p++) c = Qa(this, n[i + p], e, p), c === ka && (c = this._$AH[p]), r ||= !_i(c) || c !== this._$AH[p], c === g ? t = g : t !== g && (t += (c ?? "") + o[p + 1]), this._$AH[p] = c;
     }
     r && !s && this.j(t);
   }
@@ -457,7 +457,7 @@ class Ah extends ro {
     super(t, e, i, s, o), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = Qa(this, t, e, 0) ?? g) === wa) return;
+    if ((t = Qa(this, t, e, 0) ?? g) === ka) return;
     const i = this._$AH, s = t === g && i !== g || t.capture !== i.capture || t.once !== i.once || t.passive !== i.passive, o = t !== g && (i === g || s);
     s && this.element.removeEventListener(this.name, this, i), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
@@ -493,7 +493,7 @@ const Fh = (a, t, e) => {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const _n = globalThis;
-let ht = class extends $a {
+let ft = class extends $a {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -512,12 +512,12 @@ let ht = class extends $a {
     super.disconnectedCallback(), this._$Do?.setConnected(!1);
   }
   render() {
-    return wa;
+    return ka;
   }
 };
-ht._$litElement$ = !0, ht.finalized = !0, _n.litElementHydrateSupport?.({ LitElement: ht });
+ft._$litElement$ = !0, ft.finalized = !0, _n.litElementHydrateSupport?.({ LitElement: ft });
 const _h = _n.litElementPolyfillSupport;
-_h?.({ LitElement: ht });
+_h?.({ LitElement: ft });
 (_n.litElementVersions ??= []).push("4.2.2");
 /**
  * @license
@@ -552,7 +552,7 @@ const Vh = {}, $h = (a, t = Vh) => a._$AH = t;
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Je = jd(class extends Ld {
+const Ie = jd(class extends Ld {
   constructor() {
     super(...arguments), this.key = g;
   }
@@ -722,7 +722,7 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
   clarinet: "own",
   trumpet: "own",
   roar: "own"
-}, R = (a, t, e, i, s, o = {}) => ({ w: a, f: t, t: e, d: i, g: s, ...o }), L = (a, t, e, i, s, o = {}) => ({ w: "noise", f: 0, ft: a, ff: t, t: e, d: i, g: s, ...o }), ta = (a) => Math.max(270, a), Jh = (a) => a.reduce((t, e) => Math.max(t, e.t + e.d), 0), Ph = (a, t, e) => Array.from({ length: t }, (i, s) => a.map((o) => ({ ...o, t: o.t + s * e }))).flat(), mr = (a, t) => a.map((e) => {
+}, R = (a, t, e, i, s, o = {}) => ({ w: a, f: t, t: e, d: i, g: s, ...o }), L = (a, t, e, i, s, o = {}) => ({ w: "noise", f: 0, ft: a, ff: t, t: e, d: i, g: s, ...o }), Ee = (a) => Math.max(270, a), Jh = (a) => a.reduce((t, e) => Math.max(t, e.t + e.d), 0), Ph = (a, t, e) => Array.from({ length: t }, (i, s) => a.map((o) => ({ ...o, t: o.t + s * e }))).flat(), mr = (a, t) => a.map((e) => {
   if (e.w !== "noise") return e.ft ? { ...e, ff: Math.min(e.ff ?? t, t) } : { ...e, ft: "lowpass", ff: t };
   const i = (s) => s === void 0 ? void 0 : Math.min(s, t * 0.8);
   return { ...e, ft: e.ft === "highpass" ? "bandpass" : e.ft, ff: i(e.ff), fto: i(e.fto), cut: t };
@@ -736,9 +736,9 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     pace: 0.86,
     lp: 2800,
     note: (a, t, e, i, s) => [R("sine", s ? a : a * 0.82, t, i, e, { to: s ?? a, gd: s ? i : 0.028 }), R("sine", a * 2, t, i * 0.5, e * 0.14)],
-    click: (a, t, e = 1) => [R("sine", 880 * e, a, 0.026, t, { to: ta(540 * e) }), L("bandpass", 720 * e, a, 0.012, t * 0.6, { q: 1 })],
+    click: (a, t, e = 1) => [R("sine", 880 * e, a, 0.026, t, { to: Ee(540 * e) }), L("bandpass", 720 * e, a, 0.012, t * 0.6, { q: 1 })],
     air: (a, t, e, i) => [L("bandpass", i ? 520 : 1500, a, t, e, { fto: i ? 1500 : 520, q: 0.9, a: t * 0.35 })],
-    knock: (a, t, e = 1) => [R("sine", 370 * e, a, 0.075, t, { to: ta(300 * e) }), L("bandpass", 560, a, 0.012, t * 0.4, { q: 1 })],
+    knock: (a, t, e = 1) => [R("sine", 370 * e, a, 0.075, t, { to: Ee(300 * e) }), L("bandpass", 560, a, 0.012, t * 0.4, { q: 1 })],
     sig: (a) => [...I.sea.air(0, 0.12, 0.35, !0), ...I.sea.note(a(4), 0.04, 0.7, 0.1), ...I.sea.note(a(2), 0.14, 0.7, 0.1), ...I.sea.note(a(5), 0.24, 0.8, 0.15)],
     poke: () => [R("sine", 520, 0, 0.06, 0.8, { to: 1050 }), R("sine", 760, 0.075, 0.045, 0.6, { to: 1500 }), R("sine", 980, 0.13, 0.03, 0.4, { to: 1800 })]
   },
@@ -810,9 +810,9 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     scale: [0, 4, 7, 12, 14, 16, 19, 24],
     pace: 0.84,
     note: (a, t, e, i, s) => [R("triangle", a, t, i, e, { to: s }), R("sine", a * 3.01, t, i * 0.4, e * 0.2), L("bandpass", 4e3, t, 5e-3, e * 0.3, { q: 5, a: 2e-3 })],
-    click: (a, t, e = 1) => [L("bandpass", 1700 * e, a, 9e-3, t, { q: 1.5, a: 2e-3 }), R("sine", ta(430 * e), a, 0.028, t * 0.5, { to: ta(340 * e) })],
+    click: (a, t, e = 1) => [L("bandpass", 1700 * e, a, 9e-3, t, { q: 1.5, a: 2e-3 }), R("sine", Ee(430 * e), a, 0.028, t * 0.5, { to: Ee(340 * e) })],
     air: (a, t, e, i) => [L("bandpass", i ? 1800 : 3600, a, t, e * 0.7, { fto: i ? 3600 : 1800, q: 1.4, a: t * 0.3, cut: 5500 })],
-    knock: (a, t, e = 1) => [R("sine", 345 * e, a, 0.07, t, { to: ta(300 * e) }), L("bandpass", 800, a, 0.01, t * 0.4, { q: 1 })],
+    knock: (a, t, e = 1) => [R("sine", 345 * e, a, 0.07, t, { to: Ee(300 * e) }), L("bandpass", 800, a, 0.01, t * 0.4, { q: 1 })],
     sig: (a) => [...I.fridge.air(0, 0.05, 0.6, !0), ...I.fridge.click(0.055, 1), ...I.fridge.note(a(4), 0.12, 0.8, 0.14)],
     poke: () => [L("bandpass", 1200, 0, 0.05, 0.6, { fto: 2600, q: 2, a: 0.01 }), ...I.fridge.click(0.055, 1)]
   },
@@ -838,7 +838,7 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     scale: [0, 4, 7, 12, 16, 19, 24, 28],
     pace: 0.82,
     note: (a, t, e, i, s) => [R("triangle", a, t, i, e, { to: s }), L("bandpass", 2200, t, 8e-3, e * 0.45, { q: 1.2, a: 2e-3 })],
-    click: (a, t, e = 1) => [L("bandpass", 1800 * e, a, 7e-3, t * 0.7, { q: 1.2, a: 2e-3 }), R("sine", ta(430 * e), a, 0.04, t, { to: ta(310 * e) })],
+    click: (a, t, e = 1) => [L("bandpass", 1800 * e, a, 7e-3, t * 0.7, { q: 1.2, a: 2e-3 }), R("sine", Ee(430 * e), a, 0.04, t, { to: Ee(310 * e) })],
     air: (a, t, e, i) => [0, 1, 2].map((s) => L("bandpass", [1900, 2400, 3e3][i ? s : 2 - s], a + s * t / 3, 0.012, e * (0.6 + 0.2 * s), { q: 2.5, a: 2e-3 })),
     knock: (a, t, e = 1) => [R("sine", 466 * e, a, 0.09, t, { to: 440 * e }), R("triangle", 932 * e, a, 0.02, t * 0.3), L("bandpass", 1800, a, 6e-3, t * 0.3, { q: 1.2, a: 2e-3 })],
     sig: () => [...Ea(2093, 0, 0.08, 0.6), ...I.sports.note(440, 0.12, 0.9, 0.06), ...I.sports.note(660, 0.21, 0.9, 0.06)],
@@ -872,14 +872,14 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     }
   }
 }, Xh = (a) => {
-  const t = (c) => a.root * 2 ** (a.scale[c] / 12), e = a.note, i = a.click, s = a.pace, o = (c) => c.map((h) => ({
+  const t = (d) => a.root * 2 ** (a.scale[d] / 12), e = a.note, i = a.click, s = a.pace, o = (d) => d.map((h) => ({
     ...h,
     t: h.t * s,
     d: h.d < 0.02 ? h.d : Math.max(0.02, h.d * s),
     // a click stays a click: only what is long enough to shorten is shortened
     ...h.h ? { h: h.h * s } : {},
     ...h.gd ? { gd: h.gd * s } : {}
-  })), r = (c, h, f) => [...e(c, h, 0.8, f).map((m) => ({ ...m, h: m.d * 0.5 })), R("sine", c, h, f, 0.5, { a: 6e-3, h: f * 0.5 })], n = a.over?.(t) ?? {}, p = n.alarm1 ?? o([...r(t(4), 0, 0.15), ...r(t(6), 0.19, 0.19)]), d = {
+  })), r = (d, h, f) => [...e(d, h, 0.8, f).map((m) => ({ ...m, h: m.d * 0.5 })), R("sine", d, h, f, 0.5, { a: 6e-3, h: f * 0.5 })], n = a.over?.(t) ?? {}, p = n.alarm1 ?? o([...r(t(4), 0, 0.15), ...r(t(6), 0.19, 0.19)]), c = {
     key: i(0, 0.6),
     space: i(0, 0.6, 0.72),
     del: [...i(0, 0.5, 1.2), ...i(0.028, 0.5, 0.85)],
@@ -895,7 +895,7 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     coin: [...e(t(4), 0, 0.8, 0.07), ...e(t(6), 0.07, 0.9, 0.2)],
     jar: [...i(0, 0.6), ...e(t(4), 0, 0.6, 0.06), ...e(t(5), 0.06, 0.6, 0.06), ...e(t(7), 0.12, 0.7, 0.12)],
     done: [...e(t(0), 0, 0.7, 0.12), ...e(t(2), 0.09, 0.75, 0.12), ...e(t(4), 0.18, 0.8, 0.14), ...e(t(7), 0.27, 1, 0.3), ...e(t(7) * 2, 0.27, 0.15, 0.2)],
-    unlock: [...a.air(0, 0.12, 0.4, !0), ...[0, 2, 4, 5, 7].flatMap((c, h) => e(t(c), 0.06 + h * 0.08, 0.7 + h * 0.07, h === 4 ? 0.2 : 0.1))],
+    unlock: [...a.air(0, 0.12, 0.4, !0), ...[0, 2, 4, 5, 7].flatMap((d, h) => e(t(d), 0.06 + h * 0.08, 0.7 + h * 0.07, h === 4 ? 0.2 : 0.1))],
     locked: [...a.knock(0, 0.8), ...i(0, 0.25)],
     error: [...a.knock(0, 0.8), ...a.knock(0.13, 0.65)],
     undo: [...a.air(0, 0.09, 0.4, !1), ...e(t(3), 0.02, 0.7, 0.12, t(1))],
@@ -912,8 +912,8 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
     answer: [...e(t(3), 0, 0.5, 0.08), ...e(t(5), 0.08, 0.6, 0.16)],
     poke: a.poke(t)
   };
-  for (const c of Object.keys(d)) d[c] = o(d[c]);
-  return { ...d, ...n, alarm1: p, alarm: Ph(p, 3, 0.46) };
+  for (const d of Object.keys(c)) c[d] = o(c[d]);
+  return { ...c, ...n, alarm1: p, alarm: Ph(p, 3, 0.46) };
 }, Hh = {
   /* a record sleeve pulled from the crate: card sliding on card, and it stops */
   sleeve: [L("bandpass", 1600, 0, 0.075, 0.7, { fto: 2800, q: 1.4, a: 0.02, cut: 5e3 }), L("bandpass", 900, 0.078, 0.012, 0.5, { q: 1, a: 2e-3 })],
@@ -948,10 +948,10 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
   return t;
 })(), Rn = (a, t, e, i, s = 1) => {
   for (const o of e) {
-    const r = i + o.t, n = r + o.d, p = Math.min(4e-3, o.d * 0.3), d = Math.min(o.a ?? 3e-3, o.d * 0.4), c = Math.max(0, Math.min(o.h ?? 0, o.d - d - p - 4e-3)), h = o.g * s;
+    const r = i + o.t, n = r + o.d, p = Math.min(4e-3, o.d * 0.3), c = Math.min(o.a ?? 3e-3, o.d * 0.4), d = Math.max(0, Math.min(o.h ?? 0, o.d - c - p - 4e-3)), h = o.g * s;
     if (!(h > 0) || !(o.d > 0)) continue;
     const f = a.createGain();
-    f.gain.value = 0, f.gain.setValueAtTime(0, r), f.gain.linearRampToValueAtTime(h, r + d), c && f.gain.setValueAtTime(h, r + d + c), f.gain.exponentialRampToValueAtTime(h * 0.02, n - p), f.gain.linearRampToValueAtTime(0, n);
+    f.gain.value = 0, f.gain.setValueAtTime(0, r), f.gain.linearRampToValueAtTime(h, r + c), d && f.gain.setValueAtTime(h, r + c + d), f.gain.exponentialRampToValueAtTime(h * 0.02, n - p), f.gain.linearRampToValueAtTime(0, n);
     let m;
     if (o.w === "noise") {
       const w = a.createBufferSource();
@@ -983,7 +983,7 @@ const ji = (a) => Ga.find((t) => t.id === a) ?? Ga[0], hl = {
   const { vs: i, gain: s } = Id(a, t, e.indoors, e.raw), o = e.rate ?? 48e3, r = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext, n = new r(1, Math.ceil(o * (Jh(i) + 0.05)), o);
   return Rn(n, n.destination, i, 0, s), (await n.startRendering()).getChannelData(0);
 };
-let qe = null, ua = null, gr = 1, Vi = !1, Vs = 1, $s = "on", Jd = "", ur = "sea";
+let Ue = null, ga = null, gr = 1, Vi = !1, Vs = 1, $s = "on", Jd = "", ur = "sea";
 const fl = {};
 let Pd = 0;
 const br = () => {
@@ -1014,15 +1014,15 @@ const br = () => {
   const t = Jd || "glass";
   return ko(t) ? t : ko(ur) ? ur : "sea";
 }, gl = () => Pd, l0 = (a) => {
-  gr = Math.max(0, Math.min(4, Number(a) || 0)), ua && qe && ua.gain.setTargetAtTime(gr, qe.currentTime, 0.01);
+  gr = Math.max(0, Math.min(4, Number(a) || 0)), ga && Ue && ga.gain.setTargetAtTime(gr, Ue.currentTime, 0.01);
 }, tc = () => {
   try {
-    if (!qe) {
+    if (!Ue) {
       const a = globalThis.AudioContext || globalThis.webkitAudioContext;
       if (!a) return null;
-      qe = new a({ latencyHint: "interactive" }), ua = qe.createGain(), ua.gain.value = gr, ua.connect(qe.destination), Dd(qe);
+      Ue = new a({ latencyHint: "interactive" }), ga = Ue.createGain(), ga.gain.value = gr, ga.connect(Ue.destination), Dd(Ue);
     }
-    return qe;
+    return Ue;
   } catch {
     return null;
   }
@@ -1040,11 +1040,11 @@ try {
 }
 const ec = (a, t, e, i) => {
   const s = tc();
-  if (!s || !ua) return;
+  if (!s || !ga) return;
   const o = () => {
     try {
       const { vs: n, gain: p } = Id(a, t, i);
-      Rn(s, ua, n, s.currentTime + 4e-3, p * e);
+      Rn(s, ga, n, s.currentTime + 4e-3, p * e);
     } catch {
     }
   };
@@ -1077,7 +1077,7 @@ const ec = (a, t, e, i) => {
 }, wr = { played: 0, last: "" };
 try {
   const a = globalThis;
-  a.fhSfx ??= S, a.fhSound ??= { EVENTS: Gd, PALETTES: Yd, CLASS: Zd, LIMITS: Ih, recipe: Od, render: s0, build: Rn, audition: d0, paletteInfo: e0, setMaster: l0, setSounds: xr, setMuted: Hd, setVolume: Xd, soundPalette: kr, stats: wr, state: () => ({ muted: Vi, level: Vs, mode: $s, palette: kr(), context: qe?.state ?? "none" }) };
+  a.fhSfx ??= S, a.fhSound ??= { EVENTS: Gd, PALETTES: Yd, CLASS: Zd, LIMITS: Ih, recipe: Od, render: s0, build: Rn, audition: d0, paletteInfo: e0, setMaster: l0, setSounds: xr, setMuted: Hd, setVolume: Xd, soundPalette: kr, stats: wr, state: () => ({ muted: Vi, level: Vs, mode: $s, palette: kr(), context: Ue?.state ?? "none" }) };
 } catch {
 }
 const c0 = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u, ac = (a) => {
@@ -1093,11 +1093,11 @@ const c0 = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\
 let ic = 30;
 const h0 = (a) => {
   ic = Number.isFinite(a) ? Math.max(0, Math.min(180, Number(a))) : 30;
-}, Se = (a, t = /* @__PURE__ */ new Date()) => {
+}, Me = (a, t = /* @__PURE__ */ new Date()) => {
   const e = ut(a ?? "20:00") + ([5, 6].includes(t.getDay()) ? ic : 0);
   return `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`;
 }, bi = (a, t = /* @__PURE__ */ new Date()) => {
-  const e = ee(t), i = ut(Se(a, t));
+  const e = ee(t), i = ut(Me(a, t));
   return e >= i - 60 || e < 300;
 }, no = (a, t, e) => {
   if (!a || !t) return !0;
@@ -1124,7 +1124,7 @@ const Ya = () => vr, m0 = (a) => {
   e.removeAttribute("data-fit");
   for (let i = 1; i <= t && (e.scrollHeight > e.clientHeight + 2 || e.scrollWidth > e.clientWidth + 2); i++) e.setAttribute("data-fit", String(i));
 };
-class Ve {
+class Re {
   constructor(t) {
     this.host = t, t.addController(this);
   }
@@ -1155,22 +1155,22 @@ const wt = (a) => {
   return s <= o ? i >= s && i < o : i >= s || i < o;
 }, Kr = (a = [], t = {}, e = /* @__PURE__ */ new Date()) => {
   const i = ee(e), s = Math.max(300, ut(t.end ?? "06:30"));
-  return vs(e, t.start ?? "20:00", t.end ?? "06:30") || a.some((o) => i >= ut(Se(o.bedtime, e)) || i < s);
+  return vs(e, t.start ?? "20:00", t.end ?? "06:30") || a.some((o) => i >= ut(Me(o.bedtime, e)) || i < s);
 };
-let qa, da = null;
-const E = (a, t) => {
-  if (da?.removeAttribute("data-speaking"), da = null, !(Ed() || !("speechSynthesis" in window)))
+let Ua, pa = null;
+const tt = (a, t) => {
+  if (pa?.removeAttribute("data-speaking"), pa = null, !(Ed() || !("speechSynthesis" in window)))
     try {
-      if (qa === void 0) {
+      if (Ua === void 0) {
         const i = speechSynthesis.getVoices();
-        qa = i.find((s) => s.lang === "en-AU") ?? i.find((s) => s.lang.startsWith("en-GB")) ?? i.find((s) => s.lang.startsWith("en")) ?? null, i.length || (qa = void 0);
+        Ua = i.find((s) => s.lang === "en-AU") ?? i.find((s) => s.lang.startsWith("en-GB")) ?? i.find((s) => s.lang.startsWith("en")) ?? null, i.length || (Ua = void 0);
       }
       speechSynthesis.cancel();
       const e = new SpeechSynthesisUtterance(a);
-      if (qa && (e.voice = qa), e.lang = qa?.lang ?? "en-AU", e.rate = 0.95, e.pitch = 1.1, t) {
-        da = t, t.setAttribute("data-speaking", "");
+      if (Ua && (e.voice = Ua), e.lang = Ua?.lang ?? "en-AU", e.rate = 0.95, e.pitch = 1.1, t) {
+        pa = t, t.setAttribute("data-speaking", "");
         const i = () => {
-          da === t && (t.removeAttribute("data-speaking"), da = null);
+          pa === t && (t.removeAttribute("data-speaking"), pa = null);
         };
         e.onend = i, e.onerror = i, window.setTimeout(i, Math.max(4e3, a.length * 110));
       }
@@ -1178,7 +1178,7 @@ const E = (a, t) => {
     } catch {
     }
 }, xl = () => {
-  da?.removeAttribute("data-speaking"), da = null;
+  pa?.removeAttribute("data-speaking"), pa = null;
   try {
     "speechSynthesis" in window && speechSynthesis.cancel();
   } catch {
@@ -1205,7 +1205,7 @@ const E = (a, t) => {
   } catch {
   }
 }, kl = /* @__PURE__ */ new WeakMap();
-function Ae(a, t, e, i = 160) {
+function qe(a, t, e, i = 160) {
   const s = kl.get(a) ?? {};
   kl.set(a, s);
   const o = s[t] ?? (s[t] = { last: e, until: 0 });
@@ -1216,7 +1216,7 @@ function Ae(a, t, e, i = 160) {
 const x0 = 12e3, St = "Home Assistant is slow. Try again.";
 class Wt extends Error {
 }
-const dt = (a, t = x0) => new Promise((e, i) => {
+const ct = (a, t = x0) => new Promise((e, i) => {
   const s = window.setTimeout(() => i(new Wt("no answer")), t);
   Promise.resolve(a).then((o) => {
     clearTimeout(s), e(o);
@@ -1232,7 +1232,7 @@ async function Ks(a, t) {
   }, 250) : 0;
   try {
     if (!t) throw new Error("not connected");
-    return await dt(t), qr = !1, !0;
+    return await ct(t), qr = !1, !0;
   } catch (i) {
     return qr = i instanceof Wt, !1;
   } finally {
@@ -1458,7 +1458,7 @@ const Ts = (a, t = "--m-3") => {
   const s = 2 * Math.PI * 43, o = t.getTime(), r = o + 12 * 36e5, n = (h) => {
     const f = new Date(h);
     return (f.getHours() % 12 + f.getMinutes() / 60) * 30;
-  }, p = a.filter((h) => !h.allDay && h.end.getTime() > o && h.start.getTime() < r), d = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, c = t.getMinutes() * 6;
+  }, p = a.filter((h) => !h.allDay && h.end.getTime() > o && h.start.getTime() < r), c = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, d = t.getMinutes() * 6;
   return l`<svg class="dial" aria-hidden="true" width=${e} height=${e} viewBox="0 0 100 100" fill="none">${b`
     <circle cx="50" cy="50" r=${43} stroke="var(--track)" stroke-width="8"></circle>
     ${p.map((h) => {
@@ -1466,8 +1466,8 @@ const Ts = (a, t = "--m-3") => {
     return b`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${u / 360 * s} ${s}" transform="rotate(${n(f) - 90} 50 50)"></circle>`;
   })}
     ${[0, 3, 6, 9].map((h) => b`<rect x="49" y="13" width="2" height="6" rx="1" fill="var(--ink2)" transform="rotate(${h * 30} 50 50)"></rect>`)}
-    <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
-    <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${c} 50 50)"></rect>
+    <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${c} 50 50)"></rect>
+    <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
 }, y0 = (a, t, e = 360) => {
   const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, m, u) => {
@@ -1475,7 +1475,7 @@ const Ts = (a, t = "--m-3") => {
     if (x <= w && !(r(h.start) >= m && r(h.start) < u)) return g;
     const k = Math.max(7, (Math.max(x, w) - w) * 30);
     return b`<circle cx="100" cy="100" r=${f} stroke=${h.colour} stroke-width="15" stroke-dasharray="${k / 360 * i(f)} ${i(f)}" transform="rotate(${w % 12 * 30 - 90} 100 100)"></circle>`;
-  }, p = a.filter((h) => !h.allDay), d = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, c = t ? t.getMinutes() * 6 : 0;
+  }, p = a.filter((h) => !h.allDay), c = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, d = t ? t.getMinutes() * 6 : 0;
   return l`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${e} height=${e} viewBox="0 0 200 200" fill="none">${b`
     <circle cx="100" cy="100" r=${84} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     <circle cx="100" cy="100" r=${62} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
@@ -1484,9 +1484,9 @@ const Ts = (a, t = "--m-3") => {
     ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, f, m]) => b`<text class="dh" x=${f} y=${m} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
     <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
     <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
-    ${t ? b`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
-      <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${c} 100 100)"></rect>
-      <circle cx="100" cy=${100 - (t.getHours() < 12 ? 62 : 84)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${d} 100 100)"></circle>
+    ${t ? b`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${c} 100 100)"></rect>
+      <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
+      <circle cx="100" cy=${100 - (t.getHours() < 12 ? 62 : 84)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${c} 100 100)"></circle>
       <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : b`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
 }, v0 = (a, t, e = 230) => l`
   <svg class="vinyl" aria-hidden="true" width=${e} height=${e} viewBox="0 0 200 200">${b`
@@ -1516,36 +1516,36 @@ const Ts = (a, t = "--m-3") => {
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
     <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${i * e} ${e}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
-}, Rt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, ea = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, $n = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], U0 = {
-  soccer: ea('<circle cx="12" cy="12" r="9.7" fill="#fff"/><path d="M12 8.6l3.2 2.3-1.2 3.9h-4l-1.2-3.9z" fill="#14201A"/><path d="M12 8.6V3.5M15.2 10.900l4.5-1.5M14 14.800l2.800 4M10 14.800l-2.800 4M8.800 10.900L4.300 9.400" fill="none"/>'),
-  tennis: ea('<circle cx="12" cy="12" r="9.7" fill="#D4E157"/><path d="M4.600 6.500c4.200 2 4.200 9 0 11M19.400 6.500c-4.200 2-4.200 9 0 11" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="9.7" fill="none"/>'),
-  hockey: ea('<path d="M17 2.500L10.800 15.800Q9.300 19.200 6 18Q4 17 4.600 14.600" fill="none" stroke="#B7814A" stroke-width="3"/><circle cx="17.500" cy="17.500" r="3.7" fill="#fff"/>'),
-  floor: ea('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="#14201A" stroke="none"><circle cx="12" cy="6.600" r="1.7"/><circle cx="7.200" cy="10.300" r="1.7"/><circle cx="16.800" cy="10.300" r="1.7"/><circle cx="9" cy="16" r="1.7"/><circle cx="15" cy="16" r="1.7"/><circle cx="12" cy="11.600" r="1.3"/></g>'),
-  rugby: ea('<g transform="rotate(-35 12 12)"><ellipse cx="12" cy="12" rx="10.5" ry="6.800" fill="#fff"/><path d="M5.500 9.200c1.600 1.800 1.600 3.800 0 5.600M18.500 9.200c-1.600 1.800-1.600 3.800 0 5.600" fill="none" stroke="#B7814A" stroke-width="1.6"/><path d="M9 12h6M10.500 10.800v2.400M12 10.800v2.400M13.500 10.800v2.400" fill="none" stroke-width="1.2"/></g>'),
-  footy: ea('<g transform="rotate(-35 12 12)"><path d="M1.500 12Q12 3.200 22.500 12 12 20.800 1.500 12z" fill="#C8372D"/><path d="M9 10.300h6M10.200 9.300v2M12 9.300v2M13.800 9.300v2" fill="none" stroke="#fff" stroke-width="1.3"/></g>'),
-  whistle: ea('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
-}, aa = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, vo = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", Qi = (a, t) => Rt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), q0 = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', Kl = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', A0 = () => {
+}, Rt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, ta = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, $n = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], U0 = {
+  soccer: ta('<circle cx="12" cy="12" r="9.7" fill="#fff"/><path d="M12 8.6l3.2 2.3-1.2 3.9h-4l-1.2-3.9z" fill="#14201A"/><path d="M12 8.6V3.5M15.2 10.900l4.5-1.5M14 14.800l2.800 4M10 14.800l-2.800 4M8.800 10.900L4.300 9.400" fill="none"/>'),
+  tennis: ta('<circle cx="12" cy="12" r="9.7" fill="#D4E157"/><path d="M4.600 6.500c4.200 2 4.200 9 0 11M19.400 6.500c-4.200 2-4.200 9 0 11" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="9.7" fill="none"/>'),
+  hockey: ta('<path d="M17 2.500L10.800 15.800Q9.300 19.200 6 18Q4 17 4.600 14.600" fill="none" stroke="#B7814A" stroke-width="3"/><circle cx="17.500" cy="17.500" r="3.7" fill="#fff"/>'),
+  floor: ta('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="#14201A" stroke="none"><circle cx="12" cy="6.600" r="1.7"/><circle cx="7.200" cy="10.300" r="1.7"/><circle cx="16.800" cy="10.300" r="1.7"/><circle cx="9" cy="16" r="1.7"/><circle cx="15" cy="16" r="1.7"/><circle cx="12" cy="11.600" r="1.3"/></g>'),
+  rugby: ta('<g transform="rotate(-35 12 12)"><ellipse cx="12" cy="12" rx="10.5" ry="6.800" fill="#fff"/><path d="M5.500 9.200c1.600 1.800 1.600 3.800 0 5.600M18.500 9.200c-1.600 1.800-1.600 3.800 0 5.600" fill="none" stroke="#B7814A" stroke-width="1.6"/><path d="M9 12h6M10.500 10.800v2.400M12 10.800v2.400M13.500 10.800v2.400" fill="none" stroke-width="1.2"/></g>'),
+  footy: ta('<g transform="rotate(-35 12 12)"><path d="M1.500 12Q12 3.200 22.500 12 12 20.800 1.500 12z" fill="#C8372D"/><path d="M9 10.300h6M10.200 9.300v2M12 9.300v2M13.800 9.300v2" fill="none" stroke="#fff" stroke-width="1.3"/></g>'),
+  whistle: ta('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
+}, ea = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, vo = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", Qi = (a, t) => Rt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), q0 = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', Kl = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', A0 = () => {
   const a = ":host([data-look='sports']) .fh", t = `${a}[data-tod='eve'], ${a}[data-tod='night']`, e = Object.entries(U0).map(([s, o]) => `--s-${s}:${Rt(o)}`);
   e.push(
     "--s-ball:var(--s-soccer)",
     `--s-bib:${Rt(`<path d="${vo}"/>`)}`,
-    `--s-lock:${Rt(aa('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', "#000"))}`,
-    `--s-tick:${Rt(aa('<path d="M5 12.500l4.500 4.500L19 7.500"/>', "#000", 3))}`,
+    `--s-lock:${Rt(ea('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', "#000"))}`,
+    `--s-tick:${Rt(ea('<path d="M5 12.500l4.500 4.500L19 7.500"/>', "#000", 3))}`,
     `--s-flag:${Qi("#14201A", "#14201A")}`,
     `--s-flag-ok:${Qi("#14201A", "#17703A")}`,
     `--s-away:${Rt(`<path d="${vo}" fill="none" stroke="#5C6961" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
-    `--s-cone:${Rt(aa(Kl, "#B42318"))}`,
-    `--s-pea:${Rt(aa(q0, "#14201A"))}`,
+    `--s-cone:${Rt(ea(Kl, "#B42318"))}`,
+    `--s-pea:${Rt(ea(q0, "#14201A"))}`,
     `--s-clip:${Rt('<rect x="1" y="-8" width="118" height="30" rx="8" fill="#9AA59D" stroke="#14201A" stroke-width="2"/><rect x="1" y="16" width="118" height="5" fill="rgba(0,0,0,.14)"/><circle cx="60" cy="9" r="6" fill="#fff" stroke="#14201A" stroke-width="2"/>', "0 0 120 24")}`,
     `--s-bag:${Rt('<g stroke="#14201A" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.500 7h9l3.300 8.500A4.500 4.500 0 0 1 15.600 22H8.400a4.500 4.500 0 0 1-4.200-6.500z" fill="#fff"/><circle cx="9.500" cy="17" r="2.6" fill="#D4E157"/><circle cx="14.800" cy="17.300" r="2.6" fill="#fff"/><circle cx="12" cy="12.300" r="2.4" fill="#C8372D"/><path d="M9 7c0-2.500 1.200-4 3-4s3 1.500 3 4" fill="none" stroke="#B7814A" stroke-width="2"/></g>')}`,
-    `--s-goal:${Rt(aa('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#14201A"), "0 0 32 24")}`
+    `--s-goal:${Rt(ea('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#14201A"), "0 0 32 24")}`
   );
   const i = [
     `--s-flag:${Qi("#F1F4EA", "#F1F4EA")}`,
     `--s-flag-ok:${Qi("#F1F4EA", "#6FD896")}`,
     `--s-away:${Rt(`<path d="${vo}" fill="none" stroke="#93A097" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
-    `--s-cone:${Rt(aa(Kl, "#FF9485"))}`,
-    `--s-goal:${Rt(aa('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#F1F4EA"), "0 0 32 24")}`
+    `--s-cone:${Rt(ea(Kl, "#FF9485"))}`,
+    `--s-goal:${Rt(ea('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#F1F4EA"), "0 0 32 24")}`
   ];
   return `${a} {${e.join(";")}}
 ${t} {${i.join(";")}}
@@ -1567,7 +1567,7 @@ ${$n.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
   return l`<div aria-hidden="true" style="display:flex;align-items:center;height:40px;flex-shrink:0;padding:0 2px">
     ${Array.from({ length: e }, (n, p) => l`${p ? o(p <= i) : g}${p < i ? r : p === i ? l`<i style="width:22px;height:26px;margin:0 -2px -6px 0;flex-shrink:0;align-self:flex-start;background:var(--s-flag) center / contain no-repeat"></i><i style="width:34px;height:34px;flex-shrink:0;background:var(--s-ball) center / contain no-repeat"></i>` : l`<i style="width:14px;height:14px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--ink3)"></i>`}`)}
     ${o(i >= e)}<i style="width:44px;height:33px;flex-shrink:0;background:var(--s-goal) center / contain no-repeat"></i></div>`;
-}, _0 = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", R0 = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, oc = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : g}${R0[a]}</span>`, ql = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, Ie = [
+}, _0 = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", R0 = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, oc = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : g}${R0[a]}</span>`, ql = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, De = [
   {
     id: "glass",
     name: "Glass",
@@ -1840,7 +1840,7 @@ ${$n.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
       "--flood": "radial-gradient(520px 300px at 0 0, rgba(255,244,190,.13), transparent 70%), radial-gradient(520px 300px at 100% 0, rgba(255,244,190,.13), transparent 70%)"
     }
   }
-], Yt = (a) => Ie.find((t) => t.id === a) ?? Ie[0], Bt = (a, t, e) => Yt(a).art?.[t]?.(e) ?? (t === "timer" ? Us(e.frac ?? 0, e.size) : g), Al = (a, t = 120, e = "") => {
+], Yt = (a) => De.find((t) => t.id === a) ?? De[0], Bt = (a, t, e) => Yt(a).art?.[t]?.(e) ?? (t === "timer" ? Us(e.frac ?? 0, e.size) : g), Al = (a, t = 120, e = "") => {
   const i = a.vars ? Object.entries(a.vars).map(([s, o]) => `${s}:${o}`).join(";") : e;
   return l`<span class="lookprev" data-prev=${a.id} style="height:${t}px;${i};background:${a.themed ? "var(--bg) center / cover" : "var(--ground)"}">
     ${a.art?.clock && a.previewClock !== !1 ? l`<span class="lp-clock">${a.art.clock({ now: new Date(2e3, 0, 1, 10, 10), arcs: [] })}</span>` : g}${a.preview?.() ?? g}
@@ -1853,7 +1853,7 @@ const Mr = /* @__PURE__ */ new Set(), Dt = () => ja, Ko = (a) => {
 function V0(a) {
   Qd(...Yt(a).fonts ?? []);
 }
-class It {
+class Jt {
   constructor(t) {
     this.host = t, this._shape = () => {
       const e = kt(), i = e === "wide" && Ya() >= 3 && !!this.host.stackNarrow;
@@ -2980,8 +2980,8 @@ const Gi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
       const f = Sr.get(h[1]);
       f && !sc.roles.includes(h[1]) && (n = n ? n.filter((m) => f.includes(m)) : f);
     }
-    const p = /^@[A-Z](?:<(\d+))?((?:\[[^\]]+\])*)/.exec(r.trim()), d = `:host(${n?.length === 1 ? n[0] : ""}[data-look='${t}']${p?.[2] ?? ""})`, c = p?.[1] ?? "";
-    o.set(c, [...o.get(c) ?? [], r.trim().replace(/^@[A-Z](?:<\d+)?(?:\[[^\]]+\])*/, d)]);
+    const p = /^@[A-Z](?:<(\d+))?((?:\[[^\]]+\])*)/.exec(r.trim()), c = `:host(${n?.length === 1 ? n[0] : ""}[data-look='${t}']${p?.[2] ?? ""})`, d = p?.[1] ?? "";
+    o.set(d, [...o.get(d) ?? [], r.trim().replace(/^@[A-Z](?:<\d+)?(?:\[[^\]]+\])*/, c)]);
   }
   return [...o].map(([r, n]) => r ? `@media (max-width: ${Number(r) - 1}px) { ${n.join(", ")} {${s}} }
 ` : `${n.join(", ")} {${s}}
@@ -2992,7 +2992,7 @@ const Gi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
   return `${e} {${t(a.vars)}}
 ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ` : ""}`;
-}, L0 = At(W0 + C0 + Ie.map(j0).join("") + Gi($0, "glass") + Gi(N0, "fridge") + Gi(T0, "orbit") + A0() + Gi(z0, "sports")), Ct = J`
+}, L0 = At(W0 + C0 + De.map(j0).join("") + Gi($0, "glass") + Gi(N0, "fridge") + Gi(T0, "orbit") + A0() + Gi(z0, "sports")), Ct = J`
   :host { display: block; height: 100%; }
   * { box-sizing: border-box; }
   button { font: inherit; color: inherit; border: 0; background: transparent; cursor: pointer; padding: 0; }
@@ -3397,6 +3397,20 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
   .dock .sep { width: 1px; height: 36px; background: var(--track); margin: 0 6px; }
+  /* places to go and things done to the whole house are two groups: a wider gap stands between them */
+  .dock .sep.wide { margin: 0 18px; }
+  :host([data-n1]) .dock .sep.wide { margin: 0 8px; } :host([data-phone]) .dock .sep.wide { margin: 0 10px; }
+  .hb[data-act='more'] svg.i { stroke-width: 3.4; }
+  /* the More sheet: what left the header, as big named buttons */
+  .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
+  .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: 18px; font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: 14px; font-weight: var(--w-semi, 600); }
+  .morebtn svg.i { flex-shrink: 0; }
+  :host([data-phone]) .moregrid { grid-template-columns: 1fr; }
+  /* the planner at rest: today is larger (its column is widened where the week is drawn) and the other days step back */
+  .week { transition: grid-template-columns var(--mt-4) var(--e-out); }
+  .week .col { transition: opacity var(--m-4) ease; }
+  .week[data-rest] .col:not(.today) { opacity: .5; }
   .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
 
   /* sheets, toasts, night */
@@ -3591,24 +3605,24 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     [aria-pressed='true'] *, [aria-selected='true'] *, [aria-current='page'] *, [aria-checked='true'] *, .ev.next *, .dayrow.next * { color: HighlightText; text-decoration: none; }
     :is(button, input)[disabled], [aria-disabled='true'] { opacity: 1; color: GrayText; border-color: GrayText; }
   }
-`, Re = (a) => () => (a = a * 16807 % 2147483647, (a - 1) / 2147483646), Ws = (a, t, e) => {
-  const i = Re(t);
+`, _e = (a) => () => (a = a * 16807 % 2147483647, (a - 1) / 2147483646), Ws = (a, t, e) => {
+  const i = _e(t);
   return Array.from({ length: a }, () => `${(i() * 100).toFixed(2)}vw ${(i() * 100).toFixed(2)}vh 0 ${i() < 0.2 ? 1 : 0}px ${e}`).join(",");
 }, Fr = (a) => a >= 9 && a <= 11 ? "spring" : a === 12 || a <= 2 ? "summer" : a <= 5 ? "autumn" : "winter", Q0 = { spring: ["#6f8236", "#a3ad54", "#c9c77a"], summer: ["#a88a40", "#d2b868", "#ead9a0"], autumn: ["#8f7c40", "#bda65c", "#dccb92"], winter: ["#4f7a30", "#7fa046", "#b4c878"] }, Uo = (a, t, e) => {
-  const i = Re(a), s = Fr(t), o = Q0[s], r = [];
+  const i = _e(a), s = Fr(t), o = Q0[s], r = [];
   for (let n = 0; n < (e ? 13 : 19); n++) {
-    const p = (e ? 8 : 2) + n * (e ? 13 : 9.4) + i() * 6, d = (n < 7 ? 52 : 28) * (0.5 + i() * 0.6) * (1 - n / 44) * (e ? 1.25 : 1), c = (i() - 0.38) * 18, h = 1.6 + i() * 1.8;
-    if (r.push(b`<path d="M${p.toFixed(0)} 90q${(c / 4).toFixed(0)}-${(d * 0.55).toFixed(0)} ${c.toFixed(0)}-${d.toFixed(0)}" stroke=${o[e ? 0 : 1 + n % 2]} stroke-width=${h.toFixed(1)}/>`), e || n % 3 !== 1 || n > 14) continue;
-    const f = (p + c).toFixed(0), m = (90 - d - 2).toFixed(0);
+    const p = (e ? 8 : 2) + n * (e ? 13 : 9.4) + i() * 6, c = (n < 7 ? 52 : 28) * (0.5 + i() * 0.6) * (1 - n / 44) * (e ? 1.25 : 1), d = (i() - 0.38) * 18, h = 1.6 + i() * 1.8;
+    if (r.push(b`<path d="M${p.toFixed(0)} 90q${(d / 4).toFixed(0)}-${(c * 0.55).toFixed(0)} ${d.toFixed(0)}-${c.toFixed(0)}" stroke=${o[e ? 0 : 1 + n % 2]} stroke-width=${h.toFixed(1)}/>`), e || n % 3 !== 1 || n > 14) continue;
+    const f = (p + d).toFixed(0), m = (90 - c - 2).toFixed(0);
     s === "spring" && n % 2 ? r.push(b`<g transform="translate(${f} ${m})"><path d="M0 12V3" stroke="#a02a26" stroke-width="2"/><path d="M0 4c-6-2-8-8-6-13M0 4c-2-5-1-11 1-15M0 4c3-4 8-7 11-7M0 4c5-1 9-1 11 2" stroke="#c2332b" stroke-width="2.8"/><path d="M-6-9l-.6-3.400M1-11l.6-3.400M11-3l3-1.200M11 6l3 .8" stroke="#5f8f38" stroke-width="2.4"/><path d="M-5-4c-.6-2-.6-4 0-5M3-1c2-2 4-3 6-3" stroke="#e8685a" stroke-width="1" opacity=".8"/></g>`) : s === "spring" ? r.push(b`<g transform="translate(${f} ${m})" stroke="none"><path d="M0-8l2 4.500l4.5-3.200l-1 5l5.2.700l-4 3l4 3l-5.2.700l1 5l-4.5-3.200l-2 4.500l-2-4.500l-4.5 3.200l1-5l-5.2-.700l4-3l-4-3l5.2-.700l-1-5l4.5 3.200z" fill=${n % 4 ? "#f39cbb" : "#fff8ea"}/><circle r="4.8" fill=${n % 4 ? "#ffd0e0" : "#fff1c4"}/><circle r="2.6" fill="#eaa820"/><circle cx="-.6" cy="-.7" r="1.2" fill="#f8d060"/></g>`) : s === "winter" ? r.push(b`<g transform="translate(${f} ${m})" stroke="none"><circle r="3.6" fill="#e6bd22"/><circle cx="-5" cy="5" r="3.2" fill="#f2d040"/><circle cx="4" cy="7" r="3" fill="#e6bd22"/><circle cx="-1" cy="-1" r="1.6" fill="#fbe98a"/><circle cx="-6" cy="4" r="1.3" fill="#fbe98a"/></g>`) : r.push(b`<path d="M${f} ${m}q2 5 0 11" stroke=${o[2]} stroke-width="4.4" stroke-dasharray="2.2 1.2"/>`);
   }
   return b`<svg viewBox="0 0 180 90" width="180" height="90" fill="none" stroke-linecap="round">${r}</svg>`;
 }, Yi = (a, t, e = 30) => b`<svg viewBox="0 0 46 16" width=${e}><path d="M1 12Q12-2 45 5Q22 18 1 12z" fill=${a}/><path d="M1 12Q22 9 45 5Q22 18 1 12z" fill=${t} opacity=".55"/><path d="M1 12Q20 8 45 5" stroke="#f0e6b8" stroke-width=".8" fill="none" opacity=".7"/></svg>`, Ml = b`<svg viewBox="-10 -10 20 26" width="15"><path d="M0 0v13M0 0l-8-3M0 0l-6-7M0 0l-2-9M0 0l3-9M0 0l7-6M0 0l8-2" stroke="#fffdf2" stroke-width=".8" stroke-linecap="round" opacity=".9"/><ellipse cy="14" rx="1.2" ry="2.2" fill="#7a5c30"/></svg>`, Sl = (a, t) => b`<svg viewBox="0 0 200 50" width=${a} fill=${t}><ellipse cx="70" cy="34" rx="68" ry="9"/><ellipse cx="126" cy="26" rx="70" ry="10"/><ellipse cx="60" cy="22" rx="30" ry="12"/><ellipse cx="104" cy="15" rx="36" ry="14"/><ellipse cx="146" cy="19" rx="24" ry="9"/></svg>`, Nn = (a, t, e, i) => {
-  const s = Re(t);
+  const s = _e(t);
   return Array.from({ length: a }, () => `${(s() * 100).toFixed(1)}vw ${(s() * i).toFixed(1)}vh 0 ${s() < 0.3 ? 1.5 : 0.7}px ${e}`).join(",");
 }, G0 = Nn(26, 11, "rgba(255,250,228,.95)", 13), Y0 = Nn(20, 23, "rgba(226,236,255,.9)", 15), Z0 = Nn(22, 37, "rgba(255,246,214,.75)", 100), B0 = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], Mt = (a, t, e) => b`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, jt = (a, t, e, i = "") => b`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, Vt = (a, t, e, i = "linear", s = 0) => At(e.map(([o, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(o + s * t).toFixed(4)}) ${Math.round((r - o) / t)}`).join(",")), de = [[0, 0.48], [0.82, 1.02]], O0 = [[0, 0.16], [0.36, 1.02]], D0 = [[0, 1.02]], Zi = (a, t, e) => At(
   `.${a} .bush-la{animation:${Vt("bush-swa", t, e)}}.${a} .bush-lb{animation:${Vt("bush-swb", t, e)}}.${a} .bush-bb{animation:${Vt("bush-bob", t / 2, e, "ease-in-out")}}.${a} .bush-ct{animation:${Vt("bush-ctr", t, e, "ease-in-out")}}`
-), Aa = (a) => a.tod !== "night", ke = (a) => a.tod === "day", qo = (a) => a.tod !== "day", Fl = (a) => a.month === 12 || a.month <= 2, Zt = (a, t, e, i = 3.4, s = "") => b`<path class=${a} style=${s} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, ue = (a, t, e = 1.6, i = "#2a1a10") => b`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, Ao = b`${Zt("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${Zt("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
+), qa = (a) => a.tod !== "night", ke = (a) => a.tod === "day", qo = (a) => a.tod !== "day", Fl = (a) => a.month === 12 || a.month <= 2, Zt = (a, t, e, i = 3.4, s = "") => b`<path class=${a} style=${s} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, ue = (a, t, e = 1.6, i = "#2a1a10") => b`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, Ao = b`${Zt("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${Zt("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
   <g class="bush-wag"><path d="M11 19Q3 19 1 28" stroke="#2a211d" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M4 22Q2 25 1 28" stroke="#4a3d36" stroke-width="1.2" stroke-linecap="round" fill="none"/></g>
   <path d="M9 21Q10 13 22 14L40 13Q48 14 49 21Q47 28 39 27Q28 23 19 27Q9 28 9 21z" fill="#2a211d"/><path d="M12 16Q26 12 45 14.5" stroke="#5d4f47" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".7"/><path d="M40 26Q47 26 49 20Q50 27 43 29z" fill="#b06e38"/><path d="M19 27Q28 23 39 27Q28 26 19 27z" fill="#120d0b"/>
   ${Zt("bush-la", "M19 25L22 32L21 40", "#2a211d", 3.6)}<path class="bush-lb" d="M45 24L48 32L48 40" stroke="#9a5f30" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -3919,7 +3933,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
         <g class="bush-p bush-rear"><path d="M89 15Q84 2 88-8Q95 0 95 14z" fill="#7d7166"/><path d="M94 14Q95 0 102-6Q106 4 100 15z" fill="#93877a"/><path d="M96.5 12Q97.5 3 101-1Q102.5 5 99.5 13z" fill="#d1bfaf"/></g>
         <path d="M86 16Q96 8 105 15L115 23.500Q117 28 112 29.500L98 30Q88 28 86 16z" fill="url(#bush-g-roo)"/><path d="M92 27q8 3 17 2.500l-11 .5q-4-1-6-3z" fill="#d8ccba"/><path d="M110 21.500l5 2q2 5-3 6l-4 0q3.5-3 2-8z" fill="#4f453d"/>${ue(100.5, 18.6, 2, "#3a2416")}</g>
       <g class="bush-p bush-rarm"><path d="M73 44Q81 52 88 60Q91 66 86 65Q77 60 70 51z" fill="#7d7166"/><path d="M84.5 60q5 4 2 6l-4.5-3z" fill="#463c35"/></g></g></svg>` },
-    { id: "emu", ms: 13e3, move: "bush-far foot", weight: 3, when: Aa, art: l`<svg class="bush-gF" viewBox="0 -4 112 120" width="98"><defs>${Mt("bush-g-emu", "#75604e", "#3a2c23")}</defs>
+    { id: "emu", ms: 13e3, move: "bush-far foot", weight: 3, when: qa, art: l`<svg class="bush-gF" viewBox="0 -4 112 120" width="98"><defs>${Mt("bush-g-emu", "#75604e", "#3a2c23")}</defs>
       ${jt(46, 113, 30)}
       <g class="bush-bb" style="--bob:-3px">
       <path class="bush-lb" style="--sw:32deg" d="M48 72L55 92L51 111M51 111l9 2M51 111l7-2" stroke="#4a4034" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -3998,7 +4012,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <rect x="58" y="19" width="46" height="21" rx="9.5" fill="url(#bush-g-tnk)"/><rect x="110" y="19" width="46" height="21" rx="9.5" fill="url(#bush-g-tnk)"/><path d="M65 23.500h32M117 23.500h32" stroke="#fff" stroke-width="1.5" opacity=".85" stroke-linecap="round"/><path d="M70 19v21M81 19v21M92 19v21M122 19v21M133 19v21M144 19v21" stroke="#75808a" stroke-width=".7"/><path d="M78 17h8v2h-8zM130 17h8v2h-8z" fill="#75808a"/><path d="M58 40h46v3H58zM110 40h46v3h-46zM52 41h8M104 41h8M156 41h8" fill="#544e48" stroke="#37312d" stroke-width="1"/>
       <path d="M162 44V15h14q9 2 11 15l9 2q2 1 2 4v8z" fill="url(#bush-g-cab)"/><path d="M177 18.500h5q3 4 4 10.500h-9z" fill="#2c3e4c"/><path d="M178 20h3l1 4h-4z" fill="#9dbdd0" opacity=".7"/><path d="M162 30h36" stroke="#f3e2c8" stroke-width="1.2" opacity=".7"/><path d="M166 15V3M170.5 15V6" stroke="#bcc4ca" stroke-width="2.4" stroke-linecap="round"/><path d="M198 33v11" stroke="#bcc4ca" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="171" cy="42" rx="6" ry="3" fill="#bcc4ca"/></g>
       <path d="M12 50h.1M22 50h.1M42 50h.1M64 50h.1M74 50h.1M90 50h.1M100 50h.1M116 50h.1M126 50h.1M142 50h.1M152 50h.1M168 50h.1M184 50h.1M193 50h.1" stroke="#1d1a18" stroke-width="9.5" stroke-linecap="round"/><path d="M12 50h.1M22 50h.1M42 50h.1M64 50h.1M74 50h.1M90 50h.1M100 50h.1M116 50h.1M126 50h.1M142 50h.1M152 50h.1M168 50h.1M184 50h.1M193 50h.1" stroke="#a9a49c" stroke-width="3.4" stroke-linecap="round"/></svg>` },
-    { id: "scooter", ms: 15e3, move: "bush-far foot", weight: 2, when: Aa, art: l`<svg class="bush-gF" viewBox="0 0 140 96" width="122">
+    { id: "scooter", ms: 15e3, move: "bush-far foot", weight: 2, when: qa, art: l`<svg class="bush-gF" viewBox="0 0 140 96" width="122">
       ${jt(104, 92, 30)}${jt(30, 92, 24)}
       <g transform="translate(0 50)"><g class="bush-p bush-dj"><g class="bush-bb">${Ao}</g></g></g>
       <circle cx="84" cy="87" r="4.6" fill="#221f1c"/><circle cx="126" cy="86.5" r="5" fill="#221f1c"/><circle cx="84" cy="87" r="1.6" fill="#c9c4bc"/><circle cx="126" cy="86.5" r="1.8" fill="#c9c4bc"/><path d="M82 83h36l6-2v3l-6 2h-36z" fill="#2a8f86"/><path d="M83 83.500h34" stroke="#6cc8be" stroke-width=".8"/><path d="M123 82L118 44" stroke="#c9ced2" stroke-width="2.6" stroke-linecap="round"/><path d="M113 44h10" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
@@ -4019,7 +4033,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <svg class="bush-mag" viewBox="-5 -18 62 40" width="52"><path d="M8 12L-4 15L-3 19.500L10 15z" fill="#17161a"/><path d="M11 11L3 13L4 16.500L12 14.500z" fill="#f2f0ea"/><path d="M6 12Q16 4 32 6Q40 8 42 12Q34 18 20 17Q10 17 6 12z" fill="#17161a"/><path d="M12 14Q22 17.5 36 14" stroke="#3a3a46" stroke-width="1" fill="none"/><path d="M28 6Q34 5 38 9L32 11.500Q29 9 28 6z" fill="#f2f0ea"/>
         <path d="M36 6Q42 3 46 8Q46 12 41 13Q36 12 36 6z" fill="#17161a"/><path d="M45 8L55 10.500L45 12.200z" fill="#cfd6da"/><path d="M52 9.800l3 .7l-3 .6z" fill="#2a2a2a"/><circle cx="42.6" cy="8" r="1" fill="#a8442a"/>
         <g class="bush-wng" style="--wb:.3s"><path d="M14 11Q14-10 30-15Q36-4 34 10z" fill="#17161a"/><path d="M18 4Q22-4 30-8L32 0Q26 4 20 8z" fill="#f2f0ea"/></g></svg>` },
-    { id: "ball", ms: 14e3, move: "bush-far foot", weight: 1.6, when: Aa, art: l`<svg class="bush-gF bush-dogb" viewBox="0 -4 68 48" width="78">${jt(30, 41, 24)}<g class="bush-bb">${Ao}</g></svg>
+    { id: "ball", ms: 14e3, move: "bush-far foot", weight: 1.6, when: qa, art: l`<svg class="bush-gF bush-dogb" viewBox="0 -4 68 48" width="78">${jt(30, 41, 24)}<g class="bush-bb">${Ao}</g></svg>
       <svg class="bush-tb" viewBox="0 0 16 16" width="17"><circle cx="8" cy="8" r="7.4" fill="#cfe23a"/><path d="M8 .6a7.4 7.4 0 0 1 0 14.800a9 9 0 0 0 0-14.800z" fill="#a9bc22" opacity=".7"/><path d="M3 2.600q5 5.4 0 10.8" stroke="#f4f7d8" stroke-width="1" fill="none"/></svg>` },
     { id: "ants", ms: 3e4, move: "across foot", weight: 2, art: l`<svg viewBox="0 0 176 34" width="176" stroke-linecap="round">
       ${[0, 1, 2, 3, 4, 5].map((a) => {
@@ -4038,8 +4052,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <g class="bush-p bush-wpk"><circle cx="34" cy="12" r="6.4" fill="#3f7fe8"/><path d="M28.5 9.500Q34 3.5 39.5 8Q34 7 28.5 9.500z" fill="#9fd0ff"/><ellipse cx="33.5" cy="14" rx="3" ry="2.2" fill="#a9d8ff"/><path d="M28 12Q33 10 40 11.600L40 12.800Q33 12 28 13.400z" fill="#141a2e"/><path d="M39.6 10.800L45.5 12L39.6 13.200z" fill="#141414"/><circle cx="36.6" cy="11.5" r="1" fill="#0e0907"/><circle cx="37" cy="11.2" r=".3" fill="#fff"/></g>
       <g class="bush-wfl"><path class="bush-hum" d="M18 18Q14 2 27 0Q31 9 26 18z" fill="#4a6fd0"/></g></svg>` },
     // --- in the sky band --------------------------------------------------------------------------------------------------
-    { id: "cockies", ms: 21e3, move: "across bobbing", weight: 3, when: Aa, y: [0, 3], art: l`<svg viewBox="-20 -26 240 112" width="210">${ei(160, 34, 1, 0)}${ei(110, 10, 0.86, 0.13)}${ei(104, 58, 0.92, 0.22)}${ei(56, 30, 0.74, 0.07)}${ei(4, 50, 0.62, 0.3)}</svg>` },
-    { id: "kooka", ms: 17e3, move: "bush-perch", weight: 3, when: Aa, flip: !1, art: l`<svg viewBox="0 0 160 116" width="146"><defs>${Mt("bush-g-kk", "#f6eedc", "#c9bb9c")}</defs>
+    { id: "cockies", ms: 21e3, move: "across bobbing", weight: 3, when: qa, y: [0, 3], art: l`<svg viewBox="-20 -26 240 112" width="210">${ei(160, 34, 1, 0)}${ei(110, 10, 0.86, 0.13)}${ei(104, 58, 0.92, 0.22)}${ei(56, 30, 0.74, 0.07)}${ei(4, 50, 0.62, 0.3)}</svg>` },
+    { id: "kooka", ms: 17e3, move: "bush-perch", weight: 3, when: qa, flip: !1, art: l`<svg viewBox="0 0 160 116" width="146"><defs>${Mt("bush-g-kk", "#f6eedc", "#c9bb9c")}</defs>
       <path d="M100-2Q94 34 62 52Q42 60 14 56" stroke="#5f4a3a" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M98 0Q92 32 61 49.500Q42 57 16 54" stroke="#927862" stroke-width="1.6" stroke-linecap="round" fill="none"/>
       ${Bi(20, 57, 12)}${Bi(32, 59, -10, 0.9)}${Bi(90, 30, -16, 0.9)}${Bi(96, 18, 20, 0.7)}
       <g class="bush-kb">
@@ -4050,7 +4064,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M58 55v4.500M64 54v4.5" stroke="#6a5a4a" stroke-width="2" stroke-linecap="round"/>
       <g class="bush-p bush-kh"><path d="M56 22Q56 4 73 5Q86 9 83 24Q72 31 59 28z" fill="url(#bush-g-kk)"/><path d="M60 10Q69 2 79 8L72 11Q66 9 60 13z" fill="#6f4f38"/><path d="M62 9l5-2M68 7l5 0" stroke="#a88464" stroke-width=".8" fill="none"/><path d="M64 15L81 15L80 20L66 21z" fill="#4a3426"/>${ue(73.5, 17, 1.9, "#3a2416")}
         <g class="bush-p bush-kj"><path d="M80 20L105 19L80 25z" fill="#d9bd8a"/></g><path d="M79 12L108 17.500L80 20.500z" fill="#2f2c2a"/><path d="M82 14L104 17.5" stroke="#6a655e" stroke-width=".8" fill="none"/></g></g></svg>` },
-    { id: "twentyeight", ms: 9e3, move: "across", weight: 2, when: Aa, y: [1, 6], art: l`<svg viewBox="-30 -30 150 80" width="130">${Rl(60, 6, 0)}${Rl(4, 22, 0.4)}</svg>` },
+    { id: "twentyeight", ms: 9e3, move: "across", weight: 2, when: qa, y: [1, 6], art: l`<svg viewBox="-30 -30 150 80" width="130">${Rl(60, 6, 0)}${Rl(4, 22, 0.4)}</svg>` },
     { id: "wedgie", ms: 34e3, move: "bush-soar", weight: 1.4, when: ke, flip: !1, y: [0, 2], art: l`<svg class="bush-bank" viewBox="-42 -54 80 108" width="74" opacity=".85"><g class="bush-tipf">
       ${[1, -1].map((a) => b`<g transform="scale(1 ${a})"><path d="M13-3Q17-14 11-30Q7-41 3-50L0-46L-2-51L-5-46L-7-50L-10-45L-12-48L-15-42Q-17-28-14-14L-11-3z" fill="#3a2c22"/><path d="M8-5Q10-16 5-30L-7-30Q-9-18-6-5z" fill="#7a6248" opacity=".85"/><path d="M4-32L1-46M-2-32L-5-46M-8-32L-10-45" stroke="#1f1712" stroke-width=".8" fill="none"/></g>`)}</g>
       <path d="M-12-4L-33-9Q-40 0-33 9L-12 4z" fill="#2c211a"/><path d="M-15 0Q-4-6 12-4Q18-2.5 22 0Q18 2.5 12 4Q-4 6-15 0z" fill="#3a2c22"/><ellipse cx="21" cy="0" rx="5" ry="3.6" fill="#6b5642"/><path d="M25-1.200l5 1.200l-5 1.200z" fill="#d9c9a8"/></svg>` },
@@ -4099,7 +4113,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M12 21l-2 4M16 22l0 4M21 21l2 4" stroke="#17171a" stroke-width=".9" stroke-linecap="round"/><ellipse cx="12" cy="16" rx="8.5" ry="5.8" fill="#17171a"/><path d="M6.5 11.500q-1.2 4.5 0 9M10.3 10.400q-1.2 5.6 0 11.200M14.3 10.600q-1 5.4 0 10.800M17.8 12q-.7 4 0 8" stroke="#7fd0f0" stroke-width="1.7" fill="none"/>
       <circle cx="22.5" cy="14.5" r="5.6" fill="#c98a2a"/><path d="M19 11.500q3.5-2.5 7 0" stroke="#f0c060" stroke-width="1.4" fill="none" stroke-linecap="round"/><circle cx="29" cy="15" r="3.7" fill="#2a2a22"/><ellipse cx="30" cy="14.3" rx="1.9" ry="2.5" fill="#9ac04a"/><path d="M31 12q3-3 4-2M30.5 18l1.5 4" stroke="#17171a" stroke-width=".7" fill="none" stroke-linecap="round"/></svg>` }
   ]
-}, vt = "#26272b", $e = "#24408e", ve = "#c62a22", Vl = "#17703d", $l = "#e39a45", _r = "#b96f24", F = (a, t = 3) => `fill:none;stroke:${a};stroke-width:${t};stroke-linecap:round;stroke-linejoin:round`, Ne = (a, t = g, e = !1, i = "") => b`<g transform="translate(${a} 12)">
+}, vt = "#26272b", Ve = "#24408e", ye = "#c62a22", Vl = "#17703d", $l = "#e39a45", _r = "#b96f24", F = (a, t = 3) => `fill:none;stroke:${a};stroke-width:${t};stroke-linecap:round;stroke-linejoin:round`, $e = (a, t = g, e = !1, i = "") => b`<g transform="translate(${a} 12)">
   <ellipse cx="15" cy="17.6" rx="13" ry="1.5" fill="#000" opacity=".14"/>
   <g class="fr-tri ${e ? "fr-tri2" : ""}" style=${F("#5b3a2a", 0.9)}><path d="M20 10.5l3 3 1 4M17 10.5l1 3.5-1 3.5M15 10.5l-4 2.5-2 4.5"/></g>
   <g class="fr-tri ${e ? "" : "fr-tri2"}" style=${F("#2a1a14", 1.1)}><path d="M19.5 10.5l3.5 2.5 2 4.5M17.5 10.5l0 3.5-2 3.5M15.5 10.5l-3 2-4 5"/></g>
@@ -4121,7 +4135,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <g class="fr-gh"><path d="M25 78q-4 10-1 20 3 9 8 10.5 5-1.5 8-10.5 3-10-1-20z" fill="#ab9e8a"/><path d="M27 82q4-3 10 0-5 4-10 0z" fill="#6d6254"/><path d="M26 86q-2 8 1 14" style=${F("#cdc2ad", 1.3)}/><path d="M30 105h.1M34 105h.1" style=${F("#5c5246", 1.2)}/>
     <ellipse cx="25.3" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><ellipse cx="38.7" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><circle cx="26" cy="92.6" r=".9" fill="#fff"/><circle cx="39.4" cy="92.6" r=".9" fill="#fff"/></g></svg>`, zl = l`<svg class="fr-sway" viewBox="0 0 60 104" width="54" style="overflow:visible"><path d="M33 104Q28 70 32 52" style=${F("#00000022", 17)} transform="translate(5 2)"/>
   <path d="M30 104Q25 70 29 50" style=${F($l, 16)}/><path d="M25 100Q21 72 25 52" style=${F("#f0b566", 4)}/><path d="M22 90l15-2M21 76l15-1M22 62l14 1" style=${F(_r, 4.5)}/>
-  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${F($l, 15)}/><path d="M25 50Q27 32 17 20" style=${F("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${F(_r, 4.5)}/><path d="M21 17l-3-3" style=${F("#f7ead2", 14)}/></g></svg>`, Wl = b`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, Cl = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", jl = (a = 0, t = 0) => b`<g transform="translate(${a} ${t})"><path d=${Cl} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${Cl} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, Ll = (a, t = g) => b`<g style=${F(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Mo = (a, t, e, i = "") => b`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${F("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${F(vt, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${ve}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${F("#b9c1cc", 3)}/><path d="M29 36V3" style=${F("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ai = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, Ql = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), Gl = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], Yl = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], t1 = [
+  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${F($l, 15)}/><path d="M25 50Q27 32 17 20" style=${F("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${F(_r, 4.5)}/><path d="M21 17l-3-3" style=${F("#f7ead2", 14)}/></g></svg>`, Wl = b`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, Cl = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", jl = (a = 0, t = 0) => b`<g transform="translate(${a} ${t})"><path d=${Cl} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${Cl} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, Ll = (a, t = g) => b`<g style=${F(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Mo = (a, t, e, i = "") => b`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${F("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${F(vt, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${ye}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${F("#b9c1cc", 3)}/><path d="M29 36V3" style=${F("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ai = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, Ql = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), Gl = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], Yl = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], t1 = [
   ai("fr-gk", Ql([...Gl, ...Yl])),
   ai("fr-gk2", Ql([...Gl, [50, -34, 0], [51.5, -29, 0], [53, -34, 0], [60, -34, 0], [62, -33, 0], [64, -34, 0], ...Yl])),
   ai("fr-gla", [0, 10, 20, 30, 38, 42, 86, 94, 100].map((a) => [a, "translateY(0)"]).concat([5, 15, 34, 90].map((a) => [a, "translateY(3.5px)"])).sort((a, t) => a[0] - t[0])),
@@ -4349,7 +4363,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     .fr-str { transform-box: fill-box; transform-origin: 50% 0; animation: fr-wob 2.9s ease-in-out infinite alternate; }
   `,
   always: (a) => {
-    const t = a.mins / 60, e = Math.min(1, Math.max(0, (t - 6) / 12)), i = a.month === 12 ? l`<i class="fr-xmas"><i class="fr-w"></i><i class="fr-b1"></i><i class="fr-b2"></i><i class="fr-b3"></i></i>` : g, s = l`<svg class="fr-web" viewBox="0 0 16 64" width="16"><path d="M8 0v50" stroke="#fff" stroke-width=".9" opacity=".75"/><path d="M8 50l-5 3M8 52l5 2M8 55l-5 4M8 56l5 5" style=${F("#3a3a40", 1)}/><ellipse cx="8" cy="54.5" rx="3.6" ry="4.4" fill="#3a3a40"/><circle cx="6.6" cy="57" r="1" fill="#fff"/><circle cx="9.4" cy="57" r="1" fill="#fff"/></svg>`, o = (r, n, p, d = 1) => b`<path transform="translate(${r} ${n}) rotate(${p}) scale(${d})" d="M0 0q22 44 6 96q-20-46-6-96z"/>`;
+    const t = a.mins / 60, e = Math.min(1, Math.max(0, (t - 6) / 12)), i = a.month === 12 ? l`<i class="fr-xmas"><i class="fr-w"></i><i class="fr-b1"></i><i class="fr-b2"></i><i class="fr-b3"></i></i>` : g, s = l`<svg class="fr-web" viewBox="0 0 16 64" width="16"><path d="M8 0v50" stroke="#fff" stroke-width=".9" opacity=".75"/><path d="M8 50l-5 3M8 52l5 2M8 55l-5 4M8 56l5 5" style=${F("#3a3a40", 1)}/><ellipse cx="8" cy="54.5" rx="3.6" ry="4.4" fill="#3a3a40"/><circle cx="6.6" cy="57" r="1" fill="#fff"/><circle cx="9.4" cy="57" r="1" fill="#fff"/></svg>`, o = (r, n, p, c = 1) => b`<path transform="translate(${r} ${n}) rotate(${p}) scale(${c})" d="M0 0q22 44 6 96q-20-46-6-96z"/>`;
     return a.tod === "day" ? l`
       <i class="fr-win" style="left:${(58 - e * 56).toFixed(0)}vw"><svg viewBox="0 0 480 800" preserveAspectRatio="none">
         <g transform="skewX(-12)" fill="#fff" opacity=".45"><rect x="170" y="-30" width="140" height="340"/><rect x="324" y="-30" width="140" height="340"/><rect x="170" y="324" width="140" height="330"/><rect x="324" y="324" width="140" height="330"/></g>
@@ -4364,14 +4378,14 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   cast: [
     // ── along the bottom edge ──
     { id: "ants", ms: 3e4, move: "across fr-edge", weight: 5, art: l`<svg viewBox="0 0 200 32" width="200" style="overflow:visible">
-      <g class="fr-look">${Ne(4, g, !1, "fr-hup")}</g>${Ne(58, g, !0)}
-      ${Ne(106, b`<g class="fr-wob"><path d="M27 8l2-9 8-5 9 2 4 8-4 7-10 2z" fill="#e9d5a3"/><path d="M29-1l8-5 9 2-7 3z" fill="#fbf0cc"/><path d="M46 4l4 4-4 7-10 2 6-5z" fill="#c9ab72"/><circle cx="36" cy="5" r="1" fill="#c9ab72"/><circle cx="41" cy="1" r=".8" fill="#c9ab72"/></g>`)}${Ne(162, g, !0)}</svg>` },
+      <g class="fr-look">${$e(4, g, !1, "fr-hup")}</g>${$e(58, g, !0)}
+      ${$e(106, b`<g class="fr-wob"><path d="M27 8l2-9 8-5 9 2 4 8-4 7-10 2z" fill="#e9d5a3"/><path d="M29-1l8-5 9 2-7 3z" fill="#fbf0cc"/><path d="M46 4l4 4-4 7-10 2 6-5z" fill="#c9ab72"/><circle cx="36" cy="5" r="1" fill="#c9ab72"/><circle cx="41" cy="1" r=".8" fill="#c9ab72"/></g>`)}${$e(162, g, !0)}</svg>` },
     { id: "pizza", ms: 34e3, move: "across fr-edge", weight: 4, when: (a) => a.weekday === 5, art: l`<svg viewBox="0 0 132 60" width="132" style="overflow:visible">
-      <g transform="translate(0 28)">${Ne(6)}${Ne(36, g, !0)}${Ne(66)}${Ne(98, g, !0)}</g>
+      <g transform="translate(0 28)">${$e(6)}${$e(36, g, !0)}${$e(66)}${$e(98, g, !0)}</g>
       <g class="fr-wob"><path d="M10 12Q4 24 12 38L126 30z" fill="#000" opacity=".13" transform="translate(2 4)"/><path d="M10 10Q4 22 12 36L126 27z" fill="#f2c14e"/><path d="M12 30l114-3-114 9q-2-3 0-6z" fill="#d79a33"/><path d="M30 13q20 2 40 8M40 28q20-2 40-2" style=${F("#f9de8c", 2.4)}/><path d="M10 9Q3 22 12 37" style=${F("#c98a3c", 8)}/><path d="M8 12Q4 22 9 32" style=${F("#e9b566", 2.4)}/>
         <g fill="#b3362a"><circle cx="34" cy="20" r="5.5"/><circle cx="60" cy="24" r="4.8"/><circle cx="84" cy="24" r="3.8"/><circle cx="47" cy="30" r="2.8"/></g><g fill="#d8594a"><circle cx="32.5" cy="18.5" r="2"/><circle cx="58.8" cy="22.8" r="1.7"/><circle cx="83" cy="23" r="1.3"/></g><path d="M22 14l5 2M70 17l5 2M98 26l5-1" style=${F("#3f7d3a", 2.2)}/></g></svg>` },
     { id: "tail", ms: 14e3, move: "across fr-low", weight: 3, art: zl },
-    { id: "knights", ms: 13e3, move: "fr-st", weight: 2, art: l`<i class="fr-a fr-kn"><svg viewBox="0 0 140 48" width="140">${Mo(4, 0.66, "#2f9e62", "fr-late")}${Mo(44, 0.84, "#e07b1f")}${Mo(92, 1, $e)}</svg></i>` },
+    { id: "knights", ms: 13e3, move: "fr-st", weight: 2, art: l`<i class="fr-a fr-kn"><svg viewBox="0 0 140 48" width="140">${Mo(4, 0.66, "#2f9e62", "fr-late")}${Mo(44, 0.84, "#e07b1f")}${Mo(92, 1, Ve)}</svg></i>` },
     { id: "mouse", ms: 1e4, move: "fr-st", weight: 1.5, art: l`<i class="fr-a fr-mt">${zl}</i>
       <i class="fr-a fr-mouse"><svg viewBox="0 0 74 48" width="72"><path d="M6 36Q12 22 28 18q20-6 46 4v26H18Q8 44 6 36z" fill="#000" opacity=".12" transform="translate(-2 2)"/>
         <g class="fr-ear"><ellipse cx="47" cy="13" rx="7.5" ry="8.5" fill="#8a776d"/></g><path d="M4 34Q10 20 26 16q20-6 48 4v26H16Q6 42 4 34z" fill="#96877a"/><path d="M12 24q14-9 34-8 16 0 28 6v-2Q48 8 26 16q-9 3-14 8z" fill="#7b6d62"/><path d="M8 38q16 6 66 2v6H16q-7-3-8-8z" fill="#d8cec3"/>
@@ -4389,10 +4403,10 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
         <path d="M84 62q-12 12-24 6-5-4 0-8 12 2 18-8z" fill="#e6b490"/><path d="M60 68q-5-4 0-8l4 .5q-4 3 0 6z" fill="#f4d9c6"/></svg></i>` },
     { id: "trumpet", ms: 1e4, move: "fr-st", weight: 2, art: l`
       ${[2.9, 4.1, 5.4].map((a, t) => l`<i class="fr-a fr-n" style="animation-delay:${a}s;margin-bottom:${t * 9}px"><svg viewBox="0 0 16 19" width=${19 + t * 5} fill=${vt}>${Wl}</svg></i>`)}
-      <i class="fr-a fr-pop"><svg viewBox="0 0 96 96" width="92">${Ll(vt, b`<path d="M20 9h20l-2-13H22z" fill=${ve} stroke=${vt} stroke-width="2" stroke-linejoin="round"/><path d="M30-4q2-9 9-8" style=${F("#f2b824", 3.4)}/>`)}<path d="M30 34l14-8 8-6M30 38l22-12" style=${F(vt)}/><path d="M39 17h34l14-9v24l-14-9H39z" fill="#f2b824" stroke="#8a6d1d" stroke-width="1.8" stroke-linejoin="round"/><path d="M52 11v8M59 11v8M66 11v8" style=${F("#8a6d1d", 3)}/></svg></i>` },
+      <i class="fr-a fr-pop"><svg viewBox="0 0 96 96" width="92">${Ll(vt, b`<path d="M20 9h20l-2-13H22z" fill=${ye} stroke=${vt} stroke-width="2" stroke-linejoin="round"/><path d="M30-4q2-9 9-8" style=${F("#f2b824", 3.4)}/>`)}<path d="M30 34l14-8 8-6M30 38l22-12" style=${F(vt)}/><path d="M39 17h34l14-9v24l-14-9H39z" fill="#f2b824" stroke="#8a6d1d" stroke-width="1.8" stroke-linejoin="round"/><path d="M52 11v8M59 11v8M66 11v8" style=${F("#8a6d1d", 3)}/></svg></i>` },
     { id: "clarinet", ms: 11e3, move: "fr-st", weight: 2, art: l`
-      ${[3.4, 5, 6.6].map((a, t) => l`<i class="fr-a fr-n" style="animation-delay:${a}s;left:104px;bottom:${30 + t * 8}px"><svg viewBox="0 0 16 19" width=${15 + t * 4} fill=${$e}>${Wl}</svg></i>`)}
-      <i class="fr-a fr-pop"><svg viewBox="0 0 96 96" width="92">${Ll($e)}<path d="M38 20l32 42" style=${F("#1d1d22", 6.5)}/><path d="M67 58l9 12-12-2z" fill="#1d1d22" stroke="#1d1d22" stroke-width="3" stroke-linejoin="round"/><path d="M46 31h.1M52 39h.1M58 47h.1" style=${F("#d8dde5", 3.4)}/><path d="M30 34l18 2M30 40l26 6" style=${F($e)}/></svg></i>
+      ${[3.4, 5, 6.6].map((a, t) => l`<i class="fr-a fr-n" style="animation-delay:${a}s;left:104px;bottom:${30 + t * 8}px"><svg viewBox="0 0 16 19" width=${15 + t * 4} fill=${Ve}>${Wl}</svg></i>`)}
+      <i class="fr-a fr-pop"><svg viewBox="0 0 96 96" width="92">${Ll(Ve)}<path d="M38 20l32 42" style=${F("#1d1d22", 6.5)}/><path d="M67 58l9 12-12-2z" fill="#1d1d22" stroke="#1d1d22" stroke-width="3" stroke-linejoin="round"/><path d="M46 31h.1M52 39h.1M58 47h.1" style=${F("#d8dde5", 3.4)}/><path d="M30 34l18 2M30 40l26 6" style=${F(Ve)}/></svg></i>
       <i class="fr-a fr-bird"><svg viewBox="0 0 32 24" width="30"><path d="M4 12q2-9 11-8t9 9q-1 8-11 8-8 0-9-9z" fill="#f4f1e6" stroke=${vt} stroke-width="2.2"/><path d="M4 11l-4 2 4 2" fill="#f2b824" stroke=${vt} stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="9.5" r="1.5" fill=${vt}/><path d="M14 12q5 5 9 0M24 14l7 4M15 21v3M19 21v3" style=${F(vt, 2)}/></svg></i>` },
     // ── the header band ──
     { id: "fly", ms: 1e4, move: "fr-st fr-fly", weight: 5, flip: !1, art: l`<i class="fr-a fr-flyp">${Nl}</i>` },
@@ -4411,8 +4425,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     { id: "sticker", ms: 1e4, move: "fr-st", weight: 2, flip: !1, art: l`<i class="fr-a fr-top fr-stk"><svg class="fr-tumble fr-blk" viewBox="0 0 50 38" width="48"><ellipse cx="26" cy="21" rx="21" ry="15" fill="#000" opacity=".15"/><ellipse cx="24" cy="18" rx="21" ry="15" fill="#fbf8ee"/><ellipse cx="24" cy="18" rx="18" ry="12" style=${F("#c8372d", 1.8)}/><path d="M8 13q8-9 20-9" style=${F("#fff", 2)}/>
       <path d="M24 12q-8-3-9 5t7 10q2 1 4 0 8-3 6-11-2-6-8-4z" fill="#d43a2f"/><path d="M17 16q1-3 4-3" style=${F("#f08a7a", 1.6)}/><path d="M24 12q0-4 3-5" style=${F("#6b4a2a", 1.4)}/><path d="M26 9q5-4 8 0-5 3-8 0z" fill="#4e9a3e"/>
       <path class="fr-peel" d="M33 31q8-3 11-9l-10-1z" fill="#d9d3c2"/></svg></i>` },
-    { id: "dragon", ms: 12e3, move: "fr-st", weight: 2, flip: !1, art: l`<i class="fr-a fr-dg"><svg viewBox="0 0 122 72" width="112" style="overflow:visible"><path class="fr-wing" d="M56 40L44 6l17 13 10-15 3 24" style=${F(ve)} fill="#c62a22" fill-opacity=".22"/><path d="M12 52q12-16 26-6t22-6q10-8 18-20" style=${F(ve, 9)}/><path d="M14 51L2 44l3 13z" fill=${ve}/><path d="M76 17q6-11 18-7l18 6q3 4-2 6l-18 4q-10 2-16-9z" fill="#e8574f" stroke=${ve} stroke-width="3" stroke-linejoin="round"/><path d="M44 48v9M62 42v10M82 11l-5-9M89 9l-1-8M24 42l3-7 4 6M35 42l4-7 3 7M94 21l14-2" style=${F(ve)}/><circle cx="90" cy="14.5" r="2.2" fill="#fff"/><path class="fr-puff" d="M116 20q3-9 9-4 6-7 10 1 7 1 4 8 2 7-6 6-5 6-10 1-8 2-7-12z" fill="#fff" fill-opacity=".7" stroke="#5c5f66" stroke-width="2.4" stroke-linejoin="round"/></svg></i>` },
-    { id: "swimmer", ms: 15e3, move: "across", weight: 2, y: [4, 6], art: l`<svg viewBox="0 0 156 46" width="156"><path d="M2 32q9-9 18 0t18 0 18 0 18 0 18 0 18 0 18 0 18 0" style=${F($e)}/><path class="fr-splash" d="M44 24l-5-7M52 22l-1-9M60 24l4-7" style=${F($e, 2.2)}/><path d="M66 31l36-3" style=${F(vt)}/><path class="fr-crawl" d="M102 28h19" style=${F(vt)}/><circle cx="114" cy="24" r="8" fill="#fff7ea" stroke=${vt} stroke-width="2.6"/><path d="M106.5 21q7-9 15 0z" fill=${ve} stroke=${vt} stroke-width="2"/><path d="M111 25h9" style=${F($e, 4)}/></svg>` },
+    { id: "dragon", ms: 12e3, move: "fr-st", weight: 2, flip: !1, art: l`<i class="fr-a fr-dg"><svg viewBox="0 0 122 72" width="112" style="overflow:visible"><path class="fr-wing" d="M56 40L44 6l17 13 10-15 3 24" style=${F(ye)} fill="#c62a22" fill-opacity=".22"/><path d="M12 52q12-16 26-6t22-6q10-8 18-20" style=${F(ye, 9)}/><path d="M14 51L2 44l3 13z" fill=${ye}/><path d="M76 17q6-11 18-7l18 6q3 4-2 6l-18 4q-10 2-16-9z" fill="#e8574f" stroke=${ye} stroke-width="3" stroke-linejoin="round"/><path d="M44 48v9M62 42v10M82 11l-5-9M89 9l-1-8M24 42l3-7 4 6M35 42l4-7 3 7M94 21l14-2" style=${F(ye)}/><circle cx="90" cy="14.5" r="2.2" fill="#fff"/><path class="fr-puff" d="M116 20q3-9 9-4 6-7 10 1 7 1 4 8 2 7-6 6-5 6-10 1-8 2-7-12z" fill="#fff" fill-opacity=".7" stroke="#5c5f66" stroke-width="2.4" stroke-linejoin="round"/></svg></i>` },
+    { id: "swimmer", ms: 15e3, move: "across", weight: 2, y: [4, 6], art: l`<svg viewBox="0 0 156 46" width="156"><path d="M2 32q9-9 18 0t18 0 18 0 18 0 18 0 18 0 18 0 18 0" style=${F(Ve)}/><path class="fr-splash" d="M44 24l-5-7M52 22l-1-9M60 24l4-7" style=${F(Ve, 2.2)}/><path d="M66 31l36-3" style=${F(vt)}/><path class="fr-crawl" d="M102 28h19" style=${F(vt)}/><circle cx="114" cy="24" r="8" fill="#fff7ea" stroke=${vt} stroke-width="2.6"/><path d="M106.5 21q7-9 15 0z" fill=${ye} stroke=${vt} stroke-width="2"/><path d="M111 25h9" style=${F(Ve, 4)}/></svg>` },
     { id: "steam", ms: 17e3, move: "fr-st", weight: 3, flip: !1, when: (a) => a.mins >= 345 && a.mins <= 570, art: l`${[0, 1, 2].map((a) => l`<i class="fr-a fr-wisp" style="left:${30 + a * 4.5}vw;animation-delay:${a * 1.9}s"><svg viewBox="0 0 40 110" width=${34 + a * 6}><path d="M20 110q-20-22-4-44t-4-44q-4-12 8-22 14 12 8 24 16 22 0 42t-4 44z" fill="#5f7885" fill-opacity=".3"/><path d="M20 104q-12-20 0-40t-2-42q-2-10 2-16 6 8 3 18 12 22 0 40t-3 40z" fill="#fff" fill-opacity=".85"/></svg></i>`)}` },
     { id: "balloon", ms: 22e3, move: "across bobbing", weight: 3, y: [3, 4], when: (a) => a.month === 12, art: l`<svg viewBox="0 0 56 112" width="54"><defs><radialGradient id="fr-bal" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ff8f84"/><stop offset=".45" stop-color="#d9342f"/><stop offset="1" stop-color="#8f1b1c"/></radialGradient></defs><ellipse cx="32" cy="34" rx="21" ry="26" fill="#000" opacity=".1"/>
       <path class="fr-str" d="M27 60q-8 12 0 24t-3 26" style=${F("#f4f1e6", 1.3)}/><ellipse cx="27" cy="29" rx="22" ry="27" fill="url(#fr-bal)"/><path d="M23 54h8l-2 5h-4z" fill="#a52222"/><path d="M13 20q2-9 9-12" style=${F("#ffd0c9", 3)}/></svg>` },
@@ -4432,8 +4446,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <i class="fr-a fr-bx"><i class="fr-a fr-bs"></i><i class="fr-by fr-blk"><svg class="fr-spin" viewBox="0 0 30 30" width="30"><defs><radialGradient id="fr-felt" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#eef86e"/><stop offset=".55" stop-color="#cfe033"/><stop offset="1" stop-color="#93a51c"/></radialGradient></defs><circle cx="15" cy="15" r="13.5" fill="url(#fr-felt)"/><path d="M4 7q11 8 4 19M26 6q-10 9-3 20" style=${F("#f7f9e8", 2.2)}/></svg></i></i>` },
     { id: "dino", ms: 11e3, move: "fr-st", weight: 2, front: !0, art: l`<i class="fr-a fr-low fr-run"><svg class="fr-stomp" viewBox="0 0 96 64" width="72"><g style=${F(Vl)}><path d="M3 32q15 0 27-8 10-8 20-8l2-8q10-5 22-2 6 3 4 9l-16 2"/><path class="fr-jaw" d="M62 17l12 6-16 3"/><path d="M58 26q-2 9-10 15-10 6-20 0Q16 36 3 32M50 30l8 3-1 5M13 29l3-6 4 5 3-7 4 5 4-7"/><path class="fr-leg" d="M38 43l2 14h8"/><path class="fr-leg fr-leg2" d="M28 42l-2 15h8"/><path class="fr-roar" d="M84 8l8-5M86 16h9M84 24l8 5"/></g><circle cx="66" cy="11" r="2" fill=${Vl}/></svg></i>` },
     { id: "truck", ms: 9e3, move: "fr-st", weight: 2, front: !0, art: l`<i class="fr-a fr-trk"><i></i></i>
-      <i class="fr-a fr-low fr-run"><svg class="fr-stomp" style="animation-duration:.19s" viewBox="0 0 88 52" width="70"><path d="M12 12q6-9 12-1 6-8 12 0 5-6 10 0" style=${F("#8a5a2b")}/><g style=${F($e)}><path d="M4 32L8 12h42v20zM54 16h14l12 11v9H2M58 20h8l7 7H58z"/><g class="fr-spin"><circle cx="20" cy="41" r="8"/><path d="M12 41h16M20 33v16"/></g><g class="fr-spin"><circle cx="66" cy="41" r="8"/><path d="M58 41h16M66 33v16"/></g></g></svg></i>` },
-    { id: "scooter", ms: 8e3, move: "fr-st", weight: 2, front: !0, art: l`<i class="fr-a fr-low fr-run"><svg class="fr-hop fr-blk" viewBox="0 0 64 72" width="62"><path d="M2 20h11M0 30h9M3 40h8" style=${F("#66625b", 2)}/><g style=${F(vt)}><circle cx="12" cy="65" r="4.5"/><circle cx="50" cy="65" r="4.5"/><path d="M12 62h34l5-33M46 29h10"/><circle cx="31" cy="16" r="8"/><path d="M31 24l-2 20 4 17M30 30l19 1"/><path class="fr-kick" d="M29 44L18 59"/></g><path d="M22.5 14q1-10 9-10t9 10z" fill=${ve} stroke=${vt} stroke-width="2"/><circle cx="35" cy="17" r="1.4" fill=${vt}/></svg></i>` },
+      <i class="fr-a fr-low fr-run"><svg class="fr-stomp" style="animation-duration:.19s" viewBox="0 0 88 52" width="70"><path d="M12 12q6-9 12-1 6-8 12 0 5-6 10 0" style=${F("#8a5a2b")}/><g style=${F(Ve)}><path d="M4 32L8 12h42v20zM54 16h14l12 11v9H2M58 20h8l7 7H58z"/><g class="fr-spin"><circle cx="20" cy="41" r="8"/><path d="M12 41h16M20 33v16"/></g><g class="fr-spin"><circle cx="66" cy="41" r="8"/><path d="M58 41h16M66 33v16"/></g></g></svg></i>` },
+    { id: "scooter", ms: 8e3, move: "fr-st", weight: 2, front: !0, art: l`<i class="fr-a fr-low fr-run"><svg class="fr-hop fr-blk" viewBox="0 0 64 72" width="62"><path d="M2 20h11M0 30h9M3 40h8" style=${F("#66625b", 2)}/><g style=${F(vt)}><circle cx="12" cy="65" r="4.5"/><circle cx="50" cy="65" r="4.5"/><path d="M12 62h34l5-33M46 29h10"/><circle cx="31" cy="16" r="8"/><path d="M31 24l-2 20 4 17M30 30l19 1"/><path class="fr-kick" d="M29 44L18 59"/></g><path d="M22.5 14q1-10 9-10t9 10z" fill=${ye} stroke=${vt} stroke-width="2"/><circle cx="35" cy="17" r="1.4" fill=${vt}/></svg></i>` },
     { id: "moth", ms: 9e3, move: "flit", weight: 4, front: !0, y: [16, 50], when: (a) => a.tod !== "day", art: l`<svg viewBox="0 0 48 36" width="40"><g class="fr-mw"><path d="M24 15Q14 2 3 4q-3 8 2 15 8 6 19 2z" fill="#8a7458"/><path d="M24 15Q14 2 3 4q8 2 12 8z" fill="#a8916f"/><path d="M24 21q-8 2-13 9 7 5 13-2z" fill="#cdbb9b"/><path d="M8 9q5 0 9 5M6 14q5 1 8 4" style=${F("#5c4a35", 1.3)}/><circle cx="13" cy="12" r="1.8" fill="#e2d2b3"/></g>
       <g class="fr-mw fr-mw2"><path d="M24 15Q34 2 45 4q3 8-2 15-8 6-19 2z" fill="#8a7458"/><path d="M24 15Q34 2 45 4q-8 2-12 8z" fill="#a8916f"/><path d="M24 21q8 2 13 9-7 5-13-2z" fill="#cdbb9b"/><path d="M40 9q-5 0-9 5M42 14q-5 1-8 4" style=${F("#5c4a35", 1.3)}/><circle cx="35" cy="12" r="1.8" fill="#e2d2b3"/></g>
       <ellipse cx="24" cy="19" rx="3.6" ry="10" fill="#6a563f"/><ellipse cx="24" cy="13" rx="4.4" ry="4.6" fill="#93805f"/><path d="M22.5 9.5q1.5-1.5 3 0" style=${F("#c9b792", 1)}/><path d="M23 8Q20 3 15 2M25 8q3-5 8-6" style=${F("#6a563f", 1)}/></svg>` }
@@ -4444,7 +4458,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M40 10C36 4 28 1.6 22 2.6C16 3.6 12 7 9.5 9L9.5 11C12 13 16 16.4 22 17.4C28 18.4 36 16 40 10Z" fill="url(#${a})"/>
   ${s.stripe ? b`<path d="M37 9Q24 5.4 10 9.5L10 10.7Q24 8.6 37 10.5Z" fill=${s.stripe}/>` : g}
   <path d="M38 11.6Q28 16.6 12 11.6Q24 19.4 38 11.6Z" fill="#fff" opacity=".3"/><path d="M31.5 5.6Q29.6 10 31.5 14.8" stroke="#000" stroke-opacity=".2" stroke-width=".8" fill="none"/>
-  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${qt(35, 8.4, 1.7)}${s.extra ?? g}`, Lt = (a, t, e, i) => b`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, e1 = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", Di = (a, t, e, i, s, o, r) => P(t, e, i, b`${j(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${e1} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${qt(17, 9, 1.9, "#e9d28a")}`), Ii = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", Pt = (a, t, e, i = 1) => b`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, So = (a, t) => b`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, Fo = (a, t, e) => b`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, Zl = (a, t) => P(a, t, 1, b`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), Bl = (a, t) => P(a, t, 1, b`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), Ol = (a, t) => P(a, t, 1, b`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), Dl = (a) => b`${j(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${qt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Il = (a, t, e) => b`${j(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${qt(93, 20.5, 1.4, "#3d5263")}`, a1 = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(Re(11)), Jl = (a, t, e) => {
+  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${qt(35, 8.4, 1.7)}${s.extra ?? g}`, Lt = (a, t, e, i) => b`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, e1 = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", Di = (a, t, e, i, s, o, r) => P(t, e, i, b`${j(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${e1} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${qt(17, 9, 1.9, "#e9d28a")}`), Ii = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", Xt = (a, t, e, i = 1) => b`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, So = (a, t) => b`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, Fo = (a, t, e) => b`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, Zl = (a, t) => P(a, t, 1, b`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), Bl = (a, t) => P(a, t, 1, b`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), Ol = (a, t) => P(a, t, 1, b`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), Dl = (a) => b`${j(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${qt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Il = (a, t, e) => b`${j(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${qt(93, 20.5, 1.4, "#3d5263")}`, a1 = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(_e(11)), Jl = (a, t, e) => {
   const i = Math.floor(a / 44);
   return b`<path d="M20 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke=${t} stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M19 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke="#fff" stroke-opacity=".14" stroke-width="1.6" fill="none"/>${Array.from({ length: i }, (s, o) => {
     const r = o % 2 === 0, n = r ? 12 : 28, p = a - 22 - o * 44;
@@ -4571,9 +4585,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   // a leafy sea dragon drifts through, all frond and no hurry, pretending to be weed; a small fish who was sheltering behind it pops out and back
   { id: "seadragon", ms: 38e3, move: "across", weight: 1, y: [0, 2], art: l`<svg class="reef-s reef-dr" style="--dd:4.3s" viewBox="0 0 156 92" width="140">${j("rsdL", "#c4b84a", "#7f8a2a")}${j("rsdB", "#e2bd4a", "#a8801e")}
     <g class="reef-in2">${P(64, 26, 0.5, Kt("rsdF", "#3f8fb0", "#cfe9e6", "#5aa7c4"))}</g>
-    <g class="reef-wa" style="--r:4deg;--d:2.3s">${Pt(118, 32, 8, 0.8)}${Pt(98, 44, -16)}${Pt(72, 56, 4, 1.1)}${Pt(46, 66, -14)}${Pt(22, 70, 6, 0.8)}</g>
-    <g class="reef-wa" style="--r:4.5deg;--d:3.1s;--dl:-1s">${Pt(110, 42, 168, 0.9)}${Pt(86, 52, 190, 1.1)}${Pt(58, 64, 164)}${Pt(34, 70, 196, 0.9)}${Pt(12, 73, 240, 0.7)}</g>
-    <g class="reef-wa" style="transform-origin:100% 50%;--r:3deg;--d:2.7s">${Pt(126, 26, 44, 0.7)}${Pt(124, 34, 140, 0.6)}</g>
+    <g class="reef-wa" style="--r:4deg;--d:2.3s">${Xt(118, 32, 8, 0.8)}${Xt(98, 44, -16)}${Xt(72, 56, 4, 1.1)}${Xt(46, 66, -14)}${Xt(22, 70, 6, 0.8)}</g>
+    <g class="reef-wa" style="--r:4.5deg;--d:3.1s;--dl:-1s">${Xt(110, 42, 168, 0.9)}${Xt(86, 52, 190, 1.1)}${Xt(58, 64, 164)}${Xt(34, 70, 196, 0.9)}${Xt(12, 73, 240, 0.7)}</g>
+    <g class="reef-wa" style="transform-origin:100% 50%;--r:3deg;--d:2.7s">${Xt(126, 26, 44, 0.7)}${Xt(124, 34, 140, 0.6)}</g>
     <path d=${Ii} stroke="#a8801e" stroke-width="7.5" fill="none" stroke-linecap="round" transform="translate(0 1.4)"/><path d=${Ii} stroke="#e2bd4a" stroke-width="6" fill="none" stroke-linecap="round"/><path d=${Ii} stroke="#f6e08a" stroke-width="2" fill="none" stroke-linecap="round" transform="translate(0 -1.6)" opacity=".7"/>
     <path d=${Ii} stroke="#fdf3cf" stroke-width="7" fill="none" stroke-dasharray="1.6 8.4" opacity=".7"/><path d="M152 30.6L130 29.4L130 32.4Z" fill="#c9a030"/><path d="M152 30.6h-3" stroke="#8a6a1a" stroke-width="2.2" stroke-linecap="round"/>
     <path d="M121 31Q123 24 130 26Q135 29 133 34Q128 38 123 36Z" fill="url(#rsdB)"/><path d="M124 26l-2-5M128 25.6l1-5" stroke="#a8801e" stroke-width="1.2" stroke-linecap="round"/>${qt(128.4, 30, 1.8, "#f3df9a")}</svg>` },
@@ -4784,11 +4798,11 @@ const lc = {
     @media (max-width: 600px) { .reef-go { --p: 99vw; } .reef-sch { left: 40vw; } .reef-jl + .reef-jl { left: 50vw; } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, s = t && (a.month === 3 || a.month === 4), o = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (o - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, p = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, f, m]) => l`<i class="reef-ray" style="left:${o + h - f / 2}%;width:${f}vw;--a:${r.toFixed(1)}deg;--d:${m}s;--c:${n}"></i>`), d = t ? s ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", c = (h) => l`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${Ut(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
+    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, s = t && (a.month === 3 || a.month === 4), o = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (o - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, p = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, f, m]) => l`<i class="reef-ray" style="left:${o + h - f / 2}%;width:${f}vw;--a:${r.toFixed(1)}deg;--d:${m}s;--c:${n}"></i>`), c = t ? s ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", d = (h) => l`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${Ut(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
     return l`
       ${t ? l`<i class="reef-moon" style="left:${o}%"></i>` : l`<i class="reef-sun" style="left:${o}%;--c:${n}"></i>`}${p}
       <i class="reef-sh"></i>${a.tod === "day" ? l`<i class="reef-sh"></i>` : g}
-      <i class="reef-pl" style="box-shadow:${Ws(46, 5, t ? "rgba(150,255,230,.4)" : "rgba(255,255,255,.32)")}"></i><i class="reef-pl" style="box-shadow:${Ws(24, 9, d)};--o:${t ? 0.35 : 1}"></i>
+      <i class="reef-pl" style="box-shadow:${Ws(46, 5, t ? "rgba(150,255,230,.4)" : "rgba(255,255,255,.32)")}"></i><i class="reef-pl" style="box-shadow:${Ws(24, 9, c)};--o:${t ? 0.35 : 1}"></i>
       ${t ? g : l`<svg class="reef-s reef-sch" viewBox="0 0 128 56" width="128"><path d=${a1} fill="rgba(226,244,255,.62)"/></svg>`}
       <svg class="reef-s reef-k" style="left:-4px" viewBox="0 0 40 352" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.4deg;--d:11.7s">${Jl(352, "#1d6f5a", "#2f9a76")}</g></svg>
       <svg class="reef-s reef-k" style="right:-6px" viewBox="0 0 40 264" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.8deg;--d:13.9s">${Jl(264, "#17604e", "#288a6a")}</g></svg>
@@ -4805,7 +4819,7 @@ const lc = {
         <g class="reef-wa" style="transform-origin:50% 100%;--r:5deg;--d:5.1s"><path d="M100 128q-30-8-40-36M100 128q-22-14-24-44M100 128q-11-18-8-48M100 128q1-24 5-52M100 128q14-20 18-48M100 128q24-16 30-42M100 128q30-10 40-34" stroke="#b97a6a" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M100 128q-26-12-34-40M100 128q-17-18-17-46M100 128q-5-22-2-50M100 128q8-22 12-50M100 128q20-18 25-45M100 128q28-12 36-38" stroke="url(#rkcB)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1M60 92h.1M76 84h.1M140 94h.1M92 80h.1M118 80h.1" stroke="#f6e9f3" stroke-width="7" stroke-linecap="round"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1" stroke="#c9a0e0" stroke-width="3" stroke-linecap="round"/></g>
         <path d="M78 136q22-20 44 0z" fill="#a85a7e"/><path d="M84 134q16-12 32 0" stroke="#fff" stroke-opacity=".2" stroke-width="2" fill="none"/></svg>
       ${[["7px", 23, -4], ["calc(100% - 30px)", 31, -17]].map(([h, f, m]) => l`<svg class="reef-bt" style="--x:${h};--d:${f}s;--dl:${m}s" viewBox="0 0 26 220" width="26" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"><circle cx="13" cy="10" r="5"/><circle cx="8" cy="52" r="3.4"/><circle cx="17" cy="96" r="6"/><circle cx="11" cy="142" r="3"/><circle cx="15" cy="188" r="4.4"/></svg>`)}
-      ${a.tod === "day" ? g : c("rjA")}${t ? c("rjB") : g}`;
+      ${a.tod === "day" ? g : d("rjA")}${t ? d("rjB") : g}`;
   },
   cast: Rr
 }, El = (a, t) => {
@@ -4815,39 +4829,39 @@ const lc = {
     return i[1] + (s[1] - i[1]) * (t - i[0]) / (s[0] - i[0]);
   }
   return a[a.length - 1][1];
-}, ie = () => typeof innerWidth != "number" || innerWidth >= 1e3, lt = (a) => a.tod !== "night", qs = (a) => a.tod === "eve" || a.theme === "sunset" && a.tod !== "night", _o = (a, t) => {
-  const e = Re(t);
+}, ie = () => typeof innerWidth != "number" || innerWidth >= 1e3, pt = (a) => a.tod !== "night", qs = (a) => a.tod === "eve" || a.theme === "sunset" && a.tod !== "night", _o = (a, t) => {
+  const e = _e(t);
   return Array.from({ length: a }, () => `${(4 + e() * 92).toFixed(1)}vw ${(6 + e() * 96).toFixed(0)}px 0 ${e() < 0.3 ? 1 : 0}px #fff`).join(",");
-}, se = (a, t, e = 0) => b`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Ro = (a, t, e = 1, i = 0, s = 3.1) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${s}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${s}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, Pi = (a, t, e, i) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Vo = (a, t, e, i) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, Te = (a, t, e) => b`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, tp = b`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, $o = (a, t) => b`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, s1 = [
+}, se = (a, t, e = 0) => b`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Ro = (a, t, e = 1, i = 0, s = 3.1) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${s}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${s}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, Pi = (a, t, e, i) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Vo = (a, t, e, i) => b`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, Ne = (a, t, e) => b`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, tp = b`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, $o = (a, t) => b`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, s1 = [
   // ---------- the sky band ----------
-  { id: "gulls", ms: 24e3, move: "across sea-soar", weight: 5, y: [2, 6], when: lt, art: b`<svg viewBox="0 0 250 70" width="250" overflow="visible">${Ro(204, 30, 1.25, 0, 3.1)}${Ro(138, 48, 1.1, -1.3, 3.7)}<g class="sea-lag">${Ro(84, 26, 0.9, -0.6, 1.9)}</g></svg>` },
-  { id: "pelican", ms: 3e4, move: "across sea-soar", weight: 3, y: [2, 4], flip: !1, when: lt, art: b`<svg viewBox="-56 -56 150 80" width="156" overflow="visible"><g class="sea-beat" style="--p:4.3s;animation-delay:-.12s"><path d="M10-7Q2-40-28-50Q-22-28-12-5z" fill="#3a3f47"/></g><path d="M-30-3l-16-1 2 8 15 2z" fill="#262a30"/><path d="M-36 0Q-22-14 4-12Q22-12 30-4Q22 10 0 12Q-24 12-36 0z" fill="#fbfbf8"/><path d="M-33 2Q-6 14 26 0Q18 10 0 12Q-24 12-33 2z" fill="#d3d9df"/><g class="sea-gulp"><path d="M18-10Q22-20 30-19Q36-17 35-11Q32-5 24-4z" fill="#fbfbf8"/><path class="sea-fish" d="M66-3l9-6 0 11zM62-6l6 3-6 4z" fill="#8fa9bd"/><path d="M33-15L80-8 34-9z" fill="#eda58f"/><path d="M34-10L80-8Q62 7 42 3Q35-1 34-10z" fill="#f6c9b6"/><path d="M36-8Q58-3 78-8Q62 3 44 1Q37-2 36-8z" fill="#efb7a2"/><path d="M77-9l4 1-2 3z" fill="#e0902e"/><circle cx="30" cy="-13" r="2.3" fill="#e7c44d"/><circle cx="30" cy="-13" r="1.1" fill="#24201b"/></g><g class="sea-beat" style="--p:4.3s"><path d="M12-8Q0-46-34-58Q-28-32-16-5z" fill="#262a30"/><path d="M11-8Q4-30-12-42Q-12-22-8-6z" fill="#fbfbf8"/><path d="M-12-42Q-22-50-34-58Q-28-44-22-34z" fill="#3a3f47"/></g></svg>` },
+  { id: "gulls", ms: 24e3, move: "across sea-soar", weight: 5, y: [2, 6], when: pt, art: b`<svg viewBox="0 0 250 70" width="250" overflow="visible">${Ro(204, 30, 1.25, 0, 3.1)}${Ro(138, 48, 1.1, -1.3, 3.7)}<g class="sea-lag">${Ro(84, 26, 0.9, -0.6, 1.9)}</g></svg>` },
+  { id: "pelican", ms: 3e4, move: "across sea-soar", weight: 3, y: [2, 4], flip: !1, when: pt, art: b`<svg viewBox="-56 -56 150 80" width="156" overflow="visible"><g class="sea-beat" style="--p:4.3s;animation-delay:-.12s"><path d="M10-7Q2-40-28-50Q-22-28-12-5z" fill="#3a3f47"/></g><path d="M-30-3l-16-1 2 8 15 2z" fill="#262a30"/><path d="M-36 0Q-22-14 4-12Q22-12 30-4Q22 10 0 12Q-24 12-36 0z" fill="#fbfbf8"/><path d="M-33 2Q-6 14 26 0Q18 10 0 12Q-24 12-33 2z" fill="#d3d9df"/><g class="sea-gulp"><path d="M18-10Q22-20 30-19Q36-17 35-11Q32-5 24-4z" fill="#fbfbf8"/><path class="sea-fish" d="M66-3l9-6 0 11zM62-6l6 3-6 4z" fill="#8fa9bd"/><path d="M33-15L80-8 34-9z" fill="#eda58f"/><path d="M34-10L80-8Q62 7 42 3Q35-1 34-10z" fill="#f6c9b6"/><path d="M36-8Q58-3 78-8Q62 3 44 1Q37-2 36-8z" fill="#efb7a2"/><path d="M77-9l4 1-2 3z" fill="#e0902e"/><circle cx="30" cy="-13" r="2.3" fill="#e7c44d"/><circle cx="30" cy="-13" r="1.1" fill="#24201b"/></g><g class="sea-beat" style="--p:4.3s"><path d="M12-8Q0-46-34-58Q-28-32-16-5z" fill="#262a30"/><path d="M11-8Q4-30-12-42Q-12-22-8-6z" fill="#fbfbf8"/><path d="M-12-42Q-22-50-34-58Q-28-44-22-34z" fill="#3a3f47"/></g></svg>` },
   { id: "tern", ms: 21e3, move: "sea-e sea-tern", weight: 3, y: [3, 4], when: (a) => a.tod === "day", art: b`<svg viewBox="-34 -30 68 50" width="64" overflow="visible"><g class="sea-flap" style="--p:.27s;--f:-.6;animation-delay:-.05s"><path d="M3-3Q2-18-12-27Q-9-14-7-2z" fill="#aab4be"/></g><path d="M-12 0L-31-5-24 1-30 5z" fill="#fff"/><path d="M-15 0Q-7-7 6-6Q14-8 19-6Q23-4 21-1Q14 5 2 5Q-9 5-15 0z" fill="#fff"/><path d="M-14 1Q0 6 15 2Q9 5 2 5Q-9 5-14 1z" fill="#d9e1e8"/><path d="M10-7Q13-11 20-9Q23-7 23-5Q16-7 9-5z" fill="#17191c"/><path d="M9-6l-4-3 5 1z" fill="#17191c"/><path d="M22-4.5l10 2.5-10 1z" fill="#e8b520"/><path class="sea-catch" d="M30-3.5q3-3 4 2.5q-1 5-4 4q2-4 0-6.5z" fill="#9db7c9"/><g class="sea-flap" style="--p:.27s;--f:-.6"><path d="M5-4Q4-21-12-31Q-9-16-8-2z" fill="#c9d1d9"/><path d="M-7.5-24L-12-31-10-19z" fill="#5d6770"/></g></svg>` },
-  { id: "osprey", ms: 27e3, move: "across sea-soar", weight: 1.5, y: [2, 5], when: lt, art: b`<svg viewBox="-50 -46 100 76" width="112" overflow="visible"><g class="sea-beat" style="--p:3.9s;animation-delay:-.1s"><path d="M6-4Q0-30-24-40Q-18-20-10-3z" fill="#3b2c20"/></g><path d="M-18 0l-18-2 1 7 17 1z" fill="#6b5340"/><path d="M-34-1.5l5 .5v6l-5-.3zM-27-1l4 .4v6l-4-.3z" fill="#3b2c20"/><path d="M-20 0Q-10-8 6-7Q14-10 20-8Q25-5 23-1Q16 7 2 7Q-12 7-20 0z" fill="#f4f1ea"/><path d="M-20 0Q-10-8 6-7Q-4-3-18 2z" fill="#5a4636"/><path d="M12-8Q18-10 23-6L20-5Q16-7 11-5z" fill="#3b2c20"/><path d="M23-5q4 1 3 5l-3-2z" fill="#2a2a2a"/><circle cx="19" cy="-6" r=".9" fill="#e8b520"/><path d="M-2 6l-1 6M4 6l1 6" stroke="#b9c2cb" stroke-width="1.6"/><g class="sea-wig" style="--o:50% 0;--a:-5deg;--b:6deg;--p:.9s"><path d="M-16 12Q-4 8 12 11Q18 13 20 15Q10 19-6 17Q-14 16-16 12z" fill="#93a7b5"/><path d="M-14 13Q0 17 18 15Q10 19-6 17z" fill="#dfe7ec"/><path d="M-15 12l-8-4 1 9z" fill="#7f95a4"/><circle cx="15" cy="13.5" r=".8" fill="#1d2325"/></g><g class="sea-beat" style="--p:3.9s"><path d="M8-5Q2-34-26-46Q-20-24-12-3z" fill="#5a4636"/><path d="M-26-46Q-20-34-17-24l4-6Q-18-38-26-46z" fill="#2c2018"/><path d="M7-6Q4-20-6-30Q-6-16-6-4z" fill="#77604b"/></g></svg>` },
+  { id: "osprey", ms: 27e3, move: "across sea-soar", weight: 1.5, y: [2, 5], when: pt, art: b`<svg viewBox="-50 -46 100 76" width="112" overflow="visible"><g class="sea-beat" style="--p:3.9s;animation-delay:-.1s"><path d="M6-4Q0-30-24-40Q-18-20-10-3z" fill="#3b2c20"/></g><path d="M-18 0l-18-2 1 7 17 1z" fill="#6b5340"/><path d="M-34-1.5l5 .5v6l-5-.3zM-27-1l4 .4v6l-4-.3z" fill="#3b2c20"/><path d="M-20 0Q-10-8 6-7Q14-10 20-8Q25-5 23-1Q16 7 2 7Q-12 7-20 0z" fill="#f4f1ea"/><path d="M-20 0Q-10-8 6-7Q-4-3-18 2z" fill="#5a4636"/><path d="M12-8Q18-10 23-6L20-5Q16-7 11-5z" fill="#3b2c20"/><path d="M23-5q4 1 3 5l-3-2z" fill="#2a2a2a"/><circle cx="19" cy="-6" r=".9" fill="#e8b520"/><path d="M-2 6l-1 6M4 6l1 6" stroke="#b9c2cb" stroke-width="1.6"/><g class="sea-wig" style="--o:50% 0;--a:-5deg;--b:6deg;--p:.9s"><path d="M-16 12Q-4 8 12 11Q18 13 20 15Q10 19-6 17Q-14 16-16 12z" fill="#93a7b5"/><path d="M-14 13Q0 17 18 15Q10 19-6 17z" fill="#dfe7ec"/><path d="M-15 12l-8-4 1 9z" fill="#7f95a4"/><circle cx="15" cy="13.5" r=".8" fill="#1d2325"/></g><g class="sea-beat" style="--p:3.9s"><path d="M8-5Q2-34-26-46Q-20-24-12-3z" fill="#5a4636"/><path d="M-26-46Q-20-34-17-24l4-6Q-18-38-26-46z" fill="#2c2018"/><path d="M7-6Q4-20-6-30Q-6-16-6-4z" fill="#77604b"/></g></svg>` },
   { id: "cockies", ms: 34e3, move: "across sea-soar", weight: 4, y: [2, 5], when: qs, art: b`<svg viewBox="0 0 250 84" width="250" overflow="visible">${Pi(212, 44, 1, 0)}${Pi(152, 62, 0.92, -0.3)}${Pi(104, 40, 0.88, -0.17)}<g class="sea-lag" style="--lag:-30px">${Pi(42, 56, 0.76, -0.45)}</g></svg>` },
   { id: "swans", ms: 28e3, move: "across", weight: 3, y: [3, 6], when: (a) => qs(a) || a.tod === "day" && a.mins < 480, art: b`<svg viewBox="0 0 270 70" width="270" overflow="visible">${Vo(206, 38, 1, 0)}${Vo(128, 46, 0.94, -0.19)}${Vo(54, 40, 0.88, -0.36)}</svg>` },
-  { id: "kite", ms: 26e3, move: "sea-e sea-kite", weight: 2.5, y: [1, 3], when: lt, art: b`<svg viewBox="-30 -34 60 68" width="62" overflow="visible"><path d="M0 30Q-90 160-320 330" stroke="#fff" stroke-width=".9" fill="none" opacity=".75"/><g class="sea-wig" style="--o:50% 0;--a:-18deg;--b:18deg;--p:1.1s"><path d="M0 30q-7 9 0 18" stroke="#16806f" stroke-width="2.2" fill="none"/><path d="M-6 37l12 3-12 4z" fill="#1fa08b"/><g class="sea-wig" style="--o:50% 0;--a:-26deg;--b:26deg;--p:.8s;animation-delay:-.3s"><path d="M0 48q8 9 0 18t0 16" stroke="#16806f" stroke-width="2" fill="none"/><path d="M7 56l-12 3 12 4zM-5 72l12 3-12 4z" fill="#1fa08b"/></g></g><path d="M0-32L24-6H0z" fill="#f4c542"/><path d="M0-32L-24-6H0z" fill="#e2483d"/><path d="M0 30L-24-6H0z" fill="#d9aa2b"/><path d="M0 30L24-6H0z" fill="#b93229"/><path d="M0-32L-24-6l6 1L0-26z" fill="#fff" opacity=".22"/><path d="M0-32v62M-24-6h48" stroke="#5a2a20" stroke-width=".8" opacity=".6"/></svg>` },
+  { id: "kite", ms: 26e3, move: "sea-e sea-kite", weight: 2.5, y: [1, 3], when: pt, art: b`<svg viewBox="-30 -34 60 68" width="62" overflow="visible"><path d="M0 30Q-90 160-320 330" stroke="#fff" stroke-width=".9" fill="none" opacity=".75"/><g class="sea-wig" style="--o:50% 0;--a:-18deg;--b:18deg;--p:1.1s"><path d="M0 30q-7 9 0 18" stroke="#16806f" stroke-width="2.2" fill="none"/><path d="M-6 37l12 3-12 4z" fill="#1fa08b"/><g class="sea-wig" style="--o:50% 0;--a:-26deg;--b:26deg;--p:.8s;animation-delay:-.3s"><path d="M0 48q8 9 0 18t0 16" stroke="#16806f" stroke-width="2" fill="none"/><path d="M7 56l-12 3 12 4zM-5 72l12 3-12 4z" fill="#1fa08b"/></g></g><path d="M0-32L24-6H0z" fill="#f4c542"/><path d="M0-32L-24-6H0z" fill="#e2483d"/><path d="M0 30L-24-6H0z" fill="#d9aa2b"/><path d="M0 30L24-6H0z" fill="#b93229"/><path d="M0-32L-24-6l6 1L0-26z" fill="#fff" opacity=".22"/><path d="M0-32v62M-24-6h48" stroke="#5a2a20" stroke-width=".8" opacity=".6"/></svg>` },
   { id: "dragon", ms: 32e3, move: "across sea-soar", weight: 0.4, y: [3, 5], flip: !1, when: qs, art: b`<svg viewBox="-70 -52 170 76" width="150" overflow="visible"><g class="sea-flap" style="--p:1.15s;--f:-.5;animation-delay:-.16s"><path d="M-2-6Q-10-34 14-40Q9-28 13-21Q5-23 3-12z" fill="#33483f"/></g><g class="sea-wig" style="--o:100% 30%;--a:-7deg;--b:8deg;--p:1.15s"><path d="M-16-2Q-32-4-46 2L-45 7Q-30 5-16 8z" fill="#4f7163"/><path d="M-16 5Q-30 4-45 7L-45 5Q-30 2-16 3z" fill="#c2ad82"/><g class="sea-wig" style="--o:100% 30%;--a:-12deg;--b:13deg;--p:1.15s;animation-delay:-.35s"><path d="M-45 2Q-58 0-68 5l-7-3 3 6-4 5 9-2Q-56 9-45 7z" fill="#4f7163"/></g></g><path d="M-10 6q-3 8 5 9l2-3-4-1zM14 5q-1 7 6 7l1-3-4-.5z" fill="#33483f"/><path d="M-20 2Q-10-10 8-9Q22-8 28-2Q18 10 0 10Q-14 10-20 2z" fill="#4f7163"/><path d="M-17 4Q0 12 24 1Q14 10 0 10Q-12 10-17 4z" fill="#c2ad82"/><path d="M-12-6l3-5 3 4 3-5 3 5 3-5 3 5" fill="none" stroke="#33483f" stroke-width="1.5"/><g class="sea-rear"><path d="M20-7Q32-14 43-19L48-12Q38-6 26 4z" fill="#4f7163"/><path d="M26 4Q38-6 48-12L47-14Q36-8 22 1z" fill="#c2ad82"/><path d="M42-20Q49-27 58-23L71-17Q71-13 65-12L48-10Q42-13 42-20z" fill="#587d6d"/><path d="M50-11L65-12Q70-13 71-16Q62-14 50-13z" fill="#c2ad82"/><path d="M46-22l-9-8 12 5zM50-24l-5-9 9 7z" fill="#d8caa5"/><circle cx="57" cy="-19.5" r="1.2" fill="#f0b429"/><path class="sea-fire" d="M71-15Q84-21 98-15Q88-12 86-8Q78-12 71-13z" fill="#ff9d1c"/><path class="sea-fire" d="M72-15Q80-17 88-14Q80-13 78-11z" fill="#ffe08a"/></g><g class="sea-flap" style="--p:1.15s;--f:-.5"><path d="M0-6Q-8-44 30-52Q20-37 26-29Q14-33 14-22Q5-26 3-9z" fill="#5d8573"/><path d="M0-6Q-2-28 12-40Q10-26 14-22Q5-26 3-9z" fill="#4f7163"/><path d="M1-8L30-52M2-9L26-29M2-9L14-22" stroke="#33483f" stroke-width=".9" fill="none"/></g></svg>` },
-  { id: "balloon", ms: 6e4, move: "across", weight: 1.5, y: [0, 1], when: (a) => lt(a) && (a.mins < 600 || a.mins > 960), art: b`<svg viewBox="0 0 64 100" width="64" overflow="visible"><defs><linearGradient id="sea-bg"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#2a1208" stop-opacity=".34"/></linearGradient></defs><g class="sea-lift"><path d="M24 64l3 15M40 64l-3 15M32 66v12" stroke="#5c4630" stroke-width=".8"/><path class="sea-flame" d="M32 61q-4 6 0 11q4-5 0-11z" fill="#ffb347"/><path d="M32 2C12 2 4 18 4 31c0 15 15 26 19 33h18c4-7 19-18 19-33C60 18 52 2 32 2z" fill="#d64b38"/><path d="M32 2c-13 6-16 44-9 62h5c-6-20-4-54 4-62zM32 2c13 6 16 44 9 62h-5c6-20 4-54-4-62z" fill="#f2e2c0"/><path d="M32 2c-4 10-5 44-1 62h2c4-18 3-52-1-62z" fill="#e9a23b"/><path d="M5 24Q32 32 59 24L60 31Q32 39 4 31z" fill="#234e70" opacity=".85"/><path d="M32 2C12 2 4 18 4 31c0 15 15 26 19 33h18c4-7 19-18 19-33C60 18 52 2 32 2z" fill="url(#sea-bg)"/><path class="sea-flame" d="M24 64h16l-2-9H26z" fill="#ffd27a" opacity=".55"/><circle cx="29" cy="77" r="2" fill="#3a2f28"/><circle cx="35" cy="77.5" r="1.8" fill="#5a4636"/><path d="M24 79h16l-1 12H25z" fill="#a8773f"/><path d="M33 79h7l-1 12h-6z" fill="#7d5628"/><path d="M24 79h16" stroke="#5c4630" stroke-width="1.6"/></g></svg>` },
-  { id: "plane", ms: 27e3, move: "across sea-hi", weight: 1.5, y: [2, 5], flip: !1, when: (a) => lt(a) && a.weekday !== 5 && a.month !== 12 && a.month !== 1, art: $o("G’DAY", 76) },
-  { id: "plane-fri", ms: 27e3, move: "across sea-hi", weight: 4, y: [2, 5], flip: !1, when: (a) => lt(a) && a.weekday === 5, art: $o("HOORAY, FRIDAY", 170) },
-  { id: "plane-hols", ms: 27e3, move: "across sea-hi", weight: 2, y: [2, 5], flip: !1, when: (a) => lt(a) && a.weekday !== 5 && (a.month === 12 || a.month === 1), art: $o("SUMMER HOLS", 140) },
-  { id: "whale-cloud", ms: 84e3, move: "across", weight: 0.5, y: [1, 3], when: lt, art: b`<svg viewBox="0 0 190 96" width="196" overflow="visible" opacity=".92">${tp}<g fill="#fff"><circle class="sea-puff" cx="118" cy="20" r="6"/><circle class="sea-puff" style="animation-delay:.25s" cx="130" cy="12" r="7.5"/><circle class="sea-puff" style="animation-delay:.5s" cx="143" cy="21" r="5.5"/><path d="M6 20q14-4 22 10q10-14 26-12q-12 8-14 26q30-16 80-12q46 4 58 30q6 24-26 30q-60 8-110-4q-30-10-30-44q0-12-6-24z"/></g><path d="M40 70q50 16 118 8q16-4 20-14q-66 20-138 6z" fill="#cfe0f0"/><g fill="url(#sea-cg)"><circle cx="60" cy="42" r="21"/><circle cx="88" cy="35" r="24"/><circle cx="118" cy="36" r="21"/><circle cx="146" cy="44" r="18"/><circle cx="30" cy="30" r="12"/><circle cx="10" cy="22" r="9"/><circle cx="50" cy="20" r="9"/><circle cx="168" cy="62" r="14"/></g><circle cx="152" cy="56" r="3" fill="#7fa3c4" opacity=".8"/></svg>` },
-  { id: "dino-cloud", ms: 84e3, move: "across", weight: 0.5, y: [0, 2], flip: !1, when: lt, art: b`<svg viewBox="0 0 200 100" width="200" overflow="visible" opacity=".92">${tp}<g fill="#fff"><circle class="sea-nib" cx="190" cy="34" r="8"/><circle class="sea-nib" cx="200" cy="38" r="6"/><path d="M2 74q30-4 44-22q16-18 46-16q22 0 34 14l4 44h-16v-18q-22 8-42 0v18H56V78q-20 6-54-4z"/><g class="sea-neck"><path d="M112 60q14-6 22-30q4-18 20-20q16-1 20 10q2 10-12 12q-8 0-10 10q-6 26-26 34z"/><circle cx="162" cy="17" r="2.6" fill="#7fa3c4" opacity=".8"/><circle cx="152" cy="14" r="9" fill="url(#sea-cg)"/><circle cx="138" cy="34" r="10" fill="url(#sea-cg)"/></g></g><path d="M56 78q22 8 42 0v-6q-20 8-42 0zM20 76q20 2 34-4v6q-16 4-34-2z" fill="#cfe0f0"/><g fill="url(#sea-cg)"><circle cx="70" cy="48" r="22"/><circle cx="98" cy="44" r="23"/><circle cx="120" cy="54" r="18"/><circle cx="44" cy="62" r="13"/><circle cx="18" cy="72" r="9"/></g></svg>` },
-  { id: "owl", ms: 23e3, move: "across sea-soar", weight: 3, y: [2, 6], when: (a) => !lt(a), art: b`<svg viewBox="-60 -30 120 60" width="112" overflow="visible"><g class="sea-beat" style="--p:3.3s;--g:.5;--o:100% 60%"><path d="M-11-4Q-30-20-56-12Q-50-8-50-3Q-42-5-40 2Q-32 0-28 6Q-20 2-12 6z" fill="#6f563f"/><path d="M-12-2Q-28-12-46-9Q-34-6-30 0Q-22-2-13 3z" fill="#8a6d50"/><path d="M-50-8l6 3M-42-5l5 4M-33-2l5 4" stroke="#e9dcc4" stroke-width="1.3" stroke-linecap="round"/></g><g class="sea-beat" style="--p:3.3s;--g:.5;--o:0 60%;animation-delay:-.06s"><path d="M11-4Q30-20 56-12Q50-8 50-3Q42-5 40 2Q32 0 28 6Q20 2 12 6z" fill="#6f563f"/><path d="M12-2Q28-12 46-9Q34-6 30 0Q22-2 13 3z" fill="#8a6d50"/><path d="M50-8l-6 3M42-5l-5 4M33-2l-5 4" stroke="#e9dcc4" stroke-width="1.3" stroke-linecap="round"/></g><path d="M-9 20l3 7 3-6 3 6 3-6 3 6 3-7z" fill="#5a4432"/><ellipse cy="5" rx="14" ry="18" fill="#8a6d50"/><path d="M-8 2Q0 26 8 2Q8 20 0 22Q-8 20-8 2z" fill="#e9dcc4"/><path d="M-4 8v6M0 6v10M4 8v6" stroke="#8a6d50" stroke-width="1.5" stroke-linecap="round"/><path d="M-14-9Q-14-22 0-22Q14-22 14-9Q10 0 0 0Q-10 0-14-9z" fill="#6f563f"/><path d="M-12-9Q-8-17-1-11Q-4-3-9-4zM12-9Q8-17 1-11Q4-3 9-4z" fill="#a98a69"/><g class="sea-blink"><circle cx="-6" cy="-9.5" r="2.9" fill="#d9c94a"/><circle cx="6" cy="-9.5" r="2.9" fill="#d9c94a"/><circle cx="-6" cy="-9.5" r="1.7" fill="#15120f"/><circle cx="6" cy="-9.5" r="1.7" fill="#15120f"/></g><path d="M-1.5-6l1.5 4 1.5-4z" fill="#3c3128"/></svg>` },
-  { id: "shoot", ms: 1700, move: "streak", weight: 3, y: [1, 5], when: (a) => !lt(a), art: b`<svg viewBox="0 0 130 8" width="130"><path d="M0 4L122 2.5v3z" fill="#fff" opacity=".7"/><circle cx="124" cy="4" r="3.3" fill="#fff"/></svg>` },
+  { id: "balloon", ms: 6e4, move: "across", weight: 1.5, y: [0, 1], when: (a) => pt(a) && (a.mins < 600 || a.mins > 960), art: b`<svg viewBox="0 0 64 100" width="64" overflow="visible"><defs><linearGradient id="sea-bg"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#2a1208" stop-opacity=".34"/></linearGradient></defs><g class="sea-lift"><path d="M24 64l3 15M40 64l-3 15M32 66v12" stroke="#5c4630" stroke-width=".8"/><path class="sea-flame" d="M32 61q-4 6 0 11q4-5 0-11z" fill="#ffb347"/><path d="M32 2C12 2 4 18 4 31c0 15 15 26 19 33h18c4-7 19-18 19-33C60 18 52 2 32 2z" fill="#d64b38"/><path d="M32 2c-13 6-16 44-9 62h5c-6-20-4-54 4-62zM32 2c13 6 16 44 9 62h-5c6-20 4-54-4-62z" fill="#f2e2c0"/><path d="M32 2c-4 10-5 44-1 62h2c4-18 3-52-1-62z" fill="#e9a23b"/><path d="M5 24Q32 32 59 24L60 31Q32 39 4 31z" fill="#234e70" opacity=".85"/><path d="M32 2C12 2 4 18 4 31c0 15 15 26 19 33h18c4-7 19-18 19-33C60 18 52 2 32 2z" fill="url(#sea-bg)"/><path class="sea-flame" d="M24 64h16l-2-9H26z" fill="#ffd27a" opacity=".55"/><circle cx="29" cy="77" r="2" fill="#3a2f28"/><circle cx="35" cy="77.5" r="1.8" fill="#5a4636"/><path d="M24 79h16l-1 12H25z" fill="#a8773f"/><path d="M33 79h7l-1 12h-6z" fill="#7d5628"/><path d="M24 79h16" stroke="#5c4630" stroke-width="1.6"/></g></svg>` },
+  { id: "plane", ms: 27e3, move: "across sea-hi", weight: 1.5, y: [2, 5], flip: !1, when: (a) => pt(a) && a.weekday !== 5 && a.month !== 12 && a.month !== 1, art: $o("G’DAY", 76) },
+  { id: "plane-fri", ms: 27e3, move: "across sea-hi", weight: 4, y: [2, 5], flip: !1, when: (a) => pt(a) && a.weekday === 5, art: $o("HOORAY, FRIDAY", 170) },
+  { id: "plane-hols", ms: 27e3, move: "across sea-hi", weight: 2, y: [2, 5], flip: !1, when: (a) => pt(a) && a.weekday !== 5 && (a.month === 12 || a.month === 1), art: $o("SUMMER HOLS", 140) },
+  { id: "whale-cloud", ms: 84e3, move: "across", weight: 0.5, y: [1, 3], when: pt, art: b`<svg viewBox="0 0 190 96" width="196" overflow="visible" opacity=".92">${tp}<g fill="#fff"><circle class="sea-puff" cx="118" cy="20" r="6"/><circle class="sea-puff" style="animation-delay:.25s" cx="130" cy="12" r="7.5"/><circle class="sea-puff" style="animation-delay:.5s" cx="143" cy="21" r="5.5"/><path d="M6 20q14-4 22 10q10-14 26-12q-12 8-14 26q30-16 80-12q46 4 58 30q6 24-26 30q-60 8-110-4q-30-10-30-44q0-12-6-24z"/></g><path d="M40 70q50 16 118 8q16-4 20-14q-66 20-138 6z" fill="#cfe0f0"/><g fill="url(#sea-cg)"><circle cx="60" cy="42" r="21"/><circle cx="88" cy="35" r="24"/><circle cx="118" cy="36" r="21"/><circle cx="146" cy="44" r="18"/><circle cx="30" cy="30" r="12"/><circle cx="10" cy="22" r="9"/><circle cx="50" cy="20" r="9"/><circle cx="168" cy="62" r="14"/></g><circle cx="152" cy="56" r="3" fill="#7fa3c4" opacity=".8"/></svg>` },
+  { id: "dino-cloud", ms: 84e3, move: "across", weight: 0.5, y: [0, 2], flip: !1, when: pt, art: b`<svg viewBox="0 0 200 100" width="200" overflow="visible" opacity=".92">${tp}<g fill="#fff"><circle class="sea-nib" cx="190" cy="34" r="8"/><circle class="sea-nib" cx="200" cy="38" r="6"/><path d="M2 74q30-4 44-22q16-18 46-16q22 0 34 14l4 44h-16v-18q-22 8-42 0v18H56V78q-20 6-54-4z"/><g class="sea-neck"><path d="M112 60q14-6 22-30q4-18 20-20q16-1 20 10q2 10-12 12q-8 0-10 10q-6 26-26 34z"/><circle cx="162" cy="17" r="2.6" fill="#7fa3c4" opacity=".8"/><circle cx="152" cy="14" r="9" fill="url(#sea-cg)"/><circle cx="138" cy="34" r="10" fill="url(#sea-cg)"/></g></g><path d="M56 78q22 8 42 0v-6q-20 8-42 0zM20 76q20 2 34-4v6q-16 4-34-2z" fill="#cfe0f0"/><g fill="url(#sea-cg)"><circle cx="70" cy="48" r="22"/><circle cx="98" cy="44" r="23"/><circle cx="120" cy="54" r="18"/><circle cx="44" cy="62" r="13"/><circle cx="18" cy="72" r="9"/></g></svg>` },
+  { id: "owl", ms: 23e3, move: "across sea-soar", weight: 3, y: [2, 6], when: (a) => !pt(a), art: b`<svg viewBox="-60 -30 120 60" width="112" overflow="visible"><g class="sea-beat" style="--p:3.3s;--g:.5;--o:100% 60%"><path d="M-11-4Q-30-20-56-12Q-50-8-50-3Q-42-5-40 2Q-32 0-28 6Q-20 2-12 6z" fill="#6f563f"/><path d="M-12-2Q-28-12-46-9Q-34-6-30 0Q-22-2-13 3z" fill="#8a6d50"/><path d="M-50-8l6 3M-42-5l5 4M-33-2l5 4" stroke="#e9dcc4" stroke-width="1.3" stroke-linecap="round"/></g><g class="sea-beat" style="--p:3.3s;--g:.5;--o:0 60%;animation-delay:-.06s"><path d="M11-4Q30-20 56-12Q50-8 50-3Q42-5 40 2Q32 0 28 6Q20 2 12 6z" fill="#6f563f"/><path d="M12-2Q28-12 46-9Q34-6 30 0Q22-2 13 3z" fill="#8a6d50"/><path d="M50-8l-6 3M42-5l-5 4M33-2l-5 4" stroke="#e9dcc4" stroke-width="1.3" stroke-linecap="round"/></g><path d="M-9 20l3 7 3-6 3 6 3-6 3 6 3-7z" fill="#5a4432"/><ellipse cy="5" rx="14" ry="18" fill="#8a6d50"/><path d="M-8 2Q0 26 8 2Q8 20 0 22Q-8 20-8 2z" fill="#e9dcc4"/><path d="M-4 8v6M0 6v10M4 8v6" stroke="#8a6d50" stroke-width="1.5" stroke-linecap="round"/><path d="M-14-9Q-14-22 0-22Q14-22 14-9Q10 0 0 0Q-10 0-14-9z" fill="#6f563f"/><path d="M-12-9Q-8-17-1-11Q-4-3-9-4zM12-9Q8-17 1-11Q4-3 9-4z" fill="#a98a69"/><g class="sea-blink"><circle cx="-6" cy="-9.5" r="2.9" fill="#d9c94a"/><circle cx="6" cy="-9.5" r="2.9" fill="#d9c94a"/><circle cx="-6" cy="-9.5" r="1.7" fill="#15120f"/><circle cx="6" cy="-9.5" r="1.7" fill="#15120f"/></g><path d="M-1.5-6l1.5 4 1.5-4z" fill="#3c3128"/></svg>` },
+  { id: "shoot", ms: 1700, move: "streak", weight: 3, y: [1, 5], when: (a) => !pt(a), art: b`<svg viewBox="0 0 130 8" width="130"><path d="M0 4L122 2.5v3z" fill="#fff" opacity=".7"/><circle cx="124" cy="4" r="3.3" fill="#fff"/></svg>` },
   // ---------- the sand corners (the drawing is a little stage, 200 by 130 with the sand at 122, anchored in a bottom corner) ----------
-  { id: "crab", ms: 16e3, move: "sea-st", weight: 3, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-crab">${se(0, 30, 2)}<g class="sea-bob" style="--p:.26s;--h:-1.8px" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="sea-wig" style="--o:100% 30%;--a:-8deg;--b:8deg;--p:.26s" d="M-18-6l-12 2-7 8M-19-9l-15-2-8 8M-17-12l-13-6-9 4" stroke="#4f86c6" stroke-width="2.2"/><path class="sea-wig" style="--o:0 30%;--a:8deg;--b:-8deg;--p:.26s;animation-delay:-.13s" d="M18-6l12 2 7 8M19-9l15-2 8 8M17-12l13-6 9 4" stroke="#4f86c6" stroke-width="2.2"/><path d="M-22-7l-9 5q-6 4-2 7q6-1 8-5zM22-7l9 5q6 4 2 7q-6-1-8-5z" fill="#6d9ccf" stroke="none"/><path d="M-15-14Q-28-22-39-15" stroke="#3b78c4" stroke-width="4.2"/><path d="M-39-15Q-48-22-58-16L-47-14.5-56-10Q-46-8-37-13z" fill="#3b78c4" stroke="none"/><path d="M-58-16l5 .8M-56-10l5-1.4" stroke="#b3432b" stroke-width="1.6"/><g class="sea-hello"><path d="M15-14Q27-23 30-36" stroke="#3b78c4" stroke-width="4.2"/><g class="sea-wig" style="--o:30% 100%;--a:-10deg;--b:14deg;--p:.5s"><path d="M30-36Q27-48 33-58L34-47 41-55Q41-44 33-35z" fill="#3b78c4" stroke="none"/><path d="M33-58l.6 5M41-55l-2.6 4" stroke="#b3432b" stroke-width="1.6"/></g></g><path d="M-31-12L-20-17Q-10-22 0-22Q10-22 20-17L31-12L20-7Q10-3 0-3Q-10-3-20-7z" fill="#6f918b" stroke="none"/><path d="M-20-7Q0 1 20-7Q10-3 0-3Q-10-3-20-7z" fill="#4c6967" stroke="none"/><path d="M-15-16q6-4 12 0q-6 3-12 0zM4-12q7-4 12 0q-6 4-12 0zM-8-9q6-3 10 1q-6 2-10-1zM8-18q5-2 9 1q-5 2-9-1z" fill="#b4cdc5" stroke="none" opacity=".85"/><path d="M-19-17.5Q-10-21.5 0-21.5Q10-21.5 19-17.5" stroke="#9fbdb5" stroke-width="1"/><path d="M-5-21v-4M5-21v-4" stroke="#4c6967" stroke-width="1.5"/><circle cx="-5" cy="-25.5" r="1.5" fill="#1d2325" stroke="none"/><circle cx="5" cy="-25.5" r="1.5" fill="#1d2325" stroke="none"/></g></g></svg>` },
+  { id: "crab", ms: 16e3, move: "sea-st", weight: 3, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-crab">${se(0, 30, 2)}<g class="sea-bob" style="--p:.26s;--h:-1.8px" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="sea-wig" style="--o:100% 30%;--a:-8deg;--b:8deg;--p:.26s" d="M-18-6l-12 2-7 8M-19-9l-15-2-8 8M-17-12l-13-6-9 4" stroke="#4f86c6" stroke-width="2.2"/><path class="sea-wig" style="--o:0 30%;--a:8deg;--b:-8deg;--p:.26s;animation-delay:-.13s" d="M18-6l12 2 7 8M19-9l15-2 8 8M17-12l13-6 9 4" stroke="#4f86c6" stroke-width="2.2"/><path d="M-22-7l-9 5q-6 4-2 7q6-1 8-5zM22-7l9 5q6 4 2 7q-6-1-8-5z" fill="#6d9ccf" stroke="none"/><path d="M-15-14Q-28-22-39-15" stroke="#3b78c4" stroke-width="4.2"/><path d="M-39-15Q-48-22-58-16L-47-14.5-56-10Q-46-8-37-13z" fill="#3b78c4" stroke="none"/><path d="M-58-16l5 .8M-56-10l5-1.4" stroke="#b3432b" stroke-width="1.6"/><g class="sea-hello"><path d="M15-14Q27-23 30-36" stroke="#3b78c4" stroke-width="4.2"/><g class="sea-wig" style="--o:30% 100%;--a:-10deg;--b:14deg;--p:.5s"><path d="M30-36Q27-48 33-58L34-47 41-55Q41-44 33-35z" fill="#3b78c4" stroke="none"/><path d="M33-58l.6 5M41-55l-2.6 4" stroke="#b3432b" stroke-width="1.6"/></g></g><path d="M-31-12L-20-17Q-10-22 0-22Q10-22 20-17L31-12L20-7Q10-3 0-3Q-10-3-20-7z" fill="#6f918b" stroke="none"/><path d="M-20-7Q0 1 20-7Q10-3 0-3Q-10-3-20-7z" fill="#4c6967" stroke="none"/><path d="M-15-16q6-4 12 0q-6 3-12 0zM4-12q7-4 12 0q-6 4-12 0zM-8-9q6-3 10 1q-6 2-10-1zM8-18q5-2 9 1q-5 2-9-1z" fill="#b4cdc5" stroke="none" opacity=".85"/><path d="M-19-17.5Q-10-21.5 0-21.5Q10-21.5 19-17.5" stroke="#9fbdb5" stroke-width="1"/><path d="M-5-21v-4M5-21v-4" stroke="#4c6967" stroke-width="1.5"/><circle cx="-5" cy="-25.5" r="1.5" fill="#1d2325" stroke="none"/><circle cx="5" cy="-25.5" r="1.5" fill="#1d2325" stroke="none"/></g></g></svg>` },
   { id: "ghost-crab", ms: 15e3, move: "sea-st", weight: 4, when: (a) => ie() && a.tod !== "day", art: b`<svg viewBox="0 0 200 130"><g class="sea-ghost">${se(0, 17, 1)}<path d="M-11-12l-10-6-8 14M-12-10l-14-1-6 10M-10-8l-11 3-2 6M11-12l10-6 8 14M12-10l14-1 6 10M10-8l11 3 2 6" stroke="#b89858" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11-17L11-17Q14-9 9-5L-9-5Q-14-9-11-17z" fill="#ecd08c"/><path d="M-12-10Q0-4 12-10Q13-8 9-5L-9-5Q-13-8-12-10z" fill="#c7a665"/><path d="M-9-16Q0-18 9-16" stroke="#f5e6bd" stroke-width="1.2" fill="none"/><path d="M-10-9q-7 0-9 6l5 1q1-3 4-3z" fill="#f1e2bd"/><path d="M10-10q10-1 13 7l-7 2q-1-4-6-4z" fill="#f7ecd0"/><g class="sea-wig" style="--o:50% 100%;--a:-16deg;--b:10deg;--p:1.3s"><path d="M-5-17v-8" stroke="#a88b52" stroke-width="1.4"/><ellipse cx="-5" cy="-26.5" rx="1.4" ry="2.4" fill="#1d1a14"/></g><g class="sea-wig" style="--o:50% 100%;--a:-8deg;--b:18deg;--p:1.7s"><path d="M5-17v-8" stroke="#a88b52" stroke-width="1.4"/><ellipse cx="5" cy="-26.5" rx="1.4" ry="2.4" fill="#1d1a14"/></g></g></svg>` },
-  { id: "chip-thief", ms: 18e3, move: "sea-st", weight: 3, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-box">${se(108, 18, 122)}<path d="M97 100l2-13 3 1-1 12zM104 100l1-17 3 0 0 17zM110 100l3-15 3 1-2 14zM116 100l6-11 2.5 1.5-5 10z" fill="#e8b842"/><path d="M98 100l1.5-11 1.5.5-1 10.5zM111 100l2.5-13 1.5.5-2 12.5z" fill="#f6dc8a"/><path d="M93 99h30l-4 23h-22z" fill="#f6f1e7"/><path d="M110 99h13l-4 23h-8z" fill="#d9d0c0"/><path d="M94.5 105h27l-1.4 8h-24.2z" fill="#c8102e"/></g><g class="sea-thief">${se(0, 18, 0)}<g class="sea-peck"><g transform="scale(1.25)"><g class="sea-down"><path d="M-2-9v9l4 0M4-9v9l4 0" stroke="#c8102e" stroke-width="1.5" fill="none"/></g><path d="M-12-15l-13 3 11 3z" fill="#fff"/><path d="M-14-13Q-10-23 4-23Q14-23 15-16Q12-7 2-7Q-10-7-14-13z" fill="#fff"/><path d="M-12-11Q0-4 13-13Q10-7 2-7Q-8-7-12-11z" fill="#d5dee8"/><g class="sea-down"><path d="M-20-12Q-6-23 9-19Q3-11-9-11z" fill="#b9c3cd"/><path d="M-9-11l-19 0 9-4z" fill="#1f2328"/></g><g class="sea-upp"><g class="sea-flap" style="--p:.3s"><path d="M5-18Q1-38-15-49Q-12-32-10-16z" fill="#b9c3cd"/><path d="M-9.5-40L-15-49-12.4-35z" fill="#1f2328"/></g></g><g class="sea-shifty"><path d="M7-20Q9-31 16-31Q22-31 22-26Q22-20 14-16z" fill="#fff"/><path d="M21-28l8 2.5-8 1.5z" fill="#c8102e"/><circle cx="18" cy="-27" r=".9" fill="#2a2a2a"/><path class="sea-loot" d="M28-25.5l7 4 1.5-2-7-4z" fill="#e8b842"/></g></g></g></g></svg>` },
-  { id: "fetch", ms: 15e3, move: "sea-st", weight: 2, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-ball"><circle r="6" fill="#cfe23a"/><path d="M-4.5-4q4.5 4 0 8M4.5-4q-4.5 4 0 8" stroke="#f4f8d8" stroke-width="1.1" fill="none"/><path d="M-5.6 2A6 6 0 0 0 5.6 2A7 5 0 0 1-5.6 2z" fill="#a9bb24"/></g><g class="sea-dog">${se(0, 30, 0)}<g class="sea-about"><g class="sea-wig" style="--o:100% 60%;--a:-24deg;--b:20deg;--p:.21s"><path d="M-27-27Q-42-32-47-18Q-38-21-27-21z" fill="#8c4f27"/></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-34deg;--b:30deg;--p:.2s;animation-delay:-.07s" d="M12-24h6l-1 20 3 4h-7l1-4z" fill="#6d3d1f"/><path class="sea-wig" style="--o:60% 0;--a:30deg;--b:-34deg;--p:.2s;animation-delay:-.17s" d="M-26-24q8-4 10 2l-4 12 2 6 3 4h-7l-2-6z" fill="#6d3d1f"/></g><g class="sea-stl"><path d="M11-24h6l-1 20 3 4h-7l1-4zM-28-24q8-4 10 2l-3 13 1 5 3 4h-7l-1-6z" fill="#6d3d1f"/><path d="M17-24h6l-1 20 3 4h-7l1-4zM-22-24q8-4 10 2l-3 13 1 5 3 4h-7l-1-6z" fill="#9c5a2e"/></g><g class="sea-bob" style="--p:.2s;--h:-2px"><path d="M-29-24Q-27-35-10-34L14-35Q25-35 27-26Q27-16 14-15L-14-14Q-29-14-29-24z" fill="#9c5a2e"/><path d="M-24-17Q0-10 24-21Q26-16 14-15L-14-14Q-22-14-24-17z" fill="#c98a52"/><path d="M-27-28Q-12-36 14-35Q0-32-26-25z" fill="#b06a38"/><g class="sea-nose"><path d="M12-33L25-48 36-42 27-20z" fill="#9c5a2e"/><path d="M27-20L36-42 33-28z" fill="#c98a52"/><path d="M25-51L27-63 33-54zM30-53L35-63 38-52z" fill="#6d3d1f"/><path d="M23-49Q31-56 40-52L55-46Q57-42 53-40L36-38Q25-39 23-49z" fill="#9c5a2e"/><path d="M41-47L55-46Q57-42 53-40L41-40z" fill="#c98a52"/><circle cx="55" cy="-45" r="1.7" fill="#221a14"/><circle cx="37" cy="-48.5" r="1.1" fill="#221a14"/><g class="sea-got"><circle cx="50" cy="-38" r="6" fill="#cfe23a"/><path d="M46-42q4 4 0 8" stroke="#f4f8d8" stroke-width="1.1" fill="none"/></g></g></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-34deg;--b:30deg;--p:.2s" d="M17-24h6l-1 20 3 4h-7l1-4z" fill="#9c5a2e"/><path class="sea-wig" style="--o:60% 0;--a:30deg;--b:-34deg;--p:.2s;animation-delay:-.1s" d="M-22-24q8-4 10 2l-4 12 2 6 3 4h-7l-2-6z" fill="#9c5a2e"/></g></g></g></svg>` },
-  { id: "quokka", ms: 12e3, move: "sea-st", weight: 1, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-scoot">${se(0, 28, 0)}<g class="sea-hop"><path d="M21-8L15-53" stroke="#b9c2cb" stroke-width="2.6" stroke-linecap="round"/><path d="M8-53h14" stroke="#2b2f36" stroke-width="3.6" stroke-linecap="round"/><path d="M-25-9h37l9-5" stroke="#8f9aa5" stroke-width="3" fill="none" stroke-linejoin="round"/><path d="M-24-10.5h34" stroke="#30353c" stroke-width="1.3"/><circle cx="-20" cy="-5" r="5" fill="#2b2f36"/><circle cx="20" cy="-5" r="5" fill="#2b2f36"/><circle cx="-20" cy="-5" r="2.2" fill="#e2574c"/><circle cx="20" cy="-5" r="2.2" fill="#e2574c"/><g class="sea-wig" style="--o:100% 0;--a:-9deg;--b:10deg;--p:.7s"><path d="M-13-21Q-30-19-39-8Q-28-13-13-14z" fill="#6b5a48"/></g><g class="sea-kick"><path d="M-8-23Q-18-19-27-10l4 3Q-14-12-3-16z" fill="#6b5a48"/></g><path d="M-13-10.5h15l2-3h-15z" fill="#5c4d3e"/><path d="M-16-22Q-18-40-6-46Q6-48 10-38Q12-24 4-14Q-8-10-16-22z" fill="#8a7660"/><path d="M-16-22Q-18-40-6-46Q-12-36-11-18z" fill="#6b5a48"/><path d="M-3-41Q8-41 8-30Q8-20 2-15Q-2-25-3-41z" fill="#b8a68c"/><path d="M2-39Q10-47 14-52l2.5 3Q10-42 5-34z" fill="#7a6753"/><g class="sea-nod"><path class="sea-ear" d="M0-60Q-3-68 3-69Q7-65 6-59z" fill="#6b5a48"/><path class="sea-ear" style="animation-delay:-.4s" d="M7-61Q6-70 12-69Q15-64 12-59z" fill="#7a6753"/><path d="M-3-50Q-3-62 9-62Q20-60 25-52Q25-47 19-46L6-44Q-3-44-3-50z" fill="#8a7660"/><path d="M8-52Q18-53 24.5-50Q23-47 19-46L8-45z" fill="#b8a68c"/><ellipse cx="24" cy="-51.5" rx="1.9" ry="1.6" fill="#2a2018"/><circle cx="13" cy="-55" r="1.3" fill="#1c140e"/><path d="M15-47.5Q19-46.5 22.5-49" stroke="#5a4636" stroke-width=".8" fill="none"/></g></g></g></svg>` },
-  { id: "parade", ms: 5e4, move: "across foot", weight: 1.5, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 250 48" width="250" overflow="visible" style="display:block">${Te(232, 1, 0)}${Te(204, 0.85, -0.11)}${Te(178, 0.95, -0.23)}${Te(150, 0.8, -0.05)}${Te(124, 0.9, -0.17)}${Te(98, 0.75, -0.29)}${Te(72, 0.9, -0.08)}<g class="sea-lag" style="--lag:-22px">${Te(34, 0.62, -0.2)}</g></svg>` },
+  { id: "chip-thief", ms: 18e3, move: "sea-st", weight: 3, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-box">${se(108, 18, 122)}<path d="M97 100l2-13 3 1-1 12zM104 100l1-17 3 0 0 17zM110 100l3-15 3 1-2 14zM116 100l6-11 2.5 1.5-5 10z" fill="#e8b842"/><path d="M98 100l1.5-11 1.5.5-1 10.5zM111 100l2.5-13 1.5.5-2 12.5z" fill="#f6dc8a"/><path d="M93 99h30l-4 23h-22z" fill="#f6f1e7"/><path d="M110 99h13l-4 23h-8z" fill="#d9d0c0"/><path d="M94.5 105h27l-1.4 8h-24.2z" fill="#c8102e"/></g><g class="sea-thief">${se(0, 18, 0)}<g class="sea-peck"><g transform="scale(1.25)"><g class="sea-down"><path d="M-2-9v9l4 0M4-9v9l4 0" stroke="#c8102e" stroke-width="1.5" fill="none"/></g><path d="M-12-15l-13 3 11 3z" fill="#fff"/><path d="M-14-13Q-10-23 4-23Q14-23 15-16Q12-7 2-7Q-10-7-14-13z" fill="#fff"/><path d="M-12-11Q0-4 13-13Q10-7 2-7Q-8-7-12-11z" fill="#d5dee8"/><g class="sea-down"><path d="M-20-12Q-6-23 9-19Q3-11-9-11z" fill="#b9c3cd"/><path d="M-9-11l-19 0 9-4z" fill="#1f2328"/></g><g class="sea-upp"><g class="sea-flap" style="--p:.3s"><path d="M5-18Q1-38-15-49Q-12-32-10-16z" fill="#b9c3cd"/><path d="M-9.5-40L-15-49-12.4-35z" fill="#1f2328"/></g></g><g class="sea-shifty"><path d="M7-20Q9-31 16-31Q22-31 22-26Q22-20 14-16z" fill="#fff"/><path d="M21-28l8 2.5-8 1.5z" fill="#c8102e"/><circle cx="18" cy="-27" r=".9" fill="#2a2a2a"/><path class="sea-loot" d="M28-25.5l7 4 1.5-2-7-4z" fill="#e8b842"/></g></g></g></g></svg>` },
+  { id: "fetch", ms: 15e3, move: "sea-st", weight: 2, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-ball"><circle r="6" fill="#cfe23a"/><path d="M-4.5-4q4.5 4 0 8M4.5-4q-4.5 4 0 8" stroke="#f4f8d8" stroke-width="1.1" fill="none"/><path d="M-5.6 2A6 6 0 0 0 5.6 2A7 5 0 0 1-5.6 2z" fill="#a9bb24"/></g><g class="sea-dog">${se(0, 30, 0)}<g class="sea-about"><g class="sea-wig" style="--o:100% 60%;--a:-24deg;--b:20deg;--p:.21s"><path d="M-27-27Q-42-32-47-18Q-38-21-27-21z" fill="#8c4f27"/></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-34deg;--b:30deg;--p:.2s;animation-delay:-.07s" d="M12-24h6l-1 20 3 4h-7l1-4z" fill="#6d3d1f"/><path class="sea-wig" style="--o:60% 0;--a:30deg;--b:-34deg;--p:.2s;animation-delay:-.17s" d="M-26-24q8-4 10 2l-4 12 2 6 3 4h-7l-2-6z" fill="#6d3d1f"/></g><g class="sea-stl"><path d="M11-24h6l-1 20 3 4h-7l1-4zM-28-24q8-4 10 2l-3 13 1 5 3 4h-7l-1-6z" fill="#6d3d1f"/><path d="M17-24h6l-1 20 3 4h-7l1-4zM-22-24q8-4 10 2l-3 13 1 5 3 4h-7l-1-6z" fill="#9c5a2e"/></g><g class="sea-bob" style="--p:.2s;--h:-2px"><path d="M-29-24Q-27-35-10-34L14-35Q25-35 27-26Q27-16 14-15L-14-14Q-29-14-29-24z" fill="#9c5a2e"/><path d="M-24-17Q0-10 24-21Q26-16 14-15L-14-14Q-22-14-24-17z" fill="#c98a52"/><path d="M-27-28Q-12-36 14-35Q0-32-26-25z" fill="#b06a38"/><g class="sea-nose"><path d="M12-33L25-48 36-42 27-20z" fill="#9c5a2e"/><path d="M27-20L36-42 33-28z" fill="#c98a52"/><path d="M25-51L27-63 33-54zM30-53L35-63 38-52z" fill="#6d3d1f"/><path d="M23-49Q31-56 40-52L55-46Q57-42 53-40L36-38Q25-39 23-49z" fill="#9c5a2e"/><path d="M41-47L55-46Q57-42 53-40L41-40z" fill="#c98a52"/><circle cx="55" cy="-45" r="1.7" fill="#221a14"/><circle cx="37" cy="-48.5" r="1.1" fill="#221a14"/><g class="sea-got"><circle cx="50" cy="-38" r="6" fill="#cfe23a"/><path d="M46-42q4 4 0 8" stroke="#f4f8d8" stroke-width="1.1" fill="none"/></g></g></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-34deg;--b:30deg;--p:.2s" d="M17-24h6l-1 20 3 4h-7l1-4z" fill="#9c5a2e"/><path class="sea-wig" style="--o:60% 0;--a:30deg;--b:-34deg;--p:.2s;animation-delay:-.1s" d="M-22-24q8-4 10 2l-4 12 2 6 3 4h-7l-2-6z" fill="#9c5a2e"/></g></g></g></svg>` },
+  { id: "quokka", ms: 12e3, move: "sea-st", weight: 1, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-scoot">${se(0, 28, 0)}<g class="sea-hop"><path d="M21-8L15-53" stroke="#b9c2cb" stroke-width="2.6" stroke-linecap="round"/><path d="M8-53h14" stroke="#2b2f36" stroke-width="3.6" stroke-linecap="round"/><path d="M-25-9h37l9-5" stroke="#8f9aa5" stroke-width="3" fill="none" stroke-linejoin="round"/><path d="M-24-10.5h34" stroke="#30353c" stroke-width="1.3"/><circle cx="-20" cy="-5" r="5" fill="#2b2f36"/><circle cx="20" cy="-5" r="5" fill="#2b2f36"/><circle cx="-20" cy="-5" r="2.2" fill="#e2574c"/><circle cx="20" cy="-5" r="2.2" fill="#e2574c"/><g class="sea-wig" style="--o:100% 0;--a:-9deg;--b:10deg;--p:.7s"><path d="M-13-21Q-30-19-39-8Q-28-13-13-14z" fill="#6b5a48"/></g><g class="sea-kick"><path d="M-8-23Q-18-19-27-10l4 3Q-14-12-3-16z" fill="#6b5a48"/></g><path d="M-13-10.5h15l2-3h-15z" fill="#5c4d3e"/><path d="M-16-22Q-18-40-6-46Q6-48 10-38Q12-24 4-14Q-8-10-16-22z" fill="#8a7660"/><path d="M-16-22Q-18-40-6-46Q-12-36-11-18z" fill="#6b5a48"/><path d="M-3-41Q8-41 8-30Q8-20 2-15Q-2-25-3-41z" fill="#b8a68c"/><path d="M2-39Q10-47 14-52l2.5 3Q10-42 5-34z" fill="#7a6753"/><g class="sea-nod"><path class="sea-ear" d="M0-60Q-3-68 3-69Q7-65 6-59z" fill="#6b5a48"/><path class="sea-ear" style="animation-delay:-.4s" d="M7-61Q6-70 12-69Q15-64 12-59z" fill="#7a6753"/><path d="M-3-50Q-3-62 9-62Q20-60 25-52Q25-47 19-46L6-44Q-3-44-3-50z" fill="#8a7660"/><path d="M8-52Q18-53 24.5-50Q23-47 19-46L8-45z" fill="#b8a68c"/><ellipse cx="24" cy="-51.5" rx="1.9" ry="1.6" fill="#2a2018"/><circle cx="13" cy="-55" r="1.3" fill="#1c140e"/><path d="M15-47.5Q19-46.5 22.5-49" stroke="#5a4636" stroke-width=".8" fill="none"/></g></g></g></svg>` },
+  { id: "parade", ms: 5e4, move: "across foot", weight: 1.5, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 250 48" width="250" overflow="visible" style="display:block">${Ne(232, 1, 0)}${Ne(204, 0.85, -0.11)}${Ne(178, 0.95, -0.23)}${Ne(150, 0.8, -0.05)}${Ne(124, 0.9, -0.17)}${Ne(98, 0.75, -0.29)}${Ne(72, 0.9, -0.08)}<g class="sea-lag" style="--lag:-22px">${Ne(34, 0.62, -0.2)}</g></svg>` },
   { id: "hermit", ms: 3e4, move: "sea-st", weight: 1, when: ie, art: b`<svg viewBox="0 0 200 130"><g class="sea-herm">${se(-4, 46, 0)}<g class="sea-wig" style="--o:80% 100%;--a:-1.5deg;--b:1.5deg;--p:.6s"><path d="M-36-9h-13" stroke="#b8921e" stroke-width="2.4"/><path d="M-54-12.5l5 2v3l-5 2z" fill="#d9dde0"/><path d="M-34-13h44M-34-5h42M-34-13q-8 4 0 8" stroke="#c9a227" stroke-width="3.4" fill="none"/><path d="M-33-14.2h42" stroke="#f3e09a" stroke-width="1"/><path d="M-34-4h42" stroke="#8a6a14" stroke-width="1"/><path d="M-19-22h5v16h-5zM-11-22h5v16h-5zM-3-22h5v16h-5z" fill="#b8921e"/><path d="M-19-22h2v16h-2zM-11-22h2v16h-2zM-3-22h2v16h-2z" fill="#e9d07a"/><path d="M-16.5-22v-4M-8.5-22v-4M-.5-22v-4" stroke="#8a6a14" stroke-width="1.3"/><path d="M-18.5-26.5h4M-10.5-26.5h4M-2.5-26.5h4" stroke="#f3e09a" stroke-width="1.8" stroke-linecap="round"/><path d="M8-13Q26-14 40-25L40 3Q26-6 8-5z" fill="#c9a227"/><path d="M8-13Q26-14 40-25L40-19Q26-11 8-11z" fill="#f3e09a"/><path d="M8-7Q26-8 40-1L40 3Q26-6 8-5z" fill="#8a6a14"/><ellipse cx="40" cy="-11" rx="4.5" ry="14" fill="#5a4410"/><g class="sea-shy"><path class="sea-wig" style="--o:0 0;--a:-9deg;--b:9deg;--p:.3s" d="M42-5l8 3 3 5M42-8l11 0 4 8M41-11l10-5 6 3" stroke="#c2552d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M42-12q9-10 17-6l-6 2.5 4 3.5q-8 4-13-1z" fill="#d9673a"/><path d="M46-13q6-5 11-4l-5 2z" fill="#eb8d62"/><path d="M45-17l2-7M49-16l4-6" stroke="#c2552d" stroke-width="1.2"/><circle cx="47" cy="-24.5" r="1.2" fill="#1d1d1d"/><circle cx="53" cy="-22.5" r="1.2" fill="#1d1d1d"/></g><ellipse cx="40" cy="-11" rx="4.5" ry="14" fill="none" stroke="#f3e09a" stroke-width="1"/></g></g></svg>` },
-  { id: "truck", ms: 18e3, move: "sea-st", weight: 1.5, when: (a) => ie() && lt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-pile">${se(52, 24, 123)}<path d="M28 123q14-24 22-24t22 24z" fill="#ecd29b"/><path d="M50 99q8 0 22 24h-12q-4-16-10-24z" fill="#cfb078"/></g><g class="sea-truck">${se(0, 44, 7)}<g class="sea-rock"><path d="M-40-13h78v8h-78z" fill="#3c444c"/><path d="M12-43h17l11 15v17H12z" fill="#f2b705"/><path d="M12-18h28v7H12z" fill="#c98f00"/><path d="M12-43h17l2 3H12z" fill="#ffdc63"/><path d="M18-38h10l7 10H18z" fill="#34485c"/><path d="M20-36h5l-3 8h-2z" fill="#7fa3c4"/><g class="sea-tip"><path d="M-44-37h52l-4 23h-40z" fill="#f2b705"/><path d="M-44-37h52l-1 5h-50z" fill="#ffdc63"/><path d="M-36-19h40l-1 5h-38z" fill="#c98f00"/><path d="M-30-31v11M-17-31v11M-4-31v11" stroke="#c98f00" stroke-width="1.6"/><path class="sea-load" d="M-40-37q10-11 22-8t22 8z" fill="#ecd29b"/></g></g><circle cx="-26" cy="-2" r="8.5" fill="#24292e"/><circle cx="-6" cy="-2" r="8.5" fill="#24292e"/><circle cx="26" cy="-2" r="8.5" fill="#24292e"/><path d="M-26-2h.1M-6-2h.1M26-2h.1" stroke="#d6dbe0" stroke-width="6.5" stroke-linecap="round"/><path d="M-26-2h.1M-6-2h.1M26-2h.1" stroke="#8d969e" stroke-width="2.4" stroke-linecap="round"/></g></svg>` },
+  { id: "truck", ms: 18e3, move: "sea-st", weight: 1.5, when: (a) => ie() && pt(a), art: b`<svg viewBox="0 0 200 130"><g class="sea-pile">${se(52, 24, 123)}<path d="M28 123q14-24 22-24t22 24z" fill="#ecd29b"/><path d="M50 99q8 0 22 24h-12q-4-16-10-24z" fill="#cfb078"/></g><g class="sea-truck">${se(0, 44, 7)}<g class="sea-rock"><path d="M-40-13h78v8h-78z" fill="#3c444c"/><path d="M12-43h17l11 15v17H12z" fill="#f2b705"/><path d="M12-18h28v7H12z" fill="#c98f00"/><path d="M12-43h17l2 3H12z" fill="#ffdc63"/><path d="M18-38h10l7 10H18z" fill="#34485c"/><path d="M20-36h5l-3 8h-2z" fill="#7fa3c4"/><g class="sea-tip"><path d="M-44-37h52l-4 23h-40z" fill="#f2b705"/><path d="M-44-37h52l-1 5h-50z" fill="#ffdc63"/><path d="M-36-19h40l-1 5h-38z" fill="#c98f00"/><path d="M-30-31v11M-17-31v11M-4-31v11" stroke="#c98f00" stroke-width="1.6"/><path class="sea-load" d="M-40-37q10-11 22-8t22 8z" fill="#ecd29b"/></g></g><circle cx="-26" cy="-2" r="8.5" fill="#24292e"/><circle cx="-6" cy="-2" r="8.5" fill="#24292e"/><circle cx="26" cy="-2" r="8.5" fill="#24292e"/><path d="M-26-2h.1M-6-2h.1M26-2h.1" stroke="#d6dbe0" stroke-width="6.5" stroke-linecap="round"/><path d="M-26-2h.1M-6-2h.1M26-2h.1" stroke="#8d969e" stroke-width="2.4" stroke-linecap="round"/></g></svg>` },
   { id: "bobtail", ms: 3e4, move: "sea-st", weight: 1.5, when: (a) => ie() && a.tod === "day" && (a.month >= 9 || a.month <= 4), art: b`<svg viewBox="0 0 200 130"><g class="sea-bobt">${se(2, 46, 0)}<g class="sea-wig" style="--o:50% 100%;--a:-1.5deg;--b:1.5deg;--p:.84s"><path class="sea-wig" style="--o:30% 0;--a:-26deg;--b:22deg;--p:.84s;animation-delay:-.84s" d="M-28-5l-5 4 0 3 8-1 2-5z" fill="#3a2c1e"/><path class="sea-wig" style="--o:30% 0;--a:22deg;--b:-26deg;--p:.84s;animation-delay:-.84s" d="M22-6l-3 5 1 3 8-1 0-6z" fill="#3a2c1e"/><path class="sea-lick" d="M50-7.5l11 .5q3 1 0 2l-11 .5z" fill="#3a66c4"/><path d="M-46-9Q-42-17-30-17Q-10-23 12-21Q26-21 34-15Q44-17 51-11Q53-6 47-4Q38-2 32-4Q14 2-10 0Q-30 0-37-4Q-46-3-46-9z" fill="#4e3b28"/><path d="M-37-4Q-10 2 32-4Q14 2-10 0Q-30 0-37-4z" fill="#b59a6a"/><path d="M-36-13l3 9M-25-17l3 15M-13-19l3 18M-1-20l3 19M11-20l3 18M22-19l3 14" stroke="#c9ab6c" stroke-width="3.6" stroke-dasharray="3 2.6" fill="none"/><path d="M-30-17Q-10-23 12-21Q26-21 34-15Q10-19-30-14z" fill="#6a5238" opacity=".7"/><path d="M34-15Q44-17 51-11Q46-12 40-11z" fill="#6a5238"/><circle cx="43" cy="-11.5" r="1.1" fill="#12100c"/><path d="M40-6Q46-5 51-8" stroke="#2c2117" stroke-width=".8" fill="none"/><path class="sea-wig" style="--o:30% 0;--a:22deg;--b:-26deg;--p:.84s" d="M-22-4l-5 5 0 3 8-1 2-6z" fill="#4e3b28"/><path class="sea-wig" style="--o:30% 0;--a:-26deg;--b:22deg;--p:.84s" d="M28-5l-3 5 1 3 8-1 0-6z" fill="#4e3b28"/></g></g></svg>` },
-  { id: "plover", ms: 22e3, move: "sea-e foot sea-plov", weight: 3, when: (a) => ie() && lt(a), art: b`<svg viewBox="-24 -26 48 28" width="46" overflow="visible" style="display:block">${se(0, 11, 0)}<g class="sea-stl"><path d="M-1-6v6M3-6v6" stroke="#c98f84" stroke-width="1.1"/></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-38deg;--b:38deg;--p:.11s" d="M1-6v6" stroke="#c98f84" stroke-width="1.1"/><path class="sea-wig" style="--o:50% 0;--a:38deg;--b:-38deg;--p:.11s" d="M1-6v6" stroke="#c98f84" stroke-width="1.1"/></g><g class="sea-dip"><path d="M-11-13l-9 2 9 3z" fill="#8f8372"/><path d="M-13-12Q-7-19 4-18Q10-17 12-12Q8-6 0-6Q-9-6-13-12z" fill="#b9ab98"/><path d="M-11-10Q0-3 11-11Q8-6 0-6Q-8-6-11-10z" fill="#fff"/><path d="M-9-15Q-2-17 5-15Q-1-11-8-12z" fill="#a39480"/><path d="M5-17Q7-11 13-11L14-15z" fill="#fff"/><circle cx="11" cy="-17.5" r="4.2" fill="#1c1b1a"/><path d="M14.5-18.3l6 1.6-6 1.1z" fill="#d0432f"/><path d="M18.5-17.3l2 .6-2 .4z" fill="#1c1b1a"/><circle cx="12" cy="-18" r="1.1" fill="#d0432f"/><circle cx="12" cy="-18" r=".6" fill="#111"/></g></svg>` },
-  { id: "tumble", ms: 13e3, move: "across foot sea-roll", weight: 2, when: (a) => ie() && lt(a), art: b`<svg viewBox="-20 -20 40 40" width="40" overflow="visible"><path d=${Array.from({ length: 18 }, (a, t) => {
+  { id: "plover", ms: 22e3, move: "sea-e foot sea-plov", weight: 3, when: (a) => ie() && pt(a), art: b`<svg viewBox="-24 -26 48 28" width="46" overflow="visible" style="display:block">${se(0, 11, 0)}<g class="sea-stl"><path d="M-1-6v6M3-6v6" stroke="#c98f84" stroke-width="1.1"/></g><g class="sea-mov"><path class="sea-wig" style="--o:50% 0;--a:-38deg;--b:38deg;--p:.11s" d="M1-6v6" stroke="#c98f84" stroke-width="1.1"/><path class="sea-wig" style="--o:50% 0;--a:38deg;--b:-38deg;--p:.11s" d="M1-6v6" stroke="#c98f84" stroke-width="1.1"/></g><g class="sea-dip"><path d="M-11-13l-9 2 9 3z" fill="#8f8372"/><path d="M-13-12Q-7-19 4-18Q10-17 12-12Q8-6 0-6Q-9-6-13-12z" fill="#b9ab98"/><path d="M-11-10Q0-3 11-11Q8-6 0-6Q-8-6-11-10z" fill="#fff"/><path d="M-9-15Q-2-17 5-15Q-1-11-8-12z" fill="#a39480"/><path d="M5-17Q7-11 13-11L14-15z" fill="#fff"/><circle cx="11" cy="-17.5" r="4.2" fill="#1c1b1a"/><path d="M14.5-18.3l6 1.6-6 1.1z" fill="#d0432f"/><path d="M18.5-17.3l2 .6-2 .4z" fill="#1c1b1a"/><circle cx="12" cy="-18" r="1.1" fill="#d0432f"/><circle cx="12" cy="-18" r=".6" fill="#111"/></g></svg>` },
+  { id: "tumble", ms: 13e3, move: "across foot sea-roll", weight: 2, when: (a) => ie() && pt(a), art: b`<svg viewBox="-20 -20 40 40" width="40" overflow="visible"><path d=${Array.from({ length: 18 }, (a, t) => {
     const e = t * Math.PI / 9 + t % 3 * 0.12, i = 13 + t * 7 % 6;
     return `M0 0L${(Math.cos(e) * i).toFixed(1)} ${(Math.sin(e) * i).toFixed(1)}`;
   }).join("")} stroke="#c9b377" stroke-width="1.1" stroke-linecap="round"/><path d=${Array.from({ length: 12 }, (a, t) => {
@@ -4856,7 +4870,7 @@ const lc = {
   }).join("")} stroke="#e8d9a6" stroke-width="1"/><circle r="3" fill="#a8935a"/></svg>` },
   // ---------- in front of the page: small, quick, never stopping ----------
   { id: "dolphins", ms: 11e3, move: "across sea-pod", weight: 3, front: !0, y: [50, 57], when: (a) => a.mins % 4 === 0, art: b`<svg class="sea-leap" style="animation-delay:.45s" viewBox="0 0 60 30" width="27" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#8497a8"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#74889a"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/></svg><svg class="sea-leap" viewBox="0 0 60 30" width="45" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#6b8296"/><path d="M8 15Q22 5 38 6Q46 7 51 11Q36 8 8 16z" fill="#566c80"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#566c80"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/><path d="M30 18l-3 7 7-6z" fill="#566c80"/><circle cx="46.5" cy="11.5" r=".9" fill="#1a2228"/></svg>` },
-  { id: "beach-ball", ms: 9e3, move: "across foot sea-bb", weight: 2, front: !0, when: (a) => lt(a) && a.mins % 4 === 1, art: b`<svg viewBox="-21 -21 42 42" width="42"><defs><radialGradient id="sea-bl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1a2a3a" stop-opacity=".3"/></radialGradient></defs><g class="sea-spin"><circle r="20" fill="#fbfaf5"/><path d="M0 0L-10-17.3A20 20 0 0 1 10-17.3z" fill="#e2483d"/><path d="M0 0L20 0A20 20 0 0 1 10 17.3z" fill="#2f7fd0"/><path d="M0 0L-10 17.3A20 20 0 0 1-20 0z" fill="#f4c542"/><circle r="3.2" fill="#fbfaf5"/></g><circle r="20" fill="url(#sea-bl)"/></svg>` },
+  { id: "beach-ball", ms: 9e3, move: "across foot sea-bb", weight: 2, front: !0, when: (a) => pt(a) && a.mins % 4 === 1, art: b`<svg viewBox="-21 -21 42 42" width="42"><defs><radialGradient id="sea-bl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1a2a3a" stop-opacity=".3"/></radialGradient></defs><g class="sea-spin"><circle r="20" fill="#fbfaf5"/><path d="M0 0L-10-17.3A20 20 0 0 1 10-17.3z" fill="#e2483d"/><path d="M0 0L20 0A20 20 0 0 1 10 17.3z" fill="#2f7fd0"/><path d="M0 0L-10 17.3A20 20 0 0 1-20 0z" fill="#f4c542"/><circle r="3.2" fill="#fbfaf5"/></g><circle r="20" fill="url(#sea-bl)"/></svg>` },
   { id: "feather", ms: 12e3, move: "down", weight: 2, front: !0, flip: !1, when: (a) => a.mins % 4 === 2, art: b`<svg viewBox="0 0 44 16" width="40"><path d="M3 9Q10-1 26 1Q36 2 42 6Q36 14 22 15Q12 15 3 9z" fill="#fbfbf9"/><path d="M3 9Q20 8 42 6Q36 14 22 15Q12 15 3 9z" fill="#dfe4ea"/><path d="M30 2l3 5M36 4l2 3M24 14l3-5M31 13l3-5" stroke="#b9c3cd" stroke-width=".8"/><path d="M0 10Q20 7 42 6" stroke="#9aa6b2" stroke-width="1" fill="none"/></svg>` }
 ], o1 = [[360, 9], [540, 3], [720, 1.5], [900, 4], [1020, 12], [1080, 26], [1150, 53]], r1 = [[360, 24], [720, 34], [1080, 52], [1150, 58]], ii = (a, t, e, i, s) => l`<i class="sea-cl" style="--y:${a}%;--w:${t}vw;--o:${e};--t:${i}s;--d:${-s * i}s"></i>`, Xi = (a, t, e) => l`<svg class="sea-grass ${a}" viewBox="0 0 92 70" fill="none" stroke-linecap="round"><path d="M40 70Q30 40 8 30M44 70Q40 34 26 12M48 70Q50 30 44 4M52 70Q58 36 72 16M56 70Q66 46 88 38" stroke=${t} stroke-width="2.6"/><path d="M42 70Q34 46 18 44M50 70Q54 40 60 22M46 70Q46 44 36 28" stroke=${e} stroke-width="2.2"/><path d="M26 12l-3-7M44 4l-1-8M72 16l4-7" stroke=${e} stroke-width="4"/></svg>`, n1 = l`<svg class="sea-flag" viewBox="0 0 46 96"><path d="M6 96V4" stroke="#f4f1e6" stroke-width="3" stroke-linecap="round"/><path d="M7.2 96V4" stroke="#bfb9a8" stroke-width="1"/><g class="sea-fly"><path d="M8 6h34v22H8z" fill="#f4c81f"/><path d="M8 6h34v11H8z" fill="#d93a2b"/><path d="M20 6h6v22h-6z" fill="#000" opacity=".1"/><path d="M30 6h4v22h-4z" fill="#fff" opacity=".16"/></g></svg>`, l1 = l`<svg class="sea-light" viewBox="0 0 120 120"><defs><linearGradient id="sea-bm" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient></defs><path class="sea-beam" d="M78 23L-520-40v126z" fill="url(#sea-bm)"/><path d="M18 120q10-22 34-24q10-12 30-8q22-2 38 14v18z" fill="#3b4658"/><path d="M52 96q10-12 30-8q-16 2-22 10z" fill="#566277"/><path d="M68 92l4-58h12l4 58z" fill="#f1eee4"/><path d="M80 34h4l4 58h-6z" fill="#c9c6bb"/><path d="M69.5 70h17l1 11h-19zM71 47h14l.8 11H70.2z" fill="#c9443b"/><path d="M66 34h24v-4H66zM72 16h12l3 4H69z" fill="#2b3340"/><rect x="71" y="18" width="14" height="12" fill="#ffe27a"/><circle class="sea-lamp" cx="78" cy="23" r="15" fill="#fff6c8" opacity=".5"/></svg>`, Vr = {
   css: J`
@@ -5032,27 +5046,27 @@ const lc = {
     @keyframes sea-spin { to { rotate: calc(var(--sd, 1) * 360deg); } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.theme === "sunset", i = qs(a), s = a.month >= 6 && a.month <= 8, o = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : El(r1, a.mins), r = t ? 5 : e ? 49 : El(o1, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, d = e ? 58 : 52, c = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", f = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
-    return l`<div class="sea-w" style="--sea-c:${c};--sea-g:${t ? "214,226,255" : i ? "255,224,170" : "255,255,255"};--sx:${o.toFixed(1)}%;--sy:${r.toFixed(1)}%;--rx:${((30 + o) / 1.6).toFixed(2)}%;--ry:${((30 + r) / 1.6).toFixed(2)}%;--ray:${p ? "rgba(255,214,150,.2)" : "rgba(255,255,255,.17)"};--bo:${t ? 0.16 : 0.34}">
+    const t = a.tod === "night", e = a.theme === "sunset", i = qs(a), s = a.month >= 6 && a.month <= 8, o = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : El(r1, a.mins), r = t ? 5 : e ? 49 : El(o1, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, c = e ? 58 : 52, d = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", f = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
+    return l`<div class="sea-w" style="--sea-c:${d};--sea-g:${t ? "214,226,255" : i ? "255,224,170" : "255,255,255"};--sx:${o.toFixed(1)}%;--sy:${r.toFixed(1)}%;--rx:${((30 + o) / 1.6).toFixed(2)}%;--ry:${((30 + r) / 1.6).toFixed(2)}%;--ray:${p ? "rgba(255,214,150,.2)" : "rgba(255,255,255,.17)"};--bo:${t ? 0.16 : 0.34}">
       ${n ? l`<i class="sea-rays"></i><i class="sea-sun" style="--sz:${p ? "38vmin" : "150px"};background:${p ? "radial-gradient(circle, #fff3c4 0 13%, rgba(255,214,130,.8) 16%, rgba(255,170,90,.3) 38%, transparent 68%)" : "radial-gradient(circle, #fffbe2 0 21%, rgba(255,243,180,.8) 24%, rgba(255,240,170,.3) 42%, transparent 70%)"}"></i>` : g}
       ${t ? l`<i class="sea-stars" style="box-shadow:${_o(7, 5)}"></i><i class="sea-stars" style="box-shadow:${_o(6, 11)};animation-duration:4.3s"></i><i class="sea-stars" style="box-shadow:${_o(6, 23)};animation-duration:5.9s"></i>
         <svg viewBox="0 0 60 60" width="58" style="left:${o.toFixed(1)}%;top:18px"><circle cx="30" cy="30" r="29" fill="#fff" opacity=".12"/><circle cx="30" cy="30" r="21" fill="#f6f1dc"/><path d="M30 9a21 21 0 0 1 0 42a26 21 0 0 0 0-42z" fill="#e4dcc0"/><circle cx="23" cy="24" r="4.5" fill="#ddd6bb"/><circle cx="36" cy="35" r="6" fill="#d3cbae"/><circle cx="27" cy="40" r="2.5" fill="#ddd6bb"/></svg>` : g}
       ${!t && i && a.mins >= 1140 ? l`<svg class="sea-star1" viewBox="-11 -11 22 22" style="left:41%;top:4%"><path d="M0-10Q1-1 10 0Q1 1 0 10Q-1 1-10 0Q-1-1 0-10z" fill="#fff"/></svg>` : g}
       ${ii(7, 13, 0.7, 241, 0.42)}${ii(1.5, 19, 0.88, 163, 0.1)}${ii(-4, 27, 0.95, 107, 0.68)}${ii(4, 16, 0.8, 197, 0.83)}${s ? ii(-2, 24, 0.9, 89, 0.3) : g}
       ${t ? g : l`<svg class="sea-far" viewBox="0 0 64 22" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"><path d="M2 8q4-4 7 0q3-4 7 0M24 15q3-3 6 0q3-3 6 0M40 5q3-3 6 0q3-3 6 0M50 17q2-2 5 0q3-2 5 0"/></svg>`}
-      <i class="sea-band" style="top:${d}%;height:15%"></i><i class="sea-band b" style="top:${d + 4}%;height:14%"></i>
-      <i class="sea-foam" style="top:${d + 18}%"></i>
-      ${n && o > 30 || t ? l`<i class="sea-glit" style="top:${d + 1}%;height:15%"></i>` : g}
+      <i class="sea-band" style="top:${c}%;height:15%"></i><i class="sea-band b" style="top:${c + 4}%;height:14%"></i>
+      <i class="sea-foam" style="top:${c + 18}%"></i>
+      ${n && o > 30 || t ? l`<i class="sea-glit" style="top:${c + 1}%;height:15%"></i>` : g}
       ${Xi("fl", h, h)}${Xi("fr", h, h)}${Xi("l", h, f)}${Xi("r", h, f)}
       ${t ? l1 : a.month >= 10 || a.month <= 3 ? n1 : g}
     </div>`;
   },
   cast: s1
 }, lo = (a, t, e, i) => {
-  const s = Re(t);
+  const s = _e(t);
   return Array.from({ length: a }, () => `${(s() * i).toFixed(1)}vw ${(s() * 100).toFixed(1)}vh 0 ${s() < 0.16 ? 1 : 0}px ${e[Math.floor(s() * e.length)]}`).join(",");
 }, p1 = lo(70, 7, ["#cdd6ff", "#e9edff", "#ffd9c2"], 100), d1 = lo(90, 51, ["#e9edff", "#bcd0ff"], 100), c1 = lo(42, 91, ["#fff", "#dfe8ff"], 108), h1 = lo(20, 333, ["#fff3cf", "#fff", "#cfe0ff"], 116), f1 = (() => {
-  const a = Re(19);
+  const a = _e(19);
   return Array.from({ length: 80 }, () => `${(a() * 130 - 65).toFixed(1)}vw ${((a() + a() + a()) / 3 * 24 - 12).toFixed(1)}vh 0 0 rgba(225,232,255,.75)`).join(",");
 })(), et = b`<defs>
 <linearGradient id="spm1" x2="0" y2="1"><stop offset="0" stop-color="#fdfdff"/><stop offset=".5" stop-color="#d3d9e8"/><stop offset="1" stop-color="#8790ae"/></linearGradient>
@@ -5065,10 +5079,10 @@ const lc = {
 <linearGradient id="spfx" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ffe08a"/><stop offset=".7" stop-color="#ff9a3c" stop-opacity=".8"/><stop offset="1" stop-color="#ff5a28" stop-opacity="0"/></linearGradient>
 <radialGradient id="spgr" cx=".4" cy=".3"><stop offset="0" stop-color="#d7e2d2"/><stop offset=".6" stop-color="#93a892"/><stop offset="1" stop-color="#566a5c"/></radialGradient>
 <radialGradient id="sprk" cx=".35" cy=".28" r=".8"><stop offset="0" stop-color="#b9ab9c"/><stop offset=".55" stop-color="#7d7068"/><stop offset="1" stop-color="#3a3340"/></radialGradient>
-</defs>`, $t = "url(#spm1)", Ht = "url(#spm2)", fa = "#d2453f", Le = "#ffd166", $r = b`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, Nr = b`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${fa}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, ep = b`${$r}${Nr}`, Tr = (a, t, e = "") => b`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${$t}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, na = (a, t, e = "") => b`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${Ht}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${$t}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${$t}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${$t}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${Tr(7.5, a)}${Tr(26, t, e)}<circle cx="20" cy="11" r="10" fill=${$t}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, No = b`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, ap = (a, t) => b`${[0, 1.1, 2.2].map((e, i) => b`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, m1 = b`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, g1 = b`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, ip = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${et}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${$t}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${Ht}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => b`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : Le}/>`)}</g></svg>`, sp = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${et}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${na(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, Hi = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => b`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((s, o) => {
+</defs>`, $t = "url(#spm1)", Et = "url(#spm2)", ha = "#d2453f", je = "#ffd166", $r = b`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, Nr = b`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${ha}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, ep = b`${$r}${Nr}`, Tr = (a, t, e = "") => b`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${$t}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, ra = (a, t, e = "") => b`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${Et}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${$t}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${$t}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${$t}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${Tr(7.5, a)}${Tr(26, t, e)}<circle cx="20" cy="11" r="10" fill=${$t}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, No = b`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, ap = (a, t) => b`${[0, 1.1, 2.2].map((e, i) => b`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, m1 = b`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, g1 = b`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, ip = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${et}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${$t}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${Et}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => b`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : je}/>`)}</g></svg>`, sp = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${et}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${ra(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, Hi = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => b`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((s, o) => {
   const [r, n] = s.split(",");
   return b`<circle cx=${r} cy=${n} r=${(i + o) % 3 ? 2.1 : 2.9} fill=${(i + o) % 4 ? "#fff" : "#ffe9c2"}/>`;
-})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, u1 = (a) => b`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${$t}/><path d="M26 28.5q9 5 0 10z" fill=${fa}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${Ht}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${fa}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${$t}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, To = (a, t, e) => b`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, zr = {
+})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, u1 = (a) => b`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${$t}/><path d="M26 28.5q9 5 0 10z" fill=${ha}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${Et}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${ha}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${$t}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, To = (a, t, e) => b`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, zr = {
   css: J`
     .sp-w { position: absolute; inset: 0; }
     .sp-w i { position: absolute; display: block; }
@@ -5228,109 +5242,109 @@ const lc = {
     { id: "shower", ms: 6400, move: "sp-sh", weight: 0.6, flip: !1, when: (a) => a.tod !== "day", art: l`<div style="width:100vw;height:30vh">${[[22, 2, 0], [44, 8, 0.7], [8, 16, 1.5], [58, 3, 2.3], [34, 22, 3.4], [70, 14, 4.6]].map(([a, t, e]) => l`<i style="--x:${a}%;--y:${t}%;--d:${e}s"></i>`)}</div>` },
     { id: "comet", ms: 44e3, move: "across sp-slow", weight: 2, y: [1, 6], art: l`<svg class="sp-v" viewBox="0 0 190 60" width="170"><linearGradient id="spc"><stop offset="0" stop-color="#fff2d6" stop-opacity="0"/><stop offset="1" stop-color="#fff6e4" stop-opacity=".7"/></linearGradient><linearGradient id="spc2"><stop offset="0" stop-color="#7fc8ff" stop-opacity="0"/><stop offset="1" stop-color="#9fdcff" stop-opacity=".8"/></linearGradient><radialGradient id="spc3"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#d6f1ff" stop-opacity=".7"/><stop offset="1" stop-color="#9fdcff" stop-opacity="0"/></radialGradient><g transform="rotate(-8 168 30)"><path class="sp-l" d="M168 22Q90 2 6 26q70 0 162 14z" fill="url(#spc)"/><path class="sp-l" d="M168 28L0 44l168-10z" fill="url(#spc2)"/><circle class="sp-l" cx="168" cy="30" r="14" fill="url(#spc3)"/><circle class="sp-l" cx="168" cy="30" r="3.5" fill="#fff"/><path class="sp-oo sp-d" d="M164 24Q90 4 10 26M164 36Q90 34 10 30M163 30L4 43" fill="none"/></g></svg>` },
     { id: "rocket", ms: 13e3, move: "across sp-far", weight: 3, y: [2, 6], art: l`<svg class="sp-v" viewBox="0 0 78 34" width="112">${et}<g transform="translate(77 1) rotate(90)">${ep}</g></svg>` },
-    { id: "sat", ms: 36e3, move: "across", weight: 3, art: l`<svg class="sp-v" viewBox="0 0 96 50" width="76">${et}<g class="sp-tum"><path d="M34 25H10M62 25h24" fill="none" stroke="#aeb6cc" stroke-width="1.2"/>${[2, 66].map((a) => b`<rect class="sp-m" x=${a} y="14" width="28" height="22" fill="url(#sppv)"/><path class="sp-m sp-d" d="M${a + 7} 14v22M${a + 14} 14v22M${a + 21} 14v22M${a} 25h28" fill="none" stroke="#9db6f2" stroke-width=".5"/>`)}<rect class="sp-y" x="36" y="13" width="24" height="24" rx="2" fill="url(#spau)"/><path class="sp-g" d="M36 21l8-8M42 37l18-18M52 37l8-8" stroke="#fff3c4" stroke-width=".6" opacity=".6"/><path d="M40 13q8-13 16 0z" fill=${$t}/><path d="M48 6V1" fill="none" stroke="#aeb6cc"/><rect x="44" y="37" width="8" height="4" fill=${Ht}/><circle class="sp-l sp-bk" cx="48" cy="43" r="2" fill="#ff5a5a"/></g><circle class="sp-puf sp-l" cx="66" cy="42" r="5" fill="#fff"/></svg>` },
-    { id: "station", ms: 56e3, move: "across", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 150 60" width="136" opacity=".92">${et}<rect x="4" y="28.5" width="142" height="3" fill=${Ht}/><path class="sp-d" d="M4 30h142" fill="none" stroke="#dfe3ee" stroke-width=".5" stroke-dasharray="2 2"/>${[6, 24, 110, 128].map((a) => b`<g class="sp-pn"><rect class="sp-y" x=${a} y="2" width="13" height="56" fill="url(#spau)"/><path class="sp-g" d="M${a} 11h13M${a} 20h13M${a} 40h13M${a} 49h13M${a + 6.5} 2v56" stroke="#7a5416" stroke-width=".5"/></g>`)}<path d="M44 20h8v20h-8zM98 20h8v20h-8z" fill="#eef0f6"/><path class="sp-g" d="M44 24h8M44 28h8M44 32h8M44 36h8M98 24h8M98 28h8M98 32h8M98 36h8" stroke="#aeb6cc" stroke-width=".6"/><rect x="69" y="6" width="11" height="46" rx="4" fill="url(#spcy)"/><rect x="56" y="23" width="38" height="13" rx="5" fill=${$t}/><rect x="84" y="36" width="9" height="14" rx="3" fill=${$t}/><path class="sp-d" d="M64 23v13M86 23v13M69 16h11M69 44h11" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-bk"><circle class="sp-l" cx="60" cy="29.5" r="1.3" fill=${Le}/><circle class="sp-l" cx="74.5" cy="29.5" r="1.3" fill=${Le}/><circle class="sp-l" cx="90" cy="29.5" r="1.3" fill=${Le}/></g></svg>` },
-    { id: "probe", ms: 48e3, move: "across sp-slow", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 130 80" width="112" opacity=".92">${et}<path d="M62 44L8 20M70 46l44 26M60 40L40 4M72 40l30-34" fill="none" stroke="#aeb6cc" stroke-width="1"/><path class="sp-d" d="M8 20l6 12M14 32l8-5" fill="none" stroke="#aeb6cc" stroke-width=".8"/><rect x="2" y="14" width="10" height="9" rx="1.5" fill=${Ht}/><rect x="104" y="64" width="20" height="8" rx="3" transform="rotate(30 114 68)" fill="#4b5270"/><path d="M52 42l6-8h16l6 8-6 8H58z" fill="url(#spau)"/><ellipse cx="66" cy="36" rx="27" ry="9" fill=${$t}/><ellipse class="sp-g" cx="66" cy="35" rx="22" ry="6" fill="#aeb6cc" opacity=".55"/><path d="M48 33l18-13 18 13M66 20v14" fill="none" stroke="#dfe3ee" stroke-width=".9"/><circle cx="66" cy="19" r="2.4" fill=${$t}/><circle class="sp-puf sp-l" cx="84" cy="48" r="5" fill="#fff"/></svg>` },
+    { id: "sat", ms: 36e3, move: "across", weight: 3, art: l`<svg class="sp-v" viewBox="0 0 96 50" width="76">${et}<g class="sp-tum"><path d="M34 25H10M62 25h24" fill="none" stroke="#aeb6cc" stroke-width="1.2"/>${[2, 66].map((a) => b`<rect class="sp-m" x=${a} y="14" width="28" height="22" fill="url(#sppv)"/><path class="sp-m sp-d" d="M${a + 7} 14v22M${a + 14} 14v22M${a + 21} 14v22M${a} 25h28" fill="none" stroke="#9db6f2" stroke-width=".5"/>`)}<rect class="sp-y" x="36" y="13" width="24" height="24" rx="2" fill="url(#spau)"/><path class="sp-g" d="M36 21l8-8M42 37l18-18M52 37l8-8" stroke="#fff3c4" stroke-width=".6" opacity=".6"/><path d="M40 13q8-13 16 0z" fill=${$t}/><path d="M48 6V1" fill="none" stroke="#aeb6cc"/><rect x="44" y="37" width="8" height="4" fill=${Et}/><circle class="sp-l sp-bk" cx="48" cy="43" r="2" fill="#ff5a5a"/></g><circle class="sp-puf sp-l" cx="66" cy="42" r="5" fill="#fff"/></svg>` },
+    { id: "station", ms: 56e3, move: "across", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 150 60" width="136" opacity=".92">${et}<rect x="4" y="28.5" width="142" height="3" fill=${Et}/><path class="sp-d" d="M4 30h142" fill="none" stroke="#dfe3ee" stroke-width=".5" stroke-dasharray="2 2"/>${[6, 24, 110, 128].map((a) => b`<g class="sp-pn"><rect class="sp-y" x=${a} y="2" width="13" height="56" fill="url(#spau)"/><path class="sp-g" d="M${a} 11h13M${a} 20h13M${a} 40h13M${a} 49h13M${a + 6.5} 2v56" stroke="#7a5416" stroke-width=".5"/></g>`)}<path d="M44 20h8v20h-8zM98 20h8v20h-8z" fill="#eef0f6"/><path class="sp-g" d="M44 24h8M44 28h8M44 32h8M44 36h8M98 24h8M98 28h8M98 32h8M98 36h8" stroke="#aeb6cc" stroke-width=".6"/><rect x="69" y="6" width="11" height="46" rx="4" fill="url(#spcy)"/><rect x="56" y="23" width="38" height="13" rx="5" fill=${$t}/><rect x="84" y="36" width="9" height="14" rx="3" fill=${$t}/><path class="sp-d" d="M64 23v13M86 23v13M69 16h11M69 44h11" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-bk"><circle class="sp-l" cx="60" cy="29.5" r="1.3" fill=${je}/><circle class="sp-l" cx="74.5" cy="29.5" r="1.3" fill=${je}/><circle class="sp-l" cx="90" cy="29.5" r="1.3" fill=${je}/></g></svg>` },
+    { id: "probe", ms: 48e3, move: "across sp-slow", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 130 80" width="112" opacity=".92">${et}<path d="M62 44L8 20M70 46l44 26M60 40L40 4M72 40l30-34" fill="none" stroke="#aeb6cc" stroke-width="1"/><path class="sp-d" d="M8 20l6 12M14 32l8-5" fill="none" stroke="#aeb6cc" stroke-width=".8"/><rect x="2" y="14" width="10" height="9" rx="1.5" fill=${Et}/><rect x="104" y="64" width="20" height="8" rx="3" transform="rotate(30 114 68)" fill="#4b5270"/><path d="M52 42l6-8h16l6 8-6 8H58z" fill="url(#spau)"/><ellipse cx="66" cy="36" rx="27" ry="9" fill=${$t}/><ellipse class="sp-g" cx="66" cy="35" rx="22" ry="6" fill="#aeb6cc" opacity=".55"/><path d="M48 33l18-13 18 13M66 20v14" fill="none" stroke="#dfe3ee" stroke-width=".9"/><circle cx="66" cy="19" r="2.4" fill=${$t}/><circle class="sp-puf sp-l" cx="84" cy="48" r="5" fill="#fff"/></svg>` },
     { id: "rock", ms: 4e4, move: "across", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 110 80" width="100">${et}<g class="sp-tum"><path d="M20 22q10-16 30-14 18-6 30 8 14 10 8 28-4 16-22 18-20 8-34-4Q14 48 14 36q0-8 6-14z" fill="url(#sprk)"/><g class="sp-g"><ellipse cx="74" cy="50" rx="7" ry="5" fill="#3a3340" opacity=".6"/><ellipse cx="30" cy="52" rx="5" ry="3.5" fill="#3a3340" opacity=".6"/><path d="M67 51a7 5 0 0 0 14 0M25 53a5 3.5 0 0 0 10 0" fill="none" stroke="#d9cdbd" stroke-width=".8"/></g><ellipse class="sp-oo sp-d" cx="74" cy="50" rx="7" ry="5"/><g fill="none" stroke="#f1e9d6" stroke-linecap="round"><path class="sp-y" d="M30 34q16-10 34-4" stroke-width="1.8"/><path class="sp-y" d="M36 31l-2 9M42 29l-1 10M48 28v10M54 28l1 9M60 29l2 8" stroke-width="1.1"/><path class="sp-y" d="M36 40l-4 8 5 1M56 38l5 8-4 2" stroke-width="1.4"/><path class="sp-y" d="M30 34l-8 6" stroke-width="1.4"/></g><path class="sp-y" d="M64 30l5-9q8-3 11 3l-1 6-8 3zM72 33l7 1-1 3-8-1z" fill="#f1e9d6"/><circle class="sp-l" cx="73" cy="25.5" r="1.6" fill="#3a3340"/></g><g class="sp-tum2"><path d="M94 60l6-3 5 4-2 6-7 1z" fill="url(#sprk)"/></g><path d="M6 14l4-2 3 3-2 4-5-1z" fill="url(#sprk)"/></svg>` },
-    { id: "hauler", ms: 34e3, move: "across sp-slow", weight: 2, y: [2, 6], art: l`<svg class="sp-v" viewBox="-14 0 224 46" width="216">${et}<path class="sp-fh sp-l" d="M8 16Q-8 20-14 23q6 3 22 7z" fill="#9fe0ff" opacity=".85"/><path d="M8 14h14v18H8l-3-4V18z" fill=${Ht}/><rect x="22" y="21" width="140" height="4" fill=${Ht}/>${[["#b5503c", 26], ["#3f8f8a", 72], ["#c99a3a", 118]].map(([a, t]) => b`<rect x=${t} y="8" width="42" height="30" rx="1.5" fill=${a}/><path class="sp-g" d="M${t} 28h42v8.5q0 1.5-1.5 1.500h-39q-1.5 0-1.5-1.500z" opacity=".3"/><path class="sp-g" d="M${t} 8h42v3H${t}z" fill="#fff" opacity=".25"/><path class="sp-d" d="M${+t + 7} 8v30M${+t + 14} 8v30M${+t + 21} 8v30M${+t + 28} 8v30M${+t + 35} 8v30" fill="none" stroke="#1c2340" stroke-width=".6" opacity=".45"/>`)}<path d="M162 12h18q16 2 22 11-6 9-22 11h-18z" fill="url(#spm1)"/><path class="sp-y" d="M183 15q10 2 14 7h-14z" fill="url(#spvz)"/><path class="sp-d" d="M168 12v22M176 12v22" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M170 12V5M166 5h8" fill="none" stroke="#aeb6cc"/><circle class="sp-l sp-bk" cx="170" cy="4" r="1.7" fill="#ff5a5a"/><circle class="sp-puf sp-l" cx="192" cy="38" r="5" fill="#fff"/></svg>` },
+    { id: "hauler", ms: 34e3, move: "across sp-slow", weight: 2, y: [2, 6], art: l`<svg class="sp-v" viewBox="-14 0 224 46" width="216">${et}<path class="sp-fh sp-l" d="M8 16Q-8 20-14 23q6 3 22 7z" fill="#9fe0ff" opacity=".85"/><path d="M8 14h14v18H8l-3-4V18z" fill=${Et}/><rect x="22" y="21" width="140" height="4" fill=${Et}/>${[["#b5503c", 26], ["#3f8f8a", 72], ["#c99a3a", 118]].map(([a, t]) => b`<rect x=${t} y="8" width="42" height="30" rx="1.5" fill=${a}/><path class="sp-g" d="M${t} 28h42v8.5q0 1.5-1.5 1.500h-39q-1.5 0-1.5-1.500z" opacity=".3"/><path class="sp-g" d="M${t} 8h42v3H${t}z" fill="#fff" opacity=".25"/><path class="sp-d" d="M${+t + 7} 8v30M${+t + 14} 8v30M${+t + 21} 8v30M${+t + 28} 8v30M${+t + 35} 8v30" fill="none" stroke="#1c2340" stroke-width=".6" opacity=".45"/>`)}<path d="M162 12h18q16 2 22 11-6 9-22 11h-18z" fill="url(#spm1)"/><path class="sp-y" d="M183 15q10 2 14 7h-14z" fill="url(#spvz)"/><path class="sp-d" d="M168 12v22M176 12v22" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M170 12V5M166 5h8" fill="none" stroke="#aeb6cc"/><circle class="sp-l sp-bk" cx="170" cy="4" r="1.7" fill="#ff5a5a"/><circle class="sp-puf sp-l" cx="192" cy="38" r="5" fill="#fff"/></svg>` },
     // ---- saucers ----
     { id: "saucer", ms: 18e3, move: "sp-stop", weight: 2, y: [0.3, 0.8], art: ip(m1) },
     { id: "sock", ms: 18e3, move: "sp-stop", weight: 1, y: [0.3, 0.8], art: ip(g1) },
-    { id: "alien", ms: 16e3, move: "sp-stop", weight: 2, y: [1.5, 3], art: l`<svg class="sp-v" viewBox="0 0 80 74" width="92">${et}<ellipse cx="40" cy="40" rx="31" ry="5" fill="#2e3552"/><g class="sp-pilot"><g transform="translate(-1 -12)">${Tr(7, -150, "sp-wv")}</g>${No}</g><path class="sp-lid" d="M13 38a27 25 0 0 1 54 0z" fill="#9fd7ee" fill-opacity=".4"/><path d="M8 40h64q-3 22-32 22T8 40z" fill="url(#spm1)"/><path class="sp-g" d="M8 40h64q-1 5-4 9-28 7-56 0-3-4-4-9z" fill="#fff" opacity=".35"/><path class="sp-d" d="M14 51q26 7 52 0M40 40v22" fill="none" stroke="#737c9b" stroke-width=".7"/><path d="M24 60l-6 10h-4M56 60l6 10h4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><g class="sp-run"><circle class="sp-l" cx="22" cy="46" r="1.8" fill=${Le}/><circle class="sp-l" cx="40" cy="48" r="1.8" fill="#7bdff2"/><circle class="sp-l" cx="58" cy="46" r="1.8" fill=${Le}/></g></svg>` },
+    { id: "alien", ms: 16e3, move: "sp-stop", weight: 2, y: [1.5, 3], art: l`<svg class="sp-v" viewBox="0 0 80 74" width="92">${et}<ellipse cx="40" cy="40" rx="31" ry="5" fill="#2e3552"/><g class="sp-pilot"><g transform="translate(-1 -12)">${Tr(7, -150, "sp-wv")}</g>${No}</g><path class="sp-lid" d="M13 38a27 25 0 0 1 54 0z" fill="#9fd7ee" fill-opacity=".4"/><path d="M8 40h64q-3 22-32 22T8 40z" fill="url(#spm1)"/><path class="sp-g" d="M8 40h64q-1 5-4 9-28 7-56 0-3-4-4-9z" fill="#fff" opacity=".35"/><path class="sp-d" d="M14 51q26 7 52 0M40 40v22" fill="none" stroke="#737c9b" stroke-width=".7"/><path d="M24 60l-6 10h-4M56 60l6 10h4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><g class="sp-run"><circle class="sp-l" cx="22" cy="46" r="1.8" fill=${je}/><circle class="sp-l" cx="40" cy="48" r="1.8" fill="#7bdff2"/><circle class="sp-l" cx="58" cy="46" r="1.8" fill=${je}/></g></svg>` },
     // ---- astronauts ----
-    { id: "tether", ms: 28e3, move: "across sp-drift", weight: 2, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 70" width="236">${et}<path class="sp-y" d="M166 42q-30 26-56 2t-58 6" fill="none" stroke="#e0a93a" stroke-width="1.3"/><g class="sp-sway"><g transform="translate(18 12)">${na(150, -75, "sp-wv")}</g></g><g transform="translate(160 12)"><path d="M2 38L10 8q12-9 24 0l8 30z" fill="url(#spcy)"/><path d="M0 38h44l-3 6H3z" fill="#5a4636"/><path class="sp-g" d="M0 38h44l-1 2H1z" fill="#c98f4a"/><rect class="sp-y" x="17" y="16" width="10" height="9" rx="2" fill="url(#spvz)"/><path class="sp-d" d="M8 16h28M5 27h34M22 3v13" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M10 8q12-9 24 0-12-3-24 0z" fill=${Ht}/><circle class="sp-puf sp-l" cx="44" cy="22" r="5" fill="#fff"/></g></svg>` },
-    { id: "balloon", ms: 3e4, move: "across sp-drift", weight: 1.5, y: [3.5, 5], art: l`<svg class="sp-v" viewBox="0 0 70 86" width="84">${et}<g class="sp-str"><path d="M34 40Q30 30 39 22" fill="none" stroke="#dfe3ee" stroke-width=".8"/><path d="M39 22l-2 3h4z" fill="#a8322f"/><ellipse cx="40" cy="11" rx="10" ry="12" fill=${fa}/><path class="sp-g" d="M40-1a10 12 0 0 1 0 24 14 16 0 0 0 0-24z" opacity=".25"/><path class="sp-g" d="M34 6q2-4 6-4" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7" stroke-linecap="round"/></g><g transform="translate(8 34)">${na(30, -172)}</g></svg>` },
+    { id: "tether", ms: 28e3, move: "across sp-drift", weight: 2, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 70" width="236">${et}<path class="sp-y" d="M166 42q-30 26-56 2t-58 6" fill="none" stroke="#e0a93a" stroke-width="1.3"/><g class="sp-sway"><g transform="translate(18 12)">${ra(150, -75, "sp-wv")}</g></g><g transform="translate(160 12)"><path d="M2 38L10 8q12-9 24 0l8 30z" fill="url(#spcy)"/><path d="M0 38h44l-3 6H3z" fill="#5a4636"/><path class="sp-g" d="M0 38h44l-1 2H1z" fill="#c98f4a"/><rect class="sp-y" x="17" y="16" width="10" height="9" rx="2" fill="url(#spvz)"/><path class="sp-d" d="M8 16h28M5 27h34M22 3v13" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M10 8q12-9 24 0-12-3-24 0z" fill=${Et}/><circle class="sp-puf sp-l" cx="44" cy="22" r="5" fill="#fff"/></g></svg>` },
+    { id: "balloon", ms: 3e4, move: "across sp-drift", weight: 1.5, y: [3.5, 5], art: l`<svg class="sp-v" viewBox="0 0 70 86" width="84">${et}<g class="sp-str"><path d="M34 40Q30 30 39 22" fill="none" stroke="#dfe3ee" stroke-width=".8"/><path d="M39 22l-2 3h4z" fill="#a8322f"/><ellipse cx="40" cy="11" rx="10" ry="12" fill=${ha}/><path class="sp-g" d="M40-1a10 12 0 0 1 0 24 14 16 0 0 0 0-24z" opacity=".25"/><path class="sp-g" d="M34 6q2-4 6-4" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7" stroke-linecap="round"/></g><g transform="translate(8 34)">${ra(30, -172)}</g></svg>` },
     { id: "sandwich", ms: 26e3, move: "across sp-drift", weight: 2, y: [2, 5], when: (a) => a.weekday !== 5, art: sp(b`<path d="M-16-5q0-7 6-7h20q6 0 6 7v2h-32z" fill="#e9cf9a"/><path class="sp-g" d="M-16-5q0-7 6-7h20q6 0 6 7-16-4-32 0z" fill="#b98548"/><path class="sp-m" d="M-18-1q4-5 8 0t7 0 7 0 7 0 7 0v3h-36z" fill="#6fbf5a"/><rect class="sp-g" x="-15" y="2" width="30" height="3" fill="#d94b3d"/><rect class="sp-y" x="-17" y="4.5" width="34" height="2.5" fill="#f6c648"/><path d="M-16 7h32v3q0 4-6 4h-20q-6 0-6-4z" fill="#e9cf9a"/><path class="sp-g" d="M-16 10q16 4 32 0 0 4-6 4h-20q-6 0-6-4z" fill="#b98548"/>`) },
     { id: "pizza", ms: 26e3, move: "across sp-drift", weight: 4, y: [2, 5], when: (a) => a.weekday === 5, art: sp(b`<path d="M-16-11q16-8 32 0L0 19z" fill="#f2c14e"/><path d="M-16-11q16-8 32 0l-2 4q-14-7-28 0z" fill="#c98f4a"/><path class="sp-g" d="M-13-6q13-6 26 0L0 19z" fill="#e2552f" opacity=".35"/><circle cx="-4" cy="-2" r="3.2" fill="#b5322a"/><circle cx="6" cy="0" r="3.2" fill="#b5322a"/><circle cx="0" cy="8" r="2.6" fill="#b5322a"/><path class="sp-g" d="M-8 3l2 1M3 5l2-1M-1-6l2 1" stroke="#3f8f4a" stroke-width="1.2" stroke-linecap="round"/>`) },
-    { id: "trumpet", ms: 28e3, move: "across sp-drift", weight: 2, y: [3, 5], art: l`<svg class="sp-v" viewBox="0 0 110 66" width="140">${et}<g transform="translate(8 14)">${na(40, -78)}<path class="sp-y" d="M29 10.5h29q4 0 9-6v16q-5-6-9-6H29z" fill="url(#spau)"/><path class="sp-y" d="M36 14.5v5q0 3 4 3h10q4 0 4-3v-5" fill="none" stroke="#c9952e" stroke-width="1.8"/><path class="sp-y" d="M39 10V5M44 10V5M49 10V5M37.5 4.5h3M42.5 4.5h3M47.5 4.5h3" fill="none" stroke="#e0a93a" stroke-width="1.7"/><ellipse class="sp-g" cx="67" cy="12.5" rx="1.8" ry="8" fill="#7a5416"/><path class="sp-g" d="M31 11.5h26" stroke="#fff6cf" stroke-width=".7" opacity=".8"/></g>${ap(84, 16)}</svg>` },
+    { id: "trumpet", ms: 28e3, move: "across sp-drift", weight: 2, y: [3, 5], art: l`<svg class="sp-v" viewBox="0 0 110 66" width="140">${et}<g transform="translate(8 14)">${ra(40, -78)}<path class="sp-y" d="M29 10.5h29q4 0 9-6v16q-5-6-9-6H29z" fill="url(#spau)"/><path class="sp-y" d="M36 14.5v5q0 3 4 3h10q4 0 4-3v-5" fill="none" stroke="#c9952e" stroke-width="1.8"/><path class="sp-y" d="M39 10V5M44 10V5M49 10V5M37.5 4.5h3M42.5 4.5h3M47.5 4.5h3" fill="none" stroke="#e0a93a" stroke-width="1.7"/><ellipse class="sp-g" cx="67" cy="12.5" rx="1.8" ry="8" fill="#7a5416"/><path class="sp-g" d="M31 11.5h26" stroke="#fff6cf" stroke-width=".7" opacity=".8"/></g>${ap(84, 16)}</svg>` },
     { id: "clarinet", ms: 3e4, move: "across sp-slow", weight: 1.5, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 110 90" width="112">${et}<path d="M14 62q6-14 24-14 12-6 26 0 14 2 18 14 2 14-16 20-22 8-42-2-14-6-10-18z" fill="url(#sprk)"/><g class="sp-g"><ellipse cx="34" cy="68" rx="7" ry="3" fill="#3a3340" opacity=".6"/><ellipse cx="66" cy="74" rx="5" ry="2.2" fill="#3a3340" opacity=".6"/><path d="M27 68.5a7 3 0 0 0 14 0" fill="none" stroke="#d9cdbd" stroke-width=".7"/></g><path d="M44 50q-2 12 6 14M54 50q4 10 14 8" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round"/><g transform="translate(48 30)">${No}</g><path d="M55 27l28 26-3 5 9-1-1-9-3 3-28-26z" fill="#2a2f48"/><path class="sp-g" d="M56.5 26.500l27 25" fill="none" stroke="#8f98b8" stroke-width=".9"/><path class="sp-l" d="M60 32l18 17" fill="none" stroke="#dfe6ff" stroke-width="1.6" stroke-dasharray="1.5 3.5"/><path d="M56 40l8-1M54 46l14 3" fill="none" stroke="#8a9e8a" stroke-width="2.4" stroke-linecap="round"/>${ap(92, 56)}</svg>` },
-    { id: "ball", ms: 26e3, move: "across sp-drift", weight: 1.5, y: [4, 6], art: l`<svg class="sp-v" viewBox="0 0 84 70" width="112">${et}<g transform="translate(6 18)">${na(35, -64)}</g><path d="M42 48l9-9" fill="none" stroke="#2c3350" stroke-width="2.6" stroke-linecap="round"/><ellipse class="sp-m" cx="62" cy="34" rx="13" ry="5" fill="#dfe6ff" fill-opacity=".25" stroke="#d2453f" stroke-width="1.6"/><path class="sp-g" d="M52 31l20 6M52 37l20-6M56 29.5v9M62 29v10M68 29.5v9" stroke="#fff" stroke-width=".5" opacity=".7"/><path class="sp-cord sp-l" d="M62 31V3" fill="none" stroke="#dfe3ee" stroke-width=".7"/><g class="sp-bnc"><circle class="sp-y" cx="62" cy="27" r="5" fill="#d3ec4f"/><path class="sp-g" d="M58 24q4 3 3 8M66 30q-4-3-3-8" fill="none" stroke="#fff" stroke-width=".9"/><path class="sp-g" d="M62 22a5 5 0 0 1 0 10 7 7 0 0 0 0-10z" opacity=".2"/></g></svg>` },
-    { id: "swim", ms: 24e3, move: "across sp-drift", weight: 1.5, y: [3, 7], art: l`<svg class="sp-v" viewBox="0 0 60 44" width="118">${et}<g transform="translate(54 2) rotate(90)">${na(0, 180, "sp-wind")}<path class="sp-y" d="M10.5 7.5a10 10 0 0 1 19 0z" fill=${fa}/><path class="sp-g" d="M13 5q7-5 14 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/></g></svg>` },
+    { id: "ball", ms: 26e3, move: "across sp-drift", weight: 1.5, y: [4, 6], art: l`<svg class="sp-v" viewBox="0 0 84 70" width="112">${et}<g transform="translate(6 18)">${ra(35, -64)}</g><path d="M42 48l9-9" fill="none" stroke="#2c3350" stroke-width="2.6" stroke-linecap="round"/><ellipse class="sp-m" cx="62" cy="34" rx="13" ry="5" fill="#dfe6ff" fill-opacity=".25" stroke="#d2453f" stroke-width="1.6"/><path class="sp-g" d="M52 31l20 6M52 37l20-6M56 29.5v9M62 29v10M68 29.5v9" stroke="#fff" stroke-width=".5" opacity=".7"/><path class="sp-cord sp-l" d="M62 31V3" fill="none" stroke="#dfe3ee" stroke-width=".7"/><g class="sp-bnc"><circle class="sp-y" cx="62" cy="27" r="5" fill="#d3ec4f"/><path class="sp-g" d="M58 24q4 3 3 8M66 30q-4-3-3-8" fill="none" stroke="#fff" stroke-width=".9"/><path class="sp-g" d="M62 22a5 5 0 0 1 0 10 7 7 0 0 0 0-10z" opacity=".2"/></g></svg>` },
+    { id: "swim", ms: 24e3, move: "across sp-drift", weight: 1.5, y: [3, 7], art: l`<svg class="sp-v" viewBox="0 0 60 44" width="118">${et}<g transform="translate(54 2) rotate(90)">${ra(0, 180, "sp-wind")}<path class="sp-y" d="M10.5 7.5a10 10 0 0 1 19 0z" fill=${ha}/><path class="sp-g" d="M13 5q7-5 14 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/></g></svg>` },
     // ---- constellations that draw themselves ----
     { id: "dragon", ms: 17e3, move: "sp-stay", weight: 1.2, flip: !1, y: [1, 2], art: Hi("6,72 24,60 46,64 66,48|66,48 56,8 90,16 84,44|66,48 84,44 102,30|102,30 120,22 135,30|46,64 56,84|84,44 92,70", b`<path d="M6 72l-6-4 2 8 8 0zM6 72Q16 62 24 60t22 4q12-2 20-16 10-6 18-4 6-12 18-16 8-8 18-6l15 8-6 3 5 3-13 2q-8-1-11 4-4 10-17 16l2 14 5 2M92 56Q70 70 50 70l6 14 6 1M50 70Q30 66 12 76"/><path d="M114 21l-3-9 8 7M66 48L56 8q12 2 18 14 6-8 16-6-2 14-6 28M56 8q10 18 28 36M74 22q4 10 10 22"/><circle cx="121" cy="26" r="1"/><path d="M138 31q6-3 9 2-5-1-9 1" stroke="#ffe08a"/>`) },
     { id: "dino", ms: 16e3, move: "sp-stay", weight: 1.2, flip: !1, y: [1, 2], art: Hi("4,62 26,54 50,40|50,40 80,38 100,24|100,24 120,9 133,13|50,40 54,80|80,38 88,80", b`<path d="M4 62q24-6 44-24 16-6 32-2 10-4 18-16 8-12 22-13 12 0 13 6-2 5-14 5-8 10-12 24-2 12-10 16l1 22h-9l-1-20H62l1 20h-9l-3-22q-20 8-47 4z"/><path d="M60 42q10 10 26 8M124 8.5l1 .5M127 15h6"/>`) },
     { id: "horn", ms: 15e3, move: "sp-stay", weight: 1, flip: !1, y: [1, 2], art: Hi("6,44 40,44 58,44|58,24 58,44 70,44 70,24|70,44 82,44 82,24|82,44 102,44 132,20|102,44 132,68 132,20", b`<path d="M8 40v8M6 40l4 0M6 48h4M10 42h92q16-2 30-22v48q-14-20-30-22H10M104 46q6 18-10 18H44q-12 0-12-9t12-9"/><path d="M58 24v32M70 24v32M82 24v32M54 24h8M66 24h8M78 24h8M54 30h8M66 30h8M78 30h8"/>`) },
     { id: "scoot", ms: 14e3, move: "sp-stay", weight: 1, flip: !1, y: [1, 2], art: Hi("24,74 46,66 92,66|92,66 112,74|112,74 104,14|90,10 104,14 120,14", b`<circle cx="24" cy="74" r="9"/><circle cx="24" cy="74" r="3"/><circle cx="112" cy="74" r="9"/><circle cx="112" cy="74" r="3"/><path d="M14 62q10-4 20 2M24 74l18-10h48q8 0 12-10M112 74L104 14M88 8l34 6M86 6l6 5M118 11l6 5"/>`) },
     // ---- the corners ----
-    { id: "moonland", ms: 24e3, move: "sp-cr", weight: 0.6, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 180 200" width="180" height="200">${et}<g class="sp-flag"><path d="M96 167v-36" fill="none" stroke="#dfe3ee" stroke-width="1.3"/><path class="sp-m sp-flap" d="M96 131h22l-5 6.5 5 6.5H96z" fill="#3fbf95"/></g><ellipse class="sp-kick1 sp-l" cx="52" cy="176" rx="26" ry="6" fill="#dfe3ee"/><g class="sp-land"><g transform="translate(36 118)"><path d="M8 46L-2 58h-4M24 46l10 12h4M8 50l-6 6M24 50l6 6" fill="none" stroke="#aeb6cc" stroke-width="1.5"/><g class="sp-burn">${$r}</g>${Nr}</g></g><g class="sp-walk"><g transform="scale(.42)">${na(25, -30)}</g></g></svg>` },
+    { id: "moonland", ms: 24e3, move: "sp-cr", weight: 0.6, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 180 200" width="180" height="200">${et}<g class="sp-flag"><path d="M96 167v-36" fill="none" stroke="#dfe3ee" stroke-width="1.3"/><path class="sp-m sp-flap" d="M96 131h22l-5 6.5 5 6.5H96z" fill="#3fbf95"/></g><ellipse class="sp-kick1 sp-l" cx="52" cy="176" rx="26" ry="6" fill="#dfe3ee"/><g class="sp-land"><g transform="translate(36 118)"><path d="M8 46L-2 58h-4M24 46l10 12h4M8 50l-6 6M24 50l6 6" fill="none" stroke="#aeb6cc" stroke-width="1.5"/><g class="sp-burn">${$r}</g>${Nr}</g></g><g class="sp-walk"><g transform="scale(.42)">${ra(25, -30)}</g></g></svg>` },
     { id: "wink", ms: 11e3, move: "sp-cl", weight: 0.5, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 130 110" width="130" height="110"><radialGradient id="spey"><stop offset="0" stop-color="#3f1508"/><stop offset=".4" stop-color="#8f3a22"/><stop offset=".75" stop-color="#f3e2c0"/><stop offset="1" stop-color="#f3e2c0" stop-opacity="0"/></radialGradient><g class="sp-eyes"><ellipse class="sp-l" cx="42" cy="56" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="42" cy="56" rx="12" ry="8"/><g class="sp-wink"><ellipse class="sp-l" cx="80" cy="60" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="80" cy="60" rx="12" ry="8"/></g><g class="sp-pup"><ellipse class="sp-l" cx="43" cy="56" rx="3.6" ry="4.6" fill="#1c0a06"/><ellipse class="sp-l" cx="81" cy="60" rx="3.6" ry="4.6" fill="#1c0a06"/><circle class="sp-l" cx="42" cy="54.5" r="1" fill="#fff" opacity=".8"/><circle class="sp-l" cx="80" cy="58.5" r="1" fill="#fff" opacity=".8"/></g></g><path class="sp-grin sp-y" d="M44 80q16 12 34 5" fill="none" stroke="#6b3a1f" stroke-width="3.5" stroke-linecap="round" opacity=".75"/></svg>` },
-    { id: "rover", ms: 44e3, move: "sp-rov", weight: 2, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 92 44" width="100">${et}<g class="sp-dust"><circle class="sp-l" cx="80" cy="39" r="3.5" fill="#cfd5e6"/><circle class="sp-l" cx="87" cy="37" r="2.2" fill="#cfd5e6"/><circle class="sp-l" cx="73" cy="38" r="2.2" fill="#cfd5e6"/></g><g class="sp-body"><g class="sp-drill"><path d="M76 16h6v16l-3 8-3-8z" fill=${Ht}/><path class="sp-d" d="M76 32l6-3M76 28l6-3M76 24l6-3" fill="none" stroke="#dfe3ee" stroke-width=".7"/></g><path d="M56 18h30v6H56z" fill="#b5503c"/><path class="sp-g" d="M56 22h30v2H56z" opacity=".3"/><path d="M4 14h30v14H4z" fill="url(#spm1)"/><path class="sp-d" d="M4 21h30M14 14v14M24 14v14" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-mast"><path d="M30 14V4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><rect x="26" y="0" width="10" height="5" rx="1.5" fill=${Ht}/><circle class="sp-l" cx="34" cy="2.5" r="1.2" fill="#7bdff2"/></g><path d="M9 14L4 3h8z" fill=${$t}/><path class="sp-y" d="M36 8h15l8 11v9H36z" fill="url(#spau)"/><path d="M40 11h9l6 8H40z" fill="url(#spvz)"/><rect x="2" y="27" width="62" height="5" rx="2" fill=${Ht}/><path d="M12 32v4M33 32v4M54 32v4" fill="none" stroke="#737c9b" stroke-width="2"/></g>${To(12, 36, 7)}${To(33, 36, 7)}${To(54, 36, 7)}</svg>` },
+    { id: "rover", ms: 44e3, move: "sp-rov", weight: 2, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 92 44" width="100">${et}<g class="sp-dust"><circle class="sp-l" cx="80" cy="39" r="3.5" fill="#cfd5e6"/><circle class="sp-l" cx="87" cy="37" r="2.2" fill="#cfd5e6"/><circle class="sp-l" cx="73" cy="38" r="2.2" fill="#cfd5e6"/></g><g class="sp-body"><g class="sp-drill"><path d="M76 16h6v16l-3 8-3-8z" fill=${Et}/><path class="sp-d" d="M76 32l6-3M76 28l6-3M76 24l6-3" fill="none" stroke="#dfe3ee" stroke-width=".7"/></g><path d="M56 18h30v6H56z" fill="#b5503c"/><path class="sp-g" d="M56 22h30v2H56z" opacity=".3"/><path d="M4 14h30v14H4z" fill="url(#spm1)"/><path class="sp-d" d="M4 21h30M14 14v14M24 14v14" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-mast"><path d="M30 14V4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><rect x="26" y="0" width="10" height="5" rx="1.5" fill=${Et}/><circle class="sp-l" cx="34" cy="2.5" r="1.2" fill="#7bdff2"/></g><path d="M9 14L4 3h8z" fill=${$t}/><path class="sp-y" d="M36 8h15l8 11v9H36z" fill="url(#spau)"/><path d="M40 11h9l6 8H40z" fill="url(#spvz)"/><rect x="2" y="27" width="62" height="5" rx="2" fill=${Et}/><path d="M12 32v4M33 32v4M54 32v4" fill="none" stroke="#737c9b" stroke-width="2"/></g>${To(12, 36, 7)}${To(33, 36, 7)}${To(54, 36, 7)}</svg>` },
     // ---- parades, rarities and seasons ----
     { id: "parade", ms: 24e3, move: "across", weight: 1.5, y: [2, 5], art: l`<svg class="sp-v" viewBox="-12 0 190 50" width="204">${et}${[0, 1, 2, 3].map((a) => b`<g transform="translate(${132 - a * 44} ${a % 2 ? 5 : 0})"><g class="sp-march ${a % 2 ? "b" : ""}">${u1(a === 0)}</g></g>`)}</svg>` },
     { id: "whale", ms: 64e3, move: "across", weight: 0.3, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 90" width="200" opacity=".82"><linearGradient id="spwh" x2="0" y2="1"><stop offset="0" stop-color="#8ea3da"/><stop offset=".55" stop-color="#5f74b4"/><stop offset="1" stop-color="#3a4a86"/></linearGradient><g class="sp-glide"><path class="sp-tail" d="M44 40Q30 34 22 22 10 12 2 16q6 10 16 20-12 8-14 22 12-2 22-12 8-4 18-6z" fill="url(#spwh)"/><path class="sp-fin" d="M124 52q-4 20-26 34-8 4-10-1 16-14 18-36z" fill="#4c5f9e"/><path d="M40 40Q66 16 120 12q34-2 62 10 18 8 24 20-2 12-22 18-30 10-66 8-44-2-78-28z" fill="url(#spwh)"/><path d="M206 42q-2 12-22 18-30 10-66 8-22-1-40-8 60 2 128-18z" fill="#e3e8f6"/><path class="sp-g" d="M96 62q50 2 104-14M104 65q46 0 92-12M116 67q40-1 74-10" fill="none" stroke="#8f9cc4" stroke-width=".7"/><path d="M120 12q6-5 10 0z" fill="#5f74b4"/><path class="sp-g" d="M70 26q40-12 100 0" fill="none" stroke="#c9d6ff" stroke-width="1.2" opacity=".5"/><path class="sp-d" d="M180 44q12 2 24-2" fill="none" stroke="#2c3966" stroke-width=".8"/><circle class="sp-l" cx="176" cy="38" r="1.8" fill="#101a3a"/><g class="sp-g" fill="#c9d6ff" opacity=".7"><circle cx="190" cy="28" r="1"/><circle cx="196" cy="33" r="1"/><circle cx="184" cy="24" r="1"/></g><g class="sp-run"><circle class="sp-l" cx="150" cy="7" r="1.5" fill="#fff"/><circle class="sp-l" cx="158" cy="2" r="1.2" fill="#fff"/><circle class="sp-l" cx="143" cy="1" r="1.2" fill="#fff"/><circle class="sp-l" cx="152" cy="-5" r="1" fill="#fff"/></g></g></svg>` },
     { id: "jelly", ms: 5e4, move: "across", weight: 0.5, y: [2, 6], when: (a) => a.tod !== "day", art: l`<svg class="sp-v" viewBox="-40 -6 110 72" width="118" opacity=".85"><radialGradient id="spjl" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#e9fbff" stop-opacity=".9"/><stop offset=".6" stop-color="#8fd8ff" stop-opacity=".45"/><stop offset="1" stop-color="#b79cff" stop-opacity=".25"/></radialGradient><g transform="rotate(78 30 30)"><g class="sp-surge">${[[14, -4, 0], [24, 2, -0.7], [36, 2, -1.3], [46, -4, -0.4]].map(([a, t, e]) => b`<g class="sp-tent" style="animation-delay:${e}s"><path class="sp-m" d="M${a} 30q${t} 12 0 22t${-t} 20${t} 16" fill="none" stroke="#a9e4ff" stroke-width="1.1" opacity=".7" stroke-linecap="round"/></g>`)}<g class="sp-bell"><path d="M4 30Q4 4 30 4t26 26q-6 5-13 0-6 5-13 0-6 5-13 0-7 5-13 0z" fill="url(#spjl)"/><path class="sp-g" d="M12 22Q16 9 30 8" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7" stroke-linecap="round"/><path class="sp-d sp-m" d="M30 6v22M18 10q-4 8-3 18M42 10q4 8 3 18" fill="none" stroke="#e9fbff" stroke-width=".6" opacity=".6"/><ellipse class="sp-l sp-run" cx="30" cy="18" rx="6" ry="4" fill="#fff6c9" opacity=".8"/></g></g></g></svg>` },
-    { id: "xmas", ms: 24e3, move: "across sp-drift", weight: 3, y: [2, 5], when: (a) => a.month === 12, art: l`<svg class="sp-v" viewBox="0 0 170 50" width="180">${et}<path d="M58 34q16 8 34-6" fill="none" stroke="#e0a93a" stroke-width="1"/><g transform="translate(168 12) rotate(90)">${ep}</g><path d="M8 44q-7 0-7-8M4 44h52M14 44v-6M46 44v-6" fill="none" stroke="#a8322f" stroke-width="2.2" stroke-linecap="round"/><path d="M10 31h44v6q0 2-2 2H12q-2 0-2-2z" fill=${fa}/><path class="sp-g" d="M10 31h44v2H10z" fill="#fff" opacity=".3"/><rect x="30" y="25" width="4" height="6" fill="#6b4a2b"/><path class="sp-m" d="M32 0L22 12h5L18 21h5l-8 7h34l-8-7h5l-9-9h5z" fill="#2f8f58"/><path class="sp-g" d="M32 0l10 12h-5l9 9h-5l8 7H38q4-14-6-28z" opacity=".25"/><g class="sp-bk"><circle class="sp-l" cx="32" cy="1" r="2.4" fill=${Le}/><circle class="sp-l" cx="27" cy="13" r="1.7" fill="#ff6b6b"/><circle class="sp-l" cx="39" cy="19" r="1.7" fill="#7bdff2"/><circle class="sp-l" cx="24" cy="24" r="1.7" fill=${Le}/><circle class="sp-l" cx="36" cy="9" r="1.5" fill="#7bdff2"/><circle class="sp-l" cx="31" cy="22" r="1.7" fill="#ff6b6b"/></g></svg>` },
+    { id: "xmas", ms: 24e3, move: "across sp-drift", weight: 3, y: [2, 5], when: (a) => a.month === 12, art: l`<svg class="sp-v" viewBox="0 0 170 50" width="180">${et}<path d="M58 34q16 8 34-6" fill="none" stroke="#e0a93a" stroke-width="1"/><g transform="translate(168 12) rotate(90)">${ep}</g><path d="M8 44q-7 0-7-8M4 44h52M14 44v-6M46 44v-6" fill="none" stroke="#a8322f" stroke-width="2.2" stroke-linecap="round"/><path d="M10 31h44v6q0 2-2 2H12q-2 0-2-2z" fill=${ha}/><path class="sp-g" d="M10 31h44v2H10z" fill="#fff" opacity=".3"/><rect x="30" y="25" width="4" height="6" fill="#6b4a2b"/><path class="sp-m" d="M32 0L22 12h5L18 21h5l-8 7h34l-8-7h5l-9-9h5z" fill="#2f8f58"/><path class="sp-g" d="M32 0l10 12h-5l9 9h-5l8 7H38q4-14-6-28z" opacity=".25"/><g class="sp-bk"><circle class="sp-l" cx="32" cy="1" r="2.4" fill=${je}/><circle class="sp-l" cx="27" cy="13" r="1.7" fill="#ff6b6b"/><circle class="sp-l" cx="39" cy="19" r="1.7" fill="#7bdff2"/><circle class="sp-l" cx="24" cy="24" r="1.7" fill=${je}/><circle class="sp-l" cx="36" cy="9" r="1.5" fill="#7bdff2"/><circle class="sp-l" cx="31" cy="22" r="1.7" fill="#ff6b6b"/></g></svg>` },
     // ---- in front of the page (small, quick); `hush` is an empty turn so these stay a treat ----
     { id: "hush", ms: 50, move: "", weight: 9, front: !0, art: l`` },
     { id: "launch", ms: 12e3, move: "sp-pad", weight: 1, front: !0, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 36 100" width="36">${et}<g fill="#ffe08a" font-family="sans-serif" font-size="19" font-weight="700" text-anchor="middle">${[3, 2, 1].map((a, t) => b`<text class="sp-n" style="animation-delay:${t * 1.6}s" x="18" y="17">${a}</text>`)}</g><g class="sp-puff"><circle cx="9" cy="80" r="6" fill="#dfe3ee"/><circle cx="27" cy="80" r="6" fill="#dfe3ee"/><circle cx="18" cy="83" r="6.5" fill="#f1f3f9"/></g><g transform="translate(2 24)"><g class="sp-ign">${$r}</g>${Nr}</g></svg>` },
-    { id: "scooter", ms: 9500, move: "across foot", weight: 2, front: !0, art: l`<svg class="sp-v" viewBox="0 0 62 62" width="56">${et}<g class="sp-jump"><path class="sp-kick" d="M27 40l-7 8-3 7h-4" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 52h36" fill="none" stroke="#aeb6cc" stroke-width="3" stroke-linecap="round"/><path d="M48 53L42 15M36 13.5l13 2.5" fill="none" stroke="#dfe3ee" stroke-width="2.4" stroke-linecap="round"/><circle cx="9" cy="55.5" r="5" fill="#2c3350"/><circle cx="9" cy="55.5" r="2" fill="#aeb6cc"/><circle cx="48.5" cy="55.5" r="5" fill="#2c3350"/><circle cx="48.5" cy="55.5" r="2" fill="#aeb6cc"/><g class="sp-lean"><path d="M29 40v10h5" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 31l10-14" fill="none" stroke="#8a9e8a" stroke-width="2.8" stroke-linecap="round"/><g transform="translate(27 22) scale(.92)">${No}</g><path d="M21 21q-9 1-14 7l8-2q-3 3-2 5 6-3 9-8z" fill=${fa}/></g></g></svg>` }
+    { id: "scooter", ms: 9500, move: "across foot", weight: 2, front: !0, art: l`<svg class="sp-v" viewBox="0 0 62 62" width="56">${et}<g class="sp-jump"><path class="sp-kick" d="M27 40l-7 8-3 7h-4" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 52h36" fill="none" stroke="#aeb6cc" stroke-width="3" stroke-linecap="round"/><path d="M48 53L42 15M36 13.5l13 2.5" fill="none" stroke="#dfe3ee" stroke-width="2.4" stroke-linecap="round"/><circle cx="9" cy="55.5" r="5" fill="#2c3350"/><circle cx="9" cy="55.5" r="2" fill="#aeb6cc"/><circle cx="48.5" cy="55.5" r="5" fill="#2c3350"/><circle cx="48.5" cy="55.5" r="2" fill="#aeb6cc"/><g class="sp-lean"><path d="M29 40v10h5" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 31l10-14" fill="none" stroke="#8a9e8a" stroke-width="2.8" stroke-linecap="round"/><g transform="translate(27 22) scale(.92)">${No}</g><path d="M21 21q-9 1-14 7l8-2q-3 3-2 5 6-3 9-8z" fill=${ha}/></g></g></svg>` }
   ]
-}, b1 = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, Nt = (a, t = {}) => ({ ...t, px: a }), Fe = (a) => {
+}, b1 = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, Nt = (a, t = {}) => ({ ...t, px: a }), Se = (a) => {
   const t = {};
   for (const [e, i] of a) for (const s in i) t[s] = (t[s] ?? 0) + e * i[s];
   return t;
-}, W = (a, t) => Fe([[1, a], [1, Nt(t)]]), De = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (b1[e] ?? 0), 0), z = (a, t = 2) => +a.toFixed(t), zt = (a) => {
+}, W = (a, t) => Se([[1, a], [1, Nt(t)]]), Oe = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (b1[e] ?? 0), 0), z = (a, t = 2) => +a.toFixed(t), zt = (a) => {
   const t = Object.entries(a).filter(([, e]) => Math.abs(e) > 1e-4).map(([e, i]) => e === "px" ? `${z(i, 1)}px` : `var(--${e})*${z(i, 4)}`);
   return t.length > 1 || (t[0] ?? "").includes("*") ? `calc(${t.join(" + ")})` : t[0] ?? "0px";
 }, Cs = (a, t) => {
   const e = 1 - t;
-  return Fe([[e * e * e, a[0]], [3 * e * e * t, a[1]], [3 * e * t * t, a[2]], [t * t * t, a[3]]]);
-}, st = (a, t, e = "") => `transform:translate(${zt(a)},${zt(t)})${e}`, Qe = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${z(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, Qt = (a, t, e) => Qe(a, e.map(([i, s, o]) => [i / t, s, o])), Ke = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), op = "cubic-bezier(.333,.667,.667,1)", x1 = "cubic-bezier(.333,0,.667,.333)", zo = "cubic-bezier(.333,0,.667,1)", k1 = "cubic-bezier(.2,.8,.2,1)", w1 = "cubic-bezier(.2,1.4,.4,1)", y1 = "cubic-bezier(.4,0,1,1)", Ma = "ease-in-out", xe = { aw: 1 }, Ai = { ah: 1 }, ma = { at: 1 }, la = { dt: 1 }, xi = { dl: 1 }, za = W(la, -5), rp = [[Fe([[0.5, { dr: 1 }], [0.5, xe]]), W(Ai, 40)], [W(xe, 30), { ah: 0.25 }], [{ aw: 0.77 }, Nt(-150)], [{ cx: 1 }, W(ma, 70)]], np = [[W(xe, 60), { at: 0.76 }], [{ aw: 0.86 }, Nt(-10)], [{ aw: 0.625 }, Nt(10)], [{ cx: 1 }, W(ma, 120)]], Wo = (a) => {
+  return Se([[e * e * e, a[0]], [3 * e * e * t, a[1]], [3 * e * t * t, a[2]], [t * t * t, a[3]]]);
+}, st = (a, t, e = "") => `transform:translate(${zt(a)},${zt(t)})${e}`, Le = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${z(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, Qt = (a, t, e) => Le(a, e.map(([i, s, o]) => [i / t, s, o])), ve = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), op = "cubic-bezier(.333,.667,.667,1)", x1 = "cubic-bezier(.333,0,.667,.333)", zo = "cubic-bezier(.333,0,.667,1)", k1 = "cubic-bezier(.2,.8,.2,1)", w1 = "cubic-bezier(.2,1.4,.4,1)", y1 = "cubic-bezier(.4,0,1,1)", Aa = "ease-in-out", xe = { aw: 1 }, Ai = { ah: 1 }, fa = { at: 1 }, na = { dt: 1 }, xi = { dl: 1 }, za = W(na, -5), rp = [[Se([[0.5, { dr: 1 }], [0.5, xe]]), W(Ai, 40)], [W(xe, 30), { ah: 0.25 }], [{ aw: 0.77 }, Nt(-150)], [{ cx: 1 }, W(fa, 70)]], np = [[W(xe, 60), { at: 0.76 }], [{ aw: 0.86 }, Nt(-10)], [{ aw: 0.625 }, Nt(10)], [{ cx: 1 }, W(fa, 120)]], Wo = (a) => {
   const t = 1 - Math.pow(1 - a, 1.2);
   return [Cs(np.map((e) => e[0]), t), Cs(np.map((e) => e[1]), t)];
 }, pc = [[Nt(-20), W(xe, 20), { aw: 0.47 }], [W(xe, 20), Nt(-20), { aw: 0.59 }], [Nt(-20), W(xe, 20), { aw: 0.37 }]], v1 = () => {
   const a = [];
   return pc.forEach(([t, e, i], s) => {
-    const o = s * 1200, r = (De(i) - De(t)) / (De(e) - De(t)), n = o + 900 * r, p = (d) => Fe([[1, za], [d, { am: 1 }]]);
-    for (const d of Ke(5)) a.push([o + 900 * r * d * 0.94, `transform:translateY(${zt(p(-1 + d * 0.94 * (d * 0.94)))})`]);
+    const o = s * 1200, r = (Oe(i) - Oe(t)) / (Oe(e) - Oe(t)), n = o + 900 * r, p = (c) => Se([[1, za], [c, { am: 1 }]]);
+    for (const c of ve(5)) a.push([o + 900 * r * c * 0.94, `transform:translateY(${zt(p(-1 + c * 0.94 * (c * 0.94)))})`]);
     a.push([n - 20, `transform:translateY(${zt(p(-0.03))})`], [n, `transform:translateY(${zt(za)}) scale(1.08,.92)`], [n + 70, `transform:translateY(${zt(p(-0.3))})`]);
-    for (const d of Ke(5).slice(1)) {
-      const c = 0.14 + 0.86 * d;
-      a.push([n + (o + 900 - n) * c, `transform:translateY(${zt(p(-1.15 * (2 * c - c * c)))})`]);
+    for (const c of ve(5).slice(1)) {
+      const d = 0.14 + 0.86 * c;
+      a.push([n + (o + 900 - n) * d, `transform:translateY(${zt(p(-1.15 * (2 * d - d * d)))})`]);
     }
   }), a.sort((t, e) => t[0] - e[0]);
-}, K1 = W(xi, -44), U1 = W(Ai, -24), lp = (a) => [Fe([[1 - a, W(xe, 50)], [a, W({ cx: 1 }, -60)]]), Fe([[0.5 + 0.9 * a * a, ma], [1, Nt(-30 * Math.sin(Math.PI * a))]])], q1 = [
-  Qe("gd-soccer", Ke(24).map((a) => {
+}, K1 = W(xi, -44), U1 = W(Ai, -24), lp = (a) => [Se([[1 - a, W(xe, 50)], [a, W({ cx: 1 }, -60)]]), Se([[0.5 + 0.9 * a * a, fa], [1, Nt(-30 * Math.sin(Math.PI * a))]])], q1 = [
+  Le("gd-soccer", ve(24).map((a) => {
     const t = 1 - Math.pow(1 - a, 1.5);
     return [a, st(Cs(rp.map((e) => e[0]), t), Cs(rp.map((e) => e[1]), t), ` scale(${z(1.3 - 0.5 * t)})`)];
   })),
-  Qe("gd-punt", [[0, st({ cx: 1 }, W(ma, 140))], [1, st({ aw: 0.86 }, W(ma, 140))]]),
-  Qe("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", op], [0.5, `transform:translateY(${zt(Fe([[-1, ma], [1, Nt(-110)]]))}) scale(1.2)`, x1], [1, "transform:translateY(0) scale(.65)"]]),
-  Qe("gd-torpedo", Ke(20).map((a) => {
+  Le("gd-punt", [[0, st({ cx: 1 }, W(fa, 140))], [1, st({ aw: 0.86 }, W(fa, 140))]]),
+  Le("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", op], [0.5, `transform:translateY(${zt(Se([[-1, fa], [1, Nt(-110)]]))}) scale(1.2)`, x1], [1, "transform:translateY(0) scale(.65)"]]),
+  Le("gd-torpedo", ve(20).map((a) => {
     const [t, e] = Wo(a), [i, s] = Wo(Math.max(0, a - 0.01)), [o, r] = Wo(Math.min(1, a + 0.01));
-    return [a, st(t, e, ` rotate(${z(Math.atan2(De(r) - De(s), De(o) - De(i)) * 180 / Math.PI - 180, 1)}deg) scale(${z(1.15 - 0.45 * a)})`)];
+    return [a, st(t, e, ` rotate(${z(Math.atan2(Oe(r) - Oe(s), Oe(o) - Oe(i)) * 180 / Math.PI - 180, 1)}deg) scale(${z(1.15 - 0.45 * a)})`)];
   })),
   Qt("gd-rally", 3300, pc.flatMap(([a, t], e) => [[e * 1200, `transform:translateX(${zt(a)})`], [e * 1200 + 900, `transform:translateX(${zt(t)})`]])),
   Qt("gd-rally-y", 3300, v1()),
-  Qe("gd-skim", [[0, st(Nt(-20), { sy: 1 }), op], [1, st(W(xe, 20), { sy: 1 })]]),
-  Qe("gd-float", [[0, st({ aw: 0.93 }, Nt(-30), " scale(1)"), zo], [0.36, st({ gx: 1 }, W(ma, 40), " scale(.9)"), zo], [0.8, st({ gx: 1 }, W({ ab: 1 }, -6), " scale(1.08)"), zo], [1, st(W({ gx: 1 }, 108), Fe([[0.5, la], [0.5, { db: 1 }]]), " scale(.94)")]]),
+  Le("gd-skim", [[0, st(Nt(-20), { sy: 1 }), op], [1, st(W(xe, 20), { sy: 1 })]]),
+  Le("gd-float", [[0, st({ aw: 0.93 }, Nt(-30), " scale(1)"), zo], [0.36, st({ gx: 1 }, W(fa, 40), " scale(.9)"), zo], [0.8, st({ gx: 1 }, W({ ab: 1 }, -6), " scale(1.08)"), zo], [1, st(W({ gx: 1 }, 108), Se([[0.5, na], [0.5, { db: 1 }]]), " scale(.94)")]]),
   /* the corner flag knocked by the last shot of a rally */
   Qt("gd-knock", 2300, [
-    ...Ke(5).map((a) => [650 * a, st(Fe([[1, xi], [1, Nt(536 - 470 * a)]]), W(za, -9 + 9 * a * a))]),
-    ...Ke(6).slice(1).map((a) => [650 + 400 * a, st(W(xi, 66 - 102 * a), W(za, -50 * a + 77 * a * a))]),
-    ...Ke(5).slice(1).map((a) => [1050 + 450 * a, st(W(xi, -36 + 16 * a), W(za, 27 + 112 * a * a))]),
+    ...ve(5).map((a) => [650 * a, st(Se([[1, xi], [1, Nt(536 - 470 * a)]]), W(za, -9 + 9 * a * a))]),
+    ...ve(6).slice(1).map((a) => [650 + 400 * a, st(W(xi, 66 - 102 * a), W(za, -50 * a + 77 * a * a))]),
+    ...ve(5).slice(1).map((a) => [1050 + 450 * a, st(W(xi, -36 + 16 * a), W(za, 27 + 112 * a * a))]),
     [2300, st(W(xi, -20), W(za, 139))]
   ]),
   Qt("gd-knock-sq", 2300, [[0, "transform:scale(1,1)"], [620, "transform:scale(1,1)"], [650, "transform:scale(1.08,.92)"], [720, "transform:scale(1,1)"], [2300, "transform:scale(1,1)"]]),
-  Qt("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", k1], [1170, "transform:rotate(-16deg)", Ma], [1420, "transform:rotate(10deg)", Ma], [1660, "transform:rotate(-6deg)", Ma], [1900, "transform:rotate(3deg)", Ma], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
+  Qt("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", k1], [1170, "transform:rotate(-16deg)", Aa], [1420, "transform:rotate(10deg)", Aa], [1660, "transform:rotate(-6deg)", Aa], [1900, "transform:rotate(3deg)", Aa], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
   /* the gull with a chip, and the ball that chases it */
-  Qt("gd-gull", 2300, [...Ke(14).map((a) => {
+  Qt("gd-gull", 2300, [...ve(14).map((a) => {
     const [t, e] = lp(a);
     return [2050 * a, st(t, e)];
   }), [2300, st(W({ cx: 1 }, -60), { at: 1.4 })]]),
-  Qt("gd-chase", 2300, [[0, st(W(xe, 120), { at: 0.6 }, " scale(.6)")], ...Ke(18).map((a) => {
+  Qt("gd-chase", 2300, [[0, st(W(xe, 120), { at: 0.6 }, " scale(.6)")], ...ve(18).map((a) => {
     const [t, e] = lp(a);
     return [250 + 2050 * a, st(t, W(e, 8 - 16 * Math.abs(Math.sin(3 * Math.PI * a))), " scale(.6)")];
   })]),
   /* sprinkler, line marker, dog */
   Qt("gd-head", 2300, [[0, "transform:translateY(18px)", w1], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", y1], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
-  Qt("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", Ma], [1070, "transform:rotate(52deg)", Ma], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
+  Qt("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", Aa], [1070, "transform:rotate(52deg)", Aa], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
   Qt("gd-spray", 2300, [[0, "opacity:0"], [240, "opacity:0"], [340, "opacity:1"], [1900, "opacity:1"], [2050, "opacity:0"], [2300, "opacity:0"]]),
   Qt("gd-bow", 2300, [[0, "opacity:0"], [600, "opacity:0"], [1050, "opacity:.8"], [1650, "opacity:.8"], [2e3, "opacity:0"], [2300, "opacity:0"]]),
   Qt("gd-chalk", 2300, [[0, "transform:scaleX(0);opacity:1"], [190, "transform:scaleX(0);opacity:1"], [2e3, "transform:scaleX(.97);opacity:1"], [2300, "transform:scaleX(1);opacity:0"]]),
-  Qt("gd-cart", 2300, [[0, `${st(Nt(-44), W(la, 3))};opacity:1`], [2e3, `${st(W({ aw: 0.4 }, -20), W(la, 3))};opacity:1`], [2300, `${st(W({ aw: 0.4 }, 61), W(la, 3))};opacity:0`]]),
-  Qe("gd-dog", [[0, st(Nt(-60), W(la, 4))], [1, st(W(xe, 60), W(la, 4))]])
-].join(""), Ft = "#2b2f36", ya = "#f6f3e7", dc = "#d9e63a", Za = "#f47b20", A1 = "#f5c531", M1 = "#9aa5b1", gt = (a, t, e = 32, i = 32) => `${z(e + a * Math.cos(t * Math.PI / 180), 1)} ${z(i + a * Math.sin(t * Math.PI / 180), 1)}`, po = (a) => `<path d="M${gt(a, -35)}A${a} ${a} 0 0 1 ${gt(a, 145)}A${z(a * 1.35, 1)} ${z(a * 1.35, 1)} 0 0 0 ${gt(a, -35)}z" opacity=".13"/>`, cc = (() => {
+  Qt("gd-cart", 2300, [[0, `${st(Nt(-44), W(na, 3))};opacity:1`], [2e3, `${st(W({ aw: 0.4 }, -20), W(na, 3))};opacity:1`], [2300, `${st(W({ aw: 0.4 }, 61), W(na, 3))};opacity:0`]]),
+  Le("gd-dog", [[0, st(Nt(-60), W(na, 4))], [1, st(W(xe, 60), W(na, 4))]])
+].join(""), Ft = "#2b2f36", wa = "#f6f3e7", dc = "#d9e63a", Za = "#f47b20", A1 = "#f5c531", M1 = "#9aa5b1", gt = (a, t, e = 32, i = 32) => `${z(e + a * Math.cos(t * Math.PI / 180), 1)} ${z(i + a * Math.sin(t * Math.PI / 180), 1)}`, po = (a) => `<path d="M${gt(a, -35)}A${a} ${a} 0 0 1 ${gt(a, 145)}A${z(a * 1.35, 1)} ${z(a * 1.35, 1)} 0 0 0 ${gt(a, -35)}z" opacity=".13"/>`, cc = (() => {
   const a = [];
   let t = "", e = "";
   for (let i = 0; i < 5; i++) {
@@ -5338,7 +5352,7 @@ const lc = {
     a.push(gt(9.5, s)), t += `M${gt(9.5, s)}L${gt(15.5, s)}M${gt(19.5, s + 19)}L${gt(19.5, s + 53)}`, e += `M${gt(15.5, s)}L${gt(19.5, s - 19)}L${gt(24, s - 13)}A24 24 0 0 1 ${gt(24, s + 13)}L${gt(19.5, s + 19)}z`;
   }
   return `<circle cx="32" cy="32" r="24" fill="#fff"/><g class="gd-m"><path d="M${a.join("L")}z${e}" fill="${Ft}"/><path d="${t}" stroke="${Ft}" stroke-width="1.6" fill="none"/></g>${po(24)}<circle cx="32" cy="32" r="24" fill="none" stroke="${Ft}" stroke-width="1.6"/>`;
-})(), S1 = `<circle cx="32" cy="32" r="22" fill="${dc}"/><g class="gd-m"><path d="M${gt(22, 217)}Q27 32 ${gt(22, 143)}M${gt(22, -37)}Q37 32 ${gt(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${po(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, F1 = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${ya}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${Ft}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${Ft}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${Ft}" stroke-width="1.500"/>`, Co = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", _1 = `<defs><clipPath id="gd-fc"><path d="${Co}"/></clipPath></defs><path d="${Co}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${ya}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Co}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, R1 = (() => {
+})(), S1 = `<circle cx="32" cy="32" r="22" fill="${dc}"/><g class="gd-m"><path d="M${gt(22, 217)}Q27 32 ${gt(22, 143)}M${gt(22, -37)}Q37 32 ${gt(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${po(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, F1 = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${wa}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${Ft}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${Ft}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${Ft}" stroke-width="1.500"/>`, Co = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", _1 = `<defs><clipPath id="gd-fc"><path d="${Co}"/></clipPath></defs><path d="${Co}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${wa}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Co}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, R1 = (() => {
   let a = "";
   for (let t = -2; t <= 2; t++) for (let e = -3; e <= 3; e++) {
     const i = e * 6 + (t & 1 ? 3 : 0), s = t * 5.2;
@@ -5352,53 +5366,53 @@ const lc = {
     a += `<ellipse cx="${e.split(" ")[0]}" cy="${e.split(" ")[1]}" rx="3" ry="3.900" transform="rotate(${t * 60} ${e})"/><ellipse cx="${i.split(" ")[0]}" cy="${i.split(" ")[1]}" rx="1.500" ry="3.400" transform="rotate(${t * 60 + 30} ${i})"/>`;
   }
   return `<circle cx="32" cy="32" r="22" fill="#fff"/><g class="gd-m" fill="#56606c">${a}</g>${po(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="${Ft}" stroke-opacity=".6" stroke-width="1.500"/>`;
-})(), $1 = { soccer: [cc, 40], rugby: [F1, 43], footy: [_1, 43], tennis: [S1, 20], hockey: [R1, 0], floorball: [V1, 32] }, ze = (a, t = "") => {
+})(), $1 = { soccer: [cc, 40], rugby: [F1, 43], footy: [_1, 43], tennis: [S1, 20], hockey: [R1, 0], floorball: [V1, 32] }, Te = (a, t = "") => {
   const [e, i] = $1[a];
   return `<i class="gd-b gd-${a} ${t}"${i ? ` style="--s:${i}px"` : ""}><i class="gd-k"><i class="gd-spin"><svg viewBox="0 0 64 64">${e}</svg></i></i></i>`;
-}, Wr = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${zt(t)};top:${zt(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, re = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, N1 = `<path d="M0 0V-64" stroke="${A1}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${Za}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, T1 = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${Ft}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, z1 = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${Ft}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, W1 = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${z(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), C1 = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), j1 = `<path d="M22-12 40-24" stroke="${Ft}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${Za}" stroke="${Ft}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${ya}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${Ft}"/><path d="M20-9v8M16-5h8" stroke="${ya}" stroke-width="1"/></g>`, L1 = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${Ft}"/><circle cx="27" cy="-18.500" r="3.600" fill="${dc}" stroke="#7f8c18" stroke-width=".8"/>`, bt = (a, t) => [z(960 + 830 * a / t, 1), z(250 + 8300 / t, 1)], Q1 = (a) => {
+}, Wr = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${zt(t)};top:${zt(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, re = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, N1 = `<path d="M0 0V-64" stroke="${A1}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${Za}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, T1 = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${Ft}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, z1 = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${Ft}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, W1 = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${z(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), C1 = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), j1 = `<path d="M22-12 40-24" stroke="${Ft}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${Za}" stroke="${Ft}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${wa}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${Ft}"/><path d="M20-9v8M16-5h8" stroke="${wa}" stroke-width="1"/></g>`, L1 = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${Ft}"/><circle cx="27" cy="-18.500" r="3.600" fill="${dc}" stroke="#7f8c18" stroke-width=".8"/>`, bt = (a, t) => [z(960 + 830 * a / t, 1), z(250 + 8300 / t, 1)], Q1 = (a) => {
   const t = a ? { s0: "#131b33", s1: "#3b4673", hill: "#263a52", t1: "#1e3f3d", t2: "#173231", far: "#2a6d47", g1: "#2f7a4b", g2: "#2b7146", chalk: 0.46, wall: "#b9b3a6", roof: "#3a2b2a", court: "#2f6c84", steel: "#55607a", lamp: "#fff3c4", post: "#f6f3e7" } : { s0: "#cbe7f4", s1: "#e6f4f2", hill: "#a8d1b3", t1: "#63a56f", t2: "#4a8d5c", far: "#62b36c", g1: "#58ad63", g2: "#51a55c", chalk: 0.52, wall: "#f1e7d0", roof: "#8a5226", court: "#5fa6c4", steel: "#8b96a3", lamp: "#f6f3e7", post: "#ffffff" }, e = (_, $, C, T, yt) => {
-    const ft = Re(_);
-    let Jt = "";
-    for (let _t = -30; _t < 1960; _t += yt * (0.7 + ft() * 0.6)) {
-      const ot = Math.round(C + ft() * (T - C));
-      Jt += `M${Math.round(_t - ot)} ${Math.round($ - ot * 0.5 - ft() * 10)}a${ot} ${ot} 0 1 0 ${2 * ot} 0a${ot} ${ot} 0 1 0 ${-2 * ot} 0`;
+    const mt = _e(_);
+    let Pt = "";
+    for (let _t = -30; _t < 1960; _t += yt * (0.7 + mt() * 0.6)) {
+      const ot = Math.round(C + mt() * (T - C));
+      Pt += `M${Math.round(_t - ot)} ${Math.round($ - ot * 0.5 - mt() * 10)}a${ot} ${ot} 0 1 0 ${2 * ot} 0a${ot} ${ot} 0 1 0 ${-2 * ot} 0`;
     }
-    return Jt;
+    return Pt;
   }, i = (_, $, C, T) => `<path d="M${_} ${$}V${C}M${_ - 9 * T} ${$}L${_} ${$ - 60 * T}L${_ + 9 * T} ${$}" fill="none" stroke="${t.steel}" stroke-width="${z(4.5 * T, 1)}" stroke-linecap="round"/>${a ? `<circle cx="${_}" cy="${C}" r="${z(44 * T, 1)}" fill="url(#gd-glow)"/>` : ""}<rect x="${z(_ - 24 * T, 1)}" y="${z(C - 11 * T, 1)}" width="${z(48 * T, 1)}" height="${z(22 * T, 1)}" rx="${z(3 * T, 1)}" fill="${t.steel}"/><path d="M${z(_ - 16 * T, 1)} ${z(C - 4.5 * T, 1)}h${z(32 * T, 1)}M${z(_ - 16 * T, 1)} ${z(C + 4.5 * T, 1)}h${z(32 * T, 1)}" stroke="${t.lamp}" stroke-width="${z(6 * T, 1)}" stroke-linecap="round" stroke-dasharray=".01 ${z(10.66 * T)}"/>`, s = (_, $, C) => `<path transform="translate(${_} ${$}) scale(${C})" d="M0 0h120a16 16 0 0 0 0-32h-14a26 26 0 0 0-50-8a20 20 0 0 0-36 12h-20a14 14 0 0 0 0 28z"/>`;
   let o = "";
   if (a) {
-    const _ = Re(7);
+    const _ = _e(7);
     for (let $ = 0; $ < 26; $++) o += `M${z(_() * 1920, 1)} ${z(16 + _() * 190, 1)}h.01`;
   }
   const r = `<rect width="1920" height="380" fill="url(#gd-sky)"/>${a ? `<path d="${o}" stroke="#fff" stroke-opacity=".4" stroke-width="2.600" stroke-linecap="round"/>` : `<g fill="#fff" opacity=".75">${s(380, 214, 1.1)}${s(1500, 196, 0.9)}${s(930, 222, 0.6)}</g>`}`;
   let n = "";
   for (let _ = 6; _ <= 546; _ += 60) n += `M${_} 290V358`;
-  const p = `<path d="M0 262Q240 214 520 244T1020 236T1500 246T1920 226V320H0z" fill="${t.hill}"/><path d="${e(11, 292, 34, 54, 78)}" fill="${t.t1}"/><path d="${e(29, 306, 26, 40, 96)}" fill="${t.t2}"/><rect y="300" width="1920" height="80" fill="${t.far}"/><path d="M30 352L112 310H436L508 352z" fill="${t.court}"/><path d="M62 346L126 315H422L478 346zM94 330.500H450" fill="none" stroke="${ya}" stroke-opacity="${t.chalk}" stroke-width="2"/><path d="M84 331V320M460 331V320" stroke="${t.steel}" stroke-width="3"/><path d="M84 321H460" stroke="${t.post}" stroke-opacity=".85" stroke-width="2.500"/><path d="M84 322H460V330H84z" fill="${Ft}" opacity=".2"/><path d="M6 292H546V356H6z" fill="${t.steel}" opacity=".16"/><path d="${n}M6 292H546" fill="none" stroke="${t.steel}" stroke-width="2.500"/><path d="M1196 352V318M1324 352V318" stroke="${t.steel}" stroke-width="5"/><path d="M1180 258H1340V330H1180z" fill="${t.wall}"/><path d="M1180 258H1340V266H1180z" opacity=".14"/><path d="M1166 260L1260 228L1354 260z" fill="${t.roof}"/><rect x="1192" y="272" width="136" height="46" rx="3" fill="#23272e"/><path d="M1204 284H1320M1204 295H1320M1204 306H1320" stroke="${a ? "#ffd65a" : "#59626e"}" stroke-opacity="${a ? 0.9 : 1}" stroke-width="4.500" stroke-linecap="round" stroke-dasharray=".01 ${a ? 16 : 8}"/><path d="M560 358H1920" stroke="${t.post}" stroke-opacity="${a ? 0.55 : 0.8}" stroke-width="2.500"/><path d="M560 362H1920" stroke="${t.post}" stroke-opacity="${a ? 0.5 : 0.75}" stroke-width="8" stroke-dasharray="2.500 27.500"/>${i(600, 366, 214, 0.62)}${i(1452, 366, 214, 0.62)}`;
-  let d = "";
-  for (let _ = 10, $ = 0; _ < 70; _ += 5, $++) $ % 2 && (d += `M0 ${bt(0, _)[1]}H1920V${bt(0, _ + 5)[1]}H0z`);
+  const p = `<path d="M0 262Q240 214 520 244T1020 236T1500 246T1920 226V320H0z" fill="${t.hill}"/><path d="${e(11, 292, 34, 54, 78)}" fill="${t.t1}"/><path d="${e(29, 306, 26, 40, 96)}" fill="${t.t2}"/><rect y="300" width="1920" height="80" fill="${t.far}"/><path d="M30 352L112 310H436L508 352z" fill="${t.court}"/><path d="M62 346L126 315H422L478 346zM94 330.500H450" fill="none" stroke="${wa}" stroke-opacity="${t.chalk}" stroke-width="2"/><path d="M84 331V320M460 331V320" stroke="${t.steel}" stroke-width="3"/><path d="M84 321H460" stroke="${t.post}" stroke-opacity=".85" stroke-width="2.500"/><path d="M84 322H460V330H84z" fill="${Ft}" opacity=".2"/><path d="M6 292H546V356H6z" fill="${t.steel}" opacity=".16"/><path d="${n}M6 292H546" fill="none" stroke="${t.steel}" stroke-width="2.500"/><path d="M1196 352V318M1324 352V318" stroke="${t.steel}" stroke-width="5"/><path d="M1180 258H1340V330H1180z" fill="${t.wall}"/><path d="M1180 258H1340V266H1180z" opacity=".14"/><path d="M1166 260L1260 228L1354 260z" fill="${t.roof}"/><rect x="1192" y="272" width="136" height="46" rx="3" fill="#23272e"/><path d="M1204 284H1320M1204 295H1320M1204 306H1320" stroke="${a ? "#ffd65a" : "#59626e"}" stroke-opacity="${a ? 0.9 : 1}" stroke-width="4.500" stroke-linecap="round" stroke-dasharray=".01 ${a ? 16 : 8}"/><path d="M560 358H1920" stroke="${t.post}" stroke-opacity="${a ? 0.55 : 0.8}" stroke-width="2.500"/><path d="M560 362H1920" stroke="${t.post}" stroke-opacity="${a ? 0.5 : 0.75}" stroke-width="8" stroke-dasharray="2.500 27.500"/>${i(600, 366, 214, 0.62)}${i(1452, 366, 214, 0.62)}`;
   let c = "";
-  for (let _ = -90; _ <= 90; _ += 15) c += (_ === -90 ? "M" : "L") + bt(-34 + 9 * Math.cos(_ * Math.PI / 180), 43 + 9 * Math.sin(_ * Math.PI / 180));
+  for (let _ = 10, $ = 0; _ < 70; _ += 5, $++) $ % 2 && (c += `M0 ${bt(0, _)[1]}H1920V${bt(0, _ + 5)[1]}H0z`);
+  let d = "";
+  for (let _ = -90; _ <= 90; _ += 15) d += (_ === -90 ? "M" : "L") + bt(-34 + 9 * Math.cos(_ * Math.PI / 180), 43 + 9 * Math.sin(_ * Math.PI / 180));
   const h = bt(0, 70)[1];
   let f = "";
   for (const [_, $] of [[48, 5.6], [45, 9.5], [42, 9.5], [39, 5.6]]) {
     const [C, T] = bt(34, _), yt = 830 / _;
     f += `<path d="M${C} ${T}V${z(T - $ * yt, 1)}" stroke="${t.post}" stroke-width="${z(0.3 * yt, 1)}" stroke-linecap="round"/><path d="M${C} ${T}V${z(T - 1.5 * yt, 1)}" stroke="${Za}" stroke-width="${z(0.55 * yt, 1)}" stroke-linecap="round"/>`;
   }
-  const [m, u] = bt(-34, 41.5), [w, x] = bt(-34, 44.5), k = bt(-37.5, 41.5), v = bt(-37.5, 44.5), K = z(3.4 * 830 / 41.5, 1), y = z(3.4 * 830 / 44.5, 1), q = `<path d="M${m} ${z(u - K, 1)}L${k}L${v}L${w} ${z(x - y, 1)}V${x}L${m} ${u}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${u}V${z(u - K, 1)}L${w} ${z(x - y, 1)}V${x}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, N = `<rect y="${h - 4}" width="1920" height="${z(1084 - h, 1)}" fill="${t.g1}"/><path d="${d}" fill="${t.g2}"/><g fill="none" stroke="${ya}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${bt(-34, 29.4)}L${bt(-34, 70)}L${bt(34, 70)}L${bt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${bt(34, 42)}L${bt(27, 42)}L${bt(27, 45)}L${bt(34, 45)}"/><path d="${c}"/><path d="M0 942H1920" stroke-width="6"/></g>${q}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
+  const [m, u] = bt(-34, 41.5), [w, x] = bt(-34, 44.5), k = bt(-37.5, 41.5), v = bt(-37.5, 44.5), K = z(3.4 * 830 / 41.5, 1), y = z(3.4 * 830 / 44.5, 1), q = `<path d="M${m} ${z(u - K, 1)}L${k}L${v}L${w} ${z(x - y, 1)}V${x}L${m} ${u}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${u}V${z(u - K, 1)}L${w} ${z(x - y, 1)}V${x}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, N = `<rect y="${h - 4}" width="1920" height="${z(1084 - h, 1)}" fill="${t.g1}"/><path d="${c}" fill="${t.g2}"/><g fill="none" stroke="${wa}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${bt(-34, 29.4)}L${bt(-34, 70)}L${bt(34, 70)}L${bt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${bt(34, 42)}L${bt(27, 42)}L${bt(27, 45)}L${bt(34, 45)}"/><path d="${d}"/><path d="M0 942H1920" stroke-width="6"/></g>${q}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
   return `<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="gd-sky" x2="0" y2="1"><stop offset=".35" stop-color="${t.s0}"/><stop offset="1" stop-color="${t.s1}"/></linearGradient>${a ? '<radialGradient id="gd-glow"><stop stop-color="#fff3c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>' : ""}</defs>${r}${p}${N}</svg>`;
-}, G1 = {}, Y1 = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${Za}"/><path d="M12 31H52" stroke="${M1}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${cc}</g></svg>`, Z1 = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${Za}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${Za}"/><path d="M22 26H42L44.300 34H19.700z" fill="${ya}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, B1 = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${Z1}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, O1 = (a) => {
+}, G1 = {}, Y1 = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${Za}"/><path d="M12 31H52" stroke="${M1}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${cc}</g></svg>`, Z1 = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${Za}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${Za}"/><path d="M22 26H42L44.300 34H19.700z" fill="${wa}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, B1 = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${Z1}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, O1 = (a) => {
   const t = a.tod !== "day", e = t ? "eve" : "day", i = !!a.lay && !a.lay.phone && a.lay.corner >= 110;
   return l`<div class="gd-world ${t ? "gd-eve" : ""}"><div class="gd-art" .innerHTML=${G1[e] ??= Q1(t)}></div><div class="gd-wash"></div>${i ? l`<i class="gd-gear gd-bag" .innerHTML=${Y1}></i><i class="gd-gear gd-cones" .innerHTML=${B1}></i>` : g}</div>`;
-}, D1 = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], Sa = (a, t) => (e) => D1[e.weekday] === a ? 2 * t : t, Ei = (a) => !a.lay?.phone, jo = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, Lo = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, pp = re(Wr("gd-bow", W({ dr: 1 }, 46), W(Ai, -30), C1) + `<i class="gd-p gd-spray" style="left:${zt(W({ dr: 1 }, 46))};top:${zt(W(Ai, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${W1}</svg></i></i>` + Wr("gd-head", W({ dr: 1 }, 46), W(Ai, -6), z1)), I1 = [
-  { id: "soccer", ms: 5600, move: "gd-st", flip: !1, weight: Sa("soccer", 4), when: Ei, art: re(ze("soccer")) },
-  { id: "punt", ms: 5200, move: "gd-st", flip: !1, weight: Sa("punt", 4), when: Ei, art: re(ze("rugby")) },
-  { id: "torpedo", ms: 3600, move: "gd-st", flip: !1, weight: Sa("torpedo", 4), when: Ei, art: re(ze("footy")) },
-  { id: "rally", ms: 3300, move: "gd-st", flip: !1, front: !0, lane: !0, weight: Sa("rally", 4), when: jo, art: re(ze("tennis")) },
-  { id: "skim", ms: 2400, move: "gd-st", flip: !1, front: !0, lane: !0, weight: Sa("skim", 4), when: (a) => !!a.lay && !a.lay.phone && (a.lay.strip >= 10 || a.lay.gutter >= 10), art: re(ze("hockey")) },
-  { id: "floorball", ms: 9e3, move: "gd-st", flip: !1, weight: Sa("floorball", 3), art: re(ze("floorball")) },
+}, D1 = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], Ma = (a, t) => (e) => D1[e.weekday] === a ? 2 * t : t, Ei = (a) => !a.lay?.phone, jo = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, Lo = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, pp = re(Wr("gd-bow", W({ dr: 1 }, 46), W(Ai, -30), C1) + `<i class="gd-p gd-spray" style="left:${zt(W({ dr: 1 }, 46))};top:${zt(W(Ai, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${W1}</svg></i></i>` + Wr("gd-head", W({ dr: 1 }, 46), W(Ai, -6), z1)), I1 = [
+  { id: "soccer", ms: 5600, move: "gd-st", flip: !1, weight: Ma("soccer", 4), when: Ei, art: re(Te("soccer")) },
+  { id: "punt", ms: 5200, move: "gd-st", flip: !1, weight: Ma("punt", 4), when: Ei, art: re(Te("rugby")) },
+  { id: "torpedo", ms: 3600, move: "gd-st", flip: !1, weight: Ma("torpedo", 4), when: Ei, art: re(Te("footy")) },
+  { id: "rally", ms: 3300, move: "gd-st", flip: !1, front: !0, lane: !0, weight: Ma("rally", 4), when: jo, art: re(Te("tennis")) },
+  { id: "skim", ms: 2400, move: "gd-st", flip: !1, front: !0, lane: !0, weight: Ma("skim", 4), when: (a) => !!a.lay && !a.lay.phone && (a.lay.strip >= 10 || a.lay.gutter >= 10), art: re(Te("hockey")) },
+  { id: "floorball", ms: 9e3, move: "gd-st", flip: !1, weight: Ma("floorball", 3), art: re(Te("floorball")) },
   /* the surprises: each rare on its own, and together at most one in ten minutes, six a day, none after 6.30 pm (see `rare` below) */
-  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: Lo, art: re(Wr("gd-flag", K1, U1, N1) + ze("tennis", "gd-knock")) },
-  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => Ei(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: re(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${T1}</svg></i>` + ze("soccer", "gd-chase")) },
+  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: Lo, art: re(Wr("gd-flag", K1, U1, N1) + Te("tennis", "gd-knock")) },
+  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => Ei(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: re(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${T1}</svg></i>` + Te("soccer", "gd-chase")) },
   { id: "sprinkler", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Lo(a) && !a.rainy && a.mins >= 360 && a.mins < 450, art: pp },
   { id: "sprinkler-pm", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Lo(a) && !a.rainy && a.mins >= 1050, art: pp },
   { id: "marker", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => jo(a) && (a.weekday === 6 || a.weekday === 1) && a.mins < 540, art: re(`<i class="gd-line"></i><i class="gd-b gd-cart"><svg viewBox="0 0 1 1" width="1" height="1">${j1}</svg></i>`) },
@@ -5496,7 +5510,7 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
   } catch {
     return "";
   }
-}, Qo = /* @__PURE__ */ new Set(), ia = { last: "", log: /* @__PURE__ */ new Map(), rare: [] }, Go = (a, t) => new Date(a).toDateString() === new Date(t).toDateString(), ts = (a, t) => typeof a.weight == "function" ? a.weight(t) : a.weight ?? 1, Os = class Os extends ht {
+}, Qo = /* @__PURE__ */ new Set(), aa = { last: "", log: /* @__PURE__ */ new Map(), rare: [] }, Go = (a, t) => new Date(a).toDateString() === new Date(t).toDateString(), ts = (a, t) => typeof a.weight == "function" ? a.weight(t) : a.weight ?? 1, Os = class Os extends ft {
   constructor() {
     super(...arguments), this.look = "glass", this.theme = "sea", this.tod = "day", this.calm = !1, this.hold = !1, this.demo = "", this.front = !1, this._guest = null, this._t = 0, this._n = 0, this._vis = () => {
       this._scene?.solo && (document.hidden ? (clearTimeout(this._t), this._guest = null) : this._plan());
@@ -5516,14 +5530,14 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
   get _cast() {
     const t = this._ctx, e = this._scene;
     if (!e?.solo) return (e?.cast ?? []).filter((o) => !!o.front === this.front && (!o.when || o.when(t)));
-    const i = e.cast.filter((o) => this._due(o, e, t) && (!o.when || o.when(t))), s = i.filter((o) => o.id !== ia.last);
+    const i = e.cast.filter((o) => this._due(o, e, t) && (!o.when || o.when(t))), s = i.filter((o) => o.id !== aa.last);
     return s.length ? s : i;
   }
   _due(t, e, i) {
     if (!t.max) return !0;
-    const s = Date.now(), o = e.rare, r = ia.log.get(t.id);
+    const s = Date.now(), o = e.rare, r = aa.log.get(t.id);
     if (o) {
-      const n = ia.rare.filter((p) => Go(p, s));
+      const n = aa.rare.filter((p) => Go(p, s));
       if (o.until != null && i.mins >= o.until || n.length >= o.day || n.some((p) => s - p < o.every)) return !1;
     }
     return r == null || (t.max === "hour" ? s - r >= 36e5 : !Go(r, s));
@@ -5536,10 +5550,10 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
   _measure() {
     const t = this.parentElement, e = this.offsetWidth, i = this.offsetHeight;
     if (!t || !e || !i) return;
-    const s = t.querySelector(":scope > .body"), o = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (u, w) => parseFloat(r.getPropertyValue(u)) || w, p = s ? s.offsetTop : n("--top", 110), d = s ? s.offsetTop + s.offsetHeight : i - n("--bot", 122);
-    if (!o || getComputedStyle(o).position === "fixed") return { w: e, h: i, top: p, bottom: d, dl: 0, dr: e, dt: i, db: i, gutter: 0, strip: 0, corner: 0, phone: !0 };
-    const c = o.offsetLeft, h = c + o.offsetWidth, f = o.offsetTop, m = f + o.offsetHeight;
-    return { w: e, h: i, top: p, bottom: d, dl: c, dr: h, dt: f, db: m, gutter: Math.max(0, f - d), strip: Math.max(0, i - m), corner: Math.max(0, Math.min(c, e - h)), phone: !1 };
+    const s = t.querySelector(":scope > .body"), o = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (u, w) => parseFloat(r.getPropertyValue(u)) || w, p = s ? s.offsetTop : n("--top", 110), c = s ? s.offsetTop + s.offsetHeight : i - n("--bot", 122);
+    if (!o || getComputedStyle(o).position === "fixed") return { w: e, h: i, top: p, bottom: c, dl: 0, dr: e, dt: i, db: i, gutter: 0, strip: 0, corner: 0, phone: !0 };
+    const d = o.offsetLeft, h = d + o.offsetWidth, f = o.offsetTop, m = f + o.offsetHeight;
+    return { w: e, h: i, top: p, bottom: c, dl: d, dr: h, dt: f, db: m, gutter: Math.max(0, f - c), strip: Math.max(0, i - m), corner: Math.max(0, Math.min(d, e - h)), phone: !1 };
   }
   _remeasure() {
     if (!this._scene?.solo) return;
@@ -5571,9 +5585,9 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
         return;
       }
       if (!this._still && !document.hidden && !this._guest) {
-        const s = this._ctx, o = this._cast, r = o.reduce((d, c) => d + ts(c, s), 0);
+        const s = this._ctx, o = this._cast, r = o.reduce((c, d) => c + ts(d, s), 0);
         let n = Math.random() * r;
-        const p = o.find((d) => (n -= ts(d, s)) < 0);
+        const p = o.find((c) => (n -= ts(c, s)) < 0);
         p && this._show(p);
       }
       this._plan();
@@ -5588,7 +5602,7 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
     if (!o || !r) return !1;
     if (o.max) {
       const n = Date.now();
-      ia.log.set(o.id, n), ia.rare = [...ia.rare.filter((p) => Go(p, n)), n];
+      aa.log.set(o.id, n), aa.rare = [...aa.rare.filter((p) => Go(p, n)), n];
     }
     return r._show(o);
   }
@@ -5598,7 +5612,7 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
     if (i) {
       if (this.hold || document.hidden && !e) return !1;
       for (const n of this._peers) n._guest = null;
-      ia.last = t.id, this._lay = this._measure() ?? this._lay;
+      aa.last = t.id, this._lay = this._measure() ?? this._lay;
     }
     const s = ++this._n, [o, r] = t.y ?? [1, 10];
     return this._guest = { v: t, id: s, y: o + Math.random() * (r - o), x: 6 + Math.random() * 80, flip: t.flip !== !1 && Math.random() < 0.5 }, window.setTimeout(() => {
@@ -5620,7 +5634,7 @@ const J1 = { sea: Vr, sunset: Vr, reef: lc, bush: rc, space: zr, orbit: zr, frid
   render() {
     const t = this._scene, e = this._still;
     if (!t || e && !t.still) return g;
-    const i = e ? null : this._guest, s = t.solo ? this._lay : void 0, o = s ? `;--aw:${s.w}px;--ah:${s.h}px;--at:${s.top}px;--ab:${s.bottom}px;--dl:${s.dl}px;--dr:${s.dr}px;--dt:${s.dt}px;--db:${s.db}px;--sy:${(s.strip >= 10 ? (s.db + s.h) / 2 : s.dt - 4).toFixed(1)}px;--gk:${Math.max(0.5, Math.min(1, (s.gutter + 12) / 28)).toFixed(2)}` : "", r = i ? l`<span class="guest ${i.v.move}" data-kind=${i.v.id} ?data-flip=${i.flip} ?data-out=${!!i.out} style="--y:${i.y.toFixed(1)}%;--x:${i.x.toFixed(1)}%;--t:${i.v.ms}ms${o}">${i.v.art}</span>` : g, n = i && t.solo ? Je(i.id, r) : r;
+    const i = e ? null : this._guest, s = t.solo ? this._lay : void 0, o = s ? `;--aw:${s.w}px;--ah:${s.h}px;--at:${s.top}px;--ab:${s.bottom}px;--dl:${s.dl}px;--dr:${s.dr}px;--dt:${s.dt}px;--db:${s.db}px;--sy:${(s.strip >= 10 ? (s.db + s.h) / 2 : s.dt - 4).toFixed(1)}px;--gk:${Math.max(0.5, Math.min(1, (s.gutter + 12) / 28)).toFixed(2)}` : "", r = i ? l`<span class="guest ${i.v.move}" data-kind=${i.v.id} ?data-flip=${i.flip} ?data-out=${!!i.out} style="--y:${i.y.toFixed(1)}%;--x:${i.x.toFixed(1)}%;--t:${i.v.ms}ms${o}">${i.v.art}</span>` : g, n = i && t.solo ? Ie(i.id, r) : r;
     return l`${this.front ? g : t.always(this._ctx)}${i ? i.v.lane ? l`<div class="lane">${n}</div>` : l`<div class="cast"><div class="keep">${n}</div></div>` : g}`;
   }
 };
@@ -5685,23 +5699,23 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   for (const t of js)
     t.isConnected ? a += t.querySelectorAll("[data-p]").length : js.delete(t);
   return a;
-}, Y = (a, t, e = "", i = a.w, s = !0) => {
+}, Z = (a, t, e = "", i = a.w, s = !0) => {
   const o = document.createElement("div");
   return o.className = s ? "spk-p" : "spk-q", s && o.setAttribute("data-p", ""), o.style.cssText = t, e && (o.innerHTML = e), i.appendChild(o), o;
-}, at = (a, t, e, i, s, o) => Y(a, `left:${t - i / 2}px;top:${e - i / 2}px;width:${i}px;height:${i}px;border-radius:50%;box-sizing:border-box;${s}`, "", o), Ls = (a, t, e, i = "") => `<svg viewBox="0 0 ${a} ${t}" width="${a}" height="${t}" style="${i}">${e}</svg>`, G = (a, t, e, i, s, o, r = "", n, p = !0) => Y(a, `left:${t}px;top:${e}px;width:${i}px;height:${s}px;${r}`, Ls(i, s, o), n, p), Yo = (a, t, e, i, s) => {
+}, at = (a, t, e, i, s, o) => Z(a, `left:${t - i / 2}px;top:${e - i / 2}px;width:${i}px;height:${i}px;border-radius:50%;box-sizing:border-box;${s}`, "", o), Ls = (a, t, e, i = "") => `<svg viewBox="0 0 ${a} ${t}" width="${a}" height="${t}" style="${i}">${e}</svg>`, G = (a, t, e, i, s, o, r = "", n, p = !0) => Z(a, `left:${t}px;top:${e}px;width:${i}px;height:${s}px;${r}`, Ls(i, s, o), n, p), Yo = (a, t, e, i, s) => {
   const o = document.createElement("div");
   return o.className = "spk-clip", o.style.cssText = `left:${t}px;top:${e}px;width:${i}px;height:${s}px`, a.w.appendChild(o), o;
 }, A = (a, t, e, i, s = 0, o = "linear", r) => {
   e.length > 2 && o !== "linear" && !r && (e[0].easing || (e[0].easing = o), o = "linear"), a.plans.push([t, e, { duration: i, delay: s, easing: o, fill: "both", ...r }]);
 }, ki = (a, t, e, i = 0) => {
   a.target && !a.calm && a.own.push([a.target, t.map((s) => ({ transform: `rotate(${s}deg)` })), { duration: e, delay: i, easing: "ease-in-out", composite: "add" }]);
-}, ga = (a) => {
+}, ma = (a) => {
   a.w.style.overflow = "hidden", a.w.style.borderRadius = a.rad;
 }, Lr = (a, t, e, i = 700) => {
-  A(a, Y(a, `width:${a.W}px;height:${a.H}px;border-radius:${a.rad};box-sizing:border-box;${t}`), O(e), i);
+  A(a, Z(a, `width:${a.W}px;height:${a.H}px;border-radius:${a.rad};box-sizing:border-box;${t}`), O(e), i);
 }, es = (a, t, e, i, s = 0, o = 0, r = 6) => Array.from({ length: r + 1 }, (n, p) => {
-  const d = p / r * i;
-  return { transform: `translate(${(a * d).toFixed(1)}px,${(t * d + e * d * d / 2).toFixed(1)}px) rotate(${Math.round(s * p / r)}deg) scale(${p ? 1 : 0.4},${(p ? Math.cos(p * o) : 0.4).toFixed(2)})`, opacity: p === 0 || p === r ? 0 : 1 };
+  const c = p / r * i;
+  return { transform: `translate(${(a * c).toFixed(1)}px,${(t * c + e * c * c / 2).toFixed(1)}px) rotate(${Math.round(s * p / r)}deg) scale(${p ? 1 : 0.4},${(p ? Math.cos(p * o) : 0.4).toFixed(2)})`, opacity: p === 0 || p === r ? 0 : 1 };
 }), cp = (a, t, e, i) => {
   const s = a.pal[i % a.pal.length], o = B(8, 12), r = a.look === "orbit";
   return G(a, t, e, 10, 8, `<path d="M0 2Q5-.5 10 2V5Q5 2.500 0 5z" fill="${r ? "none" : s}" stroke="${r ? s : "none"}"/><path d="M0 5Q5 2.500 10 5L8.500 7.500Q5 5.800 1.500 7.500z" fill="${r ? "none" : `color-mix(in srgb,${s} 68%,#000)`}" stroke="${r ? s : "none"}" stroke-width=".8"/>`, `scale:${(o / 10).toFixed(2)}`);
@@ -5713,46 +5727,46 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
       return;
     }
     if (a.look === "glass") for (let i = 0; i < 6; i++) {
-      const s = (i * 60 + B(-14, 14) - 90) * Math.PI / 180, o = B(6, 10), r = B(14, 24), n = Math.cos(s) * 7, p = at(a, t + Math.cos(s) * 12, e + Math.sin(s) * 9, o, "border:1.5px solid #fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--pr) 45%,transparent);background:radial-gradient(circle at 32% 30%,#fff 0 18%,rgba(255,255,255,.35) 24%,color-mix(in srgb,var(--pr) 40%,transparent))"), d = (i % 2 ? 1 : -1) * B(1.5, 3);
-      A(a, p, V([["translate(0,0) scale(.2)", 0, 0, rt], [`translate(${n * 0.3 + d}px,${-r * 0.3}px) scale(1)`, 1, 0.25, "ease-in-out"], [`translate(${n * 0.65 - d}px,${-r * 0.68}px) scale(.96)`, 1, 0.55, "ease-in-out"], [`translate(${n + d * 0.5}px,${-r}px) scale(1)`, 1, 0.8], [`translate(${n}px,${-r - 1}px) scale(1.28)`, 1, 0.9], [`translate(${n}px,${-r - 1}px) scale(1.9)`, 0]]), B(560, 680), i * 34 + B(0, 20));
+      const s = (i * 60 + B(-14, 14) - 90) * Math.PI / 180, o = B(6, 10), r = B(14, 24), n = Math.cos(s) * 7, p = at(a, t + Math.cos(s) * 12, e + Math.sin(s) * 9, o, "border:1.5px solid #fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--pr) 45%,transparent);background:radial-gradient(circle at 32% 30%,#fff 0 18%,rgba(255,255,255,.35) 24%,color-mix(in srgb,var(--pr) 40%,transparent))"), c = (i % 2 ? 1 : -1) * B(1.5, 3);
+      A(a, p, V([["translate(0,0) scale(.2)", 0, 0, rt], [`translate(${n * 0.3 + c}px,${-r * 0.3}px) scale(1)`, 1, 0.25, "ease-in-out"], [`translate(${n * 0.65 - c}px,${-r * 0.68}px) scale(.96)`, 1, 0.55, "ease-in-out"], [`translate(${n + c * 0.5}px,${-r}px) scale(1)`, 1, 0.8], [`translate(${n}px,${-r - 1}px) scale(1.28)`, 1, 0.9], [`translate(${n}px,${-r - 1}px) scale(1.9)`, 0]]), B(560, 680), i * 34 + B(0, 20));
     }
     else if (a.look === "fridge")
       [-78, -45, -12].forEach((i, s) => {
-        const o = i * Math.PI / 180, r = Y(a, `left:${t + Math.cos(o) * 13}px;top:${e + Math.sin(o) * 13 - 1.5}px;width:${s === 1 ? 12 : 9}px;height:3px;border-radius:2px;background:var(--ok);transform-origin:0 50%`);
+        const o = i * Math.PI / 180, r = Z(a, `left:${t + Math.cos(o) * 13}px;top:${e + Math.sin(o) * 13 - 1.5}px;width:${s === 1 ? 12 : 9}px;height:3px;border-radius:2px;background:var(--ok);transform-origin:0 50%`);
         A(a, r, V([[`rotate(${i}deg) scaleX(0)`, 1], [`rotate(${i}deg) scaleX(1)`, 1, 0.3], [`rotate(${i}deg) scaleX(1)`, 1, 0.8], [`rotate(${i}deg) scaleX(1)`, 0]]), 600 - s * 60, s * 60, "ease-out");
       }), A(a, G(a, t - 22, e - 21, 20, 20, hp(a), "transform-origin:50% 50%"), V([["rotate(-50deg) scale(0)", 0], ["rotate(-12deg) scale(.78)", 1, 0.4, be], ["rotate(-12deg) scale(.7)", 1, 0.8], ["rotate(-12deg) scale(.7)", 0]]), 520, 120);
     else {
       A(a, at(a, t, e, 44, "border:1.5px solid var(--ok)"), V([["scale(.25)", 1], ["scale(.8)", 0.8, 0.6], ["scale(1)", 0]]), 600, 0, "ease-out");
       for (let i = 0; i < 5; i++) {
-        const s = i * 72 - 90 + B(-10, 10), o = Y(a, `left:${t}px;top:${e - 0.75}px;width:8px;height:1.5px;border-radius:1px;background:var(--ac);transform-origin:0 50%`);
+        const s = i * 72 - 90 + B(-10, 10), o = Z(a, `left:${t}px;top:${e - 0.75}px;width:8px;height:1.5px;border-radius:1px;background:var(--ac);transform-origin:0 50%`);
         A(a, o, V([[`rotate(${s}deg) translateX(9px) scaleX(.3)`, 0], [`rotate(${s}deg) translateX(17px) scaleX(1)`, 1, 0.3], [`rotate(${s}deg) translateX(25px) scaleX(1)`, 1, 0.7], [`rotate(${s}deg) translateX(29px) scaleX(.2)`, 0]]), 560, 40, "ease-out");
       }
     }
   },
   points(a) {
-    const t = a.look, e = t === "glass" ? `font:800 15px/1 ${a.font};padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.94);color:var(--ok);box-shadow:0 2px 6px rgba(0,0,0,.16)` : t === "fridge" ? "font:700 28px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)" : "font:600 14px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)", i = Y(a, `left:${a.W / 2}px;top:-3px`), s = document.createElement("span");
+    const t = a.look, e = t === "glass" ? `font:800 15px/1 ${a.font};padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.94);color:var(--ok);box-shadow:0 2px 6px rgba(0,0,0,.16)` : t === "fridge" ? "font:700 28px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)" : "font:600 14px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)", i = Z(a, `left:${a.W / 2}px;top:-3px`), s = document.createElement("span");
     s.style.cssText = `position:absolute;left:0;bottom:0;translate:-50% 0;white-space:nowrap;${e}`, s.textContent = (a.o.text ?? "+10").slice(0, 24), i.appendChild(s), a.calm ? A(a, i, O(), 900) : A(a, i, V([["translateY(8px) scale(.7)", 0], ["translateY(0) scale(1.08)", 1, 0.2], ["translateY(-3px) scale(1)", 1, 0.32], ["translateY(-16px) scale(1)", 1, 0.75], ["translateY(-24px) scale(1)", 0]]), 900, 0, "ease-out");
   },
   done(a) {
-    ga(a);
+    ma(a);
     const { W: t, H: e, look: i } = a, s = !!a.o.soft;
     if (i === "fridge") {
       const o = s ? 3 : 5, r = s ? 24 : Ot(e * 0.36, 26, 36);
       for (let n = 0; n < o; n++) {
-        const p = B(-20, 20), d = G(a, t * (n + 1) / (o + 1) - r / 2 + B(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, hp(a)), c = (h, f) => `rotate(${p + h}deg) scale(${f})`;
-        d.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? A(a, d, V([[c(0, "1"), 0], [c(0, "1"), 1, 0.25], [c(0, "1"), 1, 0.7], [c(0, "1"), 0]]), 800) : A(a, d, V([[c(14, "2.3"), 0], [c(10, "2.1"), 1, 0.07, xt], [c(0, ".86,.9"), 1, 0.17, "ease-out"], [c(-2, "1.06"), 1, 0.25, "ease-in-out"], [c(0, "1"), 1, 0.33], [c(0, "1"), 1, 0.82], [c(0, "1"), 0]]), 1e3 - n * 105, n * 105 + B(0, 20));
+        const p = B(-20, 20), c = G(a, t * (n + 1) / (o + 1) - r / 2 + B(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, hp(a)), d = (h, f) => `rotate(${p + h}deg) scale(${f})`;
+        c.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? A(a, c, V([[d(0, "1"), 0], [d(0, "1"), 1, 0.25], [d(0, "1"), 1, 0.7], [d(0, "1"), 0]]), 800) : A(a, c, V([[d(14, "2.3"), 0], [d(10, "2.1"), 1, 0.07, xt], [d(0, ".86,.9"), 1, 0.17, "ease-out"], [d(-2, "1.06"), 1, 0.25, "ease-in-out"], [d(0, "1"), 1, 0.33], [d(0, "1"), 1, 0.82], [d(0, "1"), 0]]), 1e3 - n * 105, n * 105 + B(0, 20));
       }
     } else if (i === "orbit") {
-      const o = e - 8, r = Y(a, `left:${t * 0.06}px;top:${o - 0.75}px;width:${t * 0.88}px;height:1.5px;background:var(--ok);transform-origin:0 50%`);
+      const o = e - 8, r = Z(a, `left:${t * 0.06}px;top:${o - 0.75}px;width:${t * 0.88}px;height:1.5px;background:var(--ok);transform-origin:0 50%`);
       if (a.calm) {
         A(a, r, O(), 700);
         return;
       }
       A(a, r, V([["scaleX(0)", 1], ["scaleX(1)", 1, 0.5], ["scaleX(1)", 1, 0.72], ["scaleX(1)", 0]]), 900, 0, "ease-in-out", {});
       const n = s ? 7 : 17, p = ["var(--ac)", "var(--ok)", "var(--pr)"];
-      for (let d = 0; d < n; d++) {
-        const c = (d + 0.5) / n, h = B(3.5, 6);
-        A(a, at(a, t * (0.06 + 0.88 * c), o, h, `background:${p[d % 3]}`), es(B(-22, 30), -B(60, 130), 420, 0.46), 460, 30 + 420 * (0.5 - Math.cos(Math.PI * c) / 2));
+      for (let c = 0; c < n; c++) {
+        const d = (c + 0.5) / n, h = B(3.5, 6);
+        A(a, at(a, t * (0.06 + 0.88 * d), o, h, `background:${p[c % 3]}`), es(B(-22, 30), -B(60, 130), 420, 0.46), 460, 30 + 420 * (0.5 - Math.cos(Math.PI * d) / 2));
       }
     } else {
       if (a.calm) {
@@ -5771,7 +5785,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
         A(a, s, O(), 600);
         return;
       }
-      A(a, s, V([["translateY(-18px)", 0], ["translateY(-14px)", 1, 0.12, xt], ["translateY(0)", 1, 0.36, "ease-out"], ["translateY(-5px)", 1, 0.52, "ease-in"], ["translateY(0)", 1, 0.66], ["translateY(0)", 1, 0.85], ["translateY(0)", 0]]), 720), [-1, 1].forEach((o) => A(a, Y(a, `left:${t + o * 11 - 3.5}px;top:1px;width:7px;height:2.5px;border-radius:2px;background:var(--ink)`), V([[`rotate(${o * 25}deg) scaleX(.2)`, 0], [`rotate(${o * 25}deg) translateX(${o * 3}px) scaleX(1)`, 1, 0.4], [`rotate(${o * 25}deg) translateX(${o * 6}px) scaleX(.4)`, 0]]), 300, 250)), ki(a, [0, 1.6, -1.1, 0.5, 0], 440, 260);
+      A(a, s, V([["translateY(-18px)", 0], ["translateY(-14px)", 1, 0.12, xt], ["translateY(0)", 1, 0.36, "ease-out"], ["translateY(-5px)", 1, 0.52, "ease-in"], ["translateY(0)", 1, 0.66], ["translateY(0)", 1, 0.85], ["translateY(0)", 0]]), 720), [-1, 1].forEach((o) => A(a, Z(a, `left:${t + o * 11 - 3.5}px;top:1px;width:7px;height:2.5px;border-radius:2px;background:var(--ink)`), V([[`rotate(${o * 25}deg) scaleX(.2)`, 0], [`rotate(${o * 25}deg) translateX(${o * 3}px) scaleX(1)`, 1, 0.4], [`rotate(${o * 25}deg) translateX(${o * 6}px) scaleX(.4)`, 0]]), 300, 250)), ki(a, [0, 1.6, -1.1, 0.5, 0], 440, 260);
     } else {
       const s = Ot(Math.min(a.W, a.H) * 1.2, 38, 66), o = i === "orbit", r = o ? "border:1.5px solid var(--ac)" : "border:2px solid #fff;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent)";
       if (a.calm) {
@@ -5782,7 +5796,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     }
   },
   marble(a) {
-    const t = a.kid, e = a.W / 2 - 7, i = Math.min(a.H * 0.3, 16) - 7, s = Y(a, `left:${e}px;top:${i}px;width:14px;height:14px;--c:${t}`), o = G(a, 0, 0, 14, 14, sf, "transform-origin:50% 50%", s, !1);
+    const t = a.kid, e = a.W / 2 - 7, i = Math.min(a.H * 0.3, 16) - 7, s = Z(a, `left:${e}px;top:${i}px;width:14px;height:14px;--c:${t}`), o = G(a, 0, 0, 14, 14, sf, "transform-origin:50% 50%", s, !1);
     if (G(a, 0, 0, 14, 14, of, "", s, !1), a.calm) {
       A(a, s, O(), 520);
       return;
@@ -5792,10 +5806,10 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   ring(a) {
     const { W: t, H: e, look: i } = a, s = t / 2, o = e / 2, r = `width:${t}px;height:${e}px;border-radius:${a.rad};box-sizing:border-box;`;
     if (a.calm) {
-      A(a, Y(a, r + `border:2px solid ${i === "glass" ? "rgba(255,255,255,.95)" : "var(--ac)"}`), O(), 700);
+      A(a, Z(a, r + `border:2px solid ${i === "glass" ? "rgba(255,255,255,.95)" : "var(--ac)"}`), O(), 700);
       return;
     }
-    if (i === "glass") [0, 170, 340].forEach((n) => A(a, Y(a, r + "border:2px solid rgba(255,255,255,.95)"), V([["scale(1)", 0], [`scale(${1 + 6 / Math.max(t, 30)},${1 + 6 / Math.max(e, 20)})`, 0.95, 0.2], [`scale(${1 + 28 / Math.max(t, 30)},${1 + 28 / Math.max(e, 20)})`, 0]]), 560, n, "ease-out"));
+    if (i === "glass") [0, 170, 340].forEach((n) => A(a, Z(a, r + "border:2px solid rgba(255,255,255,.95)"), V([["scale(1)", 0], [`scale(${1 + 6 / Math.max(t, 30)},${1 + 6 / Math.max(e, 20)})`, 0.95, 0.2], [`scale(${1 + 28 / Math.max(t, 30)},${1 + 28 / Math.max(e, 20)})`, 0]]), 560, n, "ease-out"));
     else if (i === "fridge")
       ki(a, [0, -8, 8, -8, 8, -7, 6, 0], 860), [-1, 1].forEach((n) => A(a, G(a, n < 0 ? -13 : t + 4, o - 7, 9, 14, mp, n > 0 ? "scale:-1 1" : ""), V([["translateX(0)", 0], [`translateX(${n * 3}px)`, 1, 0.2], [`translateX(${n * 3}px)`, 1, 0.75], [`translateX(${n * 6}px)`, 0]]), 860));
     else {
@@ -5810,26 +5824,26 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
       return;
     }
     if (i === "glass") {
-      ga(a);
+      ma(a);
       const s = Math.max(40, t * 0.4);
-      A(a, Y(a, `top:-20%;width:${s}px;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5) 40%,rgba(255,255,255,.8) 50%,rgba(255,255,255,.5) 60%,transparent)`), V([[`translateX(${-s}px)`, 0], [`translateX(${-s * 0.6}px)`, 1, 0.12], [`translateX(${t - s * 0.4}px)`, 1, 0.88], [`translateX(${t}px)`, 0]]), 900, 0, "ease-in-out");
+      A(a, Z(a, `top:-20%;width:${s}px;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5) 40%,rgba(255,255,255,.8) 50%,rgba(255,255,255,.5) 60%,transparent)`), V([[`translateX(${-s}px)`, 0], [`translateX(${-s * 0.6}px)`, 1, 0.12], [`translateX(${t - s * 0.4}px)`, 1, 0.88], [`translateX(${t}px)`, 0]]), 900, 0, "ease-in-out");
     } else if (i === "fridge")
       ki(a, [0, -5, 5, -4, 4, 0], 600), [-1, 1].forEach((s) => A(a, G(a, s < 0 ? -12 : t + 3, -4, 9, 14, mp, s > 0 ? "scale:-1 1" : ""), V([["translateY(2px)", 0], ["translateY(0)", 1, 0.25], ["translateY(0)", 1, 0.7], ["translateY(-2px)", 0]]), 600));
     else {
-      const o = t + 8, r = e + 8, n = 2 * (o + r), p = o / n, d = (o + r) / n, c = (2 * o + r) / n, h = 0.74, f = (m, u, w, x) => A(a, Y(a, m + ";background:var(--ac)"), V([[`scale${u}(0)`, 1], [`scale${u}(0)`, 1, w * h], [`scale${u}(1)`, 1, x * h], [`scale${u}(1)`, 1, 0.84], [`scale${u}(1)`, 0]]), 900);
-      f(`left:-4px;top:-4px;width:${o}px;height:1.5px;transform-origin:0 50%`, "X", 0, p), f(`left:${t + 4 - 1.5}px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 0`, "Y", p, d), f(`left:-4px;top:${e + 4 - 1.5}px;width:${o}px;height:1.5px;transform-origin:100% 50%`, "X", d, c), f(`left:-4px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 100%`, "Y", c, 1), A(a, at(a, -4, -4, 5, "background:#fff"), V([["translate(0,0)", 1], [`translate(${o}px,0)`, 1, p * h], [`translate(${o}px,${r}px)`, 1, d * h], [`translate(0,${r}px)`, 1, c * h], ["translate(0,0)", 1, h], ["translate(0,0)", 0, h + 0.08], ["translate(0,0)", 0]]), 900);
+      const o = t + 8, r = e + 8, n = 2 * (o + r), p = o / n, c = (o + r) / n, d = (2 * o + r) / n, h = 0.74, f = (m, u, w, x) => A(a, Z(a, m + ";background:var(--ac)"), V([[`scale${u}(0)`, 1], [`scale${u}(0)`, 1, w * h], [`scale${u}(1)`, 1, x * h], [`scale${u}(1)`, 1, 0.84], [`scale${u}(1)`, 0]]), 900);
+      f(`left:-4px;top:-4px;width:${o}px;height:1.5px;transform-origin:0 50%`, "X", 0, p), f(`left:${t + 4 - 1.5}px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 0`, "Y", p, c), f(`left:-4px;top:${e + 4 - 1.5}px;width:${o}px;height:1.5px;transform-origin:100% 50%`, "X", c, d), f(`left:-4px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 100%`, "Y", d, 1), A(a, at(a, -4, -4, 5, "background:#fff"), V([["translate(0,0)", 1], [`translate(${o}px,0)`, 1, p * h], [`translate(${o}px,${r}px)`, 1, c * h], [`translate(0,${r}px)`, 1, d * h], ["translate(0,0)", 1, h], ["translate(0,0)", 0, h + 0.08], ["translate(0,0)", 0]]), 900);
     }
   },
   party(a) {
     const t = a.W / 2, e = a.kid;
     if (a.o.burst) {
-      for (let d = 0; d < 12; d++) {
-        const c = (d * 30 + B(-13, 13)) * Math.PI / 180, h = B(70, 150), f = cp(a, t - 5, -36, d);
-        a.calm ? (f.style.translate = `${Math.cos(c) * h * 0.25}px ${Math.sin(c) * h * 0.2}px`, A(a, f, O(), 700)) : A(a, f, es(Math.cos(c) * h, Math.sin(c) * h * 0.8 - 70, 560, 0.9, B(-300, 300), B(0.8, 1.6)), 850, B(0, 50));
+      for (let c = 0; c < 12; c++) {
+        const d = (c * 30 + B(-13, 13)) * Math.PI / 180, h = B(70, 150), f = cp(a, t - 5, -36, c);
+        a.calm ? (f.style.translate = `${Math.cos(d) * h * 0.25}px ${Math.sin(d) * h * 0.2}px`, A(a, f, O(), 700)) : A(a, f, es(Math.cos(d) * h, Math.sin(d) * h * 0.8 - 70, 560, 0.9, B(-300, 300), B(0.8, 1.6)), 850, B(0, 50));
       }
       return;
     }
-    const i = Ot(a.o.ms ?? 4200, 600, 2e4), s = 700 + i + 500, o = Y(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(s / 1370)), n = Y(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, Ls(26, 34, ef), o, !1), p = G(a, 10.5, 33.5, 5, 13, af, "transform-origin:50% 0", n, !1);
+    const i = Ot(a.o.ms ?? 4200, 600, 2e4), s = 700 + i + 500, o = Z(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(s / 1370)), n = Z(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, Ls(26, 34, ef), o, !1), p = G(a, 10.5, 33.5, 5, 13, af, "transform-origin:50% 0", n, !1);
     if (a.calm) {
       A(a, o, [{ opacity: 0 }, { opacity: 1, offset: 300 / s }, { opacity: 1, offset: 1 - 400 / s }, { opacity: 0 }], s);
       return;
@@ -5838,11 +5852,11 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* ---- of our own invention ---- */
   stomp(a) {
-    ga(a);
-    const { W: t, H: e } = a, i = a.o.soft ? 3 : 5, s = t * 0.1, o = t * 0.9, r = e * 0.7, n = e * 0.36, p = Math.atan2(n - r, (o - s) * a.dir) * 180 / Math.PI + 90, d = a.look === "glass" ? `color-mix(in srgb,${a.kid} 70%,transparent)` : a.look === "fridge" ? "#9a6a3a" : "var(--ok)";
-    for (let c = 0; c < i; c++) {
-      const h = i > 1 ? c / (i - 1) : 0.5, f = c % 2 ? 1 : -1, m = p + f * 9, u = (a.dir > 0 ? s + (o - s) * h : o - (o - s) * h) - 10, w = r + (n - r) * h - 11 + f * 7, x = G(a, u - 2, w - 3, 24, 26, tf, `--c:${d};transform-origin:50% 70%`);
-      a.look === "glass" && x.querySelectorAll(".spk-f").forEach((k) => k.setAttribute("style", "stroke:none")), a.calm ? A(a, x, V([[`rotate(${m}deg)`, 0], [`rotate(${m}deg)`, 0.9, 0.25], [`rotate(${m}deg)`, 0.9, 0.7], [`rotate(${m}deg)`, 0]]), 800) : A(a, x, V([[`rotate(${m}deg) scale(1.7)`, 0], [`rotate(${m}deg) scale(.92)`, 0.95, 0.2, xt], [`rotate(${m}deg) scale(1)`, 0.9, 0.3], [`rotate(${m}deg) scale(1)`, 0.85, 0.7], [`rotate(${m}deg) scale(1)`, 0]]), 700, c * 115);
+    ma(a);
+    const { W: t, H: e } = a, i = a.o.soft ? 3 : 5, s = t * 0.1, o = t * 0.9, r = e * 0.7, n = e * 0.36, p = Math.atan2(n - r, (o - s) * a.dir) * 180 / Math.PI + 90, c = a.look === "glass" ? `color-mix(in srgb,${a.kid} 70%,transparent)` : a.look === "fridge" ? "#9a6a3a" : "var(--ok)";
+    for (let d = 0; d < i; d++) {
+      const h = i > 1 ? d / (i - 1) : 0.5, f = d % 2 ? 1 : -1, m = p + f * 9, u = (a.dir > 0 ? s + (o - s) * h : o - (o - s) * h) - 10, w = r + (n - r) * h - 11 + f * 7, x = G(a, u - 2, w - 3, 24, 26, tf, `--c:${c};transform-origin:50% 70%`);
+      a.look === "glass" && x.querySelectorAll(".spk-f").forEach((k) => k.setAttribute("style", "stroke:none")), a.calm ? A(a, x, V([[`rotate(${m}deg)`, 0], [`rotate(${m}deg)`, 0.9, 0.25], [`rotate(${m}deg)`, 0.9, 0.7], [`rotate(${m}deg)`, 0]]), 800) : A(a, x, V([[`rotate(${m}deg) scale(1.7)`, 0], [`rotate(${m}deg) scale(.92)`, 0.95, 0.2, xt], [`rotate(${m}deg) scale(1)`, 0.9, 0.3], [`rotate(${m}deg) scale(1)`, 0.85, 0.7], [`rotate(${m}deg) scale(1)`, 0]]), 700, d * 115);
     }
   },
   puff(a) {
@@ -5853,17 +5867,17 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     }
     A(a, s, V([["translateY(27px)", 1], ["translateY(0)", 1, 0.22, "ease-out"], ["translateY(3px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, xt], ["translateY(27px)", 1]]), 1150, 0, be);
     const o = t > 0 ? 30 : a.W - 30, r = i === "glass" ? "background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.08)" : i === "fridge" ? "background:var(--pp);border:1.5px solid var(--ink)" : "border:1.3px solid var(--ok);background:var(--gd)";
-    [[9, 16, -3], [12, 30, -9], [15, 46, -5]].forEach(([n, p, d], c) => A(a, at(a, o, -15, n, r), V([["translate(0,0) scale(.2)", 0], [`translate(${t * p * 0.5}px,${d * 0.5}px) scale(.9)`, 0.95, 0.35], [`translate(${t * p}px,${d}px) scale(1.25)`, 0]]), 520, 400 + c * 110, rt)), [[14, -12], [22, 2]].forEach(([n, p], d) => A(a, at(a, o, -15, 4, "background:var(--ac)"), V([["translate(0,0) scale(.4)", 0], [`translate(${t * n * 0.5}px,${p * 0.5}px) scale(1)`, 1, 0.4], [`translate(${t * n}px,${p}px) scale(.3)`, 0]]), 380, 420 + d * 150, rt));
+    [[9, 16, -3], [12, 30, -9], [15, 46, -5]].forEach(([n, p, c], d) => A(a, at(a, o, -15, n, r), V([["translate(0,0) scale(.2)", 0], [`translate(${t * p * 0.5}px,${c * 0.5}px) scale(.9)`, 0.95, 0.35], [`translate(${t * p}px,${c}px) scale(1.25)`, 0]]), 520, 400 + d * 110, rt)), [[14, -12], [22, 2]].forEach(([n, p], c) => A(a, at(a, o, -15, 4, "background:var(--ac)"), V([["translate(0,0) scale(.4)", 0], [`translate(${t * n * 0.5}px,${p * 0.5}px) scale(1)`, 1, 0.4], [`translate(${t * n}px,${p}px) scale(.3)`, 0]]), 380, 420 + c * 150, rt));
   },
   truck(a) {
-    ga(a);
-    const { W: t, H: e } = a, i = a.dir, s = t / 2 - 14, o = t + 12, r = e - 25, n = 1180, p = (k) => i > 0 ? k : t - 44 - k, d = (k) => `translateX(${i * k}px)`, c = Y(a, `left:${p(0)}px;top:${r}px;width:44px;height:24px`), h = Y(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", c, !1), f = G(a, 0, 0, 44, 24, mf, "--c:var(--pr)", h, !1), m = [5, 28].map((k) => G(a, k, 14, 10, 10, gf, "transform-origin:50% 50%", h, !1)), u = G(a, 7, 3.5, 11, 10, uf, "--c:var(--ac);transform-origin:50% 50%", h);
+    ma(a);
+    const { W: t, H: e } = a, i = a.dir, s = t / 2 - 14, o = t + 12, r = e - 25, n = 1180, p = (k) => i > 0 ? k : t - 44 - k, c = (k) => `translateX(${i * k}px)`, d = Z(a, `left:${p(0)}px;top:${r}px;width:44px;height:24px`), h = Z(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", d, !1), f = G(a, 0, 0, 44, 24, mf, "--c:var(--pr)", h, !1), m = [5, 28].map((k) => G(a, k, 14, 10, 10, gf, "transform-origin:50% 50%", h, !1)), u = G(a, 7, 3.5, 11, 10, uf, "--c:var(--ac);transform-origin:50% 50%", h);
     if (a.calm) {
-      c.style.translate = `${p(s) - p(0)}px 0`, A(a, c, O(), 800), u.style.opacity = "1", u.removeAttribute("data-p");
+      d.style.translate = `${p(s) - p(0)}px 0`, A(a, d, O(), 800), u.style.opacity = "1", u.removeAttribute("data-p");
       return;
     }
     const w = 0.36, x = 0.56;
-    A(a, c, [{ transform: d(-50), opacity: 1, easing: rt }, { transform: d(s), opacity: 1, offset: w }, { transform: d(s), opacity: 1, offset: x, easing: xt }, { transform: d(o), opacity: 1 }], n), A(a, u, [
+    A(a, d, [{ transform: c(-50), opacity: 1, easing: rt }, { transform: c(s), opacity: 1, offset: w }, { transform: c(s), opacity: 1, offset: x, easing: xt }, { transform: c(o), opacity: 1 }], n), A(a, u, [
       { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
       { transform: "translate(0,0) rotate(0deg)", offset: w, easing: "ease-out" },
       { transform: "translate(-9px,-8px) rotate(-50deg)", offset: (w + x) / 2, easing: "ease-in" },
@@ -5873,31 +5887,31 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     ], n), m.forEach((k) => A(a, k, [{ transform: "rotate(0deg)", opacity: 1, easing: rt }, { transform: "rotate(500deg)", offset: w }, { transform: "rotate(500deg)", offset: x, easing: xt }, { transform: "rotate(1100deg)", opacity: 1 }], n)), A(a, f, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((k, v) => A(a, at(a, p(s) + (i > 0 ? 0 : 44), e - 5, 7 + v * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), V([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * x + k, rt));
   },
   tada(a) {
-    const t = a.o.variant === "clarinet", e = a.dir, i = t ? 40 : 37, s = t ? 11 : 20, o = e > 0 ? a.W * 0.6 - i / 2 : a.W * 0.4 - i / 2, r = -s / 2 - 2, n = t ? -22 : -14, p = Y(a, `left:${o}px;top:${r}px;width:${i}px;height:${s}px;transform-origin:${e > 0 ? 0 : 100}% 50%`);
+    const t = a.o.variant === "clarinet", e = a.dir, i = t ? 40 : 37, s = t ? 11 : 20, o = e > 0 ? a.W * 0.6 - i / 2 : a.W * 0.4 - i / 2, r = -s / 2 - 2, n = t ? -22 : -14, p = Z(a, `left:${o}px;top:${r}px;width:${i}px;height:${s}px;transform-origin:${e > 0 ? 0 : 100}% 50%`);
     G(a, 0, 0, i, s, t ? a.look === "orbit" ? fp.replace("#2b2d36", "var(--pr)") : fp : bf, `--c:${jr};${e < 0 ? "scale:-1 1" : ""}`, p, !1);
-    const d = (m, u = 1) => `rotate(${e * n * u}deg) scale(${m})`;
+    const c = (m, u = 1) => `rotate(${e * n * u}deg) scale(${m})`;
     if (a.calm) {
-      A(a, p, V([[d(1), 0], [d(1), 1, 0.25], [d(1), 1, 0.7], [d(1), 0]]), 900);
+      A(a, p, V([[c(1), 0], [c(1), 1, 0.25], [c(1), 1, 0.7], [c(1), 0]]), 900);
       return;
     }
-    A(a, p, V([[d(0.3, 2.2), 0], [d(1.1), 1, 0.16], [d(1), 1, 0.24], [d(1.14, 1.3), 1, 0.36], [d(1), 1, 0.48], [d(1.14, 1.3), 1, 0.6], [d(1), 1, 0.72], [d(1), 1, 0.86], [d(0.85, 0.4), 0]]), 1050);
-    const c = e > 0 ? o + i + 1 : o - 12, h = r + s / 2 + Math.sin(n * Math.PI / 180) * i - 8, f = [a.kid, "var(--ac)", "var(--ok)"];
-    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([m, u, w], x) => A(a, G(a, c, h, 10, 13, xf, `--c:${a.look === "fridge" ? "var(--ink)" : f[x]}`), V([["translate(0,0) scale(.3)", 0], [`translate(${e * m * 0.55}px,${u * 0.6}px) rotate(${w}deg) scale(1)`, 1, 0.35], [`translate(${e * m * 0.85}px,${u * 0.9}px) rotate(${w}deg) scale(1)`, 1, 0.7], [`translate(${e * m}px,${u - 4}px) rotate(${w * 1.4}deg) scale(.9)`, 0]]), 560, 250 + x * 130, rt));
+    A(a, p, V([[c(0.3, 2.2), 0], [c(1.1), 1, 0.16], [c(1), 1, 0.24], [c(1.14, 1.3), 1, 0.36], [c(1), 1, 0.48], [c(1.14, 1.3), 1, 0.6], [c(1), 1, 0.72], [c(1), 1, 0.86], [c(0.85, 0.4), 0]]), 1050);
+    const d = e > 0 ? o + i + 1 : o - 12, h = r + s / 2 + Math.sin(n * Math.PI / 180) * i - 8, f = [a.kid, "var(--ac)", "var(--ok)"];
+    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([m, u, w], x) => A(a, G(a, d, h, 10, 13, xf, `--c:${a.look === "fridge" ? "var(--ink)" : f[x]}`), V([["translate(0,0) scale(.3)", 0], [`translate(${e * m * 0.55}px,${u * 0.6}px) rotate(${w}deg) scale(1)`, 1, 0.35], [`translate(${e * m * 0.85}px,${u * 0.9}px) rotate(${w}deg) scale(1)`, 1, 0.7], [`translate(${e * m}px,${u - 4}px) rotate(${w * 1.4}deg) scale(.9)`, 0]]), 560, 250 + x * 130, rt));
   },
   bounce(a) {
-    const t = a.dir, e = Ot(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), s = Y(a, `left:${i}px;top:-12px;width:14px;height:14px`), o = Y(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", s, !1), r = G(a, 0, 0, 14, 14, mc, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, s, !1);
-    if (a.look === "orbit" && (r.querySelector("circle").setAttribute("style", "--c:var(--ok)"), r.querySelectorAll("path").forEach((d) => d.setAttribute("stroke", "var(--ok)")), o.style.background = "var(--ok)", o.style.height = "1.5px"), a.calm) {
+    const t = a.dir, e = Ot(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), s = Z(a, `left:${i}px;top:-12px;width:14px;height:14px`), o = Z(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", s, !1), r = G(a, 0, 0, 14, 14, mc, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, s, !1);
+    if (a.look === "orbit" && (r.querySelector("circle").setAttribute("style", "--c:var(--ok)"), r.querySelectorAll("path").forEach((c) => c.setAttribute("stroke", "var(--ok)")), o.style.background = "var(--ok)", o.style.height = "1.5px"), a.calm) {
       A(a, s, O(), 800);
       return;
     }
     A(a, s, V([["translateX(0)", 0], [`translateX(${t * e * 0.08}px)`, 1, 0.08], [`translateX(${t * e * 0.86}px)`, 1, 0.86], [`translateX(${t * e}px)`, 0]]), 1080);
-    const n = (d, c, h, f) => ({ transform: `translateY(${-d}px) rotate(${t * c}deg)`, offset: h, ...f ? { easing: f } : {} });
+    const n = (c, d, h, f) => ({ transform: `translateY(${-c}px) rotate(${t * d}deg)`, offset: h, ...f ? { easing: f } : {} });
     A(a, r, [n(26, 0, 0, "ease-in"), n(0, 150, 0.2, "ease-out"), n(17, 290, 0.37, "ease-in"), n(0, 420, 0.54, "ease-out"), n(8, 520, 0.66, "ease-in"), n(0, 610, 0.78), n(0, 760, 1)], 1080);
-    const p = (d, c, h) => ({ transform: `scaleX(${d})`, opacity: d, offset: c, ...h ? { easing: h } : {} });
+    const p = (c, d, h) => ({ transform: `scaleX(${c})`, opacity: c, offset: d, ...h ? { easing: h } : {} });
     A(a, o, [p(0.3, 0, "ease-in"), p(1, 0.2, "ease-out"), p(0.5, 0.37, "ease-in"), p(1, 0.54, "ease-out"), p(0.75, 0.66, "ease-in"), p(1, 0.78), p(1, 1)], 1080);
   },
   zip(a) {
-    const t = a.dir, e = a.W, i = t > 0 ? 0 : e - 34, s = Y(a, `left:${i}px;top:-25px;width:34px;height:25px;transform-origin:${t > 0 ? 15 : 85}% 100%`);
+    const t = a.dir, e = a.W, i = t > 0 ? 0 : e - 34, s = Z(a, `left:${i}px;top:-25px;width:34px;height:25px;transform-origin:${t > 0 ? 15 : 85}% 100%`);
     if (G(a, 0, 0, 34, 25, kf, `--c:${a.kid};${t < 0 ? "scale:-1 1" : ""}`, s, !1), a.calm) {
       A(a, s, O(), 800);
       return;
@@ -5906,19 +5920,19 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     A(a, s, V([[r(-0.08, -16), 0], [r(0.04, -16), 1, 0.14], [r(0.3, 0), 1, 0.4], [r(0.86, 0), 1, 0.86], [r(1.02, 0), 0]]), 760, 0, "cubic-bezier(.45,0,.4,1)"), A(a, at(a, t > 0 ? 6 : e - 6, -4, 9, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 28%,transparent)"), V([["translate(0,0) scale(.3)", 0], [`translate(${-t * 5}px,-2px) scale(1)`, 0.8, 0.4], [`translate(${-t * 11}px,-6px) scale(1.5)`, 0]]), 420, 120, rt);
   },
   splash(a) {
-    const t = a.W / 2, e = a.look, i = e === "glass" ? "background:radial-gradient(circle at 35% 30%,#fff 0 25%,color-mix(in srgb,var(--pr) 40%,#fff));border:1px solid color-mix(in srgb,var(--pr) 55%,#fff)" : e === "fridge" ? "background:#4a9fe0;border:1.4px solid var(--ink)" : "border:1.3px solid var(--pr);background:var(--gd)", s = Y(a, `left:${t - 22}px;top:-5px;width:44px;height:10px;border-radius:50%;box-sizing:border-box;border:${e === "orbit" ? 1.3 : 2}px solid ${e === "glass" ? "rgba(255,255,255,.95)" : e === "fridge" ? "#4a9fe0" : "var(--pr)"}`);
+    const t = a.W / 2, e = a.look, i = e === "glass" ? "background:radial-gradient(circle at 35% 30%,#fff 0 25%,color-mix(in srgb,var(--pr) 40%,#fff));border:1px solid color-mix(in srgb,var(--pr) 55%,#fff)" : e === "fridge" ? "background:#4a9fe0;border:1.4px solid var(--ink)" : "border:1.3px solid var(--pr);background:var(--gd)", s = Z(a, `left:${t - 22}px;top:-5px;width:44px;height:10px;border-radius:50%;box-sizing:border-box;border:${e === "orbit" ? 1.3 : 2}px solid ${e === "glass" ? "rgba(255,255,255,.95)" : e === "fridge" ? "#4a9fe0" : "var(--pr)"}`);
     if (a.calm) {
       A(a, s, O(), 600);
       return;
     }
     A(a, s, V([["scale(.15)", 1], ["scale(.9)", 0.8, 0.6], ["scale(1.3)", 0]]), 640, 60, "ease-out");
     for (let o = 0; o < 7; o++) {
-      const r = (-158 + o * 22.7 + B(-6, 6)) * Math.PI / 180, n = B(17, 30), p = Math.cos(r) * n, d = B(4.5, 7.5);
-      A(a, Y(a, `left:${t - d / 2}px;top:${-d / 2}px;width:${d}px;height:${d * 1.25}px;box-sizing:border-box;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;${i}`), es(p * 2.6, -B(170, 215), 640, 0.62), 620, B(0, 90));
+      const r = (-158 + o * 22.7 + B(-6, 6)) * Math.PI / 180, n = B(17, 30), p = Math.cos(r) * n, c = B(4.5, 7.5);
+      A(a, Z(a, `left:${t - c / 2}px;top:${-c / 2}px;width:${c}px;height:${c * 1.25}px;box-sizing:border-box;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;${i}`), es(p * 2.6, -B(170, 215), 640, 0.62), 620, B(0, 90));
     }
   },
   salute(a) {
-    const t = a.dir, e = Yo(a, Ot(a.W * (t > 0 ? 0.68 : 0.32) - 20, 0, Math.max(0, a.W - 40)), -32, 40, 32), i = Y(a, `left:6px;width:28px;height:32px;${t < 0 ? "scale:-1 1" : ""}`, Ls(28, 32, wf), e);
+    const t = a.dir, e = Yo(a, Ot(a.W * (t > 0 ? 0.68 : 0.32) - 20, 0, Math.max(0, a.W - 40)), -32, 40, 32), i = Z(a, `left:6px;width:28px;height:32px;${t < 0 ? "scale:-1 1" : ""}`, Ls(28, 32, wf), e);
     i.style.setProperty("--c", a.kid);
     const s = G(a, 19.5, 17.5, 5.4, 13.5, yf, "transform-origin:50% 2.5px", i, !1);
     if (a.calm) {
@@ -5928,7 +5942,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     A(a, i, V([["translateY(32px)", 1], ["translateY(0)", 1, 0.24, "ease-out"], ["translateY(2px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, xt], ["translateY(32px)", 1]]), 1180, 0, be), A(a, s, [{ transform: "rotate(0deg)" }, { transform: "rotate(0deg)", offset: 0.32, easing: be }, { transform: "rotate(-200deg)", offset: 0.46 }, { transform: "rotate(-200deg)", offset: 0.72, easing: "ease-in" }, { transform: "rotate(0deg)", offset: 0.82 }, { transform: "rotate(0deg)" }], 1180, 0, "linear", { fill: "none" });
   },
   rocket(a) {
-    const t = a.W / 2, e = Y(a, `left:${t - 9}px;top:-25px;width:18px;height:25px;transform-origin:50% 100%`), i = G(a, 4, 21.5, 10, 10, nf, "transform-origin:50% 0", e, !1);
+    const t = a.W / 2, e = Z(a, `left:${t - 9}px;top:-25px;width:18px;height:25px;transform-origin:50% 100%`), i = G(a, 4, 21.5, 10, 10, nf, "transform-origin:50% 0", e, !1);
     if (G(a, 0, 0, 18, 25, rf, "", e, !1), a.calm) {
       i.style.opacity = "0", A(a, e, O(), 800);
       return;
@@ -5938,7 +5952,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     [[-1, 9], [1, 11], [-1, 7], [1, 8]].forEach(([o, r], n) => A(a, at(a, t + o * 3, -3, r, s), V([["translate(0,0) scale(.2)", 0, 0, rt], [`translate(${o * (8 + n * 2)}px,${-1 - n}px) scale(1)`, 0.95, 0.4], [`translate(${o * (15 + n * 3)}px,${-5 - n * 2}px) scale(1.3)`, 0]]), 520, 230 + n * 85));
   },
   book(a) {
-    const t = a.dir, e = t > 0 ? a.W * 0.62 - 16 : a.W * 0.38 - 16, i = Y(a, `left:${e}px;top:-15px;width:32px;height:22px;transform-origin:50% 100%;--c:${a.kid}`), s = [1, -1].map((o) => G(a, o > 0 ? 16 : 0.5, 0, 15.5, 22, lf, `transform-origin:${o > 0 ? 0 : 100}% 50%`, i, !1));
+    const t = a.dir, e = t > 0 ? a.W * 0.62 - 16 : a.W * 0.38 - 16, i = Z(a, `left:${e}px;top:-15px;width:32px;height:22px;transform-origin:50% 100%;--c:${a.kid}`), s = [1, -1].map((o) => G(a, o > 0 ? 16 : 0.5, 0, 15.5, 22, lf, `transform-origin:${o > 0 ? 0 : 100}% 50%`, i, !1));
     if (s[1].firstElementChild.style.scale = "-1 1", a.calm) {
       A(a, i, O(), 900);
       return;
@@ -5954,14 +5968,14 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     A(a, i, V([["translateY(27px)", 1, 0, "ease-out"], ["translateY(-2px) scale(.96,1.06)", 1, 0.2, "ease-in-out"], ["translateY(1px) scale(1.03,.97)", 1, 0.28], ["translateY(0) rotate(0deg)", 1, 0.34, "ease-in-out"], [`translateY(0) rotate(${-9 * t}deg)`, 1, 0.48, "ease-in-out"], [`translateY(0) rotate(${9 * t}deg)`, 1, 0.68, "ease-in-out"], ["translateY(-1px) rotate(0deg)", 1, 0.8, xt], ["translateY(27px)", 1]]), 1180);
   },
   paint(a) {
-    const { W: t, H: e } = a, i = a.dir, s = Math.max(30, t - 8), o = [a.pal[1 % a.pal.length], jr, a.pal[0]], r = "cubic-bezier(.45,0,.3,1)", n = o.map((c, h) => Y(a, `left:4px;top:${e - 3 + h * 3}px;width:${s}px;height:${a.look === "orbit" ? 1.5 : 3.4}px;border-radius:2px;background:${c};transform-origin:${i > 0 ? 0 : 100}% 50%`));
+    const { W: t, H: e } = a, i = a.dir, s = Math.max(30, t - 8), o = [a.pal[1 % a.pal.length], jr, a.pal[0]], r = "cubic-bezier(.45,0,.3,1)", n = o.map((d, h) => Z(a, `left:4px;top:${e - 3 + h * 3}px;width:${s}px;height:${a.look === "orbit" ? 1.5 : 3.4}px;border-radius:2px;background:${d};transform-origin:${i > 0 ? 0 : 100}% 50%`));
     if (a.calm) {
-      n.forEach((c) => A(a, c, O(), 800));
+      n.forEach((d) => A(a, d, O(), 800));
       return;
     }
-    n.forEach((c, h) => A(a, c, V([["scaleX(0)", 1, 0, r], [`scaleX(${1 - h * 0.03})`, 1, 0.62], [`scaleX(${1 - h * 0.03})`, 1, 0.82], [`scaleX(${1 - h * 0.03})`, 0]]), 1e3 - h * 25, h * 25));
-    const p = G(a, i > 0 ? 2 : t - 30, e - 4, 28, 10, df, `--c:${o[0]};transform-origin:${i > 0 ? 0 : 100}% 50%;${i < 0 ? "scale:-1 1" : ""}`), d = -24 * i;
-    A(a, p, V([[`translate(0,-6px) rotate(${d - 16}deg)`, 0], [`translate(0,0) rotate(${d}deg)`, 1, 0.08, r], [`translate(${i * s}px,0) rotate(${d + 8 * i}deg)`, 1, 0.62, "ease-out"], [`translate(${i * (s + 5)}px,-8px) rotate(${d - 20 * i}deg)`, 1, 0.76], [`translate(${i * (s + 5)}px,-10px) rotate(${d - 20 * i}deg)`, 0]]), 1e3);
+    n.forEach((d, h) => A(a, d, V([["scaleX(0)", 1, 0, r], [`scaleX(${1 - h * 0.03})`, 1, 0.62], [`scaleX(${1 - h * 0.03})`, 1, 0.82], [`scaleX(${1 - h * 0.03})`, 0]]), 1e3 - h * 25, h * 25));
+    const p = G(a, i > 0 ? 2 : t - 30, e - 4, 28, 10, df, `--c:${o[0]};transform-origin:${i > 0 ? 0 : 100}% 50%;${i < 0 ? "scale:-1 1" : ""}`), c = -24 * i;
+    A(a, p, V([[`translate(0,-6px) rotate(${c - 16}deg)`, 0], [`translate(0,0) rotate(${c}deg)`, 1, 0.08, r], [`translate(${i * s}px,0) rotate(${c + 8 * i}deg)`, 1, 0.62, "ease-out"], [`translate(${i * (s + 5)}px,-8px) rotate(${c - 20 * i}deg)`, 1, 0.76], [`translate(${i * (s + 5)}px,-10px) rotate(${c - 20 * i}deg)`, 0]]), 1e3);
   },
   moon(a) {
     const t = a.dir, e = t > 0 ? a.W * 0.7 - 11 : a.W * 0.3 - 11, i = G(a, e, -27, 23, 23, cf, `transform-origin:50% 50%;${t < 0 ? "scale:-1 1" : ""}`);
@@ -5991,7 +6005,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* streamers thrown in from both sides, kept inside the card */
   done(a) {
-    ga(a);
+    ma(a);
     const { W: t, H: e } = a;
     if (a.calm) {
       Lr(a, "background:var(--ok)", 0.18);
@@ -5999,8 +6013,8 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
     }
     const i = a.o.soft ? 8 : 24, s = ["var(--ac)", "var(--ok)", "#4f9bd9", "var(--ink)"];
     for (let o = 0; o < i; o++) {
-      const r = o % 2 === 0 ? 1 : -1, n = o * 37 % 100 / 100, p = r > 0 ? -8 : t + 2, d = p + r * (40 + n * t * 0.62), c = -10 + n * 20, h = e * (0.35 + o * 53 % 60 / 100);
-      A(a, Y(a, `width:5px;height:${o % 3 === 0 ? 26 : 16}px;border-radius:2px;background:${s[o % 4]}`), V([[D(p, c, " rotate(0deg)"), 1], [D((p + d) / 2 + r * 20, c + 6, ` rotate(${r * 200}deg)`), 1, 0.35], [D(d, h, ` rotate(${r * 420}deg)`), 1, 0.8], [D(d + r * 6, h + 18, ` rotate(${r * 480}deg)`), 0]]), 900, o % 6 * 14, rt);
+      const r = o % 2 === 0 ? 1 : -1, n = o * 37 % 100 / 100, p = r > 0 ? -8 : t + 2, c = p + r * (40 + n * t * 0.62), d = -10 + n * 20, h = e * (0.35 + o * 53 % 60 / 100);
+      A(a, Z(a, `width:5px;height:${o % 3 === 0 ? 26 : 16}px;border-radius:2px;background:${s[o % 4]}`), V([[D(p, d, " rotate(0deg)"), 1], [D((p + c) / 2 + r * 20, d + 6, ` rotate(${r * 200}deg)`), 1, 0.35], [D(c, h, ` rotate(${r * 420}deg)`), 1, 0.8], [D(c + r * 6, h + 18, ` rotate(${r * 480}deg)`), 0]]), 900, o % 6 * 14, rt);
     }
   },
   /* a chalk ring where the new thing landed */
@@ -6014,7 +6028,7 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* one ball drops into the bag */
   marble(a) {
-    const t = Y(a, `left:${a.W / 2 - 7}px;top:${Math.min(a.H * 0.3, 16) - 7}px;width:14px;height:14px`), e = G(a, 0, 0, 14, 14, mc, "transform-origin:50% 50%", t, !1);
+    const t = Z(a, `left:${a.W / 2 - 7}px;top:${Math.min(a.H * 0.3, 16) - 7}px;width:14px;height:14px`), e = G(a, 0, 0, 14, 14, mc, "transform-origin:50% 50%", t, !1);
     if (a.calm) {
       A(a, t, O(), 520);
       return;
@@ -6041,17 +6055,17 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* the last thing off the list: a soccer ball into a net that bulges */
   truck(a) {
-    ga(a);
-    const { W: t, H: e } = a, i = Math.max(2, t - 72), s = e - 4, o = i + 36, r = s - 9, n = Math.min(t * 0.12, i - 20), p = Math.max(10, e * 0.5), d = 2300, c = Y(a, `left:${i}px;top:${s - 54}px;width:64px;height:54px`, Ls(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = G(a, 0, 0, 64, 54, Mf, "transform-origin:0 50%", c, !1), f = Y(a, "left:-7px;top:-7px;width:14px;height:14px"), m = G(a, 0, 0, 14, 14, Uf, "transform-origin:50% 50%", f, !1);
+    ma(a);
+    const { W: t, H: e } = a, i = Math.max(2, t - 72), s = e - 4, o = i + 36, r = s - 9, n = Math.min(t * 0.12, i - 20), p = Math.max(10, e * 0.5), c = 2300, d = Z(a, `left:${i}px;top:${s - 54}px;width:64px;height:54px`, Ls(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = G(a, 0, 0, 64, 54, Mf, "transform-origin:0 50%", d, !1), f = Z(a, "left:-7px;top:-7px;width:14px;height:14px"), m = G(a, 0, 0, 14, 14, Uf, "transform-origin:50% 50%", f, !1);
     if (a.calm) {
-      f.style.translate = `${o}px ${r}px`, A(a, c, O(), 1e3), A(a, f, O(), 1e3);
+      f.style.translate = `${o}px ${r}px`, A(a, d, O(), 1e3), A(a, f, O(), 1e3);
       return;
     }
     const u = [[n, p], [n + (o - n) * 0.45, p - 26], [o - 4, r - 70], [o, r - 21]], w = Array.from({ length: 9 }, (x, k) => {
       const v = k / 8, K = 1 - v, y = (q) => K * K * K * u[0][q] + 3 * K * K * v * u[1][q] + 3 * K * v * v * u[2][q] + v * v * v * u[3][q];
-      return [D(y(0), y(1)), 1, v * 1e3 / d];
+      return [D(y(0), y(1)), 1, v * 1e3 / c];
     });
-    A(a, f, V([...w, [D(o + 3, r), 1, 1300 / d, "ease-out"], [D(o + 4, r - 5), 1, 1420 / d, "ease-in"], [D(o + 3, r), 1, 1540 / d], [D(o + 3, r), 1, 0.92], [D(o + 3, r), 0]]), d), A(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], d, 0, "linear", { fill: "both" }), A(a, c, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], d), A(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / d, easing: rt }, { transform: "scaleX(1.16)", offset: 1140 / d, easing: be }, { transform: "scaleX(1)", offset: 1500 / d }, { transform: "scaleX(1)" }], d, 0, "linear", { fill: "both" });
+    A(a, f, V([...w, [D(o + 3, r), 1, 1300 / c, "ease-out"], [D(o + 4, r - 5), 1, 1420 / c, "ease-in"], [D(o + 3, r), 1, 1540 / c], [D(o + 3, r), 1, 0.92], [D(o + 3, r), 0]]), c), A(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], c, 0, "linear", { fill: "both" }), A(a, d, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], c), A(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / c, easing: rt }, { transform: "scaleX(1.16)", offset: 1140 / c, easing: be }, { transform: "scaleX(1)", offset: 1500 / c }, { transform: "scaleX(1)" }], c, 0, "linear", { fill: "both" });
   },
   /* a floorball held up on a puff of air */
   puff(a) {
@@ -6064,21 +6078,21 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* streamers unroll over the jar */
   salute(a) {
-    ga(a);
+    ma(a);
     const { W: t, H: e } = a, i = Ot(e * 0.85 / 88, 0.35, 1), s = ["var(--ac)", "var(--ok)", "#4f9bd9"], o = 2200, r = s.map((n, p) => G(a, t * (0.22 + 0.28 * p) - 8, -2, 16, 88, `<path d="M8 0q9 11 0 22t0 22 0 22 0 20" fill="none" stroke="${n}" stroke-width="6" stroke-linecap="round"/>`, `transform-origin:50% 0;scale:${i.toFixed(2)}`));
     if (a.calm) {
       r.forEach((n) => A(a, n, O(), 1e3));
       return;
     }
     r.forEach((n, p) => {
-      const d = p % 2 ? -1 : 1;
-      A(a, n, V([["scaleY(0) rotate(0deg)", 1, 0, be], ["scaleY(1) rotate(0deg)", 1, (400 + p * 60) / o, ce], [`scaleY(1) rotate(${6 * d}deg)`, 1, 800 / o, ce], [`scaleY(1) rotate(${-5 * d}deg)`, 1, 1200 / o, ce], [`scaleY(1) rotate(${3 * d}deg)`, 1, 1600 / o, ce], ["scaleY(1) rotate(0deg)", 1, 1900 / o], ["scaleY(1) rotate(0deg)", 0]]), o);
+      const c = p % 2 ? -1 : 1;
+      A(a, n, V([["scaleY(0) rotate(0deg)", 1, 0, be], ["scaleY(1) rotate(0deg)", 1, (400 + p * 60) / o, ce], [`scaleY(1) rotate(${6 * c}deg)`, 1, 800 / o, ce], [`scaleY(1) rotate(${-5 * c}deg)`, 1, 1200 / o, ce], [`scaleY(1) rotate(${3 * c}deg)`, 1, 1600 / o, ce], ["scaleY(1) rotate(0deg)", 1, 1900 / o], ["scaleY(1) rotate(0deg)", 0]]), o);
     });
-    for (let n = 0; n < 6; n++) A(a, Y(a, `left:${t * (0.12 + 0.15 * n)}px;width:6px;height:11px;border-radius:2px;background:${[...s, "var(--ink)"][n % 4]}`), V([["translateY(-14px) rotate(0deg)", 1, 0, xt], [`translateY(${e + 12}px) rotate(${n % 2 ? 300 : -260}deg)`, 1, 0.92], [`translateY(${e + 12}px) rotate(0deg)`, 0]]), 1450, 150 + n * 90);
+    for (let n = 0; n < 6; n++) A(a, Z(a, `left:${t * (0.12 + 0.15 * n)}px;width:6px;height:11px;border-radius:2px;background:${[...s, "var(--ink)"][n % 4]}`), V([["translateY(-14px) rotate(0deg)", 1, 0, xt], [`translateY(${e + 12}px) rotate(${n % 2 ? 300 : -260}deg)`, 1, 0.92], [`translateY(${e + 12}px) rotate(0deg)`, 0]]), 1450, 150 + n * 90);
   },
   /* the timer is on: a tennis ball lands on the card's top edge, bounces twice and rolls off the end */
   rocket(a) {
-    const t = Ot(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = Y(a, "left:-7px;top:-7px;width:14px;height:14px"), o = G(a, 0, 0, 14, 14, Kf, "transform-origin:50% 50%", s, !1);
+    const t = Ot(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = Z(a, "left:-7px;top:-7px;width:14px;height:14px"), o = G(a, 0, 0, 14, 14, Kf, "transform-origin:50% 50%", s, !1);
     if (a.calm) {
       s.style.translate = `${t + e * 0.5}px ${i}px`, A(a, s, O(), 800);
       return;
@@ -6087,15 +6101,15 @@ const H1 = 40, rt = "cubic-bezier(.2,.8,.2,1)", be = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* everyone is ready on time: the dog trots along the top of the card with the ball */
   quokka(a) {
-    const t = a.dir, e = 2300, i = Y(a, "left:0;top:0;width:0;height:0"), s = Y(a, `width:0;height:0;${t < 0 ? "scale:-1 1" : ""}`, `<svg viewBox="-26 -30 60 31" width="60" height="31" style="left:-26px;top:-30px">${Sf}</svg>`, i, !1);
+    const t = a.dir, e = 2300, i = Z(a, "left:0;top:0;width:0;height:0"), s = Z(a, `width:0;height:0;${t < 0 ? "scale:-1 1" : ""}`, `<svg viewBox="-26 -30 60 31" width="60" height="31" style="left:-26px;top:-30px">${Sf}</svg>`, i, !1);
     if (a.calm) {
       i.style.translate = `${t > 0 ? 34 : a.W - 34}px 0`, A(a, i, O(), 1e3);
       return;
     }
     const o = t > 0 ? -34 : a.W + 34, r = t > 0 ? a.W + 34 : -34;
-    A(a, i, [{ transform: D(o, 0), opacity: 0 }, { transform: D(o + (r - o) * 0.07, 0), opacity: 1, offset: 0.07 }, { transform: D(o + (r - o) * 0.93, 0), opacity: 1, offset: 0.93 }, { transform: D(r, 0), opacity: 0 }], e), A(a, s, [{ transform: "translateY(0)" }, { transform: "translateY(-2.2px)" }], 82, 0, ce, { iterations: 28, direction: "alternate", fill: "both" }), [[".spk-l1", "0 -10px", 26], [".spk-l2", "4px -10px", -26], [".spk-tail", "-14px -16px", -16]].forEach(([n, p, d]) => {
-      const c = s.querySelector(n);
-      c && (c.style.transformOrigin = p, A(a, c, [{ transform: `rotate(${d}deg)` }, { transform: `rotate(${-d}deg)` }, { transform: `rotate(${d}deg)` }], 164, 0, ce, { iterations: 14, fill: "both" }));
+    A(a, i, [{ transform: D(o, 0), opacity: 0 }, { transform: D(o + (r - o) * 0.07, 0), opacity: 1, offset: 0.07 }, { transform: D(o + (r - o) * 0.93, 0), opacity: 1, offset: 0.93 }, { transform: D(r, 0), opacity: 0 }], e), A(a, s, [{ transform: "translateY(0)" }, { transform: "translateY(-2.2px)" }], 82, 0, ce, { iterations: 28, direction: "alternate", fill: "both" }), [[".spk-l1", "0 -10px", 26], [".spk-l2", "4px -10px", -26], [".spk-tail", "-14px -16px", -16]].forEach(([n, p, c]) => {
+      const d = s.querySelector(n);
+      d && (d.style.transformOrigin = p, A(a, d, [{ transform: `rotate(${c}deg)` }, { transform: `rotate(${-c}deg)` }, { transform: `rotate(${c}deg)` }], 164, 0, ce, { iterations: 14, fill: "both" }));
     });
   }
 }, _f = (a, t) => {
@@ -6138,12 +6152,12 @@ function Tt(a, t, e = {}) {
     if (!i || !t || typeof document > "u" || !("animate" in Element.prototype)) return null;
     const s = t instanceof Element ? null : t, o = s ? _f(s.x, s.y) ?? document.body : t;
     if (!o.isConnected) return null;
-    const r = getComputedStyle(o), n = (ot, M = "") => r.getPropertyValue(ot).trim() || M, p = o.getRootNode(), d = p instanceof ShadowRoot ? p : document.body, c = e.look ?? Vf(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = $f(d), m = f.getBoundingClientRect(), u = o.getBoundingClientRect(), w = parseFloat(n("--z", "1")) || 1, x = o.offsetWidth, k = w !== 1 && x > 8 && Math.abs(u.width / x - 1) < Math.abs(u.width / x - w) ? w : 1, v = n("--ink", "#1b2430"), K = n("--primary", "#0b5fa5"), y = e.colour || n("--kid") || n("--c") || K, q = document.createElement("div");
-    q.className = `spk-fx spk-${c}`, q.setAttribute("data-kind", a);
+    const r = getComputedStyle(o), n = (ot, M = "") => r.getPropertyValue(ot).trim() || M, p = o.getRootNode(), c = p instanceof ShadowRoot ? p : document.body, d = e.look ?? Vf(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = $f(c), m = f.getBoundingClientRect(), u = o.getBoundingClientRect(), w = parseFloat(n("--z", "1")) || 1, x = o.offsetWidth, k = w !== 1 && x > 8 && Math.abs(u.width / x - 1) < Math.abs(u.width / x - w) ? w : 1, v = n("--ink", "#1b2430"), K = n("--primary", "#0b5fa5"), y = e.colour || n("--kid") || n("--c") || K, q = document.createElement("div");
+    q.className = `spk-fx spk-${d}`, q.setAttribute("data-kind", a);
     const N = s ? s.x - m.left : u.left * k - m.left, _ = s ? s.y - m.top : u.top * k - m.top, $ = s ? 0 : u.width * k / w, C = s ? 0 : u.height * k / w;
     q.style.cssText = `left:${N}px;top:${_}px;width:${$}px;height:${C}px;transform:scale(${w});--ink:${v};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${K};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${y};--c0:${y}`;
     const T = {
-      look: c,
+      look: d,
       calm: h,
       o: e,
       w: q,
@@ -6159,18 +6173,18 @@ function Tt(a, t, e = {}) {
       own: []
     };
     T.pal.length || (T.pal = [K, y, jr]);
-    const yt = c === "sports" ? Ff[a] : void 0;
-    yt ? yt(T) : (c === "sports" && (T.look = "glass"), i(T));
-    const ft = () => {
+    const yt = d === "sports" ? Ff[a] : void 0;
+    yt ? yt(T) : (d === "sports" && (T.look = "glass"), i(T));
+    const mt = () => {
       f.querySelector(".spk-fx") || (f.remove(), js.delete(f));
     };
     if (!T.plans.length || fc() + q.querySelectorAll("[data-p]").length > H1)
-      return ft(), null;
+      return mt(), null;
     f.appendChild(q);
-    const Jt = [];
+    const Pt = [];
     for (const [ot, M, Q] of T.plans)
       try {
-        Jt.push(ot.animate(M, Q));
+        Pt.push(ot.animate(M, Q));
       } catch {
       }
     for (const [ot, M, Q] of T.own)
@@ -6179,9 +6193,9 @@ function Tt(a, t, e = {}) {
       } catch {
       }
     const _t = () => {
-      q.remove(), ft();
+      q.remove(), mt();
     };
-    return Jt.length ? (Promise.allSettled(Jt.map((ot) => ot.finished)).then(_t, _t), Jt[0]) : (_t(), null);
+    return Pt.length ? (Promise.allSettled(Pt.map((ot) => ot.finished)).then(_t, _t), Pt[0]) : (_t(), null);
   } catch {
     return null;
   }
@@ -6234,16 +6248,17 @@ const Nf = {
   desk: "M6 4v16M12 4v16M18 4v16M4 9h4M10 15h4M16 7h4",
   plug: "M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4",
   scene: "M3 18h18M5.5 18l1.5 3h10l1.5-3M12 4v14M12 5l6 9h-6",
-  list: "M4 6h16M4 12h16M4 18h16"
+  list: "M4 6h16M4 12h16M4 18h16",
+  more: "M5.5 12h.01M12 12h.01M18.5 12h.01"
 }, Tf = {
   play: "M8 5.5v13l10.5-6.5z",
   pause: "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z",
   prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
   next: "M16 6h2v12h-2zM4 6v12l10.5-6z"
-}, U = (a, t = 22) => l`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${b`<path d=${Nf[a] ?? ""}></path>`}</svg>`, nt = (a, t = 22) => l`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${b`<path d=${Tf[a] ?? ""}></path>`}</svg>`, zf = (a) => /rain|pour|storm|lightning/.test(a) ? "rain" : /cloud|fog/.test(a) ? "cloud" : /night/.test(a) ? "moon" : "sun", gc = (a, t) => {
+}, U = (a, t = 22) => l`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${b`<path d=${Nf[a] ?? ""}></path>`}</svg>`, lt = (a, t = 22) => l`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${b`<path d=${Tf[a] ?? ""}></path>`}</svg>`, zf = (a) => /rain|pour|storm|lightning/.test(a) ? "rain" : /cloud|fog/.test(a) ? "cloud" : /night/.test(a) ? "moon" : "sun", gc = (a, t) => {
   const e = t.toLowerCase(), i = (s) => !!s.trim() && e.includes(s.trim().toLowerCase());
   return a.only?.length && !a.only.some(i) ? !1 : !(a.hide ?? []).some(i);
-}, As = (a) => (a ?? []).some((t) => t.ask !== void 0 || t.ask_minutes !== void 0), Oe = (a) => ({ mode: a.ask ?? (a.mode === "picture" ? "pictures" : "full"), minutes: Math.max(0, Number.isFinite(a.ask_minutes) ? Number(a.ask_minutes) : 15) }), Z = (a) => a === "family" || a === void 0 ? "var(--p-family)" : `var(--p-${a})`, Wf = (a) => a.toLowerCase().replace(/[^a-z0-9]+/g, "_"), tt = (a) => {
+}, As = (a) => (a ?? []).some((t) => t.ask !== void 0 || t.ask_minutes !== void 0), Be = (a) => ({ mode: a.ask ?? (a.mode === "picture" ? "pictures" : "full"), minutes: Math.max(0, Number.isFinite(a.ask_minutes) ? Number(a.ask_minutes) : 15) }), Y = (a) => a === "family" || a === void 0 ? "var(--p-family)" : `var(--p-${a})`, Wf = (a) => a.toLowerCase().replace(/[^a-z0-9]+/g, "_"), E = (a) => {
   const t = Wf(a.id ?? a.name);
   return {
     chores: a.chores ?? `todo.${t}_chores`,
@@ -6257,16 +6272,16 @@ const Nf = {
     grow: `input_number.${t}_grow`,
     slug: t
   };
-}, Ge = (a, t) => {
+}, Qe = (a, t) => {
   const e = Number(a?.states[t]?.state);
   return Number.isFinite(e) ? e : 0;
-}, Cf = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], _e = (a, t, e) => {
+}, Cf = ["qwertyuiop", "asdfghjkl", "zxcvbnm"], Fe = (a, t, e) => {
   if (t === "del") {
     const i = a.slice(0, -1);
     return [i, !i.length];
   }
   return t === " " ? [a + " ", e] : /\d/.test(t) ? [a + t, e] : /^[?!',.]$/.test(t) ? [a + t, /[?!.]/.test(t) ? !0 : e] : [a + (e ? t.toUpperCase() : t), !1];
-}, va = (a, t, e, i = !1, s = !1, o = !1) => {
+}, ya = (a, t, e, i = !1, s = !1, o = !1) => {
   const r = (n) => {
     S(n === "del" ? "del" : n === " " ? "space" : "key"), a(n);
   };
@@ -6277,7 +6292,7 @@ const Nf = {
       ${p === 2 ? l`<button class="key wide" aria-label="Capital letter" aria-pressed=${String(t)} @click=${() => {
     S("key"), e();
   }}>⇧</button>` : g}
-      ${[...n].map((d) => l`<button class="key" @click=${() => r(d)}>${t ? d.toUpperCase() : d}</button>`)}
+      ${[...n].map((c) => l`<button class="key" @click=${() => r(c)}>${t ? c.toUpperCase() : c}</button>`)}
       ${p === 2 ? l`<button class="key wide" aria-label="Delete" @click=${() => r("del")}>⌫</button>` : g}
     </div>`)}
     <div class="krow ${o ? "pk" : ""}">${o ? [["?", "Question mark"], ["!", "Exclamation mark"], ["’", "Apostrophe"]].map(([n, p]) => l`<button class="key" aria-label=${p} @click=${() => r(n === "’" ? "'" : n)}>${n}</button>`) : g}<button class="key space" aria-label="Space" @click=${() => r(" ")}>space</button>${o ? [[",", "Comma"], [".", "Full stop"]].map(([n, p]) => l`<button class="key" aria-label=${p} @click=${() => r(n)}>${n}</button>`) : g}</div>
@@ -6312,9 +6327,9 @@ const Nf = {
   const t = String(a ?? "").toLowerCase();
   for (const [e, i, s] of Lf) if (s.test(t)) return [e, i];
   return ["Other", "--p-family"];
-}, Ds = class Ds extends ht {
+}, Ds = class Ds extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this.entity = "todo.shopping_list", this.usuals = ["Milk", "Bread", "Eggs", "Bananas", "Cheese", "Coffee"], this.recipients = [], this._items = [], this._typed = "", this._caps = !0, this._toast = "", this._subFor = "", this._failed = !1, this._hidden = [], this._sticky = !1, this._adding = [], this._tk = {}, this._places = null, this._just = "", this._sending = "";
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this.entity = "todo.shopping_list", this.usuals = ["Milk", "Bread", "Eggs", "Bananas", "Cheese", "Coffee"], this.recipients = [], this._items = [], this._typed = "", this._caps = !0, this._toast = "", this._subFor = "", this._failed = !1, this._hidden = [], this._sticky = !1, this._adding = [], this._tk = {}, this._places = null, this._just = "", this._sending = "";
   }
   disconnectedCallback() {
     super.disconnectedCallback(), this._commitClear(), this._unsub?.(), this._unsub = void 0, this._subFor = "";
@@ -6367,8 +6382,8 @@ const Nf = {
     if (this._tk[t.uid]?.out) return;
     const e = this._shown(t) === "completed" ? "needs_action" : "completed";
     if (S(e === "completed" ? "tick" : "untick"), e === "completed") {
-      const n = [...this.renderRoot.querySelectorAll("button.item")].find((d) => d.querySelector(".strike")?.textContent === t.summary), p = this.renderRoot.querySelector(".items");
-      if (n && Tt("tick", n.querySelector(".check") ?? n), p && this._items.every((d) => d.uid === t.uid || this._shown(d) === "completed") && localStorage.getItem("fh-truck") !== (/* @__PURE__ */ new Date()).toDateString()) {
+      const n = [...this.renderRoot.querySelectorAll("button.item")].find((c) => c.querySelector(".strike")?.textContent === t.summary), p = this.renderRoot.querySelector(".items");
+      if (n && Tt("tick", n.querySelector(".check") ?? n), p && this._items.every((c) => c.uid === t.uid || this._shown(c) === "completed") && localStorage.getItem("fh-truck") !== (/* @__PURE__ */ new Date()).toDateString()) {
         try {
           localStorage.setItem("fh-truck", (/* @__PURE__ */ new Date()).toDateString());
         } catch {
@@ -6399,7 +6414,7 @@ const Nf = {
     const r = window.setTimeout(() => o({ busy: !0 }), 250);
     this._just = t.uid, window.setTimeout(() => {
       this._just === t.uid && (this._just = "");
-    }, 700), dt(this.hass?.callService("todo", "update_item", { item: t.uid, status: e }, { entity_id: this.entity })).then(() => "", (n) => n instanceof Wt ? "slow" : "no").then((n) => {
+    }, 700), ct(this.hass?.callService("todo", "update_item", { item: t.uid, status: e }, { entity_id: this.entity })).then(() => "", (n) => n instanceof Wt ? "slow" : "no").then((n) => {
       clearTimeout(r);
       const p = this._tk[t.uid];
       if (!(!p || p.n !== i)) {
@@ -6435,7 +6450,7 @@ const Nf = {
     if (!t.length) return;
     this._hidden = [];
     const e = t.length;
-    this._undo && (this._toast = "", this._undo = void 0), dt(this.hass?.callService("todo", "remove_item", { item: t }, { entity_id: this.entity })).catch((i) => {
+    this._undo && (this._toast = "", this._undo = void 0), ct(this.hass?.callService("todo", "remove_item", { item: t }, { entity_id: this.entity })).catch((i) => {
       this.isConnected && this._say(i instanceof Wt ? `${St} The ${e === 1 ? "ticked item is" : `${e} ticked items are`} still on the list.` : `Couldn’t clear the ${e === 1 ? "ticked item" : `${e} ticked items`}. Try again`, void 0, !0);
     });
   }
@@ -6467,7 +6482,7 @@ const Nf = {
     this._sending = "", this.isConnected && this._say(r ? `List sent to ${t.name}’s phone` : `The list didn’t reach ${t.name}’s phone. Try again`);
   }
   render() {
-    const [t, e] = Ae(this, "toast", this._toast ? { msg: this._toast, undo: !!this._undo, stay: this._sticky } : null), i = this._adding.filter((n) => !this._items.some((p) => p.status === "needs_action" && p.summary.toLowerCase() === n.toLowerCase())), s = this._items.filter((n) => this._group(n) === "needs_action"), o = this._items.filter((n) => this._group(n) === "completed" && !this._hidden.includes(n.uid)), r = [...s].sort((n, p) => is(n.summary)[0].localeCompare(is(p.summary)[0]));
+    const [t, e] = qe(this, "toast", this._toast ? { msg: this._toast, undo: !!this._undo, stay: this._sticky } : null), i = this._adding.filter((n) => !this._items.some((p) => p.status === "needs_action" && p.summary.toLowerCase() === n.toLowerCase())), s = this._items.filter((n) => this._group(n) === "needs_action"), o = this._items.filter((n) => this._group(n) === "completed" && !this._hidden.includes(n.uid)), r = [...s].sort((n, p) => is(n.summary)[0].localeCompare(is(p.summary)[0]));
     return l`
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -6494,7 +6509,7 @@ const Nf = {
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((n) => l`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === n.name} aria-busy=${this._sending === n.name ? "true" : g} @click=${() => void this._send(n)}>
-            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${Z(n.colour)}">${n.name[0]}</span>${n.name}</button>`)}
+            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${Y(n.colour)}">${n.name[0]}</span>${n.name}</button>`)}
           ${this.recipients.length ? g : l`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>`}
         </div>
         <div class="entry">
@@ -6511,8 +6526,8 @@ const Nf = {
           <span class="muted">Usuals</span>
           ${this.usuals.map((n) => l`<button class="chip quick tap" aria-label="Add ${n}" @click=${(p) => this._add(n, p.currentTarget)}>+ ${n}</button>`)}
         </div>
-        ${va((n) => {
-      [this._typed, this._caps] = _e(this._typed, n, this._caps);
+        ${ya((n) => {
+      [this._typed, this._caps] = Fe(this._typed, n, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
     })}
@@ -6641,30 +6656,30 @@ const Qf = (a) => {
 }, Wn = (a) => {
   Yr.delete(co(a));
 };
-let Ze = null;
+let Ye = null;
 const Zf = async (a = $i, t = !1) => {
-  if (Ze && !t && Date.now() - Ze.at < 6e4) return Ze.names;
+  if (Ye && !t && Date.now() - Ye.at < 6e4) return Ye.names;
   if (!a) return /* @__PURE__ */ new Set();
   try {
     const e = await a.callWS({ type: "media_source/browse_media", media_content_id: Tn });
-    Ze = { names: new Set((e.children ?? []).map((i) => i.title)), at: Date.now() };
+    Ye = { names: new Set((e.children ?? []).map((i) => i.title)), at: Date.now() };
   } catch {
-    Ze = { names: /* @__PURE__ */ new Set(), at: Date.now() };
+    Ye = { names: /* @__PURE__ */ new Set(), at: Date.now() };
   }
-  return Ze.names;
+  return Ye.names;
 }, uc = async (a, t, e) => {
   if (!a.fetchWithAuth) return !1;
   const i = new FormData();
   i.append("media_content_id", `${Tn}/.`), i.append("file", new File([e], t, { type: e.type || "image/jpeg" }));
   try {
     const s = await a.fetchWithAuth("/api/media_source/local_source/upload", { method: "POST", body: i });
-    return s.ok && (Ze?.names.add(t), Wn(t)), s.ok;
+    return s.ok && (Ye?.names.add(t), Wn(t)), s.ok;
   } catch {
     return !1;
   }
 }, Bf = async (a, t) => {
   try {
-    return await a.callWS({ type: "media_source/local_source/remove", media_content_id: co(t) }), Ze?.names.delete(t), Wn(t), !0;
+    return await a.callWS({ type: "media_source/local_source/remove", media_content_id: co(t) }), Ye?.names.delete(t), Wn(t), !0;
   } catch {
     return !1;
   }
@@ -6672,10 +6687,10 @@ const Zf = async (a = $i, t = !1) => {
   const s = await createImageBitmap(a);
   let o = s.width, r = Math.round(o / e);
   r > s.height && (r = s.height, o = Math.round(r * e));
-  const n = Math.round((s.width - o) / 2), p = Math.round((s.height - r) * i), d = document.createElement("canvas");
-  d.width = t, d.height = Math.round(t / e);
-  const c = d.getContext("2d");
-  return c.imageSmoothingQuality = "high", c.drawImage(s, n, p, o, r, 0, 0, d.width, d.height), s.close?.(), new Promise((h, f) => d.toBlob((m) => m ? h(m) : f(new Error("no picture")), "image/jpeg", 0.9));
+  const n = Math.round((s.width - o) / 2), p = Math.round((s.height - r) * i), c = document.createElement("canvas");
+  c.width = t, c.height = Math.round(t / e);
+  const d = c.getContext("2d");
+  return d.imageSmoothingQuality = "high", d.drawImage(s, n, p, o, r, 0, 0, c.width, c.height), s.close?.(), new Promise((h, f) => c.toBlob((m) => m ? h(m) : f(new Error("no picture")), "image/jpeg", 0.9));
 }, Ba = (a, t) => t && a?.states[t] ? t : Object.keys(a?.states ?? {}).find((e) => e.startsWith("ai_task.")) ?? "", Of = async (a, t, e, i, s = []) => {
   const r = await a.callService.call(a, "ai_task", "generate_image", {
     entity_id: t,
@@ -6685,7 +6700,7 @@ const Zf = async (a = $i, t = !1) => {
   }, void 0, !1, !0), n = r?.response ?? r;
   if (!n?.url) throw new Error("No picture came back");
   return { ...n, url: a.hassUrl && n.url.startsWith("/") ? a.hassUrl(n.url) : n.url };
-}, Zr = /* @__PURE__ */ new Set(), Is = class Is extends ht {
+}, Zr = /* @__PURE__ */ new Set(), Is = class Is extends ft {
   constructor() {
     super(...arguments), this.media = "", this.label = "", this._url = "", this._in = !1, this._for = "";
   }
@@ -6742,13 +6757,13 @@ const xc = {
   freckles: "no",
   mole: "no",
   img: ""
-}, kc = [["skin", "s"], ["hair", "h"], ["hairColour", "hc"], ["eyes", "e"], ["mouth", "m"], ["hat", "a"], ["eyewear", "u"], ["top", "t"], ["topColour", "tc"], ["gear", "g"], ["buddy", "b"], ["scene", "sc"], ["eyeColour", "ec"], ["freckles", "fr"], ["mole", "mo"], ["img", "img"]], ss = (a) => kc.filter(([t]) => t !== "img" || !!a.img).map(([t, e]) => `${e}=${String(a[t]).replace("#", "")}`).join(";"), ct = (a, t = {}) => {
+}, kc = [["skin", "s"], ["hair", "h"], ["hairColour", "hc"], ["eyes", "e"], ["mouth", "m"], ["hat", "a"], ["eyewear", "u"], ["top", "t"], ["topColour", "tc"], ["gear", "g"], ["buddy", "b"], ["scene", "sc"], ["eyeColour", "ec"], ["freckles", "fr"], ["mole", "mo"], ["img", "img"]], ss = (a) => kc.filter(([t]) => t !== "img" || !!a.img).map(([t, e]) => `${e}=${String(a[t]).replace("#", "")}`).join(";"), nt = (a, t = {}) => {
   const e = { ...xc, ...t };
   if (!a || a === "unknown" || !a.includes("=")) return e;
   const i = Object.fromEntries(a.split(";").map((s) => s.split("=")));
   for (const [s, o] of kc) i[o] && (e[s] = /colour|skin/i.test(s) && /^[0-9a-f]{3,8}$/i.test(i[o]) ? `#${i[o]}` : i[o]);
   return e;
-}, He = [
+}, Xe = [
   {
     id: "hair",
     emoji: "💇",
@@ -6832,7 +6847,7 @@ const xc = {
     crop: "full",
     items: [["plain", "Sky", 0], ["beach", "Beach", 0], ["pool", "Pool", 200], ["court", "Tennis court", 200], ["library", "Library", 0, 10], ["rottnest", "Rottnest", 400], ["sunset", "Sunset", 500], ["reef", "Reef", 600], ["volcano", "Dino valley", 750], ["stadium", "Stadium", 1e3], ["castle", "Castle", 1100], ["forge", "Forge", 1500], ["space", "Space", 2e3]]
   }
-], up = /* @__PURE__ */ new WeakMap(), Ua = (a) => {
+], up = /* @__PURE__ */ new WeakMap(), Ka = (a) => {
   let t = up.get(a);
   return t || (t = {
     all: a.flatMap((e) => [
@@ -6842,15 +6857,15 @@ const xc = {
     grow: a.flatMap((e) => e.items.filter((i) => i[3]).map((i) => ({ cat: e, id: i[0], label: i[1], req: i[3] })))
   }, up.set(a, t)), t;
 };
-Ua(He).all;
-const Df = (a, t, e = He) => Ua(e).all.filter((i) => i.req > a && i.req <= t), If = Ua(He).grow, Jf = (a = He) => Ua(a).grow, Pf = (a, t, e = He) => Ua(e).grow.filter((i) => i.req > a && i.req <= t), ca = (a, t, e) => a[3] ? e >= a[3] : t >= a[2], si = ["Explorer", "Ranger", "Navigator", "Captain", "Commander", "Admiral", "Legend", "Mythic", "Cosmic"], Xf = (a) => {
+Ka(Xe).all;
+const Df = (a, t, e = Xe) => Ka(e).all.filter((i) => i.req > a && i.req <= t), If = Ka(Xe).grow, Jf = (a = Xe) => Ka(a).grow, Pf = (a, t, e = Xe) => Ka(e).grow.filter((i) => i.req > a && i.req <= t), da = (a, t, e) => a[3] ? e >= a[3] : t >= a[2], si = ["Explorer", "Ranger", "Navigator", "Captain", "Commander", "Admiral", "Legend", "Mythic", "Cosmic"], Xf = (a) => {
   let t = 1, e = 0, i = 100;
   for (; a >= e + i; )
     e += i, t++, i = 100 + 50 * (t - 1);
   const s = Math.min(si.length - 1, Math.floor((t - 1) / 2));
   return { level: t, rank: `${si[s]}${(t - 1) % 2 ? " II" : ""}`, into: a - e, need: i, nextRank: t % 2 ? `${si[s]} II` : si[Math.min(si.length - 1, s + 1)] };
-}, Hf = (a, t = [], e, i = He) => {
-  const s = Ua(i).all;
+}, Hf = (a, t = [], e, i = Xe) => {
+  const s = Ka(i).all;
   if (e) {
     const n = s.find((p) => p.id === e && p.req > a);
     if (n) return n;
@@ -6859,7 +6874,7 @@ const Df = (a, t, e = He) => Ua(e).all.filter((i) => i.req > a && i.req <= t), I
   if (!o) return;
   const r = s.filter((n) => n.req > a && t.includes(n.id)).sort((n, p) => n.req - p.req)[0];
   return r && r.req <= o.req + 100 ? r : o;
-}, Ef = (a, t = He) => Ua(t).all.filter((e) => e.req <= a).reduce((e, i) => Math.max(e, i.req), 0), wi = (a, t, e, i = !1) => {
+}, Ef = (a, t = Xe) => Ka(t).all.filter((e) => e.req <= a).reduce((e, i) => Math.max(e, i.req), 0), wi = (a, t, e, i = !1) => {
   if (i && t.swatch) return { ...a, [t.swatch.key]: e };
   if (e.includes(":")) {
     const [s, o] = e.split(":");
@@ -6985,13 +7000,13 @@ const Df = (a, t, e = He) => Ua(e).all.filter((i) => i.req > a && i.req <= t), I
   crown: () => b`<g class="av-pop d5"><path d="M63 72 L68 38 L85 58 L100 30 L115 58 L132 38 L137 72 Z" fill="#f5b301" stroke="#b27f00" stroke-width="2.5" stroke-linejoin="round"></path><circle cx="100" cy="60" r="5" fill="#ef4444"></circle><circle cx="80" cy="64" r="3.5" fill="#3b82f6"></circle><circle cx="120" cy="64" r="3.5" fill="#22c55e"></circle></g>`,
   helmet: () => b`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
-function te(a, t = {}) {
+function It(a, t = {}) {
   const e = t.size ?? 200, i = t.crop === "head", s = e, o = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "";
   if (a.img) return l`<span class="avwrap avpic ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <fh-pic role="img" aria-label=${t.label ?? "Avatar"} .media=${a.img} .label=${""}
       style="width:${s}px;height:${o}px;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`};${i ? "--pic-zoom:1.3;--pic-at:50% 25%;" : "--pic-at:50% 30%;"}"></fh-pic>
     ${t.ring && i ? l`<span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 ${Math.max(2, Math.round(e * 0.055))}px ${t.ring};pointer-events:none"></span>` : g}</span>`;
-  const n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", d = n === "kid" ? 44 : 46, c = n === "teen" ? 46 : 44, h = b`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, f = n !== "kid" ? b`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : g;
+  const n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", c = n === "kid" ? 44 : 46, d = n === "teen" ? 46 : 44, h = b`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, f = n !== "kid" ? b`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : g;
   return l`<span class="avwrap ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${i ? "36 28 128 128" : "0 0 200 240"} width=${s} height=${o} role="img" aria-label=${t.label ?? "Avatar"}
       style="display:block;overflow:hidden;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`}">
@@ -7005,7 +7020,7 @@ function te(a, t = {}) {
         <g transform=${p}>
         <g class="av-pop d2">
           <circle cx="57" cy="104" r="9" fill=${a.skin}></circle><circle cx="143" cy="104" r="9" fill=${a.skin}></circle>
-          <ellipse cx="100" cy="100" rx=${d} ry=${c} fill=${a.skin}></ellipse>
+          <ellipse cx="100" cy="100" rx=${c} ry=${d} fill=${a.skin}></ellipse>
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
         <g class=${t.still ? "" : "av-blink"}>${(qp[a.eyes] ?? qp.normal)(a)}</g>
@@ -7048,9 +7063,9 @@ const Ja = `
   let i = a * 9301 + 49297;
   const s = () => (i = (i * 9301 + 49297) % 233280, i / 233280);
   return l`<div class="confetti" aria-hidden="true">${Array.from({ length: t }, () => {
-    const o = s() * 100, r = 0.65 + s() * 0.25, n = s() * 0.1, p = 6 + s() * 8, d = s() * 720 - 360, c = s() * 160 - 80;
+    const o = s() * 100, r = 0.65 + s() * 0.25, n = s() * 0.1, p = 6 + s() * 8, c = s() * 720 - 360, d = s() * 160 - 80;
     return l`<i style="left:${o}%;width:${p}px;height:${p * (s() > 0.5 ? 0.45 : 1)}px;background:${e[Math.floor(s() * e.length)]};border-radius:${s() > 0.6 ? "50%" : "2px"};
-      animation-duration:calc(var(--m-5, 900ms) * ${r.toFixed(2)});animation-delay:calc(var(--m-5, 900ms) * ${n.toFixed(2)});--rot:${d}deg;--drift:${c}px"></i>`;
+      animation-duration:calc(var(--m-5, 900ms) * ${r.toFixed(2)});animation-delay:calc(var(--m-5, 900ms) * ${n.toFixed(2)});--rot:${c}deg;--drift:${d}px"></i>`;
   })}</div>`;
 }, jn = `
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; container-type: size; opacity: var(--m-d, 1); }
@@ -7066,19 +7081,19 @@ const Ja = `
   @keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
   .xp { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
   .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--mark, var(--primary)), var(--mark, var(--accent))); transition: width var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1); }
-`, Fp = 864e5, it = (a) => new Date(a.getFullYear(), a.getMonth(), a.getDate()), X = (a, t) => new Date(a.getFullYear(), a.getMonth(), a.getDate() + t), mt = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), yi = (a) => {
+`, Fp = 864e5, it = (a) => new Date(a.getFullYear(), a.getMonth(), a.getDate()), X = (a, t) => new Date(a.getFullYear(), a.getMonth(), a.getDate() + t), ht = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), yi = (a) => {
   const t = it(a), e = (t.getDay() + 6) % 7;
   return X(t, -e);
-}, _p = (a) => yi(new Date(a.getFullYear(), a.getMonth(), 1)), ba = "en-AU", pt = (a) => a.toLocaleTimeString(ba, { hour: "numeric", minute: "2-digit", hour12: !0 }).replace(/\s?([ap])\.?m\.?/i, " $1m").toLowerCase(), Io = (a) => {
+}, _p = (a) => yi(new Date(a.getFullYear(), a.getMonth(), 1)), ua = "en-AU", dt = (a) => a.toLocaleTimeString(ua, { hour: "numeric", minute: "2-digit", hour12: !0 }).replace(/\s?([ap])\.?m\.?/i, " $1m").toLowerCase(), Io = (a) => {
   const t = a.getHours();
   return { hm: `${t % 12 || 12}:${String(a.getMinutes()).padStart(2, "0")}`, ampm: t < 12 ? "am" : "pm" };
-}, Fa = (a) => a.toLocaleDateString(ba, { weekday: "long", day: "numeric", month: "long" }), vi = (a) => a.toLocaleDateString(ba, { weekday: "short", day: "numeric", month: "short" }), Si = (a) => a.toLocaleDateString(ba, { weekday: "short" }), em = (a, t) => a.getMonth() === t.getMonth() ? `${a.getDate()} – ${t.getDate()} ${t.toLocaleDateString(ba, { month: "long" })}` : `${a.getDate()} ${a.toLocaleDateString(ba, { month: "short" })} – ${t.getDate()} ${t.toLocaleDateString(ba, { month: "short" })}`, am = (a) => {
+}, Sa = (a) => a.toLocaleDateString(ua, { weekday: "long", day: "numeric", month: "long" }), vi = (a) => a.toLocaleDateString(ua, { weekday: "short", day: "numeric", month: "short" }), Si = (a) => a.toLocaleDateString(ua, { weekday: "short" }), em = (a, t) => a.getMonth() === t.getMonth() ? `${a.getDate()} – ${t.getDate()} ${t.toLocaleDateString(ua, { month: "long" })}` : `${a.getDate()} ${a.toLocaleDateString(ua, { month: "short" })} – ${t.getDate()} ${t.toLocaleDateString(ua, { month: "short" })}`, am = (a) => {
   const t = a.getHours();
   return t < 5 ? "Up late" : t < 12 ? "Good morning" : t < 17 ? "Good afternoon" : "Good evening";
 }, Rp = (a, t, e) => {
   const i = a.getHours() * 60 + a.getMinutes(), s = (n) => {
-    const [p, d] = n.split(":").map(Number);
-    return p * 60 + (d || 0);
+    const [p, c] = n.split(":").map(Number);
+    return p * 60 + (c || 0);
   }, o = s(t), r = s(e);
   return o <= r ? i >= o && i < r : i >= o || i < r;
 }, le = (a, t) => {
@@ -7087,13 +7102,13 @@ const Ja = `
     const s = Math.max(1, Math.round((a.end.getTime() - a.start.getTime()) / Fp));
     return { label: s > 1 ? `Day ${Math.min(s, Math.max(1, Math.round((e - it(a.start).getTime()) / Fp) + 1))} of ${s}` : "All day", sort: -2 };
   }
-  return a.start.getTime() >= e ? { label: pt(a.start), sort: a.start.getTime() - e } : a.end.getTime() < i ? { label: `until ${pt(a.end)}`, sort: 0 } : a.end.getTime() === i ? { label: "until midnight", sort: 0 } : { label: "continues", sort: -1 };
+  return a.start.getTime() >= e ? { label: dt(a.start), sort: a.start.getTime() - e } : a.end.getTime() < i ? { label: `until ${dt(a.end)}`, sort: 0 } : a.end.getTime() === i ? { label: "until midnight", sort: 0 } : { label: "continues", sort: -1 };
 }, im = (a) => {
   if (a.allDay) {
     const t = X(a.end, -1);
     return t.getTime() > it(a.start).getTime() ? `All day, ${vi(a.start)} to ${vi(t)}` : "All day";
   }
-  return mt(a.start, a.end) || a.end.getTime() === X(a.start, 1).getTime() ? `${pt(a.start)} to ${pt(a.end)}` : `${vi(a.start)} ${pt(a.start)} to ${vi(a.end)} ${pt(a.end)}`;
+  return ht(a.start, a.end) || a.end.getTime() === X(a.start, 1).getTime() ? `${dt(a.start)} to ${dt(a.end)}` : `${vi(a.start)} ${dt(a.start)} to ${vi(a.end)} ${dt(a.end)}`;
 }, wc = (a = /* @__PURE__ */ new Date()) => {
   const t = it(a);
   return X(t, -((t.getDay() + 6) % 7)).getTime();
@@ -7119,7 +7134,7 @@ const Ja = `
   const r = {};
   for (const n of /* @__PURE__ */ new Set([...Object.keys(s), ...Object.keys(o)])) r[n] = Math.max(s[n] ?? 0, o[n] ?? 0);
   return r;
-}, We = (a, t, e, i, s, o) => [{ id: a, emoji: t, label: e, key: i, crop: "full", items: s.map((r) => r[5] ? [r[0], r[1], r[2], r[5]] : [r[0], r[1], r[2]]), swatch: o }, s], nm = [
+}, ze = (a, t, e, i, s, o) => [{ id: a, emoji: t, label: e, key: i, crop: "full", items: s.map((r) => r[5] ? [r[0], r[1], r[2], r[5]] : [r[0], r[1], r[2]]), swatch: o }, s], nm = [
   ["none", "No hat", 0, "🙂", ""],
   ["cap", "Cap", 0, "🧢", "a plain baseball cap"],
   ["backcap", "Backwards cap", 60, "🧢", "a plain baseball cap worn backwards"],
@@ -7294,15 +7309,15 @@ const Ja = `
   ["wink", "Wink", 0, "😉", "a friendly wink"],
   ["silly", "Silly", 0, "🤪", "pulling a goofy, cross-eyed silly face"]
 ], Uc = [
-  We("hats", "🧢", "Hats", "hat", nm),
-  We("eyewear", "🕶️", "Face", "eyewear", lm),
-  We("tops", "👕", "Clothes", "top", pm, { key: "topColour", label: "Colour", items: dm }),
-  We("gear", "🎺", "Gear", "gear", cm),
-  We("buddy", "🐉", "Buddies", "buddy", hm),
-  We("scene", "🏝️", "Places", "scene", fm),
-  We("hair", "💇", "Hair", "hair", mm),
-  We("face", "🙂", "Mood", "mouth", gm)
-], qc = Uc.map(([a]) => a), Ln = new Map(Uc.flatMap(([a, t]) => t.map((e) => [`${a.key}:${e[0]}`, { emoji: e[3], words: e[4] }]))), Dr = (a, t) => Ln.get(`${a.key}:${t}`)?.emoji ?? a.emoji, Ac = (a) => a ? qc : He, um = ["hat", "eyewear", "top", "topColour", "gear", "buddy", "scene", "hair", "mouth"], bm = { hat: "none", eyewear: "none", top: "tee", topColour: "#0b5fa5", gear: "none", buddy: "none", scene: "plain", hair: "own", mouth: "smile" }, Qn = (a) => Object.fromEntries(um.map((t) => {
+  ze("hats", "🧢", "Hats", "hat", nm),
+  ze("eyewear", "🕶️", "Face", "eyewear", lm),
+  ze("tops", "👕", "Clothes", "top", pm, { key: "topColour", label: "Colour", items: dm }),
+  ze("gear", "🎺", "Gear", "gear", cm),
+  ze("buddy", "🐉", "Buddies", "buddy", hm),
+  ze("scene", "🏝️", "Places", "scene", fm),
+  ze("hair", "💇", "Hair", "hair", mm),
+  ze("face", "🙂", "Mood", "mouth", gm)
+], qc = Uc.map(([a]) => a), Ln = new Map(Uc.flatMap(([a, t]) => t.map((e) => [`${a.key}:${e[0]}`, { emoji: e[3], words: e[4] }]))), Dr = (a, t) => Ln.get(`${a.key}:${t}`)?.emoji ?? a.emoji, Ac = (a) => a ? qc : Xe, um = ["hat", "eyewear", "top", "topColour", "gear", "buddy", "scene", "hair", "mouth"], bm = { hat: "none", eyewear: "none", top: "tee", topColour: "#0b5fa5", gear: "none", buddy: "none", scene: "plain", hair: "own", mouth: "smile" }, Qn = (a) => Object.fromEntries(um.map((t) => {
   const e = String(a[t] ?? ""), i = t === "topColour" ? !!Kc[e] : Ln.has(`${t}:${e}`);
   return [t, i ? e : String(bm[t])];
 })), Jo = (a) => ({ ...xc, ...a, ...Qn(a) }), Ki = (a) => {
@@ -7331,7 +7346,7 @@ const Ja = `
     "No text, letters, numbers, logos, brand names, flags or licensed characters anywhere in the picture."
   ].filter(Boolean).join(`
 `);
-}, zi = (a) => a?.art ?? {}, Pe = (a) => zi(a).list || "todo.family_hub_art", H = { idle: 3, interval: 5, cap: 40, cost: 0.3, looks: 3, sensitivity: 5, margin: 10, dimArt: 70, dimNight: 12 }, km = (a) => {
+}, zi = (a) => a?.art ?? {}, Je = (a) => zi(a).list || "todo.family_hub_art", H = { idle: 3, interval: 5, cap: 40, cost: 0.3, looks: 3, sensitivity: 5, margin: 10, dimArt: 70, dimNight: 12 }, km = (a) => {
   let t = {};
   try {
     const i = JSON.parse(a.description || "{}");
@@ -7372,14 +7387,14 @@ const Ja = `
   const i = ho(e).slice(0, 7), s = a.filter((o) => o.d.startsWith(i)).length;
   return { n: s, usd: Math.round(s * t * 100) / 100 };
 }, Km = (a, t, e = /* @__PURE__ */ new Date()) => a.filter((i) => i.kind === "look" && i.d === ho(e) && i.who.includes(t)).length, Um = (a, t = /* @__PURE__ */ new Date(), e = []) => {
-  const i = a.filter((c) => c.kind === "art" && !c.hidden);
+  const i = a.filter((d) => d.kind === "art" && !d.hidden);
   if (!i.length) return [];
-  const s = i.reduce((c, h) => h.d > c ? h.d : c, ""), o = e.map((c) => c.toLowerCase()), r = (c) => [c.event, c.theme].some((h) => !!h && o.some((f) => f.includes(h.toLowerCase()) || h.toLowerCase().includes(f))), n = Number(ho(t).replace(/-/g, "")), p = (c) => {
+  const s = i.reduce((d, h) => h.d > d ? h.d : d, ""), o = e.map((d) => d.toLowerCase()), r = (d) => [d.event, d.theme].some((h) => !!h && o.some((f) => f.includes(h.toLowerCase()) || h.toLowerCase().includes(f))), n = Number(ho(t).replace(/-/g, "")), p = (d) => {
     let h = n;
-    for (let f = 0; f < c.length; f++) h = Math.imul(h ^ c.charCodeAt(f), 73244475);
+    for (let f = 0; f < d.length; f++) h = Math.imul(h ^ d.charCodeAt(f), 73244475);
     return (h >>> 0) / 4294967296;
-  }, d = (c) => c.d === s ? 0 : r(c) ? 1 : c.fav ? 2 : 3;
-  return [...i].sort((c, h) => d(c) - d(h) || p(c.file) - p(h.file));
+  }, c = (d) => d.d === s ? 0 : r(d) ? 1 : d.fav ? 2 : 3;
+  return [...i].sort((d, h) => c(d) - c(h) || p(d.file) - p(h.file));
 };
 let Po = !1;
 const qm = async (a, t, e) => {
@@ -7392,7 +7407,7 @@ const qm = async (a, t, e) => {
       if (!o) continue;
       const r = await bc(await (await fetch(o)).blob(), 1920, 16 / 9, 0.45);
       let n = 2166136261;
-      for (let d = 0; d < s.file.length; d++) n = Math.imul(n ^ s.file.charCodeAt(d), 16777619);
+      for (let c = 0; c < s.file.length; c++) n = Math.imul(n ^ s.file.charCodeAt(c), 16777619);
       const p = `fhart-${s.d.replace(/-/g, "")}-${(n >>> 0).toString(36)}.jpg`;
       if (!await uc(a, p, r)) break;
       await a.callService("todo", "update_item", { item: s.uid, rename: p }, { entity_id: t }), i++;
@@ -7403,7 +7418,7 @@ const qm = async (a, t, e) => {
   }
   return i;
 }, Xo = /* @__PURE__ */ new Map(), $p = ["Mixing the colours…", "Sketching your face…", "Finding the right hat…", "Painting very carefully…", "Adding the sparkle…", "Nearly there…"], Am = (a, t, e, i) => {
-  const s = Mc(tt(t).slug, e), o = Xo.get(s);
+  const s = Mc(E(t).slug, e), o = Xo.get(s);
   if (o) return o.done;
   const r = (async () => {
     const n = await Of(a, Ba(a, i.painter), "Family Hub look", xm(e, t.about), [t.sheet]), p = await bc(await (await fetch(n.url)).blob(), 768, 1, 1 / 3);
@@ -7414,13 +7429,13 @@ const qm = async (a, t, e) => {
   });
   return Xo.set(s, { at: Date.now(), done: r }), r;
 }, Mm = 3, Np = (a, t, e, i = "") => {
-  const s = a.filter((p) => !ca(p, t, e)), o = [...s.filter((p) => !p[3]).sort((p, d) => p[2] - d[2]), ...s.filter((p) => p[3]).sort((p, d) => (p[3] ?? 0) - (d[3] ?? 0))].slice(0, Mm), r = new Set(o.map((p) => p[0]));
+  const s = a.filter((p) => !da(p, t, e)), o = [...s.filter((p) => !p[3]).sort((p, c) => p[2] - c[2]), ...s.filter((p) => p[3]).sort((p, c) => (p[3] ?? 0) - (c[3] ?? 0))].slice(0, Mm), r = new Set(o.map((p) => p[0]));
   i && r.add(i);
-  const n = a.filter((p) => ca(p, t, e) || r.has(p[0]));
+  const n = a.filter((p) => da(p, t, e) || r.has(p[0]));
   return { show: n, hidden: a.length - n.length };
-}, Js = class Js extends ht {
+}, Js = class Js extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this.life = 0, this.grow = 0, this._tab = "", this._shake = "", this._msg = "", this._jump = 0, this._confetti = 0, this.art = {}, this._files = null, this._wet = "", this._tickN = 0, this._cue = (t) => {
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this.life = 0, this.grow = 0, this._tab = "", this._shake = "", this._msg = "", this._jump = 0, this._confetti = 0, this.art = {}, this._files = null, this._wet = "", this._tickN = 0, this._cue = (t) => {
       wt(t);
       const e = t instanceof Event ? t.currentTarget : t;
       e && (e.toggleAttribute("data-fwd", e.scrollWidth - e.scrollLeft - e.clientWidth > 6), e.toggleAttribute("data-back", e.scrollLeft > 6));
@@ -7439,11 +7454,11 @@ const qm = async (a, t, e) => {
   }
   /** the picture he starts with (the card's `look` for him): it is his plain look, whatever its file is called */
   get _base() {
-    return ct("", this.kid.look ? ct(this.kid.look) : {});
+    return nt("", this.kid.look ? nt(this.kid.look) : {});
   }
   get _file() {
     const t = this._base;
-    return t.img && Ki(this.d) === Ki(Jo(t)) ? t.img : Mc(tt(this.kid).slug, this.d);
+    return t.img && Ki(this.d) === Ki(Jo(t)) ? t.img : Mc(E(this.kid).slug, this.d);
   }
   get _list() {
     return this.art.list || "todo.family_hub_art";
@@ -7468,7 +7483,7 @@ const qm = async (a, t, e) => {
   }
   /** Wear the look he has put together: at once when it has been painted before, else have it painted (half a minute or so). */
   async _wear() {
-    const t = this.d, e = this._file, i = this.hass, s = tt(this.kid).avatar;
+    const t = this.d, e = this._file, i = this.hass, s = E(this.kid).avatar;
     if (!i || this._wet) return;
     if (!i.states[s]) {
       this._say(`Create ${s} in Home Assistant to save looks`);
@@ -7486,7 +7501,7 @@ const qm = async (a, t, e) => {
         S("locked"), this._say(this._cannot);
         return;
       }
-      this._wet = e, this._tickN = 0, S("tap"), this._picMode && E("Painting your new look. It takes a little while."), this._wetT = window.setInterval(() => {
+      this._wet = e, this._tickN = 0, S("tap"), this._picMode && tt("Painting your new look. It takes a little while."), this._wetT = window.setInterval(() => {
         this._tickN++;
       }, 1e3);
       try {
@@ -7533,25 +7548,25 @@ const qm = async (a, t, e) => {
     }
   }
   get _goal() {
-    return this.hass?.states[tt(this.kid).goal]?.state ?? "";
+    return this.hass?.states[E(this.kid).goal]?.state ?? "";
   }
   _pick(t, e, i = !1) {
     if (!this._wet) {
-      if (!ca(e, this.life, this.grow)) {
+      if (!da(e, this.life, this.grow)) {
         if (this._shake = `${t.id}:${e[0]}`, setTimeout(() => {
           this._shake = "";
         }, 460), S("locked"), this._picMode) {
-          E("Not yet! Keep collecting stars.");
+          tt("Not yet! Keep collecting stars.");
           return;
         }
         e[3] ? this._say(`${e[1]} is a surprise – keep practising and reading!`) : this._say(`${e[1]} is ${e[2] - this.life} away. Tap ♥ to make it your goal.`);
         return;
       }
-      S("tap"), this._picMode && E(e[1]), this._draft = wi(this.d, t, e[0], i), this._jump++;
+      S("tap"), this._picMode && tt(e[1]), this._draft = wi(this.d, t, e[0], i), this._jump++;
     }
   }
   _setGoal(t) {
-    const e = tt(this.kid).goal;
+    const e = E(this.kid).goal;
     if (!this.hass?.states[e]) return;
     const i = this._goal === t[0] ? "" : t[0];
     this.hass.callService("input_text", "set_value", { entity_id: e, value: i }), S("coin"), this._say(i ? `Saving for ${t[1]} ♥` : "Goal cleared");
@@ -7560,16 +7575,16 @@ const qm = async (a, t, e) => {
     let t = { ...this.d };
     for (const e of this._cats) {
       if (e.id === "face" && !this._painted) continue;
-      const i = e.items.filter((o) => ca(o, this.life, this.grow)), s = i[Math.floor(Math.random() * i.length)];
+      const i = e.items.filter((o) => da(o, this.life, this.grow)), s = i[Math.floor(Math.random() * i.length)];
       if (s && (t = wi(t, e, s[0])), e.swatch && e.swatch.key !== "skin") {
-        const o = e.swatch.items.filter((r) => ca(r, this.life, this.grow));
+        const o = e.swatch.items.filter((r) => da(r, this.life, this.grow));
         t = wi(t, e, o[Math.floor(Math.random() * o.length)][0], !0);
       }
     }
     this._draft = t, this._jump++;
   }
   async _save() {
-    const t = tt(this.kid).avatar;
+    const t = E(this.kid).avatar;
     if (this.hass?.states[t])
       try {
         await this.hass.callService("input_text", "set_value", { entity_id: t, value: ss(this.d) });
@@ -7584,53 +7599,53 @@ const qm = async (a, t, e) => {
     this._confetti++, setTimeout(() => this.dispatchEvent(new CustomEvent("close")), 900);
   }
   render() {
-    const [t, e] = Ae(this, "msg", this._msg), i = this._cats, s = i.find((k) => k.id === this._tab) ?? i[0], o = this._painted, r = Hf(this.life, this.kid.favourites, this._goal || void 0, i), n = Ef(this.life, i), p = o ? Ki(this.d) !== Ki(Jo(this.look)) : !!this._draft && ss(this._draft) !== ss(this.look), d = o && (!!this._files?.has(this._file) || this._file === this._base.img), c = !!this._wet, h = o && p && !d ? this._cannot.trim() : "", f = () => {
+    const [t, e] = qe(this, "msg", this._msg), i = this._cats, s = i.find((k) => k.id === this._tab) ?? i[0], o = this._painted, r = Hf(this.life, this.kid.favourites, this._goal || void 0, i), n = Ef(this.life, i), p = o ? Ki(this.d) !== Ki(Jo(this.look)) : !!this._draft && ss(this._draft) !== ss(this.look), c = o && (!!this._files?.has(this._file) || this._file === this._base.img), d = !!this._wet, h = o && p && !c ? this._cannot.trim() : "", f = () => {
       o || !p ? this.dispatchEvent(new CustomEvent("close")) : this._save();
     }, m = (k) => k > 0 && k <= this.life && k > this.life - 100, u = !this._picMode && !this.kid.older ? Xf(this.life) : null, w = Np(s.items, this.life, this.grow, this._goal), x = s.swatch ? Np(s.swatch.items, this.life, this.grow) : null;
-    return l`<div style="display:contents;--kid:${Z(this.kid.colour)}">
+    return l`<div style="display:contents;--kid:${Y(this.kid.colour)}">
       <section class="glass mirror ${this._picMode ? "low" : ""}">
         <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label=${p && !o ? "Back, and keep this look" : "Back"} @click=${f}>${U("left", 18)}</button>
           <div style="flex:1;min-width:0"><h1 class="t-title">${this.kid.name}’s studio</h1>${u ? l`<div class="rankline"><span class="rank">${u.rank}</span><span>${u.need - u.into} more to ${u.nextRank}</span></div>` : g}</div>
-          <button class="round tap" aria-label="Surprise look" ?disabled=${c} @click=${() => this._random()}>${U("shuffle", 18)}</button>
+          <button class="round tap" aria-label="Surprise look" ?disabled=${d} @click=${() => this._random()}>${U("shuffle", 18)}</button>
         </div>
         ${o ? l`
-          <div class="easel" ?data-old=${p && !d && !c} role="img" aria-label=${c ? "Your new look is being painted" : p && !d ? "The look you are wearing now. Your new one has not been painted yet" : `${this.kid.name}’s look`}>
-            ${d || this.look.img ? l`<fh-pic .media=${d ? this._file : this.look.img}></fh-pic>` : l`<span class="blank" aria-hidden="true">🎨</span>`}
-            ${c ? l`<div class="wet"><span class="brush" aria-hidden="true">🖌️</span><span aria-live="polite">${$p[Math.min($p.length - 1, Math.floor(this._tickN / 8))]}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(96, Math.round(this._tickN / 45 * 100))}%"></i></span></div>` : g}
+          <div class="easel" ?data-old=${p && !c && !d} role="img" aria-label=${d ? "Your new look is being painted" : p && !c ? "The look you are wearing now. Your new one has not been painted yet" : `${this.kid.name}’s look`}>
+            ${c || this.look.img ? l`<fh-pic .media=${c ? this._file : this.look.img}></fh-pic>` : l`<span class="blank" aria-hidden="true">🎨</span>`}
+            ${d ? l`<div class="wet"><span class="brush" aria-hidden="true">🖌️</span><span aria-live="polite">${$p[Math.min($p.length - 1, Math.floor(this._tickN / 8))]}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(96, Math.round(this._tickN / 45 * 100))}%"></i></span></div>` : g}
           </div>
-          ${p && !d ? l`<div class="parts" aria-label="What you have picked">${i.filter((k) => !["none", "own", "plain", "smile"].includes(String(this.d[k.key])) || k.id === "tops").map((k) => l`<span title=${k.label}>${Dr(k, String(this.d[k.key]))}</span>`)}</div>` : g}
-          <span class="pnote" role="status">${c ? "You can keep watching, or go back: it will be ready soon." : h || (p && !d ? `Tap Paint it to see your new look. ${this._paints}` : p ? "You’ve had this look before." : this._paints)}</span>` : l`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => {
+          ${p && !c ? l`<div class="parts" aria-label="What you have picked">${i.filter((k) => !["none", "own", "plain", "smile"].includes(String(this.d[k.key])) || k.id === "tops").map((k) => l`<span title=${k.label}>${Dr(k, String(this.d[k.key]))}</span>`)}</div>` : g}
+          <span class="pnote" role="status">${d ? "You can keep watching, or go back: it will be ready soon." : h || (p && !c ? `Tap Paint it to see your new look. ${this._paints}` : p ? "You’ve had this look before." : this._paints)}</span>` : l`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => {
       this._jump++;
-    }}>${te(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
+    }}>${It(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
         ${r && !this._picMode ? l`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === r.id ? "♥ Saving for" : "Next unlock"}: ${r.label} <span class="muted">· ${r.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round((this.life - n) / (r.req - n) * 100)}%"></div></div></div>` : g}
         <div class="sfoot">
-          <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!p || c} @click=${() => {
+          <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!p || d} @click=${() => {
       this._draft = void 0, this._jump++;
     }}>Undo all</button>
-          ${o ? l`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:16px" ?disabled=${c || p && !d && !!h} aria-busy=${c ? "true" : g} @click=${() => {
+          ${o ? l`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:16px" ?disabled=${d || p && !c && !!h} aria-busy=${d ? "true" : g} @click=${() => {
       p ? this._wear() : f();
-    }}>${c ? "Painting…" : p ? d ? "Wear this look" : l`🖌️ Paint it!` : "Done"}</button>` : l`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${p ? "Save my look" : "Done"}</button>`}
+    }}>${d ? "Painting…" : p ? c ? "Wear this look" : l`🖌️ Paint it!` : "Done"}</button>` : l`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${p ? "Save my look" : "Done"}</button>`}
         </div>
       </section>
       <section class="glass shelf ${this._picMode ? "low" : ""}">
         <div class="tabs ${this._picMode ? "pics" : ""}" role="tablist">${i.map((k) => l`<button class="tap" role="tab" aria-label=${k.label} aria-selected=${String(k.id === this._tab)} style=${this._picMode ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
-      this._tab = k.id, S("tap"), this._picMode && E(k.label);
+      this._tab = k.id, S("tap"), this._picMode && tt(k.label);
     }}>${this._picMode ? k.emoji : l`<span class="te" aria-hidden="true">${k.emoji}</span> ${k.label}`}</button>`)}</div>
         ${s.swatch ? l`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${s.swatch.label}</span>
           ${x.show.map((k) => {
-      const v = !ca(k, this.life, this.grow);
+      const v = !da(k, this.life, this.grow);
       return l`<button class="tap ${v ? "locked" : ""} ${this._shake === `${s.id}:${k[0]}` ? "shake" : ""}"
             title=${k[1]} aria-label=${`${k[1]}${v ? `, unlocks at ${k[2]} points` : ""}`} aria-pressed=${String(this.d[s.swatch.key] === k[0])}
             style="background:${k[0]}" @click=${() => this._pick(s, k, !0)}></button>`;
     })}${x.hidden ? l`<span class="swmore">+${x.hidden} more later</span>` : g}</div>` : g}
         <div class="gridwrap"><div class="grid scrolly" @scroll=${this._cue}>
           ${w.show.map((k) => {
-      const v = !ca(k, this.life, this.grow), K = tm(this.d, s, k[0]), y = !!k[3];
+      const v = !da(k, this.life, this.grow), K = tm(this.d, s, k[0]), y = !!k[3];
       return l`<div class="cell"><button class="tile tap ${v ? "locked shimmer" : ""} ${this._shake === `${s.id}:${k[0]}` ? "shake" : ""}" aria-pressed=${String(K)} @click=${() => this._pick(s, k)}>
-              <span class="av">${v && y ? l`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : o ? l`<span class="emo" aria-hidden="true">${Dr(s, k[0])}</span>` : te(wi(this.d, s, k[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${v && y ? "Surprise" : k[1]}
+              <span class="av">${v && y ? l`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : o ? l`<span class="emo" aria-hidden="true">${Dr(s, k[0])}</span>` : It(wi(this.d, s, k[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${v && y ? "Surprise" : k[1]}
               ${v ? l`<span class="lock">${y ? "🌱" : l`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? l`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : k[2]}`}</span>` : m(k[2]) ? l`<span class="new">NEW</span>` : g}
             </button>
               ${v && !y && !this._picMode ? l`<button class="heart tap" aria-pressed=${String(this._goal === k[0])} aria-label=${this._goal === k[0] ? `${k[1]} is my goal` : `Make ${k[1]} my goal`} @click=${() => this._setGoal(k)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === k[0] ? "#e11d48" : "none"} stroke=${this._goal === k[0] ? "#9f1239" : "currentColor"} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : g}</div>`;
@@ -7752,7 +7767,7 @@ Js.styles = [Ct, J`
 };
 let Ir = Js;
 customElements.get("fh-studio") || customElements.define("fh-studio", Ir);
-const sa = { misses: 0, until: 0 };
+const ia = { misses: 0, until: 0 };
 let _c = !0;
 const Sm = (a) => {
   _c = a;
@@ -7766,9 +7781,9 @@ const Sm = (a) => {
     }
     if (a.some((t, e) => t !== Ms[e])) return a;
   }
-}, Ps = class Ps extends ht {
+}, Ps = class Ps extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.pin = "", this.reason = "Grown-ups only", this._typed = "", this._bad = !1, this._note = "", this._wait = 0, this._from = null, this._tick = 0, this._digits = Ms, this._keys = (t) => {
+    super(...arguments), this.lookCtl = new Jt(this), this.pin = "", this.reason = "Grown-ups only", this._typed = "", this._bad = !1, this._note = "", this._wait = 0, this._from = null, this._tick = 0, this._digits = Ms, this._keys = (t) => {
       if (!(t.ctrlKey || t.metaKey || t.altKey)) {
         if (t.key === "Escape") this._leave("cancel");
         else if (/^[0-9]$/.test(t.key)) this._key(t.key);
@@ -7785,8 +7800,8 @@ const Sm = (a) => {
     super.connectedCallback();
     let t = document.activeElement;
     for (; t?.shadowRoot?.activeElement; ) t = t.shadowRoot.activeElement;
-    this._from = t, this._digits = Fm(), this._wait = Math.max(0, Math.ceil((sa.until - Date.now()) / 1e3)), this._tick = window.setInterval(() => {
-      this._wait = Math.max(0, Math.ceil((sa.until - Date.now()) / 1e3)), !this._wait && this._note.startsWith("Too many") && (this._note = "");
+    this._from = t, this._digits = Fm(), this._wait = Math.max(0, Math.ceil((ia.until - Date.now()) / 1e3)), this._tick = window.setInterval(() => {
+      this._wait = Math.max(0, Math.ceil((ia.until - Date.now()) / 1e3)), !this._wait && this._note.startsWith("Too many") && (this._note = "");
     }, 1e3), window.addEventListener("keydown", this._keys, !0);
   }
   disconnectedCallback() {
@@ -7803,7 +7818,7 @@ const Sm = (a) => {
         this._typed && S("del"), this._typed = this._typed.slice(0, -1);
         return;
       }
-      this._bad || (this._typed += t, this._note = "", this._typed.length < this.pin.length && S("pin"), this._typed.length >= this.pin.length && (this._typed === this.pin ? (sa.misses = 0, S("pinok"), this._leave("ok")) : (sa.misses += 1, this._bad = !0, S("pinno"), sa.misses >= 3 ? (sa.misses = 0, sa.until = Date.now() + 6e4, this._wait = 60, this._note = "Too many tries. Ask a grown-up to help.") : this._note = "Not that one. Try again.", setTimeout(() => {
+      this._bad || (this._typed += t, this._note = "", this._typed.length < this.pin.length && S("pin"), this._typed.length >= this.pin.length && (this._typed === this.pin ? (ia.misses = 0, S("pinok"), this._leave("ok")) : (ia.misses += 1, this._bad = !0, S("pinno"), ia.misses >= 3 ? (ia.misses = 0, ia.until = Date.now() + 6e4, this._wait = 60, this._note = "Too many tries. Ask a grown-up to help.") : this._note = "Not that one. Try again.", setTimeout(() => {
         this._bad = !1, this._typed = "";
       }, 420))));
     }
@@ -7921,7 +7936,7 @@ const _m = [
 ], Vm = (a) => Rm.find(([t]) => t.test(a))?.[1] ?? "📅", Tp = (a) => {
   const t = ut(a), e = Math.floor(t / 60) % 24;
   return `${e % 12 || 12}:${String(t % 60).padStart(2, "0")} ${e < 12 ? "am" : "pm"}`;
-}, zp = { am: "Morning", after: "After school", bed: "Bedtime", any: "Any time" }, $m = [["😄", "great"], ["🙂", "good"], ["😐", "okay"], ["😟", "worried"], ["😢", "sad"]], Nm = [["😄", "happy"], ["😐", "okay"], ["😢", "sad"]], Wp = (a) => ["great", "good", "happy"].includes(a) ? "up" : a === "okay" ? "mid" : "down", Tm = 10 * 6e4, Cp = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], jp = ["🎬", "🍕", "🎈", "🍦", "🧩", "🚲", "🎨", "⚽"], _a = (a, t = 20) => l`<svg class="sstar ${a ? "lit" : ""}" viewBox="0 0 24 24" width=${t} height=${t} aria-hidden="true"><path d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>`, Ho = (a = 16) => l`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.500l4.500 4.500L19 7.500"></path></svg>`, zm = l`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>`, Wm = (a = 26) => l`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z" fill="currentColor"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`, Cm = l`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`, Ce = (a, t) => {
+}, zp = { am: "Morning", after: "After school", bed: "Bedtime", any: "Any time" }, $m = [["😄", "great"], ["🙂", "good"], ["😐", "okay"], ["😟", "worried"], ["😢", "sad"]], Nm = [["😄", "happy"], ["😐", "okay"], ["😢", "sad"]], Wp = (a) => ["great", "good", "happy"].includes(a) ? "up" : a === "okay" ? "mid" : "down", Tm = 10 * 6e4, Cp = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], jp = ["🎬", "🍕", "🎈", "🍦", "🧩", "🚲", "🎨", "⚽"], Fa = (a, t = 20) => l`<svg class="sstar ${a ? "lit" : ""}" viewBox="0 0 24 24" width=${t} height=${t} aria-hidden="true"><path d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>`, Ho = (a = 16) => l`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.500l4.500 4.500L19 7.500"></path></svg>`, zm = l`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>`, Wm = (a = 26) => l`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z" fill="currentColor"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`, Cm = l`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`, We = (a, t) => {
   try {
     const e = localStorage.getItem(a);
     return e === null ? t : JSON.parse(e);
@@ -7933,9 +7948,9 @@ const _m = [
     localStorage.setItem(a, JSON.stringify(t));
   } catch {
   }
-}, Xs = class Xs extends ht {
+}, Xs = class Xs extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "";
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "";
   }
   async _loadOwed() {
     const t = this.owed, e = this.kid.name;
@@ -7968,7 +7983,7 @@ const _m = [
     super.disconnectedCallback(), this._unsub?.(), this._unsub = void 0, this._subFor = "", clearInterval(this._tick);
   }
   get _e() {
-    return tt(this.kid);
+    return E(this.kid);
   }
   get _star() {
     return this.kid.star ?? 10;
@@ -7977,14 +7992,14 @@ const _m = [
     return this.kid.mode === "picture";
   }
   get _life() {
-    return Ge(this.hass, this._e.lifetime);
+    return Qe(this.hass, this._e.lifetime);
   }
   get _grow() {
-    return Ge(this.hass, this._e.grow);
+    return Qe(this.hass, this._e.grow);
   }
   get _look() {
     const t = this.hass?.states[this._e.avatar]?.state ?? "", e = `${this.kid.name}|${t}`;
-    return this._lookCache?.[0] !== e && (this._lookCache = [e, ct(t, this.kid.look ? ct(this.kid.look) : {})]), this._lookCache[1];
+    return this._lookCache?.[0] !== e && (this._lookCache = [e, nt(t, this.kid.look ? nt(this.kid.look) : {})]), this._lookCache[1];
   }
   get _wind() {
     return bi(this.kid.bedtime, this._now);
@@ -8013,7 +8028,7 @@ const _m = [
         i === this._subGen ? this._unsub = o : o();
       }).catch(() => {
         this._chores = [];
-      }), this._practice = Ce(`fh-practice-${e.slug}`, null);
+      }), this._practice = We(`fh-practice-${e.slug}`, null);
     }
     this._evFor !== this.kid.name && (this._evFor = this.kid.name, this._tab = "rewards", this._tabPicked = !1, this._showAll = !1, this._feel = "", this._days = !1, this._spend = "", this._held = "", this._owed = [], this._owedSeen = "", this._lines = [], this._lookSaid = !1, this._loadWeek());
     {
@@ -8044,7 +8059,7 @@ const _m = [
   /* ---------------- unlock celebrations (high-water marks, never replay) ---------------- */
   _checkUnlocks() {
     if (this._celebrate || !this.hass?.states[this._e.lifetime]) return;
-    const t = this._life, e = this._grow, i = this._e.slug, s = Ce(`family-hub-seen-${i}`, null), o = Ce(`family-hub-seen-grow-${i}`, null);
+    const t = this._life, e = this._grow, i = this._e.slug, s = We(`family-hub-seen-${i}`, null), o = We(`family-hub-seen-grow-${i}`, null);
     if (s === null || o === null) {
       he(`family-hub-seen-${i}`, Math.max(s ?? 0, t)), he(`family-hub-seen-grow-${i}`, Math.max(o ?? 0, e));
       return;
@@ -8052,12 +8067,12 @@ const _m = [
     const r = Ac(!!this.kid.sheet), n = [...Df(s, t, r), ...Pf(o, e, r)];
     if (n.length) {
       const p = this.kid.favourites ?? [];
-      this._celebrate = [...n].sort((d, c) => Number(p.includes(c.id)) - Number(p.includes(d.id))), this._confetti++, this._sound("unlock"), this._picMode && E(`Wow ${this.kid.name}! You unlocked ${n[0].label}!`);
+      this._celebrate = [...n].sort((c, d) => Number(p.includes(d.id)) - Number(p.includes(c.id))), this._confetti++, this._sound("unlock"), this._picMode && tt(`Wow ${this.kid.name}! You unlocked ${n[0].label}!`);
     }
   }
   _closeCelebrate(t) {
     const e = this._e.slug;
-    he(`family-hub-seen-${e}`, Math.max(Ce(`family-hub-seen-${e}`, 0), this._life)), he(`family-hub-seen-grow-${e}`, Math.max(Ce(`family-hub-seen-grow-${e}`, 0), this._grow)), this._celebrate = null, t && !this._wind && (this._studio = !0);
+    he(`family-hub-seen-${e}`, Math.max(We(`family-hub-seen-${e}`, 0), this._life)), he(`family-hub-seen-grow-${e}`, Math.max(We(`family-hub-seen-grow-${e}`, 0), this._grow)), this._celebrate = null, t && !this._wind && (this._studio = !0);
   }
   async _loadWeek() {
     if (!this.hass) return;
@@ -8065,11 +8080,11 @@ const _m = [
     await Promise.all(s.map(async (n) => {
       try {
         const p = await this.hass.callApi("GET", `calendars/${n.id}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(e.toISOString())}`);
-        for (const d of p) {
-          const c = String(d.summary ?? "").trim() || "(busy)";
-          if (r.some((f) => c.toLowerCase().includes(f))) continue;
+        for (const c of p) {
+          const d = String(c.summary ?? "").trim() || "(busy)";
+          if (r.some((f) => d.toLowerCase().includes(f))) continue;
           const h = this.calRules.find((f) => f.entity === n.id);
-          h && !gc(h, c) || o.push({ title: c, start: d.start?.date ? /* @__PURE__ */ new Date(`${d.start.date}T00:00:00`) : new Date(d.start.dateTime), end: d.end?.dateTime ? new Date(d.end.dateTime) : void 0, allDay: !!d.start?.date, family: n.family });
+          h && !gc(h, d) || o.push({ title: d, start: c.start?.date ? /* @__PURE__ */ new Date(`${c.start.date}T00:00:00`) : new Date(c.start.dateTime), end: c.end?.dateTime ? new Date(c.end.dateTime) : void 0, allDay: !!c.start?.date, family: n.family });
         }
       } catch {
       }
@@ -8089,7 +8104,7 @@ const _m = [
       this._nope(t.uid);
       return;
     }
-    const i = t.status === "completed", s = Ce("fh-ticks", {});
+    const i = t.status === "completed", s = We("fh-ticks", {});
     if (i && Date.now() - (s[t.uid] ?? 0) < 2e3) {
       this._nope(t.uid);
       return;
@@ -8110,21 +8125,21 @@ const _m = [
       const n = this.renderRoot.querySelector(`[data-uid="${CSS.escape(t.uid)}"]`), p = n?.querySelector(".check") ?? n;
       if (p) {
         Tt("tick", p);
-        const d = t.summary.toLowerCase();
-        t.pts && !this._picMode && !this._wind && Tt("points", p, { text: `+${t.pts}` }), n && /trumpet|clarinet|piano|practice|music/.test(d) ? Tt("tada", n, { variant: /clarinet/.test(d) ? "clarinet" : void 0 }) : n && /read|book|library/.test(d) && Tt("book", n);
+        const c = t.summary.toLowerCase();
+        t.pts && !this._picMode && !this._wind && Tt("points", p, { text: `+${t.pts}` }), n && /trumpet|clarinet|piano|practice|music/.test(c) ? Tt("tada", n, { variant: /clarinet/.test(c) ? "clarinet" : void 0 }) : n && /read|book|library/.test(c) && Tt("book", n);
       }
     }
     this._sound(e ? "untick" : t.lane === "job" ? "coin" : "tick");
     try {
-      if (await dt(this.hass.callService("todo", "update_item", { item: t.uid, status: r }, { entity_id: this._e.chores })), this._pending.delete(t.uid), await dt(this._award(t, e ? -1 : 1)), e) {
+      if (await ct(this.hass.callService("todo", "update_item", { item: t.uid, status: r }, { entity_id: this._e.chores })), this._pending.delete(t.uid), await ct(this._award(t, e ? -1 : 1)), e) {
         delete i[t.uid], he("fh-ticks", i);
         return;
       }
       i[t.uid] = Date.now(), he("fh-ticks", i), this._jump++;
       const n = Date.now(), p = t.lane === "grow" ? "🌱" : t.pts && !this._wind ? this._picMode ? "★".repeat(Math.max(1, Math.round(t.pts / this._star))) : `+${t.pts}` : "✓";
       (this._picMode || !t.pts) && (this._bursts = [...this._bursts, { id: n, text: p }], setTimeout(() => {
-        this._bursts = this._bursts.filter((d) => d.id !== n);
-      }, 1300)), this._picMode && E(`${t.summary}. Done! ${t.pts && !this._wind ? "Here’s a star!" : ""}`), this._maybeAllDone();
+        this._bursts = this._bursts.filter((c) => c.id !== n);
+      }, 1300)), this._picMode && tt(`${t.summary}. Done! ${t.pts && !this._wind ? "Here’s a star!" : ""}`), this._maybeAllDone();
     } catch (n) {
       console.warn("Family Hub: chore update failed", n), this._pending.delete(t.uid) && (this._chores = this._chores.map((p) => p.uid === t.uid ? { ...p, status: t.status } : p)), this._say(n instanceof Wt ? St : "Couldn’t save that one – try again");
     } finally {
@@ -8134,13 +8149,13 @@ const _m = [
     }
   }
   _maybeAllDone() {
-    const t = ul(Se(this.kid.bedtime, this._now), this._now), e = this._chores.filter((p) => p.lane === "routine" && p.slot === t), i = this._chores.filter((p) => p.lane === "job"), s = e.length ? e : i;
+    const t = ul(Me(this.kid.bedtime, this._now), this._now), e = this._chores.filter((p) => p.lane === "routine" && p.slot === t), i = this._chores.filter((p) => p.lane === "job"), s = e.length ? e : i;
     if (!s.length || s.some((p) => p.status !== "completed") || this._block().todo.length) return;
     const o = `fh-alldone-${this._e.slug}-${(/* @__PURE__ */ new Date()).toDateString()}-${t}`;
-    if (Ce(o, !1)) return;
+    if (We(o, !1)) return;
     he(o, !0);
     const r = this.kid.name, n = this.renderRoot.querySelector(".jobs");
-    this._wind || (n ? (Tt("done", n), window.setTimeout(() => Tt(t === "bed" ? "moon" : "stomp", n), 700)) : this._confetti++, this._sound(this.kid.sound ?? "done"), setTimeout(() => this._sound("done"), 700)), this._picMode && E(t === "am" ? `You did your whole morning, ${r}!` : t === "bed" ? `All ready for bed, ${r}. Sleep well!` : `All done, ${r}!`), this._say(t === "bed" ? `All set for bed, ${r}. Sleep well.` : [`All done, ${r}. You stuck with it today.`, `That’s everything, ${r}. Nice and steady.`, `Legend effort, ${r}.`][Math.floor(Math.random() * 3)]);
+    this._wind || (n ? (Tt("done", n), window.setTimeout(() => Tt(t === "bed" ? "moon" : "stomp", n), 700)) : this._confetti++, this._sound(this.kid.sound ?? "done"), setTimeout(() => this._sound("done"), 700)), this._picMode && tt(t === "am" ? `You did your whole morning, ${r}!` : t === "bed" ? `All ready for bed, ${r}. Sleep well!` : `All done, ${r}!`), this._say(t === "bed" ? `All set for bed, ${r}. Sleep well.` : [`All done, ${r}. You stuck with it today.`, `That’s everything, ${r}. Nice and steady.`, `Legend effort, ${r}.`][Math.floor(Math.random() * 3)]);
   }
   /* ---------------- practice timer ---------------- */
   _startPractice(t) {
@@ -8157,7 +8172,7 @@ const _m = [
     const t = this._practice;
     if (!t || Date.now() < t.end) return;
     const e = this._chores.find((i) => i.uid === t.uid);
-    this._stopPractice(), e?.song ? this._say("Time’s up! All done? Tick it off.") : e && e.status !== "completed" && (this._doToggle(e, !1, Ce("fh-ticks", {})), this._say(`Practice done – ${t.mins} minutes. Sounding good!`));
+    this._stopPractice(), e?.song ? this._say("Time’s up! All done? Tick it off.") : e && e.status !== "completed" && (this._doToggle(e, !1, We("fh-ticks", {})), this._say(`Practice done – ${t.mins} minutes. Sounding good!`));
   }
   /* ---------------- rewards ---------------- */
   /** What a reward costs, in the child's own words: "50 points" or "5 stars". */
@@ -8168,28 +8183,28 @@ const _m = [
   /** First tap on a reward: never spends. It says where the child stands, or asks "Spend 50 points?" in the row (or for the PIN, for the big ones). */
   _rewardTap(t) {
     if (Date.now() - this._heldAt < 600) return;
-    const e = Ge(this.hass, this._e.points);
+    const e = Qe(this.hass, this._e.points);
     if (this._capped(t)) {
       const i = `You’ve had ${t.name} this week. It comes back on ${Vp(this._now)}.`;
-      this._sound("locked"), this._picMode && E(i), this._say(i);
+      this._sound("locked"), this._picMode && tt(i), this._say(i);
       return;
     }
     if (e < t.cost) {
-      this._sound("locked"), this._picMode && E(`${t.name}. Not yet! ${Math.ceil((t.cost - e) / this._star)} more stars.`), this._say(`Saving up: ${this._picMode ? `${Math.ceil((t.cost - e) / this._star)} more stars` : `${t.cost - e} to go`}. You’ll get there.`);
+      this._sound("locked"), this._picMode && tt(`${t.name}. Not yet! ${Math.ceil((t.cost - e) / this._star)} more stars.`), this._say(`Saving up: ${this._picMode ? `${Math.ceil((t.cost - e) / this._star)} more stars` : `${t.cost - e} to go`}. You’ll get there.`);
       return;
     }
     if (this._sound("tap"), (t.approve ?? t.cost >= 60) && this.pin) {
-      this._picMode && E(`${t.name}. Ask a grown-up.`), this._redeem(t);
+      this._picMode && tt(`${t.name}. Ask a grown-up.`), this._redeem(t);
       return;
     }
-    this._spend = t.name, this._picMode && E(`${t.name}. Spend ${this._costWords(t)}? Yes, or not now.`);
+    this._spend = t.name, this._picMode && tt(`${t.name}. Spend ${this._costWords(t)}? Yes, or not now.`);
   }
   /** A reward with a weekly limit that has been had as often as the limit allows this week. */
   _capped(t) {
     return !!t.weekly && t.weekly > 0 && (rm(this._e.slug, this._lines, this._now)[t.name] ?? 0) >= t.weekly;
   }
   async _redeem(t, e = !1) {
-    const i = Ge(this.hass, this._e.points);
+    const i = Qe(this.hass, this._e.points);
     if (this._spend = "", i < t.cost || this._redeeming || this._capped(t)) return;
     const s = t.approve ?? t.cost >= 60;
     if (s && this.pin && !e) {
@@ -8200,7 +8215,7 @@ const _m = [
     }
     this._redeeming = !0, this._saving = t.name;
     try {
-      await dt(this.hass.callService("script", "fh_add_points", { kid: this._e.slug, points: -t.cost, lifetime: !1, reason: `reward: ${t.name}` }));
+      await ct(this.hass.callService("script", "fh_add_points", { kid: this._e.slug, points: -t.cost, lifetime: !1, reason: `reward: ${t.name}` }));
     } catch (o) {
       this._say(o instanceof Wt ? St : "That did not go through, so no points were spent. Try again in a moment.");
       return;
@@ -8210,10 +8225,10 @@ const _m = [
       }, 1500);
     }
     this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${s && !this.pin ? " · needs a grown-up OK" : ""}` }, { entity_id: this.owed }).catch(() => {
-    }), t.weekly && (sm(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && he("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && E(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
+    }), t.weekly && (sm(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && he("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && tt(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
   }
   _feelPick(t) {
-    this._feel = t, this._sound("tap"), this._picMode && E(Lp[Wp(t)]);
+    this._feel = t, this._sound("tap"), this._picMode && tt(Lp[Wp(t)]);
   }
   _feelReply(t) {
     const e = this.kid.name;
@@ -8224,7 +8239,7 @@ const _m = [
     })).catch(() => {
     }), this.kid.older || this.dispatchEvent(new CustomEvent("fh-kid-wants-chat", { bubbles: !0, composed: !0, detail: { name: e, kind: t, feeling: this._feel } })));
     const i = t === "hug" ? "Go find a grown-up for a big hug 🤗" : t === "ok" ? "Good to know. Thanks for sharing." : this.kid.older ? "Sent. Nothing shows on the wall." : "I’ve left a note for a grown-up.";
-    this._say(i), this._picMode && E(i.replace(" 🤗", "")), this._feel = "";
+    this._say(i), this._picMode && tt(i.replace(" 🤗", "")), this._feel = "";
   }
   /** Days off are a grown-up's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
   openDays() {
@@ -8255,23 +8270,23 @@ const _m = [
   }
   /** The little picture of something to unlock: the drawn avatar wearing it, or (a painted character) the thing's own picture. */
   _itemPic(t, e, i, s) {
-    return this.kid.sheet ? l`<span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:${i}px;height:${i}px;border-radius:${s === "head" ? "50%" : "22%"};background:${e.swatch ? e.id : "var(--chip-strong)"};font-size:${Math.round(i * 0.56)}px;line-height:1">${e.swatch ? "" : Dr(e.cat, e.id)}</span>` : te(wi(t, e.cat, e.id, e.swatch), { size: i, crop: s, still: !0, age: this.kid.age });
+    return this.kid.sheet ? l`<span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:${i}px;height:${i}px;border-radius:${s === "head" ? "50%" : "22%"};background:${e.swatch ? e.id : "var(--chip-strong)"};font-size:${Math.round(i * 0.56)}px;line-height:1">${e.swatch ? "" : Dr(e.cat, e.id)}</span>` : It(wi(t, e.cat, e.id, e.swatch), { size: i, crop: s, still: !0, age: this.kid.age });
   }
   /* ---------------- render ---------------- */
   render() {
     if (!this.kid || !this.hass) return g;
-    const [t, e] = Ae(this, "msg", this._msg);
+    const [t, e] = qe(this, "msg", this._msg);
     if (this._studio) return l`<fh-studio .hass=${this.hass} .kid=${this.kid} .art=${this.art} .look=${this._look} .life=${this._life} .grow=${this._grow} @close=${() => {
       this._studio = !1, this._jump++;
     }}></fh-studio>`;
     const i = this._e, s = this.hass, o = !s.states[i.points] || !s.states[i.chores];
-    return l`<div style="display:contents;--kid:${Z(this.kid.colour)}">
+    return l`<div style="display:contents;--kid:${Y(this.kid.colour)}">
       ${this._hero()}
       ${o ? l`<section class="glass jobs"><div class="empty"><h2 class="t-sub">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${i.chores}</b> and <b>${i.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
       <div class="side scrolly ${this._picMode && !this._wind ? "low" : ""}" ?data-fits=${this._wind} @scroll=${wt}>${this._wind ? l`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._windChat()}${this._jar()}` : this._picMode ? l`${this._jar()}${this._feelCard()}${this._tabs()}` : l`${this._tabs()}${this._jar()}${this.kid.older ? this._chatCard() : this._feelCard()}`}</div>
       ${this._bursts.map((r) => l`<span class="burst" style="left:150px;top:260px">${r.text}</span>`)}
-      ${this._confetti && !this._wind ? Je(this._confetti, Cn(this._confetti)) : g}
+      ${this._confetti && !this._wind ? Ie(this._confetti, Cn(this._confetti)) : g}
       ${this._celebrate ? this._celebration() : g}
       ${this._days ? this._daysSheet() : g}
       ${this._pinAsk ? l`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => {
@@ -8286,12 +8301,12 @@ const _m = [
   /** His card: his picture, his name and the way into his studio. Nothing is counted here: the page keeps two measures only, today's ring (on the jobs card) and the family jar.
    *  Points are with the rewards, where they are spent; rank and the next unlock are in the studio, where they pay off. */
   _hero() {
-    const t = this._e, e = this.hass, i = this._look, s = Ge(e, t.points);
+    const t = this._e, e = this.hass, i = this._look, s = Qe(e, t.points);
     return l`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => {
-      this._jump++, this._sound(this.kid.sound ?? "tap"), this._picMode && E(`Hi ${this.kid.name}! You have ${Math.floor(s / this._star)} stars.`);
+      this._jump++, this._sound(this.kid.sound ?? "tap"), this._picMode && tt(`Hi ${this.kid.name}! You have ${Math.floor(s / this._star)} stars.`);
     }}>
-        ${this._drawn ? te(i, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : l`<span class="avph"></span>`}</button>
+        ${this._drawn ? It(i, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : l`<span class="avph"></span>`}</button>
       <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1></div>
       ${this._wind ? l`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : g}
       ${this.kid.special_time && !this._picMode ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : g}
@@ -8307,8 +8322,8 @@ const _m = [
           <button class="pill tap studio" ?data-locked=${r} aria-label=${r ? `${this._picMode ? "My look" : "Style studio"}: ${o} job${o === 1 ? "" : "s"} to go first` : g} style="height:${n ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(p) => {
         if (r) {
           this._sound("locked");
-          const d = p.currentTarget;
-          d.removeAttribute("data-nudge"), d.offsetWidth, d.setAttribute("data-nudge", ""), this._picMode && E(o === 1 ? "One more job, then your look." : `${o} jobs to go.`);
+          const c = p.currentTarget;
+          c.removeAttribute("data-nudge"), c.offsetWidth, c.setAttribute("data-nudge", ""), this._picMode && tt(o === 1 ? "One more job, then your look." : `${o} jobs to go.`);
           return;
         }
         this._studio = !0, this._sound("tap");
@@ -8318,13 +8333,13 @@ const _m = [
   }
   /** What is on for this part of the day. */
   _block() {
-    const t = Se(this.kid.bedtime, this._now), e = ul(t, this._now), i = this._chores, s = this._night ? [] : i.filter((c) => c.lane === "routine" && (c.slot === e || c.slot === "any" && !this._wind)), o = this._wind ? [] : i.filter((c) => c.lane === "job" && (c.slot === "any" || c.slot === e || e === "after" && c.slot === "am")), r = this._night ? [] : this._wind ? i.filter((c) => c.lane === "grow" && c.slot === "bed") : i.filter((c) => c.lane === "grow" && c.slot !== "bed" || c.lane === "grow" && e === "bed"), n = i.filter((c) => c.lane === "routine" && c.status !== "completed" && c.slot !== e && c.slot !== "any" && (e === "am" || e === "after" && c.slot === "bed")), p = this._picMode ? s : [...s, ...o, ...r], d = p.filter((c) => c.status !== "completed");
-    return { bt: t, slot: e, routineNow: s, jobs: o, grow: r, later: n, visible: p, todo: d, done: p.length - d.length, total: p.length };
+    const t = Me(this.kid.bedtime, this._now), e = ul(t, this._now), i = this._chores, s = this._night ? [] : i.filter((d) => d.lane === "routine" && (d.slot === e || d.slot === "any" && !this._wind)), o = this._wind ? [] : i.filter((d) => d.lane === "job" && (d.slot === "any" || d.slot === e || e === "after" && d.slot === "am")), r = this._night ? [] : this._wind ? i.filter((d) => d.lane === "grow" && d.slot === "bed") : i.filter((d) => d.lane === "grow" && d.slot !== "bed" || d.lane === "grow" && e === "bed"), n = i.filter((d) => d.lane === "routine" && d.status !== "completed" && d.slot !== e && d.slot !== "any" && (e === "am" || e === "after" && d.slot === "bed")), p = this._picMode ? s : [...s, ...o, ...r], c = p.filter((d) => d.status !== "completed");
+    return { bt: t, slot: e, routineNow: s, jobs: o, grow: r, later: n, visible: p, todo: c, done: p.length - c.length, total: p.length };
   }
   _jobs() {
-    const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: p, done: d, total: c } = this._block();
+    const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: p, done: c, total: d } = this._block();
     this._nowUid = p[0]?.uid ?? "";
-    const h = c - d, f = 2 * Math.PI * 22, m = c ? d / c : 0, u = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${Tp(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", w = this.oneAtATime && !this._showAll, x = !!this.kid.older, k = this._night ? 0 : Math.min(60, ut(t) - ee(this._now));
+    const h = d - c, f = 2 * Math.PI * 22, m = d ? c / d : 0, u = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${Tp(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", w = this.oneAtATime && !this._showAll, x = !!this.kid.older, k = this._night ? 0 : Math.min(60, ut(t) - ee(this._now));
     return l`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._night ? "Night time" : this._wind ? "Wind down" : this._picMode ? e === "am" ? "My morning" : e === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
@@ -8334,11 +8349,11 @@ const _m = [
     }}>One at a time</button>` : g}
 
         ${this._wind && k > 0 ? l`<span class="bedclock" role="img" aria-label="${k} minutes until bed">${Bt(Dt(), "timer", { frac: k / 60, size: 52 })}<b>${k}<span>min</span></b></span>` : g}
-        ${this._night ? g : l`<div class="ring" role="img" aria-label="${d} of ${c} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${f} stroke-dashoffset=${f * (1 - m)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${d}/${c}</b></div>`}
+        ${this._night ? g : l`<div class="ring" role="img" aria-label="${c} of ${d} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${f} stroke-dashoffset=${f * (1 - m)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${c}/${d}</b></div>`}
       </div>
-      ${Bt(Dt(), "steps", { done: d, total: c })}
-      ${w ? this._focusList(p, d, r.length) : l`<div class="list scrolly" data-fits @scroll=${wt}>
+      ${Bt(Dt(), "steps", { done: c, total: d })}
+      ${w ? this._focusList(p, c, r.length) : l`<div class="list scrolly" data-fits @scroll=${wt}>
         ${this._picMode ? l`<div class="pics">${i.map((v) => this._pic(v))}</div>${i.length ? l`<div class="readrow">${this._reader()}</div>` : g}` : l`
             ${i.length ? l`<div class="sec"><h2>${zp[e]} routine</h2>${x ? g : l`<span>just what we do</span>`}</div>${i.map((v) => this._row(v))}` : g}
             ${s.length ? l`<div class="sec"><h2>Family jobs</h2>${x ? g : l`<span>earn points · fill the jar</span>`}</div>${s.map((v) => this._row(v))}` : g}
@@ -8352,11 +8367,11 @@ const _m = [
   _focusList(t, e, i) {
     const [s, o, ...r] = t;
     if (!s && this._picMode && e && !this._wind) return l`<div class="focus"><div class="allset">
-      <div class="party"><svg class="burstart" viewBox="0 0 340 276" aria-hidden="true">${[[40, 60, 30, "#f5b301"], [300, 50, 26, "#ef476f"], [20, 170, 22, "#06d6a0"], [318, 180, 28, "#f5b301"], [80, 240, 18, "#118ab2"], [262, 244, 20, "#ef476f"], [170, 14, 20, "#06d6a0"]].map(([p, d, c, h]) => b`<path transform="translate(${p} ${d}) scale(${c / 24}) translate(-12 -12)" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z" fill=${h} stroke="rgba(0,0,0,.25)" stroke-width="1"></path>`)}</svg>
-        ${this._drawn ? te(this._look, { size: 180, jump: this._jump, label: `${this.kid.name} celebrating: all done`, age: this.kid.age }) : l`<span class="avph"></span>`}</div>
+      <div class="party"><svg class="burstart" viewBox="0 0 340 276" aria-hidden="true">${[[40, 60, 30, "#f5b301"], [300, 50, 26, "#ef476f"], [20, 170, 22, "#06d6a0"], [318, 180, 28, "#f5b301"], [80, 240, 18, "#118ab2"], [262, 244, 20, "#ef476f"], [170, 14, 20, "#06d6a0"]].map(([p, c, d, h]) => b`<path transform="translate(${p} ${c}) scale(${d / 24}) translate(-12 -12)" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z" fill=${h} stroke="rgba(0,0,0,.25)" stroke-width="1"></path>`)}</svg>
+        ${this._drawn ? It(this._look, { size: 180, jump: this._jump, label: `${this.kid.name} celebrating: all done`, age: this.kid.age }) : l`<span class="avph"></span>`}</div>
       <h2 class="t-head">All done!</h2>
       <button class="seedone tap" @click=${() => {
-      this._showAll = !0, this._sound("tap"), E("Here is everything you did.");
+      this._showAll = !0, this._sound("tap"), tt("Here is everything you did.");
     }}>${Cm}<span>See what I did</span></button></div></div>`;
     if (!s) return l`<div class="focus"><div class="allset"><span class="big-e">${this._wind ? "🌙" : "🎉"}</span>
       <h2 class="t-head">${this._night ? "Sleep time" : this._wind ? "All set for bed" : e ? "All done!" : "Nothing right now"}</h2>
@@ -8395,41 +8410,41 @@ const _m = [
     const i = t.status === "completed", s = Math.max(1, Math.round(t.pts / this._star));
     return l`<button class="pic tap ${i ? "done" : ""} ${t.uid === this._nowUid ? "now" : ""} ${e}" data-uid=${t.uid} aria-pressed=${String(i)} @pointerdown=${this._press} @click=${() => this._toggle(t)}>
       <span class="e" aria-hidden="true">${Ss(t)}</span><span class="pt">${t.summary}</span>
-      ${t.pts && e !== "small" && !this._wind ? l`<span class="stars" role="img" aria-label="${s} star${s === 1 ? "" : "s"}">${Array.from({ length: s }, () => _a(!0, e === "big" ? 26 : 20))}</span>` : g}${i ? l`<span class="tick">${Ho(22)}</span>` : g}</button>`;
+      ${t.pts && e !== "small" && !this._wind ? l`<span class="stars" role="img" aria-label="${s} star${s === 1 ? "" : "s"}">${Array.from({ length: s }, () => Fa(!0, e === "big" ? 26 : 20))}</span>` : g}${i ? l`<span class="tick">${Ho(22)}</span>` : g}</button>`;
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   _reader() {
     return l`<button class="readme tap" aria-label="Read my jobs" @click=${(t) => {
       const e = t.currentTarget, i = this._block().routineNow.filter((s) => s.status !== "completed").map((s) => s.summary);
-      this._sound("tap"), E(i.length ? i.join(". Then, ") + "." : "All done! Great job!", e);
+      this._sound("tap"), tt(i.length ? i.join(". Then, ") + "." : "All done! Great job!", e);
     }}>${Wm(36)}</button>`;
   }
   _rewards() {
-    const t = Ge(this.hass, this._e.points), e = this.kid.rewards ?? Cp, i = this._star, s = this._picMode ? l`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
+    const t = Qe(this.hass, this._e.points), e = this.kid.rewards ?? Cp, i = this._star, s = this._picMode ? l`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
         <span style="display:flex;flex-direction:column;gap:2px">${(() => {
       const o = Math.floor(t / i);
-      return o > 10 ? l`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${_a(!0, 30)} ${o}</b>` : o ? l`<span class="starjar">${Array.from({ length: o }, () => _a(!0, 24))}</span>` : _a(!1, 28);
+      return o > 10 ? l`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${Fa(!0, 30)} ${o}</b>` : o ? l`<span class="starjar">${Array.from({ length: o }, () => Fa(!0, 24))}</span>` : Fa(!1, 28);
     })()}
         <span>${Math.floor(t / i)} stars in my jar</span></span></div>` : l`<div class="ptsline" role="group" aria-label=${t ? `${t} points to spend` : "No points to spend yet"}>${t ? l`<b>${t}</b><span>${t === 1 ? "point" : "points"} to spend</span>` : l`<span>${this.kid.older ? "No points to spend yet" : "✨ Ready to start"}</span>`}</div>`;
     return l`${s}${this._owed.length ? l`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(", ")}</span></div>` : g}${e.map((o, r) => {
-      const n = t >= o.cost, p = o.icon ?? (this._picMode ? jp[r % jp.length] : "🎁"), d = this._costWords(o), c = Math.max(1, Math.round(o.cost / i)), h = Math.min(c, Math.floor(t / i)), f = this._saving === o.name, m = this._held === o.name || f, u = this._capped(o), w = Vp(this._now);
-      return this._spend === o.name && n || m ? l`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${d} on ${o.name}?" ?data-held=${m} aria-busy=${f ? "true" : g}>
-          <span class="rpic" aria-hidden="true">${p}</span><span class="q">Spend ${d}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${o.name}</span></span>
+      const n = t >= o.cost, p = o.icon ?? (this._picMode ? jp[r % jp.length] : "🎁"), c = this._costWords(o), d = Math.max(1, Math.round(o.cost / i)), h = Math.min(d, Math.floor(t / i)), f = this._saving === o.name, m = this._held === o.name || f, u = this._capped(o), w = Vp(this._now);
+      return this._spend === o.name && n || m ? l`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${c} on ${o.name}?" ?data-held=${m} aria-busy=${f ? "true" : g}>
+          <span class="rpic" aria-hidden="true">${p}</span><span class="q">Spend ${c}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${o.name}</span></span>
           <button class="tap" ?disabled=${m} @click=${() => {
         this._held = o.name, this._heldAt = Date.now(), window.setTimeout(() => {
           this._held === o.name && (this._held = "");
         }, 600), this._redeem(o);
       }}>${f ? "Saving…" : l`${Ho(18)}Yes`}</button><button class="tap save" ?disabled=${m} @click=${() => {
         this._spend = "", this._sound("tap");
-      }}>${zm}Not now</button></div>` : l`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${u} aria-label="${o.name}: ${u ? `had this week. Back on ${w}` : n ? `spend ${d}` : this._picMode ? `${h} of ${c} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
+      }}>${zm}Not now</button></div>` : l`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${u} aria-label="${o.name}: ${u ? `had this week. Back on ${w}` : n ? `spend ${c}` : this._picMode ? `${h} of ${d} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
           <span class="rpic" aria-hidden="true">${p}</span>
-          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${c > 12 ? l`${_a(n, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${h} / ${c}</b>` : Array.from({ length: c }, (x, k) => _a(k < h, 18))}</span>` : g}</span>
+          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${Fa(n, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${h} / ${d}</b>` : Array.from({ length: d }, (x, k) => Fa(k < h, 18))}</span>` : g}</span>
           ${u ? l`<span class="cost notyet" style="margin-left:auto">Back ${w}</span>` : this._picMode ? g : l`<span class="cost ${n ? "" : "notyet"}" style="margin-left:auto">${n ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
     })}`;
   }
   _tabs() {
     const t = !!this.kid.older, i = this.oneAtATime && !this._tabPicked && this._block().todo.length > 0 || t && !this._tabPicked ? "week" : this._tab, s = (n, p) => l`<button class="tab tap" data-tab=${n} aria-pressed=${String(i === n)} @click=${() => {
-      this._tab = n, this._tabPicked = !0, this._sound("tap"), this._picMode && E(p);
+      this._tab = n, this._tabPicked = !0, this._sound("tap"), this._picMode && tt(p);
     }}>${p}</button>`, o = s("rewards", this._picMode ? "⭐ My stars" : t ? "Rewards" : "🎁 Rewards"), r = s("week", this._picMode ? "📅 Coming up" : t ? "My week" : "📅 My week");
     return l`<section class="glass card tabcard" aria-label=${i === "rewards" ? "Rewards" : "Week"}>
       <div class="tabs">${t ? l`${r}${o}` : l`${o}${r}`}</div>
@@ -8437,10 +8452,10 @@ const _m = [
   }
   _windCard() {
     return l`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      ${this._night ? g : l`<span class="muted wbed" style="font-size:14px">Bedtime ${Tp(Se(this.kid.bedtime, this._now))}</span>`}</section>`;
+      ${this._night ? g : l`<span class="muted wbed" style="font-size:14px">Bedtime ${Tp(Me(this.kid.bedtime, this._now))}</span>`}</section>`;
   }
   _jar() {
-    const t = Ge(this.hass, "input_number.family_jar"), e = this.jarTarget || 120, i = Math.min(1, t / e);
+    const t = Qe(this.hass, "input_number.family_jar"), e = this.jarTarget || 120, i = Math.min(1, t / e);
     return this.hass?.states["input_number.family_jar"] ? l`<section class="glass card" aria-label="Family jar"><div class="jar">
       <svg width="34" height="42" viewBox="0 0 48 60" aria-hidden="true"><rect x="8" y="2" width="32" height="7" rx="3" fill="var(--ink3)"></rect>
         <path d="M6 12 H42 V52 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="var(--chip-strong)" stroke="var(--ink3)" stroke-width="2"></path>
@@ -8454,9 +8469,9 @@ const _m = [
     const t = this._picMode ? Nm : $m, e = this._feel ? Wp(this._feel) : "mid", i = this._picMode ? "height:56px;font-size:18px" : "", s = Lp[e];
     return l`<section class="glass card feelcard" aria-label="How are you feeling">
       ${this._feel ? l`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:15px;font-weight:var(--w-semi, 600)">${s}</span>
-            ${this._picMode ? l`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(o) => E(s, o.currentTarget)}>🔊</button>` : g}</div>
+            ${this._picMode ? l`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(o) => tt(s, o.currentTarget)}>🔊</button>` : g}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${e === "up" ? l`<button class="pill tap" style=${i} @click=${() => this._feelReply("share")}>💬 Leave a note</button><button class="pill tap" style=${i} @click=${() => this._feelReply("ok")}>👍 All good</button>` : l`<button class="pill tap" style=${i} @click=${() => this._feelReply("hug")}>🤗 Hug</button><button class="pill tap" style=${i} @click=${() => this._feelReply("chat")}>💬 Chat later</button><button class="pill tap" style=${i} @click=${() => this._feelReply("ok")}>I’m OK</button>`}</div>` : l`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._picMode ? l`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(o) => E("How are you feeling?", o.currentTarget)}>🔊</button>` : g}</div>
+            ${this._picMode ? l`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(o) => tt("How are you feeling?", o.currentTarget)}>🔊</button>` : g}</div>
           <div class="feel ${this._picMode ? "three" : ""}">${t.map(([o, r]) => l`<button class="tap" aria-label=${r} @click=${() => this._feelPick(r)}>${o}</button>`)}</div>`}
     </section>`;
   }
@@ -8476,14 +8491,14 @@ const _m = [
     }}>💬 Ask for a chat</button></section>`;
   }
   _weekBody() {
-    const t = /* @__PURE__ */ new Date(), e = (o) => o.end && !isNaN(o.end.getTime()) ? o.end.getTime() : o.start.getTime() + 36e5, i = this._events.filter((o) => o.allDay ? o.start >= it(t) : e(o) > t.getTime()).slice(0, 5), s = (o) => mt(o, t) ? "Today" : Math.round((it(o).getTime() - it(t).getTime()) / 864e5) === 1 ? "Tomorrow" : Si(o);
+    const t = /* @__PURE__ */ new Date(), e = (o) => o.end && !isNaN(o.end.getTime()) ? o.end.getTime() : o.start.getTime() + 36e5, i = this._events.filter((o) => o.allDay ? o.start >= it(t) : e(o) > t.getTime()).slice(0, 5), s = (o) => ht(o, t) ? "Today" : Math.round((it(o).getTime() - it(t).getTime()) / 864e5) === 1 ? "Tomorrow" : Si(o);
     if (this._picMode) {
       const o = (n) => Math.max(0, Math.round((it(n).getTime() - it(t).getTime()) / 864e5)), r = (n) => n === 0 ? "Today" : `${n} sleep${n > 1 ? "s" : ""}`;
       return l`${this._wind ? l`<span class="label">Coming up</span>` : g}
         ${i.length ? l`<div class="soon">${i.slice(0, 3).map((n) => {
         const p = o(n.start);
-        return l`<button class="soonpic tap" aria-label="${n.title}: ${r(p)}" @click=${(d) => {
-          this._sound("tap"), E(`${n.title}. ${p === 0 ? "Today!" : r(p) + "."}`, d.currentTarget);
+        return l`<button class="soonpic tap" aria-label="${n.title}: ${r(p)}" @click=${(c) => {
+          this._sound("tap"), tt(`${n.title}. ${p === 0 ? "Today!" : r(p) + "."}`, c.currentTarget);
         }}>
           <span class="e" aria-hidden="true">${Vm(n.title)}</span><span class="pt">${n.title}</span>
           <span class="moons" aria-hidden="true">${p === 0 ? "☀️" : p <= 7 ? Array.from({ length: p }, () => l`<span>🌙</span>`) : "🌙"}</span><span class="sl">${r(p)}</span></button>`;
@@ -8492,7 +8507,7 @@ const _m = [
     return l`${this._wind ? l`<span class="label">${`${this.kid.name}’s week`}</span>` : g}
       ${i.length ? i.map((o, r) => l`<div class="wk"><span class="d">${r && s(i[r - 1].start) === s(o.start) ? "" : s(o.start)}</span>
         <span style="flex:1;font-weight:var(--w-semi, 600);display:flex;gap:6px;align-items:baseline"><span class="init sm" style="--c:${o.family ? "var(--p-family)" : "var(--kid)"};align-self:center" role="img" aria-label=${o.family ? "Family" : this.kid.name}>${o.family ? "F" : this.kid.name[0]}</span>
-          <span>${o.title}${o.allDay ? "" : l` <span class="muted" style="font-weight:500">· ${pt(o.start)}</span>`}</span></span></div>`) : l`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+          <span>${o.title}${o.allDay ? "" : l` <span class="muted" style="font-weight:500">· ${dt(o.start)}</span>`}</span></span></div>`) : l`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
   }
   _celebration() {
     const t = this._celebrate, e = this._look;
@@ -8780,7 +8795,7 @@ Xs.styles = [Ct, J`
 let Pr = Xs;
 const jm = new Set([...If, ...Jf(qc)].map((a) => a.id));
 customElements.get("fh-kid") || customElements.define("fh-kid", Pr);
-const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player", "input_boolean"], Qp = /* @__PURE__ */ new Set(["on", "open", "playing", "unlocked", "heat", "cool", "heat_cool", "auto", "dry", "fan_only", "paused", "idle"]), Gp = ["light", "switch", "fan", "input_boolean", "climate"], oi = (a) => (typeof a == "string" ? a : a.entity_id).split(".")[0], Ra = (a) => a.state === "unavailable" || a.state === "unknown", we = (a) => b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true">${a}</svg>`, Gt = {
+const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player", "input_boolean"], Qp = /* @__PURE__ */ new Set(["on", "open", "playing", "unlocked", "heat", "cool", "heat_cool", "auto", "dry", "fan_only", "paused", "idle"]), Gp = ["light", "switch", "fan", "input_boolean", "climate"], oi = (a) => (typeof a == "string" ? a : a.entity_id).split(".")[0], _a = (a) => a.state === "unavailable" || a.state === "unknown", we = (a) => b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true">${a}</svg>`, Gt = {
   fan: we(b`<circle cx="12" cy="12" r="1.800"></circle><path d="M12 10.200C10.500 6 12.500 3 15 3.500c2 .400 2 3.500-1.200 6.900M13.800 12.600c4.200-1.500 7.200.500 6.700 3-.400 2-3.500 2-6.900-1.200M10.700 13.600C9.200 17.800 6 18.800 4.500 17c-1.300-1.600.200-4.300 4.700-5.400"></path>`),
   locked: we(b`<rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3M12 14.500v2"></path>`),
   unlocked: we(b`<rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 7.500-2M12 14.500v2"></path>`),
@@ -8790,9 +8805,9 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   speaker: we(b`<rect x="6.500" y="3" width="11" height="18" rx="2.500"></rect><circle cx="12" cy="14.500" r="3"></circle><circle cx="12" cy="7.500" r=".800"></circle>`),
   plug: we(b`<path d="M9 3v5M15 3v5M6.500 8h11v3.500a5.500 5.500 0 0 1-11 0zM12 17v4"></path>`),
   heat: we(b`<path d="M10 4a2 2 0 0 1 4 0v9.500a4 4 0 1 1-4 0z"></path><path d="M12 9v7"></path>`)
-}, Wa = class Wa extends ht {
+}, Wa = class Wa extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this.pin = "", this.hideScripts = [], this.hide = [], this._all = !1, this._unlocked = 0, this._unlockedFor = "", this._askFor = "", this._tick = 0, this._askPin = null, this._went = "", this._busy = [], this._flight = /* @__PURE__ */ new Set(), this._opt = {}, this._askWhy = "";
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this.pin = "", this.hideScripts = [], this.hide = [], this._all = !1, this._unlocked = 0, this._unlockedFor = "", this._askFor = "", this._tick = 0, this._askPin = null, this._went = "", this._busy = [], this._flight = /* @__PURE__ */ new Set(), this._opt = {}, this._askWhy = "";
   }
   _open(t) {
     this._unlocked = Date.now() + Wa.WINDOW, this._unlockedFor = t, clearInterval(this._tickT), this._tickT = window.setInterval(() => {
@@ -8837,12 +8852,12 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     }, 250);
     o && (this._opt = { ...this._opt, ...o });
     const n = (p) => {
-      const d = { ...this._opt };
-      for (const c of p) o && d[c] === o[c] && delete d[c];
-      this._opt = d;
+      const c = { ...this._opt };
+      for (const d of p) o && c[d] === o[d] && delete c[d];
+      this._opt = c;
     };
     try {
-      await dt(i()), s && this._tell(s), o && window.setTimeout(() => n(Object.keys(o)), 1500);
+      await ct(i()), s && this._tell(s), o && window.setTimeout(() => n(Object.keys(o)), 1500);
     } catch (p) {
       o && n(Object.keys(o)), this._tell(p instanceof Wt ? St : `${e} didn’t respond. Try again`);
     } finally {
@@ -8860,7 +8875,7 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   }
   _toggle(t, e) {
     const i = oi(t), s = t.entity_id, o = this._name(t, e);
-    if (Ra(t)) {
+    if (_a(t)) {
       this._tell(`${o} is not responding`);
       return;
     }
@@ -8881,7 +8896,7 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     }
   }
   _room(t, e) {
-    const i = t.ents.filter((s) => s.entity_id.startsWith("light.") && !Ra(s)).map((s) => s.entity_id);
+    const i = t.ents.filter((s) => s.entity_id.startsWith("light.") && !_a(s)).map((s) => s.entity_id);
     i.length && this._call(`room:${t.id}`, `${t.name} lights`, () => this.hass.callService("light", e ? "turn_on" : "turn_off", { entity_id: i }), void 0, Object.fromEntries(i.map((s) => [s, e])));
   }
   _scene(t) {
@@ -8910,14 +8925,14 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     return e === "light" ? U("bulb", 18) : e === "fan" || /\bfan\b/i.test(i) ? Gt.fan : e === "lock" ? t.state === "locked" ? Gt.locked : Gt.unlocked : e === "cover" ? t.state === "closed" ? Gt.garage : Gt.garageOpen : e === "media_player" ? /tv|television/i.test(i) ? Gt.tv : Gt.speaker : e === "climate" ? Gt.heat : /light|lamp/i.test(i) ? U("bulb", 18) : Gt.plug;
   }
   _state(t, e) {
-    if (Ra(t)) return "Not responding";
+    if (_a(t)) return "Not responding";
     const i = t.attributes.brightness;
     if (oi(t) === "light" && e && i) return `On · ${Math.round(i / 255 * 100)}%`;
     const s = t.state.replace(/_/g, " ");
     return s[0].toUpperCase() + s.slice(1);
   }
   _dev(t, e) {
-    const i = oi(t), s = this._on(t), o = Ra(t), r = this._name(t, e), n = Gp.includes(i) && !o, p = i === "lock" || i === "cover";
+    const i = oi(t), s = this._on(t), o = _a(t), r = this._name(t, e), n = Gp.includes(i) && !o, p = i === "lock" || i === "cover";
     return l`<button class="dev tap ${s && i === "light" ? "on" : ""} ${o ? "gone" : ""}" role=${n ? "switch" : g} aria-checked=${n ? String(s) : g} aria-disabled=${o ? "true" : g}
       aria-label=${n ? r : `${r}: ${this._state(t, s)}${p && !o ? ". Needs the grown-ups’ PIN" : ""}`} ?data-busy=${this._busy.includes(t.entity_id)} aria-busy=${this._busy.includes(t.entity_id) ? "true" : g} @click=${() => this._toggle(t, e)}>
       <span class="dicon">${this._ic(t)}</span><span class="nm"><span class="n">${r}</span><span class="s">${this._state(t, s)}</span></span>
@@ -8925,15 +8940,15 @@ const Lm = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   }
   render() {
     if (!this.hass) return g;
-    const t = this.hass, e = this._rooms(), i = kt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, f) => h + f.ents.filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length, 0), p = e.reduce((h, f) => h + f.ents.filter(Ra).length, 0), d = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), c = this._columns(e, i === "phone" ? 1 : i === "wide" && Ya() >= 2 ? 2 : Ya() >= 1 ? 3 : e.length > 9 ? 4 : 3);
+    const t = this.hass, e = this._rooms(), i = kt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, f) => h + f.ents.filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length, 0), p = e.reduce((h, f) => h + f.ents.filter(_a).length, 0), c = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), d = this._columns(e, i === "phone" ? 1 : i === "wide" && Ya() >= 2 ? 2 : Ya() >= 1 ? 3 : e.length > 9 ? 4 : 3);
     return l`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           ${e.length ? l`<span class="muted" style="font-size:15px">${n ? `${n} light${n > 1 ? "s" : ""} on` : "All lights off"} · ${e.length} room${e.length === 1 ? "" : "s"}${p ? ` · ${p} not responding` : ""}</span>` : g}</div>
-          ${d > 0 ? l`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${Gt.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(d / 60)}:${String(d % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : g}</div>
+          ${c > 0 ? l`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${Gt.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(c / 60)}:${String(c % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : g}</div>
         ${e.length ? l`<div class="rgrid" data-fits>
-          ${c.map((h) => l`<div class="rcol">${h.map((f) => {
-      const m = f.ents.filter((w) => w.entity_id.startsWith("light.") && !Ra(w)), u = m.some((w) => this._on(w));
+          ${d.map((h) => l`<div class="rcol">${h.map((f) => {
+      const m = f.ents.filter((w) => w.entity_id.startsWith("light.") && !_a(w)), u = m.some((w) => this._on(w));
       return l`<div class="room ${u ? "lit" : ""}">
               <div class="rh"><h2>${f.name}</h2>${m.length > 1 ? l`<button class="sw tap" role="switch" aria-label="${f.name} lights" aria-checked=${String(u)} ?data-busy=${this._busy.includes(`room:${f.id}`)} @click=${() => this._room(f, !u)}><span>Lights</span><span class="toggle"></span></button>` : g}</div>
               ${f.ents.map((w) => this._dev(w, f.name))}
@@ -9056,13 +9071,13 @@ customElements.get("fh-home") || customElements.define("fh-home", Xr);
 const Wi = (a, t) => a.entities?.[t]?.platform ?? "", Yn = (a) => !!a && a.state !== "unavailable", Rc = (a) => Object.keys(a.states).filter((t) => t.startsWith("media_player.") && Wi(a, t) === "music_assistant" && !a.entities?.[t]?.hidden).map((t) => a.states[t]).filter(Yn), rs = (a) => !!a.services?.music_assistant && Rc(a).length > 0, Vc = (a, t) => {
   const e = Rc(a);
   return e.length ? e.sort((s, o) => String(s.attributes.friendly_name).localeCompare(String(o.attributes.friendly_name))) : (t.length ? t : Object.keys(a.states).filter((s) => s.startsWith("media_player."))).map((s) => a.states[s]).filter(Yn);
-}, Ue = (a, t, e) => {
+}, Ke = (a, t, e) => {
   if (!e) return;
   const i = String(a.states[e]?.attributes.friendly_name ?? "").toLowerCase().trim();
   return t.find((s) => s.entity_id === e) ?? (i ? t.find((s) => String(s.attributes.friendly_name ?? "").toLowerCase().trim() === i) : void 0);
 }, Hr = (a, t, e) => {
   const i = t.speaker;
-  return Ue(a, e, i) ?? (i && Yn(a.states[i]) ? a.states[i] : void 0) ?? e.find((s) => String(s.attributes.friendly_name ?? "").toLowerCase().includes(t.name.toLowerCase()));
+  return Ke(a, e, i) ?? (i && Yn(a.states[i]) ? a.states[i] : void 0) ?? e.find((s) => String(s.attributes.friendly_name ?? "").toLowerCase().includes(t.name.toLowerCase()));
 }, Qs = (a, t) => ({
   name: a.name ?? a.title ?? "",
   uri: a.uri ?? a.media_content_id ?? "",
@@ -9091,11 +9106,11 @@ const $c = async (a) => {
 }, Ym = async (a, t, e = "playlist") => {
   const i = await $c(a);
   if (!i) return;
-  const s = await Gs(a, "music_assistant", "search", { config_entry_id: i, name: t, media_type: [e], limit: 8 }), o = (s[`${e}s`] ?? s[e] ?? []).map((c) => Qs(c, e)).filter((c) => c.uri), r = t.toLowerCase().trim(), n = r.split(/\s+/).filter((c) => c.length > 2), p = (c) => {
-    const h = c.name.toLowerCase();
+  const s = await Gs(a, "music_assistant", "search", { config_entry_id: i, name: t, media_type: [e], limit: 8 }), o = (s[`${e}s`] ?? s[e] ?? []).map((d) => Qs(d, e)).filter((d) => d.uri), r = t.toLowerCase().trim(), n = r.split(/\s+/).filter((d) => d.length > 2), p = (d) => {
+    const h = d.name.toLowerCase();
     return n.filter((f) => h.includes(f)).length;
-  }, d = [...o].sort((c, h) => p(h) - p(c))[0];
-  return o.find((c) => c.name.toLowerCase().trim() === r) ?? o.find((c) => c.name.toLowerCase().includes(r)) ?? (d && p(d) > 0 ? d : void 0);
+  }, c = [...o].sort((d, h) => p(h) - p(d))[0];
+  return o.find((d) => d.name.toLowerCase().trim() === r) ?? o.find((d) => d.name.toLowerCase().includes(r)) ?? (c && p(c) > 0 ? c : void 0);
 }, Ui = (a, t, e, i = "play", s = !1) => a.services?.music_assistant && Wi(a, t) === "music_assistant" ? a.callService("music_assistant", "play_media", { media_id: e, enqueue: i, ...s ? { radio_mode: !0 } : {} }, { entity_id: t }) : a.callService("media_player", "play_media", { media_content_id: e, media_content_type: "music", ...i === "play" ? {} : { enqueue: i } }, { entity_id: t }), Zm = async (a, t) => {
   if (Wi(a, t) !== "music_assistant") return null;
   try {
@@ -9133,97 +9148,97 @@ const $c = async (a) => {
   fridge: "Push two magnets together to share the music.",
   orbit: "Drag a planet onto an orbit to join that music.",
   sports: "Two players together share the music."
-}, Tc = (a, t) => a === "glass" ? Nc[t] ? t : "sea" : a === "fridge" ? "fridge" : a === "sports" ? "sports" : "orbit", Dm = (a, t, e) => a === "scene" ? Nc[Tc(t, e)] : Zn.find((i) => i.id === a)?.hint ?? "", Xe = (a) => Math.max(0, Math.min(100, Math.round(a))), fo = 16, xa = (a, t, e, i = 6) => {
+}, Tc = (a, t) => a === "glass" ? Nc[t] ? t : "sea" : a === "fridge" ? "fridge" : a === "sports" ? "sports" : "orbit", Dm = (a, t, e) => a === "scene" ? Nc[Tc(t, e)] : Zn.find((i) => i.id === a)?.hint ?? "", Pe = (a) => Math.max(0, Math.min(100, Math.round(a))), fo = 16, ba = (a, t, e, i = 6) => {
   const s = a.currentTarget, o = a.clientX, r = a.clientY;
   let n = !1;
-  const p = (c) => {
-    const h = c;
+  const p = (d) => {
+    const h = d;
     !n && Math.hypot(h.clientX - o, h.clientY - r) < i || (n = !0, t(h));
-  }, d = (c) => {
-    s.removeEventListener("pointermove", p), s.removeEventListener("pointerup", d), s.removeEventListener("pointercancel", d), e(n, c, c.type === "pointercancel");
+  }, c = (d) => {
+    s.removeEventListener("pointermove", p), s.removeEventListener("pointerup", c), s.removeEventListener("pointercancel", c), e(n, d, d.type === "pointercancel");
   };
-  s.setPointerCapture(a.pointerId), s.addEventListener("pointermove", p), s.addEventListener("pointerup", d), s.addEventListener("pointercancel", d);
+  s.setPointerCapture(a.pointerId), s.addEventListener("pointermove", p), s.addEventListener("pointerup", c), s.addEventListener("pointercancel", c);
 }, Ys = 10, Oa = 5, zc = (a) => l`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5v5h3.2L11 18.5v-13L6.2 9.5z" fill="currentColor"></path><path d=${a ? "M15 12h6M18 9v6" : "M15 12h6"}></path></svg>`, Da = (a, t, e, i) => l`<button class="vstep tap" data-notrack data-step=${e ? "up" : "down"} aria-label="${e ? "Louder" : "Quieter"} in ${a}" ?disabled=${e ? t >= 100 : t <= 0}
   @pointerdown=${(s) => s.stopPropagation()} @click=${(s) => {
   s.stopPropagation(), i();
 }}>${zc(e)}</button>`, Bn = (a, t, e) => (i) => {
   const s = i.key, o = s === "ArrowUp" || s === "ArrowRight" ? a + Oa : s === "ArrowDown" || s === "ArrowLeft" ? a - Oa : s === "PageUp" ? a + 10 : s === "PageDown" ? a - 10 : s === "Home" ? 0 : s === "End" ? 100 : null;
-  o !== null ? (i.preventDefault(), i.stopPropagation(), t(Xe(o))) : e?.(i);
+  o !== null ? (i.preventDefault(), i.stopPropagation(), t(Pe(o))) : e?.(i);
 }, Im = (a) => (t) => {
   if (!t.isPrimary || t.button > 0) return;
-  const e = t.currentTarget, i = e.getBoundingClientRect(), s = t.clientX, o = t.clientY, r = !!t.target.closest(".fcap"), n = 16, p = (w) => (a.vert ? (i.bottom - n - w.clientY) / Math.max(1, i.height - 2 * n) : (w.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, d = r ? a.v - p(t) : 0;
-  let c = !1, h = !1, f = a.v;
+  const e = t.currentTarget, i = e.getBoundingClientRect(), s = t.clientX, o = t.clientY, r = !!t.target.closest(".fcap"), n = 16, p = (w) => (a.vert ? (i.bottom - n - w.clientY) / Math.max(1, i.height - 2 * n) : (w.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, c = r ? a.v - p(t) : 0;
+  let d = !1, h = !1, f = a.v;
   const m = (w) => {
     const x = w, k = Math.abs(x.clientX - s), v = Math.abs(x.clientY - o), K = a.vert ? v : k, y = a.vert ? k : v;
     if (!h) {
-      if (!c) {
+      if (!d) {
         if (y >= Ys && y > K) {
           h = !0;
           return;
         }
         if (K < Ys) return;
-        c = !0;
+        d = !0;
       }
-      f = Xe(p(x) + d), a.set(f, !1);
+      f = Pe(p(x) + c), a.set(f, !1);
     }
   }, u = (w) => {
     if (e.removeEventListener("pointermove", m), e.removeEventListener("pointerup", u), e.removeEventListener("pointercancel", u), w.type === "pointercancel" || h) {
-      c && a.drop?.();
+      d && a.drop?.();
       return;
     }
-    c ? a.set(f, !0) : r || a.set(Xe(p(w)), !0);
+    d ? a.set(f, !0) : r || a.set(Pe(p(w)), !0);
   };
   e.setPointerCapture(t.pointerId), e.addEventListener("pointermove", m), e.addEventListener("pointerup", u), e.addEventListener("pointercancel", u);
 }, Zs = (a) => l`<div class="vs" ?data-vert=${!!a.vert} ?data-idle=${!a.live} ?data-held=${!!a.held} style="--v:${a.v}">
-  ${Da(a.name, a.v, !1, () => a.set(Xe(a.v - Oa), !0))}
+  ${Da(a.name, a.v, !1, () => a.set(Pe(a.v - Oa), !0))}
   <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${a.name}" aria-orientation=${a.vert ? "vertical" : "horizontal"} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${a.v} aria-valuetext="${a.v} per cent${a.live ? "" : ", quiet"}"
     @pointerdown=${Im(a)} @keydown=${Bn(a.v, (t) => a.set(t, !0))}><i class="slot"></i><i class="vfill"></i><i class="fcap"><b aria-hidden="true">${a.v}</b></i></div>
-  ${Da(a.name, a.v, !0, () => a.set(Xe(a.v + Oa), !0))}
+  ${Da(a.name, a.v, !0, () => a.set(Pe(a.v + Oa), !0))}
   <b class="vnum" aria-hidden="true">${a.v}</b></div>`, Jm = (a, t, e = !1) => Zs({ name: t.name, v: t.vol, live: t.live, vert: e, held: a.held === t.id, set: (i, s) => a.vol(t.id, i, s), drop: () => a.drop(t.id) }), On = (a, t) => [Da(t.name, t.vol, !1, () => a.step(t.id, -Oa)), Da(t.name, t.vol, !0, () => a.step(t.id, Oa))], Wc = (a, t, e, i) => (s) => {
   if (!s.isPrimary || s.target.closest("[data-notrack]")) return;
   if (!t.hasVol) {
-    xa(s, () => {
-    }, (d, c, h) => {
+    ba(s, () => {
+    }, (c, d, h) => {
     }, fo);
     return;
   }
-  const o = t.vol, r = s.clientY, n = Math.max(40, e(s.currentTarget)), p = (d) => Xe(o + (r - d.clientY) / n * 100);
-  xa(s, (d) => a.vol(t.id, p(d), !1), (d, c, h) => {
-    h ? a.drop(t.id) : d && a.vol(t.id, p(c), !0);
+  const o = t.vol, r = s.clientY, n = Math.max(40, e(s.currentTarget)), p = (c) => Pe(o + (r - c.clientY) / n * 100);
+  ba(s, (c) => a.vol(t.id, p(c), !1), (c, d, h) => {
+    h ? a.drop(t.id) : c && a.vol(t.id, p(d), !0);
   }, Ys);
 }, Dn = (a, t) => (e) => {
   const i = (s) => {
     (s.key === "Enter" || s.key === " ") && (s.preventDefault(), a.toggle(t.id));
   };
   t.hasVol ? Bn(t.vol, (s) => a.vol(t.id, s, !0), i)(e) : i(e);
-}, mo = (a) => a.offline ? "Offline" : a.live ? a.playing ? "Playing" : "Paused" : a.asleep ? "Asleep" : "Quiet", In = (a) => `${a.vol} per cent, ${mo(a).toLowerCase()}`, Ka = (a) => a.colour ? `--c:${a.colour}` : "", go = (a) => a.linked ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : g, Cc = (a, t, e, i) => l`<span class="mkeys"><button class="mkey tap" aria-label="Previous" @click=${t}>${nt("prev", 22)}</button>
-  <button class="mkey go ngo tap" aria-label=${a ? "Pause" : "Play"} @click=${e}>${nt(a ? "pause" : "play", 22)}</button>
-  <button class="mkey tap" aria-label="Next" @click=${i}>${nt("next", 22)}</button></span>`, tn = (a, t) => [200 + a * Math.cos(t * Math.PI / 180), 200 + a * Math.sin(t * Math.PI / 180)], Eo = (a, t, e) => {
+}, mo = (a) => a.offline ? "Offline" : a.live ? a.playing ? "Playing" : "Paused" : a.asleep ? "Asleep" : "Quiet", In = (a) => `${a.vol} per cent, ${mo(a).toLowerCase()}`, va = (a) => a.colour ? `--c:${a.colour}` : "", go = (a) => a.linked ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : g, Cc = (a, t, e, i) => l`<span class="mkeys"><button class="mkey tap" aria-label="Previous" @click=${t}>${lt("prev", 22)}</button>
+  <button class="mkey go ngo tap" aria-label=${a ? "Pause" : "Play"} @click=${e}>${lt(a ? "pause" : "play", 22)}</button>
+  <button class="mkey tap" aria-label="Next" @click=${i}>${lt("next", 22)}</button></span>`, tn = (a, t) => [200 + a * Math.cos(t * Math.PI / 180), 200 + a * Math.sin(t * Math.PI / 180)], Eo = (a, t, e) => {
   const [i, s] = tn(a, t), [o, r] = tn(a, e);
   return `M${i.toFixed(1)} ${s.toFixed(1)} A${a} ${a} 0 ${e - t > 180 ? 1 : 0} 1 ${o.toFixed(1)} ${r.toFixed(1)}`;
 }, Pm = (a) => {
   const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, s = 2 * Math.PI * 106, o = (k, v, K) => (y) => {
     const q = y.currentTarget.ownerSVGElement, N = (_) => {
       const $ = q.getBoundingClientRect(), T = ((Math.atan2(_.clientY - ($.top + $.height / 2), _.clientX - ($.left + $.width / 2)) * 180 / Math.PI - v) % 360 + 360) % 360;
-      return Xe((T > K + (360 - K) / 2 ? 0 : Math.min(T, K)) / K * 100);
+      return Pe((T > K + (360 - K) / 2 ? 0 : Math.min(T, K)) / K * 100);
     };
     if (!k.hasVol) {
-      xa(y, () => {
+      ba(y, () => {
       }, (_, $, C) => {
         !_ && !C && a.toggle(k.id);
       }, fo);
       return;
     }
-    xa(y, (_) => a.vol(k.id, N(_), !1), (_, $, C) => {
+    ba(y, (_) => a.vol(k.id, N(_), !1), (_, $, C) => {
       C ? a.drop(k.id) : _ ? a.vol(k.id, N($), !0) : a.toggle(k.id);
     }, Ys);
-  }, r = a.dial, n = r.stops.length, p = r.stops.findIndex((k) => k.on), d = (k) => (k + 0.5) / Math.max(1, n) * 100, c = (k) => {
+  }, r = a.dial, n = r.stops.length, p = r.stops.findIndex((k) => k.on), c = (k) => (k + 0.5) / Math.max(1, n) * 100, d = (k) => {
     const v = k.currentTarget, K = v.querySelector(".tneedle"), y = v.getBoundingClientRect(), q = (_) => Math.max(0, Math.min(1, (_.clientX - y.left) / y.width)), N = (_) => Math.max(0, Math.min(n - 1, Math.round(q(_) * n - 0.5)));
-    n && xa(k, (_) => {
+    n && ba(k, (_) => {
       K && (K.style.transition = "none", K.style.left = `${q(_) * 100}%`);
     }, (_, $, C) => {
       const T = C ? p : N($);
-      K && (K.style.transition = "", K.style.left = `${T < 0 ? 2 : d(T)}%`), C || r.tune(T);
+      K && (K.style.transition = "", K.style.left = `${T < 0 ? 2 : c(T)}%`), C || r.tune(T);
     }, 4);
   }, h = (k) => {
     const v = k.key === "ArrowRight" || k.key === "ArrowUp" ? 1 : k.key === "ArrowLeft" || k.key === "ArrowDown" ? -1 : 0;
@@ -9239,7 +9254,7 @@ const $c = async (a) => {
       ${a.now.playing ? b`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : g}
       ${a.rooms.map((k, v) => {
     const K = -90 + v * e + i / 2, y = e - i, q = K + y * Math.max(0.03, k.vol / 100), [N, _] = tn(152, q);
-    return b`<g class="darc" data-zone=${k.id} ?data-live=${k.live} ?data-playing=${k.playing} ?data-asleep=${k.asleep} ?data-offline=${k.offline} ?data-focus=${k.focus} ?data-hot=${a.over === k.id} ?data-held=${a.held === k.id} style=${Ka(k)} role="slider" tabindex="0" aria-label="Volume in ${k.name}"
+    return b`<g class="darc" data-zone=${k.id} ?data-live=${k.live} ?data-playing=${k.playing} ?data-asleep=${k.asleep} ?data-offline=${k.offline} ?data-focus=${k.focus} ?data-hot=${a.over === k.id} ?data-held=${a.held === k.id} style=${va(k)} role="slider" tabindex="0" aria-label="Volume in ${k.name}"
           aria-valuemin="0" aria-valuemax="100" aria-valuenow=${k.vol} aria-valuetext="${In(k)}. Enter ${k.on ? "drops" : "adds"} the room." @pointerdown=${o(k, K, y)} @keydown=${Dn(a, k)}>
           <path class="dhit" d=${Eo(152, K, K + y)}></path><path class="dtrack" d=${Eo(152, K, K + y)}></path>
           ${k.hasVol ? b`${k.live ? b`<path class="dfill" d=${Eo(152, K, q)}></path>` : g}<circle class="dknob" cx=${N} cy=${_} r="15"></circle>` : g}</g>`;
@@ -9247,7 +9262,7 @@ const $c = async (a) => {
       <circle class="dprogt" cx="200" cy="200" r="106"></circle>
       <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${a.now.frac * s} ${s}" transform="rotate(-90 200 200)"></circle>
     </svg>
-    <button class="dcover tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}><span>${nt(a.now.playing ? "pause" : "play", 30)}</span></button>
+    <button class="dcover tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}><span>${lt(a.now.playing ? "pause" : "play", 30)}</span></button>
     <div class="dlabels">${a.rooms.map((k, v) => {
     const K = -90 + v * e + e / 2, y = Math.cos(K * Math.PI / 180), q = Math.sin(K * Math.PI / 180), [N, _] = On(a, k), $ = y > 0.3 ? "0" : y < -0.3 ? "-100%" : "-50%", C = Math.abs(y) > 0.3 ? "-50%" : q > 0 ? "0" : "-100%";
     return l`<div class="dlabel" data-side=${y > 0.3 ? "r" : y < -0.3 ? "l" : "m"} ?data-held=${a.held === k.id} ?data-offline=${k.offline} style="left:${50 + 50.5 * y + (Math.abs(y) > 0.3 && Math.abs(q) > 0.5 ? 7 * Math.sign(y) : 0)}%;top:${50 + 50.5 * q}%;transform:translate(${$},${C})">
@@ -9261,51 +9276,51 @@ const $c = async (a) => {
       ${r.sleep.can ? l`<button class="dsleep tap" ?data-on=${f !== null} aria-pressed=${String(f !== null)} @click=${() => r.sleepGo()}>
         <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${f !== null ? b`<path class="sww" d="M20 20 L20 4 A16 16 0 ${u > Math.PI ? 1 : 0} 1 ${w.toFixed(2)} ${x.toFixed(2)} Z"></path>` : g}</svg>
         <span><b>Sleep fade · ${r.sleep.room}</b><span>${f !== null ? `${f} min left · tap to cancel` : `Fade out in ${r.sleep.mins} min`}</span></span></button>` : g}</section>
-    <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, n)} aria-valuenow=${p < 0 ? 1 : p + 1} aria-valuetext=${p < 0 ? "Not tuned" : r.stops[p].name} @pointerdown=${c} @keydown=${h}>
+    <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, n)} aria-valuenow=${p < 0 ? 1 : p + 1} aria-valuetext=${p < 0 ? "Not tuned" : r.stops[p].name} @pointerdown=${d} @keydown=${h}>
       <i class="tticks" aria-hidden="true"></i>
-      ${r.stops.map((k, v) => l`<span class="tstop" ?data-on=${k.on} style="left:${d(v)}%;max-width:${(100 / n - 2).toFixed(1)}%">${k.name}</span>`)}
-      ${n ? l`<i class="tneedle" aria-hidden="true" ?data-on=${p >= 0} style="left:${p < 0 ? 2 : d(p)}%"></i>` : l`<span class="tstop" style="left:50%">Pin music or add stations to fill the tuner</span>`}
+      ${r.stops.map((k, v) => l`<span class="tstop" ?data-on=${k.on} style="left:${c(v)}%;max-width:${(100 / n - 2).toFixed(1)}%">${k.name}</span>`)}
+      ${n ? l`<i class="tneedle" aria-hidden="true" ?data-on=${p >= 0} style="left:${p < 0 ? 2 : c(p)}%"></i>` : l`<span class="tstop" style="left:50%">Pin music or add stations to fill the tuner</span>`}
     </div></div>`;
 }, Xm = (a) => {
-  const t = a.rooms.filter((c) => c.live && c.hasVol && !c.offline), e = t.length ? Math.round(t.reduce((c, h) => c + h.vol, 0) / t.length) : 0, i = t.map((c) => [c.id, c.vol]), s = Zs({ name: "the whole house", v: e, live: t.length > 0, vert: !0, set: (c, h) => {
-    for (const [f, m] of i) a.vol(f, Xe(m + c - e), h);
+  const t = a.rooms.filter((d) => d.live && d.hasVol && !d.offline), e = t.length ? Math.round(t.reduce((d, h) => d + h.vol, 0) / t.length) : 0, i = t.map((d) => [d.id, d.vol]), s = Zs({ name: "the whole house", v: e, live: t.length > 0, vert: !0, set: (d, h) => {
+    for (const [f, m] of i) a.vol(f, Pe(m + d - e), h);
   }, drop: () => {
-    for (const [c] of i) a.drop(c);
-  } }), o = (c) => {
-    const h = c.live ? Math.max(1, Math.round(c.vol / 10)) : 0, f = c.offline ? "–" : c.on ? "ON" : c.live ? "PLAYING" : c.asleep ? "☾" : "OFF", m = c.offline ? `${c.name} is offline` : c.on ? c.lead ? `ON: ${c.name} plays this music. ${c.playing ? "Pause" : "Play"}` : `ON. Remove ${c.name} from the music` : c.live ? `${c.name} has other music. Swap it for this music` : `OFF. Add ${c.name} to the music`;
-    return l`<div class="strip" data-zone=${c.id} ?data-live=${c.live} ?data-playing=${c.playing} ?data-asleep=${c.asleep} ?data-offline=${c.offline} ?data-focus=${c.focus} ?data-hot=${a.over === c.id} style=${Ka(c)}>
-      <button class="sname tap" aria-pressed=${String(c.focus)} aria-label="Show ${c.name} in the player" @click=${() => a.focus(c.id)}><span>${c.name}</span>${go(c)}</button>
-      <button class="lamp tap" aria-pressed=${String(c.on)} ?data-other=${c.live && !c.on} ?disabled=${c.offline} aria-label=${m} @click=${() => a.toggle(c.id)}>${f}</button>
+    for (const [d] of i) a.drop(d);
+  } }), o = (d) => {
+    const h = d.live ? Math.max(1, Math.round(d.vol / 10)) : 0, f = d.offline ? "–" : d.on ? "ON" : d.live ? "PLAYING" : d.asleep ? "☾" : "OFF", m = d.offline ? `${d.name} is offline` : d.on ? d.lead ? `ON: ${d.name} plays this music. ${d.playing ? "Pause" : "Play"}` : `ON. Remove ${d.name} from the music` : d.live ? `${d.name} has other music. Swap it for this music` : `OFF. Add ${d.name} to the music`;
+    return l`<div class="strip" data-zone=${d.id} ?data-live=${d.live} ?data-playing=${d.playing} ?data-asleep=${d.asleep} ?data-offline=${d.offline} ?data-focus=${d.focus} ?data-hot=${a.over === d.id} style=${va(d)}>
+      <button class="sname tap" aria-pressed=${String(d.focus)} aria-label="Show ${d.name} in the player" @click=${() => a.focus(d.id)}><span>${d.name}</span>${go(d)}</button>
+      <button class="lamp tap" aria-pressed=${String(d.on)} ?data-other=${d.live && !d.on} ?disabled=${d.offline} aria-label=${m} @click=${() => a.toggle(d.id)}>${f}</button>
       <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (u, w) => l`<i ?data-lit=${9 - w < h} ?data-peak=${9 - w >= h - 2 && 9 - w < h}></i>`)}</span>
-        ${c.hasVol && !c.offline ? Jm(a, c, !0) : l`<span class="sval">${c.offline ? "Offline" : "–"}</span>`}</div></div>`;
-  }, r = (c) => {
-    const h = c.currentTarget.getBoundingClientRect(), f = h.left + h.width / 2, m = h.top + h.height / 2, u = (K) => Math.atan2(K.clientY - m, K.clientX - f) * 180 / Math.PI;
-    let w = u(c), x = 0, k = !1;
+        ${d.hasVol && !d.offline ? Jm(a, d, !0) : l`<span class="sval">${d.offline ? "Offline" : "–"}</span>`}</div></div>`;
+  }, r = (d) => {
+    const h = d.currentTarget.getBoundingClientRect(), f = h.left + h.width / 2, m = h.top + h.height / 2, u = (K) => Math.atan2(K.clientY - m, K.clientX - f) * 180 / Math.PI;
+    let w = u(d), x = 0, k = !1;
     const v = (K) => {
       const y = u(K);
       let q = y - w;
       return q > 180 ? q -= 360 : q < -180 && (q += 360), w = y, x += q, x;
     };
-    xa(c, (K) => {
+    ba(d, (K) => {
       k = !0, a.jogTo(v(K), !1);
     }, (K, y, q) => {
       K && !q ? a.jogTo(v(y), !0) : k && a.jogTo(0, !0);
     }, 6);
-  }, n = (c) => {
-    const h = c.key === "ArrowRight" || c.key === "ArrowUp" ? 10 : c.key === "ArrowLeft" || c.key === "ArrowDown" ? -10 : 0;
-    h && (c.preventDefault(), a.seekBy(h));
-  }, p = a.jog, d = p.at * 3 + (p.turn ?? 0);
+  }, n = (d) => {
+    const h = d.key === "ArrowRight" || d.key === "ArrowUp" ? 10 : d.key === "ArrowLeft" || d.key === "ArrowDown" ? -10 : 0;
+    h && (d.preventDefault(), a.seekBy(h));
+  }, p = a.jog, c = p.at * 3 + (p.turn ?? 0);
   return l`<div class="desk" data-fits>
     <div class="dside">
       <div class="dnow"><span class="dart" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-hidden="true"><i></i></span>
         <span class="dtx"><i>${a.now.playing ? "Now playing" : a.now.lead ? "Paused" : "Ready"}</i><b>${a.now.title}</b><span>${a.now.artist}</span></span></div>
-      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${nt("prev", 26)}</button>
-        <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${nt(a.now.playing ? "pause" : "play", 28)}</button>
-        <button class="tkey tap" aria-label="Next" @click=${() => a.next()}>${nt("next", 26)}</button></div>
+      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${lt("prev", 26)}</button>
+        <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${lt(a.now.playing ? "pause" : "play", 28)}</button>
+        <button class="tkey tap" aria-label="Next" @click=${() => a.next()}>${lt("next", 26)}</button></div>
       <div class="dplay">
         <div class="jog" role="slider" tabindex="0" aria-label="Jog wheel. Turn it to move through the song; past the end it skips to the next." aria-valuemin="0" aria-valuemax=${Math.round(p.len)} aria-valuenow=${Math.round(p.at)} aria-valuetext=${p.says}
-          ?data-held=${p.turn !== null} @pointerdown=${r} @keydown=${n}><i class="jring" style="transform:rotate(${d.toFixed(1)}deg)"><i></i></i><b>${p.read}</b></div>
-        <div class="pads">${a.moments.map((c, h) => l`<button class="mpad tap" style="--c:var(--p-${[2, 5, 3, 4][h % 4]})" ?data-on=${c.on} ?data-busy=${c.busy} aria-pressed=${String(c.on)} @click=${() => a.moment(h)}><span aria-hidden="true">${c.icon}</span>${c.name}</button>`)}</div>
+          ?data-held=${p.turn !== null} @pointerdown=${r} @keydown=${n}><i class="jring" style="transform:rotate(${c.toFixed(1)}deg)"><i></i></i><b>${p.read}</b></div>
+        <div class="pads">${a.moments.map((d, h) => l`<button class="mpad tap" style="--c:var(--p-${[2, 5, 3, 4][h % 4]})" ?data-on=${d.on} ?data-busy=${d.busy} aria-pressed=${String(d.on)} @click=${() => a.moment(h)}><span aria-hidden="true">${d.icon}</span>${d.name}</button>`)}</div>
       </div>
     </div>
     <div class="dstrips">${a.rooms.map(o)}
@@ -9314,17 +9329,17 @@ const $c = async (a) => {
       <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${U("home", 22)}</button>
       <div class="well">${t.length ? s : l`<span class="sval">–</span>`}</div></div></div></div>`;
 }, Bp = 6, Hm = (a) => {
-  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - Bp)), o = t.items.slice(s, s + Bp), r = t.items[i], n = (u) => (u + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, d = (u, w) => {
+  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - Bp)), o = t.items.slice(s, s + Bp), r = t.items[i], n = (u) => (u + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, c = (u, w) => {
     const [x, k] = On(a, u);
-    return l`<div class="cab" data-zone=${u.id} ?data-live=${u.live} ?data-playing=${u.playing} ?data-asleep=${u.asleep} ?data-offline=${u.offline} ?data-focus=${u.focus} ?data-hot=${a.over === u.id} ?data-held=${a.held === u.id} style="--top:${n(w)}%;--n:${a.rooms.length};${Ka(u)}">
+    return l`<div class="cab" data-zone=${u.id} ?data-live=${u.live} ?data-playing=${u.playing} ?data-asleep=${u.asleep} ?data-offline=${u.offline} ?data-focus=${u.focus} ?data-hot=${a.over === u.id} ?data-held=${a.held === u.id} style="--top:${n(w)}%;--n:${a.rooms.length};${va(u)}">
     <button class="chit tap" aria-pressed=${String(u.focus)} aria-label="Show ${u.name} in the player" @click=${() => a.focus(u.id)}><span class="cone" aria-hidden="true"><i></i></span>
       <span class="ctext"><b>${u.asleep ? "☾ " : ""}${u.name}${go(u)}</b><span>${u.hasVol && !u.offline ? l`<b class="vnum">${u.vol}</b> ` : g}${mo(u)}</span></span></button>
     ${u.hasVol && !u.offline ? l`<span class="cvol">${x}<span class="cknob" role="slider" tabindex="0" aria-label="Volume in ${u.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${u.vol} aria-valuetext=${In(u)} ?data-idle=${!u.live}
       style="--v:${u.vol}" @pointerdown=${Wc(a, u, () => 150)} @keydown=${Dn(a, u)}><i></i></span>${k}</span>` : g}
     <button class="sock tap" data-notrack aria-pressed=${String(u.on)} ?disabled=${u.offline} aria-label="${u.on ? "Remove" : "Add"} ${u.name} ${u.on ? "from" : "to"} the music" @click=${() => a.toggle(u.id)}>${u.on ? "" : "＋"}</button></div>`;
-  }, c = a.rooms.map((u, w) => [u, w]).filter(([u]) => u.on), h = (u) => 39 + (u - (c.length - 1) / 2) * Math.min(9, 60 / Math.max(1, c.length)), f = c.map(([u, w], x) => {
+  }, d = a.rooms.map((u, w) => [u, w]).filter(([u]) => u.on), h = (u) => 39 + (u - (d.length - 1) / 2) * Math.min(9, 60 / Math.max(1, d.length)), f = d.map(([u, w], x) => {
     const v = h(x), K = 70, y = n(w), q = 9 + Math.abs(y - v) * 0.18;
-    return b`<path class="wire" ?data-playing=${u.playing} style="${Ka(u)};animation-delay:${-x * 0.4}s" d="M${64.6} ${v} C${64.6 + 3.4} ${v + q}, ${K - 3.4} ${y + q}, ${K} ${y}"></path>`;
+    return b`<path class="wire" ?data-playing=${u.playing} style="${va(u)};animation-delay:${-x * 0.4}s" d="M${64.6} ${v} C${64.6 + 3.4} ${v + q}, ${K - 3.4} ${y + q}, ${K} ${y}"></path>`;
   }), m = (u, w) => {
     const x = s + w, k = x === i, v = 0.5 + (w - (o.length - 1) / 2) / Math.max(3, o.length - 1);
     return l`<button class="sleeve tap" ?data-front=${k} ?data-lifted=${a.liftedItem === u} style="z-index:${10 - Math.abs(x - i)};--x:${v};--tilt:${(-9 + 17 * v).toFixed(1)}deg;--art:${u.img ? `url(${u.img})` : `linear-gradient(135deg, var(--p-${x % 5 + 1}), var(--p-${(x + 2) % 5 + 1}))`}"
@@ -9337,8 +9352,8 @@ const $c = async (a) => {
       <div class="ctabs" role="group" aria-label="Whose crate">${t.tabs.map((u) => l`<button class="ctab tap" style="--c:${u.colour}" aria-pressed=${String(u.name === t.who)} @click=${() => t.pick(u.name)}>${u.name}</button>`)}</div>
       <div class="sleeves">${o.map(m)}</div>
       <div class="cbox">
-        <div class="clabel">${e > 1 ? l`<button class="cnav tap" aria-label="Flick back" ?disabled=${i === 0} @click=${() => t.flick(i - 1)}>${nt("prev", 20)}</button>` : g}
-          <b>${t.calm ? "🌙 " : ""}${p}</b>${e > 1 ? l`<button class="cnav tap" aria-label="Flick forward" ?disabled=${i === e - 1} @click=${() => t.flick(i + 1)}>${nt("next", 20)}</button>` : g}</div>
+        <div class="clabel">${e > 1 ? l`<button class="cnav tap" aria-label="Flick back" ?disabled=${i === 0} @click=${() => t.flick(i - 1)}>${lt("prev", 20)}</button>` : g}
+          <b>${t.calm ? "🌙 " : ""}${p}</b>${e > 1 ? l`<button class="cnav tap" aria-label="Flick forward" ?disabled=${i === e - 1} @click=${() => t.flick(i + 1)}>${lt("next", 20)}</button>` : g}</div>
         ${r ? l`<span class="cpick"><b>${r.name}</b><span>${e > 1 ? `${i + 1} of ${e} · ` : ""}tap it to play in ${t.room}</span></span>` : l`<span class="cpick"><b>${t.calm ? "Nothing calm pinned yet" : "Nothing pinned yet"}</b><span>Search for music, then tap Pin.</span></span>`}
       </div>
     </div>
@@ -9347,13 +9362,13 @@ const $c = async (a) => {
         <div class="tplat"><button class="cdisc tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}></button>
           <i class="tarm" aria-hidden="true" style="--arm:${a.now.lead ? (12 + 18 * a.now.frac).toFixed(1) : 0}deg"><i></i></i><i class="tpivot" aria-hidden="true"></i></div>
         <span class="ttitle"><b>${a.now.title}</b><span>${a.now.artist || (a.now.lead ? "" : "Drop a record here")}</span></span>
-        ${c.map((u, w) => l`<i class="jack" aria-hidden="true" style="top:${h(w) / 78 * 100}%"></i>`)}
+        ${d.map((u, w) => l`<i class="jack" aria-hidden="true" style="top:${h(w) / 78 * 100}%"></i>`)}
       </div>
-      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${nt("prev", 28)}</button>
-        <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${nt(a.now.playing ? "pause" : "play", 30)}</button>
-        <button class="tkey tap" aria-label="Next" @click=${() => a.next()}>${nt("next", 28)}</button></div>
+      <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${lt("prev", 28)}</button>
+        <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${lt(a.now.playing ? "pause" : "play", 30)}</button>
+        <button class="tkey tap" aria-label="Next" @click=${() => a.next()}>${lt("next", 28)}</button></div>
     </div>
-    ${a.rooms.map(d)}</div>`;
+    ${a.rooms.map(c)}</div>`;
 }, Em = b`<path class="amoon" d="M66 22a11 11 0 1 0 8 17 8.5 8.5 0 0 1-8-17z"></path>`, jc = {
   sea: (a, t) => {
     const e = 22 + 62 * t;
@@ -9411,30 +9426,30 @@ const $c = async (a) => {
   // the markings are deliberately no one's: a boundary, a halfway line, a centre circle and two shallow arcs
   sports: b`<path class="bgchalk" d="M2.500 5H97.500V95H2.500ZM50 5V95M43 50a7 17 0 1 0 14 0a7 17 0 1 0 -14 0M2.500 30a6 20 0 0 1 0 40M97.500 30a6 20 0 0 0 0 40"></path>`
 }, tg = (a) => {
-  const t = {}, e = a.rooms.filter((d) => d.stream), i = a.rooms.filter((d) => !d.stream);
+  const t = {}, e = a.rooms.filter((c) => c.stream), i = a.rooms.filter((c) => !c.stream);
   if (a.narrow) {
-    const d = [...a.streams.flatMap((f) => e.filter((m) => m.stream === f).sort((m, u) => Number(u.lead) - Number(m.lead))), ...i], c = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(d.length / c));
-    return d.forEach((f, m) => {
-      const u = Math.floor(m / c), w = Math.min(c, d.length - u * c);
-      t[f.id] = [(m % c + 0.5) / w * 100, 27 + (u + 0.5) / h * 55];
+    const c = [...a.streams.flatMap((f) => e.filter((m) => m.stream === f).sort((m, u) => Number(u.lead) - Number(m.lead))), ...i], d = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(c.length / d));
+    return c.forEach((f, m) => {
+      const u = Math.floor(m / d), w = Math.min(d, c.length - u * d);
+      t[f.id] = [(m % d + 0.5) / w * 100, 27 + (u + 0.5) / h * 55];
     }), t;
   }
   const s = 31, o = 67, r = 5, n = Math.min(16, (o - r * Math.max(0, a.streams.length - 1)) / Math.max(1, e.length));
   let p = s;
-  for (const d of a.streams) {
-    const c = e.filter((h) => h.stream === d).sort((h, f) => Number(f.lead) - Number(h.lead));
-    c.forEach((h, f) => {
+  for (const c of a.streams) {
+    const d = e.filter((h) => h.stream === c).sort((h, f) => Number(f.lead) - Number(h.lead));
+    d.forEach((h, f) => {
       t[h.id] = [p + (f + 0.5) * n, (i.length ? 23 : 40) + (n < 13 && f % 2 ? 7 : 0)];
-    }), p += c.length * n + r;
+    }), p += d.length * n + r;
   }
-  return i.forEach((d, c) => {
-    t[d.id] = [2 + (c + 0.5) / i.length * 96, e.length ? 60 : 45];
+  return i.forEach((c, d) => {
+    t[c.id] = [2 + (d + 0.5) / i.length * 96, e.length ? 60 : 45];
   }), t;
 }, Op = { sea: "buoys", reef: "shells", space: "stars", orbit: "stars", bush: "lanterns", sunset: "beach balls", fridge: "photos", sports: "kit bag" }, Qc = (a) => Cc(a.now.playing, () => a.prev(), () => a.playPause(), () => a.next()), Gc = (a, t) => {
-  const e = a.crate, i = e.items.slice(0, 7), s = e.tabs.map((f) => f.name), o = s[(s.indexOf(e.who) + 1) % Math.max(1, s.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), p = (f) => `${(f + 0.5) / n * 100} ${f % 2 ? 62 : 38}`, d = t === "space" || t === "orbit", c = t === "fridge" || t === "bush", h = d ? `M${i.map((f, m) => p(m)).join(" L")}` : "M0 6 Q50 20 100 6";
+  const e = a.crate, i = e.items.slice(0, 7), s = e.tabs.map((f) => f.name), o = s[(s.indexOf(e.who) + 1) % Math.max(1, s.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), p = (f) => `${(f + 0.5) / n * 100} ${f % 2 ? 62 : 38}`, c = t === "space" || t === "orbit", d = t === "fridge" || t === "bush", h = c ? `M${i.map((f, m) => p(m)).join(" L")}` : "M0 6 Q50 20 100 6";
   return l`<div class="sshelf" data-kind=${t}>
     <button class="slabel tap" aria-label="${r} ${Op[t] ?? "shelf"}. Show ${o === "Family" ? "the family" : `${o}’s`} shelf" @click=${() => e.pick(o)}><b>${e.calm ? "🌙 " : ""}${r} ${Op[t] ?? "shelf"}</b><span>${i.length ? "Carry one to a room" : "Pin music from Search"}</span></button>
-    <div class="sitems" style="--n:${n}">${i.length > 1 && (d || c) ? l`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : g}${i.map((f, m) => l`<button class="sitem tap" style="--i:${m};animation-delay:${-m * 0.55}s" ?data-lifted=${a.liftedItem === f} aria-label="${f.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
+    <div class="sitems" style="--n:${n}">${i.length > 1 && (c || d) ? l`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : g}${i.map((f, m) => l`<button class="sitem tap" style="--i:${m};animation-delay:${-m * 0.55}s" ?data-lifted=${a.liftedItem === f} aria-label="${f.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
       @pointerdown=${(u) => a.carryItem(u, f)} @click=${() => e.play(f)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${f.img ? `url(${f.img})` : `linear-gradient(135deg, var(--p-${m % 5 + 1}), var(--p-${(m + 2) % 5 + 1}))`}"></i></button>`)}</div>
   </div>`;
 }, Yc = (a) => l`<button class="puck spot" data-drop="deck" ?data-hot=${a.over === "deck"} ?data-playing=${a.now.playing} ?data-lifted=${!!a.lifted && a.lifted === a.now.lead} style=${a.now.art ? `--art:url(${a.now.art})` : ""}
@@ -9456,7 +9471,7 @@ const $c = async (a) => {
 }, eg = (a, t) => [(a.clientX - t.left) / t.width * 100, (a.clientY - t.top) / t.height * 100], Zc = (a, t, e) => (i) => {
   if (!i.isPrimary || i.target.closest("[data-notrack]")) return;
   const s = i.currentTarget.closest(".vscene");
-  xa(i, (o) => {
+  ba(i, (o) => {
     const [r, n] = eg(o, s.getBoundingClientRect());
     a.setDrag({ id: t.id, x: r, y: n });
   }, (o, r, n) => {
@@ -9464,8 +9479,8 @@ const $c = async (a) => {
   }, fo);
 }, ag = (a, t) => {
   const e = jc[t], i = tg(a), s = a.sdrag, o = (r) => (n, p) => {
-    const d = (h) => Math.hypot((i[h.id][0] - (n.clientX - p.left) / p.width * 100) / 100 * p.width, (i[h.id][1] - (n.clientY - p.top) / p.height * 100) / 100 * p.height), c = a.rooms.filter((h) => h.id !== r.id).sort((h, f) => d(h) - d(f))[0];
-    c && d(c) < 96 ? c.stream && c.stream !== r.stream ? a.join(r.id, c.stream) : !c.stream && r.stream && a.join(c.id, r.stream) : r.stream && !r.lead && !a.rooms.some((h) => h.id !== r.id && h.stream === r.stream && d(h) < 170) && a.leave(r.id);
+    const c = (h) => Math.hypot((i[h.id][0] - (n.clientX - p.left) / p.width * 100) / 100 * p.width, (i[h.id][1] - (n.clientY - p.top) / p.height * 100) / 100 * p.height), d = a.rooms.filter((h) => h.id !== r.id).sort((h, f) => c(h) - c(f))[0];
+    d && c(d) < 96 ? d.stream && d.stream !== r.stream ? a.join(r.id, d.stream) : !d.stream && r.stream && a.join(d.id, r.stream) : r.stream && !r.lead && !a.rooms.some((h) => h.id !== r.id && h.stream === r.stream && c(h) < 170) && a.leave(r.id);
   };
   return l`<div class="vscene" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${Lc[t]}
@@ -9477,26 +9492,26 @@ const $c = async (a) => {
     ${a.rooms.map((r, n) => {
     const p = s?.id === r.id ? [s.x, s.y] : i[r.id];
     return l`<div class="actor free" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-held=${s?.id === r.id} ?data-vheld=${a.held === r.id} ?data-hot=${a.over === r.id && a.lifted !== r.id}
-        style="${Ka(r)};--x:${p[0]}%;--y:${p[1]}%;animation-delay:${-n * 0.45}s" @pointerdown=${Zc(a, r, o(r))}>${en(a, r, e)}</div>`;
+        style="${va(r)};--x:${p[0]}%;--y:${p[1]}%;animation-delay:${-n * 0.45}s" @pointerdown=${Zc(a, r, o(r))}>${en(a, r, e)}</div>`;
   })}
     ${Gc(a, t)}
   </div>`;
 }, ns = [36, 58], tr = 82, Dp = "0 22 100 92", ig = (a, t) => {
-  const e = jc[t], i = a.sdrag, s = (d) => ns[Math.min(ns.length - 1, a.streams.indexOf(d))], o = (d) => (c, h) => {
-    const f = c.target.closest(".vscene") ?? document.body, m = getComputedStyle(f), u = Number(m.getPropertyValue("--sq")) || 0.42, w = Number(m.getPropertyValue("--k")) || 1, x = Number(m.getPropertyValue("--cy")) || 0.4, k = Number(m.getPropertyValue("--uh")) || 1, v = Math.hypot(c.clientX - (h.left + h.width / 2), (c.clientY - (h.top + h.height * x)) / u) / Math.min(h.height * k, h.width * 0.56) * 100 / w, K = [...a.streams.map((q) => [s(q), q]), [tr, ""]], [, y] = K.sort((q, N) => Math.abs(q[0] - v) - Math.abs(N[0] - v))[0];
-    y && y !== d.stream ? a.join(d.id, y) : !y && d.stream && !d.lead && a.leave(d.id);
-  }, r = a.rooms.filter((d) => !d.stream), n = (d) => {
-    const c = d.stream ? a.rooms.filter((u) => u.stream === d.stream) : r, h = c.indexOf(d), f = d.stream ? a.streams.indexOf(d.stream) : 0, m = d.stream ? (f * 137 + h * 360 / c.length) % 360 : (100 + h * 360 / Math.max(1, c.length)) % 360;
-    return l`<div class="arm" ?data-moving=${d.playing} ?data-away=${i?.id === d.id} style="--a:${m};--r:${d.stream ? s(d.stream) : tr};--t:${d.stream ? 70 + f * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
-      <div class="actor planet" data-zone=${d.id} ?data-live=${d.live} ?data-playing=${d.playing} ?data-asleep=${d.asleep} ?data-offline=${d.offline} ?data-focus=${d.focus} ?data-vheld=${a.held === d.id} ?data-hot=${a.over === d.id && a.lifted !== d.id} style=${Ka(d)} @pointerdown=${Zc(a, d, o(d))}>${en(a, d, e, Dp)}</div></div></div></div></div>`;
-  }, p = i ? a.rooms.find((d) => d.id === i.id) : void 0;
+  const e = jc[t], i = a.sdrag, s = (c) => ns[Math.min(ns.length - 1, a.streams.indexOf(c))], o = (c) => (d, h) => {
+    const f = d.target.closest(".vscene") ?? document.body, m = getComputedStyle(f), u = Number(m.getPropertyValue("--sq")) || 0.42, w = Number(m.getPropertyValue("--k")) || 1, x = Number(m.getPropertyValue("--cy")) || 0.4, k = Number(m.getPropertyValue("--uh")) || 1, v = Math.hypot(d.clientX - (h.left + h.width / 2), (d.clientY - (h.top + h.height * x)) / u) / Math.min(h.height * k, h.width * 0.56) * 100 / w, K = [...a.streams.map((q) => [s(q), q]), [tr, ""]], [, y] = K.sort((q, N) => Math.abs(q[0] - v) - Math.abs(N[0] - v))[0];
+    y && y !== c.stream ? a.join(c.id, y) : !y && c.stream && !c.lead && a.leave(c.id);
+  }, r = a.rooms.filter((c) => !c.stream), n = (c) => {
+    const d = c.stream ? a.rooms.filter((u) => u.stream === c.stream) : r, h = d.indexOf(c), f = c.stream ? a.streams.indexOf(c.stream) : 0, m = c.stream ? (f * 137 + h * 360 / d.length) % 360 : (100 + h * 360 / Math.max(1, d.length)) % 360;
+    return l`<div class="arm" ?data-moving=${c.playing} ?data-away=${i?.id === c.id} style="--a:${m};--r:${c.stream ? s(c.stream) : tr};--t:${c.stream ? 70 + f * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
+      <div class="actor planet" data-zone=${c.id} ?data-live=${c.live} ?data-playing=${c.playing} ?data-asleep=${c.asleep} ?data-offline=${c.offline} ?data-focus=${c.focus} ?data-vheld=${a.held === c.id} ?data-hot=${a.over === c.id && a.lifted !== c.id} style=${va(c)} @pointerdown=${Zc(a, c, o(c))}>${en(a, c, e, Dp)}</div></div></div></div></div>`;
+  }, p = i ? a.rooms.find((c) => c.id === i.id) : void 0;
   return l`<div class="vscene orbits" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${Lc[t]}</svg>
-    ${a.streams.slice(0, ns.length).map((d, c) => l`<span class="ring" style="--r:${ns[c]};--c:${c ? "var(--p-3)" : "var(--stream, var(--primary))"}"></span>`)}<span class="ring park" style="--r:${tr}"></span>
+    ${a.streams.slice(0, ns.length).map((c, d) => l`<span class="ring" style="--r:${ns[d]};--c:${d ? "var(--p-3)" : "var(--stream, var(--primary))"}"></span>`)}<span class="ring park" style="--r:${tr}"></span>
     <div class="sun">${l`<span class="suntx"><b>${a.now.title}</b><span>${a.now.artist || (a.now.lead ? "Same orbit, same music" : "Pick something to play")}</span>${Qc(a)}</span>`}</div>
     <div class="core">${Yc(a)}</div>
     <div class="plane">${a.rooms.map(n)}</div>
-    ${p && i ? l`<div class="actor free clone" data-held ?data-live=${p.live} style="${Ka(p)};--x:${i.x}%;--y:${i.y}%">${en(a, p, e, Dp)}</div>` : g}
+    ${p && i ? l`<div class="actor free clone" data-held ?data-live=${p.live} style="${va(p)};--x:${i.x}%;--y:${i.y}%">${en(a, p, e, Dp)}</div>` : g}
     ${Gc(a, t)}
   </div>`;
 }, sg = (a) => {
@@ -9906,12 +9921,12 @@ const $c = async (a) => {
     localStorage.setItem(a, JSON.stringify(t));
   } catch {
   }
-}, Va = () => {
+}, Ra = () => {
   const a = kt();
   return a === "wide" && Ya() >= 3 ? "tall" : a;
-}, Hs = class Hs extends ht {
+}, Hs = class Hs extends ft {
   constructor() {
-    super(...arguments), this.stackNarrow = !0, this.lookCtl = new It(this), this.fitCtl = new Ve(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.lock = !0, this.moments = [], this.callVolume = 70, this.callLanguage = "en-AU", this.callVoice = "", this._jog = null, this._momentOn = null, this._momentBusy = "", this._sleepAt = null, this._padSet = li("fh-moments", {}), this.theme = "", this._view = li("fh-music-view", ""), this._dv = {}, this._held = "", this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._cleared = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._radioTried = 0, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === ar() ? t : { day: ar(), on: !1, who: "", picks: [] })(li("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = li("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._jpick = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "", this._pressEl = null, this._pressAt = 0, this._out = /* @__PURE__ */ new Map(), this._undoLabel = "Undo", this._undo = null, this._wholeBusy = !1, this._volFrom = {}, this._calling = !1, this._coach = !1, this._coachT = 0;
+    super(...arguments), this.stackNarrow = !0, this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this.players = [], this.stations = [], this.source = "media-source://radio_browser/country/AU", this.preferred = "", this.kids = [], this.people = [], this.pin = "", this.quiet = {}, this.sleepMinutes = 30, this.map = [], this.hide = [], this.lock = !0, this.moments = [], this.callVolume = 70, this.callLanguage = "en-AU", this.callVoice = "", this._jog = null, this._momentOn = null, this._momentBusy = "", this._sleepAt = null, this._padSet = li("fh-moments", {}), this.theme = "", this._view = li("fh-music-view", ""), this._dv = {}, this._held = "", this._viewAsk = !1, this._peek = !1, this._sd = null, this._shelfAsked = !1, this._crateAt = 0, this._carry = null, this._carried = 0, this._prev = "rooms", this._shelfTo = "", this._tab = "rooms", this._focus = "", this._cleared = "", this._thumbs = {}, this._resolved = {}, this._loaded = !1, this._radioTried = 0, this._msg = "", this._q = null, this._qKey = "", this._text = "", this._caps = !0, this._hits = null, this._busy = !1, this._keys = !0, this._sel = "", this._shelf = "Family", this._items = {}, this._edit = !1, this._juke = ((t) => t.day === ar() ? t : { day: ar(), on: !1, who: "", picks: [] })(li("fh-juke", { day: "", on: !1, who: "", picks: [] })), this._keep = li("fh-keep", !1), this._callTo = [], this._callMsg = "", this._pinAsk = null, this._pinTo = null, this._adding = !1, this._jpick = !1, this._ckeys = !1, this._now = Date.now(), this._was = "", this._lastUri = "", this._lastCall = 0, this._fedFor = "", this._fedName = "", this._pressEl = null, this._pressAt = 0, this._out = /* @__PURE__ */ new Map(), this._undoLabel = "Undo", this._undo = null, this._wholeBusy = !1, this._volFrom = {}, this._calling = !1, this._coach = !1, this._coachT = 0;
   }
   get _pads() {
     return (this.moments.length ? this.moments : lg).slice(0, 4);
@@ -9946,10 +9961,10 @@ const $c = async (a) => {
     return (!this._hx || Object.getPrototypeOf(this._hx) !== t) && (this._hx = Object.create(t), this._hx.callService = (e, i, s, o) => {
       const r = `${e}.${i} ${JSON.stringify(s ?? {})} ${JSON.stringify(o ?? {})}`, n = this._out.get(r);
       if (n) return n;
-      const p = this._watch(dt(t.callService(e, i, s, o))), d = () => {
+      const p = this._watch(ct(t.callService(e, i, s, o))), c = () => {
         this._out.delete(r);
       };
-      return this._out.set(r, p), p.then(d, d), p;
+      return this._out.set(r, p), p.then(c, c), p;
     }), this._hx;
   }
   _watch(t) {
@@ -9978,11 +9993,11 @@ const $c = async (a) => {
     const t = this.hass, e = Vc(t, this.players);
     let i = e;
     if (this.lock && this.map.length) {
-      const o = this.map.flatMap((n) => (n.rooms ?? []).flatMap((p) => (p.zones ?? (p.player ? [{ player: p.player, name: p.name }] : [])).map((d) => ({ id: d.player ?? "", name: d.name ?? p.name ?? "" })))).filter((n) => n.id), r = /* @__PURE__ */ new Set();
-      i = o.map((n) => Ue(t, e, n.id) ?? t.states[n.id] ?? { entity_id: n.id, state: "unavailable", attributes: { friendly_name: n.name || n.id.split(".").pop() } }).filter((n) => !r.has(n.entity_id) && !!r.add(n.entity_id));
+      const o = this.map.flatMap((n) => (n.rooms ?? []).flatMap((p) => (p.zones ?? (p.player ? [{ player: p.player, name: p.name }] : [])).map((c) => ({ id: c.player ?? "", name: c.name ?? p.name ?? "" })))).filter((n) => n.id), r = /* @__PURE__ */ new Set();
+      i = o.map((n) => Ke(t, e, n.id) ?? t.states[n.id] ?? { entity_id: n.id, state: "unavailable", attributes: { friendly_name: n.name || n.id.split(".").pop() } }).filter((n) => !r.has(n.entity_id) && !!r.add(n.entity_id));
     }
     if (!this.hide.length) return i;
-    const s = new Set(this.hide.map((o) => Ue(t, i, o)?.entity_id ?? o));
+    const s = new Set(this.hide.map((o) => Ke(t, i, o)?.entity_id ?? o));
     return i.filter((o) => !s.has(o.entity_id));
   }
   _off(t) {
@@ -9995,7 +10010,7 @@ const $c = async (a) => {
   get _cur() {
     const t = this._list;
     if (this.hass)
-      return t.find((e) => e.entity_id === this._focus) ?? Ue(this.hass, t, this.preferred) ?? t.find((e) => e.state === "playing") ?? t.find((e) => !this._off(e)) ?? t[0];
+      return t.find((e) => e.entity_id === this._focus) ?? Ke(this.hass, t, this.preferred) ?? t.find((e) => e.state === "playing") ?? t.find((e) => !this._off(e)) ?? t[0];
   }
   get _stations() {
     return (this.stations.length ? this.stations : ng).map((e) => typeof e == "string" ? { name: e, match: e } : e);
@@ -10205,7 +10220,7 @@ const $c = async (a) => {
     if (!this.map?.length || !this.hass) return t;
     const e = /* @__PURE__ */ new Set();
     for (const i of this.map) for (const s of i.rooms ?? []) for (const o of s.zones ?? (s.player ? [{ player: s.player }] : [])) {
-      const r = Ue(this.hass, t, o.player);
+      const r = Ke(this.hass, t, o.player);
       r && e.add(r.entity_id);
     }
     return e.size ? t.filter((i) => e.has(i.entity_id)) : t;
@@ -10237,7 +10252,7 @@ const $c = async (a) => {
       return;
     }
     if (!t) {
-      for (const p of this._mix(e)) this._h.callService("media_player", "unjoin", {}, { entity_id: p }).catch((d) => this._oops("Couldn’t take that room out", d));
+      for (const p of this._mix(e)) this._h.callService("media_player", "unjoin", {}, { entity_id: p }).catch((c) => this._oops("Couldn’t take that room out", c));
       return;
     }
     const i = this._h, s = this._mix(e), o = this._homeList.filter((p) => !this._off(p)).map((p) => p.entity_id).filter((p) => p !== e.entity_id), r = this._offline.map((p) => this._name(p));
@@ -10290,18 +10305,18 @@ const $c = async (a) => {
     const p = this._dv[t] ?? n;
     if (!i && p !== null && p !== void 0 && Math.floor(p / 10) !== Math.floor(o / 10) && S("slide"), this._dv = { ...this._dv, [t]: o }, this._held = i ? "" : t, !i) return;
     s || S("set");
-    const d = this._volFrom[t];
-    delete this._volFrom[t], !s && d !== void 0 && Math.abs(o - d) > 30 && this._say(`${this._name(r)}: volume ${d} to ${o}`, () => this._setVol(t, d, !0, !0), `Back to ${d}`);
-    const c = () => {
+    const c = this._volFrom[t];
+    delete this._volFrom[t], !s && c !== void 0 && Math.abs(o - c) > 30 && this._say(`${this._name(r)}: volume ${c} to ${o}`, () => this._setVol(t, c, !0, !0), `Back to ${c}`);
+    const d = () => {
       if (this._dv[t] === o) {
         const { [t]: h, ...f } = this._dv;
         this._dv = f;
       }
     };
     this._h.callService("media_player", "volume_set", { entity_id: t, volume_level: o / 100 }).then(() => {
-      window.setTimeout(c, 900);
+      window.setTimeout(d, 900);
     }, (h) => {
-      c(), this._oops(`Couldn’t change the volume in ${this._name(this._list.find((f) => f.entity_id === t))}`, h);
+      d(), this._oops(`Couldn’t change the volume in ${this._name(this._list.find((f) => f.entity_id === t))}`, h);
     });
   }
   /** A drag that was called off (the page scrolled instead): forget what was shown. */
@@ -10317,8 +10332,8 @@ const $c = async (a) => {
   _face(t, e) {
     const i = this.kids.find((s) => s.name === t);
     if (i) {
-      const s = this.hass?.states[tt(i).avatar]?.state, o = s || i.look ? ct(s, i.look ? ct(i.look) : {}) : null;
-      if (o) return te(o, { size: e, crop: "head", still: !0, label: t, age: i.age, ring: Z(i.colour) });
+      const s = this.hass?.states[E(i).avatar]?.state, o = s || i.look ? nt(s, i.look ? nt(i.look) : {}) : null;
+      if (o) return It(o, { size: e, crop: "head", still: !0, label: t, age: i.age, ring: Y(i.colour) });
     }
     return Vn([...this._everyone.map((s) => s.name), "Family"])[t] ?? t[0];
   }
@@ -10344,23 +10359,23 @@ const $c = async (a) => {
         colour: pe && pe.entity_id !== e?.entity_id ? `var(--p-${[3, 5, 4, 2][o.indexOf(pe.entity_id) % 4]})` : "",
         title: String(pe?.attributes.media_title ?? "")
       };
-    }))), n = Number(s.media_duration) || 0, p = s.media_position_updated_at ? new Date(s.media_position_updated_at).getTime() : 0, d = t?.state === "playing", c = n ? Math.min(n, (Number(s.media_position) || 0) + (d && p ? (this._now - p) / 1e3 : 0)) : 0, h = n ? c / n : 0, f = this._pads, m = this._jog, u = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
+    }))), n = Number(s.media_duration) || 0, p = s.media_position_updated_at ? new Date(s.media_position_updated_at).getTime() : 0, c = t?.state === "playing", d = n ? Math.min(n, (Number(s.media_position) || 0) + (c && p ? (this._now - p) / 1e3 : 0)) : 0, h = n ? d / n : 0, f = this._pads, m = this._jog, u = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
     const w = this.kids.find((M) => M.name === this._shelf), x = !!w && bi(w.bedtime), k = this._items[this._shelf] ?? [], v = x ? k.filter((M) => M.calm) : k, K = Math.max(0, Math.min(v.length - 1, this._crateAt));
     this._mode === "dial" && this._loadRadio();
-    const y = this._juke, q = (M) => y.picks.filter((Q) => Q.done && Q.who === M).length, N = y.on ? y.picks.filter((M) => !M.done).sort((M, Q) => +(Q.who === this._dj) - +(M.who === this._dj) || q(M.who) - q(Q.who) || M.t - Q.t) : [], _ = N.length ? N.slice(0, 3).map((M) => ({ title: M.name, sub: `${M.who}’s pick`, art: M.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], $ = this._everyone, C = new Set(N.map((M) => M.who)), T = [...$].sort((M, Q) => Number(C.has(M.name)) - Number(C.has(Q.name)) || q(M.name) - q(Q.name))[0]?.name ?? "", yt = (this._items.Family ?? []).slice(0, 4), ft = this._stations.filter((M) => !yt.some((Q) => Q.name.toLowerCase() === M.name.toLowerCase())).slice(0, Math.max(0, 7 - yt.length)), Jt = t && d ? ps[t.entity_id] : "", _t = [...yt.map((M) => ({ name: M.name, on: d && !Jt && this._lastUri === M.uri, go: () => {
+    const y = this._juke, q = (M) => y.picks.filter((Q) => Q.done && Q.who === M).length, N = y.on ? y.picks.filter((M) => !M.done).sort((M, Q) => +(Q.who === this._dj) - +(M.who === this._dj) || q(M.who) - q(Q.who) || M.t - Q.t) : [], _ = N.length ? N.slice(0, 3).map((M) => ({ title: M.name, sub: `${M.who}’s pick`, art: M.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], $ = this._everyone, C = new Set(N.map((M) => M.who)), T = [...$].sort((M, Q) => Number(C.has(M.name)) - Number(C.has(Q.name)) || q(M.name) - q(Q.name))[0]?.name ?? "", yt = (this._items.Family ?? []).slice(0, 4), mt = this._stations.filter((M) => !yt.some((Q) => Q.name.toLowerCase() === M.name.toLowerCase())).slice(0, Math.max(0, 7 - yt.length)), Pt = t && c ? ps[t.entity_id] : "", _t = [...yt.map((M) => ({ name: M.name, on: c && !Pt && this._lastUri === M.uri, go: () => {
       t && this._gentle(t.entity_id, () => {
         delete ps[t.entity_id], this._shelfPlay(M, t);
       });
-    } })), ...ft.map((M) => ({ name: M.name, on: Jt === M.name, go: () => {
+    } })), ...mt.map((M) => ({ name: M.name, on: Pt === M.name, go: () => {
       t && this._gentle(t.entity_id, () => this._play(M));
-    } }))], ot = Va();
+    } }))], ot = Ra();
     return {
       rooms: r,
       dial: {
         next: _,
         more: N.length ? Math.max(0, N.length - 3) : Math.max(0, (this._q?.items ?? 0) - 2),
-        turn: $.map((M) => ({ name: M.name, face: l`${this._face(M.name, 48)}`, colour: Z(M.colour), now: M.name === T })),
+        turn: $.map((M) => ({ name: M.name, face: l`${this._face(M.name, 48)}`, colour: Y(M.colour), now: M.name === T })),
         chooser: T,
         choose: (M) => {
           this._saveJuke({ who: M }), this._prev = "rooms", this._tab = "juke", this._jpick = !0;
@@ -10377,15 +10392,15 @@ const $c = async (a) => {
       moment: (M) => {
         !this._momentBusy && f[M] && (S("pad"), this._moment(f[M]));
       },
-      jog: { turn: m, at: c, read: m === null ? n ? ds(c) : "" : n ? ds(Math.max(0, Math.min(n, c + m / 360 * 120))) : Math.abs(m) < 60 ? "" : m > 0 ? "Next" : "Back", len: n, says: n ? `${ds(c)} of ${ds(n)}` : "No length" },
-      jogTo: (M, Q) => this._jogTo(M, Q, c, n),
+      jog: { turn: m, at: d, read: m === null ? n ? ds(d) : "" : n ? ds(Math.max(0, Math.min(n, d + m / 360 * 120))) : Math.abs(m) < 60 ? "" : m > 0 ? "Next" : "Back", len: n, says: n ? `${ds(d)} of ${ds(n)}` : "No length" },
+      jogTo: (M, Q) => this._jogTo(M, Q, d, n),
       seekBy: (M) => {
-        n ? this._svc("media_seek", { seek_position: Math.max(0, Math.min(n - 1, Math.round(c + M))) }) : this._svc(M > 0 ? "media_next_track" : "media_previous_track");
+        n ? this._svc("media_seek", { seek_position: Math.max(0, Math.min(n - 1, Math.round(d + M))) }) : this._svc(M > 0 ? "media_next_track" : "media_previous_track");
       },
       prev: () => this._svc("media_previous_track"),
       next: () => this._svc("media_next_track"),
       crate: {
-        tabs: this._shelfNames.map((M) => ({ name: M, colour: Z(this.kids.find((Q) => Q.name === M)?.colour ?? "family") })),
+        tabs: this._shelfNames.map((M) => ({ name: M, colour: Y(this.kids.find((Q) => Q.name === M)?.colour ?? "family") })),
         who: this._shelf,
         pick: (M) => {
           M !== this._shelf && S("sleeve"), this._shelf = M, this._crateAt = 0;
@@ -10425,7 +10440,7 @@ const $c = async (a) => {
       lifted: this._carry?.from ?? "",
       liftedItem: this._carry?.item ?? null,
       shelf: this._items.Family ?? [],
-      now: { title: String(s.media_title ?? (e ? "Music" : "Nothing playing")), artist: String(s.media_artist ?? s.media_album_name ?? ""), art: s.entity_picture ? String(s.entity_picture) : "", playing: d, frac: h, lead: e?.entity_id ?? "" },
+      now: { title: String(s.media_title ?? (e ? "Music" : "Nothing playing")), artist: String(s.media_artist ?? s.media_album_name ?? ""), art: s.entity_picture ? String(s.entity_picture) : "", playing: c, frac: h, lead: e?.entity_id ?? "" },
       vol: (M, Q, ae) => this._setVol(M, Q, ae),
       step: (M, Q) => this._volStep(M, Q),
       drop: (M) => this._volDrop(M),
@@ -10450,12 +10465,12 @@ const $c = async (a) => {
   }
   /** One press for an occasion: find the music, set the rooms and the volume, play. */
   _moment(t) {
-    const e = this._h, i = this._list, s = this._cur, o = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], p = (o ? this._homeList : r.map((m) => Ue(e, i, m)).filter((m) => !!m)).filter((m) => this._off(m)).map((m) => this._name(m)), d = r.map((m) => Ue(e, i, m) ?? (e.states[m]?.entity_id.startsWith("media_player.") ? e.states[m] : void 0)).filter((m) => !!m), c = this._homeList, h = (o ? [...s && c.includes(s) ? [s] : [], ...c.filter((m) => m.entity_id !== s?.entity_id)] : d.length ? d : s ? [s] : []).filter((m) => !this._off(m));
+    const e = this._h, i = this._list, s = this._cur, o = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], p = (o ? this._homeList : r.map((m) => Ke(e, i, m)).filter((m) => !!m)).filter((m) => this._off(m)).map((m) => this._name(m)), c = r.map((m) => Ke(e, i, m) ?? (e.states[m]?.entity_id.startsWith("media_player.") ? e.states[m] : void 0)).filter((m) => !!m), d = this._homeList, h = (o ? [...s && d.includes(s) ? [s] : [], ...d.filter((m) => m.entity_id !== s?.entity_id)] : c.length ? c : s ? [s] : []).filter((m) => !this._off(m));
     if (!h.length) {
       this._say(this._offline.length ? "Those speakers are offline" : "No speaker to play on");
       return;
     }
-    d.length < r.length && console.warn("Family Hub: a moment names a speaker that was not found", t);
+    c.length < r.length && console.warn("Family Hub: a moment names a speaker that was not found", t);
     const f = async () => {
       this._momentBusy = t.name;
       try {
@@ -10507,13 +10522,13 @@ const $c = async (a) => {
   }
   /** Floors, top one first. Speakers the settings do not place go on a last row, so none can go missing. */
   get _floors() {
-    const t = this.hass, e = this._list, i = /* @__PURE__ */ new Set(), s = ee(), o = ut(this.quiet.end ?? "06:30"), r = (d) => {
-      const c = Ue(t, e, d);
-      return c && i.add(c.entity_id), c;
-    }, n = this.map.map((d) => ({ name: d.name ?? "", rooms: (d.rooms ?? []).map((c) => {
-      const h = (c.zones ?? (c.player ? [{ player: c.player, name: c.name }] : [])).map((m) => ({ name: m.name ?? "", p: r(m.player) })).filter((m) => !!m.p).map((m) => ({ ...m, name: m.name || String(m.p.attributes.friendly_name ?? "") })), f = (c.kids ?? []).map((m) => this.kids.find((u) => u.name === m)).filter((m) => !!m).map((m) => ut(Se(m.bedtime)));
-      return { name: c.name ?? h[0]?.name ?? "", size: c.size ?? Math.max(1, h.length), stairs: !!c.stairs, asleep: f.length > 0 && (s >= Math.min(...f) || s < o), zones: h };
-    }).filter((c) => c.stairs || c.zones.length) })).filter((d) => d.rooms.some((c) => c.zones.length)), p = e.filter((d) => !i.has(d.entity_id)).map((d) => ({ name: String(d.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(d.attributes.friendly_name ?? ""), p: d }] }));
+    const t = this.hass, e = this._list, i = /* @__PURE__ */ new Set(), s = ee(), o = ut(this.quiet.end ?? "06:30"), r = (c) => {
+      const d = Ke(t, e, c);
+      return d && i.add(d.entity_id), d;
+    }, n = this.map.map((c) => ({ name: c.name ?? "", rooms: (c.rooms ?? []).map((d) => {
+      const h = (d.zones ?? (d.player ? [{ player: d.player, name: d.name }] : [])).map((m) => ({ name: m.name ?? "", p: r(m.player) })).filter((m) => !!m.p).map((m) => ({ ...m, name: m.name || String(m.p.attributes.friendly_name ?? "") })), f = (d.kids ?? []).map((m) => this.kids.find((u) => u.name === m)).filter((m) => !!m).map((m) => ut(Me(m.bedtime)));
+      return { name: d.name ?? h[0]?.name ?? "", size: d.size ?? Math.max(1, h.length), stairs: !!d.stairs, asleep: f.length > 0 && (s >= Math.min(...f) || s < o), zones: h };
+    }).filter((d) => d.stairs || d.zones.length) })).filter((c) => c.rooms.some((d) => d.zones.length)), p = e.filter((c) => !i.has(c.entity_id)).map((c) => ({ name: String(c.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(c.attributes.friendly_name ?? ""), p: c }] }));
     return p.length && n.push({ name: n.length ? "Other" : "", rooms: p }), n;
   }
   _asleep(t) {
@@ -10537,8 +10552,8 @@ const $c = async (a) => {
   /** The house: slide up or down anywhere in a room for its volume. Nothing changes until the finger has gone 10 px up or down (a sideways start is not a volume change); on a phone only the bar itself slides, so the page can scroll. */
   _volDown(t, e) {
     const i = t.target, s = this._volOf(e);
-    if (!t.isPrimary || i.closest(".zname, .join, .puck, .vstep") || s === null || this._off(e) || Va() === "phone" && !i.closest(".grab")) return;
-    const o = t.currentTarget, r = e.entity_id, n = t.clientX, p = t.clientY, d = o.querySelector(".grab"), c = d ? getComputedStyle(d) : null, h = Math.max(40, o.getBoundingClientRect().height - (c ? (parseFloat(c.getPropertyValue("--r0")) || 0) + (parseFloat(c.getPropertyValue("--r1")) || 0) : 72));
+    if (!t.isPrimary || i.closest(".zname, .join, .puck, .vstep") || s === null || this._off(e) || Ra() === "phone" && !i.closest(".grab")) return;
+    const o = t.currentTarget, r = e.entity_id, n = t.clientX, p = t.clientY, c = o.querySelector(".grab"), d = c ? getComputedStyle(c) : null, h = Math.max(40, o.getBoundingClientRect().height - (d ? (parseFloat(d.getPropertyValue("--r0")) || 0) + (parseFloat(d.getPropertyValue("--r1")) || 0) : 72));
     let f = !1, m = !1, u = s;
     const w = (k) => {
       if (!m) {
@@ -10568,7 +10583,7 @@ const $c = async (a) => {
     const i = e.lead, s = e.item;
     let o = !1, r = 0;
     i && t.stopPropagation();
-    const n = t.currentTarget, p = this.renderRoot.querySelector(".panel"), d = t.clientX, c = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, f = String(i?.attributes.entity_picture ?? s?.img ?? ""), m = (x, k) => {
+    const n = t.currentTarget, p = this.renderRoot.querySelector(".panel"), c = t.clientX, d = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, f = String(i?.attributes.entity_picture ?? s?.img ?? ""), m = (x, k) => {
       const v = (y) => {
         const q = y.getBoundingClientRect();
         return x >= q.left && x <= q.right && k >= q.top && k <= q.bottom;
@@ -10578,10 +10593,10 @@ const $c = async (a) => {
       return K && v(K) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(v)?.dataset.zone ?? "";
     }, u = (x) => {
       const k = p.getBoundingClientRect();
-      if (r = Math.max(r, Math.hypot(x.clientX - d, x.clientY - c)), !this._carry && !o && r < fo) return;
+      if (r = Math.max(r, Math.hypot(x.clientX - c, x.clientY - d)), !this._carry && !o && r < fo) return;
       const v = !!h && (x.clientX < h.left || x.clientX > h.right || x.clientY < h.top || x.clientY > h.bottom);
-      if (o && v && (o = !1, e.flick(0)), !this._carry && !o && !v && r < 60 && e.flick && Math.abs(x.clientX - d) > Math.abs(x.clientY - c) * 1.4 && (o = !0), o) {
-        e.flick(x.clientX - d);
+      if (o && v && (o = !1, e.flick(0)), !this._carry && !o && !v && r < 60 && e.flick && Math.abs(x.clientX - c) > Math.abs(x.clientY - d) * 1.4 && (o = !0), o) {
+        e.flick(x.clientX - c);
         return;
       }
       this._carry = { from: i?.entity_id, item: s, art: f, x: (x.clientX - k.left) / k.width * 100, y: (x.clientY - k.top) / k.height * 100, over: m(x.clientX, x.clientY) };
@@ -10629,15 +10644,15 @@ const $c = async (a) => {
     })}</div>`)}</div>`)}</div>`;
   }
   _house() {
-    const t = this._cur, e = t && this._leader(t), i = this._group(e), s = this._floors, o = this._carry, r = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((p) => !!p && p !== e?.entity_id))], n = (p, d) => {
-      const c = p.p, h = c.entity_id, f = this._leader(c), m = f?.state === "playing", u = h === t?.entity_id, w = i.includes(h) && h !== e?.entity_id, x = this._volOf(c), k = this._off(c), v = x !== null && !k, K = !!f && this._group(f).length > 1, y = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", q = k ? "Offline" : f ? m ? String(f.attributes.media_title ?? "Music") : "Paused" : d ? "Asleep" : "Quiet", N = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
-      return l`<div class="mzone" data-zone=${h} ?data-offline=${k} ?data-focus=${u} ?data-live=${!!f} ?data-playing=${m} ?data-asleep=${d} ?data-linked=${K} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${y}--v:${x ?? 0}" @pointerdown=${(_) => this._volDown(_, c)}>
+    const t = this._cur, e = t && this._leader(t), i = this._group(e), s = this._floors, o = this._carry, r = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((p) => !!p && p !== e?.entity_id))], n = (p, c) => {
+      const d = p.p, h = d.entity_id, f = this._leader(d), m = f?.state === "playing", u = h === t?.entity_id, w = i.includes(h) && h !== e?.entity_id, x = this._volOf(d), k = this._off(d), v = x !== null && !k, K = !!f && this._group(f).length > 1, y = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", q = k ? "Offline" : f ? m ? String(f.attributes.media_title ?? "Music") : "Paused" : c ? "Asleep" : "Quiet", N = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
+      return l`<div class="mzone" data-zone=${h} ?data-offline=${k} ?data-focus=${u} ?data-live=${!!f} ?data-playing=${m} ?data-asleep=${c} ?data-linked=${K} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${y}--v:${x ?? 0}" @pointerdown=${(_) => this._volDown(_, d)}>
         ${f && v ? l`<span class="pool"></span>` : g}
         ${f ? l`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (x ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${u ? l`<b></b>` : g}</span>` : g}
         ${o && f?.entity_id !== h ? l`<span class="land" aria-hidden="true"></span>` : g}
         <button class="zname tap" aria-pressed=${String(u)} aria-label="${p.name}: ${q}${x !== null ? `, volume ${x}` : ""}${K ? ", linked with another room" : ""}" @click=${() => {
         this._focus = h;
-      }}><b>${d ? "☾ " : ""}${p.name}${K ? l`<i class="linkd" aria-hidden="true"></i>` : g}</b><span>${q}</span></button>
+      }}><b>${c ? "☾ " : ""}${p.name}${K ? l`<i class="linkd" aria-hidden="true"></i>` : g}</b><span>${q}</span></button>
         ${h === e?.entity_id || k ? g : l`<button class="join tap" aria-pressed=${String(w)} aria-label="${w ? "Remove" : "Add"} ${p.name} ${w ? "from" : "to"} the music" @click=${() => this._join(h)}>${w ? "✓" : "＋"}</button>`}
         ${v ? l`${Da(p.name, x, !0, () => this._volStep(h, 5))}
           <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${p.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${x} aria-valuetext="${x} per cent${f ? "" : ", quiet"}" @keydown=${Bn(x, (_) => this._setVol(h, _, !0))}><i></i></span>
@@ -10650,14 +10665,14 @@ const $c = async (a) => {
     };
     return l`<div class="maprow"><div class="map" data-fits>
       ${s.map((p) => l`<div class="floor">${s.length > 1 ? l`<span class="flabel">${p.name}</span>` : g}
-        ${p.rooms.map((d) => d.stairs ? l`<div class="mstairs" role="img" aria-label="Stairs"></div>` : l`<div class="mroom" style="--size:${d.size}" role="group" aria-label=${d.name}>${d.zones.map((c) => n(c, d.asleep))}</div>`)}</div>`)}
+        ${p.rooms.map((c) => c.stairs ? l`<div class="mstairs" role="img" aria-label="Stairs"></div>` : l`<div class="mroom" style="--size:${c.size}" role="group" aria-label=${c.name}>${c.zones.map((d) => n(d, c.asleep))}</div>`)}</div>`)}
     </div>${this._sideShelf()}</div>`;
   }
   /** Beside the house: a shelf of records to tap or carry to a room, and a place to drop music for the whole house. */
   _sideShelf() {
     const t = rs(this.hass), e = this._cur, i = this._carry;
     t && !this._shelfAsked && (this._shelfAsked = !0, this._loadShelves());
-    const s = this.kids.find((m) => m.name === this._shelf), o = !!s && bi(s.bedtime), r = this._items[this._shelf] ?? [], n = o ? r.filter((m) => m.calm) : r, p = 9, d = n.length > p ? n.slice(0, p - 1) : n, c = n.length <= 4 ? 2 : 3, h = (m) => Z(this.kids.find((u) => u.name === m)?.colour ?? "family"), f = (m) => {
+    const s = this.kids.find((m) => m.name === this._shelf), o = !!s && bi(s.bedtime), r = this._items[this._shelf] ?? [], n = o ? r.filter((m) => m.calm) : r, p = 9, c = n.length > p ? n.slice(0, p - 1) : n, d = n.length <= 4 ? 2 : 3, h = (m) => Y(this.kids.find((u) => u.name === m)?.colour ?? "family"), f = (m) => {
       Date.now() - this._carried < 400 || !e || this._gentle(e.entity_id, () => this._shelfPlay(m, e));
     };
     return l`<div class="mshelf" role="group" aria-label="Shelf">
@@ -10665,12 +10680,12 @@ const $c = async (a) => {
           ${this._shelfNames.map((m) => l`<button class="swho tap" style="--c:${h(m)}" aria-pressed=${String(this._shelf === m)} aria-label=${m === "Family" ? "Family shelf" : `${m}’s shelf`} @click=${() => {
       this._shelf = m;
     }}><i>${m === "Family" ? U("home", 20) : this._face(m, 36)}</i></button>`)}</div>
-        ${d.length ? l`<div class="srecs" style="--cols:${c};--rows:${Math.ceil(Math.min(n.length, p) / c)}">${d.map((m, u) => l`<button class="srec tap" ?data-lifted=${i?.item === m} aria-label="${m.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
+        ${c.length ? l`<div class="srecs" style="--cols:${d};--rows:${Math.ceil(Math.min(n.length, p) / d)}">${c.map((m, u) => l`<button class="srec tap" ?data-lifted=${i?.item === m} aria-label="${m.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
               @pointerdown=${(w) => this._carryDown(w, { item: m })} @click=${() => f(m)}>
               <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${u % 5 + 1}), var(--p-${(u + 2) % 5 + 1}))`}"></i><span>${m.name}</span></button>`)}
             ${n.length > p ? l`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => {
       this._tab = "shelves";
-    }}>＋${n.length - d.length}<span>more</span></button>` : g}</div>` : l`<div class="snone">${U("sleeve", 34)}<span>${o ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : l`<span style="flex:1"></span>`}
+    }}>＋${n.length - c.length}<span>more</span></button>` : g}</div>` : l`<div class="snone">${U("sleeve", 34)}<span>${o ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : l`<span style="flex:1"></span>`}
       <button class="wholeh tap" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-joined=${this._allJoined} ?data-open=${!!i} ?data-hot=${i?.over === "all"} @click=${() => this._spread()}>
         ${this._allJoined ? U("check", 26) : U("home", 26)}<span><b>Whole house</b><span>${i ? "Drop it here" : this._allJoined ? "Playing in every room" : "Drop music here"}</span></span></button>
     </div>`;
@@ -10764,7 +10779,7 @@ const $c = async (a) => {
   _abed(t) {
     if (this._asleep(t)) return !0;
     const e = ee(), i = ut(this.quiet.end ?? "06:30");
-    return this.kids.some((s) => Hr(this.hass, s, this._list)?.entity_id === t && (e >= ut(Se(s.bedtime)) || e < i));
+    return this.kids.some((s) => Hr(this.hass, s, this._list)?.entity_id === t && (e >= ut(Me(s.bedtime)) || e < i));
   }
   async _call(t = !1) {
     if (this._calling) return;
@@ -10791,9 +10806,9 @@ const $c = async (a) => {
       return;
     }
     this._lastCall = Date.now();
-    const p = this._h, d = this.callLanguage, c = this.callVoice ? { options: { voice: this.callVoice } } : {}, h = Math.max(0, Math.min(100, Math.round(this.callVolume))), f = (v) => Promise.resolve(p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0, ...d ? { language: d } : {}, ...c }, { entity_id: s })).catch(() => p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0 }, { entity_id: s })).then(() => !0, (K) => (console.warn("Family Hub: call failed", v, K), !1)), m = i.filter((v) => !!p.services?.music_assistant?.play_announcement && p.entities?.[v]?.platform === "music_assistant"), u = i.filter((v) => !m.includes(v)).map(f);
+    const p = this._h, c = this.callLanguage, d = this.callVoice ? { options: { voice: this.callVoice } } : {}, h = Math.max(0, Math.min(100, Math.round(this.callVolume))), f = (v) => Promise.resolve(p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0, ...c ? { language: c } : {}, ...d }, { entity_id: s })).catch(() => p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0 }, { entity_id: s })).then(() => !0, (K) => (console.warn("Family Hub: call failed", v, K), !1)), m = i.filter((v) => !!p.services?.music_assistant?.play_announcement && p.entities?.[v]?.platform === "music_assistant"), u = i.filter((v) => !m.includes(v)).map(f);
     if (m.length) {
-      const v = Promise.resolve(p.callApi("POST", "tts_get_url", { engine_id: s, message: e, cache: !0, ...d ? { language: d } : {}, ...c })).then((K) => K?.url ?? "", () => "");
+      const v = Promise.resolve(p.callApi("POST", "tts_get_url", { engine_id: s, message: e, cache: !0, ...c ? { language: c } : {}, ...d })).then((K) => K?.url ?? "", () => "");
       for (const K of m) u.push(v.then((y) => y ? Promise.resolve(p.callService("music_assistant", "play_announcement", { url: y, announce_volume: h }, { entity_id: K })).then(() => !0, () => f(K)) : f(K)));
     }
     this._calling = !0;
@@ -10805,19 +10820,19 @@ const $c = async (a) => {
   /* ---------------- render ---------------- */
   render() {
     if (!this.hass) return g;
-    const [t, e] = Ae(this, "msg", this._msg ? { m: this._msg, undo: !!this._undo } : null), i = this._cur, s = rs(this.hass), o = [["rooms", "Rooms", "home"], ...s ? [["shelves", "Shelves", "sleeve"], ["juke", "Jukebox", "jukebox"]] : [], ["radio", "Radio", "radio"], ["call", "Call a room", "megaphone"]], r = (f) => {
+    const [t, e] = qe(this, "msg", this._msg ? { m: this._msg, undo: !!this._undo } : null), i = this._cur, s = rs(this.hass), o = [["rooms", "Rooms", "home"], ...s ? [["shelves", "Shelves", "sleeve"], ["juke", "Jukebox", "jukebox"]] : [], ["radio", "Radio", "radio"], ["call", "Call a room", "megaphone"]], r = (f) => {
       f === "search" && this._tab !== "search" && (this._prev = this._tab, this._keys = !0), this._tab = f, this._adding = !1, f === "radio" && this._loadRadio(), f === "shelves" && this._loadShelves();
-    }, n = this._tab === "search", p = this._carry, d = this._full, c = this._one && !n;
+    }, n = this._tab === "search", p = this._carry, c = this._full, d = this._one && !n;
     this._tab === "rooms" && !this._viewAsk && !Jp.has(this._mode) && (Jp.add(this._mode), window.setTimeout(() => this._showCoach(), 0));
-    const h = l`<div class="tabs ${d ? "inline" : ""}" role="tablist">${o.map(([f, m, u]) => l`<button class="tap" role="tab" aria-label=${m} aria-selected=${String(this._tab === f)} @click=${() => r(f)}>${U(u, 26)}<span>${m}</span></button>`)}</div>`;
+    const h = l`<div class="tabs ${c ? "inline" : ""}" role="tablist">${o.map(([f, m, u]) => l`<button class="tap" role="tab" aria-label=${m} aria-selected=${String(this._tab === f)} @click=${() => r(f)}>${U(u, 26)}<span>${m}</span></button>`)}</div>`;
     return l`${i ? this._hero(i) : l`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${c} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${(f) => {
+      <section class="glass panel" aria-label="Music" ?data-one=${d} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${(f) => {
       this._coach && !f.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
     }}>
-        <div class="mhead" ?data-one=${c} ?data-hinting=${c && this._coach}><h1 class="t-title">Music</h1>${c ? this._tools() : g}
-          ${n ? this._searchBar() : s ? l`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${U("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : l`<span style="flex:1"></span>`}${c ? this._oneNow() : g}${d && !n ? h : g}</div>
-        ${n || d ? g : h}
-        ${Je(this._tab, l`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}
+        <div class="mhead" ?data-one=${d} ?data-hinting=${d && this._coach}><h1 class="t-title">Music</h1>${d ? this._tools() : g}
+          ${n ? this._searchBar() : s ? l`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${U("search", 24)}<span>${d ? "Search…" : "Search songs, stories…"}</span></button>` : l`<span style="flex:1"></span>`}${d ? this._oneNow() : g}${c && !n ? h : g}</div>
+        ${n || c ? g : h}
+        ${Ie(this._tab, l`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}
         ${p ? l`<span class="puck fly" style="left:${p.x}%;top:${p.y}%;${p.art ? `--art:url(${p.art})` : ""}"></span>` : g}
       </section>
       ${this._pinTo ? this._pinSheet() : g}
@@ -10833,7 +10848,7 @@ const $c = async (a) => {
     }}>${this._undoLabel}</button>` : g}</div>`;
   }
   _hero(t) {
-    const e = t.attributes, i = t.state === "playing", s = e.entity_picture ? `url(${e.entity_picture})` : "", o = this._volOf(t), r = this._mix(t).length, n = this._q, p = Number(e.media_duration) || 0, d = e.media_position_updated_at ? new Date(e.media_position_updated_at).getTime() : 0, c = p ? Math.min(p, (Number(e.media_position) || 0) + (i && d ? (this._now - d) / 1e3 : 0)) : 0, h = p ? c / p : 0, f = Bt(Dt(), "player", { img: e.entity_picture, frac: h, playing: i });
+    const e = t.attributes, i = t.state === "playing", s = e.entity_picture ? `url(${e.entity_picture})` : "", o = this._volOf(t), r = this._mix(t).length, n = this._q, p = Number(e.media_duration) || 0, c = e.media_position_updated_at ? new Date(e.media_position_updated_at).getTime() : 0, d = p ? Math.min(p, (Number(e.media_position) || 0) + (i && c ? (this._now - c) / 1e3 : 0)) : 0, h = p ? d / p : 0, f = Bt(Dt(), "player", { img: e.entity_picture, frac: h, playing: i });
     return l`<section class="glass stage" style=${s ? `--art:${s}` : ""} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${i ? "" : "animation:none;background:rgba(255,255,255,.5)"}"></span>
@@ -10846,9 +10861,9 @@ const $c = async (a) => {
       ${p ? l`<div class="bar" role="progressbar" aria-label="Track progress" aria-valuenow=${Math.round(h * 100)} aria-valuemin="0" aria-valuemax="100"><i style="width:${h * 100}%"></i></div>` : g}
       <div class="ctl">
         <button class="tap" aria-label="Shuffle" aria-pressed=${String(!!e.shuffle)} @click=${() => this._svc("shuffle_set", { shuffle: !e.shuffle })}>${U("shuffle", 22)}</button>
-        <button class="tap" aria-label="Previous" @click=${() => this._svc("media_previous_track")}>${nt("prev", 28)}</button>
-        <button class="tap go" aria-label=${i ? "Pause" : "Play"} @click=${() => this._svc("media_play_pause")}>${nt(i ? "pause" : "play", 30)}</button>
-        <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${nt("next", 28)}</button>
+        <button class="tap" aria-label="Previous" @click=${() => this._svc("media_previous_track")}>${lt("prev", 28)}</button>
+        <button class="tap go" aria-label=${i ? "Pause" : "Play"} @click=${() => this._svc("media_play_pause")}>${lt(i ? "pause" : "play", 30)}</button>
+        <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${lt("next", 28)}</button>
         <button class="tap" aria-label="Save this song to favourites" @click=${() => this._heart()}>♥</button>
       </div>
       <div class="upnext">${n?.next ? l`<span>Up next</span><b style="overflow:hidden;text-overflow:ellipsis">${n.next.name}</b>${n.items > 2 ? l`<span>+${n.items - 2} more</span>` : g}` : this._juke.on ? l`<span>🎶 Jukebox is on · ${this._juke.picks.filter((m) => !m.done).length} waiting</span>` : g}</div>
@@ -10863,7 +10878,7 @@ const $c = async (a) => {
   }
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
   get _one() {
-    return this._full && Va() !== "phone" && Va() !== "tall";
+    return this._full && Ra() !== "phone" && Ra() !== "tall";
   }
   /** The view's own tools, the same on every layout: Switcheroo, Whole house, "Just this room", the offline note, "?" and the hint beside it. */
   _tools() {
@@ -10899,17 +10914,17 @@ const $c = async (a) => {
     }, 4e3));
   }
   _rooms() {
-    const t = this._cur, e = t && this._leader(t), i = this._group(e), s = rs(this.hass), o = Object.keys(this.hass.states).find((d) => d.startsWith("media_player.") && this.hass.entities?.[d]?.platform === "sonos"), r = o && this.hass.states[o].attributes.source === "TV" ? o : "", n = (d, c) => {
-      const h = r && Yp(this.hass, r, d);
+    const t = this._cur, e = t && this._leader(t), i = this._group(e), s = rs(this.hass), o = Object.keys(this.hass.states).find((c) => c.startsWith("media_player.") && this.hass.entities?.[c]?.platform === "sonos"), r = o && this.hass.states[o].attributes.source === "TV" ? o : "", n = (c, d) => {
+      const h = r && Yp(this.hass, r, c);
       if (!h) return g;
       const f = this.hass.states[h].state === "on";
       return l`<button class="pill tap" style="font-size:15px" aria-pressed=${String(f)} @click=${() => {
         this._h.callService("switch", f ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((m) => this._oops("The TV sound didn’t change", m));
-      }}>${c} ${f ? "on" : "off"}</button>`;
+      }}>${d} ${f ? "on" : "off"}</button>`;
     }, p = this._mode;
-    return l`${this._viewAsk ? og(p, (d) => {
-      const c = this._view;
-      this._view = d, cs("fh-music-view", d), this._viewAsk = !1, d !== c && (clearTimeout(this._coachT), this._coach = !1, this.updateComplete.then(() => {
+    return l`${this._viewAsk ? og(p, (c) => {
+      const d = this._view;
+      this._view = c, cs("fh-music-view", c), this._viewAsk = !1, c !== d && (clearTimeout(this._coachT), this._coach = !1, this.updateComplete.then(() => {
         const h = this.renderRoot.querySelector(".viewbtn");
         h && Tt("party", h, { burst: !0 }), S("done"), this.renderRoot.querySelector(".panel > .body")?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: Ts(this, "--m-3").ms || 240, easing: "ease-out" });
       }));
@@ -10920,23 +10935,23 @@ const $c = async (a) => {
         ${p === "house" && t ? this._nowbar(t) : p !== "list" && t ? this._oneNow() : g}
         ${r ? l`<span class="soft">TV sound</span>${n(/^switch\..*night_sound$/, "Night")}${n(/^switch\..*speech_enhancement$/, "Clear speech")}` : g}
       </div>`}
-      ${p === "house" ? this._house() : p === "dial" ? Pm(this._vctx()) : p === "desk" ? Xm(this._vctx()) : p === "cables" ? Hm(this._vctx()) : p === "scene" ? sg(this._vctx()) : l`<div class="grid scrolly" data-fits @scroll=${wt}>${this._list.map((d) => {
-      const c = d.attributes, h = d.entity_id, f = this._leader(d), m = d.state === "playing", u = h === t?.entity_id, w = i.includes(h) && h !== e?.entity_id, x = this._volOf(d), k = this._name(d), v = this._off(d), K = !!f && this._group(f).length > 1, y = v ? "Offline" : w ? `With ${this._name(e)}` : f ? f.state === "playing" ? String(f.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
+      ${p === "house" ? this._house() : p === "dial" ? Pm(this._vctx()) : p === "desk" ? Xm(this._vctx()) : p === "cables" ? Hm(this._vctx()) : p === "scene" ? sg(this._vctx()) : l`<div class="grid scrolly" data-fits @scroll=${wt}>${this._list.map((c) => {
+      const d = c.attributes, h = c.entity_id, f = this._leader(c), m = c.state === "playing", u = h === t?.entity_id, w = i.includes(h) && h !== e?.entity_id, x = this._volOf(c), k = this._name(c), v = this._off(c), K = !!f && this._group(f).length > 1, y = v ? "Offline" : w ? `With ${this._name(e)}` : f ? f.state === "playing" ? String(f.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
       return l`<div class="spk ${u ? "focus" : w ? "inmix" : ""}" data-zone=${h} ?data-offline=${v}>
         <div class="top"><button class="rsel tap" aria-pressed=${String(u)} @click=${() => {
         this._focus = h;
       }}>
-          <span class="thumb ${m ? "eq" : ""}" style=${c.entity_picture ? `--art:url(${c.entity_picture})` : ""}>${m ? l`<i></i><i></i><i></i>` : U("music", 20)}</span>
+          <span class="thumb ${m ? "eq" : ""}" style=${d.entity_picture ? `--art:url(${d.entity_picture})` : ""}>${m ? l`<i></i><i></i><i></i>` : U("music", 20)}</span>
           <span class="rtx"><span class="sn2">${k}${K ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : g}</span><span class="rst">${y}</span></span></button>
           ${h === e?.entity_id || v ? g : l`<button class="join tap" aria-pressed=${String(w)} aria-label="${w ? "Remove" : "Add"} ${k} ${w ? "from" : "to"} the music" @click=${() => this._join(h)}>${w ? "✓" : "＋"}</button>`}</div>
         ${x !== null && !v ? Zs({ name: k, v: x, live: !!f, held: this._held === h, set: (q, N) => this._setVol(h, q, N), drop: () => this._volDrop(h) }) : g}
-        ${!u && !w && !v && s && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(d)}>Move the music here</button>` : g}
+        ${!u && !w && !v && s && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(c)}>Move the music here</button>` : g}
       </div>`;
     })}</div>`}`;
   }
   _searchBar() {
     const t = this._hits;
-    return l`<div class="sbar"><input class="field" inputmode=${Va() === "phone" ? "text" : "none"} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
+    return l`<div class="sbar"><input class="field" inputmode=${Ra() === "phone" ? "text" : "none"} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => {
       this._keys = !0;
     }} @input=${(e) => {
@@ -10958,8 +10973,8 @@ const $c = async (a) => {
       this._adding = !1, this._tab = "juke";
     }}>Back</button></div>` : g}
       ${this._keys && !t ? l`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${U("search", 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : g}
-      ${this._keys ? l`<div style="margin:auto 0">${va((i) => {
-      [this._text, this._caps] = _e(this._text, i, this._caps);
+      ${this._keys ? l`<div style="margin:auto 0">${ya((i) => {
+      [this._text, this._caps] = Fe(this._text, i, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
     }, !0)}</div>` : g}
@@ -10998,7 +11013,7 @@ const $c = async (a) => {
     }}>Cancel</button></section></div>`;
   }
   _shelves() {
-    const t = this.kids.find((n) => n.name === this._shelf), e = !!t && bi(t.bedtime), i = this._items[this._shelf] ?? [], s = e ? i.filter((n) => n.calm) : i, o = this._shelfRoom(t), r = (n) => Z(this.kids.find((p) => p.name === n)?.colour ?? "family");
+    const t = this.kids.find((n) => n.name === this._shelf), e = !!t && bi(t.bedtime), i = this._items[this._shelf] ?? [], s = e ? i.filter((n) => n.calm) : i, o = this._shelfRoom(t), r = (n) => Y(this.kids.find((p) => p.name === n)?.colour ?? "family");
     return l`<div class="shelfrow"><div class="crate ${t?.mode === "picture" ? "low" : ""}">
       <div class="chiprow dividers">${this._shelfNames.map((n) => l`<button class="pchip tap" style="--c:${r(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => {
       this._shelf = n, this._edit = !1, this._shelfTo = "";
@@ -11030,7 +11045,7 @@ const $c = async (a) => {
     }}>${this._edit ? "Done" : "Edit"}</button>` : g}</span></div></div>`;
   }
   _jukeTab() {
-    const t = this._juke, e = (u) => Z(this._everyone.find((w) => w.name === u)?.colour ?? "family"), i = this._nextPick(), s = (u) => t.picks.filter((w) => w.done && w.who === u).length;
+    const t = this._juke, e = (u) => Y(this._everyone.find((w) => w.name === u)?.colour ?? "family"), i = this._nextPick(), s = (u) => t.picks.filter((w) => w.done && w.who === u).length;
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
     const o = new Set(t.picks.filter((u) => !u.done).map((u) => u.who)), r = [...this._everyone].sort((u, w) => Number(o.has(u.name)) - Number(o.has(w.name)) || s(u.name) - s(w.name))[0]?.name ?? "", n = () => {
       this._jpick = !1, this._adding = !0, this._prev = this._prev === "rooms" ? "rooms" : "juke", this._tab = "search", this._keys = !0, this._hits = null, this._text = "", this._caps = !0;
@@ -11043,18 +11058,18 @@ const $c = async (a) => {
         ${w.length ? l`<div class="covers scrolly jcovers ${x ? "low" : ""}" data-fits @scroll=${wt}>${w.map((v) => l`<button class="st tap" aria-label="Add ${v.name}" @click=${() => this._addPick(v)}>
           <i class="disc"></i><span class="img" style=${v.img ? `--art:url(${v.img})` : ""}>${v.img ? "" : v.name[0]}</span><span class="lbl">${v.name}</span></button>`)}</div>` : l`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${x ? k : g}`;
     }
-    const p = t.picks.filter((u) => !u.done).sort((u, w) => +(w === i) - +(u === i) || u.t - w.t), d = t.picks.filter((u) => u.done).sort((u, w) => w.t - u.t), c = (u) => u.done ? this._q?.next?.name === u.name ? l`<i aria-hidden="true">${nt("next", 14)}</i>Up next` : l`<i aria-hidden="true">✓</i>Played` : u === i ? l`<i aria-hidden="true">${nt("play", 14)}</i>Next` : l`<i aria-hidden="true">⏳</i>Waiting`, h = (u) => l`<div class="pickrow ${u.done ? "played" : ""}" ?data-next=${u === i}>
+    const p = t.picks.filter((u) => !u.done).sort((u, w) => +(w === i) - +(u === i) || u.t - w.t), c = t.picks.filter((u) => u.done).sort((u, w) => w.t - u.t), d = (u) => u.done ? this._q?.next?.name === u.name ? l`<i aria-hidden="true">${lt("next", 14)}</i>Up next` : l`<i aria-hidden="true">✓</i>Played` : u === i ? l`<i aria-hidden="true">${lt("play", 14)}</i>Next` : l`<i aria-hidden="true">⏳</i>Waiting`, h = (u) => l`<div class="pickrow ${u.done ? "played" : ""}" ?data-next=${u === i}>
       <span class="pcover"><i class="disc"></i><span class="art" style=${u.img ? `--art:url(${u.img})` : ""}>${u.img ? "" : U("music", 26)}</span>
         <span class="init avatar" style="--c:${e(u.who)}" role="img" aria-label=${u.who}>${this._face(u.who, 30)}</span></span>
       <span class="nm">${u.name}${u.sub ? l` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${u.sub}</span>` : g}</span>
-      <span class="when">${c(u)}</span></div>`, f = (u) => p.find((w) => w.who === u), m = this.kids.some((u) => u.mode === "picture") ? "jlow" : "";
+      <span class="when">${d(u)}</span></div>`, f = (u) => p.find((w) => w.who === u), m = this.kids.some((u) => u.mode === "picture") ? "jlow" : "";
     return l`${this._dj ? l`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : g}
       <div class="coins ${m}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((u) => {
       const w = f(u.name);
-      return l`<button class="coin tap" style="--c:${Z(u.colour)}" aria-pressed=${String(t.who === u.name)} ?data-next=${u.name === r} aria-label="${u.name}${u.name === r ? ", chooses next" : ""}${w ? `, ${w.name} is waiting` : ""}" @click=${() => {
+      return l`<button class="coin tap" style="--c:${Y(u.colour)}" aria-pressed=${String(t.who === u.name)} ?data-next=${u.name === r} aria-label="${u.name}${u.name === r ? ", chooses next" : ""}${w ? `, ${w.name} is waiting` : ""}" @click=${() => {
         this._saveJuke({ who: u.name }), this._prev = "juke", this._jpick = !0;
       }}>
-        <span class="face"><span class="fpic">${this._face(u.name, 50)}</span>${w ? l`<i class="has" style=${w.img ? `--art:url(${w.img})` : ""}>${w.img ? g : nt("play", 12)}</i>` : g}</span><span class="cname">${u.name}</span><span class="cnext">${u.name === r ? "Next" : ""}</span></button>`;
+        <span class="face"><span class="fpic">${this._face(u.name, 50)}</span>${w ? l`<i class="has" style=${w.img ? `--art:url(${w.img})` : ""}>${w.img ? g : lt("play", 12)}</i>` : g}</span><span class="cname">${u.name}</span><span class="cnext">${u.name === r ? "Next" : ""}</span></button>`;
     })}</div>
       <div class="acts ${m}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
@@ -11067,7 +11082,7 @@ const $c = async (a) => {
       const u = t.picks;
       this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: u }));
     }}>Clear</button>` : g}</div>
-      ${t.picks.length ? l`<div class="picks scrolly ${m}" data-fits @scroll=${wt}>${p.map(h)}${d.map(h)}</div>` : l`<div class="empty"><span style="color:var(--ink2)">${U("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
+      ${t.picks.length ? l`<div class="picks scrolly ${m}" data-fits @scroll=${wt}>${p.map(h)}${c.map(h)}</div>` : l`<div class="empty"><span style="color:var(--ink2)">${U("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
   _radio() {
     const t = this._cur, e = t && t.state === "playing" ? ps[t.entity_id] : "";
@@ -11093,7 +11108,7 @@ const $c = async (a) => {
           <span style="align-self:flex-start">${o}</span></div>
         <div class="bubbles">${er.map((r, n) => l`<button class="bubble tap" aria-pressed=${String(this._callMsg === r)} @click=${() => s(r)}><span class="bpic" aria-hidden="true">${Ip[n]}</span>${r}</button>`)}</div></div>`}
       <div class="sayrow">${this._ckeys ? l`<span class="qpics" role="group" aria-label="Ready messages">${er.map((r, n) => l`<button class="qpic tap" aria-pressed=${String(this._callMsg === r)} aria-label=${r} @click=${() => s(r)}>${Ip[n]}</button>`)}</span>` : g}
-        <input class="field" inputmode=${Va() === "phone" ? "text" : "none"} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => {
+        <input class="field" inputmode=${Ra() === "phone" ? "text" : "none"} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => {
       this._ckeys = !0;
     }} @input=${(r) => {
       this._callMsg = r.target.value;
@@ -11102,8 +11117,8 @@ const $c = async (a) => {
         ${this._ckeys ? l`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" aria-label="Hide the keyboard" @click=${() => {
       this._ckeys = !1;
     }}>${U("close", 22)}</button>` : g}</div>
-      ${this._ckeys ? l`<div style="margin:auto 0 0">${va((r) => {
-      [this._callMsg, this._caps] = _e(this._callMsg, r, this._caps);
+      ${this._ckeys ? l`<div style="margin:auto 0 0">${ya((r) => {
+      [this._callMsg, this._caps] = Fe(this._callMsg, r, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
     }, !0)}</div>` : l`<span class="soft" style="font-size:14px">It is spoken over the music in that room, then the music carries on.</span>`}`;
@@ -11558,16 +11573,16 @@ Hs.styles = [Ct, Ia, J`${At(Ja)}`, rg, J`
 };
 let an = Hs;
 customElements.get("fh-music") || customElements.define("fh-music", an);
-const Xt = 256, ir = 4, sr = 7, cg = "https://api.rainviewer.com/public/weather-maps.json", or = "https://server.arcgisonline.com/ArcGIS/rest/services", hg = { light: [`${or}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`], dark: [`${or}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, `${or}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`] }, fg = (a, t) => (a + 180) / 360 * 2 ** t, mg = (a, t) => (1 - Math.asinh(Math.tan(a * Math.PI / 180)) / Math.PI) / 2 * 2 ** t, gg = (a) => {
+const Ht = 256, ir = 4, sr = 7, cg = "https://api.rainviewer.com/public/weather-maps.json", or = "https://server.arcgisonline.com/ArcGIS/rest/services", hg = { light: [`${or}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`], dark: [`${or}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, `${or}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`] }, fg = (a, t) => (a + 180) / 360 * 2 ** t, mg = (a, t) => (1 - Math.asinh(Math.tan(a * Math.PI / 180)) / Math.PI) / 2 * 2 ** t, gg = (a) => {
   const t = new Date(a * 1e3), e = t.getHours();
   return `${e % 12 || 12}:${String(t.getMinutes()).padStart(2, "0")} ${e < 12 ? "am" : "pm"}`;
-}, Es = class Es extends ht {
+}, Es = class Es extends ft {
   constructor() {
     super(...arguments), this.lat = 0, this.lon = 0, this.zoom = 6, this.dark = !1, this._z = 0, this._host = "", this._frames = [], this._i = 0, this._play = !0, this._size = [0, 0], this._pan = [0, 0], this._err = !1, this._down = (t) => {
       t.target?.closest?.("button") || t.composedPath().some((e) => e.classList?.contains("bar") || e.classList?.contains("zoom")) || (this._drag = { x: t.clientX, y: t.clientY, px: this._pan[0], py: this._pan[1] }, this.setPointerCapture(t.pointerId));
     }, this._move = (t) => {
       if (!this._drag) return;
-      const e = this.getBoundingClientRect().width / (this.offsetWidth || 1) || 1, i = Xt * 2.5;
+      const e = this.getBoundingClientRect().width / (this.offsetWidth || 1) || 1, i = Ht * 2.5;
       this._pan = [Math.max(-i, Math.min(i, this._drag.px + (t.clientX - this._drag.x) / e)), Math.max(-i, Math.min(i, this._drag.py + (t.clientY - this._drag.y) / e))];
     }, this._up = () => {
       this._drag = void 0;
@@ -11611,25 +11626,25 @@ const Xt = 256, ir = 4, sr = 7, cg = "https://api.rainviewer.com/public/weather-
   _tiles() {
     const [t, e] = this._size, i = this._zNow, s = 2 ** i;
     if (!t || !e) return [];
-    const o = fg(this.lon, i) * Xt - this._pan[0], r = mg(this.lat, i) * Xt - this._pan[1], n = [];
-    for (let p = Math.floor((o - t / 2) / Xt); p <= Math.floor((o + t / 2) / Xt); p++)
-      for (let d = Math.floor((r - e / 2) / Xt); d <= Math.floor((r + e / 2) / Xt); d++)
-        d >= 0 && d < s && n.push({ x: (p % s + s) % s, y: d, left: Math.round(p * Xt - o + t / 2), top: Math.round(d * Xt - r + e / 2) });
+    const o = fg(this.lon, i) * Ht - this._pan[0], r = mg(this.lat, i) * Ht - this._pan[1], n = [];
+    for (let p = Math.floor((o - t / 2) / Ht); p <= Math.floor((o + t / 2) / Ht); p++)
+      for (let c = Math.floor((r - e / 2) / Ht); c <= Math.floor((r + e / 2) / Ht); c++)
+        c >= 0 && c < s && n.push({ x: (p % s + s) % s, y: c, left: Math.round(p * Ht - o + t / 2), top: Math.round(c * Ht - r + e / 2) });
     return n;
   }
   render() {
     const t = this._tiles(), e = this._zNow, [i, s] = this._size, o = this._frames, r = o[Math.min(this._i, o.length - 1)], n = hg[this.dark ? "dark" : "light"], p = r ? Math.max(0, Math.round((Date.now() / 1e3 - r.time) / 60)) : 0;
     return l`
-      ${n.map((d, c) => l`<div class="layer ${c ? "names" : "map"}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
+      ${n.map((c, d) => l`<div class="layer ${d ? "names" : "map"}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
       f.target.style.visibility = "hidden";
     }} @load=${(f) => {
       f.target.style.visibility = "";
-    }} style="left:${h.left}px;top:${h.top}px" src=${d.replace("{z}", String(e)).replace("{x}", String(h.x)).replace("{y}", String(h.y))}>`)}</div>`)}
-      ${o.map((d, c) => Math.abs(c - this._i) <= 1 || this._i === o.length - 1 && c === 0 || this._play ? l`<div class="layer rain ${d === r ? "on" : ""}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
+    }} style="left:${h.left}px;top:${h.top}px" src=${c.replace("{z}", String(e)).replace("{x}", String(h.x)).replace("{y}", String(h.y))}>`)}</div>`)}
+      ${o.map((c, d) => Math.abs(d - this._i) <= 1 || this._i === o.length - 1 && d === 0 || this._play ? l`<div class="layer rain ${c === r ? "on" : ""}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
       f.target.style.visibility = "hidden";
     }} @load=${(f) => {
       f.target.style.visibility = "";
-    }} style="left:${h.left}px;top:${h.top}px" src="${this._host}${d.path}/${Xt}/${e}/${h.x}/${h.y}/2/1_1.png">`)}</div>` : g)}
+    }} style="left:${h.left}px;top:${h.top}px" src="${this._host}${c.path}/${Ht}/${e}/${h.x}/${h.y}/2/1_1.png">`)}</div>` : g)}
       ${i ? l`<span class="home" style="left:${i / 2 + this._pan[0]}px;top:${s / 2 + this._pan[1]}px" aria-hidden="true"></span>` : g}
       ${this._err ? l`<p class="msg">The radar pictures could not be loaded. It will try again in a few minutes.</p>` : g}
       <div class="key" aria-hidden="true"><b>Light</b><span></span><b>Heavy</b></div>
@@ -11643,9 +11658,9 @@ const Xt = 256, ir = 4, sr = 7, cg = "https://api.rainviewer.com/public/weather-
       ${r ? l`<div class="bar">
         <button class="tap" aria-label=${this._play ? "Pause the radar" : "Play the radar"} @click=${() => {
       this._play = !this._play, this._play || (this._i = o.length - 1);
-    }}>${nt(this._play ? "pause" : "play", 20)}</button>
+    }}>${lt(this._play ? "pause" : "play", 20)}</button>
         <span><span class="when" aria-live="off">${gg(r.time)}</span><br><span class="ago">${p < 8 ? "now" : p < 60 ? `${p} min ago` : `${Math.floor(p / 60)} h ${p % 60} min ago`}</span></span>
-        <span class="ticks" aria-hidden="true">${o.map((d, c) => l`<i class=${c === this._i ? "cur" : c < this._i ? "seen" : ""}></i>`)}</span>
+        <span class="ticks" aria-hidden="true">${o.map((c, d) => l`<i class=${d === this._i ? "cur" : d < this._i ? "seen" : ""}></i>`)}</span>
       </div>` : g}`;
   }
 };
@@ -11653,7 +11668,7 @@ Es.styles = [Ct, J`
     :host { position: absolute; inset: 0; display: block; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; background: var(--chip-soft); }
     :host(:active) { cursor: grabbing; }
     .layer { position: absolute; inset: 0; }
-    .layer img { position: absolute; width: ${Xt}px; height: ${Xt}px; max-width: none; pointer-events: none; }
+    .layer img { position: absolute; width: ${Ht}px; height: ${Ht}px; max-width: none; pointer-events: none; }
     .names { z-index: 2; }
     .home, .bar, .zoom, .key { z-index: 3; }
     .rain { opacity: 0; transition: opacity var(--m-3, 240ms) linear; }
@@ -11704,7 +11719,7 @@ const on = {
 }, fe = (a) => {
   const t = Number(a?.state);
   return a && a.state !== "" && Number.isFinite(t) ? t : void 0;
-}, je = (a) => a && !["unknown", "unavailable", ""].includes(a.state) ? a.state : void 0, hs = (a) => {
+}, Ce = (a) => a && !["unknown", "unavailable", ""].includes(a.state) ? a.state : void 0, hs = (a) => {
   const t = a ? new Date(a) : void 0;
   if (!t || Number.isNaN(t.getTime())) return "";
   const e = t.getHours(), i = t.getMinutes();
@@ -11758,9 +11773,9 @@ const on = {
   fridge: ["Today", "Later on", "This week", "Rain and wind"],
   orbit: ["Weather now", "Next 24 hours", "Seven-day outlook", "Rain radar and wind"],
   sports: ["Pitch report", "The next hours", "The week ahead", "Rain radar and wind"]
-}, to = class to extends ht {
+}, to = class to extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this._hw = 58, this._moreL = !1, this._moreR = !1, this.entity = "", this.page = {}, this.theme = "", this._days = [], this._hours = [], this._map = "radar", this._failed = !1, this._loadedFor = "";
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this._hw = 58, this._moreL = !1, this._moreR = !1, this.entity = "", this.page = {}, this.theme = "", this._days = [], this._hours = [], this._map = "radar", this._failed = !1, this._loadedFor = "";
   }
   connectedCallback() {
     super.connectedCallback(), this._timer = window.setInterval(() => this._load(), 10 * 6e4), typeof ResizeObserver < "u" && (this._ro = new ResizeObserver(() => this._measure()), this._ro.observe(this));
@@ -11851,12 +11866,12 @@ const on = {
   }
   _uv() {
     const t = this._hours.filter((s) => new Date(s.datetime).toDateString() === (/* @__PURE__ */ new Date()).toDateString());
-    return { max: fe(this._f("uv_max_index")) ?? this._today()?.uv_index ?? (t.length ? Math.max(...t.map((s) => s.uv_index ?? 0)) : void 0), from: hs(je(this._f("uv_start_time"))), to: hs(je(this._f("uv_end_time"))) };
+    return { max: fe(this._f("uv_max_index")) ?? this._today()?.uv_index ?? (t.length ? Math.max(...t.map((s) => s.uv_index ?? 0)) : void 0), from: hs(Ce(this._f("uv_start_time"))), to: hs(Ce(this._f("uv_end_time"))) };
   }
   /** Up to three things to wear or take today, most important first, with the sentence that is read aloud for each. */
   _tips() {
-    const t = this._today(), e = this._uv(), i = /* @__PURE__ */ new Date(), s = [], o = fe(this._f("rain_chance")) ?? t?.precipitation_probability ?? 0, r = t?.temperature, n = fe(this._o("temp")) ?? this.hass?.states[this.entity]?.attributes.temperature, p = this.hass?.states[this.entity]?.state ?? "", d = i.getHours() >= 19 || i.getHours() < 5;
-    return /lightning/.test(p) && s.push({ id: "inside", say: "Storms about. Stay inside until the thunder has gone." }), /rain|pour/.test(p) ? s.push({ id: "rain", say: "It is raining. Raincoat or umbrella if you go out." }) : !d && o >= 60 && s.push({ id: "rain", say: "Rain is likely today. Pack a raincoat." }), !d && (e.max ?? 0) >= 3 && !/lightning|rain|pour/.test(p) && s.push({ id: "sun", say: `The sun is strong today. Hat and sunscreen${e.from && e.to ? ` from ${e.from} to ${e.to}` : ""}.` }), !d && r !== void 0 && r >= 30 && s.push({ id: "water", say: `A hot day, up to ${Math.round(r)} degrees. Take your water bottle.` }), n !== void 0 && n < 14 && s.push({ id: "jumper", say: "It is chilly. Put a jumper on." }), d && !s.length && t?.templow !== void 0 && t.templow < 12 && s.push({ id: "blanket", say: "A cold night coming. Extra blanket." }), s.length || s.push(d ? { id: "blanket", say: "A calm night. Sleep well." } : { id: "outside", say: "A good day to be outside." }), s.slice(0, 3);
+    const t = this._today(), e = this._uv(), i = /* @__PURE__ */ new Date(), s = [], o = fe(this._f("rain_chance")) ?? t?.precipitation_probability ?? 0, r = t?.temperature, n = fe(this._o("temp")) ?? this.hass?.states[this.entity]?.attributes.temperature, p = this.hass?.states[this.entity]?.state ?? "", c = i.getHours() >= 19 || i.getHours() < 5;
+    return /lightning/.test(p) && s.push({ id: "inside", say: "Storms about. Stay inside until the thunder has gone." }), /rain|pour/.test(p) ? s.push({ id: "rain", say: "It is raining. Raincoat or umbrella if you go out." }) : !c && o >= 60 && s.push({ id: "rain", say: "Rain is likely today. Pack a raincoat." }), !c && (e.max ?? 0) >= 3 && !/lightning|rain|pour/.test(p) && s.push({ id: "sun", say: `The sun is strong today. Hat and sunscreen${e.from && e.to ? ` from ${e.from} to ${e.to}` : ""}.` }), !c && r !== void 0 && r >= 30 && s.push({ id: "water", say: `A hot day, up to ${Math.round(r)} degrees. Take your water bottle.` }), n !== void 0 && n < 14 && s.push({ id: "jumper", say: "It is chilly. Put a jumper on." }), c && !s.length && t?.templow !== void 0 && t.templow < 12 && s.push({ id: "blanket", say: "A cold night coming. Extra blanket." }), s.length || s.push(c ? { id: "blanket", say: "A calm night. Sleep well." } : { id: "outside", say: "A good day to be outside." }), s.slice(0, 3);
   }
   /** Home Ground's verdict tile sums up the same advice the page already gives: wet weather first, then sun and heat. */
   _verdict(t) {
@@ -11875,7 +11890,7 @@ const on = {
     </svg>`;
   }
   _now() {
-    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = fe(this._o("temp")) ?? e.temperature, o = fe(this._o("temp_feels_like")) ?? e.apparent_temperature, r = fe(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = fe(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = je(this._o("wind_direction")) ?? e.wind_bearing, d = fe(this._o("humidity")) ?? e.humidity, c = fe(this._o("rain_since_9am")), h = fe(this._f("rain_chance")) ?? i?.precipitation_probability, f = je(this._f("rain_amount_range")), m = this._uv(), u = je(this._f("fire_danger")), w = hs(je(this._f("astronomical_sunrise_time"))), x = hs(je(this._f("astronomical_sunset_time"))), k = je(this._f("extended_text")), v = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter(($) => $.phase !== "cancelled" && (!$.expiry_time || new Date($.expiry_time).getTime() > Date.now())), K = ($, C, T = "") => l`<div class="wfact ${T}"><b>${$}</b><small>${C}</small></div>`, y = this._tips(), q = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, N = [h !== void 0, c !== void 0, d !== void 0, !!u].filter(Boolean).length, _ = N === 4 || N === 2 ? "half" : "";
+    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = fe(this._o("temp")) ?? e.temperature, o = fe(this._o("temp_feels_like")) ?? e.apparent_temperature, r = fe(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = fe(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = Ce(this._o("wind_direction")) ?? e.wind_bearing, c = fe(this._o("humidity")) ?? e.humidity, d = fe(this._o("rain_since_9am")), h = fe(this._f("rain_chance")) ?? i?.precipitation_probability, f = Ce(this._f("rain_amount_range")), m = this._uv(), u = Ce(this._f("fire_danger")), w = hs(Ce(this._f("astronomical_sunrise_time"))), x = hs(Ce(this._f("astronomical_sunset_time"))), k = Ce(this._f("extended_text")), v = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter(($) => $.phase !== "cancelled" && (!$.expiry_time || new Date($.expiry_time).getTime() > Date.now())), K = ($, C, T = "") => l`<div class="wfact ${T}"><b>${$}</b><small>${C}</small></div>`, y = this._tips(), q = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, N = [h !== void 0, d !== void 0, c !== void 0, !!u].filter(Boolean).length, _ = N === 4 || N === 2 ? "half" : "";
     return l`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
       ${Dt() === "sports" ? oc(this._verdict(y), !0) : g}
@@ -11893,14 +11908,14 @@ const on = {
       <div class="wtip" role="group" aria-label="What to wear today">
         <div class="tips">${y.map(($) => l`<span class="tipone">${qg($.id)}<span>${Kg[$.id]}</span></span>`)}</div>
         <button class="speak tap" aria-label="Read the advice aloud" @click=${($) => {
-      S("tap"), E(y.map((C) => C.say).join(" "), $.currentTarget);
+      S("tap"), tt(y.map((C) => C.say).join(" "), $.currentTarget);
     }}>${Ag}</button>
       </div>
       <div class="facts">
         ${r !== void 0 ? l`<div class="wfact wide">${this._compass(p)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(r)} km/h</b><small>Wind${p !== void 0 ? ` from the ${kg(p)}` : ""}${n !== void 0 ? ` · gusts ${Math.round(n)}` : ""}</small></span></div>` : g}
         ${h !== void 0 ? K(`${Math.round(h)}%`, f && f !== "0" ? `Rain · ${f} mm` : "Chance of rain", _) : g}
-        ${c !== void 0 ? K(`${c} mm`, "Since 9 am", `${_} x3`) : g}
-        ${d !== void 0 ? K(`${Math.round(d)}%`, "Humidity", `${_} x3`) : g}
+        ${d !== void 0 ? K(`${d} mm`, "Since 9 am", `${_} x3`) : g}
+        ${c !== void 0 ? K(`${Math.round(c)}%`, "Humidity", `${_} x3`) : g}
         ${u ? K(u, "Fire danger", _) : g}
         ${m.max !== void 0 ? K(`UV ${Math.round(m.max)} · ${wg(m.max)}`, m.max >= 3 ? m.from && m.to ? `Cover up ${m.from} to ${m.to}` : q ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : g}
         ${w && x ? K(l`${w} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${x}`, "Sunrise to sunset", "wide stack x2") : g}
@@ -11911,7 +11926,7 @@ const on = {
   _hoursChart() {
     const t = Date.now() - 18e5, e = this._hours.filter((m) => new Date(m.datetime).getTime() >= t).slice(0, 24);
     if (e.length < 2) return l`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:15px;margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
-    const i = this._hw, s = 158, o = e.length, r = e.map((m) => m.temperature ?? 0), n = Math.min(...r), p = Math.max(...r), d = (m) => 98 - (m - n) / Math.max(1, p - n) * 24, c = (m) => m * i + i / 2, h = e.map((m, u) => `${c(u)} ${d(m.temperature ?? n)}`), f = (m) => {
+    const i = this._hw, s = 158, o = e.length, r = e.map((m) => m.temperature ?? 0), n = Math.min(...r), p = Math.max(...r), c = (m) => 98 - (m - n) / Math.max(1, p - n) * 24, d = (m) => m * i + i / 2, h = e.map((m, u) => `${d(u)} ${c(m.temperature ?? n)}`), f = (m) => {
       const u = this.renderRoot.querySelector(".hscroll");
       u && u.scrollTo({ left: Math.round((u.scrollLeft + m * u.clientWidth) / this._hw) * this._hw, behavior: Ts(this).travel ? "smooth" : "auto" });
     };
@@ -11922,17 +11937,17 @@ const on = {
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${o} hours: ${e.filter((m, u) => u % 3 === 0).map((m) => `${Pp(new Date(m.datetime))} ${Math.round(m.temperature ?? 0)} degrees`).join(", ")}`}>
         <svg class="hchart" width=${o * i} height=${s} viewBox="0 0 ${o * i} ${s}">
           ${b`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${o * i} y1="0" y2="0">${e.map((m, u) => b`<stop offset=${u / (o - 1)} stop-color=${fs(m.temperature ?? n)}></stop>`)}</linearGradient></defs>
-          <path class="area" fill="url(#tg)" d="M${c(0)} 122L${h.join("L")}L${c(o - 1)} 122z"></path>
+          <path class="area" fill="url(#tg)" d="M${d(0)} 122L${h.join("L")}L${d(o - 1)} 122z"></path>
           <path class="line" stroke="url(#tg)" d="M${h.join("L")}"></path>
           ${e.map((m, u) => {
       const w = new Date(m.datetime), x = m.precipitation_probability ?? 0, k = u > 0 && w.getHours() === 0;
       return b`
               ${k ? b`<path class="split" d="M${u * i} 18V${s - 4}"></path><text class="day" x=${u * i + 4} y="12.5" style="text-anchor:start">${w.toLocaleDateString("en-AU", { weekday: "short" })}</text>` : g}
-              <text x=${c(u)} y=${k ? 26 : 13}>${u === 0 ? "Now" : Pp(w)}</text>
-              <svg class="sky" x=${c(u) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${Bc(m.condition)}</svg>
-              <circle cx=${c(u)} cy=${d(m.temperature ?? n)} r="3.5" fill=${fs(m.temperature ?? n)}></circle>
-              <text class="tv" x=${c(u)} y=${d(m.temperature ?? n) - 9}>${Math.round(m.temperature ?? 0)}°</text>
-              ${x >= 10 ? b`<rect class="rainbar" x=${c(u) - 13} y=${150 - x / 100 * 14} width="26" height=${x / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${c(u)} y="133">${Math.round(x)}%</text>` : b`<text class="wind" x=${c(u)} y="146">${m.wind_speed !== void 0 ? Math.round(m.wind_speed) : ""}</text>`}`;
+              <text x=${d(u)} y=${k ? 26 : 13}>${u === 0 ? "Now" : Pp(w)}</text>
+              <svg class="sky" x=${d(u) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${Bc(m.condition)}</svg>
+              <circle cx=${d(u)} cy=${c(m.temperature ?? n)} r="3.5" fill=${fs(m.temperature ?? n)}></circle>
+              <text class="tv" x=${d(u)} y=${c(m.temperature ?? n) - 9}>${Math.round(m.temperature ?? 0)}°</text>
+              ${x >= 10 ? b`<rect class="rainbar" x=${d(u) - 13} y=${150 - x / 100 * 14} width="26" height=${x / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${d(u)} y="133">${Math.round(x)}%</text>` : b`<text class="wind" x=${d(u)} y="146">${m.wind_speed !== void 0 ? Math.round(m.wind_speed) : ""}</text>`}`;
     })}`}
         </svg>
       </div>
@@ -11944,11 +11959,11 @@ const on = {
       <h2>${this._titles()[2]}</h2>
       ${t.length ? l`
       <div class="days" role="list">
-        ${t.map((p, d) => {
-      const c = new Date(p.datetime), h = c.toDateString() === e, f = p.precipitation_probability ?? 0, m = p.templow ?? p.temperature ?? o, u = p.temperature ?? r, w = p.templow === void 0 || p.templow === p.temperature, x = h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "short" });
-      return l`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "long" })}: ${on[p.condition ?? ""] ?? ""}, ${w ? "" : `${Math.round(m)} to `}${Math.round(u)} degrees${f >= 30 ? `, ${Math.round(f)} percent chance of rain` : ""}`}>
-            <span class="dn">${x}<small>${c.getDate()} ${c.toLocaleDateString("en-AU", { month: "short" })}</small></span>
-            ${nr(d === 0 && p.condition === "clear-night" ? "clear-night" : p.condition, 38)}
+        ${t.map((p, c) => {
+      const d = new Date(p.datetime), h = d.toDateString() === e, f = p.precipitation_probability ?? 0, m = p.templow ?? p.temperature ?? o, u = p.temperature ?? r, w = p.templow === void 0 || p.templow === p.temperature, x = h ? "Today" : d.toLocaleDateString("en-AU", { weekday: "short" });
+      return l`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : d.toLocaleDateString("en-AU", { weekday: "long" })}: ${on[p.condition ?? ""] ?? ""}, ${w ? "" : `${Math.round(m)} to `}${Math.round(u)} degrees${f >= 30 ? `, ${Math.round(f)} percent chance of rain` : ""}`}>
+            <span class="dn">${x}<small>${d.getDate()} ${d.toLocaleDateString("en-AU", { month: "short" })}</small></span>
+            ${nr(c === 0 && p.condition === "clear-night" ? "clear-night" : p.condition, 38)}
             <span class="rng">
               <span class="lo">${w ? "" : `${Math.round(m)}°`}</span>
               <span class="track"><span class="wbar" style="left:${w ? (u - o) / n * 100 - 4 : (m - o) / n * 100}%;right:${100 - (u - o) / n * 100}%;background:linear-gradient(90deg, ${fs(m)}, ${fs(u)})"></span></span>
@@ -12151,9 +12166,9 @@ const ms = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
   for (const o of [20, 24.5])
     a.beginPath(), a.arc(24, o, 1.6, 0, Math.PI * 2), a.fill();
   a.restore();
-}, Rg = b`<svg class="i" viewBox="0 0 24 24" style="--s:24px" aria-hidden="true"><path d="M4.500 15.500 13 7l5.500 5.500L11 20H7.500z"></path><path d="M9.500 10.500 15 16"></path><path d="M11 20h9"></path></svg>`, Vg = b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.500"></rect><path d="M8 20l2-4M16 20l-2-4M7 9.500c1.500-1.500 3 1.500 4.500 0s3 1.500 4.500 0"></path></svg>`, $g = b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4M9 12h6M9 16h6"></path></svg>`, Ng = b`<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 3h5v9a3 3 0 0 0 6 0V3h5v9a8 8 0 0 1-16 0z" fill="currentColor"></path><path d="M4 3h5v4H4zM15 3h5v4h-5z" fill="#fff" stroke="currentColor" stroke-width="1.500" stroke-linejoin="round"></path></svg>`, eo = class eo extends ht {
+}, Rg = b`<svg class="i" viewBox="0 0 24 24" style="--s:24px" aria-hidden="true"><path d="M4.500 15.500 13 7l5.500 5.500L11 20H7.500z"></path><path d="M9.500 10.500 15 16"></path><path d="M11 20h9"></path></svg>`, Vg = b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.500"></rect><path d="M8 20l2-4M16 20l-2-4M7 9.500c1.500-1.500 3 1.500 4.500 0s3 1.500 4.500 0"></path></svg>`, $g = b`<svg class="i" viewBox="0 0 24 24" style="--s:20px" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4M9 12h6M9 16h6"></path></svg>`, Ng = b`<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 3h5v9a3 3 0 0 0 6 0V3h5v9a8 8 0 0 1-16 0z" fill="currentColor"></path><path d="M4 3h5v4H4zM15 3h5v4h-5z" fill="#fff" stroke="currentColor" stroke-width="1.500" stroke-linejoin="round"></path></svg>`, eo = class eo extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fitCtl = new Ve(this), this._ink = ms[0], this._size = 10, this.artists = [], this.kids = [], this.pin = "", this._tidy = !1, this._askPin = !1, this._stamp = "", this._artist = "", this._erase = !1, this._chalk = !1, this._blank = !0, this._pics = [], this._view = "", this._msg = "", this._stick = !1, this._askWho = !1, this._esc = (t) => {
+    super(...arguments), this.lookCtl = new Jt(this), this.fitCtl = new Re(this), this._ink = ms[0], this._size = 10, this.artists = [], this.kids = [], this.pin = "", this._tidy = !1, this._askPin = !1, this._stamp = "", this._artist = "", this._erase = !1, this._chalk = !1, this._blank = !0, this._pics = [], this._view = "", this._msg = "", this._stick = !1, this._askWho = !1, this._esc = (t) => {
       t.key !== "Escape" || !this._view && !this._askWho || (t.stopPropagation(), this._view = "", this._askWho = !1);
     }, this._strokes = [], this._cur = null, this._last = null, this._hue = 0, this._rubAt = 0;
   }
@@ -12208,8 +12223,8 @@ const ms = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
     t.pts.push([e.x, e.y, i.x, i.y, s]), this._draw(t, e.x, e.y, i.x, i.y, s, t.pts.length);
   }
   _draw(t, e, i, s, o, r, n) {
-    const p = this._ctx, d = window.devicePixelRatio || 1, c = r > 0 && r !== 0.5 ? 0.6 + r : 1;
-    if (p.globalCompositeOperation = t.erase ? "destination-out" : "source-over", p.lineCap = "round", p.lineJoin = "round", p.lineWidth = (t.erase ? t.size * 2.4 : t.size) * d * c, t.ink === "rainbow" && !t.erase) {
+    const p = this._ctx, c = window.devicePixelRatio || 1, d = r > 0 && r !== 0.5 ? 0.6 + r : 1;
+    if (p.globalCompositeOperation = t.erase ? "destination-out" : "source-over", p.lineCap = "round", p.lineJoin = "round", p.lineWidth = (t.erase ? t.size * 2.4 : t.size) * c * d, t.ink === "rainbow" && !t.erase) {
       const h = (t.hue + n * 4) % 360;
       this._hue = h, p.strokeStyle = `hsl(${h} 90% 55%)`;
     } else p.strokeStyle = t.ink === "rainbow" ? "#000" : t.ink;
@@ -12333,11 +12348,11 @@ const ms = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
   _face(t) {
     const e = this.kids.find((o) => o.name === t);
     if (!e) return l`<span class="avatar" style="background:var(--p-family)">${t[0]}</span>`;
-    const i = this.hass?.states[tt(e).avatar]?.state, s = i || e.look ? ct(i, e.look ? ct(e.look) : {}) : null;
-    return l`<span class="avatar" aria-hidden="true" style="background:${Z(e.colour)}">${s ? te(s, { size: 56, crop: "head", still: !0, label: e.name, age: e.age, ring: Z(e.colour) }) : e.name[0]}</span>`;
+    const i = this.hass?.states[E(e).avatar]?.state, s = i || e.look ? nt(i, e.look ? nt(e.look) : {}) : null;
+    return l`<span class="avatar" aria-hidden="true" style="background:${Y(e.colour)}">${s ? It(s, { size: 56, crop: "head", still: !0, label: e.name, age: e.age, ring: Y(e.colour) }) : e.name[0]}</span>`;
   }
   render() {
-    const [t, e] = Ae(this, "msg", this._msg);
+    const [t, e] = qe(this, "msg", this._msg);
     return l`
       <section class="glass brushes" data-fits aria-label="Brushes">
         ${ms.map((i, s) => l`<button class="ink tap" style="background:${i}" aria-label=${Fg[s] ?? "Colour"} aria-pressed=${String(!this._erase && !this._stamp && this._ink === i)} @click=${() => {
@@ -12555,9 +12570,9 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
 }, od = (a) => {
   const t = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/u.exec(a), e = a.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, "").trim() || a;
   return [t ? t[0] : jg.find(([i]) => i.test(a))?.[1] ?? "🎒", e];
-}, ao = class ao extends ht {
+}, ao = class ao extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.fit = new Ve(this), this.kids = [], this.events = [], this.leaveBy = "08:15", this.rules = [], this.privateWords = [], this.uv = 0, this.termLabel = "", this.travel = 15, this._items = {}, this._now = /* @__PURE__ */ new Date(), this._cheer = 0, this._wasReady = !0, this._just = {}, this._justT = {}, this._msg = {}, this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._unsubs = [], this._refit = () => {
+    super(...arguments), this.lookCtl = new Jt(this), this.fit = new Re(this), this.kids = [], this.events = [], this.leaveBy = "08:15", this.rules = [], this.privateWords = [], this.uv = 0, this.termLabel = "", this.travel = 15, this._items = {}, this._now = /* @__PURE__ */ new Date(), this._cheer = 0, this._wasReady = !0, this._just = {}, this._justT = {}, this._msg = {}, this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._unsubs = [], this._refit = () => {
       this.fit.run();
     }, this._subKey = "";
   }
@@ -12579,14 +12594,14 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
     Object.values(this._justT).forEach((t) => clearTimeout(t)), this._unsubs.forEach((t) => t()), this._unsubs = [], this._subKey = "";
   }
   shouldUpdate(t) {
-    return t.size === 1 && t.has("hass") ? no(t.get("hass"), this.hass, this.kids.map((e) => tt(e).avatar)) : !0;
+    return t.size === 1 && t.has("hass") ? no(t.get("hass"), this.hass, this.kids.map((e) => E(e).avatar)) : !0;
   }
   async _sub() {
     if (!this.hass?.connection) {
       setTimeout(() => this._sub(), 500);
       return;
     }
-    const t = this.kids.map((i) => tt(i).chores), e = t.join("|");
+    const t = this.kids.map((i) => E(i).chores), e = t.join("|");
     if (e !== this._subKey) {
       this._subKey = e, this._unsubs.forEach((i) => i()), this._unsubs = [];
       for (const i of t)
@@ -12600,7 +12615,7 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
     }
   }
   _list(t) {
-    return this._items[tt(t).chores] ?? [];
+    return this._items[E(t).chores] ?? [];
   }
   willUpdate(t) {
     t.has("kids") && this._subKey && this._sub();
@@ -12618,7 +12633,7 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
   }
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   _leave(t) {
-    const e = this._own(t).filter((o) => !o.allDay && mt(o.start, this._now) && o.start.getHours() < 10).sort((o, r) => o.start.getTime() - r.start.getTime())[0], i = ut(t.leave_by ?? this.leaveBy), s = e ? e.start.getHours() * 60 + e.start.getMinutes() - this.travel : 1 / 0;
+    const e = this._own(t).filter((o) => !o.allDay && ht(o.start, this._now) && o.start.getHours() < 10).sort((o, r) => o.start.getTime() - r.start.getTime())[0], i = ut(t.leave_by ?? this.leaveBy), s = e ? e.start.getHours() * 60 + e.start.getMinutes() - this.travel : 1 / 0;
     return s < i ? { at: s, why: e.title } : { at: i, why: "school" };
   }
   /** Everyone's morning steps, pooled. */
@@ -12633,7 +12648,7 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
     return { c: (i && e.find((s) => s.uid === i.uid && s.status === "completed")) ?? e.find((s) => s.status !== "completed"), total: e.length };
   }
   _setStatus(t, e, i) {
-    const s = tt(t).chores;
+    const s = E(t).chores;
     this._items = { ...this._items, [s]: (this._items[s] ?? []).map((o) => o.uid === e ? { ...o, status: i } : o) };
   }
   _unhold(t, e) {
@@ -12648,25 +12663,25 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
     const s = i.currentTarget, o = e.status === "completed", r = this._just[t.name];
     if (o && (!r || r.uid !== e.uid || Date.now() - r.at < Wg)) return;
     this._busy.add(e.uid);
-    const n = o ? "needs_action" : "completed", p = tt(t);
+    const n = o ? "needs_action" : "completed", p = E(t);
     this._pending.set(e.uid, n), this._setStatus(t, e.uid, n), this._msg[t.name] && (this._msg = { ...this._msg, [t.name]: "" }), o ? this._unhold(t.name) : (clearTimeout(this._justT[t.name]), this._just = { ...this._just, [t.name]: { uid: e.uid, at: Date.now() } }, this._justT[t.name] = window.setTimeout(() => this._unhold(t.name, e.uid), zg), Tt("tick", s.querySelector(".check") ?? s)), S(o ? "untick" : "tick");
-    const d = window.setTimeout(() => {
+    const c = window.setTimeout(() => {
       s.setAttribute("aria-busy", "true");
     }, 250);
     try {
-      await dt(this.hass.callService("todo", "update_item", { item: e.uid, status: n }, { entity_id: p.chores })), this._pending.delete(e.uid), e.pts && await dt(this.hass.callService("script", "fh_add_points", { kid: p.slug, points: (o ? -1 : 1) * e.pts, lifetime: !0, jar: 0, grow: 0, reason: `${o ? "un-ticked " : ""}${e.summary}` }));
+      await ct(this.hass.callService("todo", "update_item", { item: e.uid, status: n }, { entity_id: p.chores })), this._pending.delete(e.uid), e.pts && await ct(this.hass.callService("script", "fh_add_points", { kid: p.slug, points: (o ? -1 : 1) * e.pts, lifetime: !0, jar: 0, grow: 0, reason: `${o ? "un-ticked " : ""}${e.summary}` }));
       try {
-        const c = JSON.parse(localStorage.getItem("fh-ticks") || "{}");
-        o ? delete c[e.uid] : c[e.uid] = Date.now(), localStorage.setItem("fh-ticks", JSON.stringify(c));
+        const d = JSON.parse(localStorage.getItem("fh-ticks") || "{}");
+        o ? delete d[e.uid] : d[e.uid] = Date.now(), localStorage.setItem("fh-ticks", JSON.stringify(d));
       } catch {
       }
-      !o && t.mode === "picture" && E(`${e.summary}. Done!`);
-    } catch (c) {
-      console.warn("Family Hub: chore update failed", c), this._pending.delete(e.uid) && (this._setStatus(t, e.uid, e.status), this._unhold(t.name, e.uid)), this._msg = { ...this._msg, [t.name]: c instanceof Wt ? St : "Couldn’t save that one – try again" }, window.setTimeout(() => {
+      !o && t.mode === "picture" && tt(`${e.summary}. Done!`);
+    } catch (d) {
+      console.warn("Family Hub: chore update failed", d), this._pending.delete(e.uid) && (this._setStatus(t, e.uid, e.status), this._unhold(t.name, e.uid)), this._msg = { ...this._msg, [t.name]: d instanceof Wt ? St : "Couldn’t save that one – try again" }, window.setTimeout(() => {
         this._msg = { ...this._msg, [t.name]: "" };
       }, 4e3);
     } finally {
-      this._busy.delete(e.uid), clearTimeout(d), s.removeAttribute("aria-busy");
+      this._busy.delete(e.uid), clearTimeout(c), s.removeAttribute("aria-busy");
     }
   }
   updated() {
@@ -12675,14 +12690,14 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
   }
   render() {
     if (!this.hass) return g;
-    const t = ee(this._now), e = this.kids.map((x) => ({ k: x, ...this._leave(x) })), i = e.filter((x) => x.at - t > -5).sort((x, k) => x.at - k.at)[0], s = i ? i.at - t : -99, o = (x) => pt(new Date(new Date(this._now).setHours(Math.floor(x / 60), x % 60, 0, 0))), r = i ? e.filter((x) => x.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((x) => x.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", p = this._now, d = this.privateWords.map((x) => x.toLowerCase()), c = this._team(), h = c.total > 0 && c.done === c.total, f = (x) => ct(this.hass.states[tt(x).avatar]?.state, x.look ? ct(x.look) : {}), m = (x) => te(f(x), { size: 36, crop: "head", still: !0, age: x.age, ring: Z(x.colour) }), u = this.kids.map((x) => ({ k: x, n: this._list(x).filter((k) => lr(k) && k.status !== "completed").length })).filter((x) => x.n > 0), w = this.events.filter((x) => ad(x, p) && x.colour === "family" && !d.some((k) => x.title.toLowerCase().includes(k)) && !this.kids.some((k) => x.who === k.name || x.title.toLowerCase().includes(k.name.toLowerCase()))).map((x, k) => ({ ev: x, i: k, k: le(x, p).sort })).sort((x, k) => x.k - k.k || x.i - k.i).map((x) => x.ev);
+    const t = ee(this._now), e = this.kids.map((x) => ({ k: x, ...this._leave(x) })), i = e.filter((x) => x.at - t > -5).sort((x, k) => x.at - k.at)[0], s = i ? i.at - t : -99, o = (x) => dt(new Date(new Date(this._now).setHours(Math.floor(x / 60), x % 60, 0, 0))), r = i ? e.filter((x) => x.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((x) => x.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", p = this._now, c = this.privateWords.map((x) => x.toLowerCase()), d = this._team(), h = d.total > 0 && d.done === d.total, f = (x) => nt(this.hass.states[E(x).avatar]?.state, x.look ? nt(x.look) : {}), m = (x) => It(f(x), { size: 36, crop: "head", still: !0, age: x.age, ring: Y(x.colour) }), u = this.kids.map((x) => ({ k: x, n: this._list(x).filter((k) => lr(k) && k.status !== "completed").length })).filter((x) => x.n > 0), w = this.events.filter((x) => ad(x, p) && x.colour === "family" && !c.some((k) => x.title.toLowerCase().includes(k)) && !this.kids.some((k) => x.who === k.name || x.title.toLowerCase().includes(k.name.toLowerCase()))).map((x, k) => ({ ev: x, i: k, k: le(x, p).sort })).sort((x, k) => x.k - k.k || x.i - k.i).map((x) => x.ev);
     return l`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
-        ${c.total ? l`<div class="team" data-part="team" role="img" aria-label=${h ? "Morning jobs: all done" : `Morning jobs to go: ${u.map((x) => `${x.k.name} ${x.n}`).join(", ")}`}>
-          ${h ? g : l`<div class="faces" aria-hidden="true">${c.total - c.done <= 12 ? u.flatMap((x) => Array.from({ length: x.n }, () => l`<span class="fc" data-who=${x.k.name}>${m(x.k)}</span>`)) : u.map((x) => l`<span class="fc" data-who=${x.k.name} data-n=${x.n}>${m(x.k)}<b>${x.n}</b></span>`)}</div>`}
-          <span class="nextstep ${h ? "set" : ""}">${h ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${c.total - c.done} to go between us`}</span></div>` : g}
+        ${d.total ? l`<div class="team" data-part="team" role="img" aria-label=${h ? "Morning jobs: all done" : `Morning jobs to go: ${u.map((x) => `${x.k.name} ${x.n}`).join(", ")}`}>
+          ${h ? g : l`<div class="faces" aria-hidden="true">${d.total - d.done <= 12 ? u.flatMap((x) => Array.from({ length: x.n }, () => l`<span class="fc" data-who=${x.k.name}>${m(x.k)}</span>`)) : u.map((x) => l`<span class="fc" data-who=${x.k.name} data-n=${x.n}>${m(x.k)}<b>${x.n}</b></span>`)}</div>`}
+          <span class="nextstep ${h ? "set" : ""}">${h ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${d.total - d.done} to go between us`}</span></div>` : g}
         <div class="goclock ${s > 0 && s <= 10 ? "soon" : ""}" data-part="goclock" role="timer" aria-label=${s > 0 ? `Time to leave: ${Lg(s)} until ${n} at ${o(i.at)}` : s > -5 ? "Time to go" : "Everyone has left"}>
           <span class="face" aria-hidden="true">${Bt(Dt(), "timer", { frac: s > 0 ? Math.min(1, s / 60) : 0, size: 96 })}<b>${s > -5 ? "🚪" : "👋"}</b></span>
           <div class="words"><div class="leave ${s <= 0 && s > -5 ? "go" : ""} ${s > 0 ? "" : "say"}">${s > 0 ? `${s} min` : s > -5 ? "Time to go!" : "Have a great day"}</div>
@@ -12691,30 +12706,30 @@ const Tg = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ad = (a, t) => {
       ${w.length ? l`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${w.slice(0, 4).map((x) => l`<span class="fev"><span class="mt">${le(x, p).label}</span><span>${x.title}</span></span>`)}</section>` : g}
       <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((x) => {
-      const k = f(x), v = this._own(x), K = this._bring(x, v), y = e.find((ft) => ft.k === x), q = y.at - t, N = q <= -5, _ = !N && !!i && y.at !== i.at, $ = this._job(x), C = $.c, T = C?.status === "completed", yt = this._msg[x.name];
-      return l`<section class="glass kcol" data-fits data-kid=${x.name} style="--kid:${Z(x.colour)}" aria-label=${x.name}>
-            <button class="khead tap" data-act="open" aria-label=${`${x.name}: ${N ? "has left" : `leaves at ${o(y.at)}`}${K.length ? `. Bring and wear: ${K.map((ft) => od(ft)[1]).join(", ")}` : ""}. Opens ${x.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: x.name }))}>
-              ${te(k, { size: 60, crop: "head", jump: this._cheer, age: x.age, ring: Z(x.colour) })}<h2>${x.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
-            ${C ? l`<button class="jobbtn big tap ${T ? "done" : ""}" data-part="job" data-uid=${C.uid} aria-pressed=${T ? "true" : "false"} aria-label=${T ? `${x.name}: ${C.summary}, done. Tap to undo` : `${x.name}, now: ${C.summary}. Tap when it is done`} @click=${(ft) => {
-        this._tick(x, C, ft);
+      const k = f(x), v = this._own(x), K = this._bring(x, v), y = e.find((mt) => mt.k === x), q = y.at - t, N = q <= -5, _ = !N && !!i && y.at !== i.at, $ = this._job(x), C = $.c, T = C?.status === "completed", yt = this._msg[x.name];
+      return l`<section class="glass kcol" data-fits data-kid=${x.name} style="--kid:${Y(x.colour)}" aria-label=${x.name}>
+            <button class="khead tap" data-act="open" aria-label=${`${x.name}: ${N ? "has left" : `leaves at ${o(y.at)}`}${K.length ? `. Bring and wear: ${K.map((mt) => od(mt)[1]).join(", ")}` : ""}. Opens ${x.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: x.name }))}>
+              ${It(k, { size: 60, crop: "head", jump: this._cheer, age: x.age, ring: Y(x.colour) })}<h2>${x.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
+            ${C ? l`<button class="jobbtn big tap ${T ? "done" : ""}" data-part="job" data-uid=${C.uid} aria-pressed=${T ? "true" : "false"} aria-label=${T ? `${x.name}: ${C.summary}, done. Tap to undo` : `${x.name}, now: ${C.summary}. Tap when it is done`} @click=${(mt) => {
+        this._tick(x, C, mt);
       }}>
                 ${x.older ? g : l`<span class="jpic" aria-hidden="true">${Ss(C)}</span>`}
                 <span class="jtx"><span class="label">${T ? "Done" : "Now"}</span><span class="jname">${C.summary}</span>${T ? l`<span class="jundo">Tap to undo</span>` : g}</span>
                 <span class="check" aria-hidden="true">${T ? id : g}</span></button>` : $.total ? l`<div class="jobsdone" data-part="job">${id}<span>Morning jobs done</span></div>` : g}
             ${yt ? l`<span class="jmsg" role="status">${yt}</span>` : g}
             <span class="label">Today</span>
-            ${v.length ? v.slice(0, 3).map((ft) => l`<div class="mev2"><span class="mt">${le(ft, p).label}</span><span>${ft.title}</span></div>`) : l`<span class="muted" style="font-size:15px">Just school today</span>`}
+            ${v.length ? v.slice(0, 3).map((mt) => l`<div class="mev2"><span class="mt">${le(mt, p).label}</span><span>${mt.title}</span></div>`) : l`<span class="muted" style="font-size:15px">Just school today</span>`}
             <div class="klow">
               ${N ? l`<div class="lchip" data-part="leaves"><span>Left</span></div>` : _ ? l`<div class="lchip" data-part="leaves"><span>You leave ${Cg(y.at - i.at)}</span><span class="lt">${o(y.at)}${y.why !== "school" ? ` · ${y.why}` : ""}</span></div>` : g}
-              ${K.length ? l`<div class="tiles" data-part="bring">${K.map((ft) => {
-        const [Jt, _t] = od(ft);
-        return l`<span class="tile"><span class="te" aria-hidden="true">${Jt}</span><span class="tl">${_t}</span></span>`;
+              ${K.length ? l`<div class="tiles" data-part="bring">${K.map((mt) => {
+        const [Pt, _t] = od(mt);
+        return l`<span class="tile"><span class="te" aria-hidden="true">${Pt}</span><span class="tl">${_t}</span></span>`;
       })}</div>` : g}
             </div>
           </section>`;
     })}
       </div>
-      ${this._cheer ? Je(this._cheer, Cn(this._cheer)) : g}`;
+      ${this._cheer ? Ie(this._cheer, Cn(this._cheer)) : g}`;
   }
 };
 ao.styles = [Ct, J`
@@ -12833,7 +12848,7 @@ class dn extends Ld {
   }
   render(t) {
     if (t === g || t == null) return this._t = void 0, this.it = t;
-    if (t === wa) return t;
+    if (t === ka) return t;
     if (typeof t != "string") throw Error(this.constructor.directiveName + "() called with a non-string value");
     if (t === this.it) return this._t;
     this.it = t;
@@ -12866,20 +12881,20 @@ const Gg = jd(cn), Yg = {
   allon: '<path class="p-ray" fill="none" d="M12 1.200v1.700M4.300 4.300l1.200 1.200M19.700 4.300l-1.200 1.200M1.800 11h1.700M20.500 11h1.700"/><path class="fa p-glow" d="M12 5.200a5.300 5.300 0 0 0-3.200 9.500c.6.500 1 1.200 1 2h4.400c0-.8.4-1.500 1-2A5.300 5.300 0 0 0 12 5.200z"/><path fill="none" d="M9.900 19h4.200M10.700 21.300h2.600"/>',
   alloff: '<path class="fb p-bulb" d="M12 3.500a6 6 0 0 0-3.600 10.800c.7.500 1.100 1.300 1.100 2.200h5c0-.9.4-1.700 1.100-2.200A6 6 0 0 0 12 3.500z"/><path fill="none" d="M9.500 18.700h5M10.500 21.200h3"/><path class="p-slash" pathLength="1" fill="none" stroke-width="2.2" d="M4 3.500l16 17"/>',
   dinner: '<path class="p-ring" fill="none" d="M3.200 8.600a9.800 9.800 0 0 1 2.300-3.200M20.800 8.600a9.800 9.800 0 0 0-2.300-3.200"/><path class="fa p-lid" d="M4.300 17a7.700 7.700 0 0 1 15.400 0z"/><circle class="fb p-knob" cx="12" cy="7.600" r="1.600"/><path fill="none" d="M2.300 19.800h19.400"/>'
-}, Zg = { sun: "morning", calendar: "planner", cart: "groceries", pencil: "doodle", music: "music", cloud: "weather", home: "home", bulb: "allon", bulbOff: "alloff", megaphone: "dinner", ask: "ask", palette: "looks", pill: "medicine", info: "info", moon: "night" }, ye = (a, t = 22) => {
+}, Zg = { sun: "morning", calendar: "planner", cart: "groceries", pencil: "doodle", music: "music", cloud: "weather", home: "home", bulb: "allon", bulbOff: "alloff", megaphone: "dinner", ask: "ask", palette: "looks", pill: "medicine", info: "info", moon: "night" }, Va = (a, t = 22) => {
   const e = Zg[a] ?? a;
   return l`<svg class="i pic2" data-ic=${e} aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${Gg(Yg[e] ?? "")}</svg>`;
 }, hn = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], Bg = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], Oc = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], rd = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Og = ["first", "second", "third", "fourth", "last"], nd = { DAILY: "day", WEEKLY: "week", MONTHLY: "month", YEARLY: "year" }, Ni = (a) => (a.getDay() + 6) % 7, fn = (a) => {
   const t = Math.ceil(a.getDate() / 7);
   return t >= 5 ? -1 : t;
-}, Dg = (a) => `${a}${a % 100 >= 11 && a % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][a % 10] ?? "th"}`, Ye = (a, t, e = {}) => ({ freq: a, every: 1, days: [Ni(t)], monthBy: "date", end: "never", ...e }), ld = (a) => [
-  Ye("DAILY", a),
-  Ye("WEEKLY", a),
-  Ye("WEEKLY", a, { every: 2 }),
-  Ye("MONTHLY", a),
-  Ye("MONTHLY", a, { monthBy: "weekday" }),
-  Ye("YEARLY", a),
-  Ye("WEEKLY", a, { days: [0, 1, 2, 3, 4] })
+}, Dg = (a) => `${a}${a % 100 >= 11 && a % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][a % 10] ?? "th"}`, Ge = (a, t, e = {}) => ({ freq: a, every: 1, days: [Ni(t)], monthBy: "date", end: "never", ...e }), ld = (a) => [
+  Ge("DAILY", a),
+  Ge("WEEKLY", a),
+  Ge("WEEKLY", a, { every: 2 }),
+  Ge("MONTHLY", a),
+  Ge("MONTHLY", a, { monthBy: "weekday" }),
+  Ge("YEARLY", a),
+  Ge("WEEKLY", a, { days: [0, 1, 2, 3, 4] })
 ], gs = (a, t) => {
   if (!a) return "Does not repeat";
   const e = Math.max(1, a.every), i = [...new Set(a.days)].sort((o, r) => o - r);
@@ -12914,7 +12929,7 @@ const Gg = jd(cn), Yg = {
   const i = e.FREQ;
   if (!["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].includes(i)) return null;
   for (const o of Object.keys(e)) if (!["FREQ", "INTERVAL", "BYDAY", "COUNT", "UNTIL", "WKST", "BYMONTHDAY", "BYMONTH"].includes(o)) return null;
-  const s = Ye(i, t, { every: Math.max(1, Number(e.INTERVAL ?? 1) || 1) });
+  const s = Ge(i, t, { every: Math.max(1, Number(e.INTERVAL ?? 1) || 1) });
   if (e.BYDAY) {
     const o = e.BYDAY.split(",");
     if (i === "WEEKLY") {
@@ -12934,9 +12949,9 @@ const Gg = jd(cn), Yg = {
     s.end = "on", s.until = `${r.getFullYear()}-${String(r.getMonth() + 1).padStart(2, "0")}-${String(r.getDate()).padStart(2, "0")}`;
   }
   return s;
-}, Jg = ["M", "T", "W", "T", "F", "S", "S"], Pg = Oc, ci = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], hi = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], oa = 44, Xg = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Hg = { "Western Australia": "WA", "New South Wales": "NSW", Victoria: "VIC", Queensland: "QLD", "South Australia": "SA", Tasmania: "TAS", "Northern Territory": "NT", "Australian Capital Territory": "ACT" }, Me = (a) => String(a).padStart(2, "0"), pd = (a) => `${a.getFullYear()}-${Me(a.getMonth() + 1)}-${Me(a.getDate())} ${Me(a.getHours())}:${Me(a.getMinutes())}:00`, us = (a) => `${a.getFullYear()}-${Me(a.getMonth() + 1)}-${Me(a.getDate())}`, bs = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), Ca = class Ca extends ht {
+}, Jg = ["M", "T", "W", "T", "F", "S", "S"], Pg = Oc, ci = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], hi = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], sa = 44, Xg = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Hg = { "Western Australia": "WA", "New South Wales": "NSW", Victoria: "VIC", Queensland: "QLD", "South Australia": "SA", Tasmania: "TAS", "Northern Territory": "NT", "Australian Capital Territory": "ACT" }, Ae = (a) => String(a).padStart(2, "0"), pd = (a) => `${a.getFullYear()}-${Ae(a.getMonth() + 1)}-${Ae(a.getDate())} ${Ae(a.getHours())}:${Ae(a.getMinutes())}:00`, us = (a) => `${a.getFullYear()}-${Ae(a.getMonth() + 1)}-${Ae(a.getDate())}`, bs = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), Ca = class Ca extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.calendars = [], this.defaultCal = "", this.places = !0, this.edit = null, this._span = 1, this.scope = "", this._rep = null, this._rawRule = "", this._repOpen = !1, this._custom = !1, this._pickFor = "date", this._notes = "", this._notes0 = "", this._t = "", this._loc = "", this._in = "what", this._found = null, this._date = it(/* @__PURE__ */ new Date()), this._all = !1, this._h = 9, this._m = 0, this._pm = !1, this._dur = 60, this._cal = "", this._busy = !1, this._err = "", this._caps = !0, this._pick = !1, this._shown = /* @__PURE__ */ new Date(), this._seekGen = 0, this._spin = {}, this._hardKeys = !1, this._onKey = (t) => {
+    super(...arguments), this.lookCtl = new Jt(this), this.calendars = [], this.defaultCal = "", this.places = !0, this.edit = null, this._span = 1, this.scope = "", this._rep = null, this._rawRule = "", this._repOpen = !1, this._custom = !1, this._pickFor = "date", this._notes = "", this._notes0 = "", this._t = "", this._loc = "", this._in = "what", this._found = null, this._date = it(/* @__PURE__ */ new Date()), this._all = !1, this._h = 9, this._m = 0, this._pm = !1, this._dur = 60, this._cal = "", this._busy = !1, this._err = "", this._caps = !0, this._pick = !1, this._shown = /* @__PURE__ */ new Date(), this._seekGen = 0, this._spin = {}, this._hardKeys = !1, this._onKey = (t) => {
       if (t.key === "Escape" && this._pick)
         t.preventDefault(), t.stopPropagation(), this._pick = !1, this._pickFor = "date";
       else if (t.key === "Escape" && this._repOpen)
@@ -12981,14 +12996,14 @@ const Gg = jd(cn), Yg = {
   /** One line that says what will be added: "Dentist · Tue 17 Nov · 5:00 pm · 1 h · Charlie". */
   _summary() {
     const t = this._cal || this.defaultCal || this.calendars[0]?.entity, e = this.calendars.find((o) => o.entity === t), i = this._date.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short", year: this._date.getFullYear() === (/* @__PURE__ */ new Date()).getFullYear() ? void 0 : "numeric" }).replace(/,/g, ""), s = this._durWord();
-    return [this._t.trim(), i, ...this._all ? ["all day"] : [`${this._h}:${Me(this._m)} ${this._pm ? "pm" : "am"}`, s], e?.name ?? this.hass?.states[t ?? ""]?.attributes.friendly_name ?? "", this._rule() ? this._repWords() : "", this._loc.trim() ? `at ${this._loc.trim().split(",")[0]}` : ""].filter(Boolean).join(" · ");
+    return [this._t.trim(), i, ...this._all ? ["all day"] : [`${this._h}:${Ae(this._m)} ${this._pm ? "pm" : "am"}`, s], e?.name ?? this.hass?.states[t ?? ""]?.attributes.friendly_name ?? "", this._rule() ? this._repWords() : "", this._loc.trim() ? `at ${this._loc.trim().split(",")[0]}` : ""].filter(Boolean).join(" · ");
   }
   _key(t) {
     if (this._err = "", this._in === "notes") {
-      [this._notes] = _e(this._notes, t, !this._notes.length || /[.!?]\s$/.test(this._notes));
+      [this._notes] = Fe(this._notes, t, !this._notes.length || /[.!?]\s$/.test(this._notes));
       return;
     }
-    this._in === "where" ? ([this._loc] = _e(this._loc, t, !!(!this._loc.length || /\s$/.test(this._loc))), this._lookUp()) : [this._t, this._caps] = _e(this._t, t, this._caps);
+    this._in === "where" ? ([this._loc] = Fe(this._loc, t, !!(!this._loc.length || /\s$/.test(this._loc))), this._lookUp()) : [this._t, this._caps] = Fe(this._t, t, this._caps);
   }
   /* ---------------- where ---------------- */
   /** Places Home Assistant already knows (zones such as school or work): offered before anything is typed. */
@@ -13010,8 +13025,8 @@ const Gg = jd(cn), Yg = {
         if (e !== this._seekGen) return;
         const n = /* @__PURE__ */ new Set();
         this._found = (r?.features ?? []).map(({ properties: p }) => {
-          const d = [p.housenumber, p.street].filter(Boolean).join(" "), c = p.name || d || p.city || "", h = [p.name && d ? d : "", p.district || p.locality || p.city, [Hg[p.state] ?? p.state, p.postcode].filter(Boolean).join(" ")].filter((f) => f && f !== c);
-          return { name: c, detail: [...new Set(h)].join(", ") };
+          const c = [p.housenumber, p.street].filter(Boolean).join(" "), d = p.name || c || p.city || "", h = [p.name && c ? c : "", p.district || p.locality || p.city, [Hg[p.state] ?? p.state, p.postcode].filter(Boolean).join(" ")].filter((f) => f && f !== d);
+          return { name: d, detail: [...new Set(h)].join(", ") };
         }).filter((p) => p.name && !n.has(`${p.name}|${p.detail}`) && n.add(`${p.name}|${p.detail}`));
       } catch {
         e === this._seekGen && (this._found = null);
@@ -13032,7 +13047,7 @@ const Gg = jd(cn), Yg = {
   _scrolled(t, e) {
     const i = e.currentTarget;
     clearTimeout(this._spin[t]), this._spin[t] = window.setTimeout(() => {
-      this._spin[t] = 0, this._setDrum(t, Math.round(i.scrollTop / oa));
+      this._spin[t] = 0, this._setDrum(t, Math.round(i.scrollTop / sa));
     }, 90);
   }
   _nudge(t, e, i) {
@@ -13053,22 +13068,22 @@ const Gg = jd(cn), Yg = {
     for (const [i, s, o] of [["h", ci, this._h], ["m", hi, this._m]]) {
       const r = this.renderRoot.querySelector(`.drum[data-d='${i}']`);
       if (!r || this._spin[i]) continue;
-      const n = s.indexOf(o) * oa;
+      const n = s.indexOf(o) * sa;
       Math.abs(r.scrollTop - n) > 1 && r.scrollTo({ top: n, behavior: r.dataset.set ? "smooth" : "auto" }), r.dataset.set = "1";
     }
   }
   _drum(t) {
     const e = t === "h" ? ci : hi, i = t === "h" ? this._h : this._m;
-    return l`<div class="drum" data-d=${t} tabindex="0" role="spinbutton" aria-label=${t === "h" ? "Hour" : "Minutes"} aria-valuenow=${i} aria-valuetext=${t === "h" ? `${i} ${this._pm ? "pm" : "am"}` : `${Me(i)} minutes`} aria-valuemin=${e[0]} aria-valuemax=${e[e.length - 1]}
+    return l`<div class="drum" data-d=${t} tabindex="0" role="spinbutton" aria-label=${t === "h" ? "Hour" : "Minutes"} aria-valuenow=${i} aria-valuetext=${t === "h" ? `${i} ${this._pm ? "pm" : "am"}` : `${Ae(i)} minutes`} aria-valuemin=${e[0]} aria-valuemax=${e[e.length - 1]}
       @scroll=${(o) => this._scrolled(t, o)} @keydown=${(o) => {
       o.key === "ArrowUp" ? this._nudge(t, -1, o) : o.key === "ArrowDown" ? this._nudge(t, 1, o) : o.key === "PageUp" || o.key === "PageDown" ? (o.preventDefault(), this._setDrum(t, e.indexOf(i) + (o.key === "PageUp" ? -3 : 3))) : (o.key === "Home" || o.key === "End") && (o.preventDefault(), this._setDrum(t, o.key === "Home" ? 0 : e.length - 1));
     }}>
-      ${e.map((o, r) => l`<i ?data-on=${o === i} @click=${() => this._setDrum(t, r)}>${t === "h" ? o : Me(o)}</i>`)}</div>`;
+      ${e.map((o, r) => l`<i ?data-on=${o === i} @click=${() => this._setDrum(t, r)}>${t === "h" ? o : Ae(o)}</i>`)}</div>`;
   }
   _monthGrid() {
     const t = it(/* @__PURE__ */ new Date()), e = this._shown.getFullYear(), i = this._shown.getMonth(), s = new Date(e, i, 1), o = (s.getDay() + 6) % 7, r = new Date(e, i + 1, 0).getDate(), n = (f, m) => {
       this._shown = new Date(e + f, i + m, 1);
-    }, p = this._pickFor === "until", d = p && this._rep?.until ? /* @__PURE__ */ new Date(`${this._rep.until}T00:00:00`) : this._date, c = p ? this._date : t, h = (f) => {
+    }, p = this._pickFor === "until", c = p && this._rep?.until ? /* @__PURE__ */ new Date(`${this._rep.until}T00:00:00`) : this._date, d = p ? this._date : t, h = (f) => {
       S("tap"), p ? this._rep && (this._rep = { ...this._rep, end: "on", until: us(f) }) : this._date = f, this._pick = !1, this._pickFor = "date";
     };
     return l`<div class="veil top" @click=${() => {
@@ -13085,17 +13100,17 @@ const Gg = jd(cn), Yg = {
           ${Array.from({ length: o }, () => l`<span></span>`)}
           ${Array.from({ length: r }, (f, m) => {
       const u = new Date(e, i, m + 1);
-      return l`<button class="tap ${bs(u, t) ? "td" : ""}" ?disabled=${u < c} aria-pressed=${String(bs(u, d))} aria-label=${u.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} @click=${() => h(u)}>${m + 1}</button>`;
+      return l`<button class="tap ${bs(u, t) ? "td" : ""}" ?disabled=${u < d} aria-pressed=${String(bs(u, c))} aria-label=${u.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} @click=${() => h(u)}>${m + 1}</button>`;
     })}
         </div>
       </div>`;
   }
   /** How often: the ready-made choices, a custom one (every N days, weeks, months or years; which days), and how it ends. */
   _repeatSheet() {
-    const t = this._date, e = this._rep, i = ld(t), s = this._custom ? void 0 : this._presetOf(e), o = (c) => {
-      this._rep && (S("tap"), this._rep = { ...this._rep, ...c });
-    }, r = (c, h, f, m, u) => l`<span class="rstep" role="group" aria-label=${c}>
-      <button class="tap" aria-label=${`${c}: fewer`} ?disabled=${h <= f} @click=${() => u(Math.max(f, h - 1))}>−</button><b aria-live="polite">${h}</b><button class="tap" aria-label=${`${c}: more`} ?disabled=${h >= m} @click=${() => u(Math.min(m, h + 1))}>+</button></span>`, n = (c, h, f, m = "") => l`<button class="tap" role="radio" data-act=${m || g} aria-checked=${String(h)} @click=${f}>${c}</button>`, p = [["DAILY", "day"], ["WEEKLY", "week"], ["MONTHLY", "month"], ["YEARLY", "year"]], d = e?.until ? /* @__PURE__ */ new Date(`${e.until}T00:00:00`) : null;
+    const t = this._date, e = this._rep, i = ld(t), s = this._custom ? void 0 : this._presetOf(e), o = (d) => {
+      this._rep && (S("tap"), this._rep = { ...this._rep, ...d });
+    }, r = (d, h, f, m, u) => l`<span class="rstep" role="group" aria-label=${d}>
+      <button class="tap" aria-label=${`${d}: fewer`} ?disabled=${h <= f} @click=${() => u(Math.max(f, h - 1))}>−</button><b aria-live="polite">${h}</b><button class="tap" aria-label=${`${d}: more`} ?disabled=${h >= m} @click=${() => u(Math.min(m, h + 1))}>+</button></span>`, n = (d, h, f, m = "") => l`<button class="tap" role="radio" data-act=${m || g} aria-checked=${String(h)} @click=${f}>${d}</button>`, p = [["DAILY", "day"], ["WEEKLY", "week"], ["MONTHLY", "month"], ["YEARLY", "year"]], c = e?.until ? /* @__PURE__ */ new Date(`${e.until}T00:00:00`) : null;
     return l`<div class="veil" @click=${() => {
       this._repOpen = !1;
     }}></div>
@@ -13107,28 +13122,28 @@ const Gg = jd(cn), Yg = {
     }, "rep-none")}
           ${this._rawRule ? n("Repeats as before", !0, () => {
     }) : g}
-          ${i.map((c, h) => n(gs(c, t), !!s && di(s, t, !0) === di(c, t, !0), () => {
-      this._custom = !1, this._setRep({ ...c, end: e?.end ?? "never", until: e?.until, count: e?.count });
+          ${i.map((d, h) => n(gs(d, t), !!s && di(s, t, !0) === di(d, t, !0), () => {
+      this._custom = !1, this._setRep({ ...d, end: e?.end ?? "never", until: e?.until, count: e?.count });
     }, `rep-${h}`))}
           ${n("Custom…", this._custom, () => {
       this._custom = !0, this._setRep(e ?? i[1]);
     }, "rep-custom")}
         </div>
-        ${this._custom && e ? l`<div class="rrow"><span class="sub">Every</span>${r("How many", e.every, 1, 99, (c) => o({ every: c }))}
-            <div class="rseg" role="radiogroup" aria-label="Days, weeks, months or years">${p.map(([c, h]) => n(e.every > 1 ? `${h}s` : h, e.freq === c, () => o({ freq: c })))}</div></div>
-          ${e.freq === "WEEKLY" ? l`<div class="rrow"><span class="sub">On</span><div class="rdays" role="group" aria-label="Which days">${Jg.map((c, h) => l`<button class="tap" aria-label=${Pg[h]} aria-pressed=${String(e.days.includes(h))} @click=${() => {
+        ${this._custom && e ? l`<div class="rrow"><span class="sub">Every</span>${r("How many", e.every, 1, 99, (d) => o({ every: d }))}
+            <div class="rseg" role="radiogroup" aria-label="Days, weeks, months or years">${p.map(([d, h]) => n(e.every > 1 ? `${h}s` : h, e.freq === d, () => o({ freq: d })))}</div></div>
+          ${e.freq === "WEEKLY" ? l`<div class="rrow"><span class="sub">On</span><div class="rdays" role="group" aria-label="Which days">${Jg.map((d, h) => l`<button class="tap" aria-label=${Pg[h]} aria-pressed=${String(e.days.includes(h))} @click=${() => {
       const f = e.days.includes(h), m = f ? e.days.filter((u) => u !== h) : [...e.days, h];
       o({ days: m.length ? m : [Ni(t)] });
-    }}>${c}</button>`)}</div></div>` : g}
+    }}>${d}</button>`)}</div></div>` : g}
           ${e.freq === "MONTHLY" ? l`<div class="rrow"><span class="sub">On</span><div class="rseg" role="radiogroup" aria-label="Which day of the month">${n(gs({ ...e, every: 1, end: "never", monthBy: "date" }, t).replace("Every month on ", ""), e.monthBy === "date", () => o({ monthBy: "date" }))}${n(gs({ ...e, every: 1, end: "never", monthBy: "weekday" }, t).replace("Every month on ", ""), e.monthBy === "weekday", () => o({ monthBy: "weekday" }))}</div></div>` : g}` : g}
         ${e ? l`<div class="rrow"><span class="sub">Ends</span><div class="rseg" role="radiogroup" aria-label="When it ends">
             ${n("Never", e.end === "never", () => o({ end: "never" }), "end-never")}${n("On a date", e.end === "on", () => {
       o({ end: "on", until: e.until ?? us(X(t, 84)) });
     }, "end-on")}${n("After", e.end === "after", () => o({ end: "after", count: e.count ?? 10 }), "end-after")}</div>
-            ${e.end === "on" && d ? l`<button class="tap calbtn" data-act="end-date" aria-haspopup="dialog" @click=${() => {
-      this._shown = d, this._pickFor = "until", this._pick = !0;
-    }}>${U("calendar", 20)}<span>${d.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</span></button>` : g}
-            ${e.end === "after" ? l`${r("How many times", e.count ?? 10, 1, 99, (c) => o({ count: c }))}<span class="muted">times</span>` : g}</div>` : g}
+            ${e.end === "on" && c ? l`<button class="tap calbtn" data-act="end-date" aria-haspopup="dialog" @click=${() => {
+      this._shown = c, this._pickFor = "until", this._pick = !0;
+    }}>${U("calendar", 20)}<span>${c.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</span></button>` : g}
+            ${e.end === "after" ? l`${r("How many times", e.count ?? 10, 1, 99, (d) => o({ count: d }))}<span class="muted">times</span>` : g}</div>` : g}
         <div class="rfoot"><button class="tap lead" data-act="rep-done" @click=${() => {
       S("tap"), this._repOpen = !1;
     }}>Done</button></div>
@@ -13155,9 +13170,9 @@ const Gg = jd(cn), Yg = {
       h.setHours(this._hour24(), this._m, 0, 0), s.start_date_time = pd(h), s.end_date_time = pd(new Date(h.getTime() + this._dur * 6e4));
     }
     this._busy = !0, this._err = "";
-    const p = ++this._saveGen, d = window.setTimeout(() => {
+    const p = ++this._saveGen, c = window.setTimeout(() => {
       p !== this._saveGen || !this._busy || (this._busy = !1, this._err = "Still waiting. Try again?");
-    }, Ca.WAIT), c = () => !this.isConnected || this.hasAttribute("data-closing");
+    }, Ca.WAIT), d = () => !this.isConnected || this.hasAttribute("data-closing");
     try {
       let h = !1;
       const f = (w) => String(w).replace(" ", "T"), m = { summary: s.summary, dtstart: f(s.start_date ?? s.start_date_time), dtend: f(s.end_date ?? s.end_date_time) };
@@ -13177,46 +13192,46 @@ const Gg = jd(cn), Yg = {
           }
         }
       } else await u();
-      if (clearTimeout(d), p !== this._saveGen) return;
+      if (clearTimeout(c), p !== this._saveGen) return;
       this._busy = !0, this._err = "", this.dispatchEvent(new CustomEvent("saved", { detail: (h ? "!" : "") + e }));
     } catch {
-      if (clearTimeout(d), p !== this._saveGen) return;
-      this._err = o ? "Couldn’t change it. Try again in a moment." : "Couldn’t add it. Try again in a moment.", this._busy = !1, S("error"), c() && this.dispatchEvent(new CustomEvent("failed", { detail: this._t.trim() }));
+      if (clearTimeout(c), p !== this._saveGen) return;
+      this._err = o ? "Couldn’t change it. Try again in a moment." : "Couldn’t add it. Try again in a moment.", this._busy = !1, S("error"), d() && this.dispatchEvent(new CustomEvent("failed", { detail: this._t.trim() }));
     }
   }
   render() {
-    const t = it(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = Vn(this.calendars.map((c) => c.name ?? c.entity)), s = kt() === "phone", o = !Array.from({ length: 7 }, (c, h) => X(t, h)).some((c) => bs(c, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), p = s || this._hardKeys, d = l`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
-    return l`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? "Change this event" : "Add to the calendar"} @click=${(c) => c.stopPropagation()} @keydown=${this._onKey}>
+    const t = it(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = Vn(this.calendars.map((d) => d.name ?? d.entity)), s = kt() === "phone", o = !Array.from({ length: 7 }, (d, h) => X(t, h)).some((d) => bs(d, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), p = s || this._hardKeys, c = l`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
+    return l`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? "Change this event" : "Add to the calendar"} @click=${(d) => d.stopPropagation()} @keydown=${this._onKey}>
       <div style="display:flex;gap:12px;align-items:center">
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? "Change this event" : "Add to the calendar"}</h2>
         <span class="sum" aria-live="polite">${this._t.trim() ? n : `Add a title · ${n}`}</span>
         <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${U("close", 20)}</button></div>
       <div class="what"><input class="field ${this._in === "what" ? "on" : ""}" inputmode=${p ? "text" : "none"} aria-label="What’s on" aria-invalid=${this._err ? "true" : "false"} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => {
       this._in = "what";
-    }} @input=${(c) => {
-      this._t = c.target.value, this._err = "";
+    }} @input=${(d) => {
+      this._t = d.target.value, this._err = "";
     }}
-          @keydown=${(c) => {
-      c.key === "Enter" && this._save();
+          @keydown=${(d) => {
+      d.key === "Enter" && this._save();
     }}>
       <div class="wherebox"><span class="pin" aria-hidden="true">${U("pin", 24)}</span>
         <input class="field where ${this._in === "where" ? "on" : ""}" inputmode=${p ? "text" : "none"} aria-label="Where" placeholder="Where? (optional)" .value=${this._loc}
           @focus=${() => {
       this._in = "where";
-    }} @input=${(c) => {
-      this._loc = c.target.value, this._lookUp();
+    }} @input=${(d) => {
+      this._loc = d.target.value, this._lookUp();
     }}>
         ${r.length ? l`<div class="places" role="listbox" aria-label="Places">
-          ${r.map((c) => l`<button class="tap" role="option" aria-selected="false" @click=${() => this._choose(c)}>${c.name}${c.detail ? l`<small>${c.detail}</small>` : g}</button>`)}
+          ${r.map((d) => l`<button class="tap" role="option" aria-selected="false" @click=${() => this._choose(d)}>${d.name}${d.detail ? l`<small>${d.detail}</small>` : g}</button>`)}
           ${this._found ? l`<span class="note">Places: © OpenStreetMap contributors, found by Photon</span>` : g}
         </div>` : g}
       </div>
         <input class="field notes ${this._in === "notes" ? "on" : ""}" inputmode=${p ? "text" : "none"} aria-label="Notes" placeholder="Notes (optional)" .value=${this._notes} @focus=${() => {
       this._in = "notes";
-    }} @input=${(c) => {
-      this._notes = c.target.value;
+    }} @input=${(d) => {
+      this._notes = d.target.value;
     }}>
-        ${s ? g : d}</div>
+        ${s ? g : c}</div>
       <span class="err" role="status" aria-live="polite">${this._err}</span>
       <div class="when">
         <div class="left">
@@ -13231,16 +13246,16 @@ const Gg = jd(cn), Yg = {
       S("tap"), this._repOpen = !0;
     }}>${U("repeat", 22)}<span>${this._rule() ? this._repWords() : "Repeat"}</span></button>`}</div>
           <div class="chips days" role="group" aria-label="Which day">
-            ${Array.from({ length: 7 }, (c, h) => {
+            ${Array.from({ length: 7 }, (d, h) => {
       const f = X(t, h);
       return l`<button class="tap" aria-pressed=${String(bs(f, this._date))} @click=${() => {
         this._date = f;
       }}>${h === 0 ? "Today" : h === 1 ? "Tomorrow" : `${Si(f)} ${f.getDate()}`}</button>`;
     })}
           </div>
-          <div class="chips cals" role="group" aria-label="Whose calendar" style="--n:${this.calendars.length}">${this.calendars.map((c) => l`<button class="tap" aria-pressed=${String(e === c.entity)} @click=${() => {
-      this._cal = c.entity;
-    }}><span class="init" style="--c:${Z(c.colour)}" aria-hidden="true">${i[c.name ?? c.entity] ?? ""}</span><span class="ell">${c.name ?? c.entity}</span></button>`)}</div>
+          <div class="chips cals" role="group" aria-label="Whose calendar" style="--n:${this.calendars.length}">${this.calendars.map((d) => l`<button class="tap" aria-pressed=${String(e === d.entity)} @click=${() => {
+      this._cal = d.entity;
+    }}><span class="init" style="--c:${Y(d.colour)}" aria-hidden="true">${i[d.name ?? d.entity] ?? ""}</span><span class="ell">${d.name ?? d.entity}</span></button>`)}</div>
         </div>
         <div class="dialbox" ?data-off=${this._all} role="group" aria-label="What time">
           <div class="drums">${this._drum("h")}<span class="colon" aria-hidden="true">:</span>${this._drum("m")}</div>
@@ -13256,16 +13271,16 @@ const Gg = jd(cn), Yg = {
             <button class="tap allday" aria-pressed=${String(this._all)} @click=${() => {
       S("tap"), this._all = !this._all;
     }}>All day</button>
-            <div class="durs" role="group" aria-label="How long">${[.../* @__PURE__ */ new Set([30, 60, 90, 120, this._dur])].sort((c, h) => c - h).map((c) => l`<button class="tap" aria-pressed=${String(this._dur === c)} @click=${() => {
-      this._dur = c;
-    }}>${this._durWord(c)}</button>`)}</div>
+            <div class="durs" role="group" aria-label="How long">${[.../* @__PURE__ */ new Set([30, 60, 90, 120, this._dur])].sort((d, h) => d - h).map((d) => l`<button class="tap" aria-pressed=${String(this._dur === d)} @click=${() => {
+      this._dur = d;
+    }}>${this._durWord(d)}</button>`)}</div>
           </div>
         </div>
       </div>
-      ${va((c) => this._key(c), this._in === "where" ? !this._loc.length || /\s$/.test(this._loc) : this._in === "notes" ? !this._notes.length || /[.!?]\s$/.test(this._notes) : this._caps, () => {
+      ${ya((d) => this._key(d), this._in === "where" ? !this._loc.length || /\s$/.test(this._loc) : this._in === "notes" ? !this._notes.length || /[.!?]\s$/.test(this._notes) : this._caps, () => {
       this._caps = !this._caps;
     }, !0, !0)}
-      ${s ? l`<div class="afoot"><span class="sum">${this._t.trim() ? n : `Add a title · ${n}`}</span>${d}</div>` : g}
+      ${s ? l`<div class="afoot"><span class="sum">${this._t.trim() ? n : `Add a title · ${n}`}</span>${c}</div>` : g}
       ${this._repOpen ? this._repeatSheet() : g}
       ${this._pick ? this._monthGrid() : g}
     </div>`;
@@ -13341,14 +13356,14 @@ Ca.styles = [Ct, Ia, J`
     /* the time dial: two drums that spin, and am / pm beside them */
     .dialbox { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 22px; background: var(--chip); }
     .dialbox[data-off] .drums, .dialbox[data-off] .ampm, .dialbox[data-off] .durs { opacity: .3; pointer-events: none; }
-    .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${oa * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14); }
-    .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${oa}px; height: ${oa}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
+    .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${sa * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14); }
+    .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${sa}px; height: ${sa}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); border-radius: 10px; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${oa}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${sa}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
-    .drum::before, .drum::after { content: ''; display: block; height: ${oa}px; }
+    .drum::before, .drum::after { content: ''; display: block; height: ${sa}px; }
     .colon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
     .ampm { display: flex; flex-direction: column; gap: 6px; }
     .ampm button { width: 60px; height: 44px; border-radius: 12px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); }
@@ -13453,9 +13468,9 @@ const Eg = [
   for (let o = 0; o < i; o++) {
     const r = Math.floor(o * e), n = Math.max(r + 1, Math.min(a.length, Math.floor((o + 1) * e)));
     let p = 0;
-    for (let c = r; c < n; c++) p += a[c];
-    const d = Math.max(-1, Math.min(1, p / (n - r)));
-    s[o] = d < 0 ? d * 32768 : d * 32767;
+    for (let d = r; d < n; d++) p += a[d];
+    const c = Math.max(-1, Math.min(1, p / (n - r)));
+    s[o] = c < 0 ? c * 32768 : c * 32767;
   }
   return s;
 }, bd = (a, t) => {
@@ -13493,9 +13508,9 @@ const Eg = [
     a?.getTracks().forEach((t) => t.stop());
   } catch {
   }
-}, io = class io extends ht {
+}, io = class io extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.agent = "", this.pipeline = "", this.tts = "", this.ttsVoice = "", this._convo = !1, this._again = 0, this.helper = "Ask", this.pin = !1, this.mode = "full", this.who = "", this.minutes = 0, this._leftMin = 0, this._over = !1, this._clock = 0, this._bubbles = [], this._typed = "", this._caps = !0, this._keys = !1, this._busy = !1, this._listening = !1, this._read = !0, this._grown = !1, this._log = [], this._n = 0, this._gen = 0, this._idleT = 0, this._voice = null, this._audio = null, this._poke = () => {
+    super(...arguments), this.lookCtl = new Jt(this), this.agent = "", this.pipeline = "", this.tts = "", this.ttsVoice = "", this._convo = !1, this._again = 0, this.helper = "Ask", this.pin = !1, this.mode = "full", this.who = "", this.minutes = 0, this._leftMin = 0, this._over = !1, this._clock = 0, this._bubbles = [], this._typed = "", this._caps = !0, this._keys = !1, this._busy = !1, this._listening = !1, this._read = !0, this._grown = !1, this._log = [], this._n = 0, this._gen = 0, this._idleT = 0, this._voice = null, this._audio = null, this._poke = () => {
       clearTimeout(this._idleT), this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent("close")), ru);
     }, this._said = 0;
   }
@@ -13572,7 +13587,7 @@ const Eg = [
   }
   _speak(t, e) {
     const i = ++this._said, s = () => {
-      i === this._said && (E(t), e && (this._again = window.setTimeout(e, Math.max(1500, t.length * 75))));
+      i === this._said && (tt(t), e && (this._again = window.setTimeout(e, Math.max(1500, t.length * 75))));
     };
     if (!this.tts || !this.hass?.callApi) {
       s();
@@ -13589,7 +13604,7 @@ const Eg = [
     }, () => s());
   }
   _press(t) {
-    [this._typed, this._caps] = _e(this._typed, t, this._caps), this._typed = this._typed.slice(0, mi);
+    [this._typed, this._caps] = Fe(this._typed, t, this._caps), this._typed = this._typed.slice(0, mi);
   }
   // ---------- spoken questions: Home Assistant's Assist pipeline, speech to text → the helper → text to speech ----------
   async _talk() {
@@ -13765,7 +13780,7 @@ const Eg = [
     }}>Keyboard</button>
           <button type="submit" class="tap lead" ?disabled=${this._busy || this._over || !this._typed.trim()}>Send</button>
         </form>
-        ${this._keys ? va((r) => this._press(r), this._caps, () => {
+        ${this._keys ? ya((r) => this._press(r), this._caps, () => {
       this._caps = !this._caps;
     }, !0, !0, !0) : g}`}
       </div>
@@ -13940,7 +13955,7 @@ io.styles = [Ct, Ia, J`
 };
 let bn = io;
 customElements.get("fh-chat") || customElements.define("fh-chat", bn);
-const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, Et = (a) => {
+const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, te = (a) => {
   if (!xn.test(String(a ?? ""))) return !1;
   const [t, e] = String(a).split(":").map(Number);
   return t < 24 && e < 60;
@@ -14016,11 +14031,11 @@ const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, Et = (a) => {
   fridge: "a hand-made picture-book style, like crayon, gouache and cut paper",
   orbit: "a clean retro space-age poster style with deep blues and warm highlights",
   sports: "a bold vintage sports-poster style with warm floodlit colour"
-}, mu = (a) => a.name, gu = (a) => a.calendar ?? `calendar.${(a.id ?? a.name).toLowerCase().replace(/[^a-z0-9]+/g, "_")}`, pr = (a, t) => Ba(a, zi(t).painter) ? a?.states[Pe(t)] ? (t.kids ?? []).some((e) => e.sheet) ? "" : "No child has a character sheet yet." : "The picture list has not been made yet." : "Home Assistant has no AI Task entity that can paint pictures.", uu = (a, t) => {
-  const e = Pe(t), i = Ba(a, zi(t).painter), s = (t.kids ?? []).filter((f) => f.sheet), o = s.map((f) => ({ name: mu(f), sheet: `media-source://media_source/local/${f.sheet}`, mime: /\.png$/i.test(f.sheet ?? "") ? "image/png" : "image/jpeg", about: f.about ?? "", likes: f.likes ?? "" })), r = [.../* @__PURE__ */ new Set([...s.map(gu), ...(t.calendars ?? []).filter((f) => f.colour === "family").map((f) => f.entity)])].filter((f) => !!a?.states[f]), n = o.map((f) => f.name).join(", "), p = (f) => ({ description: f, required: !0, selector: { text: {} } }), d = {};
+}, mu = (a) => a.name, gu = (a) => a.calendar ?? `calendar.${(a.id ?? a.name).toLowerCase().replace(/[^a-z0-9]+/g, "_")}`, pr = (a, t) => Ba(a, zi(t).painter) ? a?.states[Je(t)] ? (t.kids ?? []).some((e) => e.sheet) ? "" : "No child has a character sheet yet." : "The picture list has not been made yet." : "Home Assistant has no AI Task entity that can paint pictures.", uu = (a, t) => {
+  const e = Je(t), i = Ba(a, zi(t).painter), s = (t.kids ?? []).filter((f) => f.sheet), o = s.map((f) => ({ name: mu(f), sheet: `media-source://media_source/local/${f.sheet}`, mime: /\.png$/i.test(f.sheet ?? "") ? "image/png" : "image/jpeg", about: f.about ?? "", likes: f.likes ?? "" })), r = [.../* @__PURE__ */ new Set([...s.map(gu), ...(t.calendars ?? []).filter((f) => f.colour === "family").map((f) => f.entity)])].filter((f) => !!a?.states[f]), n = o.map((f) => f.name).join(", "), p = (f) => ({ description: f, required: !0, selector: { text: {} } }), c = {};
   for (const f of [1, 2, 3])
-    d[`scene${f}`] = p(`Picture ${f}: one or two sentences describing the scene, what each boy in it is doing, and the setting. No names of real places, brands or other people.`), d[`who${f}`] = p(`Picture ${f}: the names of the boys in it, separated by commas. Only from: ${n}.`), d[`theme${f}`] = p(`Picture ${f}: its theme in two to four words.`), d[`event${f}`] = p(`Picture ${f}: the calendar event it is about, in a few words, or an empty string when it is an adventure.`);
-  const c = [
+    c[`scene${f}`] = p(`Picture ${f}: one or two sentences describing the scene, what each boy in it is doing, and the setting. No names of real places, brands or other people.`), c[`who${f}`] = p(`Picture ${f}: the names of the boys in it, separated by commas. Only from: ${n}.`), c[`theme${f}`] = p(`Picture ${f}: its theme in two to four words.`), c[`event${f}`] = p(`Picture ${f}: the calendar event it is about, in a few words, or an empty string when it is an adventure.`);
+  const d = [
     "You plan three cheerful pictures for a family’s kitchen display. They will be painted for young children to enjoy over breakfast.",
     `The boys who can appear: ${o.map((f) => `${f.name}${f.likes ? ` (likes ${f.likes})` : ""}`).join("; ")}.`,
     'Today is {{ now().strftime("%A %-d %B") }}. The weather: {{ weather }}.',
@@ -14085,7 +14100,7 @@ const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, Et = (a) => {
         events: r.length ? '{% set ns = namespace(e=[]) %}{% if cal is defined %}{% for k, v in cal.items() %}{% for e in v.events %}{% set ns.e = ns.e + [(state_attr(k, "friendly_name") or "Family") ~ ": " ~ e.summary] %}{% endfor %}{% endfor %}{% endif %}{{ ns.e[:12] }}' : "{{ [] }}",
         weather: t.weather ? `{{ states("${t.weather}") | replace("-", " ") }}, {{ state_attr("${t.weather}", "temperature") }} degrees` : "unknown"
       } },
-      { action: "ai_task.generate_data", data: { entity_id: i, task_name: "Family Hub art plan", instructions: c, structure: d }, response_variable: "plan", continue_on_error: !0 },
+      { action: "ai_task.generate_data", data: { entity_id: i, task_name: "Family Hub art plan", instructions: d, structure: c }, response_variable: "plan", continue_on_error: !0 },
       { variables: {
         scenes: '{% set pd = plan.data if (plan is defined and plan.data is defined) else {} %}{% set ns = namespace(s=[]) %}{% for n in [1, 2, 3] %}{% set who = (pd["who" ~ n] | default("")) | lower %}{% set mine = namespace(c=[]) %}{% for b in boys %}{% if b.name | lower in who %}{% set mine.c = mine.c + [b] %}{% endif %}{% endfor %}{% if not mine.c %}{% set mine.c = [boys[(now().day + n) % (boys | count)]] %}{% endif %}{% set ns.s = ns.s + [{"n": n, "scene": pd["scene" ~ n] | default("The boys are enjoying " ~ offer[n - 1] ~ "."), "theme": pd["theme" ~ n] | default(offer[n - 1]), "event": pd["event" ~ n] | default(""), "cast": mine.c}] %}{% endfor %}{{ ns.s }}'
       } },
@@ -14102,11 +14117,11 @@ const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, Et = (a) => {
     ]
   };
 }, Hc = async (a, t, e) => {
-  const i = Pe(t);
+  const i = Je(t);
   if (!a?.states[i]) return null;
   const s = zi(t), o = JSON.stringify({ cap: s.cap ?? H.cap, cost: s.cost ?? H.cost, style: s.style === "house" ? "house" : e });
   try {
-    const r = (await a.callWS({ type: "todo/item/list", entity_id: i })).items ?? [], n = r.find((d) => d.summary === "_settings"), p = r.find((d) => d.summary === "_status");
+    const r = (await a.callWS({ type: "todo/item/list", entity_id: i })).items ?? [], n = r.find((c) => c.summary === "_settings"), p = r.find((c) => c.summary === "_status");
     a.user?.is_admin && (n ? (n.description ?? "") !== o && await a.callService("todo", "update_item", { item: n.uid, description: o }, { entity_id: i }) : await a.callService("todo", "add_item", { item: "_settings", description: o }, { entity_id: i }), p || await a.callService("todo", "add_item", { item: "_status", description: "{}" }, { entity_id: i }));
     try {
       return JSON.parse(p?.description || "{}");
@@ -14119,8 +14134,8 @@ const xn = /^\d{1,2}:\d{2}(:\d{2})?$/, Et = (a) => {
 }, Na = 48, Ta = 36, bu = 500, Ec = (a = 5) => 0.08 * Math.pow(0.05, (Math.max(1, Math.min(10, a)) - 1) / 9), xu = (a, t, e = Na, i = Ta, s = 10) => {
   const o = Math.min(e / 2 - 1, Math.round(e * Math.max(0, s) / 100)), r = Math.min(i / 2 - 1, Math.round(i * Math.max(0, s) / 100));
   let n = 0, p = 0;
-  for (let d = r; d < i - r; d++) for (let c = o; c < e - o; c++) {
-    const h = d * e + c;
+  for (let c = r; c < i - r; c++) for (let d = o; d < e - o; d++) {
+    const h = c * e + d;
     p++, Math.abs(a[h] - t[h]) > 22 && n++;
   }
   return p ? n / p : 0;
@@ -14214,7 +14229,7 @@ class wn extends Error {
     super(t), this.why = t;
   }
 }
-const oh = async (a) => dt(a.callWS({ type: "lovelace/config", url_path: uo(a), force: !1 })), rh = (a, t) => {
+const oh = async (a) => ct(a.callWS({ type: "lovelace/config", url_path: uo(a), force: !1 })), rh = (a, t) => {
   if (!a || typeof a != "object" || !Array.isArray(a.views)) throw new wn("nocard");
   const e = vu(a), i = e.find((s) => Fs(s.card, t));
   if (i) return { ...i, stale: !1 };
@@ -14239,7 +14254,7 @@ const oh = async (a) => dt(a.callWS({ type: "lovelace/config", url_path: uo(a), 
   const o = await oh(a), r = rh(o, t);
   if (r.stale) throw new sh(r.card);
   const n = kn(o, r.path, e);
-  n[ah] = { saved: (/* @__PURE__ */ new Date()).toISOString(), note: "The Family Hub card as it was before the last change made in its Settings (without the PIN). Safe to delete.", card: Hn(t) }, await dt(a.callWS({ type: "lovelace/config/save", url_path: uo(a), config: n })), qu(t, i);
+  n[ah] = { saved: (/* @__PURE__ */ new Date()).toISOString(), note: "The Family Hub card as it was before the last change made in its Settings (without the PIN). Safe to delete.", card: Hn(t) }, await ct(a.callWS({ type: "lovelace/config/save", url_path: uo(a), config: n })), qu(t, i);
 }, yn = () => {
   try {
     const a = JSON.parse(localStorage.getItem(ih) || "[]");
@@ -14275,41 +14290,41 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   const [t, e] = String(a ?? "").split(":").map(Number);
   return (t || 0) * 60 + (e || 0);
 }, _u = (a) => {
-  const t = [], e = (c, h) => {
-    t.push({ pane: c, msg: h });
+  const t = [], e = (d, h) => {
+    t.push({ pane: d, msg: h });
   }, i = /* @__PURE__ */ new Set();
-  (a.kids ?? []).forEach((c, h) => {
-    const f = (c.name ?? "").trim();
-    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${h + 1} needs a name.`), i.add(f.toLowerCase()), c.bedtime !== void 0 && !Et(c.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), c.leave_by !== void 0 && !Et(c.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (c.rewards ?? []).forEach((m) => {
+  (a.kids ?? []).forEach((d, h) => {
+    const f = (d.name ?? "").trim();
+    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${h + 1} needs a name.`), i.add(f.toLowerCase()), d.bedtime !== void 0 && !te(d.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), d.leave_by !== void 0 && !te(d.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (d.rewards ?? []).forEach((m) => {
       (m.name ?? "").trim() || e("rewards", `One of ${f}’s rewards has no name.`), (!Number.isFinite(m.cost) || m.cost < 0) && e("rewards", `“${m.name}” needs a cost of 0 or more.`);
-    }), (c.rewards_draft ?? []).forEach((m) => {
+    }), (d.rewards_draft ?? []).forEach((m) => {
       (m.name ?? "").trim() || e("rewards", `One of ${f}’s drafted rewards has no name.`), (!Number.isFinite(m.cost) || m.cost < 0) && e("rewards", `“${m.name}” needs a cost of 0 or more.`);
     });
   });
   const s = a.art;
   s?.presence === "sensor" && !s.presence_entity && e("pictures", "Choose the sensor that tells the panel someone is there, or go back to touch only.");
   const o = a.morning ?? {};
-  for (const [c, h] of [["start", o.start], ["end", o.end], ["leaving time", o.leave_by]]) h !== void 0 && !Et(h) && e("morning", `The morning board’s ${c} is not a time. Use one like 06:30.`);
-  Et(o.start ?? "06:30") && Et(o.end ?? "08:45") && xs(o.end ?? "08:45") <= xs(o.start ?? "06:30") && e("morning", "The morning board has to end after it starts.");
-  for (const [c, h] of a.school_terms ?? []) (!c || !h || c > h) && e("morning", "A school term needs a first day and a later last day.");
+  for (const [d, h] of [["start", o.start], ["end", o.end], ["leaving time", o.leave_by]]) h !== void 0 && !te(h) && e("morning", `The morning board’s ${d} is not a time. Use one like 06:30.`);
+  te(o.start ?? "06:30") && te(o.end ?? "08:45") && xs(o.end ?? "08:45") <= xs(o.start ?? "06:30") && e("morning", "The morning board has to end after it starts.");
+  for (const [d, h] of a.school_terms ?? []) (!d || !h || d > h) && e("morning", "A school term needs a first day and a later last day.");
   const r = /* @__PURE__ */ new Set();
-  for (const c of a.meds ?? [])
-    (c.label ?? "").trim() || e("medicines", "Every medicine needs a name."), Et(c.time) || e("medicines", `${c.label || "A medicine"} needs a time like 06:30.`), /^[a-z0-9_]+$/.test(c.id ?? "") ? r.has(c.id) && e("medicines", "Two medicines share an id.") : e("medicines", `${c.label || "A medicine"} has an id Home Assistant cannot use.`), r.add(c.id);
+  for (const d of a.meds ?? [])
+    (d.label ?? "").trim() || e("medicines", "Every medicine needs a name."), te(d.time) || e("medicines", `${d.label || "A medicine"} needs a time like 06:30.`), /^[a-z0-9_]+$/.test(d.id ?? "") ? r.has(d.id) && e("medicines", "Two medicines share an id.") : e("medicines", `${d.label || "A medicine"} has an id Home Assistant cannot use.`), r.add(d.id);
   a.parent_pin !== void 0 && !Bs(a.parent_pin) && e("pin", "A PIN is 4 to 8 digits.");
   const n = a.night;
-  n && (!Et(n.start) || !Et(n.end) ? e("house", "The night screen needs times like 21:00.") : xs(n.start) === xs(n.end) && e("house", "The night screen cannot start and end at the same time."));
+  n && (!te(n.start) || !te(n.end) ? e("house", "The night screen needs times like 21:00.") : xs(n.start) === xs(n.end) && e("house", "The night screen cannot start and end at the same time."));
   const p = a.quiet;
   if (p)
-    for (const c of [p.start, p.end]) c !== void 0 && !Et(c) && e("house", "Quiet hours need times like 20:00.");
-  a.bins && !(Number.isInteger(a.bins.day) && a.bins.day >= 0 && a.bins.day <= 6) && e("house", "Bin night needs a day of the week."), (a.music_moments ?? []).forEach((c) => {
-    (c.name ?? "").trim() ? !(c.find ?? "").trim() && !(c.uri ?? "").trim() && e("music", `“${c.name}” needs something to play.`) : e("music", "Every moment needs a name.");
+    for (const d of [p.start, p.end]) d !== void 0 && !te(d) && e("house", "Quiet hours need times like 20:00.");
+  a.bins && !(Number.isInteger(a.bins.day) && a.bins.day >= 0 && a.bins.day <= 6) && e("house", "Bin night needs a day of the week."), (a.music_moments ?? []).forEach((d) => {
+    (d.name ?? "").trim() ? !(d.find ?? "").trim() && !(d.uri ?? "").trim() && e("music", `“${d.name}” needs something to play.`) : e("music", "Every moment needs a name.");
   });
-  for (const c of a.babysitter?.contacts ?? []) (!(c.name ?? "").trim() || !(c.phone ?? "").trim()) && e("people", "Every contact needs a name and a number.");
-  const d = Xn(a);
-  return d && !t.length && e("advanced", d.replace(/^Family Hub: /, "")), t;
+  for (const d of a.babysitter?.contacts ?? []) (!(d.name ?? "").trim() || !(d.phone ?? "").trim()) && e("people", "Every contact needs a name and a number.");
+  const c = Xn(a);
+  return c && !t.length && e("advanced", c.replace(/^Family Hub: /, "")), t;
 }, ph = /(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:️|‍\p{Extended_Pictographic}|\p{Emoji_Modifier})*/u, Ru = new RegExp(`^\\s*(${ph.source})\\s+(?=\\S)`, "u"), Ud = (a) => {
-  const t = a.description ?? "", e = Ru.exec(a.summary), i = /@icon[:=]\s*(\S+)/.exec(t), s = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), o = s ? Number(s[1]) : 0, r = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || o ? "job" : "routine", n = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", p = e ? a.summary.slice(e[0].length) : a.summary, d = /(\d+)\s*min/i.exec(p), c = /(\d+)\s*min\w*/i.exec(t), h = t.replace(/\+\d+/, "").replace(/^\s*\d+\s*$/, "").replace(/@(grow|routine|job|am|after|bed)\b/g, "").replace(/@icon[:=]\s*\S+/, "").replace(/@song\b(?![:=])/, "").replace(d ? /$^/ : /\d+\s*min\w*/i, "").replace(/\s+/g, " ").trim();
-  return { name: p, lane: r, slot: n, pts: r === "grow" ? 0 : o, minutes: Number((d ?? c)?.[1] ?? 0), pic: i?.[1] ?? e?.[1] ?? "", song: /@song/.test(t), rest: h };
+  const t = a.description ?? "", e = Ru.exec(a.summary), i = /@icon[:=]\s*(\S+)/.exec(t), s = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), o = s ? Number(s[1]) : 0, r = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || o ? "job" : "routine", n = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", p = e ? a.summary.slice(e[0].length) : a.summary, c = /(\d+)\s*min/i.exec(p), d = /(\d+)\s*min\w*/i.exec(t), h = t.replace(/\+\d+/, "").replace(/^\s*\d+\s*$/, "").replace(/@(grow|routine|job|am|after|bed)\b/g, "").replace(/@icon[:=]\s*\S+/, "").replace(/@song\b(?![:=])/, "").replace(c ? /$^/ : /\d+\s*min\w*/i, "").replace(/\s+/g, " ").trim();
+  return { name: p, lane: r, slot: n, pts: r === "grow" ? 0 : o, minutes: Number((c ?? d)?.[1] ?? 0), pic: i?.[1] ?? e?.[1] ?? "", song: /@song/.test(t), rest: h };
 }, Vu = (a) => {
   let t = a.name.trim().replace(/\s+/g, " ");
   const e = /(\d+)\s*min\w*/i.exec(t);
@@ -14332,10 +14347,10 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   { id: "music", name: "Music", sub: "Moments, the sleep timer and calls", ic: "music" },
   { id: "people", name: "People and safety", sub: "Parents, the babysitter page and alerts", ic: "info" },
   { id: "advanced", name: "Advanced", sub: "What is wired up, and earlier versions", ic: "cog" }
-], Tu = b`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`, qd = (a, t = 22) => a === "kid" ? l`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${Tu}</svg>` : U(a, t), zu = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], Wu = [["mon", "Mon"], ["tue", "Tue"], ["wed", "Wed"], ["thu", "Thu"], ["fri", "Fri"]], Ad = { green: "#2e9e4f", yellow: "#f2c230", red: "#d93a3a", blue: "#2f7fd6", purple: "#8b5cf6" }, ra = 44, cr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], pa = (a) => String(a).padStart(2, "0"), ui = (a) => {
-  if (!Et(a)) return a ? String(a) : "Not set";
+], Tu = b`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`, qd = (a, t = 22) => a === "kid" ? l`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${Tu}</svg>` : U(a, t), zu = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], Wu = [["mon", "Mon"], ["tue", "Tue"], ["wed", "Wed"], ["thu", "Thu"], ["fri", "Fri"]], Ad = { green: "#2e9e4f", yellow: "#f2c230", red: "#d93a3a", blue: "#2f7fd6", purple: "#8b5cf6" }, oa = 44, cr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], la = (a) => String(a).padStart(2, "0"), ui = (a) => {
+  if (!te(a)) return a ? String(a) : "Not set";
   const [t, e] = String(a).split(":").map(Number);
-  return `${t % 12 || 12}:${pa(e)} ${t < 12 ? "am" : "pm"}`;
+  return `${t % 12 || 12}:${la(e)} ${t < 12 ? "am" : "pm"}`;
 }, Md = (a) => {
   const t = new Date(a), e = /* @__PURE__ */ new Date();
   return `${t.toDateString() === e.toDateString() ? "Today" : t.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" })}, ${t.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" }).toLowerCase()}`;
@@ -14372,9 +14387,9 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   nocard: ["This card could not be found in the dashboard", "Settings saves into the dashboard that shows the card, and no Family Hub card was found there (a dashboard that builds itself, or a card kept somewhere else). Change the card where it is written."],
   many: ["There is more than one Family Hub card here", "This dashboard has several Family Hub cards and Settings cannot tell which one this is. Change the card in the dashboard editor."],
   offline: ["Home Assistant did not answer", "The dashboard could not be read, so nothing can be saved for now. Close Settings and try again in a moment."]
-}, so = class so extends ht {
+}, so = class so extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new It(this), this.forceKeys = !1, this._pane = "children", this._access = null, this._busy = "", this._err = "", this._ask = null, this._kid = 0, this._ktab = "about", this._rwLive = -1, this._time = null, this._kb = "", this._caps = !0, this._lists = {}, this._job = null, this._pin = { cur: "", next: "", again: "" }, this._find = "", this._tick = 0, this._sure = "", this._hist = [], this._open = -1, this._fields = /* @__PURE__ */ new Map(), this._spin = {}, this._closed = !1, this._noteT = 0, this._from = null, this._checking = !1, this._keys = (t) => {
+    super(...arguments), this.lookCtl = new Jt(this), this.forceKeys = !1, this._pane = "children", this._access = null, this._busy = "", this._err = "", this._ask = null, this._kid = 0, this._ktab = "about", this._rwLive = -1, this._time = null, this._kb = "", this._caps = !0, this._lists = {}, this._job = null, this._pin = { cur: "", next: "", again: "" }, this._find = "", this._tick = 0, this._sure = "", this._hist = [], this._open = -1, this._fields = /* @__PURE__ */ new Map(), this._spin = {}, this._closed = !1, this._noteT = 0, this._from = null, this._checking = !1, this._keys = (t) => {
       if (!t.ctrlKey && !t.metaKey && !t.altKey && this._awake(), t.key === "Escape")
         t.preventDefault(), t.stopPropagation(), this._time ? this._time = null : this._kb ? this._kb = "" : this._ask ? this._ask = null : this._job ? this._job = null : this._close();
       else if (t.key === "Tab") {
@@ -14413,7 +14428,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       for (const [s, o, r] of [["h", cr, e % 12 || 12], ["m", this._mins(i), i]]) {
         const n = this.renderRoot.querySelector(`.drum[data-d='${s}']`);
         if (!n || this._spin[s]) continue;
-        const p = o.indexOf(r) * ra;
+        const p = o.indexOf(r) * oa;
         Math.abs(n.scrollTop - p) > 1 && n.scrollTo({ top: p, behavior: n.dataset.set ? "smooth" : "auto" }), n.dataset.set = "1";
       }
     }
@@ -14511,7 +14526,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
         const n = (t.kids ?? [])[r];
         if (!n) return;
         const p = JSON.parse(i.getItem(s(n.name)) || "{}");
-        for (const [d, c] of [["look_id", "look"], ["font", "font"], ["calm", "calm"], ["sound_level", "sound"], ["focus", "focus"]]) n[d] !== o[d] && delete p[c];
+        for (const [c, d] of [["look_id", "look"], ["font", "font"], ["calm", "calm"], ["sound_level", "sound"], ["focus", "focus"]]) n[c] !== o[c] && delete p[d];
         n.name !== o.name && i.removeItem(s(n.name)), Object.keys(p).length ? i.setItem(s(o.name), JSON.stringify(p)) : i.removeItem(s(o.name));
       });
     } catch {
@@ -14556,13 +14571,13 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       @focus=${() => {
       r && (this._kb = t, this._caps = !i.length);
     }} @input=${(n) => {
-      const p = n.target, d = o.digits ? p.value.replace(/\D/g, "") : o.pic ? $u(p.value) : p.value;
-      d !== p.value && (p.value = d), s(d);
+      const p = n.target, c = o.digits ? p.value.replace(/\D/g, "") : o.pic ? $u(p.value) : p.value;
+      c !== p.value && (p.value = c), s(c);
     }}>`;
   }
   _tm(t, e, i, s = "") {
     const o = e() ?? s;
-    return l`<button class="stime tap" aria-haspopup="dialog" aria-label=${`${t}: ${ui(o)}. Change`} aria-invalid=${o && !Et(o) ? "true" : "false"} @click=${() => {
+    return l`<button class="stime tap" aria-haspopup="dialog" aria-label=${`${t}: ${ui(o)}. Change`} aria-invalid=${o && !te(o) ? "true" : "false"} @click=${() => {
       this._kb = "", this._time = { title: t, get: () => e() ?? s, set: i };
     }}>${ui(o)}</button>`;
   }
@@ -14575,11 +14590,11 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     }}>${r}</button>`)}</div>`;
   }
   _step(t, e, i, s = {}) {
-    const o = s.min ?? 0, r = s.max ?? 999, n = s.step ?? 1, p = (c) => {
-      const h = Math.max(o, Math.min(r, e + c));
+    const o = s.min ?? 0, r = s.max ?? 999, n = s.step ?? 1, p = (d) => {
+      const h = Math.max(o, Math.min(r, e + d));
       h !== e && (S("step"), i(h));
-    }, d = s.say ? s.say(e) : `${e}${s.unit ? ` ${s.unit}` : ""}`;
-    return l`<span class="sstep" role="group" aria-label=${t}><button class="tap" data-hush aria-label=${`${t}: less`} ?disabled=${e <= o} @click=${() => p(-n)}>−</button><output aria-live="polite">${d}</output><button class="tap" data-hush aria-label=${`${t}: more`} ?disabled=${e >= r} @click=${() => p(n)}>+</button></span>`;
+    }, c = s.say ? s.say(e) : `${e}${s.unit ? ` ${s.unit}` : ""}`;
+    return l`<span class="sstep" role="group" aria-label=${t}><button class="tap" data-hush aria-label=${`${t}: less`} ?disabled=${e <= o} @click=${() => p(-n)}>−</button><output aria-live="polite">${c}</output><button class="tap" data-hush aria-label=${`${t}: more`} ?disabled=${e >= r} @click=${() => p(n)}>+</button></span>`;
   }
   _range(t, e, i) {
     return l`<span class="srange"><input type="range" min="0" max="100" step="5" aria-label=${t} aria-valuetext=${`${e} per cent`} .value=${String(e)} @input=${(s) => {
@@ -14595,7 +14610,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   }
   /** A short list of words (names, things to bring): each can be changed or removed, and one more added. */
   _strs(t, e, i, s, o = "") {
-    return l`${i.map((r, n) => l`<div class="sitem">${this._txt(`${t}.${n}`, `${e} ${n + 1}`, r, (p) => s(i.map((d, c) => c === n ? p : d)), { cls: "sgrow" })}${this._del(`Remove ${r || e}`, () => s(i.filter((p, d) => d !== n)))}</div>`)}
+    return l`${i.map((r, n) => l`<div class="sitem">${this._txt(`${t}.${n}`, `${e} ${n + 1}`, r, (p) => s(i.map((c, d) => d === n ? p : c)), { cls: "sgrow" })}${this._del(`Remove ${r || e}`, () => s(i.filter((p, c) => c !== n)))}</div>`)}
       <div><button class="pill tap" @click=${() => {
       s([...i, ""]), this._focusSoon(`${t}.${i.length}`);
     }}>${U("plus", 18)}Add ${e}</button></div>`;
@@ -14607,13 +14622,13 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     const e = this._draft.kids ?? [];
     return l`<div class="schips" role="group" aria-label=${t}>${e.map((i, s) => l`<button class="tap" aria-pressed=${String(this._kid === s)} @click=${() => {
       this._kid = s, this._job = null;
-    }}><i class="sw6" style="background:${Z(i.colour)}" aria-hidden="true"></i>${i.name || `Child ${s + 1}`}</button>`)}</div>`;
+    }}><i class="sw6" style="background:${Y(i.colour)}" aria-hidden="true"></i>${i.name || `Child ${s + 1}`}</button>`)}</div>`;
   }
   _name(t) {
     return this.hass?.states[t]?.attributes.friendly_name ?? t;
   }
   _hmOf() {
-    const t = this._time?.get() ?? "", [e, i] = Et(t) ? t.split(":").map(Number) : [7, 0];
+    const t = this._time?.get() ?? "", [e, i] = te(t) ? t.split(":").map(Number) : [7, 0];
     return [e, i];
   }
   _mins(t) {
@@ -14622,7 +14637,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   }
   _setTime(t, e) {
     const [i, s] = this._hmOf();
-    t === i && e === s || (S("step"), this._time?.set(`${pa(t)}:${pa(e)}`), this.requestUpdate());
+    t === i && e === s || (S("step"), this._time?.set(`${la(t)}:${la(e)}`), this.requestUpdate());
   }
   _drumTo(t, e) {
     const [i, s] = this._hmOf(), o = i >= 12;
@@ -14636,11 +14651,11 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   }
   _drum(t) {
     const [e, i] = this._hmOf(), s = t === "h" ? cr : this._mins(i), o = t === "h" ? e % 12 || 12 : i, r = s.indexOf(o);
-    return l`<div class="drum" data-d=${t} tabindex="0" role="spinbutton" aria-label=${t === "h" ? "Hour" : "Minutes"} aria-valuenow=${o} aria-valuetext=${t === "h" ? `${o} ${e < 12 ? "am" : "pm"}` : `${pa(o)} minutes`} aria-valuemin=${s[0]} aria-valuemax=${s[s.length - 1]}
+    return l`<div class="drum" data-d=${t} tabindex="0" role="spinbutton" aria-label=${t === "h" ? "Hour" : "Minutes"} aria-valuenow=${o} aria-valuetext=${t === "h" ? `${o} ${e < 12 ? "am" : "pm"}` : `${la(o)} minutes`} aria-valuemin=${s[0]} aria-valuemax=${s[s.length - 1]}
       @scroll=${(n) => {
       const p = n.currentTarget;
       Date.now() - this._setAt < 600 || (clearTimeout(this._spin[t]), this._spin[t] = window.setTimeout(() => {
-        this._spin[t] = 0, this._drumTo(t, Math.round(p.scrollTop / ra));
+        this._spin[t] = 0, this._drumTo(t, Math.round(p.scrollTop / oa));
       }, 90));
     }}
       @keydown=${(n) => {
@@ -14649,7 +14664,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     }}>
       ${s.map((n, p) => l`<i ?data-on=${n === o} @click=${() => {
       this._setAt = Date.now(), this._drumTo(t, p);
-    }}>${t === "h" ? n : pa(n)}</i>`)}</div>`;
+    }}>${t === "h" ? n : la(n)}</i>`)}</div>`;
   }
   _dial() {
     const t = this._time, [e, i] = this._hmOf(), s = e >= 12;
@@ -14666,7 +14681,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       </div>`;
   }
   _wantLists() {
-    const t = (this._draft?.kids ?? [])[this._kid], i = t && (this._pane === "children" && this._ktab === "jobs" || this._pane === "morning") ? tt(this.config.kids?.[this._kid] ?? t).chores : "";
+    const t = (this._draft?.kids ?? [])[this._kid], i = t && (this._pane === "children" && this._ktab === "jobs" || this._pane === "morning") ? E(this.config.kids?.[this._kid] ?? t).chores : "";
     i && i !== this._listFor ? (this._listFor = i, this._loadList(i)) : i || (this._listFor = "");
   }
   async _loadList(t) {
@@ -14675,7 +14690,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       return;
     }
     try {
-      const e = await dt(this.hass.callWS({ type: "todo/item/list", entity_id: t }));
+      const e = await ct(this.hass.callWS({ type: "todo/item/list", entity_id: t }));
       this._lists = { ...this._lists, [t]: (e.items ?? []).filter((i) => i && typeof i.summary == "string") };
     } catch {
       this._lists = { ...this._lists, [t]: "fail" };
@@ -14685,7 +14700,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     if (this._busy) return !1;
     this._busy = "job";
     try {
-      return await dt(e()), await this._loadList(t), this._busy = "", dr(null), this._say(i), s ? (this._jobUndo = s, this._jobUndoId = t) : this._jobUndo = null, !0;
+      return await ct(e()), await this._loadList(t), this._busy = "", dr(null), this._say(i), s ? (this._jobUndo = s, this._jobUndoId = t) : this._jobUndo = null, !0;
     } catch (o) {
       return this._busy = "", this._say(o instanceof Wt ? `${St} The list was not changed.` : "That did not save: Home Assistant did not answer. The list was not changed.", { bad: !0 }), !1;
     }
@@ -14705,28 +14720,28 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     await this._jobCall(t, () => i.callService("todo", "remove_item", { item: e.uid }, { entity_id: t }), `Removed: ${e.summary}.`, () => i.callService("todo", "add_item", { item: e.summary, description: e.description ?? "" }, { entity_id: t })) && (this._job = null);
   }
   async _moveJob(t, e, i, s) {
-    const o = this.hass, r = e[i].uid, n = e.filter((d, c) => c !== i);
+    const o = this.hass, r = e[i].uid, n = e.filter((c, d) => d !== i);
     n.splice(s, 0, e[i]);
     const p = n[s - 1]?.uid;
     await this._jobCall(t, () => o.callWS({ type: "todo/item/move", entity_id: t, uid: r, ...p ? { previous_uid: p } : {} }), "Moved.");
   }
   /** The job list of the child being edited. `only` keeps it to one part of the day (the Morning pane shows the morning routine). */
   _jobs(t, e) {
-    const i = tt(this.config.kids?.[this._kid] ?? t).chores, s = this._lists[i], o = this.hass?.states[i];
+    const i = E(this.config.kids?.[this._kid] ?? t).chores, s = this._lists[i], o = this.hass?.states[i];
     if (s === "fail") return l`<div class="snote ro" role="note"><span><b>${t.name}’s job list could not be read.</b> Home Assistant has ${o ? "not answered for" : "no to-do list called"} <code>${i}</code>. ${o ? "Try again in a moment." : "Make a to-do list with that name in Home Assistant (Settings, Devices and services, Helpers, To-do list), then come back."}</span></div>`;
     if (!s) return l`<span class="shint" role="status">Reading ${t.name}’s list…</span>`;
-    const r = Number(o?.attributes.supported_features ?? 0), n = (r & 8) === 8 && !e, p = this._ro, d = kt() === "phone", c = [["am", "Morning"], ["after", "After school"], ["bed", "Bedtime"], ["any", "Any time"]], h = { routine: "Routine", job: "Job", grow: "Practice" }, f = (k) => {
+    const r = Number(o?.attributes.supported_features ?? 0), n = (r & 8) === 8 && !e, p = this._ro, c = kt() === "phone", d = [["am", "Morning"], ["after", "After school"], ["bed", "Bedtime"], ["any", "Any time"]], h = { routine: "Routine", job: "Job", grow: "Practice" }, f = (k) => {
       const v = k.form, K = (y) => {
         this._job = { ...k, form: { ...v, ...y } };
       };
       return l`<div class="sform" role="group" aria-label=${k.uid ? `Change ${v.name}` : "New job"}>
         ${this._row("Name", "", l`${this._txt("job.pic", "Picture (an emoji)", v.pic, (y) => K({ pic: y }), { cls: "pic", ph: "🙂", pic: !0, max: 16 })}${this._txt("job.name", "Job name", v.name, (y) => K({ name: y }), { ph: "e.g. Feed the fish" })}`, !0)}
         ${this._row("Kind", v.lane === "routine" ? "Part of the day’s routine." : v.lane === "job" ? "Earns points." : "Practice: earns a growth mark, not points.", this._seg("Kind", v.lane, [["routine", "Routine"], ["job", "Job"], ["grow", "Practice"]], (y) => K({ lane: y })))}
-        ${e ? g : this._row("When", "", this._seg("When", v.slot, c, (y) => K({ slot: y })))}
+        ${e ? g : this._row("When", "", this._seg("When", v.slot, d, (y) => K({ slot: y })))}
         ${v.lane === "grow" ? g : this._row("Points", "", this._step("Points", v.pts, (y) => K({ pts: y }), { max: 500, step: 5 }))}
         ${this._row("Timer", "A timed job shows a start button.", this._step("Timer minutes", v.minutes, (y) => K({ minutes: y, song: y ? v.song : !1 }), { max: 120, step: 5, say: (y) => y ? `${y} min` : "None" }))}
         ${v.minutes ? this._row("Music while the timer runs", "The music stops when time is up.", this._sw("Music while the timer runs", v.song, () => K({ song: !v.song }))) : g}
-        ${k.uid && n && d ? (() => {
+        ${k.uid && n && c ? (() => {
         const y = s, q = y.findIndex((N) => N.uid === k.uid);
         return l`<div class="sbtns" style="justify-content:flex-start"><button class="pill tap" ?disabled=${q <= 0 || !!this._busy} @click=${() => void this._moveJob(i, y, q, q - 1)}>Move up</button><button class="pill tap" ?disabled=${q >= y.length - 1 || !!this._busy} @click=${() => void this._moveJob(i, y, q, q + 1)}>Move down</button></div>`;
       })() : g}
@@ -14745,10 +14760,10 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       }}>
         <span class="spic" aria-hidden="true">${K.pic || "•"}</span><span class="sname sgrow">${K.name}</span>
         ${K.minutes ? l`<span class="stag">${K.minutes} min${K.song ? " ♪" : ""}</span>` : g}<span class="stag">${h[K.lane]}</span>${K.pts ? l`<span class="stag">+${K.pts}</span>` : g}</button>
-        ${n && !p && !d ? this._move(K.name, v, s.length, (y) => void this._moveJob(i, s, v, y)) : g}</div>`;
+        ${n && !p && !c ? this._move(K.name, v, s.length, (y) => void this._moveJob(i, s, v, y)) : g}</div>`;
     }, u = s.map((k, v) => ({ c: k, i: v, f: Ud(k) })), w = e ? u.filter((k) => k.f.slot === e) : u, x = this._job && this._job.uid === null && this._job.entity === i ? f(this._job) : g;
     return l`<div class="sjobs">
-      ${e ? w.map((k) => m(k.c, k.i)) : c.map(([k, v]) => {
+      ${e ? w.map((k) => m(k.c, k.i)) : d.map(([k, v]) => {
       const K = w.filter((y) => y.f.slot === k);
       return K.length ? l`<span class="label">${v}</span>${K.map((y) => m(y.c, y.i))}` : g;
     })}
@@ -14767,64 +14782,64 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   _children() {
     const t = this._draft, e = t.kids ?? [], i = e[this._kid];
     if (!i) return l`<p class="sintro">There are no children on this panel yet. A child needs helpers in Home Assistant (a job list and points), so the first one is added in YAML. See the README.</p>`;
-    const s = this._kid, o = (d) => this._edit((c) => d(c.kids[s])), r = this.config.kids?.[s], n = !!r && r.name !== i.name, p = l`
+    const s = this._kid, o = (c) => this._edit((d) => c(d.kids[s])), r = this.config.kids?.[s], n = !!r && r.name !== i.name, p = l`
       <div class="scard"><h3>About ${i.name || "this child"}</h3>
-        ${this._row("Name", n ? `Jobs, points and history stay with the helpers made for ${r.name}. Calendars, medicines and bedrooms that name ${r.name} are renamed too.` : "", this._txt(`kid.${s}.name`, "Name", i.name, (d) => this._rename(s, d), { max: 24 }), !0)}
-        ${this._row("Colour", "Used for this child everywhere on the panel.", l`<div class="schips" role="group" aria-label="Colour">${[1, 2, 3, 4, 5].map((d) => l`<button class="tap" aria-pressed=${String(i.colour === d)} aria-label=${`Colour ${d}`} @click=${() => o((c) => {
-      c.colour = d;
-    })}><i class="sw6" style="background:${Z(d)};width:24px;height:24px" aria-hidden="true"></i></button>`)}</div>`)}
-        ${this._row("Reading", "Pictures suits a child who cannot read yet: big pictures, stars and read-aloud.", this._seg("Reading", i.mode ?? "mixed", [["picture", "Pictures"], ["mixed", "Both"], ["text", "Words"]], (d) => o((c) => {
-      c.mode = d;
+        ${this._row("Name", n ? `Jobs, points and history stay with the helpers made for ${r.name}. Calendars, medicines and bedrooms that name ${r.name} are renamed too.` : "", this._txt(`kid.${s}.name`, "Name", i.name, (c) => this._rename(s, c), { max: 24 }), !0)}
+        ${this._row("Colour", "Used for this child everywhere on the panel.", l`<div class="schips" role="group" aria-label="Colour">${[1, 2, 3, 4, 5].map((c) => l`<button class="tap" aria-pressed=${String(i.colour === c)} aria-label=${`Colour ${c}`} @click=${() => o((d) => {
+      d.colour = c;
+    })}><i class="sw6" style="background:${Y(c)};width:24px;height:24px" aria-hidden="true"></i></button>`)}</div>`)}
+        ${this._row("Reading", "Pictures suits a child who cannot read yet: big pictures, stars and read-aloud.", this._seg("Reading", i.mode ?? "mixed", [["picture", "Pictures"], ["mixed", "Both"], ["text", "Words"]], (c) => o((d) => {
+      d.mode = c;
     })))}
-        ${(i.mode ?? "mixed") === "picture" ? this._row("Points for one star", "Stars are shown instead of numbers.", this._step("Points for one star", i.star ?? 10, (d) => o((c) => {
-      c.star = d;
+        ${(i.mode ?? "mixed") === "picture" ? this._row("Points for one star", "Stars are shown instead of numbers.", this._step("Points for one star", i.star ?? 10, (c) => o((d) => {
+      d.star = c;
     }), { min: 1, max: 100, step: 1 })) : g}
-        ${this._row("Character size", "How tall the character on the page is drawn.", this._seg("Character size", i.age ?? "mid", [["kid", "Little"], ["mid", "Middle"], ["teen", "Big"]], (d) => o((c) => {
-      c.age = d;
+        ${this._row("Character size", "How tall the character on the page is drawn.", this._seg("Character size", i.age ?? "mid", [["kid", "Little"], ["mid", "Middle"], ["teen", "Big"]], (c) => o((d) => {
+      d.age = c;
     })))}
       </div>
       <div class="scard"><h3>Bedtime</h3>
-        ${this._row("School nights", "Wind-down starts an hour before; music in the bedroom goes quiet at bedtime.", this._tm(`${i.name}’s bedtime`, () => this._draft.kids?.[s]?.bedtime, (d) => o((c) => {
-      c.bedtime = d;
+        ${this._row("School nights", "Wind-down starts an hour before; music in the bedroom goes quiet at bedtime.", this._tm(`${i.name}’s bedtime`, () => this._draft.kids?.[s]?.bedtime, (c) => o((d) => {
+      d.bedtime = c;
     }), "20:00"))}
-        ${this._row("Friday and Saturday nights", "How much later bedtime is. This is the same for every child.", this._step("Later on Friday and Saturday", t.bedtime_weekend_extra ?? 30, (d) => this._edit((c) => {
-      c.bedtime_weekend_extra = d;
-    }), { max: 120, step: 15, say: (d) => d ? `+${d} min` : "Same time" }))}
+        ${this._row("Friday and Saturday nights", "How much later bedtime is. This is the same for every child.", this._step("Later on Friday and Saturday", t.bedtime_weekend_extra ?? 30, (c) => this._edit((d) => {
+      d.bedtime_weekend_extra = c;
+    }), { max: 120, step: 15, say: (c) => c ? `+${c} min` : "Same time" }))}
       </div>
       <div class="scard"><h3>${i.name}’s page <span class="muted">what it starts with</span></h3>
-        ${this._row("Look", "", l`<div class="schips" role="group" aria-label="Look">${[["", "Same as the panel"], ...Ie.map((d) => [d.id, d.name])].map(([d, c]) => l`<button class="tap" aria-pressed=${String((i.look_id ?? "") === d)} @click=${() => o((h) => {
-      d ? h.look_id = d : delete h.look_id;
-    })}>${c}</button>`)}</div>`)}
-        ${this._row("Calm mode", "No looping motion or tilted cards.", this._sw("Calm mode", i.calm ?? !0, () => o((d) => {
-      d.calm = !(d.calm ?? !0);
+        ${this._row("Look", "", l`<div class="schips" role="group" aria-label="Look">${[["", "Same as the panel"], ...De.map((c) => [c.id, c.name])].map(([c, d]) => l`<button class="tap" aria-pressed=${String((i.look_id ?? "") === c)} @click=${() => o((h) => {
+      c ? h.look_id = c : delete h.look_id;
+    })}>${d}</button>`)}</div>`)}
+        ${this._row("Calm mode", "No looping motion or tilted cards.", this._sw("Calm mode", i.calm ?? !0, () => o((c) => {
+      c.calm = !(c.calm ?? !0);
     })))}
-        ${this._row("Sounds", "Timers and alarms always sound.", this._seg("Sounds", i.sound_level ?? "full", [["off", "Off"], ["soft", "Soft"], ["full", "On"]], (d) => o((c) => {
-      c.sound_level = d;
+        ${this._row("Sounds", "Timers and alarms always sound.", this._seg("Sounds", i.sound_level ?? "full", [["off", "Off"], ["soft", "Soft"], ["full", "On"]], (c) => o((d) => {
+      d.sound_level = c;
     })))}
-        ${this._row("One job at a time", "Shows Now and Next, with “Show all” one tap away. Off shows the whole list.", this._sw("One job at a time", i.focus ?? !0, () => o((d) => {
-      d.focus = !(d.focus ?? !0);
+        ${this._row("One job at a time", "Shows Now and Next, with “Show all” one tap away. Off shows the whole list.", this._sw("One job at a time", i.focus ?? !0, () => o((c) => {
+      c.focus = !(c.focus ?? !0);
     })))}
-        ${this._row("Older mode", "A plainer page for an older child: no rank names or pictures on his jobs, his week first, and a private “Ask for a chat” in place of the feelings faces.", this._sw("Older mode", !!i.older, () => o((d) => {
-      d.older ? delete d.older : d.older = !0;
+        ${this._row("Older mode", "A plainer page for an older child: no rank names or pictures on his jobs, his week first, and a private “Ask for a chat” in place of the feelings faces.", this._sw("Older mode", !!i.older, () => o((c) => {
+      c.older ? delete c.older : c.older = !0;
     })))}
-        ${this._row("Time together", "A promise shown on the page, never for sale. Leave empty for none.", this._txt(`kid.${s}.special`, "Time together", i.special_time ?? "", (d) => o((c) => {
-      d ? c.special_time = d : delete c.special_time;
+        ${this._row("Time together", "A promise shown on the page, never for sale. Leave empty for none.", this._txt(`kid.${s}.special`, "Time together", i.special_time ?? "", (c) => o((d) => {
+      c ? d.special_time = c : delete d.special_time;
     }), { ph: "e.g. Sat 10:00 with Dad" }), !0)}
         <span class="shint">${i.name} can still change his own character in the style studio, without the PIN. Saving here also resets these four choices on this screen.</span>
       </div>
       <div class="scard" data-card="ask"><h3>Ask <span class="muted">the AI helper</span></h3>
-        ${this._row("What Ask is for " + (i.name || "this child"), "Pictures only: six things to tap, no typing and no talking. Full: typing, talking and the pictures.", this._seg("Ask", Oe(i).mode, [["off", "Off"], ["pictures", "Pictures only"], ["full", "Full"]], (d) => o((c) => {
-      c.ask = d;
+        ${this._row("What Ask is for " + (i.name || "this child"), "Pictures only: six things to tap, no typing and no talking. Full: typing, talking and the pictures.", this._seg("Ask", Be(i).mode, [["off", "Off"], ["pictures", "Pictures only"], ["full", "Full"]], (c) => o((d) => {
+      d.ask = c;
     })))}
-        ${Oe(i).mode === "off" ? g : this._row("Ask time a day", "Counted while his Ask is open, on this screen. When it runs out, Ask says so kindly and waits for tomorrow.", this._step("Ask time a day", Oe(i).minutes, (d) => o((c) => {
-      c.ask_minutes = d;
-    }), { max: 120, step: 5, say: (d) => d ? `${d} min` : "No limit" }))}
+        ${Be(i).mode === "off" ? g : this._row("Ask time a day", "Counted while his Ask is open, on this screen. When it runs out, Ask says so kindly and waits for tomorrow.", this._step("Ask time a day", Be(i).minutes, (c) => o((d) => {
+      d.ask_minutes = c;
+    }), { max: 120, step: 5, say: (c) => c ? `${c} min` : "No limit" }))}
         <span class="shint">${As(t.kids) ? "Ask is set by child: opened from a shared page, it first asks who is asking. A grown-up gets in with the PIN." : "Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a grown-up gets in with the PIN."}</span>
       </div>`;
     return l`<p class="sintro">One child at a time. Pick who, then change what you need.</p>
       ${this._kidChips("Which child")}
-      ${this._seg("Part", this._ktab, [["about", "About"], ["jobs", "Jobs and routines"]], (d) => {
-      this._ktab = d, this._job = null;
+      ${this._seg("Part", this._ktab, [["about", "About"], ["jobs", "Jobs and routines"]], (c) => {
+      this._ktab = c, this._job = null;
     })}
       ${this._ktab === "about" ? p : l`<div class="scard"><h3>${i.name}’s jobs and routines</h3>${this._jobs(i)}</div>`}`;
   }
@@ -14838,13 +14853,13 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
         for (const p of i.meds ?? []) p.who === o && (p.who = e);
         for (const p of i.people ?? []) p.name === o && (p.name = e);
         for (const p of i.calendars ?? []) p.name === o && (p.name = e);
-        for (const p of i.music_map ?? []) for (const d of p.rooms ?? []) d.kids && (d.kids = d.kids.map((c) => c === o ? e : c));
+        for (const p of i.music_map ?? []) for (const c of p.rooms ?? []) c.kids && (c.kids = c.kids.map((d) => d === o ? e : d));
         for (const p of i.bring_rules ?? []) p.kid === o && (p.kid = e);
       }
     });
   }
   _rewards() {
-    const t = this._draft, e = t.kids ?? [], i = e[this._kid], s = this._kid, o = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], r = !!i?.rewards_draft, n = r && this._rwLive !== s, p = n ? "rewards_draft" : "rewards", d = i?.[p], c = (f) => this._edit((m) => {
+    const t = this._draft, e = t.kids ?? [], i = e[this._kid], s = this._kid, o = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], r = !!i?.rewards_draft, n = r && this._rwLive !== s, p = n ? "rewards_draft" : "rewards", c = i?.[p], d = (f) => this._edit((m) => {
       const u = m.kids[s];
       u[p] = u[p] ?? ge(o), f(u[p]);
     }), h = t.jar ?? {};
@@ -14867,33 +14882,33 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       }), this._rwLive = -1;
     }}>Discard the draft</button></div>
       </div>` : g}
-      <div class="scard" data-list=${n ? "draft" : "live"}><h3>${i.name}’s ${n ? "drafted rewards" : "rewards"} ${d ? g : l`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
-        ${(d ?? o).map((f, m, u) => l`<div class="sitem" data-reward=${m}>
-          ${this._txt(`rw.${s}.${m}.icon`, `Picture for ${f.name || "this reward"} (an emoji)`, f.icon ?? "", (w) => c((x) => {
+      <div class="scard" data-list=${n ? "draft" : "live"}><h3>${i.name}’s ${n ? "drafted rewards" : "rewards"} ${c ? g : l`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
+        ${(c ?? o).map((f, m, u) => l`<div class="sitem" data-reward=${m}>
+          ${this._txt(`rw.${s}.${m}.icon`, `Picture for ${f.name || "this reward"} (an emoji)`, f.icon ?? "", (w) => d((x) => {
       w ? x[m].icon = w : delete x[m].icon;
     }), { cls: "pic", ph: "🎁", pic: !0, max: 16 })}
-          ${this._txt(`rw.${s}.${m}.name`, `Reward ${m + 1} name`, f.name, (w) => c((x) => {
+          ${this._txt(`rw.${s}.${m}.name`, `Reward ${m + 1} name`, f.name, (w) => d((x) => {
       x[m].name = w;
     }), { cls: "sgrow sfull2", ph: "Name of the reward", bad: !f.name.trim() })}
-          ${this._step(`Cost of ${f.name || "this reward"}`, f.cost, (w) => c((x) => {
+          ${this._step(`Cost of ${f.name || "this reward"}`, f.cost, (w) => d((x) => {
       x[m].cost = w;
     }), { max: 5e3, step: 5, unit: "pts" })}
-          <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a grown-up’s PIN`} @click=${() => c((w) => {
+          <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a grown-up’s PIN`} @click=${() => d((w) => {
       w[m].approve = !(w[m].approve ?? w[m].cost >= 60);
     })}><span class="sbox2" aria-hidden="true">${f.approve ?? f.cost >= 60 ? U("check", 16) : g}</span>Needs PIN</button>
-            <button class="tap" data-act="weekly" aria-pressed=${String(!!f.weekly)} aria-label=${`${f.name || "This reward"} can be had once a week`} @click=${() => c((w) => {
+            <button class="tap" data-act="weekly" aria-pressed=${String(!!f.weekly)} aria-label=${`${f.name || "This reward"} can be had once a week`} @click=${() => d((w) => {
       w[m].weekly ? delete w[m].weekly : w[m].weekly = 1;
     })}><span class="sbox2" aria-hidden="true">${f.weekly ? U("check", 16) : g}</span>${f.weekly && f.weekly > 1 ? `${f.weekly} a week` : "Once a week"}</button></span>
-          ${this._move(f.name || "reward", m, u.length, (w) => c((x) => {
+          ${this._move(f.name || "reward", m, u.length, (w) => d((x) => {
       const [k] = x.splice(m, 1);
       x.splice(w, 0, k);
     }))}
-          ${this._del(`Remove ${f.name || "this reward"}`, () => c((w) => {
+          ${this._del(`Remove ${f.name || "this reward"}`, () => d((w) => {
       w.splice(m, 1);
     }))}</div>`)}
         <div><button class="pill tap" data-act="reward-add" @click=${() => {
-      const f = (d ?? o).length;
-      c((m) => {
+      const f = (c ?? o).length;
+      d((m) => {
         m.push({ name: "", cost: 50 });
       }), this._focusSoon(`rw.${s}.${f}.name`);
     }}>${U("plus", 18)}Add a reward</button></div>
@@ -14909,73 +14924,73 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       </div>`;
   }
   _morning() {
-    const t = this._draft, e = t.morning ?? {}, i = t.kids ?? [], s = i[this._kid], o = this._kid, r = (c) => this._edit((h) => {
-      h.morning = h.morning ?? {}, c(h.morning);
-    }), n = t.school_terms ?? [], p = t.public_holidays ?? [], d = (c, h, f, m) => l`<input class="sin" type="date" data-f=${c} aria-label=${h} .value=${f} @input=${(u) => m(u.target.value)}>`;
+    const t = this._draft, e = t.morning ?? {}, i = t.kids ?? [], s = i[this._kid], o = this._kid, r = (d) => this._edit((h) => {
+      h.morning = h.morning ?? {}, d(h.morning);
+    }), n = t.school_terms ?? [], p = t.public_holidays ?? [], c = (d, h, f, m) => l`<input class="sin" type="date" data-f=${d} aria-label=${h} .value=${f} @input=${(u) => m(u.target.value)}>`;
     return l`<p class="sintro">The “Out the door” board takes over the panel on school mornings.</p>
       <div class="scard"><h3>School mornings</h3>
-        ${this._row("The board shows from", "", l`${this._tm("Morning board starts", () => this._draft.morning?.start, (c) => r((h) => {
-      h.start = c;
-    }), "06:30")}<span class="muted">to</span>${this._tm("Morning board ends", () => this._draft.morning?.end, (c) => r((h) => {
-      h.end = c;
+        ${this._row("The board shows from", "", l`${this._tm("Morning board starts", () => this._draft.morning?.start, (d) => r((h) => {
+      h.start = d;
+    }), "06:30")}<span class="muted">to</span>${this._tm("Morning board ends", () => this._draft.morning?.end, (d) => r((h) => {
+      h.end = d;
     }), "08:45")}`)}
-        ${this._row("Everyone leaves at", "Unless a child has his own time below.", this._tm("Leaving time", () => this._draft.morning?.leave_by, (c) => r((h) => {
-      h.leave_by = c;
+        ${this._row("Everyone leaves at", "Unless a child has his own time below.", this._tm("Leaving time", () => this._draft.morning?.leave_by, (d) => r((h) => {
+      h.leave_by = d;
     }), "08:15"))}
-        ${this._row("Travel time", "Leave this long before a child’s first morning event.", this._step("Travel time", e.travel ?? 15, (c) => r((h) => {
-      h.travel = c;
+        ${this._row("Travel time", "Leave this long before a child’s first morning event.", this._step("Travel time", e.travel ?? 15, (d) => r((h) => {
+      h.travel = d;
     }), { max: 90, step: 5, unit: "min" }))}
       </div>
       ${s ? l`<div class="scard"><h3>One child’s morning</h3>
         ${this._kidChips("Whose morning")}
-        ${this._row(`${s.name} leaves at`, "", l`<div class="schips"><button class="tap" aria-pressed=${String(!s.leave_by)} @click=${() => this._edit((c) => {
-      delete c.kids[o].leave_by;
+        ${this._row(`${s.name} leaves at`, "", l`<div class="schips"><button class="tap" aria-pressed=${String(!s.leave_by)} @click=${() => this._edit((d) => {
+      delete d.kids[o].leave_by;
     })}>With everyone (${ui(e.leave_by ?? "08:15")})</button></div>
-          ${this._tm(`${s.name} leaves at`, () => this._draft.kids?.[o]?.leave_by, (c) => this._edit((h) => {
-      h.kids[o].leave_by = c;
+          ${this._tm(`${s.name} leaves at`, () => this._draft.kids?.[o]?.leave_by, (d) => this._edit((h) => {
+      h.kids[o].leave_by = d;
     }), e.leave_by ?? "08:15")}`)}
         <span class="label">Morning routine</span>
         ${this._jobs(s, "am")}
         <span class="label">Things to bring, by day</span>
-        ${Wu.map(([c, h]) => {
-      const f = s.bring?.[c] ?? [];
-      return this._row(h, "", l`${f.map((m, u) => l`<span class="sitem" style="border:0;padding:0;min-height:0">${this._txt(`bring.${o}.${c}.${u}`, `${h}: thing ${u + 1}`, m, (w) => this._edit((x) => {
-        x.kids[o].bring[c][u] = w;
+        ${Wu.map(([d, h]) => {
+      const f = s.bring?.[d] ?? [];
+      return this._row(h, "", l`${f.map((m, u) => l`<span class="sitem" style="border:0;padding:0;min-height:0">${this._txt(`bring.${o}.${d}.${u}`, `${h}: thing ${u + 1}`, m, (w) => this._edit((x) => {
+        x.kids[o].bring[d][u] = w;
       }), { cls: "sgrow", ph: "e.g. Library bag" })}${this._del(`Remove ${m || "this"}`, () => this._edit((w) => {
         const x = w.kids[o].bring;
-        x[c].splice(u, 1), x[c].length || delete x[c], Object.keys(x).length || delete w.kids[o].bring;
+        x[d].splice(u, 1), x[d].length || delete x[d], Object.keys(x).length || delete w.kids[o].bring;
       }))}</span>`)}
             <button class="pill tap" aria-label=${`Add something to bring on ${h}`} @click=${() => {
         this._edit((m) => {
           const u = m.kids[o];
-          u.bring = u.bring ?? {}, (u.bring[c] = u.bring[c] ?? []).push("");
-        }), this._focusSoon(`bring.${o}.${c}.${f.length}`);
+          u.bring = u.bring ?? {}, (u.bring[d] = u.bring[d] ?? []).push("");
+        }), this._focusSoon(`bring.${o}.${d}.${f.length}`);
       }}>${U("plus", 18)}Add</button>`, !0);
     })}
       </div>` : g}
       <div class="scard"><h3>School days</h3>
         <span class="shint">School days are Monday to Friday inside a term, except public holidays. With no terms listed, every weekday counts.</span>
-        ${n.map(([c, h], f) => l`<div class="sitem"><span class="sname">Term ${f + 1}</span><span class="sgrow"></span>${d(`term.${f}.a`, `Term ${f + 1} first day`, c, (m) => this._edit((u) => {
+        ${n.map(([d, h], f) => l`<div class="sitem"><span class="sname">Term ${f + 1}</span><span class="sgrow"></span>${c(`term.${f}.a`, `Term ${f + 1} first day`, d, (m) => this._edit((u) => {
       u.school_terms[f][0] = m;
-    }))}<span class="muted">to</span>${d(`term.${f}.b`, `Term ${f + 1} last day`, h, (m) => this._edit((u) => {
+    }))}<span class="muted">to</span>${c(`term.${f}.b`, `Term ${f + 1} last day`, h, (m) => this._edit((u) => {
       u.school_terms[f][1] = m;
     }))}
           ${this._del(`Remove term ${f + 1}`, () => this._edit((m) => {
       m.school_terms.splice(f, 1), m.school_terms.length || delete m.school_terms;
     }))}</div>`)}
-        <div><button class="pill tap" @click=${() => this._edit((c) => {
+        <div><button class="pill tap" @click=${() => this._edit((d) => {
       const h = (/* @__PURE__ */ new Date()).getFullYear();
-      (c.school_terms = c.school_terms ?? []).push([`${h}-02-01`, `${h}-04-10`]);
+      (d.school_terms = d.school_terms ?? []).push([`${h}-02-01`, `${h}-04-10`]);
     })}>${U("plus", 18)}Add a term</button></div>
         <span class="label">Public holidays and days off for everyone</span>
-        ${p.map((c, h) => l`<div class="sitem"><span class="sgrow"></span>${d(`hol.${h}`, `Holiday ${h + 1}`, c, (f) => this._edit((m) => {
+        ${p.map((d, h) => l`<div class="sitem"><span class="sgrow"></span>${c(`hol.${h}`, `Holiday ${h + 1}`, d, (f) => this._edit((m) => {
       m.public_holidays[h] = f;
     }))}${this._del("Remove this holiday", () => this._edit((f) => {
       f.public_holidays.splice(h, 1), f.public_holidays.length || delete f.public_holidays;
     }))}</div>`)}
-        <div><button class="pill tap" @click=${() => this._edit((c) => {
+        <div><button class="pill tap" @click=${() => this._edit((d) => {
       const h = /* @__PURE__ */ new Date();
-      (c.public_holidays = c.public_holidays ?? []).push(`${h.getFullYear()}-${pa(h.getMonth() + 1)}-${pa(h.getDate())}`);
+      (d.public_holidays = d.public_holidays ?? []).push(`${h.getFullYear()}-${la(h.getMonth() + 1)}-${la(h.getDate())}`);
     })}>${U("plus", 18)}Add a holiday</button></div>
       </div>`;
   }
@@ -14988,11 +15003,11 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     this._busy = `mk:${t.id}`;
     try {
       if (!s[e]) {
-        const o = await dt(this.hass.callWS({ type: "input_datetime/create", name: `fh_med_${t.id}`, has_date: !0, has_time: !0, icon: "mdi:pill" }));
+        const o = await ct(this.hass.callWS({ type: "input_datetime/create", name: `fh_med_${t.id}`, has_date: !0, has_time: !0, icon: "mdi:pill" }));
         if (o?.id && o.id !== `fh_med_${t.id}`) throw new Error("name taken");
       }
       if (!s[i]) {
-        const o = await dt(this.hass.callWS({ type: "input_text/create", name: `fh_med_${t.id}_by`, max: 100, icon: "mdi:account-check" }));
+        const o = await ct(this.hass.callWS({ type: "input_text/create", name: `fh_med_${t.id}_by`, max: 100, icon: "mdi:account-check" }));
         if (o?.id && o.id !== `fh_med_${t.id}_by`) throw new Error("name taken");
       }
       this._say(`Made the helpers for ${t.label}. It can be recorded now.`);
@@ -15002,25 +15017,25 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     this._busy = "";
   }
   _medicines() {
-    const t = this._draft, e = t.meds ?? [], i = t.kids ?? [], s = t.med_extras ?? ["Paracetamol", "Ibuprofen"], o = this.hass?.states ?? {}, r = (p) => this._edit((d) => {
-      p(d.meds = d.meds ?? []);
+    const t = this._draft, e = t.meds ?? [], i = t.kids ?? [], s = t.med_extras ?? ["Paracetamol", "Ibuprofen"], o = this.hass?.states ?? {}, r = (p) => this._edit((c) => {
+      p(c.meds = c.meds ?? []);
     }), n = new Set((this.config.meds ?? []).map((p) => p.id));
     return l`<p class="sintro">The medication sheet shows each of these when it is due and records who gave it. A medicine here is only a name and a time of day: amounts are never kept on the panel.</p>
       <div class="scard"><h3>Daily medicines</h3>
-        ${e.map((p, d) => {
-      const [c, h] = this._helpers(p), f = [c, h].filter((u) => !o[u]), m = !n.has(p.id);
-      return l`<div class="sitem" data-med=${d} style="align-items:flex-start">
+        ${e.map((p, c) => {
+      const [d, h] = this._helpers(p), f = [d, h].filter((u) => !o[u]), m = !n.has(p.id);
+      return l`<div class="sitem" data-med=${c} style="align-items:flex-start">
             <div class="sgrow" style="display:flex;flex-direction:column;gap:8px">
-              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${d}.label`, `Medicine ${d + 1} name`, p.label, (u) => r((w) => {
-        w[d].label = u;
+              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${c}.label`, `Medicine ${c + 1} name`, p.label, (u) => r((w) => {
+        w[c].label = u;
       }), { cls: "sgrow sfull", ph: "Name shown on the panel", bad: !p.label.trim() })}
-                ${this._tm(`Time for ${p.label || "this medicine"}`, () => this._draft.meds?.[d]?.time, (u) => r((w) => {
-        w[d].time = u;
+                ${this._tm(`Time for ${p.label || "this medicine"}`, () => this._draft.meds?.[c]?.time, (u) => r((w) => {
+        w[c].time = u;
       }), "07:00")}${this._del(`Remove ${p.label || "this medicine"}`, () => r((u) => {
-        u.splice(d, 1);
+        u.splice(c, 1);
       }))}</div>
               <div class="schips" role="group" aria-label=${`Who ${p.label || "this medicine"} is for`}>${[...i.map((u) => u.name), ""].map((u) => l`<button class="tap" aria-pressed=${String((p.who ?? "") === u)} @click=${() => r((w) => {
-        u ? w[d].who = u : delete w[d].who;
+        u ? w[c].who = u : delete w[c].who;
       })}>${u || "Anyone"}</button>`)}</div>
               ${m ? l`<span class="shint" role="note">New. After you save, it needs two helpers in Home Assistant before it can be recorded; Settings will offer to make them.</span>` : f.length ? l`<div class="snote" role="note"><span><b>Not ready yet.</b> Home Assistant needs ${f.length === 2 ? "two helpers" : "one more helper"} for this medicine, or it cannot be recorded:</span>
                   ${f.map((u) => l`<span><code>${u}</code> ${u.startsWith("input_datetime") ? "(a date and time helper)" : "(a text helper)"}</span>`)}
@@ -15030,15 +15045,15 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
         ${e.length ? g : l`<span class="shint">No daily medicines yet.</span>`}
         <div><button class="pill tap" data-act="med-add" @click=${() => {
       const p = i[0]?.name ?? "";
-      r((d) => {
-        d.push({ id: Nu(p, `med ${d.length + 1}`, d.map((c) => c.id)), label: "", time: "07:00", ...p ? { who: p } : {} });
+      r((c) => {
+        c.push({ id: Nu(p, `med ${c.length + 1}`, c.map((d) => d.id)), label: "", time: "07:00", ...p ? { who: p } : {} });
       }), this._focusSoon(`med.${e.length}.label`);
     }}>${U("plus", 18)}Add a medicine</button></div>
       </div>
       <div class="scard"><h3>Something else given</h3>
         <span class="shint">The names offered when a grown-up records another medicine. Names only.</span>
-        ${this._strs("extra", "medicine name", s, (p) => this._edit((d) => {
-      d.med_extras = p;
+        ${this._strs("extra", "medicine name", s, (p) => this._edit((c) => {
+      c.med_extras = p;
     }))}
       </div>`;
   }
@@ -15069,9 +15084,9 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
   }
   /** Pick things Home Assistant knows about, by their own names. */
   _picker(t, e, i, s, o) {
-    const r = this.hass?.states ?? {}, n = this.hass?.entities ?? {}, p = this.hass?.areas ?? {}, d = this._find.trim().toLowerCase(), c = Object.keys(r).filter((m) => s.includes(m.split(".")[0]) && !n[m]?.hidden).map((m) => ({ id: m, name: this._name(m), area: p[n[m]?.area_id ?? ""]?.name ?? "" }));
-    for (const m of i) r[m] || c.push({ id: m, name: m, area: "Not found in Home Assistant" });
-    const h = (m) => i.includes(m), f = c.filter((m) => !d || `${m.name} ${m.area} ${m.id} ${m.id.replace(/[._]/g, " ")}`.toLowerCase().includes(d)).sort((m, u) => Number(h(u.id)) - Number(h(m.id)) || m.name.localeCompare(u.name));
+    const r = this.hass?.states ?? {}, n = this.hass?.entities ?? {}, p = this.hass?.areas ?? {}, c = this._find.trim().toLowerCase(), d = Object.keys(r).filter((m) => s.includes(m.split(".")[0]) && !n[m]?.hidden).map((m) => ({ id: m, name: this._name(m), area: p[n[m]?.area_id ?? ""]?.name ?? "" }));
+    for (const m of i) r[m] || d.push({ id: m, name: m, area: "Not found in Home Assistant" });
+    const h = (m) => i.includes(m), f = d.filter((m) => !c || `${m.name} ${m.area} ${m.id} ${m.id.replace(/[._]/g, " ")}`.toLowerCase().includes(c)).sort((m, u) => Number(h(u.id)) - Number(h(m.id)) || m.name.localeCompare(u.name));
     return l`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${U("search", 22)}</span>${this._txt(`${t}.find`, `Search ${e}`, this._find, (m) => {
       this._find = m;
     }, { cls: "sgrow", ph: `Search ${e}` })}<span class="stag" role="status">${i.length} chosen</span></div>
@@ -15079,88 +15094,88 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       ${f.length ? g : l`<span class="shint">Nothing matches “${this._find}”.</span>`}`;
   }
   _house() {
-    const t = this._draft, e = t.night, i = t.quiet ?? {}, s = t.bins, o = t.look ?? "glass", r = (d) => this._edit((c) => {
-      c.bins = c.bins ?? { day: 1 }, d(c.bins);
-    }), n = [...new Set([...Object.keys(Ad), ...s?.always ?? [], ...s?.alternate ?? []].map((d) => d.toLowerCase()))], p = (d, c, h) => l`<div class="schips" role="group" aria-label=${d}>${n.map((f) => l`<button class="tap" aria-pressed=${String(c.map((m) => m.toLowerCase()).includes(f))} @click=${() => h(c.map((m) => m.toLowerCase()).includes(f) ? c.filter((m) => m.toLowerCase() !== f) : [...c, f])}><i class="sw6" style="background:${Ad[f] ?? "var(--ink2)"}" aria-hidden="true"></i>${f[0].toUpperCase() + f.slice(1)}</button>`)}</div>`;
+    const t = this._draft, e = t.night, i = t.quiet ?? {}, s = t.bins, o = t.look ?? "glass", r = (c) => this._edit((d) => {
+      d.bins = d.bins ?? { day: 1 }, c(d.bins);
+    }), n = [...new Set([...Object.keys(Ad), ...s?.always ?? [], ...s?.alternate ?? []].map((c) => c.toLowerCase()))], p = (c, d, h) => l`<div class="schips" role="group" aria-label=${c}>${n.map((f) => l`<button class="tap" aria-pressed=${String(d.map((m) => m.toLowerCase()).includes(f))} @click=${() => h(d.map((m) => m.toLowerCase()).includes(f) ? d.filter((m) => m.toLowerCase() !== f) : [...d, f])}><i class="sw6" style="background:${Ad[f] ?? "var(--ink2)"}" aria-hidden="true"></i>${f[0].toUpperCase() + f.slice(1)}</button>`)}</div>`;
     return l`
       <div class="scard"><h3>${U("moon", 20)}Night</h3>
-        ${this._row("Night screen", "The panel goes dark between these times, and wakes for ten minutes when touched.", l`${this._sw("Night screen", !!e, () => this._edit((d) => {
-      d.night ? delete d.night : d.night = { start: "21:00", end: "06:00" };
+        ${this._row("Night screen", "The panel goes dark between these times, and wakes for ten minutes when touched.", l`${this._sw("Night screen", !!e, () => this._edit((c) => {
+      c.night ? delete c.night : c.night = { start: "21:00", end: "06:00" };
     }))}
-          ${e ? l`${this._tm("Night screen starts", () => this._draft.night?.start, (d) => this._edit((c) => {
-      c.night.start = d;
-    }))}<span class="muted">to</span>${this._tm("Night screen ends", () => this._draft.night?.end, (d) => this._edit((c) => {
-      c.night.end = d;
+          ${e ? l`${this._tm("Night screen starts", () => this._draft.night?.start, (c) => this._edit((d) => {
+      d.night.start = c;
+    }))}<span class="muted">to</span>${this._tm("Night screen ends", () => this._draft.night?.end, (c) => this._edit((d) => {
+      d.night.end = c;
     }))}` : g}`)}
-        ${this._row("Quiet hours", "The lights and Ask count as “after bedtime”.", l`${this._tm("Quiet hours start", () => this._draft.quiet?.start, (d) => this._edit((c) => {
-      c.quiet = { ...c.quiet ?? {}, start: d };
-    }), "20:00")}<span class="muted">to</span>${this._tm("Quiet hours end", () => this._draft.quiet?.end, (d) => this._edit((c) => {
-      c.quiet = { ...c.quiet ?? {}, end: d };
+        ${this._row("Quiet hours", "The lights and Ask count as “after bedtime”.", l`${this._tm("Quiet hours start", () => this._draft.quiet?.start, (c) => this._edit((d) => {
+      d.quiet = { ...d.quiet ?? {}, start: c };
+    }), "20:00")}<span class="muted">to</span>${this._tm("Quiet hours end", () => this._draft.quiet?.end, (c) => this._edit((d) => {
+      d.quiet = { ...d.quiet ?? {}, end: c };
     }), "06:30")}`)}
         <span class="shint">${i.start || i.end ? "" : "Quiet hours are 8:00 pm to 6:30 am until you change them."}</span>
-        ${this._row("Silent in quiet hours", "Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.", this._sw("Silent in quiet hours", i.mute === !0, () => this._edit((d) => {
-      const c = d.quiet?.mute === !0;
-      d.quiet = { ...d.quiet ?? {} }, c ? delete d.quiet.mute : d.quiet.mute = !0, Object.keys(d.quiet).length || delete d.quiet;
+        ${this._row("Silent in quiet hours", "Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.", this._sw("Silent in quiet hours", i.mute === !0, () => this._edit((c) => {
+      const d = c.quiet?.mute === !0;
+      c.quiet = { ...c.quiet ?? {} }, d ? delete c.quiet.mute : c.quiet.mute = !0, Object.keys(c.quiet).length || delete c.quiet;
     })))}
       </div>
       <div class="scard"><h3>${U("bin", 20)}Bin night</h3>
-        ${this._row("Bins go out", "Shown on the planner the evening before collection.", this._sw("Show bin night", !!s, () => this._edit((d) => {
-      d.bins ? delete d.bins : d.bins = { day: 1, always: ["green"], alternate: ["yellow", "red"] };
+        ${this._row("Bins go out", "Shown on the planner the evening before collection.", this._sw("Show bin night", !!s, () => this._edit((c) => {
+      c.bins ? delete c.bins : c.bins = { day: 1, always: ["green"], alternate: ["yellow", "red"] };
     })))}
         ${s ? l`
-          ${this._row("Collection day", "", l`<div class="schips" role="group" aria-label="Collection day">${zu.map((d, c) => l`<button class="tap" aria-pressed=${String(s.day === c)} @click=${() => r((h) => {
-      h.day = c;
-    })}>${d.slice(0, 3)}</button>`)}</div>`)}
-          ${this._row("Every week", "", p("Bins every week", s.always ?? [], (d) => r((c) => {
-      c.always = d;
+          ${this._row("Collection day", "", l`<div class="schips" role="group" aria-label="Collection day">${zu.map((c, d) => l`<button class="tap" aria-pressed=${String(s.day === d)} @click=${() => r((h) => {
+      h.day = d;
+    })}>${c.slice(0, 3)}</button>`)}</div>`)}
+          ${this._row("Every week", "", p("Bins every week", s.always ?? [], (c) => r((d) => {
+      d.always = c;
     })))}
-          ${this._row("Taking turns", (s.alternate ?? []).length > 1 ? `In this order: ${(s.alternate ?? []).join(", then ")}.` : "Bins that go out week about.", p("Bins taking turns", s.alternate ?? [], (d) => r((c) => {
-      c.alternate = d;
+          ${this._row("Taking turns", (s.alternate ?? []).length > 1 ? `In this order: ${(s.alternate ?? []).join(", then ")}.` : "Bins that go out week about.", p("Bins taking turns", s.alternate ?? [], (c) => r((d) => {
+      d.alternate = c;
     })))}
-          ${(s.alternate ?? []).length > 1 ? this._row(`A week the ${s.alternate[0]} bin went out`, "Any collection day it went out on: the turns are counted from there.", l`<input class="sin" type="date" aria-label="A collection day the first bin went out" .value=${s.anchor ?? ""} @input=${(d) => r((c) => {
-      c.anchor = d.target.value;
+          ${(s.alternate ?? []).length > 1 ? this._row(`A week the ${s.alternate[0]} bin went out`, "Any collection day it went out on: the turns are counted from there.", l`<input class="sin" type="date" aria-label="A collection day the first bin went out" .value=${s.anchor ?? ""} @input=${(c) => r((d) => {
+      d.anchor = c.target.value;
     })}>`) : g}` : g}
       </div>
       <div class="scard"><h3>${U("bulbOff", 20)}All off leaves these on</h3>
         <span class="shint">A night light or a fish tank that “All off” on the dock should never switch off.</span>
-        ${this._picker("keep", "lights and switches", t.keep_on ?? [], ["light", "switch"], (d) => this._edit((c) => {
-      d.length ? c.keep_on = d : delete c.keep_on;
+        ${this._picker("keep", "lights and switches", t.keep_on ?? [], ["light", "switch"], (c) => this._edit((d) => {
+      c.length ? d.keep_on = c : delete d.keep_on;
     }))}
       </div>
       <div class="scard"><h3>${U("palette", 20)}Look and feel <span class="muted">what a screen starts with</span></h3>
-        ${this._row("Look", "", l`<div class="schips" role="group" aria-label="Look">${Ie.map((d) => l`<button class="tap" aria-pressed=${String(o === d.id)} @click=${() => this._edit((c) => {
-      c.look = d.id;
-    })}>${d.name}</button>`)}</div>`)}
-        ${Ie.find((d) => d.id === o)?.themed ? this._row("Background", "", l`<div class="schips" role="group" aria-label="Background">${Ga.map((d) => l`<button class="tap" aria-pressed=${String((t.theme ?? "sea") === d.id)} @click=${() => this._edit((c) => {
-      c.theme = d.id;
-    })}>${d.name}</button>`)}</div>`) : g}
-        ${this._row("Touch sounds", "Timers and alarms always sound.", this._seg("Touch sounds", t.sounds === !1 ? "off" : t.sounds === "quiet" ? "soft" : "on", [["off", "Off"], ["soft", "Soft"], ["on", "On"]], (d) => this._edit((c) => {
-      d === "on" ? delete c.sounds : c.sounds = d === "off" ? !1 : "quiet";
+        ${this._row("Look", "", l`<div class="schips" role="group" aria-label="Look">${De.map((c) => l`<button class="tap" aria-pressed=${String(o === c.id)} @click=${() => this._edit((d) => {
+      d.look = c.id;
+    })}>${c.name}</button>`)}</div>`)}
+        ${De.find((c) => c.id === o)?.themed ? this._row("Background", "", l`<div class="schips" role="group" aria-label="Background">${Ga.map((c) => l`<button class="tap" aria-pressed=${String((t.theme ?? "sea") === c.id)} @click=${() => this._edit((d) => {
+      d.theme = c.id;
+    })}>${c.name}</button>`)}</div>`) : g}
+        ${this._row("Touch sounds", "Timers and alarms always sound.", this._seg("Touch sounds", t.sounds === !1 ? "off" : t.sounds === "quiet" ? "soft" : "on", [["off", "Off"], ["soft", "Soft"], ["on", "On"]], (c) => this._edit((d) => {
+      c === "on" ? delete d.sounds : d.sounds = c === "off" ? !1 : "quiet";
     })))}
-        ${this._row("Life behind the page", "Twinkling stars, glints on the water, now and then a visitor.", this._sw("Life behind the page", t.ambient !== !1, () => this._edit((d) => {
-      d.ambient === !1 ? delete d.ambient : d.ambient = !1;
+        ${this._row("Life behind the page", "Twinkling stars, glints on the water, now and then a visitor.", this._sw("Life behind the page", t.ambient !== !1, () => this._edit((c) => {
+      c.ambient === !1 ? delete c.ambient : c.ambient = !1;
     })))}
-        ${this._row("Calm mode", "No looping motion and no tilt.", this._seg("Calm mode", t.calm === !0 ? "all" : t.calm === !1 ? "never" : "kids", [["kids", "Children’s pages"], ["all", "Everywhere"], ["never", "Never"]], (d) => this._edit((c) => {
-      d === "kids" ? delete c.calm : c.calm = d === "all";
+        ${this._row("Calm mode", "No looping motion and no tilt.", this._seg("Calm mode", t.calm === !0 ? "all" : t.calm === !1 ? "never" : "kids", [["kids", "Children’s pages"], ["all", "Everywhere"], ["never", "Never"]], (c) => this._edit((d) => {
+      c === "kids" ? delete d.calm : d.calm = c === "all";
     })))}
         <span class="shint">Each screen can pick its own look and sounds with the palette button. Saving here sets this screen to match.</span>
       </div>
       <div class="scard"><h3>Words</h3>
-        ${this._row("The family is called", "Used in the greeting, as in “Good morning, everyone”.", this._txt("fam", "What the family is called", t.family_name ?? "", (d) => this._edit((c) => {
-      d ? c.family_name = d : delete c.family_name;
+        ${this._row("The family is called", "Used in the greeting, as in “Good morning, everyone”.", this._txt("fam", "What the family is called", t.family_name ?? "", (c) => this._edit((d) => {
+      c ? d.family_name = c : delete d.family_name;
     }), { ph: "everyone" }), !0)}
         <span class="label">Private words</span><span class="shint">A calendar event with one of these words shows only as a discreet chip.</span>
-        ${this._strs("priv", "private word", t.private ?? [], (d) => this._edit((c) => {
-      d.length ? c.private = d : delete c.private;
+        ${this._strs("priv", "private word", t.private ?? [], (c) => this._edit((d) => {
+      c.length ? d.private = c : delete d.private;
     }))}
         <span class="label">The usual shopping</span><span class="shint">One-tap suggestions on the shopping page.</span>
-        ${this._strs("usual", "usual item", t.grocery_usuals ?? [], (d) => this._edit((c) => {
-      d.length ? c.grocery_usuals = d : delete c.grocery_usuals;
+        ${this._strs("usual", "usual item", t.grocery_usuals ?? [], (c) => this._edit((d) => {
+      c.length ? d.grocery_usuals = c : delete d.grocery_usuals;
     }))}
       </div>`;
   }
   async _loadLib() {
-    this._lib = await Gn(this.hass, Pe(this._draft)), this._night = await Hc(this.hass, this.config, this._draft.look ?? "glass");
+    this._lib = await Gn(this.hass, Je(this._draft)), this._night = await Hc(this.hass, this.config, this._draft.look ?? "glass");
   }
   /** Write (or rewrite) the nightly automation in Home Assistant from the saved configuration. A new one is left switched off. */
   async _setUpNightly(t) {
@@ -15222,8 +15237,8 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     const t = this._draft, e = t.art ?? {}, i = (gp() ?? this.hass)?.states ?? {}, s = (y) => this._edit((q) => {
       const N = { ...q.art ?? {} };
       y(N), Object.keys(N).length ? q.art = N : delete q.art;
-    }), o = e.idle_minutes ?? H.idle, r = e.interval_minutes ?? H.interval, n = e.presence ?? "none", p = Pe(t), d = !!i[p], c = Ba(this.hass, e.painter);
-    this._lib === void 0 && d && (this._lib = null, this._loadLib());
+    }), o = e.idle_minutes ?? H.idle, r = e.interval_minutes ?? H.interval, n = e.presence ?? "none", p = Je(t), c = !!i[p], d = Ba(this.hass, e.painter);
+    this._lib === void 0 && c && (this._lib = null, this._loadLib());
     const h = this._lib ?? [], f = Fc(h, e.cost ?? H.cost), m = e.cap ?? H.cap, u = Object.keys(i).find((y) => y.startsWith("automation.") && /family hub.*art/i.test(String(i[y].attributes.friendly_name ?? ""))), w = (t.kids ?? []).map((y) => y.bedtime ?? "20:00").sort()[0], x = {
       insecure: l`<b>This screen cannot use its camera yet,</b> because the page is not a secure one (its address starts with http). Either open Home Assistant over https, or, on the kiosk PC, set the Edge policies <i>OverrideSecurityRestrictionsOnInsecureOrigin</i> and <i>VideoCaptureAllowedUrls</i> to this address. Until then the panel wakes by touch.`,
       nocamera: l`<b>No camera was found on this screen.</b> The panel wakes by touch.`,
@@ -15288,8 +15303,8 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     }), { min: 1, max: 100, step: 1, unit: "%" }))}` : g}
       </div>
       <div class="scard"><h3>${U("palette", 20)}The painter</h3>
-        ${c ? l`<span class="shint">Pictures are painted by <b>${this._name(c)}</b>, in Home Assistant. The key stays there.</span>` : l`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
-        ${d ? g : l`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${p}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
+        ${d ? l`<span class="shint">Pictures are painted by <b>${this._name(d)}</b>, in Home Assistant. The key stays there.</span>` : l`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
+        ${c ? g : l`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${p}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
         ${this._row("Stop at", `This month: ${f.n} picture${f.n === 1 ? "" : "s"}, about US$${f.usd.toFixed(2)}.`, this._step("Monthly limit", m, (y) => s((q) => {
       q.cap = y;
     }), { min: 0, max: 200, step: 5, say: (y) => `US$${y} a month` }))}
@@ -15310,7 +15325,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       <div class="scard"><h3>${qd("kid", 20)}The children’s characters</h3>
         <span class="shint">A child with a character sheet has a painted character, and his studio paints his looks from it. The sheet and the words stay in Home Assistant.</span>
         ${(t.kids ?? []).map((y, q) => l`<div class="sitem" style="align-items:flex-start;flex-wrap:wrap">
-          <span class="spic">${ct(i[tt(y).avatar]?.state, y.look ? ct(y.look) : {}).img ? l`<fh-pic .media=${ct(i[tt(y).avatar]?.state, y.look ? ct(y.look) : {}).img}></fh-pic>` : y.name[0]}</span>
+          <span class="spic">${nt(i[E(y).avatar]?.state, y.look ? nt(y.look) : {}).img ? l`<fh-pic .media=${nt(i[E(y).avatar]?.state, y.look ? nt(y.look) : {}).img}></fh-pic>` : y.name[0]}</span>
           <span style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px"><b>${y.name}</b>
             ${this._txt(`sheet.${q}`, `${y.name}’s character sheet, a file in Home Assistant’s media`, y.sheet ?? "", (N) => this._edit((_) => {
       const $ = _.kids[q];
@@ -15334,7 +15349,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
           <span class="scap">${y.theme ?? y.who.join(", ")}<small>${y.d}${y.who.length && y.theme ? ` · ${y.who.join(", ")}` : ""}</small></span>
           <span class="sacts">${y.kind === "art" ? l`<button class="sico tap" aria-pressed=${String(!!y.fav)} aria-label=${y.fav ? "A favourite. Tap to undo" : "Make it a favourite"} @click=${() => void K(y, "fav")}>${U("star", 20)}</button>
             <button class="sico tap" aria-pressed=${String(y.hidden)} aria-label=${y.hidden ? "Hidden. Tap to show it again" : "Hide it from the screensaver"} @click=${() => void K(y, "hide")}>${U("moon", 20)}</button>` : g}
-            <button class="sico tap bad" data-sure=${String(this._zap === y.uid)} aria-label=${this._zap === y.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void K(y, "del")}>${this._zap === y.uid ? "Sure?" : U("bin", 20)}</button></span></div>`)}</div>` : l`<span class="shint">${d ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
+            <button class="sico tap bad" data-sure=${String(this._zap === y.uid)} aria-label=${this._zap === y.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void K(y, "del")}>${this._zap === y.uid ? "Sure?" : U("bin", 20)}</button></span></div>`)}</div>` : l`<span class="shint">${c ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
       </div>`;
   }
   _speakers() {
@@ -15354,8 +15369,8 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     });
     return l`<p class="sintro">A moment is one press on the mixing desk that plays something for an occasion.</p>
       <div class="scard"><h3>Moments ${i?.length ? g : l`<span class="muted">the four starters, until you change them</span>`}</h3>
-        ${s.slice(0, 4).map((n, p, d) => {
-      const c = n.rooms === "all" ? "all" : Array.isArray(n.rooms) && n.rooms.length ? "some" : "focus", h = Array.isArray(n.rooms) ? n.rooms : [], f = this._open === p, m = [n.find || (n.uri ? "One exact thing" : "Nothing to play yet"), c === "all" ? "every room" : c === "some" ? h.map((u) => this._name(u)).join(" and ") : "the room in focus", n.volume === void 0 ? "" : `${n.volume}%`].filter(Boolean).join(" · ");
+        ${s.slice(0, 4).map((n, p, c) => {
+      const d = n.rooms === "all" ? "all" : Array.isArray(n.rooms) && n.rooms.length ? "some" : "focus", h = Array.isArray(n.rooms) ? n.rooms : [], f = this._open === p, m = [n.find || (n.uri ? "One exact thing" : "Nothing to play yet"), d === "all" ? "every room" : d === "some" ? h.map((u) => this._name(u)).join(" and ") : "the room in focus", n.volume === void 0 ? "" : `${n.volume}%`].filter(Boolean).join(" · ");
       return f ? l`<div class="sform" data-moment=${p} role="group" aria-label=${n.name || "New moment"}>
             ${this._row("Name", "", l`${this._txt(`mo.${p}.icon`, `Picture for ${n.name || "this moment"} (an emoji)`, n.icon ?? "", (u) => r((w) => {
         u ? w[p].icon = u : delete w[p].icon;
@@ -15368,10 +15383,10 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
             ${this._row("Kind", "", this._seg(`Kind of music for ${n.name}`, n.kind ?? "playlist", [["playlist", "Playlist"], ["album", "Album"], ["artist", "Artist"], ["radio", "Radio"]], (u) => r((w) => {
         u === "playlist" ? delete w[p].kind : w[p].kind = u;
       })))}
-            ${this._row("Where", c === "focus" ? "Plays in the room chosen on the Music page." : "", this._seg(`Where ${n.name} plays`, c, [["focus", "Room in focus"], ["all", "Every room"], ["some", "Chosen rooms"]], (u) => r((w) => {
+            ${this._row("Where", d === "focus" ? "Plays in the room chosen on the Music page." : "", this._seg(`Where ${n.name} plays`, d, [["focus", "Room in focus"], ["all", "Every room"], ["some", "Chosen rooms"]], (u) => r((w) => {
         u === "focus" ? delete w[p].rooms : u === "all" ? w[p].rooms = "all" : w[p].rooms = o.slice(0, 1);
       })))}
-            ${c === "some" ? l`<div class="schips" role="group" aria-label=${`Rooms for ${n.name}`}>${o.map((u) => l`<button class="tap" aria-pressed=${String(h.includes(u))} @click=${() => r((w) => {
+            ${d === "some" ? l`<div class="schips" role="group" aria-label=${`Rooms for ${n.name}`}>${o.map((u) => l`<button class="tap" aria-pressed=${String(h.includes(u))} @click=${() => r((w) => {
         const x = Array.isArray(w[p].rooms) ? w[p].rooms : [];
         w[p].rooms = x.includes(u) ? x.filter((k) => k !== u) : [...x, u];
       })}>${this._name(u)}</button>`)}</div>` : g}
@@ -15394,7 +15409,7 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
           </div>` : l`<div class="sitem" data-moment=${p}><button class="sjob tap sgrow" aria-expanded="false" aria-label=${`Change ${n.name || "this moment"}`} @click=${() => {
         this._open = p;
       }}><span class="spic" aria-hidden="true">${n.icon || "🎵"}</span><span class="sgrow" style="display:flex;flex-direction:column;min-width:0;line-height:1.3"><span class="sname">${n.name || "New moment"}</span><span class="shint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m}</span></span></button>
-            ${this._move(n.name || "moment", p, d.length, (u) => r((w) => {
+            ${this._move(n.name || "moment", p, c.length, (u) => r((w) => {
         const [x] = w.splice(p, 1);
         w.splice(u, 0, x);
       }))}</div>`;
@@ -15437,64 +15452,64 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     this._busy = "test", this._sure = "";
     const e = await Promise.allSettled(t.notify.map((s) => {
       const [o, r] = s.includes(".") ? s.split(".") : ["notify", s];
-      return dt(this.hass.callService(o, r, { title: "Family Hub test", message: "This is only a test of the alert button on the family panel. Nothing is wrong." }));
+      return ct(this.hass.callService(o, r, { title: "Family Hub test", message: "This is only a test of the alert button on the family panel. Nothing is wrong." }));
     })), i = e.filter((s) => s.status === "rejected").length;
     this._busy = "", this._say(i ? `${i} of ${e.length} phones did not get the test. Check the names below.` : `Test sent to ${e.length} phone${e.length === 1 ? "" : "s"}.`, { bad: !!i });
   }
   _people() {
-    const t = this._draft, e = t.babysitter ?? {}, i = t.emergency, s = this._sitter(), o = Object.keys(this.hass?.services?.notify ?? {}).filter((d) => !["notify", "persistent_notification", "send_message"].includes(d)).map((d) => `notify.${d}`), r = i?.notify ?? [], n = (d) => this._edit((c) => {
-      c.emergency = c.emergency ?? { notify: [] }, d(c.emergency), !c.emergency.notify.length && !c.emergency.who && !c.emergency.message && delete c.emergency;
-    }), p = (d) => this._edit((c) => {
-      d(c.babysitter = c.babysitter ?? {});
+    const t = this._draft, e = t.babysitter ?? {}, i = t.emergency, s = this._sitter(), o = Object.keys(this.hass?.services?.notify ?? {}).filter((c) => !["notify", "persistent_notification", "send_message"].includes(c)).map((c) => `notify.${c}`), r = i?.notify ?? [], n = (c) => this._edit((d) => {
+      d.emergency = d.emergency ?? { notify: [] }, c(d.emergency), !d.emergency.notify.length && !d.emergency.who && !d.emergency.message && delete d.emergency;
+    }), p = (c) => this._edit((d) => {
+      c(d.babysitter = d.babysitter ?? {});
     });
     return l`
       <div class="scard"><h3>Parents</h3>
         <span class="shint">The grown-ups whose names are offered when a medicine is recorded.</span>
-        ${this._strs("parent", "parent", t.parents ?? [], (d) => this._edit((c) => {
-      c.parents = d;
+        ${this._strs("parent", "parent", t.parents ?? [], (c) => this._edit((d) => {
+      d.parents = c;
     }))}
       </div>
       <div class="scard"><h3>${U("info", 20)}The house-info page <span class="muted">for babysitters and visitors</span></h3>
-        ${this._row("Title", "", this._txt("sit.title", "Title of the house-info page", e.title ?? "", (d) => p((c) => {
-      d ? c.title = d : delete c.title;
+        ${this._row("Title", "", this._txt("sit.title", "Title of the house-info page", e.title ?? "", (c) => p((d) => {
+      c ? d.title = c : delete d.title;
     }), { ph: "House info" }), !0)}
-        ${this._row("Address", "Read out to emergency services: “You are at …”.", this._txt("sit.addr", "Address", e.address ?? "", (d) => p((c) => {
-      d ? c.address = d : delete c.address;
+        ${this._row("Address", "Read out to emergency services: “You are at …”.", this._txt("sit.addr", "Address", e.address ?? "", (c) => p((d) => {
+      c ? d.address = c : delete d.address;
     }), { ph: "Street address" }), !0)}
         <span class="label">Who to ring</span>
-        ${s.contacts.map((d, c) => l`<div class="sitem">${this._txt(`sit.c.${c}.name`, `Contact ${c + 1} name`, d.name, (h) => this._setSitter((f) => {
-      f.contacts[c].name = h;
-    }), { cls: "sgrow", ph: "Name" })}${this._txt(`sit.c.${c}.phone`, `Contact ${c + 1} number`, d.phone, (h) => this._setSitter((f) => {
-      f.contacts[c].phone = h;
-    }), { cls: "sgrow", ph: "Phone number" })}${this._del(`Remove ${d.name || "this contact"}`, () => this._setSitter((h) => {
-      h.contacts.splice(c, 1);
+        ${s.contacts.map((c, d) => l`<div class="sitem">${this._txt(`sit.c.${d}.name`, `Contact ${d + 1} name`, c.name, (h) => this._setSitter((f) => {
+      f.contacts[d].name = h;
+    }), { cls: "sgrow", ph: "Name" })}${this._txt(`sit.c.${d}.phone`, `Contact ${d + 1} number`, c.phone, (h) => this._setSitter((f) => {
+      f.contacts[d].phone = h;
+    }), { cls: "sgrow", ph: "Phone number" })}${this._del(`Remove ${c.name || "this contact"}`, () => this._setSitter((h) => {
+      h.contacts.splice(d, 1);
     }))}</div>`)}
         <div><button class="pill tap" @click=${() => {
-      this._setSitter((d) => {
-        d.contacts.push({ name: "", phone: "" });
+      this._setSitter((c) => {
+        c.contacts.push({ name: "", phone: "" });
       }), this._focusSoon(`sit.c.${s.contacts.length}.name`);
     }}>${U("plus", 18)}Add a contact</button></div>
         <span class="label">Wi-Fi for visitors</span>
-        ${this._row("Network", "", this._txt("sit.wifi", "Wi-Fi network", e.wifi?.name ?? "", (d) => p((c) => {
-      d ? c.wifi = { ...c.wifi ?? {}, name: d } : delete c.wifi;
+        ${this._row("Network", "", this._txt("sit.wifi", "Wi-Fi network", e.wifi?.name ?? "", (c) => p((d) => {
+      c ? d.wifi = { ...d.wifi ?? {}, name: c } : delete d.wifi;
     })), !0)}
-        ${e.wifi ? this._row("Password", "Shown in plain words on the house-info page.", this._txt("sit.wifipw", "Wi-Fi password", e.wifi.password ?? "", (d) => p((c) => {
-      d ? c.wifi.password = d : delete c.wifi.password;
+        ${e.wifi ? this._row("Password", "Shown in plain words on the house-info page.", this._txt("sit.wifipw", "Wi-Fi password", e.wifi.password ?? "", (c) => p((d) => {
+      c ? d.wifi.password = c : delete d.wifi.password;
     })), !0) : g}
         <span class="label">Good to know</span>
-        ${this._strs("sit.note", "note", s.notes, (d) => this._setSitter((c) => {
-      c.notes = d;
+        ${this._strs("sit.note", "note", s.notes, (c) => this._setSitter((d) => {
+      d.notes = c;
     }))}
       </div>
       <div class="scard"><h3>${U("alert", 20)}The alert button</h3>
         <span class="shint">The red hold-to-send button on the house-info page. It sounds on these phones even on silent.</span>
-        ${this._row("It says “Alert …”", "", this._txt("sos.who", "Who the alert button names", i?.who ?? "", (d) => n((c) => {
-      d ? c.who = d : delete c.who;
+        ${this._row("It says “Alert …”", "", this._txt("sos.who", "Who the alert button names", i?.who ?? "", (c) => n((d) => {
+      c ? d.who = c : delete d.who;
     }), { ph: "the parents" }), !0)}
         <span class="label">Phones to alert</span>
-        <div class="spick" role="group" aria-label="Phones to alert">${[.../* @__PURE__ */ new Set([...o, ...r])].map((d) => l`<button class="tap" aria-pressed=${String(r.includes(d))} @click=${() => n((c) => {
-      c.notify = c.notify.includes(d) ? c.notify.filter((h) => h !== d) : [...c.notify, d];
-    })}><span class="sbox2" aria-hidden="true">${r.includes(d) ? U("check", 16) : g}</span><span><b>${d.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${o.includes(d) ? d : "Not found in Home Assistant"}</small></span></button>`)}</div>
+        <div class="spick" role="group" aria-label="Phones to alert">${[.../* @__PURE__ */ new Set([...o, ...r])].map((c) => l`<button class="tap" aria-pressed=${String(r.includes(c))} @click=${() => n((d) => {
+      d.notify = d.notify.includes(c) ? d.notify.filter((h) => h !== c) : [...d.notify, c];
+    })}><span class="sbox2" aria-hidden="true">${r.includes(c) ? U("check", 16) : g}</span><span><b>${c.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${o.includes(c) ? c : "Not found in Home Assistant"}</small></span></button>`)}</div>
         ${o.length || r.length ? g : l`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${r.length ? this._sure === "test" ? l`<div class="snote" role="alertdialog" aria-label="Send a test alert"><span><b>Send a test to ${r.length} phone${r.length === 1 ? "" : "s"} now?</b> It is an ordinary message that says it is only a test.</span><div class="sbtns" style="justify-content:flex-start"><button class="pill tap primary" data-act="test-send" ?disabled=${!!this._busy} @click=${() => void this._testAlert()}>Send the test</button><button class="pill tap" @click=${() => {
       this._sure = "";
@@ -15503,17 +15518,17 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     }}>Send a test…</button>${this._dirty ? l` <span class="shint">Save first.</span>` : g}</div>` : g}
       </div>
       <div class="scard"><h3>${U("ask", 20)}Ask and the internet</h3>
-        ${t.chat?.agent ? this._row("The helper is called", "The name on the speech-bubble button.", this._txt("chat.name", "What the helper is called", t.chat.name ?? "", (d) => this._edit((c) => {
-      d ? c.chat.name = d : delete c.chat.name;
+        ${t.chat?.agent ? this._row("The helper is called", "The name on the speech-bubble button.", this._txt("chat.name", "What the helper is called", t.chat.name ?? "", (c) => this._edit((d) => {
+      c ? d.chat.name = c : delete d.chat.name;
     }), { ph: "Ask" }), !0) : l`<span class="shint">Ask (the children’s AI helper) is not set up. It is added in YAML, with a conversation agent from Home Assistant.</span>`}
         ${t.chat?.agent ? l`<span class="shint">What the helper may talk about is set in Home Assistant, on the agent itself. Whether it needs the PIN after bedtime is under PIN.</span>` : g}
-        ${this._row("Look up places", "When adding an event, search for addresses on the internet as they are typed.", this._sw("Look up places on the internet", t.address_search !== !1, () => this._edit((d) => {
-      d.address_search === !1 ? delete d.address_search : d.address_search = !1;
+        ${this._row("Look up places", "When adding an event, search for addresses on the internet as they are typed.", this._sw("Look up places on the internet", t.address_search !== !1, () => this._edit((c) => {
+      c.address_search === !1 ? delete c.address_search : c.address_search = !1;
     })))}
       </div>`;
   }
   _advanced() {
-    const t = this.config, e = this._access, i = this.config.kids ?? [], s = (n) => n === void 0 ? "Not set" : typeof n == "string" || typeof n == "number" || typeof n == "boolean" ? String(n) : Array.isArray(n) ? n.length ? hr(n.map((p) => typeof p == "string" ? p : p?.entity ?? p?.name ?? "…").join(", "), 160) : "None" : hr(Object.entries(n).filter(([p]) => !/password|pin/i.test(p)).map(([p, d]) => `${p}: ${typeof d == "object" ? "…" : String(d)}`).join(", "), 160), o = [...this._hist, ...e?.previous && !this._hist.some((n) => Fs(n.config, e.previous.config)) ? [e.previous] : []], r = this.hass ? uo(this.hass) : null;
+    const t = this.config, e = this._access, i = this.config.kids ?? [], s = (n) => n === void 0 ? "Not set" : typeof n == "string" || typeof n == "number" || typeof n == "boolean" ? String(n) : Array.isArray(n) ? n.length ? hr(n.map((p) => typeof p == "string" ? p : p?.entity ?? p?.name ?? "…").join(", "), 160) : "None" : hr(Object.entries(n).filter(([p]) => !/password|pin/i.test(p)).map(([p, c]) => `${p}: ${typeof c == "object" ? "…" : String(c)}`).join(", "), 160), o = [...this._hist, ...e?.previous && !this._hist.some((n) => Fs(n.config, e.previous.config)) ? [e.previous] : []], r = this.hass ? uo(this.hass) : null;
     return l`<p class="sintro">These are the wires behind the panel: which calendars, lists, speakers and scripts it uses. They are changed in the card’s YAML (edit the dashboard, then the Family Hub card), not here.</p>
       <div class="scard"><h3>Where this is saved</h3>
         <div class="sadv"><b>Dashboard</b><span>${r ?? "The default dashboard"}</span><b>You are</b><span>${this.hass?.user?.name ?? "Unknown"}${this.hass?.user?.is_admin ? " (administrator)" : " (not an administrator)"}</span><b>Settings can save</b><span>${e ? e.ok ? "Yes" : `No: ${ks[e.why ?? "offline"][0].toLowerCase()}` : "Checking…"}</span></div>
@@ -15534,8 +15549,8 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       <div class="scard"><h3>Wired up in YAML</h3>
         <div class="sadv">${Cu.filter(([n]) => t[n] !== void 0).map(([n, p]) => l`<b>${p}</b><span><code>${n}</code>: ${s(t[n])}</span>`)}
           ${i.map((n) => {
-      const p = tt(n);
-      return l`<b>${n.name}’s helpers</b><span>${[p.chores, p.points, p.lifetime, p.streak, p.avatar, p.calendar].map((d) => l`<code>${d}</code>${this.hass?.states[d] ? "" : " (missing)"} `)}</span>`;
+      const p = E(n);
+      return l`<b>${n.name}’s helpers</b><span>${[p.chores, p.points, p.lifetime, p.streak, p.avatar, p.calendar].map((c) => l`<code>${c}</code>${this.hass?.states[c] ? "" : " (missing)"} `)}</span>`;
     })}</div>
         <span class="shint">Adding or removing a child, a calendar or a speaker is also done in YAML: each needs entities in Home Assistant first.</span>
       </div>`;
@@ -15568,14 +15583,14 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
     const e = (s) => {
       const o = this._fields.get(this._kb);
       if (!o) return;
-      const [r, n] = _e(o.get(), s, this._caps);
+      const [r, n] = Fe(o.get(), s, this._caps);
       o.set(o.digits ? r.replace(/\D/g, "") : r), this._caps = n, this.requestUpdate();
     }, i = l`<button class="pill tap" data-act="keys-done" style="height:48px" @click=${() => {
       this._kb = "";
     }}>Done</button>`;
     return t.digits ? l`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}><div class="sdig" role="group" aria-label="Number keys">${["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map((s) => s ? l`<button class="key" aria-label=${s === "del" ? "Delete" : s} @click=${() => {
       S(s === "del" ? "del" : "pin"), e(s);
-    }}>${s === "del" ? U("backspace", 24) : s}</button>` : l`<span></span>`)}</div>${i}</div>` : l`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}>${va(e, this._caps, () => {
+    }}>${s === "del" ? U("backspace", 24) : s}</button>` : l`<span></span>`)}</div>${i}</div>` : l`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}>${ya(e, this._caps, () => {
       this._caps = !this._caps;
     }, !0, !0, !0)}${i}</div>`;
   }
@@ -15589,8 +15604,8 @@ const Kd = () => _s && Date.now() < _s.until ? _s : null, dr = (a) => {
       <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${U("cog", 26)}</span>Settings</h2><span class="muted">For grown-ups. ${t.sub}.</span></div>
         <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${U("close", 20)}</button></div>
       <nav class="snav" aria-label="Sections">${gi.map((p) => {
-      const d = s && p.id !== "pin" && p.id !== "advanced";
-      return l`<button class="tap" data-pane=${p.id} aria-current=${p.id === this._pane ? "page" : "false"} aria-disabled=${d ? "true" : "false"} aria-label=${`${p.name}${d ? " (set a PIN first)" : p.id === this._pane && n ? ", unsaved changes" : ""}`} @click=${() => this._go(p.id)}>${qd(p.ic)}<span>${p.name}</span>${p.id === this._pane && n && !e ? l`<i class="sdot" aria-hidden="true"></i>` : g}</button>`;
+      const c = s && p.id !== "pin" && p.id !== "advanced";
+      return l`<button class="tap" data-pane=${p.id} aria-current=${p.id === this._pane ? "page" : "false"} aria-disabled=${c ? "true" : "false"} aria-label=${`${p.name}${c ? " (set a PIN first)" : p.id === this._pane && n ? ", unsaved changes" : ""}`} @click=${() => this._go(p.id)}>${qd(p.ic)}<span>${p.name}</span>${p.id === this._pane && n && !e ? l`<i class="sdot" aria-hidden="true"></i>` : g}</button>`;
     })}</nav>
       <fieldset class="spane" data-pane=${this._pane} aria-label=${t.name} ?disabled=${e && this._pane !== "advanced" || this._busy === "save" || this._busy === "undo"}>
         ${e && i ? l`<div class="snote ro" role="note"><span><b>${ks[i.why ?? "offline"][0]}.</b> ${ks[i.why ?? "offline"][1]}</span></div>` : g}
@@ -15735,14 +15750,14 @@ so.styles = [Ct, Ia, J`
     .sdial { position: absolute; z-index: 6; left: 50%; top: 50%; translate: -50% -50%; width: 340px; max-width: 94%; border-radius: 26px; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; background: var(--sheet-bg, var(--chip-strong)); color: var(--ink); box-shadow: 0 20px 50px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
     .sdial h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); align-self: flex-start; }
     .sdial .sdrow { display: flex; align-items: center; gap: 12px; }
-    .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${ra * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14), inset 0 0 0 1.5px var(--ink3); }
-    .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${ra}px; height: ${ra}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
+    .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${oa * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14), inset 0 0 0 1.5px var(--ink3); }
+    .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${oa}px; height: ${oa}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 3px var(--primary); border-radius: 10px; outline: none; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${ra}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${oa}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
-    .drum::before, .drum::after { content: ''; display: block; height: ${ra}px; }
+    .drum::before, .drum::after { content: ''; display: block; height: ${oa}px; }
     .scolon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
     .sampm { display: flex; flex-direction: column; gap: 6px; }
     .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 16px; font-weight: var(--w-bold, 700); }
@@ -15811,7 +15826,7 @@ customElements.get("fh-settings") || customElements.define("fh-settings", Kn);
 const Sd = (a = [], t = {}, e = /* @__PURE__ */ new Date()) => {
   if (!a.length) return !1;
   const i = ee(e), s = Math.max(300, ut(t.end ?? "06:30"));
-  return i < s || a.some((o) => i >= ut(Se(o.bedtime, e)));
+  return i < s || a.some((o) => i >= ut(Me(o.bedtime, e)));
 }, ju = (a) => {
   const t = a.getHours() * 60 + a.getMinutes() + a.getSeconds() / 60;
   return [0.5 + 0.5 * Math.sin(t / 9), 0.5 + 0.5 * Math.cos(t / 14)];
@@ -15866,8 +15881,8 @@ class Lu {
     if (!this._loading) {
       this._loading = !0;
       try {
-        const e = await Gn(this.host.hass, Pe(this.cfg()));
-        if (this._loadedAt = Date.now(), e && qm(this.host.hass, Pe(this.cfg()), e).then((i) => {
+        const e = await Gn(this.host.hass, Je(this.cfg()));
+        if (this._loadedAt = Date.now(), e && qm(this.host.hass, Je(this.cfg()), e).then((i) => {
           i && (this._loadedAt = 0);
         }), e) {
           this.items = e;
@@ -15915,8 +15930,8 @@ class Lu {
       if (n === "light") Promise.resolve(s.callService("light", "turn_on", { brightness_pct: r }, { entity_id: i })).catch(() => {
       });
       else if (n === "number" || n === "input_number") {
-        const p = Number(o.attributes.min ?? 0), d = Number(o.attributes.max ?? 100);
-        Promise.resolve(s.callService(n, "set_value", { value: Math.round(p + (d - p) * r / 100) }, { entity_id: i })).catch(() => {
+        const p = Number(o.attributes.min ?? 0), c = Number(o.attributes.max ?? 100);
+        Promise.resolve(s.callService(n, "set_value", { value: Math.round(p + (c - p) * r / 100) }, { entity_id: i })).catch(() => {
         });
       }
     } catch {
@@ -15930,7 +15945,7 @@ const Qu = (a, t) => {
   const [e, i] = ju(t.now), s = `left:${(e * 100).toFixed(2)}%;top:${(i * 100).toFixed(2)}%;transform:translate(${(-e * 100).toFixed(2)}%, ${(-i * 100).toFixed(2)}%)`, o = (n, p) => l`<img class="aimg" alt="" draggable="false" ?data-out=${p} data-kb=${n.n % 4} src=${n.url} style="--kb:${Math.round(a.intervalMs / 1e3) + 4}s">`, r = !t.night && a.cur;
   return l`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${t.night} ?data-closing=${t.closing} ?data-bare=${!r}
       @pointerdown=${t.onWake} @keydown=${t.onWake}>
-    ${t.night ? g : r ? l`${a.prev ? Je(a.prev.n, o(a.prev, !0)) : g}${Je(a.cur.n, o(a.cur, !1))}<span class="ashade" aria-hidden="true"></span>` : l`<fh-ambient .look=${t.look} .theme=${t.theme} .tod=${t.tod} .calm=${t.calm}></fh-ambient>`}
+    ${t.night ? g : r ? l`${a.prev ? Ie(a.prev.n, o(a.prev, !0)) : g}${Ie(a.cur.n, o(a.cur, !1))}<span class="ashade" aria-hidden="true"></span>` : l`<fh-ambient .look=${t.look} .theme=${t.theme} .tod=${t.tod} .calm=${t.calm}></fh-ambient>`}
     <div class="adrift"><div class="aplate" style=${s}>
       ${t.art && t.art !== g ? l`<span class="nart">${t.art}</span>` : g}
       <div class="awords"><span class="atime"><span class="display big">${t.hm}</span><span class="aampm">${t.ampm}</span></span>
@@ -15984,7 +15999,7 @@ const Qu = (a, t) => {
 `, Yu = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, dh = "0.32.2", Fd = "family-hub-theme", _d = "family-hub-sounds", Rd = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, dh = "0.33.0", Fd = "family-hub-theme", _d = "family-hub-sounds", Rd = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -16000,13 +16015,13 @@ const Qu = (a, t) => {
   sunny: "Sunny",
   windy: "Windy",
   "windy-variant": "Windy"
-}, Zu = "fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event,fh-chat", ne = class ne extends ht {
+}, Zu = "fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event,fh-chat", ne = class ne extends ft {
   constructor() {
-    super(...arguments), this.fitCtl = new Ve(this), this.lookCtl = new It(this), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._look = "glass", this._opts = {}, this._snd = "on", this._sfxOn = !1, this._prefTick = 0, this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._toastAct = null, this._opener = null, this._pinFrom = null, this._remState = "ok", this._remShow = 99, this._mLines = 1, this._evKey = "", this._compact = !1, this._top = 110, this._bot = 122, this._wx = {}, this._reminders = [], this._remTk = {}, this._remOut = /* @__PURE__ */ new Set(), this._remDue = /* @__PURE__ */ new Set(), this._remSeq = {}, this._pressEl = null, this._pressAt = 0, this._bump = 0, this._remJust = "", this._awakeUntil = 0, this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._musicKid = "", this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._asker = "", this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._onResize = () => {
+    super(...arguments), this.fitCtl = new Re(this), this.lookCtl = new Jt(this), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._look = "glass", this._opts = {}, this._snd = "on", this._sfxOn = !1, this._prefTick = 0, this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._toastAct = null, this._opener = null, this._pinFrom = null, this._remState = "ok", this._remShow = 99, this._mLines = 1, this._evKey = "", this._compact = !1, this._top = 110, this._bot = 122, this._wx = {}, this._reminders = [], this._remTk = {}, this._remOut = /* @__PURE__ */ new Set(), this._remDue = /* @__PURE__ */ new Set(), this._remSeq = {}, this._pressEl = null, this._pressAt = 0, this._bump = 0, this._remJust = "", this._awakeUntil = 0, this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._musicKid = "", this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._asker = "", this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._onResize = () => {
       const t = Number(this._config?.scale), e = parseFloat(getComputedStyle(this).getPropertyValue("--header-height")) || 0, i = this.getBoundingClientRect().width || window.innerWidth, s = window.innerHeight - e, o = i < 600 || window.innerHeight < 500 && i < 1e3 ? "phone" : s > i * 1.15 ? "tall" : "wide";
       o === "phone" && kt() !== "phone" && this._view === "week" ? (this._view = "day", this._viewWas = "week") : o !== "phone" && kt() === "phone" && this._viewWas && (this._view === "day" && (this._view = this._viewWas), this._viewWas = ""), f0(o);
-      const [r, n] = o === "tall" ? [900, 1280] : [1280, 800], p = i / r, d = s / n, c = t > 0 ? Math.max(1, t) : o === "phone" ? Math.min(1.25, Math.max(1, i / 430)) : Math.min(1.6, Math.max(1, Math.min(p, d))), h = o !== "phone" && (i / c < r - 4 || s / c < n - 4);
-      m0(o === "phone" ? 0 : i / c < 900 ? 3 : i / c < 1100 ? 2 : i / c < 1240 ? 1 : 0), Math.abs(c - this._z) > 0.01 || h !== this._compact ? (this._z = Math.round(c * 100) / 100, this._compact = h, this.requestUpdate()) : this.hasUpdated && this._fitFrame();
+      const [r, n] = o === "tall" ? [900, 1280] : [1280, 800], p = i / r, c = s / n, d = t > 0 ? Math.max(1, t) : o === "phone" ? Math.min(1.25, Math.max(1, i / 430)) : Math.min(1.6, Math.max(1, Math.min(p, c))), h = o !== "phone" && (i / d < r - 4 || s / d < n - 4);
+      m0(o === "phone" ? 0 : i / d < 900 ? 3 : i / d < 1100 ? 2 : i / d < 1240 ? 1 : 0), Math.abs(d - this._z) > 0.01 || h !== this._compact ? (this._z = Math.round(d * 100) / 100, this._compact = h, this.requestUpdate()) : this.hasUpdated && this._fitFrame();
     }, this._z = 1, this._viewWas = "", this._touched = () => {
       this._lastTouch = Date.now(), this._idle && (this._idle = !1), this._page === "music" && (this._musicAt = Date.now()), this._art.on && (this._wakeDown = !0, this._art.wake());
     }, this._art = new Lu(this, () => this._config, () => {
@@ -16032,8 +16047,8 @@ const Qu = (a, t) => {
         const e = this.renderRoot.querySelector(".scrim > .sheet");
         if (!e) return;
         const i = [], s = (p) => {
-          p.querySelectorAll("*").forEach((d) => {
-            d.matches('button:not([disabled]), a[href], input:not([disabled]), [tabindex="0"]') && d.offsetParent !== null && i.push(d), d.shadowRoot && s(d.shadowRoot);
+          p.querySelectorAll("*").forEach((c) => {
+            c.matches('button:not([disabled]), a[href], input:not([disabled]), [tabindex="0"]') && c.offsetParent !== null && i.push(c), c.shadowRoot && s(c.shadowRoot);
           });
         };
         s(e);
@@ -16154,20 +16169,20 @@ const Qu = (a, t) => {
   _artLines() {
     const t = this._config, e = this._now, i = e.getTime(), s = [];
     if (this._morningWindow(e)) {
-      const p = ee(e), d = [...new Set((t.kids ?? []).map((c) => ut(c.leave_by ?? t.morning?.leave_by ?? "08:15")))].filter((c) => c > p && c - p <= 90).sort((c, h) => c - h)[0];
-      d !== void 0 && s.push(d - p === 1 ? "Leave in 1 minute" : `Leave in ${d - p} minutes`);
+      const p = ee(e), c = [...new Set((t.kids ?? []).map((d) => ut(d.leave_by ?? t.morning?.leave_by ?? "08:15")))].filter((d) => d > p && d - p <= 90).sort((d, h) => d - h)[0];
+      c !== void 0 && s.push(c - p === 1 ? "Leave in 1 minute" : `Leave in ${c - p} minutes`);
     }
     const o = this._soon.find((p) => !p.allDay && p.start.getTime() > i && p.start.getTime() - i < 18 * 36e5 && !this._private(p.title));
     if (o) {
       const p = Math.round((o.start.getTime() - i) / 6e4);
-      s.push(p <= 45 ? `${o.title} in ${p} min` : `${mt(o.start, e) ? "" : "Tomorrow: "}${o.title} at ${pt(o.start)}`);
+      s.push(p <= 45 ? `${o.title} in ${p} min` : `${ht(o.start, e) ? "" : "Tomorrow: "}${o.title} at ${dt(o.start)}`);
     }
     const r = this._bins(e);
-    r && r.bins.length && (mt(r.night, e) || mt(r.night, X(e, 1))) && s.push(`${mt(r.night, e) ? "Bins out tonight" : "Bins out tomorrow"}: ${r.bins.join(" and ")}`);
+    r && r.bins.length && (ht(r.night, e) || ht(r.night, X(e, 1))) && s.push(`${ht(r.night, e) ? "Bins out tonight" : "Bins out tomorrow"}: ${r.bins.join(" and ")}`);
     const n = this.hass?.states[t.weather ?? ""];
     if (n) {
-      const p = Number(n.attributes.temperature), d = this._wx.max;
-      s.push([Rd[n.state] ?? "", Number.isFinite(p) ? `${Math.round(p)}°` : "", d !== void 0 && e.getHours() < 15 ? `top of ${Math.round(d)}°` : ""].filter(Boolean).join(" · "));
+      const p = Number(n.attributes.temperature), c = this._wx.max;
+      s.push([Rd[n.state] ?? "", Number.isFinite(p) ? `${Math.round(p)}°` : "", c !== void 0 && e.getHours() < 15 ? `top of ${Math.round(c)}°` : ""].filter(Boolean).join(" · "));
     }
     return s.filter(Boolean).slice(0, 2);
   }
@@ -16206,7 +16221,7 @@ const Qu = (a, t) => {
       "input_text.fh_panel_message",
       "input_number.family_jar",
       ...(t.people ?? []).map((e) => e.entity),
-      ...(t.kids ?? []).map((e) => tt(e).avatar),
+      ...(t.kids ?? []).map((e) => E(e).avatar),
       ...(t.meds ?? []).flatMap((e) => [`input_datetime.fh_med_${e.id}`, `input_text.fh_med_${e.id}_by`])
     ].filter((e) => !!e);
   }
@@ -16217,7 +16232,7 @@ const Qu = (a, t) => {
   }
   updated(t) {
     if (t.has("_page") && t.get("_page") !== void 0 && this._page !== "kid" && this._move(this.renderRoot.querySelector('.dock .item[aria-current="page"]:not(.kidbtn)'), "data-arrive", 900), t.has("hass") && this._watchJar(), this.hass && this._config) {
-      const i = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[Pe(this._config)]}`;
+      const i = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[Je(this._config)]}`;
       i !== this._nightKey && (this._nightKey = i, Hc(this.hass, this._config, this._lk));
     }
     (t.has("hass") || t.has("_view") || t.has("_anchor") || this._span !== this._spanWas) && (this._spanWas = this._span, this._refresh()), t.has("hass") && this._checkAlarm();
@@ -16270,8 +16285,8 @@ const Qu = (a, t) => {
     const t = this.renderRoot, e = t.querySelector(".fh"), i = t.querySelector("header");
     if (!e || !i) return;
     if (this._fitHeader(i), kt() !== "phone") {
-      const r = t.querySelector("nav.dock"), n = parseFloat(getComputedStyle(e).rowGap) || 16, p = Math.round(i.offsetTop + i.offsetHeight + n), d = r ? Math.round(e.clientHeight - r.offsetTop + n) : this._bot;
-      Math.abs(p - this._top) > 1 && (this._top = p), Math.abs(d - this._bot) > 1 && (this._bot = d);
+      const r = t.querySelector("nav.dock"), n = parseFloat(getComputedStyle(e).rowGap) || 16, p = Math.round(i.offsetTop + i.offsetHeight + n), c = r ? Math.round(e.clientHeight - r.offsetTop + n) : this._bot;
+      Math.abs(p - this._top) > 1 && (this._top = p), Math.abs(c - this._bot) > 1 && (this._bot = c);
     }
     const s = t.querySelector(".remlist");
     if (s) {
@@ -16293,22 +16308,22 @@ const Qu = (a, t) => {
   _fitHeader(t) {
     const e = t.querySelector(".capsule");
     if (!e) return;
-    const i = [...e.querySelectorAll(".cap")], s = i.find((d) => d.dataset.kind === "med"), o = kt() === "wide", r = kt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, p = (d) => {
+    const i = [...e.querySelectorAll(".cap")], s = i.find((c) => c.dataset.kind === "med"), o = kt() === "wide", r = kt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, p = (c) => {
       for (const m of i) m.hidden = !1;
-      if (e.removeAttribute("data-one"), t.removeAttribute("data-fit"), t.toggleAttribute("data-medchip", d), r) return;
-      const c = [], h = (m) => {
-        n() && (c.push(m), t.setAttribute("data-fit", c.join(" ")));
+      if (e.removeAttribute("data-one"), t.removeAttribute("data-fit"), t.toggleAttribute("data-medchip", c), r) return;
+      const d = [], h = (m) => {
+        n() && (d.push(m), t.setAttribute("data-fit", d.join(" ")));
       }, f = (m, u) => {
         for (let w = i.length - 1; w >= 0 && n(); w--) Number(i[w].dataset.p) >= m && i.filter((x) => !x.hidden).length > u && (i[w].hidden = !0);
       };
-      for (o && (h("nobadge"), h("slim")), f(3, 0), o && (h("nowho"), h("nowx")), f(0, 1), n() && e.setAttribute("data-one", ""); c.length; ) {
-        const m = c.pop();
-        if (t.setAttribute("data-fit", c.join(" ")), n()) {
-          c.push(m);
+      for (o && (h("nobadge"), h("slim")), f(3, 0), o && (h("nowho"), h("nowx")), f(0, 1), n() && e.setAttribute("data-one", ""); d.length; ) {
+        const m = d.pop();
+        if (t.setAttribute("data-fit", d.join(" ")), n()) {
+          d.push(m);
           break;
         }
       }
-      c.length ? t.setAttribute("data-fit", c.join(" ")) : t.removeAttribute("data-fit");
+      d.length ? t.setAttribute("data-fit", d.join(" ")) : t.removeAttribute("data-fit");
     };
     p(!!s), s?.hidden && p(!1);
   }
@@ -16323,7 +16338,7 @@ const Qu = (a, t) => {
   }
   /** The person chip: their colour and their initial, so colour is never the only cue. */
   _chip(t, e, i = !1) {
-    return l`<span class="init ${i ? "sm" : ""}" style="--c:${Z(e)}" role="img" aria-label=${t}>${this._short[t] ?? (t[0] ?? "").toUpperCase()}</span>`;
+    return l`<span class="init ${i ? "sm" : ""}" style="--c:${Y(e)}" role="img" aria-label=${t}>${this._short[t] ?? (t[0] ?? "").toUpperCase()}</span>`;
   }
   _measureWeek() {
     const t = {};
@@ -16339,7 +16354,7 @@ const Qu = (a, t) => {
         const x = getComputedStyle(w);
         o.font = `${x.fontWeight} ${x.fontSize} ${x.fontFamily}`, w.toggleAttribute("data-hy", Math.max(0, ...(w.textContent ?? "").split(/[\s\u2011-]+/).map((k) => o.measureText(k).width)) > w.clientWidth);
       }
-      const r = getComputedStyle(e), n = parseFloat(r.rowGap) || 0, p = parseFloat(getComputedStyle(i).rowGap) || 0, d = e.querySelector(".dayhead"), c = e.clientHeight - parseFloat(r.paddingTop) - parseFloat(r.paddingBottom) - (d ? d.offsetHeight + n : 0);
+      const r = getComputedStyle(e), n = parseFloat(r.rowGap) || 0, p = parseFloat(getComputedStyle(i).rowGap) || 0, c = e.querySelector(".dayhead"), d = e.clientHeight - parseFloat(r.paddingTop) - parseFloat(r.paddingBottom) - (c ? c.offsetHeight + n : 0);
       let h = s.map((w) => w.offsetHeight);
       const f = s.map(() => !0), m = () => {
         let w = 0, x = 0;
@@ -16347,15 +16362,15 @@ const Qu = (a, t) => {
           k && (w += h[v], x++);
         }), w + Math.max(0, x - 1) * p;
       };
-      if (m() > c + 1)
+      if (m() > d + 1)
         e.setAttribute("data-tight", ""), h = s.map((w) => w.offsetHeight);
       else if (i.querySelector(".loc")) {
         e.setAttribute("data-wrap", "");
         const w = h;
-        h = s.map((x) => x.offsetHeight), m() > c + 1 && (e.removeAttribute("data-wrap"), h = w);
+        h = s.map((x) => x.offsetHeight), m() > d + 1 && (e.removeAttribute("data-wrap"), h = w);
       }
-      if (m() > c + 1) {
-        const w = c - 30 - n;
+      if (m() > d + 1) {
+        const w = d - 30 - n;
         for (let x = 0; x < s.length && m() > w + 1; x++) s[x].classList.contains("past") && (f[x] = !1);
         for (let x = s.length - 1; x >= 0 && m() > w + 1; x--) f[x] = !1;
         for (let x = s.length - 1; x >= 0; x--) f[x] || (f[x] = !0, m() > w + 1 && (f[x] = !1));
@@ -16431,19 +16446,19 @@ const Qu = (a, t) => {
     let n = 0;
     return await Promise.all(s.map(async (p) => {
       try {
-        const d = await this.hass.callApi("GET", `calendars/${p.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(e.toISOString())}`), c = p.name ?? this.hass.states[p.entity]?.attributes.friendly_name ?? p.entity;
-        for (const h of d ?? []) {
+        const c = await this.hass.callApi("GET", `calendars/${p.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(e.toISOString())}`), d = p.name ?? this.hass.states[p.entity]?.attributes.friendly_name ?? p.entity;
+        for (const h of c ?? []) {
           if (!gc(p, String(h?.summary ?? ""))) continue;
           const f = !!h?.start?.date, m = f ? `${h.start.date}T00:00:00` : h?.start?.dateTime, u = new Date(m);
           if (!m || isNaN(u.getTime())) continue;
           const w = f ? h.end?.date ? `${h.end.date}T00:00:00` : "" : h.end?.dateTime;
           let x = new Date(w);
-          (!w || isNaN(x.getTime())) && (x = new Date(u.getTime() + (f ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: u, end: x, allDay: f, colour: p.colour, who: c, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0, entity: p.entity, uid: h.uid ? String(h.uid) : void 0, recurrenceId: h.recurrence_id ? String(h.recurrence_id) : void 0, repeats: !!(h.rrule || h.recurrence_id), rrule: h.rrule ? String(h.rrule) : void 0 });
+          (!w || isNaN(x.getTime())) && (x = new Date(u.getTime() + (f ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: u, end: x, allDay: f, colour: p.colour, who: d, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0, entity: p.entity, uid: h.uid ? String(h.uid) : void 0, recurrenceId: h.recurrence_id ? String(h.recurrence_id) : void 0, repeats: !!(h.rrule || h.recurrence_id), rrule: h.rrule ? String(h.rrule) : void 0 });
         }
-      } catch (d) {
-        n++, console.warn("Family Hub: calendar fetch failed", p.entity, d);
+      } catch (c) {
+        n++, console.warn("Family Hub: calendar fetch failed", p.entity, c);
       }
-    })), this._calError = n === s.length, !i && o !== this._fetchGen ? null : (r.sort((p, d) => Number(d.allDay) - Number(p.allDay) || p.start.getTime() - d.start.getTime()), r);
+    })), this._calError = n === s.length, !i && o !== this._fetchGen ? null : (r.sort((p, c) => Number(c.allDay) - Number(p.allDay) || p.start.getTime() - c.start.getTime()), r);
   }
   async _loadWeather() {
     const t = this._config.weather;
@@ -16462,8 +16477,8 @@ const Qu = (a, t) => {
     const i = t.uid in this._remTk;
     clearTimeout(this._remTk[t.uid]);
     const s = () => {
-      const { [t.uid]: p, ...d } = this._remTk;
-      this._remTk = d;
+      const { [t.uid]: p, ...c } = this._remTk;
+      this._remTk = c;
     }, o = () => {
       s(), this._remDue.delete(t.uid), this._reminders = this._reminders.filter((p) => p.uid !== t.uid), this._loadReminders();
     };
@@ -16547,7 +16562,7 @@ const Qu = (a, t) => {
     const s = { type: "calendar/event/delete", entity_id: i.entity, uid: i.uid };
     i.recurrenceId && t !== "all" && (s.recurrence_id = i.recurrenceId, t === "future" && (s.recurrence_range = "THISANDFUTURE"));
     try {
-      await dt(this.hass.callWS(s), 15e3), this._evBusy = !1, this._evAsk = "", this._sheet === "event" && (this._sheet = ""), this._say(`Deleted: ${i.title}${i.repeats ? { all: " (all of them)", one: " (just this one)", future: " (this and later ones)" }[t] : ""}`), this._fetchedKey = "", this._refresh(), this._loadSoon();
+      await ct(this.hass.callWS(s), 15e3), this._evBusy = !1, this._evAsk = "", this._sheet === "event" && (this._sheet = ""), this._say(`Deleted: ${i.title}${i.repeats ? { all: " (all of them)", one: " (just this one)", future: " (this and later ones)" }[t] : ""}`), this._fetchedKey = "", this._refresh(), this._loadSoon();
     } catch {
       this._evBusy = !1, S("error"), this._say(`${i.title} was not deleted: Home Assistant did not answer. Please try again.`, 8e3);
     }
@@ -16564,10 +16579,10 @@ const Qu = (a, t) => {
 `).replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "’").replace(/&amp;/g, "&").replace(/[ \t]{2,}/g, " ").replace(/ ?\n ?/g, `
 `).replace(/\n{3,}/g, `
 
-`).trim(), r = (n, p, d = "") => l`<div class="evrow ${d}"><span class="evic" aria-hidden="true">${n}</span><span class="evtx">${p}</span></div>`;
+`).trim(), r = (n, p, c = "") => l`<div class="evrow ${c}"><span class="evic" aria-hidden="true">${n}</span><span class="evtx">${p}</span></div>`;
     return l`<div class="shead"><h2 class="t-head evtitle" id="evt">${e.title}</h2></div>
-      <div class="evd" style="--c:${Z(e.colour)}">
-        ${r(U("calendar", 22), Fa(i), "evday")}
+      <div class="evd" style="--c:${Y(e.colour)}">
+        ${r(U("calendar", 22), Sa(i), "evday")}
         ${r(U("timer", 22), l`${im(e)}${/^(Day|until|continues)/.test(s) ? l`<span class="muted evpart"> · ${s === "continues" ? "continues all day" : s.replace(/^Day/, "day")}</span>` : g}`, "evwhen")}
         ${r(this._chip(e.who, e.colour), e.who, "evwho2")}
         ${e.location ? r(U("pin", 22), e.location, "evplace") : g}
@@ -16608,7 +16623,7 @@ const Qu = (a, t) => {
     return !i || !e.kids?.length ? !1 : bl(t, e.school_terms, e.public_holidays) && Rp(t, i.start ?? "06:30", i.end ?? "08:45");
   }
   _termLabel(t = /* @__PURE__ */ new Date()) {
-    const e = ys(t), i = this._config.school_terms ?? [], s = i.findIndex(([p, d]) => e >= p && e <= d);
+    const e = ys(t), i = this._config.school_terms ?? [], s = i.findIndex(([p, c]) => e >= p && e <= c);
     if (s < 0) return bl(t, i, this._config.public_holidays) ? "School day" : "Holidays";
     const o = /* @__PURE__ */ new Date(`${i[s][0]}T00:00:00`), r = Math.floor((yi(t).getTime() - yi(o).getTime()) / (7 * 864e5)) + 1, n = o.getMonth();
     return `Term ${n <= 2 ? 1 : n <= 5 ? 2 : n <= 8 ? 3 : 4}, week ${r}`;
@@ -16674,7 +16689,7 @@ const Qu = (a, t) => {
   }
   /** The timer's digits: when time has just been added they roll up 12 px into place (--m-2). */
   _roll(t) {
-    return this._bump ? Je(this._bump, l`<span class="troll">${t}</span>`) : t;
+    return this._bump ? Ie(this._bump, l`<span class="troll">${t}</span>`) : t;
   }
   /** Cancel the kitchen timer. A slip can be undone: the toast puts the time that was left back on. */
   async _cancelTimer() {
@@ -16710,8 +16725,8 @@ const Qu = (a, t) => {
   }
   /** Where a daily medicine stands. A helper that has never been set reads as midnight today, given by "unknown": that is not a dose. */
   _medStatus(t, e) {
-    const i = this.hass?.states[`input_datetime.fh_med_${t}`], s = this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", o = ["unknown", "unavailable"].includes(s) ? "" : s, r = i?.attributes.timestamp ? new Date(i.attributes.timestamp * 1e3) : null, n = !!r && !o && r.getHours() === 0 && r.getMinutes() === 0 && r.getSeconds() === 0, p = r && !n && mt(r, /* @__PURE__ */ new Date()) ? r : null, d = ee(this._now), c = ut(e);
-    return { given: p, by: o, due: !p && d >= c - 60, late: !p && d > c + 45, stale: !p && d > c + 105, missing: !i || i.state === "unavailable" };
+    const i = this.hass?.states[`input_datetime.fh_med_${t}`], s = this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", o = ["unknown", "unavailable"].includes(s) ? "" : s, r = i?.attributes.timestamp ? new Date(i.attributes.timestamp * 1e3) : null, n = !!r && !o && r.getHours() === 0 && r.getMinutes() === 0 && r.getSeconds() === 0, p = r && !n && ht(r, /* @__PURE__ */ new Date()) ? r : null, c = ee(this._now), d = ut(e);
+    return { given: p, by: o, due: !p && c >= d - 60, late: !p && c > d + 45, stale: !p && c > d + 105, missing: !i || i.state === "unavailable" };
   }
   _medGuard(t, e) {
     if (this._medOpen || !this._config.parent_pin || this._config.meds_pin === !1) {
@@ -16728,7 +16743,7 @@ const Qu = (a, t) => {
       t ? localStorage.setItem("family-hub-med-later", String(this._medLater)) : localStorage.removeItem("family-hub-med-later");
     } catch {
     }
-    t ? (this._sheet = "", this._say(`Medicine reminder back at ${pt(new Date(this._medLater))}`)) : this.requestUpdate();
+    t ? (this._sheet = "", this._say(`Medicine reminder back at ${dt(new Date(this._medLater))}`)) : this.requestUpdate();
   }
   async _giveMed(t, e) {
     const i = this.hass;
@@ -16737,9 +16752,9 @@ const Qu = (a, t) => {
     const s = { ts: i.states[`input_datetime.fh_med_${t}`]?.attributes.timestamp, by: i.states[`input_text.fh_med_${t}_by`]?.state ?? "" }, o = Math.floor(it(/* @__PURE__ */ new Date()).getTime() / 1e3), r = ["unavailable", ""].includes(s.by) ? "unknown" : s.by;
     let n = 0;
     try {
-      await dt(i.callService("input_text", "set_value", { entity_id: `input_text.fh_med_${t}_by`, value: e })), n = 1, await dt(i.callService("input_datetime", "set_datetime", { entity_id: `input_datetime.fh_med_${t}`, timestamp: Math.floor(Date.now() / 1e3) })), n = 2, i.callService("persistent_notification", "dismiss", { notification_id: `fh_meds_${t.split("_").pop()}` }).catch(() => {
+      await ct(i.callService("input_text", "set_value", { entity_id: `input_text.fh_med_${t}_by`, value: e })), n = 1, await ct(i.callService("input_datetime", "set_datetime", { entity_id: `input_datetime.fh_med_${t}`, timestamp: Math.floor(Date.now() / 1e3) })), n = 2, i.callService("persistent_notification", "dismiss", { notification_id: `fh_meds_${t.split("_").pop()}` }).catch(() => {
       }), S("tick");
-      const p = (this._config.meds ?? []).find((d) => d.id === t);
+      const p = (this._config.meds ?? []).find((c) => c.id === t);
       this._say(`Recorded${p?.who ? ` for ${p.who}` : ""}: ${p?.label ?? "dose"}, given by ${e}`, 1e4, { label: "Undo", run: () => this._medGuard("Take this record back?", () => void this._ungiveMed(t, s)) });
     } catch (p) {
       i.callService("input_text", "set_value", { entity_id: `input_text.fh_med_${t}_by`, value: r }).catch(() => {
@@ -16760,8 +16775,8 @@ const Qu = (a, t) => {
   }
   async _loadMedLog() {
     const t = (s, o) => {
-      const [r, n, p, d] = s.split("|"), c = new Date(r);
-      return Number.isNaN(c.getTime()) || !p ? null : { at: c, who: n, what: p, by: d ?? "", uid: o };
+      const [r, n, p, c] = s.split("|"), d = new Date(r);
+      return Number.isNaN(d.getTime()) || !p ? null : { at: d, who: n, what: p, by: c ?? "", uid: o };
     }, e = this._config.med_log;
     let i = [];
     if (e && this.hass?.states[e])
@@ -16784,12 +16799,12 @@ const Qu = (a, t) => {
     }
     const i = new Date(Date.now() - t.ago * 6e4), s = `${i.toISOString()}|${t.who}|${e}|${t.by}`, o = this._config.med_log;
     try {
-      if (o && this.hass?.states[o]) await dt(this.hass.callService("todo", "add_item", { item: s }, { entity_id: o }));
+      if (o && this.hass?.states[o]) await ct(this.hass.callService("todo", "add_item", { item: s }, { entity_id: o }));
       else {
         const r = JSON.parse(localStorage.getItem(ne.MED_KEY) ?? "[]");
         localStorage.setItem(ne.MED_KEY, JSON.stringify([s, ...r].slice(0, 60)));
       }
-      S("tick"), this._say(`Logged: ${e} for ${t.who} at ${pt(i)}`), this._mx = { what: "", other: "", who: "", ago: 0, by: t.by, caps: !0 }, await this._loadMedLog(), this.requestUpdate(), await this.updateComplete;
+      S("tick"), this._say(`Logged: ${e} for ${t.who} at ${dt(i)}`), this._mx = { what: "", other: "", who: "", ago: 0, by: t.by, caps: !0 }, await this._loadMedLog(), this.requestUpdate(), await this.updateComplete;
       {
         const r = i.toISOString();
         [...this.renderRoot.querySelectorAll(".sheet .irow[data-at]")].find((p) => p.dataset.at === r)?.scrollIntoView({ block: "nearest", behavior: this.renderRoot.querySelector(".fh[data-calm]") ? "auto" : "smooth" });
@@ -16873,7 +16888,7 @@ const Qu = (a, t) => {
       this._pinAsk = { reason: "It is after bedtime. Turn the lights on?", run: () => void this._allOn(!0) };
       return;
     }
-    const s = e.all_on, o = this.hass?.states ?? {}, r = (s?.length ? s : Object.keys(o).filter((d) => d.startsWith("light."))).filter((d) => o[d] && o[d].state !== "on" && o[d].state !== "unavailable");
+    const s = e.all_on, o = this.hass?.states ?? {}, r = (s?.length ? s : Object.keys(o).filter((c) => c.startsWith("light."))).filter((c) => o[c] && o[c].state !== "on" && o[c].state !== "unavailable");
     S("tap"), this._sceneBusy = !0;
     const n = await this._call("light", "turn_on", { entity_id: s?.length ? s : "all" });
     if (this._sceneBusy = !1, !n) return;
@@ -16883,8 +16898,8 @@ const Qu = (a, t) => {
       return;
     }
     this._say(p, 1e4, { label: "Undo", run: () => {
-      this._call("light", "turn_off", { entity_id: r }).then((d) => {
-        d && this._say("Back off");
+      this._call("light", "turn_off", { entity_id: r }).then((c) => {
+        c && this._say("Back off");
       });
     } });
   }
@@ -16916,17 +16931,17 @@ const Qu = (a, t) => {
       this._offCancel(!1), this._say(n ? `Nothing else to turn off${p}` : "Everything’s already off");
       return;
     }
-    const d = Math.max(0, Number(this._config.all_off_wait ?? 3)) * 1e3;
-    if (!t && d) {
+    const c = Math.max(0, Number(this._config.all_off_wait ?? 3)) * 1e3;
+    if (!t && c) {
       if (this._off) return;
-      S("tap"), this._off = { at: Date.now() + d, timer: window.setTimeout(() => {
+      S("tap"), this._off = { at: Date.now() + c, timer: window.setTimeout(() => {
         this._off = null, this._allOff(!0);
-      }, d) };
+      }, c) };
       return;
     }
     this._sceneBusy = !0;
-    const c = await this._call("light", "turn_off", { entity_id: s }, void 0, ...t ? [this.renderRoot.querySelector('nav [data-nav="lights-off"]')] : []);
-    this._sceneBusy = !1, c && (S("untick"), this._say(n ? `All off${p}` : "Lights off", 1e4, { label: "Undo", run: () => {
+    const d = await this._call("light", "turn_off", { entity_id: s }, void 0, ...t ? [this.renderRoot.querySelector('nav [data-nav="lights-off"]')] : []);
+    this._sceneBusy = !1, d && (S("untick"), this._say(n ? `All off${p}` : "Lights off", 1e4, { label: "Undo", run: () => {
       this._call("light", "turn_on", { entity_id: s }).then((h) => {
         h && this._say("Back on");
       });
@@ -16934,7 +16949,7 @@ const Qu = (a, t) => {
   }
   /** A timed job tagged @song: play the tidy-up song on the child's speaker for that long, then fade it out. */
   _tidySong(t, e) {
-    const i = this.hass, s = i ? Vc(i, this._config.music_players ?? []) : [], o = i && (Hr(i, t, s) ?? Ue(i, s, this._config.music_player) ?? s[0]);
+    const i = this.hass, s = i ? Vc(i, this._config.music_players ?? []) : [], o = i && (Hr(i, t, s) ?? Ke(i, s, this._config.music_player) ?? s[0]);
     if (!i || !o) return;
     if (!e) {
       this._call("media_player", "media_pause", { entity_id: o.entity_id });
@@ -16981,7 +16996,7 @@ const Qu = (a, t) => {
   }
   _openChat() {
     const t = this._config, e = this._kidOn, i = As(t.kids), s = () => {
-      this._asker = i ? e && Oe(e).mode !== "off" ? e.name : null : "", this._sheet = "chat";
+      this._asker = i ? e && Be(e).mode !== "off" ? e.name : null : "", this._sheet = "chat";
     };
     t.chat?.agent && (t.chat.pin_after_bedtime === !1 || !this._chatLate() ? s() : t.parent_pin ? this._pinAsk = { reason: "Chat after bedtime?", run: s } : this._say("The helper is asleep now. Come back in the morning."));
   }
@@ -16992,10 +17007,10 @@ const Qu = (a, t) => {
   // ---------- render ----------
   render() {
     if (!this._config) return g;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ji(t?.theme ?? this._theme), i = this._isNight(), o = Yt(this._lk).themed ? `${Li(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, d = this._page === "music" && this._musicKid ? this._config.kids?.find((q) => q.name === this._musicKid) : void 0, c = this._config.calm === !1 ? !1 : p ? p.calm : d ? yo(d).calm || this._config.calm === !0 : this._config.calm === !0, h = this._now.getHours(), f = h < 5 || h >= 21 ? "rgba(10,20,60,.28)" : h < 7 ? "rgba(255,170,150,.16)" : h >= 17 && h < 19 ? "rgba(255,150,60,.14)" : h >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [u, w] = Ae(this, "sheet", this._sheet), [x, k] = Ae(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, v] = Ae(this, "night", i, 400), [K, y] = Ae(this, "art", this._art.on, 250);
-    return i ? l`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${c} style=${`${o}--z:${this._z}`}>${this._night()}</div>` : l`
-      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${m ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${c} ?data-compact=${this._compact} style=${`${o}--tod:${f};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === !1 || this._photo ? g : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${c} .hold=${!!(u || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${c} .hold=${!!(u || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ji(t?.theme ?? this._theme), i = this._isNight(), o = Yt(this._lk).themed ? `${Li(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, c = this._page === "music" && this._musicKid ? this._config.kids?.find((q) => q.name === this._musicKid) : void 0, d = this._config.calm === !1 ? !1 : p ? p.calm : c ? yo(c).calm || this._config.calm === !0 : this._config.calm === !0, h = this._now.getHours(), f = h < 5 || h >= 21 ? "rgba(10,20,60,.28)" : h < 7 ? "rgba(255,170,150,.16)" : h >= 17 && h < 19 ? "rgba(255,150,60,.14)" : h >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [u, w] = qe(this, "sheet", this._sheet), [x, k] = qe(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, v] = qe(this, "night", i, 400), [K, y] = qe(this, "art", this._art.on, 250);
+    return i ? l`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${d} style=${`${o}--z:${this._z}`}>${this._night()}</div>` : l`
+      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${m ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${d} ?data-compact=${this._compact} style=${`${o}--tod:${f};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
+        ${this._config.ambient === !1 || this._photo ? g : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(u || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(u || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -17007,7 +17022,7 @@ const Qu = (a, t) => {
       this._toast = "", this._toastAct = null, clearTimeout(this._toastTimer), S("undo"), q?.run();
     }}>${x.act.label}</button>` : g}</div>` : g}</div>
         ${v ? this._night(!0) : g}
-        ${K ? this._artView(y, c, e.id, n) : g}
+        ${K ? this._artView(y, d, e.id, n) : g}
         ${this._alarm ? this._alarmView() : g}
         ${this._pinAsk ? l`<fh-pin .pin=${String(this._config.parent_pin ?? "")} reason=${this._pinAsk.reason} @ok=${() => {
       const q = this._pinAsk.run;
@@ -17027,7 +17042,7 @@ const Qu = (a, t) => {
         if (!i) break;
         const s = vs(this._now, t.quiet?.start ?? "20:00", t.quiet?.end ?? "06:30");
         return l`<fh-kid .hass=${this.hass} .kid=${i} .art=${t.art ?? {}} .familyCalendars=${e} .calRules=${t.calendars ?? []} .pin=${String(t.parent_pin ?? "")} .owed=${"todo.rewards_owed"}
-          .jarTarget=${t.jar?.target ?? 120} .jarReward=${t.jar?.reward ?? "a family treat"} .privateWords=${t.private ?? []} .quiet=${s} .oneAtATime=${yo(i).focus} .ask=${!!t.chat?.agent && (!As(t.kids) || Oe(i).mode !== "off")} @ask=${() => this._openChat()} @song=${(o) => this._tidySong(i, o.detail.minutes)}></fh-kid>`;
+          .jarTarget=${t.jar?.target ?? 120} .jarReward=${t.jar?.reward ?? "a family treat"} .privateWords=${t.private ?? []} .quiet=${s} .oneAtATime=${yo(i).focus} .ask=${!!t.chat?.agent && (!As(t.kids) || Be(i).mode !== "off")} @ask=${() => this._openChat()} @song=${(o) => this._tidySong(i, o.detail.minutes)}></fh-kid>`;
       }
       case "home":
         return l`<fh-home .hass=${this.hass} .pin=${String(t.parent_pin ?? "")} .hide=${t.home_hide ?? []} .hideScripts=${t.announce_script ? [t.announce_script] : []}
@@ -17048,12 +17063,12 @@ const Qu = (a, t) => {
     return l`${this._planner()}${this._aside()}`;
   }
   _artView(t, e, i, s) {
-    const o = this._now, r = Io(o), n = Sd(this._config.kids, this._config.quiet, o), p = this._arcs(this._eventsOn(o, this._soon)).map((d) => n ? { ...d, colour: "rgba(255,178,107,.7)" } : d);
+    const o = this._now, r = Io(o), n = Sd(this._config.kids, this._config.quiet, o), p = this._arcs(this._eventsOn(o, this._soon)).map((c) => n ? { ...c, colour: "rgba(255,178,107,.7)" } : c);
     return Qu(this._art, {
       now: o,
       hm: r.hm,
       ampm: r.ampm,
-      date: Fa(o),
+      date: Sa(o),
       art: Bt(this._lk, "night", { now: o, arcs: p, size: 190 }),
       lines: t ? [] : this._artLines(),
       night: n,
@@ -17062,8 +17077,8 @@ const Qu = (a, t) => {
       look: this._lk,
       theme: i,
       tod: s,
-      onWake: (d) => {
-        d.type === "keydown" && (d.preventDefault(), this._lastTouch = Date.now(), this._art.wake());
+      onWake: (c) => {
+        c.type === "keydown" && (c.preventDefault(), this._lastTouch = Date.now(), this._art.wake());
       }
     });
   }
@@ -17076,39 +17091,41 @@ const Qu = (a, t) => {
   _capsule() {
     const t = this._config, e = [], i = this._timerLeft();
     if (i !== null && (this._page !== "planner" || i < 6e4)) {
-      const d = Math.floor(i / 6e4), c = Math.floor(i % 6e4 / 1e3);
-      e.push([1, l`<button class="cap tap ${i < 6e4 ? "hot" : ""}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${d} minutes ${c} seconds left" @click=${() => {
+      const h = Math.floor(i / 6e4), f = Math.floor(i % 6e4 / 1e3);
+      e.push([1, l`<button class="cap tap ${i < 6e4 ? "hot" : ""}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${h} minutes ${f} seconds left" @click=${() => {
         this._sheet = "timer";
-      }}>${U("timer", 20)}<b>${d}:${String(c).padStart(2, "0")}</b></button>`]);
+      }}>${U("timer", 20)}<b>${h}:${String(f).padStart(2, "0")}</b></button>`]);
     }
     const s = wo(this.hass);
     s && !s.alarm && e.push([4, l`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${s.t}</span></span>`]);
     {
-      const d = (t.meds ?? []).map((u) => ({ m: u, s: this._medStatus(u.id, u.time) })), c = d.filter((u) => u.s.due), h = c.some((u) => u.s.late), f = d.filter((u) => u.s.given), m = () => {
+      const h = (t.meds ?? []).map((x) => ({ m: x, s: this._medStatus(x.id, x.time) })), f = h.filter((x) => x.s.due), m = f.some((x) => x.s.late), u = h.filter((x) => x.s.given), w = () => {
         this._sheet = "meds", this._loadMedLog();
       };
-      if (c.length && Date.now() >= this._medLater) {
-        const u = c.some((k) => k.s.late && !k.s.stale), w = h ? "overdue" : "due", x = u ? 0 : h ? 1.5 : 2;
-        e.push([x, l`<button class="cap tap ${u ? "hot" : ""}" ?data-warm=${h && !u} data-kind="med" data-p=${u ? 0 : 2} aria-label=${`Medicine: ${c.length} ${w}`} @click=${m}>${U("pill", 20)}<span style="white-space:nowrap">${c.length} ${w}</span></button>`]);
-      } else !c.length && f.length && this._now.getHours() < 12 && e.push([5, l`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${f.length === 1 ? ` at ${pt(f[0].s.given)}` : `: ${f.length}`}`} @click=${m}>${U("pill", 20)}${U("check", 18)}<span>${f.length === 1 ? pt(f[0].s.given) : `${f.length} given`}</span></button>`]);
+      if (f.length && Date.now() >= this._medLater) {
+        const x = f.some((K) => K.s.late && !K.s.stale), k = m ? "overdue" : "due", v = x ? 0 : m ? 1.5 : 2;
+        e.push([v, l`<button class="cap tap ${x ? "hot" : ""}" ?data-warm=${m && !x} data-kind="med" data-p=${x ? 0 : 2} aria-label=${`Medicine: ${f.length} ${k}`} @click=${w}>${U("pill", 20)}<span style="white-space:nowrap">${f.length} ${k}</span></button>`]);
+      } else !f.length && u.length && this._now.getHours() < 12 && e.push([5, l`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${u.length === 1 ? ` at ${dt(u[0].s.given)}` : `: ${u.length}`}`} @click=${w}>${U("pill", 20)}${U("check", 18)}<span>${u.length === 1 ? dt(u[0].s.given) : `${u.length} given`}</span></button>`]);
     }
-    if (this._page !== "kid") for (const d of this._wantsChat) e.push([0.5, l`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${d} would like a chat. Tap to dismiss`} @click=${() => {
-      this._wantsChat = this._wantsChat.filter((c) => c !== d);
-    }}>${U("ask", 20)}<span>${d} would like a chat</span></button>`]);
+    if (this._page !== "kid") for (const h of this._wantsChat) e.push([0.5, l`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${h} would like a chat. Tap to dismiss`} @click=${() => {
+      this._wantsChat = this._wantsChat.filter((f) => f !== h);
+    }}>${U("ask", 20)}<span>${h} would like a chat</span></button>`]);
     const o = this._bins(this._now);
-    if (o && mt(o.night, this._now) && o.bins.length) {
-      const d = this._now.getHours() >= 16 ? 2.5 : 5;
-      e.push([d, l`<span class="cap" data-kind="bin" data-p=${d >= 3 ? 5 : 3} role="img" aria-label=${`Bin night: ${o.bins.join(" and ")} bins go out tonight`}>${U("bin", 20)}<span>Bins tonight</span>${this._binDots(o.bins)}<span>${o.bins.join(" + ")}</span></span>`]);
+    if (o && ht(o.night, this._now) && o.bins.length) {
+      const h = this._now.getHours() >= 16 ? 2.5 : 5;
+      e.push([h, l`<span class="cap" data-kind="bin" data-p=${h >= 3 ? 5 : 3} role="img" aria-label=${`Bin night: ${o.bins.join(" and ")} bins go out tonight`}>${U("bin", 20)}<span>Bins tonight</span>${this._binDots(o.bins)}<span>${o.bins.join(" + ")}</span></span>`]);
     }
-    const r = Date.now(), n = this._soon.find((d) => !d.allDay && d.start.getTime() > r && d.start.getTime() - r < 12 * 36e5 && !this._private(d.title));
+    const r = Date.now(), n = this._soon.find((h) => !h.allDay && h.start.getTime() > r && h.start.getTime() - r < 12 * 36e5 && !this._private(h.title));
     if (n) {
-      const d = Math.round((n.start.getTime() - r) / 6e4), c = d < 60 ? `in ${d} min` : `${mt(n.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${pt(n.start)}`;
-      e.push([3, l`<button class="cap evcap tap" data-kind="next" data-p="3" aria-label=${`Next: ${this._evName(n, n.start)}`} @click=${() => this._openEvent(n, n.start)}>${this._chip(n.who, n.colour)}<span class="ell">${n.title}</span><span style="white-space:nowrap">· ${c}</span></button>`]);
+      const h = Math.round((n.start.getTime() - r) / 6e4), f = h < 60 ? `in ${h} min` : `${ht(n.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${dt(n.start)}`;
+      e.push([3, l`<button class="cap evcap tap" data-kind="next" data-p="3" aria-label=${`Next: ${this._evName(n, n.start)}`} @click=${() => this._openEvent(n, n.start)}>${this._chip(n.who, n.colour)}<span class="ell">${n.title}</span><span style="white-space:nowrap">· ${f}</span></button>`]);
     }
     const p = t.music_player ? this.hass?.states[t.music_player] : void 0;
-    return p?.state === "playing" && this._page !== "music" && this._page !== "planner" && e.push([6, l`<button class="cap tap" data-kind="music" data-p="6" aria-label=${`Playing: ${p.attributes.media_title ?? "music"}. Open Music`} @click=${() => {
+    p?.state === "playing" && this._page !== "music" && this._page !== "planner" && e.push([6, l`<button class="cap tap" data-kind="music" data-p="6" aria-label=${`Playing: ${p.attributes.media_title ?? "music"}. Open Music`} @click=${() => {
       this._page = "music";
-    }}>${U("music", 20)}<span class="ell">${p.attributes.media_title ?? "Playing"}</span></button>`]), l`<div class="capsule" aria-live="polite">${e.sort((d, c) => d[0] - c[0]).slice(0, 2).map((d) => d[1])}</div>`;
+    }}>${U("music", 20)}<span class="ell">${p.attributes.media_title ?? "Playing"}</span></button>`]);
+    const c = e.find((h) => h[0] === 3), d = e.filter((h) => h[0] !== 3).sort((h, f) => h[0] - f[0])[0];
+    return l`<div class="capsule" aria-live="polite">${[d, c].filter((h) => !!h).map((h) => h[1])}</div>`;
   }
   /** On a child's page: only his own next event (and the kitchen timer in its last minute). */
   _kidCapsule(t) {
@@ -17118,13 +17135,13 @@ const Qu = (a, t) => {
     }}>${U("timer", 20)}<b>0:${String(Math.floor(s / 1e3)).padStart(2, "0")}</b></button>`);
     const o = t.name.toLowerCase(), r = this._soon.find((n) => !n.allDay && n.start.getTime() > e && n.start.getTime() - e < 12 * 36e5 && !this._private(n.title) && (n.who === t.name || n.title.toLowerCase().includes(o)));
     if (r) {
-      const n = Math.round((r.start.getTime() - e) / 6e4), p = n < 60 ? `in ${n} min` : `${mt(r.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${pt(r.start)}`;
+      const n = Math.round((r.start.getTime() - e) / 6e4), p = n < 60 ? `in ${n} min` : `${ht(r.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${dt(r.start)}`;
       i.push(l`<button class="cap evcap tap" data-kind="next" data-p="3" aria-label=${`Next: ${this._evName(r, r.start)}`} @click=${() => this._openEvent(r, r.start)}>${this._chip(t.name, t.colour)}<span class="ell">Next: ${r.title}</span><span style="white-space:nowrap">· ${p}</span></button>`);
     }
     return l`<div class="capsule" aria-live="polite">${i}</div>`;
   }
   _header() {
-    const t = this._config, e = this.hass, i = this._now, s = Io(i), o = t.weather ? e?.states[t.weather] : void 0, r = o?.attributes.temperature, n = this._wx, p = this._kidOn, d = (t.people ?? []).filter((c) => c.entity);
+    const t = this._config, e = this.hass, i = this._now, s = Io(i), o = t.weather ? e?.states[t.weather] : void 0, r = o?.attributes.temperature, n = this._wx, p = this._kidOn, c = (t.people ?? []).filter((d) => d.entity);
     return l`
       <header>
         <div class="clock">
@@ -17147,28 +17164,16 @@ const Qu = (a, t) => {
               ${(n.uv ?? 0) >= 3 ? l`<span class="badge" title="UV ${n.uv}">${U("sun", 14)}UV ${Math.round(n.uv)}</span>` : g}
               ${(n.max ?? 0) >= 35 ? l`<span class="badge hot">${U("thermo", 14)}Hot</span>` : g}
             </button>` : g}
-          ${d.length && !p ? l`
-            <button class="glass presence tap" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
-              <span class="phome" aria-hidden="true">${U("home", 18)}</span>
-              ${d.map((c) => this._face(c, e?.states[c.entity]?.state === "home"))}
-            </button>` : g}
-          ${t.chat?.agent && !(this._kidOn && As(t.kids) && Oe(this._kidOn).mode === "off") ? l`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${ye("ask", 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : g}
-          <button class="glass tap round hb" data-act="looks" aria-label=${p ? `${p.name}’s settings` : "Looks and themes"} @click=${() => this._openLooks()}>${p ? U("cog") : ye("palette")}<span class="rl" aria-hidden="true">${p ? "Settings" : "Looks"}</span></button>
-          ${(t.meds?.length || t.med_log) && !p ? l`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => {
-      this._sheet = "meds", this._loadMedLog();
-    }}>${ye("pill")}<span class="rl" aria-hidden="true">Medicine</span></button>` : g}
-          ${p ? g : l`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => {
-      this._sheet = "sitter";
-    }}>${ye("info")}<span class="rl" aria-hidden="true">House info</span></button>`}
-          <button class="glass tap round hb" data-act="night" aria-label="Night mode" @click=${() => {
-      this._nightManual = !0;
-    }}>${ye("moon")}<span class="rl" aria-hidden="true">Night</span></button>
+          ${t.chat?.agent && !(this._kidOn && As(t.kids) && Be(this._kidOn).mode === "off") ? l`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${Va("ask", 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : g}
+          ${p ? l`<button class="glass tap round hb" data-act="looks" aria-label=${`${p.name}’s settings`} @click=${() => this._openLooks()}>${U("cog")}<span class="rl" aria-hidden="true">Settings</span></button>` : l`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${t.meds?.length || t.med_log ? "medicine, " : ""}house info, night${c.length ? " and who is home" : ""}" aria-haspopup="dialog" @click=${() => {
+      this._sheet = "more";
+    }}>${U("more")}<span class="rl" aria-hidden="true">More</span></button>`}
         </div>
       </header>`;
   }
   _planner() {
-    const t = this._view, [e, i] = this._range(), s = t === "week" ? ["This week", em(e, X(i, -1))] : t === "day" ? [mt(e, /* @__PURE__ */ new Date()) ? "Today" : Si(e), Fa(e)] : [this._anchor.toLocaleDateString("en-AU", { month: "long" }), String(this._anchor.getFullYear())];
-    t === "week" && this._span < 7 ? s[0] = mt(e, /* @__PURE__ */ new Date()) ? `Next ${this._span} days` : `${this._span} days` : t === "week" && !mt(yi(/* @__PURE__ */ new Date()), e) && (s[0] = "Week of");
+    const t = this._view, [e, i] = this._range(), s = t === "week" ? ["This week", em(e, X(i, -1))] : t === "day" ? [ht(e, /* @__PURE__ */ new Date()) ? "Today" : Si(e), Sa(e)] : [this._anchor.toLocaleDateString("en-AU", { month: "long" }), String(this._anchor.getFullYear())];
+    t === "week" && this._span < 7 ? s[0] = ht(e, /* @__PURE__ */ new Date()) ? `Next ${this._span} days` : `${this._span} days` : t === "week" && !ht(yi(/* @__PURE__ */ new Date()), e) && (s[0] = "Week of");
     const o = this._config.calendars ?? [];
     return l`
       <section class="glass planner" aria-label="Family planner">
@@ -17203,7 +17208,7 @@ const Qu = (a, t) => {
       </section>`;
   }
   _arcs(t) {
-    return t.filter((e) => !this._private(e.title)).map((e) => ({ start: e.start, end: e.end, allDay: e.allDay, colour: Z(e.colour) }));
+    return t.filter((e) => !this._private(e.title)).map((e) => ({ start: e.start, end: e.end, allDay: e.allDay, colour: Y(e.colour) }));
   }
   /** 'past' once an event has finished today, 'next' for the next thing coming up. */
   _evState(t) {
@@ -17214,7 +17219,7 @@ const Qu = (a, t) => {
   }
   _evCard(t, e) {
     const i = le(t, e).label;
-    return this._private(t.title) ? l`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${t.allDay ? "" : i}</span>${U("lock", 16)}</div>` : l`<button class="ev tap ${this._evState(t)}" style="--c:${Z(t.colour)}" aria-label=${this._evName(t, e)} @click=${() => this._openEvent(t, e)}>
+    return this._private(t.title) ? l`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${t.allDay ? "" : i}</span>${U("lock", 16)}</div>` : l`<button class="ev tap ${this._evState(t)}" style="--c:${Y(t.colour)}" aria-label=${this._evName(t, e)} @click=${() => this._openEvent(t, e)}>
       <span class="t">${i}</span>
       <span class="n content">${t.title.replace(/(\S)-(\S)/g, "$1‑$2")}</span>
       <span class="w">${t.who}</span>
@@ -17222,24 +17227,24 @@ const Qu = (a, t) => {
     </button>`;
   }
   _week(t) {
-    const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (r, n) => X(t, n)), s = i.map((r) => mt(r, e) ? "1.4fr" : "1fr").join(" "), o = this._evKey === this._fetchedKey && !this._events.length;
-    return l`<div class="weekwrap"><div class="week" style="grid-template-columns:${s}">
-      ${i.map((r) => {
-      const n = this._eventsOn(r), p = mt(r, e), d = n.filter((m) => !this._private(m.title)), c = n.filter((m) => this._private(m.title)), h = ys(r), f = this._clip[h] ?? 0;
-      return l`<div class="col ${p ? "today" : ""}">
-          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700)">${Si(r)}</span><span class="num">${r.getDate()}</span>${Bt(this._lk, "day", { now: r, arcs: this._arcs(d) })}${c.length ? l`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${U("lock", 15)}</span>` : g}</div>
-          <div class="evs" data-day=${h}>${d.map((m) => this._evCard(m, r))}</div>
-          ${f ? l`<button class="more tap" aria-label="${f} more on ${Fa(r)}" @click=${() => {
-        this._anchor = r, this._view = "day";
-      }}><span class="mpill">+${f} more</span></button>` : g}
+    const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (n, p) => X(t, p)), s = this._idle && i.some((n) => ht(n, e)) && !this._sheet, o = i.map((n) => ht(n, e) ? s ? "2.3fr" : "1.4fr" : "1fr").join(" "), r = this._evKey === this._fetchedKey && !this._events.length;
+    return l`<div class="weekwrap"><div class="week" ?data-rest=${s} style="grid-template-columns:${o}">
+      ${i.map((n) => {
+      const p = this._eventsOn(n), c = ht(n, e), d = p.filter((u) => !this._private(u.title)), h = p.filter((u) => this._private(u.title)), f = ys(n), m = this._clip[f] ?? 0;
+      return l`<div class="col ${c ? "today" : ""}">
+          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700)">${Si(n)}</span><span class="num">${n.getDate()}</span>${Bt(this._lk, "day", { now: n, arcs: this._arcs(d) })}${h.length ? l`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${U("lock", 15)}</span>` : g}</div>
+          <div class="evs" data-day=${f}>${d.map((u) => this._evCard(u, n))}</div>
+          ${m ? l`<button class="more tap" aria-label="${m} more on ${Sa(n)}" @click=${() => {
+        this._anchor = n, this._view = "day";
+      }}><span class="mpill">+${m} more</span></button>` : g}
         </div>`;
     })}
-    </div>${o ? l`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : g}</div>`;
+    </div>${r ? l`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : g}</div>`;
   }
   _day(t) {
-    const e = this._eventsOn(t), i = mt(t, /* @__PURE__ */ new Date()), s = l`<div class="daylist scrolly" data-fits @scroll=${wt}>
+    const e = this._eventsOn(t), i = ht(t, /* @__PURE__ */ new Date()), s = l`<div class="daylist scrolly" data-fits @scroll=${wt}>
       ${e.length ? e.map((r) => this._private(r.title) ? l`<div class="dayrow"><span style="width:90px;font-size:16px;font-weight:var(--w-semi, 600)" class="muted">${le(r, t).label}</span><span class="muted" style="font-size:18px;display:inline-flex;align-items:center;gap:8px">${U("lock", 18)}Private</span></div>` : l`
-        <button class="dayrow tap ${this._evState(r)}" style="--c:${Z(r.colour)}" aria-label=${this._evName(r, t)} @click=${() => this._openEvent(r, t)}>
+        <button class="dayrow tap ${this._evState(r)}" style="--c:${Y(r.colour)}" aria-label=${this._evName(r, t)} @click=${() => this._openEvent(r, t)}>
           <span style="width:90px;font-size:16px;font-weight:var(--w-bold, 700)" class="muted dwhen">${le(r, t).label}</span>
           <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:20px;font-weight:var(--w-bold, 700)">${r.title}</span>
           <span class="muted evwho" style="font-size:14px;font-weight:var(--w-semi, 600);display:flex;align-items:center;gap:6px">${this._chip(r.who, r.colour, !0)}${r.who}</span>
@@ -17254,10 +17259,10 @@ const Qu = (a, t) => {
       <div class="mhead">${Array.from({ length: 7 }, (s, o) => l`<span>${Si(X(t, o))}</span>`)}</div>
       <div class="month">
         ${Array.from({ length: 42 }, (s, o) => X(t, o)).map((s) => {
-      const o = this._eventsOn(s).filter((n) => !this._private(n.title)), r = mt(s, i);
-      return l`<button class="cell tap ${s.getMonth() !== e ? "out" : ""} ${r ? "today" : ""}" style="text-align:left" aria-label="${Fa(s)}${r ? ", today" : ""}, ${o.length ? `${o.length} event${o.length > 1 ? "s" : ""}` : "nothing on"}" @click=${(n) => {
-        const p = n.target.closest?.(".mev[data-i]"), d = p ? o[Number(p.getAttribute("data-i"))] : void 0;
-        d ? this._openEvent(d, s) : (this._anchor = s, this._view = "day");
+      const o = this._eventsOn(s).filter((n) => !this._private(n.title)), r = ht(s, i);
+      return l`<button class="cell tap ${s.getMonth() !== e ? "out" : ""} ${r ? "today" : ""}" style="text-align:left" aria-label="${Sa(s)}${r ? ", today" : ""}, ${o.length ? `${o.length} event${o.length > 1 ? "s" : ""}` : "nothing on"}" @click=${(n) => {
+        const p = n.target.closest?.(".mev[data-i]"), c = p ? o[Number(p.getAttribute("data-i"))] : void 0;
+        c ? this._openEvent(c, s) : (this._anchor = s, this._view = "day");
       }}>
             <span class="mtop"><span>${s.getDate()}</span>${o.length > this._mLines ? l`<span class="mmore">+${o.length - this._mLines}</span>` : g}</span>
             ${o.slice(0, this._mLines).map((n, p) => l`<span class="mev ${p < this._mLines - Math.min(o.length, this._mLines) ? "two" : ""}" data-i=${p} title=${this._evName(n, s)}>${this._chip(n.who, n.colour, !0)}<span class="ell">${n.title}</span></span>`)}
@@ -17267,7 +17272,7 @@ const Qu = (a, t) => {
     </div>`;
   }
   _aside() {
-    const t = this._config, e = t.music_player ? this.hass?.states[t.music_player] : void 0, i = e?.state === "playing", s = this._timerLeft(), o = s !== null ? Math.floor(s / 6e4) : 0, r = s !== null ? Math.floor(s % 6e4 / 1e3) : 0, n = Ge(this.hass, "input_number.family_jar"), p = t.jar?.target ?? 120, d = !!this.hass?.states["timer.kitchen"], c = Math.max(0, this._reminders.length - this._remShow);
+    const t = this._config, e = t.music_player ? this.hass?.states[t.music_player] : void 0, i = e?.state === "playing", s = this._timerLeft(), o = s !== null ? Math.floor(s / 6e4) : 0, r = s !== null ? Math.floor(s % 6e4 / 1e3) : 0, n = Qe(this.hass, "input_number.family_jar"), p = t.jar?.target ?? 120, c = !!this.hass?.states["timer.kitchen"], d = Math.max(0, this._reminders.length - this._remShow);
     return l`<aside>
       ${e ? l`<section class="glass card np ${i ? "playing" : ""}" aria-label=${`${i ? "Now playing" : "Music"}, ${e.attributes.friendly_name ?? ""}`}>
         <div class="np-main" style="display:flex;align-items:center;gap:10px">
@@ -17278,14 +17283,14 @@ const Qu = (a, t) => {
           </div>
         </div>
         <div class="ctl">
-          <button class="tap" aria-label="Previous track" @click=${() => this._media("media_previous_track")}>${nt("prev")}</button>
-          <button class="tap round" style="width:48px;height:48px" aria-label=${i ? "Pause" : "Play"} @click=${() => this._media("media_play_pause")}>${nt(i ? "pause" : "play", 20)}</button>
-          <button class="tap" aria-label="Next track" @click=${() => this._media("media_next_track")}>${nt("next")}</button>
+          <button class="tap" aria-label="Previous track" @click=${() => this._media("media_previous_track")}>${lt("prev")}</button>
+          <button class="tap round" style="width:48px;height:48px" aria-label=${i ? "Pause" : "Play"} @click=${() => this._media("media_play_pause")}>${lt(i ? "pause" : "play", 20)}</button>
+          <button class="tap" aria-label="Next track" @click=${() => this._media("media_next_track")}>${lt("next")}</button>
         </div>
       </section>` : g}
 
       <section class="glass card tmr" aria-label="Kitchen timer">
-        ${d ? l`
+        ${c ? l`
         <span class="label">Kitchen timer</span>
         <div class="timerrow ${s !== null ? "on" : ""}" ?data-bump=${!!this._bump}>${Bt(this._lk, "timer", { frac: this._timerFrac(s) })}<button class="tap display tread" data-act="timer" aria-label=${s !== null ? `Kitchen timer, ${o} minutes ${r} seconds left. Open the timer` : "Kitchen timer, not running. Open the timer"} @click=${() => {
       this._sheet = "timer";
@@ -17306,7 +17311,7 @@ const Qu = (a, t) => {
         ${this._remState !== "ok" ? l`<span class="muted remfail" role="alert" style="font-size:15px;font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === "missing" ? "The reminders list is not in Home Assistant. Check the card settings." : "Can’t load the reminders."}</span>
           ${this._remState === "failed" ? l`<button class="pill tap" style="align-self:flex-start" @click=${() => {
       this._loadReminders();
-    }}>Try again</button>` : g}` : l`<div class="remlist">${this._remList(c)}</div>`}
+    }}>Try again</button>` : g}` : l`<div class="remlist">${this._remList(d)}</div>`}
       </section>
     </aside>`;
   }
@@ -17321,17 +17326,27 @@ const Qu = (a, t) => {
   _dock() {
     const t = this._config.music_player, e = !!t && this.hass?.states[t]?.state === "playing", i = (o, r, n, p = !1) => l`<button class="item tap" data-nav=${o} aria-current=${p ? "page" : "false"} ?data-playing=${o === "music" && e} @click=${() => {
       S("nav"), n();
-    }}>${ye(o, 26)}<span class="lb" data-t=${r}>${r}</span></button>`, s = this._config.kids ?? [];
+    }}>${Va(o, 26)}<span class="lb" data-t=${r}>${r}</span></button>`, s = this._config.kids ?? [];
+    if (this._page === "kid" && s[this._kid]) {
+      const o = s[this._kid], r = E(o), n = this.hass?.states[r.avatar]?.state, p = n || o.look ? nt(n, o.look ? nt(o.look) : {}) : null;
+      return l`<nav class="glass dock" data-kid aria-label="Main" @click=${this._btnJust}>
+        <button class="item kidbtn tap" style="--kidc:${Y(o.colour)}" aria-current="page"><span class="avatar" style="width:44px;height:44px;background:${Y(o.colour)}">${p ? It(p, { size: 44, crop: "head", still: !0, label: o.name, age: o.age, ring: Y(o.colour) }) : o.name[0]}</span><span class="lb kn" data-t=${o.name}>${o.name}</span></button>
+        <span class="sep" aria-hidden="true"></span>
+        ${i("home", "Home", () => {
+        this._page = this._morningWindow() ? "morning" : "planner";
+      }, !1)}
+      </nav>`;
+    }
     return l`<nav class="glass dock" aria-label="Main" @click=${this._btnJust} @scroll=${(o) => {
       const r = o.currentTarget;
       r.toggleAttribute("data-more", r.scrollWidth - r.scrollLeft - r.clientWidth > 6);
     }}>
       ${s.map((o, r) => {
-      const n = tt(o), p = this.hass?.states[n.avatar]?.state, d = p || o.look ? ct(p, o.look ? ct(o.look) : {}) : null, c = this._page === "kid" && this._kid === r;
-      return l`<button class="item kidbtn tap" style="--kidc:${Z(o.colour)}" aria-current=${c ? "page" : "false"} @click=${() => {
+      const n = E(o), p = this.hass?.states[n.avatar]?.state, c = p || o.look ? nt(p, o.look ? nt(o.look) : {}) : null, d = this._page === "kid" && this._kid === r;
+      return l`<button class="item kidbtn tap" style="--kidc:${Y(o.colour)}" aria-current=${d ? "page" : "false"} @click=${() => {
         S("nav"), this._kid = r, this._page = "kid";
       }}>
-          <span class="avatar" style="width:44px;height:44px;background:${Z(o.colour)}">${d ? te(d, { size: 44, crop: "head", still: !0, label: o.name, age: o.age, ring: Z(o.colour) }) : o.name[0]}</span><span class="lb kn" data-t=${o.name}>${o.name}</span></button>`;
+          <span class="avatar" style="width:44px;height:44px;background:${Y(o.colour)}">${c ? It(c, { size: 44, crop: "head", still: !0, label: o.name, age: o.age, ring: Y(o.colour) }) : o.name[0]}</span><span class="lb kn" data-t=${o.name}>${o.name}</span></button>`;
     })}
       ${s.length ? l`<span class="sep" aria-hidden="true"></span>` : g}
       ${this._morningWindow() ? i("sun", "Morning", () => {
@@ -17355,10 +17370,10 @@ const Qu = (a, t) => {
       ${i("home", "Home", () => {
       this._page = "home";
     }, this._page === "home")}
-      <span class="sep" aria-hidden="true"></span>
-      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${ye("bulb", 26)}All on</button>
-      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${ye("bulbOff", 26)}All off</button>
-      ${this._config.announce_script ? l`<button class="item tap ${Date.now() < this._dinnerCooldown ? "called" : ""}" data-nav="dinner" @click=${() => this._dinnerStart()}>${ye("megaphone", 26)}${Date.now() < this._dinnerCooldown ? "Called ✓" : "Dinner"}</button>` : g}
+      <span class="sep wide" aria-hidden="true"></span>
+      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${Va("bulb", 26)}All on</button>
+      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${Va("bulbOff", 26)}All off</button>
+      ${this._config.announce_script ? l`<button class="item tap ${Date.now() < this._dinnerCooldown ? "called" : ""}" data-nav="dinner" @click=${() => this._dinnerStart()}>${Va("megaphone", 26)}${Date.now() < this._dinnerCooldown ? "Called ✓" : "Dinner"}</button>` : g}
     </nav>`;
   }
   _dinnerView() {
@@ -17403,13 +17418,13 @@ const Qu = (a, t) => {
     if (t === "chat") {
       const o = this._config.chat, r = o?.name || "Ask", n = this._config.kids ?? [];
       if (!o?.agent) return g;
-      const p = this._asker, d = p ? n.find((m) => m.name === p) : void 0, c = d ? Oe(d) : void 0, h = c?.mode === "pictures", f = p === null ? l`<div class="askwho" role="group" aria-label="Who is asking?">
-          ${n.filter((m) => Oe(m).mode !== "off").map((m) => {
-        const u = tt(m), w = this.hass?.states[u.avatar]?.state, x = w || m.look ? ct(w, m.look ? ct(m.look) : {}) : null;
-        return l`<button class="whobtn tap" data-who=${u.slug} style="--kidc:${Z(m.colour)}" @click=${() => {
+      const p = this._asker, c = p ? n.find((m) => m.name === p) : void 0, d = c ? Be(c) : void 0, h = d?.mode === "pictures", f = p === null ? l`<div class="askwho" role="group" aria-label="Who is asking?">
+          ${n.filter((m) => Be(m).mode !== "off").map((m) => {
+        const u = E(m), w = this.hass?.states[u.avatar]?.state, x = w || m.look ? nt(w, m.look ? nt(m.look) : {}) : null;
+        return l`<button class="whobtn tap" data-who=${u.slug} style="--kidc:${Y(m.colour)}" @click=${() => {
           S("tap"), this._asker = m.name;
         }}>
-              <span class="avatar" style="width:104px;height:104px;background:${Z(m.colour)};font-size:44px">${x ? te(x, { size: 104, crop: "head", still: !0, label: m.name, age: m.age, ring: Z(m.colour) }) : m.name[0]}</span><span class="wn">${m.name}</span></button>`;
+              <span class="avatar" style="width:104px;height:104px;background:${Y(m.colour)};font-size:44px">${x ? It(x, { size: 104, crop: "head", still: !0, label: m.name, age: m.age, ring: Y(m.colour) }) : m.name[0]}</span><span class="wn">${m.name}</span></button>`;
       })}
           <button class="whobtn tap" data-who="grown-up" @click=${() => {
         const m = () => {
@@ -17424,17 +17439,38 @@ const Qu = (a, t) => {
       }}>
         <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${r} ?data-who=${p === null}>${this._sheetHead(r, p === null ? "Who is asking?" : h ? "Tap a picture." : "Ask a question, or tap a picture.")}
           <p class="ainote">${Dc}</p>
-          ${p === null ? f : Je(p, l`<fh-chat .hass=${this.hass} ?low=${h || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? ""} .ttsVoice=${o.tts_voice ?? ""} .helper=${r} .pin=${!!this._config.parent_pin}
-            .mode=${h ? "pictures" : "full"} .who=${d ? tt(d).slug : ""} .minutes=${c?.minutes ?? 0} @close=${i} @pin=${(m) => {
+          ${p === null ? f : Ie(p, l`<fh-chat .hass=${this.hass} ?low=${h || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? ""} .ttsVoice=${o.tts_voice ?? ""} .helper=${r} .pin=${!!this._config.parent_pin}
+            .mode=${h ? "pictures" : "full"} .who=${c ? E(c).slug : ""} .minutes=${d?.minutes ?? 0} @close=${i} @pin=${(m) => {
         this._pinAsk = { ...m.detail, sheet: "chat" };
       }}></fh-chat>`)}</section></div>`;
     }
-    const s = t === "event" ? this._eventBody() : t === "themes" ? this._themeBody() : t === "kidprefs" ? this._kidPrefsBody() : t === "meds" ? this._medsBody() : t === "timer" ? this._timerBody() : this._sitterBody();
+    const s = t === "more" ? this._moreBody() : t === "event" ? this._eventBody() : t === "themes" ? this._themeBody() : t === "kidprefs" ? this._kidPrefsBody() : t === "meds" ? this._medsBody() : t === "timer" ? this._timerBody() : this._sitterBody();
     return l`<div class="scrim" ?data-closing=${e} @click=${(o) => {
       o.target === o.currentTarget && i();
     }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ themes: "Pick a look", kidprefs: "Settings", meds: "Medication", timer: "Kitchen timer", sitter: "House info", event: this._evOpen ? `${this._evOpen.ev.title}, details` : "Event" }[t] ?? "Panel"}
-        data-sheet=${t} data-w=${t === "themes" || t === "sitter" ? "l" : t === "timer" || t === "event" ? "s" : "m"} @scroll=${wt}>${s}</section></div>`;
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ more: "More", themes: "Pick a look", kidprefs: "Settings", meds: "Medication", timer: "Kitchen timer", sitter: "House info", event: this._evOpen ? `${this._evOpen.ev.title}, details` : "Event" }[t] ?? "Panel"}
+        data-sheet=${t} data-w=${t === "themes" || t === "sitter" ? "l" : t === "timer" || t === "event" || t === "more" ? "s" : "m"} @scroll=${wt}>${s}</section></div>`;
+  }
+  /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */
+  _moreBody() {
+    const t = this._config, e = this.hass, i = (t.people ?? []).filter((o) => o.entity), s = (o, r, n, p, c) => l`<button class="morebtn tap" data-act=${o} @click=${c}>${Va(r, 30)}<span><b>${n}</b><span class="muted">${p}</span></span></button>`;
+    return l`${this._sheetHead("More", "", "")}
+      <div class="moregrid">
+        ${s("looks", "palette", "Looks", "Change how the panel looks", () => {
+      this._sheet = "", this._openLooks();
+    })}
+        ${t.meds?.length || t.med_log ? s("meds", "pill", "Medicine", "Given today, and the record", () => {
+      this._sheet = "meds", this._loadMedLog();
+    }) : g}
+        ${s("info", "info", "House info", "For babysitters and visitors", () => {
+      this._sheet = "sitter";
+    })}
+        ${s("night", "moon", "Night", "Dim the screen now", () => {
+      this._sheet = "", this._nightManual = !0;
+    })}
+      </div>
+      ${i.length ? l`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
+        <span class="phome" aria-hidden="true">${U("home", 18)}</span>${i.map((o) => this._face(o, e?.states[o.entity]?.state === "home"))}<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : g}`;
   }
   _sheetHead(t, e = "", i = "", s = g) {
     return l`<div class="shead">
@@ -17447,7 +17483,7 @@ const Qu = (a, t) => {
   _themeBody() {
     return l`${this._sheetHead("Pick a look", "Changes the whole panel.", "palette")}
       <div class="themes looks">
-        ${Ie.map((t) => l`<button class="tcard tap" aria-pressed=${String(t.id === this._look)} @click=${() => this._setLook(t.id)}>
+        ${De.map((t) => l`<button class="tcard tap" aria-pressed=${String(t.id === this._look)} @click=${() => this._setLook(t.id)}>
           ${Al(t, 96, Li(ji(this._theme)))}
           <span style="font-size:16px;font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:13px">${t.tagline}</span>
         </button>`)}
@@ -17489,7 +17525,7 @@ const Qu = (a, t) => {
     const t = this._kidOn, e = this._kp;
     if (!t || !e) return l``;
     this._prefTick;
-    const i = Yt(this._lk), s = i.options?.find((r) => r.id === "hand"), o = [["panel", "Same as the panel", `Follows the family’s choice (${Yt(this._look).name})`], ...Ie.map((r) => [r.id, r.name, r.tagline])];
+    const i = Yt(this._lk), s = i.options?.find((r) => r.id === "hand"), o = [["panel", "Same as the panel", `Follows the family’s choice (${Yt(this._look).name})`], ...De.map((r) => [r.id, r.name, r.tagline])];
     return l`${this._sheetHead(`${t.name}’s settings`, `Only for ${t.name}’s page.`)}
       <div class="themes kidlooks">
         ${o.map(([r, n, p]) => l`<button class="tcard tap" aria-pressed=${String(e.look === r)} @click=${() => this._setKidPref({ look: r })}>
@@ -17509,7 +17545,7 @@ const Qu = (a, t) => {
   _medsBody() {
     const t = this._config, e = t.parents ?? (t.people ?? []).map((k) => k.name), i = (t.kids ?? []).map((k) => k.name), s = this._mx, o = t.med_extras ?? ["Paracetamol", "Ibuprofen"], r = this._now, n = (k) => {
       this._mx = { ...s, ...k };
-    }, p = new Date(r.getTime() - s.ago * 6e4), d = this._medLog.filter((k) => r.getTime() - k.at.getTime() < 48 * 36e5), c = (k) => {
+    }, p = new Date(r.getTime() - s.ago * 6e4), c = this._medLog.filter((k) => r.getTime() - k.at.getTime() < 48 * 36e5), d = (k) => {
       const v = Math.max(0, Math.round((r.getTime() - k.getTime()) / 6e4));
       return v < 60 ? `${v} min ago` : v < 2880 ? `${Math.floor(v / 60)} h ${v % 60} min ago` : "";
     }, h = (k) => {
@@ -17518,7 +17554,7 @@ const Qu = (a, t) => {
     }, f = (k, v, K) => l`<button class="tap mchip" aria-pressed=${String(k)} @click=${K}>${v}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), u = (t.meds ?? []).some((k) => {
       const v = this._medStatus(k.id, k.time);
       return v.due && !v.missing;
-    }), w = Date.now() < this._medLater, x = u ? w ? l`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${pt(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${pt(new Date(this._medLater))} · </span>show now</span></button>` : l`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : g;
+    }), w = Date.now() < this._medLater, x = u ? w ? l`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${dt(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${dt(new Date(this._medLater))} · </span>show now</span></button>` : l`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : g;
     return l`${this._sheetHead("Medication", "Kept off the kids’ pages and the night screen.", "pill", x)}
       <div class="med2">
         <div class="icol">
@@ -17528,14 +17564,14 @@ const Qu = (a, t) => {
       return l`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
               <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${U("pill", 24)}</span>
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${k.who ? `${k.who} – ` : ""}${k.label}</b><span class="muted">Due ${h(k.time)}</span></span>
-                ${this._medBusy === k.id ? l`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:15px;color:${v.given ? "var(--ok)" : v.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${v.given ? `✓ ${pt(v.given)}${v.by ? ` · ${v.by}` : ""}` : v.missing ? "Not set up" : v.late ? "Overdue" : "Not yet"}</b>`}</div>
+                ${this._medBusy === k.id ? l`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:15px;color:${v.given ? "var(--ok)" : v.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${v.given ? `✓ ${dt(v.given)}${v.by ? ` · ${v.by}` : ""}` : v.missing ? "Not set up" : v.late ? "Overdue" : "Not yet"}</b>`}</div>
               ${v.missing ? l`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A grown-up can finish setting it up in Settings, under Medicines.</span>` : v.given && this._medBusy !== k.id ? g : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((K) => l`<button class="pill tap ${v.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:15px" ?disabled=${this._medBusy === k.id} @click=${() => this._medGuard("Record this medicine?", () => {
         this._giveMed(k.id, K);
       })}>Given by ${K}</button>`)}</div>`}
             </div>`;
     })}
           <span class="label">${m ? "Kept on this screen only" : "Given in the last two days"}</span>
-          ${d.length ? d.map((k) => l`<div class="irow" data-at=${k.at.toISOString()}><span style="min-width:0"><b>${k.who}</b> · ${k.what}<br><small class="muted">${k.at.toLocaleDateString("en-AU", { weekday: "short" })} ${pt(k.at)}${k.by ? ` · ${k.by}` : ""} · ${c(k.at)}</small></span>
+          ${c.length ? c.map((k) => l`<div class="irow" data-at=${k.at.toISOString()}><span style="min-width:0"><b>${k.who}</b> · ${k.what}<br><small class="muted">${k.at.toLocaleDateString("en-AU", { weekday: "short" })} ${dt(k.at)}${k.by ? ` · ${k.by}` : ""} · ${d(k.at)}</small></span>
             <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${k.what} for ${k.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
       this._unlogMed(k);
     })}>${U("close", 16)}</button></div>`) : l`<span class="iline muted">Nothing else has been given.</span>`}
@@ -17544,8 +17580,8 @@ const Qu = (a, t) => {
           <span class="label">Something else given</span>
           <div class="mrow">${o.map((k) => f(s.what === k, k, () => n({ what: k })))}${f(s.what === "other", "Other…", () => n({ what: "other" }))}</div>
           ${s.what === "other" ? l`<input class="field" style="height:48px;font-size:18px" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${s.other} @input=${(k) => n({ other: k.target.value })}>
-            ${va((k) => {
-      const [v, K] = _e(s.other, k, s.caps);
+            ${ya((k) => {
+      const [v, K] = Fe(s.other, k, s.caps);
       n({ other: v, caps: K });
     }, s.caps, () => n({ caps: !s.caps }), !0)}` : g}
           <span class="label">For</span>
@@ -17553,7 +17589,7 @@ const Qu = (a, t) => {
           <span class="label">When</span>
           <div class="mrow" style="align-items:center">
             <button class="tap mchip" aria-label="Five minutes earlier" @click=${() => n({ ago: Math.min(1440, s.ago + 5) })}>− 5 min</button>
-            <b class="display" style="font-size:24px;min-width:104px;text-align:center;font-variant-numeric:tabular-nums" aria-live="polite">${s.ago ? pt(p) : "Now"}</b>
+            <b class="display" style="font-size:24px;min-width:104px;text-align:center;font-variant-numeric:tabular-nums" aria-live="polite">${s.ago ? dt(p) : "Now"}</b>
             <button class="tap mchip" aria-label="Five minutes later" ?disabled=${s.ago === 0} @click=${() => n({ ago: Math.max(0, s.ago - 5) })}>+ 5 min</button>
             ${s.ago ? l`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${s.ago} min ago</span>` : g}
           </div>
@@ -17581,10 +17617,10 @@ const Qu = (a, t) => {
   /** In words, who is home and who is away. */
   /** Who is home, as a face: a child's own avatar, or the picture Home Assistant holds for the person. With no picture, the name (never a lone initial: that is a code). */
   _face(t, e) {
-    const i = this._config, s = (i.kids ?? []).findIndex((d) => d.name === t.name), o = s >= 0 ? i.kids[s] : void 0, r = o ? this.hass?.states[tt(o).avatar]?.state : "", n = o && (r || o.look) ? ct(r, o.look ? ct(o.look) : {}) : null, p = String(this.hass?.states[t.entity]?.attributes.entity_picture ?? "");
-    return n ? l`<span class="pface ${e ? "" : "away"}" aria-hidden="true" style="--c:${Z(t.colour)}">${te(n, { size: 36, crop: "head", still: !0, label: t.name, age: o.age, ring: Z(t.colour) })}</span>` : p ? l`<span class="pface ${e ? "" : "away"}" aria-hidden="true" style="--c:${Z(t.colour)}"><img src=${p} alt="" draggable="false" @error=${(d) => {
-      d.target.hidden = !0;
-    }}></span>` : l`<span class="pname ${e ? "" : "away"}" aria-hidden="true" style="--c:${Z(t.colour)}">${t.name.split(" ")[0]}${e ? "" : " · out"}</span>`;
+    const i = this._config, s = (i.kids ?? []).findIndex((c) => c.name === t.name), o = s >= 0 ? i.kids[s] : void 0, r = o ? this.hass?.states[E(o).avatar]?.state : "", n = o && (r || o.look) ? nt(r, o.look ? nt(o.look) : {}) : null, p = String(this.hass?.states[t.entity]?.attributes.entity_picture ?? "");
+    return n ? l`<span class="pface ${e ? "" : "away"}" aria-hidden="true" style="--c:${Y(t.colour)}">${It(n, { size: 36, crop: "head", still: !0, label: t.name, age: o.age, ring: Y(t.colour) })}</span>` : p ? l`<span class="pface ${e ? "" : "away"}" aria-hidden="true" style="--c:${Y(t.colour)}"><img src=${p} alt="" draggable="false" @error=${(c) => {
+      c.target.hidden = !0;
+    }}></span>` : l`<span class="pname ${e ? "" : "away"}" aria-hidden="true" style="--c:${Y(t.colour)}">${t.name.split(" ")[0]}${e ? "" : " · out"}</span>`;
   }
   _whoHome() {
     const t = (this._config.people ?? []).filter((n) => n.entity).map((n) => ({ name: n.name, st: this.hass?.states[n.entity]?.state })), e = t.filter((n) => n.st === "home").map((n) => n.name), i = t.filter((n) => n.st === "not_home").map((n) => n.name), s = t.filter((n) => !n.st || n.st === "unavailable" || n.st === "unknown").map((n) => n.name), o = t.filter((n) => n.st && !["home", "not_home", "unavailable", "unknown"].includes(n.st)).map((n) => `${n.name} is at ${n.st}`), r = (n) => n.length > 1 ? `${n.slice(0, -1).join(", ")} and ${n[n.length - 1]}` : n[0];
@@ -17600,7 +17636,7 @@ const Qu = (a, t) => {
   async _sosSend() {
     const t = this._config.emergency, e = t?.notify ?? [];
     this._sos = "sending", this._sosNote = "", this.requestUpdate();
-    const i = pt(/* @__PURE__ */ new Date()), o = (await Promise.allSettled(e.map((r) => {
+    const i = dt(/* @__PURE__ */ new Date()), o = (await Promise.allSettled(e.map((r) => {
       const [n, p] = r.includes(".") ? r.split(".") : ["notify", r];
       return this.hass.callService(n, p, {
         title: "🚨 Emergency at home",
@@ -17612,11 +17648,11 @@ const Qu = (a, t) => {
     this._sos = o ? "sent" : "failed", this._sosNote = o === e.length ? `Sent to ${o === 1 ? "one phone" : `${o} phones`} at ${i}. If it is serious, call 000 now.` : o ? `Sent to ${o} of ${e.length} phones. Ring them as well.` : "It could not be sent. Ring them on the numbers below.", S(o ? "done" : "tap"), this.requestUpdate();
   }
   _sitterBody() {
-    const t = this._config, e = t.babysitter ?? {}, i = t.emergency, s = this._now, o = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/, r = [...e.contacts ?? [], ...(e.lines ?? []).map((x) => o.exec(x)).filter((x) => !!x).map((x) => ({ name: x[1], phone: x[2].trim() }))], n = [...(e.lines ?? []).filter((x) => !o.test(x)), ...e.notes ?? []], p = (t.kids ?? []).filter((x) => x.bedtime).map((x) => ({ name: x.name, at: Se(x.bedtime, s) })), d = this._eventsOn(s, this._soon).filter((x) => !x.allDay && x.end > s && !this._private(x.title)).slice(0, 4), c = (x) => {
+    const t = this._config, e = t.babysitter ?? {}, i = t.emergency, s = this._now, o = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/, r = [...e.contacts ?? [], ...(e.lines ?? []).map((x) => o.exec(x)).filter((x) => !!x).map((x) => ({ name: x[1], phone: x[2].trim() }))], n = [...(e.lines ?? []).filter((x) => !o.test(x)), ...e.notes ?? []], p = (t.kids ?? []).filter((x) => x.bedtime).map((x) => ({ name: x.name, at: Me(x.bedtime, s) })), c = this._eventsOn(s, this._soon).filter((x) => !x.allDay && x.end > s && !this._private(x.title)).slice(0, 4), d = (x) => {
       const [k, v] = x.split(":").map(Number);
       return `${k % 12 || 12}:${String(v).padStart(2, "0")} ${k < 12 ? "am" : "pm"}`;
     }, h = (x) => l`<span class="label">${x}</span>`, f = this._bins(s), m = (t.people ?? []).some((x) => x.entity), u = [];
-    r.length && u.push(l`${h("Who to ring")}${r.map((x) => l`<a class="irow tap" href=${`tel:${x.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${x.name} on ${x.phone}`}><b>${x.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${x.phone}</span></a>`)}`), p.length && u.push(l`${h("Bedtimes tonight")}${p.map((x) => l`<div class="irow"><b>${x.name}</b><span>${c(x.at)}</span></div>`)}`), d.length && u.push(l`${h("Still on today")}${d.map((x) => l`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${le(x, s).label}</span></div>`)}`), f && u.push(l`${h("Bin night")}<div class="irow"><b>${mt(f.night, s) ? "Tonight" : f.night.toLocaleDateString("en-AU", { weekday: "long" })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && u.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow"><span>Password</span><b>${e.wifi.password}</b></div>` : g}`), m && u.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && u.push(l`${h("Good to know")}${n.map((x) => l`<div class="iline">${x}</div>`)}`);
+    r.length && u.push(l`${h("Who to ring")}${r.map((x) => l`<a class="irow tap" href=${`tel:${x.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${x.name} on ${x.phone}`}><b>${x.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${x.phone}</span></a>`)}`), p.length && u.push(l`${h("Bedtimes tonight")}${p.map((x) => l`<div class="irow"><b>${x.name}</b><span>${d(x.at)}</span></div>`)}`), c.length && u.push(l`${h("Still on today")}${c.map((x) => l`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${le(x, s).label}</span></div>`)}`), f && u.push(l`${h("Bin night")}<div class="irow"><b>${ht(f.night, s) ? "Tonight" : f.night.toLocaleDateString("en-AU", { weekday: "long" })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && u.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow"><span>Password</span><b>${e.wifi.password}</b></div>` : g}`), m && u.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && u.push(l`${h("Good to know")}${n.map((x) => l`<div class="iline">${x}</div>`)}`);
     const w = l`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${U("cog", 22)}</button>`;
     return l`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", w)}
       <div class="sos">
@@ -17635,12 +17671,12 @@ const Qu = (a, t) => {
   }
   /** The night screen. Waking it (out) fades the black layer away over the panel and starts nothing else. */
   _night(t = !1) {
-    const e = this._now, i = Io(e), s = e.getHours() < 6, o = s ? e : X(e, 1), r = this._eventsOn(o, this._soon).filter((f) => !this._private(f.title)).slice(0, 3), n = e.getHours() * 60 + e.getMinutes(), p = Math.round(Math.sin(n / 7) * 38), d = Math.round(Math.cos(n / 11) * 24), c = this._arcs(this._eventsOn(e, this._soon)).map((f) => ({ ...f, colour: "rgba(255,178,107,.7)" })), h = Bt(this._lk, "night", { now: e, arcs: c, size: 230 });
+    const e = this._now, i = Io(e), s = e.getHours() < 6, o = s ? e : X(e, 1), r = this._eventsOn(o, this._soon).filter((f) => !this._private(f.title)).slice(0, 3), n = e.getHours() * 60 + e.getMinutes(), p = Math.round(Math.sin(n / 7) * 38), c = Math.round(Math.cos(n / 11) * 24), d = this._arcs(this._eventsOn(e, this._soon)).map((f) => ({ ...f, colour: "rgba(255,178,107,.7)" })), h = Bt(this._lk, "night", { now: e, arcs: d, size: 230 });
     return l`<button class="night" ?data-closing=${t} ?inert=${t} aria-label="Wake the panel" @click=${() => {
       this._nightManual = !1, this._awakeUntil = Date.now() + 10 * 6e4, this._lastTouch = Date.now();
     }}>
-      <div class="nwander" style="--dx:${p}px;--dy:${d}px">
-      <div class="nclock">${h === g ? g : l`<span class="nart">${h}</span>`}<div><span class="display big">${i.hm}</span><div class="ndate">${Fa(e)}</div></div></div>
+      <div class="nwander" style="--dx:${p}px;--dy:${c}px">
+      <div class="nclock">${h === g ? g : l`<span class="nart">${h}</span>`}<div><span class="display big">${i.hm}</span><div class="ndate">${Sa(e)}</div></div></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${r.length ? l`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
           <span style="font-size:13px;font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${s ? "Today" : "Tomorrow"}</span>
