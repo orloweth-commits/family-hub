@@ -28,7 +28,8 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   await page.context().close(); }
 const noMeds = async (page) => { await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); const { meds, med_log, ...rest } = c._config; c.setConfig(rest); await c.updateComplete; }); await page.waitForTimeout(300); };
 { let page = await open('look=glass&page=groceries'); await noMeds(page); let h = await head(page);
-  ok('with no medicine due the timer takes the urgent place', h.chips.join(',') === 'timer,next', h.chips); await page.context().close();
+  ok('with no medicine due the timer takes the urgent place', h.chips.join(',') === 'timer,next', h.chips);
+  { const mp = await open('look=glass&page=groceries', '07:10'); const mh = await head(mp); ok('a dose that is due outranks a running timer (unless the timer is in its last minute)', mh.chips.join(',') === 'med,next', mh.chips); await mp.context().close(); } await page.context().close();
   page = await open('look=glass&page=planner&timer=0'); await noMeds(page); h = await head(page);
   ok('with nothing urgent, what is next stands alone (or with the next most useful thing)', h.chips.includes('next') && h.chips.length <= 2 && !h.chips.includes('timer'), h.chips); await page.context().close(); }
 

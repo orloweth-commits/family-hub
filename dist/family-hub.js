@@ -16057,7 +16057,7 @@ const Qu = (a, t) => {
         if (!i.length) return;
         (r < 0 && o !== e || (t.shiftKey ? r <= 0 : r === i.length - 1)) && (t.preventDefault(), i[t.shiftKey ? i.length - 1 : 0].focus());
       }
-    }, this._clip = {}, this._spanWas = 7, this._doodleLow = !1, this._evOpen = null, this._evAsk = "", this._editScope = "", this._evBusy = !1, this._editEv = null, this._jarWas = null, this._wantsChat = [], this._cancelling = !1, this._medOpen = !1, this._medLater = (() => {
+    }, this._clip = {}, this._spanWas = 7, this._doodleLow = !1, this._leftPicKid = 0, this._evOpen = null, this._evAsk = "", this._editScope = "", this._evBusy = !1, this._editEv = null, this._jarWas = null, this._wantsChat = [], this._cancelling = !1, this._medOpen = !1, this._medLater = (() => {
       try {
         return Number(localStorage.getItem("family-hub-med-later")) || 0;
       } catch {
@@ -16107,7 +16107,7 @@ const Qu = (a, t) => {
     this._config.parent_pin ? this._pinAsk = { reason: t ? `Change ${t.name}’s settings?` : "Change the look?", run: e } : e();
   }
   willUpdate(t) {
-    if (t.has("_page") && (this._page !== "music" ? this._musicKid = "" : t.get("_page") === "kid" && (this._musicKid = this._config?.kids?.[this._kid]?.name ?? "")), t.has("_page") && this._page === "doodle" && (this._doodleLow = t.get("_page") === "kid" && this._config?.kids?.[this._kid]?.mode === "picture"), t.has("_pinAsk") && this._pinAsk && this._sheet && this._pinAsk.sheet !== this._sheet && (this._pinAsk = null, this._say("Close this first, then try again.")), t.has("_pinAsk") && this._pinAsk && !t.get("_pinAsk") && (this._pinFrom = this._focused()), t.has("_sheet") && this._sheet && !t.get("_sheet")) {
+    if (t.has("_page") && (this._page !== "music" ? this._musicKid = "" : t.get("_page") === "kid" && (this._musicKid = this._config?.kids?.[this._kid]?.name ?? "")), t.has("_page") && t.get("_page") === "kid" && this._config?.kids?.[this._kid]?.mode === "picture" && (this._leftPicKid = Date.now()), t.has("_page") && this._page === "doodle" && (this._doodleLow = Date.now() - this._leftPicKid < 12e4), t.has("_pinAsk") && this._pinAsk && this._sheet && this._pinAsk.sheet !== this._sheet && (this._pinAsk = null, this._say("Close this first, then try again.")), t.has("_pinAsk") && this._pinAsk && !t.get("_pinAsk") && (this._pinFrom = this._focused()), t.has("_sheet") && this._sheet && !t.get("_sheet")) {
       const e = this._focused(), i = !!e && e.getRootNode().host?.localName === "fh-pin";
       this._opener = e && !i ? e : this._pinFrom;
     }
@@ -17093,7 +17093,7 @@ const Qu = (a, t) => {
     const t = this._config, e = [], i = this._timerLeft();
     if (i !== null && (this._page !== "planner" || i < 6e4)) {
       const h = Math.floor(i / 6e4), f = Math.floor(i % 6e4 / 1e3);
-      e.push([1, l`<button class="cap tap ${i < 6e4 ? "hot" : ""}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${h} minutes ${f} seconds left" @click=${() => {
+      e.push([i < 6e4 ? 1 : 2.2, l`<button class="cap tap ${i < 6e4 ? "hot" : ""}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${h} minutes ${f} seconds left" @click=${() => {
         this._sheet = "timer";
       }}>${U("timer", 20)}<b>${h}:${String(f).padStart(2, "0")}</b></button>`]);
     }
