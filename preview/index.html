@@ -131,6 +131,8 @@ const hass = {
     // Settings: the pretend dashboard (kept in memory) that hosts this card, and the helpers a new medicine needs
     if (msg.type === 'lovelace/config') { if (q.get('nodash')) throw new Error('config_not_found'); return JSON.parse(JSON.stringify(dash())); }
     if (msg.type === 'lovelace/config/save') { (window.__calls ||= []).push('ws.lovelace/config/save'); if (!hass.user.is_admin) throw new Error('unauthorized'); if (q.get('yaml')) throw new Error('not_supported');
+      // the tests can make one save fail or hang: window.__saveFail = true, window.__saveSlow = <ms>
+      if (window.__saveSlow) await new Promise((r) => setTimeout(r, window.__saveSlow)); if (window.__saveFail) throw new Error('Home Assistant did not answer');
       window.__dash = JSON.parse(JSON.stringify(msg.config)); window.__saves = (window.__saves || 0) + 1;
       // &rebuild=1: the dashboard draws the card again after a save, as Home Assistant does when it is refreshed
       if (q.get('rebuild')) setTimeout(() => { const cfg = dash().views[0].sections[0].cards[1].cards[0]; const old = el; el = document.createElement('family-hub-card'); el.setConfig(cfg); el.hass = hass; old.replaceWith(el); }, 150);

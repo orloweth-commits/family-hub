@@ -24,7 +24,7 @@ export const clone = <T>(v: T): T => (v === undefined ? v : JSON.parse(JSON.stri
 export const stable = (v: unknown): string => JSON.stringify(v, (_k, x: unknown) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x as Record<string, unknown>).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : x));
 export const same = (a: unknown, b: unknown): boolean => stable(a) === stable(b);
 /** A copy without the PIN: earlier versions are kept without it, so the PIN is never written anywhere new. */
-const noPin = (c: Cfg): Cfg => { const { parent_pin: _p, ...rest } = c; return clone(rest) as Cfg; };
+export const noPin = (c: Cfg): Cfg => { const { parent_pin: _p, ...rest } = c; return clone(rest) as Cfg; };
 
 /* ---------------- the dashboard ---------------- */
 

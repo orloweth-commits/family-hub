@@ -7,7 +7,7 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
-import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNote, history, medId, onePic, paneWanted, pinMark, resumeSoon, same, saveCard, setNote, StaleError, wantPane,
+import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNote, history, medId, noPin, onePic, paneWanted, pinMark, resumeSoon, same, saveCard, setNote, StaleError, wantPane,
   type Access, type Blocked, type Cfg, type ChoreForm, type Version } from './settings-store';
 
 /* ------------------------------------------------------------------ *
@@ -45,7 +45,7 @@ const cut = (s: string, n = 80): string => (s.length > n ? `${s.slice(0, n - 1)}
 const WIRING: [string, string][] = [['weather', 'Weather'], ['weather_page', 'Weather page'], ['calendars', 'Calendars'], ['add_calendar', 'Calendar for new events'], ['people', 'People and who is home'], ['reminders', 'Reminders list'], ['groceries', 'Shopping list'],
   ['grocery_recipients', 'Who the shopping list is sent to'], ['music_player', 'Main speaker'], ['music_players', 'Speakers'], ['music_map', 'Music house map'], ['music_hide', 'Speakers left out'], ['music_lock', 'Only speakers on the map'], ['radio', 'Radio stations'],
   ['radio_source', 'Radio source'], ['announce_script', 'Dinner announcement script'], ['med_log', 'Record of other medicines'], ['photos', 'Photo frame'], ['photo_minutes', 'Minutes per photo'], ['idle_seconds', 'Seconds until the panel goes home'],
-  ['chat', 'Ask: helper and voice'], ['jar', 'Family jar'], ['bring_rules', 'What to bring, by calendar'], ['home_hide', 'Hidden on the Home page'], ['call_language', 'Call language'], ['call_voice', 'Call voice'], ['scale', 'Screen scale']];
+  ['chat', 'Ask: helper and voice'], ['bring_rules', 'What to bring, by calendar'], ['home_hide', 'Hidden on the Home page'], ['call_language', 'Call language'], ['call_voice', 'Call voice'], ['scale', 'Screen scale']];
 const BLOCKED: Record<Blocked, [string, string]> = {
   admin: ['You can look, but not change anything here', 'Changing settings needs a Home Assistant administrator. This screen is signed in as someone who is not one. Open the panel on a phone or computer signed in as an administrator, or change the card in the dashboard editor.'],
   yaml: ['This dashboard is kept in a YAML file', 'Home Assistant will not let a card save into a YAML dashboard, so these settings can only be read here. Change them in the YAML file, under the Family Hub card.'],
@@ -81,6 +81,7 @@ export class FhSettings extends LitElement {
     /* the pane */
     .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 20px 12px; display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
     .spane > * { flex-shrink: 0; }
+    .spane > .seg { align-self: flex-start; max-width: 100%; }
     .spane:focus { outline: none; }
     .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -103,7 +104,7 @@ export class FhSettings extends LitElement {
     /* chips that choose, the time button, steppers, switches */
     .schips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
-    .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring), inset 0 0 0 2.5px var(--primary); font-weight: var(--w-heavy, 800); }
+    .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .schips > button .sw6 { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
     .stime { font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
     .sstep { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); padding: 2px; }
@@ -141,7 +142,7 @@ export class FhSettings extends LitElement {
     .spick button { min-height: 48px; padding: 4px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
     .spick button > span { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
     .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: inset 0 0 0 2.5px var(--primary); font-weight: var(--w-heavy, 800); }
+    .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
     [aria-pressed='true'] > .sbox2 { background: var(--primary); color: var(--on-primary); box-shadow: none; }
     .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: 15px; }
@@ -176,7 +177,7 @@ export class FhSettings extends LitElement {
     .scolon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
     .sampm { display: flex; flex-direction: column; gap: 6px; }
     .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 16px; font-weight: var(--w-bold, 700); }
-    .sampm button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: inset 0 0 0 2.5px var(--primary); font-weight: var(--w-heavy, 800); }
+    .sampm button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sdial .lead { align-self: stretch; }
     .toast.toast { z-index: 8; bottom: 96px; }
     /* a narrower tablet: a slimmer list */
@@ -199,7 +200,7 @@ export class FhSettings extends LitElement {
     :host([data-phone]) .skeys { display: none; }
   `];
   static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
-    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true } };
+    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true } };
   hass?: Hass;
   config!: Cfg;
   /** show the on-screen keyboard whatever the pointer is (the preview and the tests) */
@@ -224,6 +225,8 @@ export class FhSettings extends LitElement {
   /** a second tap needed: 'restore:<time>', 'test' */
   private _sure = '';
   private _hist: Version[] = [];
+  /** the moment being edited (the others stay folded to one line) */
+  private _open = -1;
   private _fields = new Map<string, Field>();
   private _spin: Record<string, number> = {};
   private _closed = false;
@@ -292,7 +295,7 @@ export class FhSettings extends LitElement {
   private _go(p: PaneId): void {
     if (p === this._pane) return;
     if (!this.config.parent_pin && !this._ro && p !== 'advanced' && p !== 'pin') { this._say('Set a parent PIN first: Settings is for grown-ups.'); return; }
-    this._guard(() => { this._pane = p; this._job = null; this._err = ''; this._kb = ''; this._sure = ''; this._find = ''; sfx('nav'); });
+    this._guard(() => { this._pane = p; this._job = null; this._err = ''; this._kb = ''; this._sure = ''; this._find = ''; this._open = -1; sfx('nav'); });
   }
   private _close(): void { this._guard(() => { this._closed = true; this.dispatchEvent(new CustomEvent('close')); }); }
   private _discard(): void { this._draft = clone(this.config); this._pin = { cur: '', next: '', again: '' }; this._err = ''; }
@@ -342,7 +345,7 @@ export class FhSettings extends LitElement {
         if (Object.keys(saved).length) ls.setItem(key(k.name), JSON.stringify(saved)); else ls.removeItem(key(k.name)); });
     } catch { /* storage unavailable */ }
     this._draft = clone(next); this._from = next; this._pin = { cur: '', next: '', again: '' }; this._hist = history(); this._sure = '';
-    this._access = { ...(this._access ?? { ok: true }), latest: undefined, previous: { t: new Date().toISOString(), what: 'Kept in the dashboard', config: from, from: 'dashboard' } };
+    this._access = { ...(this._access ?? { ok: true }), latest: undefined, previous: { t: new Date().toISOString(), what: 'Kept in the dashboard', config: noPin(from), from: 'dashboard' } };
     wantPane(this._pane); resumeSoon();
     this.dispatchEvent(new CustomEvent('fh-config', { detail: next, bubbles: true, composed: true }));
   }
@@ -581,7 +584,7 @@ export class FhSettings extends LitElement {
           ${this._move(r.name || 'reward', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}
           ${this._del(`Remove ${r.name || 'this reward'}`, () => set((l) => { l.splice(n, 1); }))}</div>`)}
         <div><button class="pill tap" data-act="reward-add" @click=${() => { const n = (list ?? DEFAULTS).length; set((l) => { l.push({ name: '', cost: 50 }); }); this._focusSoon(`rw.${i}.${n}.name`); }}>${icon('plus', 18)}Add a reward</button></div>
-        <span class="shint">Without a tick, a reward under 60 points is spent by the child alone and one of 60 or more asks for the PIN. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
+        <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
       </div>` : nothing}
       <div class="scard"><h3>${icon('jar', 20)}Family jar <span class="muted">shared by everyone</span></h3>
         ${this._row('Points to fill the jar', '', this._step('Points to fill the jar', jar.target ?? 200, (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), target: v }; }), { min: 10, max: 5000, step: 10, unit: 'pts' }))}
@@ -686,7 +689,7 @@ export class FhSettings extends LitElement {
     const all = Object.keys(S).filter((e) => domains.includes(e.split('.')[0]) && !E[e]?.hidden).map((e) => ({ id: e, name: this._name(e), area: A[E[e]?.area_id ?? '']?.name ?? '' }));
     for (const e of chosen) if (!S[e]) all.push({ id: e, name: e, area: 'Not found in Home Assistant' });
     const on = (e: string): boolean => chosen.includes(e);
-    const shown = all.filter((x) => !q || `${x.name} ${x.area} ${x.id}`.toLowerCase().includes(q)).sort((a, b) => Number(on(b.id)) - Number(on(a.id)) || a.name.localeCompare(b.name));
+    const shown = all.filter((x) => !q || `${x.name} ${x.area} ${x.id} ${x.id.replace(/[._]/g, ' ')}`.toLowerCase().includes(q)).sort((a, b) => Number(on(b.id)) - Number(on(a.id)) || a.name.localeCompare(b.name));
     return html`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${icon('search', 22)}</span>${this._txt(`${id}.find`, `Search ${what}`, this._find, (v) => { this._find = v; }, { cls: 'sgrow', ph: `Search ${what}` })}<span class="stag" role="status">${chosen.length} chosen</span></div>
       <div class="spick" role="group" aria-label=${what}>${shown.map((x) => html`<button class="tap" data-e=${x.id} aria-pressed=${String(on(x.id))} @click=${() => set(on(x.id) ? chosen.filter((e) => e !== x.id) : [...chosen, x.id])}><span class="sbox2" aria-hidden="true">${on(x.id) ? icon('check', 16) : nothing}</span><span><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.name}</b>${x.area ? html`<small>${x.area}</small>` : nothing}</span></button>`)}</div>
       ${shown.length ? nothing : html`<span class="shint">Nothing matches “${this._find}”.</span>`}`;
@@ -745,20 +748,22 @@ export class FhSettings extends LitElement {
     const set = (fn: (l: MomentConfig[]) => void): void => this._edit((x) => { if (!x.music_moments?.length) x.music_moments = clone(DEFAULTS); fn(x.music_moments); });
     return html`<p class="sintro">A moment is one press on the mixing desk that plays something for an occasion.</p>
       <div class="scard"><h3>Moments ${list?.length ? nothing : html`<span class="muted">the four starters, until you change them</span>`}</h3>
-        ${shown.slice(0, 4).map((m, n, all) => { const where = m.rooms === 'all' ? 'all' : Array.isArray(m.rooms) && m.rooms.length ? 'some' : 'focus', rooms = Array.isArray(m.rooms) ? m.rooms : [];
-          return html`<div class="sitem" data-moment=${n} style="align-items:flex-start"><div class="sgrow" style="display:flex;flex-direction:column;gap:8px">
-            <div class="sitem" style="border:0;padding:0">${this._txt(`mo.${n}.icon`, `Picture for ${m.name || 'this moment'} (an emoji)`, m.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎵', pic: true, max: 16 })}
-              ${this._txt(`mo.${n}.name`, `Moment ${n + 1} name`, m.name, (v) => set((l) => { l[n].name = v; }), { cls: 'sgrow', ph: 'Name', bad: !m.name.trim() })}
-              ${this._move(m.name || 'moment', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}${this._del(`Remove ${m.name || 'this moment'}`, () => set((l) => { l.splice(n, 1); }))}</div>
-            ${this._row('What to play', m.uri ? 'This moment plays one exact thing (set in YAML). Typing here searches instead.' : 'Searched for in your music: a playlist unless you choose otherwise.', html`${this._txt(`mo.${n}.find`, `What ${m.name || 'this moment'} plays`, m.find ?? (m.uri ? '' : ''), (v) => set((l) => { l[n].find = v; if (v) delete l[n].uri; }), { ph: m.uri ? cut(m.uri, 30) : 'e.g. dinner jazz' })}
-              ${this._seg(`Kind of music for ${m.name}`, m.kind ?? 'playlist', [['playlist', 'Playlist'], ['album', 'Album'], ['artist', 'Artist'], ['radio', 'Radio']], (v) => set((l) => { if (v === 'playlist') delete l[n].kind; else l[n].kind = v; }))}`, true)}
-            ${this._row('Where', where === 'focus' ? 'Plays in the room chosen on the Music page.' : '', html`${this._seg(`Where ${m.name} plays`, where, [['focus', 'Room in focus'], ['all', 'Every room'], ['some', 'Chosen rooms']], (v) => set((l) => { if (v === 'focus') delete l[n].rooms; else if (v === 'all') l[n].rooms = 'all'; else l[n].rooms = spk.slice(0, 1); }))}`)}
+        ${shown.slice(0, 4).map((m, n, all) => { const where = m.rooms === 'all' ? 'all' : Array.isArray(m.rooms) && m.rooms.length ? 'some' : 'focus', rooms = Array.isArray(m.rooms) ? m.rooms : [], open = this._open === n;
+          const sum = [m.find || (m.uri ? 'One exact thing' : 'Nothing to play yet'), where === 'all' ? 'every room' : where === 'some' ? rooms.map((r) => this._name(r)).join(' and ') : 'the room in focus', m.volume === undefined ? '' : `${m.volume}%`].filter(Boolean).join(' · ');
+          if (!open) return html`<div class="sitem" data-moment=${n}><button class="sjob tap sgrow" aria-expanded="false" aria-label=${`Change ${m.name || 'this moment'}`} @click=${() => { this._open = n; }}><span class="spic" aria-hidden="true">${m.icon || '🎵'}</span><span class="sgrow" style="display:flex;flex-direction:column;min-width:0;line-height:1.3"><span class="sname">${m.name || 'New moment'}</span><span class="shint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sum}</span></span></button>
+            ${this._move(m.name || 'moment', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}${this._del(`Remove ${m.name || 'this moment'}`, () => { set((l) => { l.splice(n, 1); }); this._open = -1; })}</div>`;
+          return html`<div class="sform" data-moment=${n} role="group" aria-label=${m.name || 'New moment'}>
+            ${this._row('Name', '', html`${this._txt(`mo.${n}.icon`, `Picture for ${m.name || 'this moment'} (an emoji)`, m.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎵', pic: true, max: 16 })}${this._txt(`mo.${n}.name`, `Moment ${n + 1} name`, m.name, (v) => set((l) => { l[n].name = v; }), { ph: 'Name', bad: !m.name.trim() })}`, true)}
+            ${this._row('What to play', m.uri && !m.find ? 'This moment plays one exact thing, set in YAML. Typing here searches for something instead.' : 'Searched for in your music.', this._txt(`mo.${n}.find`, `What ${m.name || 'this moment'} plays`, m.find ?? '', (v) => set((l) => { l[n].find = v; if (v) delete l[n].uri; }), { ph: m.uri ? cut(m.uri, 30) : 'e.g. dinner jazz' }), true)}
+            ${this._row('Kind', '', this._seg<string>(`Kind of music for ${m.name}`, m.kind ?? 'playlist', [['playlist', 'Playlist'], ['album', 'Album'], ['artist', 'Artist'], ['radio', 'Radio']], (v) => set((l) => { if (v === 'playlist') delete l[n].kind; else l[n].kind = v; })))}
+            ${this._row('Where', where === 'focus' ? 'Plays in the room chosen on the Music page.' : '', this._seg<string>(`Where ${m.name} plays`, where, [['focus', 'Room in focus'], ['all', 'Every room'], ['some', 'Chosen rooms']], (v) => set((l) => { if (v === 'focus') delete l[n].rooms; else if (v === 'all') l[n].rooms = 'all'; else l[n].rooms = spk.slice(0, 1); })))}
             ${where === 'some' ? html`<div class="schips" role="group" aria-label=${`Rooms for ${m.name}`}>${spk.map((id) => html`<button class="tap" aria-pressed=${String(rooms.includes(id))} @click=${() => set((l) => { const r = Array.isArray(l[n].rooms) ? (l[n].rooms as string[]) : []; l[n].rooms = r.includes(id) ? r.filter((x) => x !== id) : [...r, id]; })}>${this._name(id)}</button>`)}</div>` : nothing}
-            ${this._row('Volume', m.volume === undefined ? 'Left as the room already is.' : '', html`<div class="schips"><button class="tap" aria-pressed=${String(m.volume === undefined)} aria-label=${`Leave the volume as it is for ${m.name}`} @click=${() => set((l) => { if (l[n].volume === undefined) l[n].volume = 30; else delete l[n].volume; })}>As it is</button></div>
+            ${this._row('Volume', m.volume === undefined ? 'Left as the room already is.' : 'Set when the moment starts.', html`<div class="schips"><button class="tap" aria-pressed=${String(m.volume === undefined)} aria-label=${`Leave the volume as it is for ${m.name}`} @click=${() => set((l) => { if (l[n].volume === undefined) l[n].volume = 30; else delete l[n].volume; })}>As it is</button></div>
               ${m.volume === undefined ? nothing : this._range(`Volume for ${m.name}`, m.volume, (v) => set((l) => { l[n].volume = v; }))}`)}
             ${this._row('Shuffle', '', this._sw(`Shuffle ${m.name}`, !!m.shuffle, () => set((l) => { if (l[n].shuffle) delete l[n].shuffle; else l[n].shuffle = true; })))}
-          </div></div>`; })}
-        ${shown.length < 4 ? html`<div><button class="pill tap" data-act="moment-add" @click=${() => { const n = shown.length; set((l) => { l.push({ name: '', find: '' }); }); this._focusSoon(`mo.${n}.name`); }}>${icon('plus', 18)}Add a moment</button></div>` : html`<span class="shint">The desk has room for four moments.</span>`}
+            <div class="sbtns"><button class="pill tap" data-act="moment-close" @click=${() => { this._open = -1; }}>Close</button></div>
+          </div>`; })}
+        ${shown.length < 4 ? html`<div><button class="pill tap" data-act="moment-add" @click=${() => { const n = shown.length; set((l) => { l.push({ name: '', find: '' }); }); this._open = n; this._focusSoon(`mo.${n}.name`); }}>${icon('plus', 18)}Add a moment</button></div>` : html`<span class="shint">The desk has room for four moments.</span>`}
         <span class="shint">A pad that was given different music on a screen’s own Music page keeps that music on that screen.</span>
       </div>
       <div class="scard"><h3>Timers and calls</h3>
