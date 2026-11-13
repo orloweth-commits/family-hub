@@ -223,8 +223,16 @@ export class FhMusic extends LitElement {
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
-    /* a family with a child who cannot read yet, on a tall wide screen (the wall panel): he reaches the lower half only, so the coins and "adds a song" go under the night's picks */
-    @media (min-height: 900px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
+    /* a family with a child who cannot read yet, on a wide screen (the wall panel, a laptop): he reaches the lower half only, so the coins and "adds a song" go under the night's picks. A phone and a portrait tablet keep the order they had */
+    @media (min-height: 640px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
+    /* a shorter wide screen (a laptop, the panel inside Home Assistant's frame): the same arrangement, and the night's picks become short rows so a whole pick, with its word, still shows above the coins */
+    @media (min-height: 640px) and (max-height: 739px) {
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow { grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .pickrow { display: grid; grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 10px; align-items: center; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .pcover { grid-row: 1 / 3; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .nm { min-height: 0; align-self: end; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .when { align-self: start; justify-self: start; }
+    }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
@@ -1348,7 +1356,7 @@ export class FhMusic extends LitElement {
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:15px" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
         ${j.picks.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
-      ${j.picks.length ? html`<div class="picks scrolly" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
+      ${j.picks.length ? html`<div class="picks scrolly ${jlow}" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
         : html`<div class="empty"><span style="color:var(--ink2)">${icon('jukebox', 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
 
