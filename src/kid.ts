@@ -392,6 +392,8 @@ export class FhKid extends LitElement {
     return this._lookCache[1];
   }
   private get _wind(): boolean { return windDown(this.kid.bedtime, this._now); }
+  /** After midnight and before 5 am: the page is still quiet, but last night's bedtime (its clock, its jobs) is over and the morning's jobs have not begun. */
+  private get _night(): boolean { return minsNow(this._now) < 5 * 60; }
 
   protected shouldUpdate(ch: PropertyValues): boolean {
     if (ch.size === 1 && ch.has('hass') && this.kid) {
@@ -723,9 +725,9 @@ export class FhKid extends LitElement {
     const bt = bedtimeFor(this.kid.bedtime, this._now);
     const slot = daySlot(bt, this._now);
     const list = this._chores;
-    const routineNow = list.filter((c) => c.lane === 'routine' && (c.slot === slot || (c.slot === 'any' && !this._wind)));
+    const routineNow = this._night ? [] : list.filter((c) => c.lane === 'routine' && (c.slot === slot || (c.slot === 'any' && !this._wind)));
     const jobs = this._wind ? [] : list.filter((c) => c.lane === 'job' && (c.slot === 'any' || c.slot === slot || (slot === 'after' && c.slot === 'am')));
-    const grow = this._wind ? list.filter((c) => c.lane === 'grow' && c.slot === 'bed') : list.filter((c) => c.lane === 'grow' && c.slot !== 'bed' || (c.lane === 'grow' && slot === 'bed'));
+    const grow = this._night ? [] : this._wind ? list.filter((c) => c.lane === 'grow' && c.slot === 'bed') : list.filter((c) => c.lane === 'grow' && c.slot !== 'bed' || (c.lane === 'grow' && slot === 'bed'));
     const later = list.filter((c) => c.lane === 'routine' && c.status !== 'completed' && c.slot !== slot && c.slot !== 'any' && ((slot === 'am') || (slot === 'after' && c.slot === 'bed')));
     // picture mode shows the routine only
     const visible = this._picMode ? routineNow : [...routineNow, ...jobs, ...grow];
@@ -739,19 +741,19 @@ export class FhKid extends LitElement {
     this._nowUid = todo[0]?.uid ?? '';
     const left = total - done;
     const C = 2 * Math.PI * 22, frac = total ? done / total : 0;
-    const sub = this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${t12(bt)}` : 'All set for bed. Sleep well 🌙')
+    const sub = this._night ? 'Morning jobs start when you get up 🌙' : this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${t12(bt)}` : 'All set for bed. Sleep well 🌙')
       : left ? `${left} left ${slot === 'am' ? 'this morning' : slot === 'after' ? 'this afternoon' : 'tonight'}` : later.length ? 'All done for now 🎉' : 'All done – fresh start tomorrow';
     const one = this.oneAtATime && !this._showAll, plain = !!this.kid.older;
-    const toBed = Math.min(60, hm(bt) - minsNow(this._now));
+    const toBed = this._night ? 0 : Math.min(60, hm(bt) - minsNow(this._now));
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="flex:1"><h1 class="t-title">${this._wind ? 'Wind down' : this._picMode ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
+        <div style="flex:1"><h1 class="t-title">${this._night ? 'Night time' : this._wind ? 'Wind down' : this._picMode ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
           <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${sub}</span></div>
         ${this.oneAtATime && this._showAll ? html`<button class="pill tap" @click=${() => { this._showAll = false; }}>One at a time</button>` : nothing}
 
         ${this._wind && toBed > 0 ? html`<span class="bedclock" role="img" aria-label="${toBed} minutes until bed">${lookArt(getLook(), 'timer', { frac: toBed / 60, size: 52 })}<b>${toBed}<span>min</span></b></span>` : nothing}
-        <div class="ring" role="img" aria-label="${done} of ${total} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - frac)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${done}/${total}</b></div>
+        ${this._night ? nothing : html`<div class="ring" role="img" aria-label="${done} of ${total} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - frac)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${done}/${total}</b></div>`}
       </div>
       ${lookArt(getLook(), 'steps', { done, total })}
       ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" data-fits @scroll=${scrollCue}>
@@ -761,7 +763,7 @@ export class FhKid extends LitElement {
             ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2>${plain ? nothing : html`<span>earn points · fill the jar</span>`}</div>${jobs.map((c) => this._row(c))}` : nothing}
             ${grow.length ? html`<div class="sec"><h2>${plain ? 'Practice and reading' : 'Growing'}</h2>${plain ? nothing : html`<span>for you – surprises along the way</span>`}</div>${grow.map((c) => this._row(c))}` : nothing}`}
         ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._picMode ? picFor(c) : '').join(' ')}</span></div>` : nothing}
-        ${!visible.length ? html`<div class="wind"><span style="font-size:44px">🌤️</span><span>Nothing right now. Enjoy!</span></div>` : nothing}
+        ${!visible.length ? html`<div class="wind"><span style="font-size:44px">${this._night ? '🌙' : '🌤️'}</span><span>${this._night ? 'Sleep time. See you in the morning.' : 'Nothing right now. Enjoy!'}</span></div>` : nothing}
       </div>`}
     </section>`;
   }
@@ -776,8 +778,8 @@ export class FhKid extends LitElement {
       <h2 class="t-head">All done!</h2>
       <button class="seedone tap" @click=${() => { this._showAll = true; this._sound('tap'); say('Here is everything you did.'); }}>${listSvg}<span>See what I did</span></button></div></div>`;
     if (!now) return html`<div class="focus"><div class="allset"><span class="big-e">${this._wind ? '🌙' : '🎉'}</span>
-      <h2 class="t-head">${this._wind ? 'All set for bed' : done ? 'All done!' : 'Nothing right now'}</h2>
-      <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
+      <h2 class="t-head">${this._night ? 'Sleep time' : this._wind ? 'All set for bed' : done ? 'All done!' : 'Nothing right now'}</h2>
+      <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._night ? 'See you in the morning.' : this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
       ${done ? html`<button class="pill tap" @click=${() => { this._showAll = true; }}>See what I did</button>` : nothing}</div></div>`;
     const more = rest.length;
     return html`<div class="focus" data-fits>
@@ -849,7 +851,7 @@ export class FhKid extends LitElement {
 
   private _windCard(): TemplateResult {
     return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      <span class="muted wbed" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
+      ${this._night ? nothing : html`<span class="muted wbed" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span>`}</section>`;
   }
 
   private _jar(): TemplateResult {

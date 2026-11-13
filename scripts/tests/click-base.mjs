@@ -455,10 +455,10 @@ await page.close();
   const see = p.getByRole('button', { name: 'See what I did' }), sb2 = await see.boundingBox(), tb = await p.locator('fh-kid .toast').boundingBox().catch(() => null);
   console.log('Max all done: picture', await p.locator('fh-kid .party svg').count() > 0, '| button', Math.round(sb2.height) + ' px high | toast over the button:', !!tb && tb.y < sb2.y + sb2.height && tb.y + tb.height > sb2.y && tb.x < sb2.x + sb2.width && tb.x + tb.width > sb2.x);
   await wall.close(); }
-// morning board: nothing per child about how far through the morning he is (finding 13)
+// morning board: since 0.32.0 each card carries its child's current job (one button, "Now"), with no bar, score or count of jobs on a card; the count is said once, pooled
 page = await open('look=glass&page=morning', '07:10');
 const mb = (await page.locator('fh-morning section, fh-morning .kcol').allInnerTexts()).join(' ').replace(/\s+/g, ' ');
-console.log('morning board: "All set" or "Next" in a column:', /All set|Next\b/.test(mb), '| pooled line:', (/Morning jobs: \d+ to go between us/.exec(mb) ?? ['MISSING'])[0]);
+console.log('morning board: a count of jobs or "Next" in a column:', /\d+ (left|to go|of \d+)|Next\b/.test((await page.locator('fh-morning .kcol').allInnerTexts()).join(' ')), '| pooled line:', (/Morning jobs: \d+ to go between us/.exec(mb) ?? ['MISSING'])[0]);
 await page.close();
 }
 // ---- motion (polish round 2) ----
@@ -798,7 +798,7 @@ for (const [w, h] of [[1024, 768], [1180, 820], [800, 600], [768, 1024], [820, 1
     return { fam: [...r.querySelectorAll('.fam .fev')].map(tx), cols: [...r.querySelectorAll('.kcol')].map((k) => [...k.querySelectorAll('.mev2')].map(tx).join(' ; ')), tiles: tiles.length, tileMin: Math.round(Math.min(...tiles.map((b) => Math.min(b.width, b.height))) / z), tileTop: Math.round(Math.min(...tiles.map((b) => b.top))), bars: bars.length, clocks, kids: r.querySelectorAll('.kcol').length, gotx: [...r.querySelectorAll('.kcol .lchip')].map(tx), half: innerHeight / 2, progress: r.querySelectorAll('.kcol .stars, .kcol .teambar, .kcol [role="progressbar"]').length }; });
   console.log('R4-3 morning board family strip:', mb.fam.join(' ; '), ok(mb.fam.some((x) => /^until 6:00 am ?Road works/.test(x))), '| Riley:', mb.cols[0], ok(/continues ?Camp/.test(mb.cols[0])));
   console.log('R4-4a family events once across the top, not in the columns:', ok(mb.fam.some((x) => /Bins out/.test(x)) && !mb.cols.some((c) => /Bins out|Road works/.test(c))), '| picture tiles:', mb.tiles, 'smallest', mb.tileMin, 'px (expect >= 72)', ok(mb.tiles > 0 && mb.tileMin >= 72), '| tiles in the lower half: top', mb.tileTop, '>', mb.half, ok(mb.tileTop > mb.half),
-    '| D4 one clock for the family, none in a column:', mb.clocks, 'clock,', mb.bars, 'bars in columns,', mb.gotx.join(' ; '), ok(mb.clocks === 1 && mb.bars === 0 && mb.gotx.length === mb.kids && mb.gotx.every((x) => /^Leave \d{1,2}:\d\d [ap]m/.test(x) && !/min|%/.test(x))), '| per-child job progress (expect 0):', mb.progress);
+    '| D4 one clock for the family, none in a column:', mb.clocks, 'clock,', mb.bars, 'bars in columns,', mb.gotx.join(' ; '), ok(mb.clocks === 1 && mb.bars === 0 && mb.gotx.length === mb.kids - 1 && mb.gotx.every((x) => /^You leave 20 minutes later ?7:50 am/.test(x) && !/%/.test(x))), '| per-child job progress (expect 0):', mb.progress);
   await m.context().close();
   // on the wall the header has room for the "next up" chip: it is a button that opens its event
   const w = await openAt(1920, 1080, 'look=glass&page=planner'); const chip2 = w.locator('family-hub-card header button.cap[data-kind="next"]');
@@ -1160,15 +1160,15 @@ const ratio = `(a, b) => { const l = (c) => { let m = c.match(/[\\d.]+/g).map(Nu
   const src = fs.readdirSync(path.join(ROOT, 'src')).filter((f) => f.endsWith('.ts') && !['studio.ts', 'avatar.ts'].includes(f)).filter((f) => /levelInfo|\bRANKS\b|nextRank/.test(fs.readFileSync(path.join(ROOT, 'src', f), 'utf8')));
   console.log('D3 rank in the child’s own studio only (not on his page) | own studios:', own.join(' ; '), out.join(' '), '| a rank read on any other page:', seen.join(' ; ') || 'none', ok(!seen.length), '| other source files that read ranks:', src.join(', ') || 'none', ok(!src.length)); await p.context().close(); }
 
-// D4. the morning board: ONE clock for the family (a face that empties, minutes, the time in numerals and words); no bar, minutes or percentage in any column; calm mode never animates it
+// D4. the morning board: ONE clock for the family (a face that empties, minutes, the time in numerals and words); no bar, countdown or percentage in any column (since 0.32.0 a card says a time only when its child leaves at a different one, as so many minutes later); calm mode never animates it
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await openAt(1280, 800, `look=${look}&page=morning`, '07:10');
   const read = () => p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-morning').shadowRoot, g = r.querySelectorAll('[data-part="goclock"]'), c = g[0], tx = (e) => (e?.textContent ?? '').replace(/\s+/g, ' ').trim();
-    const cols = [...r.querySelectorAll('.kcol')], chips = cols.map((k) => k.querySelector('.lchip')), face = c?.querySelector('svg.tface')?.getBoundingClientRect();
+    const cols = [...r.querySelectorAll('.kcol')], chips = cols.map((k) => k.querySelector('.lchip')).filter(Boolean), face = c?.querySelector('svg.tface')?.getBoundingClientRect();
     return { clocks: g.length, role: c?.getAttribute('role'), label: (c?.getAttribute('aria-label') ?? '').replace(/\s+/g, ' '), text: tx(c), face: face ? Math.round(face.width) : 0, colBars: r.querySelectorAll('.kcol .gobar, .kcol .kgo, .kcol svg.tface, .kcol [role="progressbar"], .kcol .meter').length,
-      colText: cols.map((k) => tx(k)).join(' | '), chipW: [...new Set(chips.map((e) => Math.round(e.getBoundingClientRect().width)))].length, chipBg: [...new Set(chips.map((e) => getComputedStyle(e).backgroundColor))].length, cut: (() => { const w = c?.querySelector('.words'), b = c?.getBoundingClientRect(), o = r.querySelector('.board')?.getBoundingClientRect(); return !w || !b || !o || w.scrollWidth > w.clientWidth + 1 || b.right > o.right + 0.5 || b.bottom > o.bottom + 0.5 || b.left < o.left - 0.5; })() }; });
+      colText: cols.map((k) => tx(k)).join(' | '), chips: chips.length, chipW: [...new Set(chips.map((e) => Math.round(e.getBoundingClientRect().width)))].length, chipBg: [...new Set(chips.map((e) => getComputedStyle(e).backgroundColor))].length, cut: (() => { const w = c?.querySelector('.words'), b = c?.getBoundingClientRect(), o = r.querySelector('.board')?.getBoundingClientRect(); return !w || !b || !o || w.scrollWidth > w.clientWidth + 1 || b.right > o.right + 0.5 || b.bottom > o.bottom + 0.5 || b.left < o.left - 0.5; })() }; });
   const a = await read();
   console.log(`D4 ${look} one family clock:`, a.clocks, a.role, '|', a.label, '|', a.text, '| face', a.face, 'px', ok(a.clocks === 1 && a.role === 'timer' && /^Time to leave: 20 minutes until Max leaves at 7:30 am$/.test(a.label) && /20 min/.test(a.text) && /Leave at 7:30 am/.test(a.text) && /half past seven/.test(a.text) && a.face >= 88 && !a.cut),
-    '| columns: bars', a.colBars, '| minutes or % in a column:', /\d+ ?min\b|\d+ ?%/.test(a.colText), '| every chip the same width and colour:', ok(a.colBars === 0 && !/\d+ ?min\b|\d+ ?%/.test(a.colText) && a.chipW === 1 && a.chipBg === 1));
+    '| columns: bars', a.colBars, '| a countdown or % in a column:', /\d+ ?min\b|\d+ ?%/.test(a.colText), '| only the two who leave later carry a chip, the same width and colour:', ok(a.colBars === 0 && !/\d+ ?min\b|\d+ ?%/.test(a.colText) && a.chips === 2 && a.chipW === 1 && a.chipBg === 1));
   if (look === 'glass') { await p.clock.runFor(61_000); await p.waitForTimeout(300); const b = await read(); await p.clock.runFor(26 * 60_000); await p.waitForTimeout(300); const c2 = await read();
     console.log('D4 the clock counts down, then moves on to the next time anyone leaves:', b.text, ok(/19 min/.test(b.text)), '|', c2.text, ok(/1[34] min/.test(c2.text) && /Leave at 7:50 am/.test(c2.text) && /ten to eight/.test(c2.text) && /Riley & Charlie leave/.test(c2.text))); }
   await p.context().close(); }
