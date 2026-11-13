@@ -986,5 +986,62 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   page = await open('look=sports&page=music&mview=scene');
   console.log('HG6 music scene is the training ground', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, v = r.querySelector('.vscene'); return v?.dataset.kind === 'sports' && r.querySelectorAll('.vscene .actor').length > 0 && !!r.querySelector('.backdrop .bgchalk'); }));
   await page.close(); }
+// Round 6 (builder B)
+// R6-H2. Ask with the on-screen keys open: no key lies under the pictures, and "dogs ok" can be typed by tapping, from the youngest's page and on a portrait tablet
+for (const [look, pg, w, h] of [['sports', 'kid&kid=2', 1280, 800], ['glass', 'kid&kid=2', 1024, 768], ['fridge', 'kid&kid=2', 1920, 1080], ['orbit', 'planner', 820, 1180], ['sports', 'planner', 768, 1024]]) {
+  page = await open(`look=${look}&page=${pg}`); await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(500);
+  await page.getByRole('button', { name: /^Ask/ }).first().click(); await page.waitForTimeout(700);
+  await page.locator('fh-chat').getByRole('button', { name: 'Keyboard' }).click(); await page.waitForTimeout(500);
+  const kb = await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot, keys = [...sr.querySelectorAll('.key')];
+    const covered = keys.filter((k) => { const r = k.getBoundingClientRect(), e = sr.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !(e === k || k.contains(e)) || r.bottom > innerHeight; }).length;
+    return { keys: keys.length, covered, thread: Math.round(sr.querySelector('.thread').getBoundingClientRect().height) }; });
+  for (const c of 'dogs ok') { const pt = await page.evaluate((c) => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot, k = [...sr.querySelectorAll('.key')].find((k) => c === ' ' ? k.classList.contains('space') : k.textContent.trim().toLowerCase() === c), r = k.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, c); await page.mouse.click(pt[0], pt[1]); await page.waitForTimeout(60); }
+  const typed = await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.field').value);
+  console.log(`R6-H2 ${look} ${pg} ${w}x${h}: keys covered (expect 0 of 44):`, kb.covered, 'of', kb.keys, '| typed by tapping:', JSON.stringify(typed), typed.toLowerCase() === 'dogs ok', '| conversation at least 80 px high:', kb.thread >= 80, kb.thread);
+  await page.locator('fh-chat').getByRole('button', { name: 'Keyboard' }).click(); await page.waitForTimeout(300);
+  console.log('   keys closed: the pictures are back:', await page.evaluate(() => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.starters'); return getComputedStyle(st).display !== 'none' && st.getBoundingClientRect().height > 60; }));
+  await page.close(); }
+// R6-H3. "Spend 50 points?" reads on its row in every look (it was white on white in Home Ground, Fridge and Orbit), by day and in the evening
+for (const look of ['sports', 'fridge', 'orbit', 'glass']) for (const time of ['16:20', '18:10']) { page = await open(`look=${look}&page=kid&kid=0`, time);
+  await page.locator('fh-kid button.rw').first().click(); await page.waitForTimeout(1500);
+  const cr = await page.evaluate(() => { const row = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.rw.ask'); if (!row) return ['no spend row'];
+    const par = (n) => n.parentElement || (n.getRootNode() instanceof ShadowRoot ? n.getRootNode().host : null), cv = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    const rgb = (c) => { cv.clearRect(0, 0, 1, 1); cv.fillStyle = c; cv.fillRect(0, 0, 1, 1); const d = cv.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+    const bg = (e) => { const stack = []; for (let n = e; n; n = par(n)) { const c = rgb(getComputedStyle(n).backgroundColor); if (c[3] > 0) { stack.push(c); if (c[3] >= 1) break; } } let out = [255, 255, 255]; for (const c of stack.reverse()) out = out.map((v, i) => v * (1 - c[3]) + c[i] * c[3]); return out; };
+    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+    return [...row.querySelectorAll('.q, button')].map((e) => { const a = lum(rgb(getComputedStyle(e).color)), b = lum(bg(e)); return Number(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)).toFixed(2)); }); });
+  console.log(`R6-H3 ${look} ${time}: spend question and its two buttons at 4.5:1 or better:`, cr.length === 3 && cr.every((x) => x >= 4.5), cr.join(' '));
+  await page.close(); }
+// R6-H4. the youngest on the wall panel (1920x1080) reaches the lower half only: his studio's way back, colours and kinds of thing, and the jukebox's coins and "adds a song", are all below the middle
+page = await open('look=sports&page=kid&kid=2&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('R6-H4 studio tops (expect all >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { back: y('[aria-label^="Back"]'), surprise: y('[aria-label="Surprise look"]'), kinds: y('.tabs'), colours: y('.sw'), done: y('.sfoot') }; })));
+await page.close();
+page = await open('look=sports&page=kid&kid=0&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('   an older child’s studio keeps its tabs and Back at the top:', await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => sr.querySelector(q).getBoundingClientRect().top; return y('.tabs') < 300 && y('[aria-label^="Back"]') < 300; }));
+await page.close();
+page = await open('look=sports&page=music&mtab=juke&juke=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('R6-H4 jukebox tops (expect both >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { coins: y('.coin'), adds: y('.acts .primary') }; })));
+await page.close();
+// R6-H6. five quick ticks on a slow connection (each answer takes 3 s): the count of done jobs never goes back, and every tick is kept
+for (const kid of [0, 1]) { page = await open(`look=sports&page=kid&kid=${kid}&slow=3000`);
+  const jobs = () => page.evaluate(() => { const rows = [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelectorAll('[data-uid]')]; return { done: rows.filter((r) => r.classList.contains('done')).length, left: rows.filter((r) => !r.classList.contains('done')).map((r) => r.dataset.uid) }; });
+  const first = await jobs(), seen = [first.done]; let taps = 0;
+  for (let i = 0; i < 5; i++) { const now = await jobs(); if (!now.left.length) break; await page.evaluate((u) => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector(`[data-uid="${u}"]`).click(), now.left[0]); taps++; for (let k = 0; k < 3; k++) { await page.waitForTimeout(500); seen.push((await jobs()).done); } }
+  for (let k = 0; k < 14; k++) { await page.waitForTimeout(500); seen.push((await jobs()).done); }
+  const calls = await page.evaluate(() => (window.__calls || []).filter((c) => /update_item/.test(c) && /completed/.test(c)).length);
+  console.log(`R6-H6 kid ${kid}: ${taps} quick ticks on a slow connection; done count never goes back:`, kid === 1 || seen.every((n, i) => !i || n >= seen[i - 1]), '| every tick reached Home Assistant:', calls === taps, `${calls}/${taps}`, '| none left unticked on the page:', (await jobs()).left.length === (kid === 1 ? 0 : first.left.length - taps));
+  await page.close(); }
+// R6-H8. a text field on the add sheet shows a focus ring in the looks that draw it as an underline
+for (const look of ['sports', 'fridge', 'orbit']) { page = await open(`look=${look}&page=planner&sheet=add`);
+  console.log(`R6-H8 ${look}: the focused field has a 3 px outline:`, await page.evaluate(() => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-add-event').shadowRoot.querySelector('input.field'); f.focus(); const c = getComputedStyle(f); return c.outlineStyle === 'solid' && c.outlineWidth === '3px'; }));
+  await page.close(); }
+// R6-H9. Home Ground at 1024x768: a seven-letter name stays on one line in the page title
+page = await open('look=sports&page=kid&kid=1'); await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(600);
+console.log('R6-H9 lines in the name (expect 1):', await page.evaluate(() => { const n = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.name'), g = document.createRange(); g.selectNodeContents(n); return new Set([...g.getClientRects()].map((r) => Math.round(r.top))).size; }));
+// R6-H10/H11. the same screen's rail: the small player's second line is not cut, and "+10 min" keeps clear of its pill's edge
+await page.getByRole('button', { name: 'Planner', exact: true }).click(); await page.waitForTimeout(700);
+console.log('R6-H10 small player lines cut (expect 0):', await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1).length),
+  '| R6-H11 least room beside a quick pill’s words (expect >= 6):', await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); })))));
+await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
