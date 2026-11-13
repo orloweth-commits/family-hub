@@ -986,5 +986,33 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   page = await open('look=sports&page=music&mview=scene');
   console.log('HG6 music scene is the training ground', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, v = r.querySelector('.vscene'); return v?.dataset.kind === 'sports' && r.querySelectorAll('.vscene .actor').length > 0 && !!r.querySelector('.backdrop .bgchalk'); }));
   await page.close(); }
+// R6-G1. wind-down (19:30): every card of the kid page's side column fits, "Ask for a chat" included, on a short panel in every look and on the wall sizes
+{ const bad = [];
+  for (const [w, h, look, kids] of [[1312, 668, 'glass&theme=sea', [0, 1, 2]], [1312, 668, 'fridge', [0, 1, 2]], [1312, 668, 'orbit', [0, 1, 2]], [1312, 668, 'sports', [0, 1, 2]], [1280, 800, 'sports', [0]], [1920, 1080, 'sports', [0]]]) for (const kid of kids) {
+    const p = await openAt(w, h, `look=${look}&page=kid&kid=${kid}`, '19:30');
+    const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, s = k.querySelector('.side'), sb = s.getBoundingClientRect(), last = s.lastElementChild.getBoundingClientRect(), chat = [...s.querySelectorAll('button')].find((b) => /Ask for a chat/.test(b.textContent))?.getBoundingClientRect();
+      return { over: s.scrollHeight - s.clientHeight, last: Math.round(last.bottom - Math.min(sb.bottom, innerHeight)), chat: chat ? Math.round(chat.bottom - Math.min(sb.bottom, innerHeight)) : 999 }; });
+    if (r.over > 2 || r.last > 1 || r.chat > 0) bad.push(`${w}x${h} ${look.split('&')[0]} kid${kid} ${JSON.stringify(r)}`);
+    await p.context().close(); }
+  console.log('R6-G1 wind-down side column fits with nothing cut off', ok(!bad.length), bad.join(' | ')); }
+// R6-G2. one job at a time on a tablet: Now, Next and "Show all" are inside the jobs card in the Sports look too (it grows; the page scrolls)
+{ const bad = [];
+  for (const [w, h] of [[820, 1180], [768, 1024]]) for (const kid of [1, 2]) { const p = await openAt(w, h, `look=sports&page=kid&kid=${kid}`);
+    const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, f = k.querySelector('.focus'), l = k.querySelector('.later'), j = k.querySelector('.jobs').getBoundingClientRect();
+      return { clip: f.scrollHeight - f.clientHeight, later: l ? Math.round(l.getBoundingClientRect().bottom - j.bottom) : 999 }; });
+    if (r.clip > 2 || r.later > 0) bad.push(`${w}x${h} kid${kid} ${JSON.stringify(r)}`); await p.context().close(); }
+  console.log('R6-G2 tablet: the Sports Now card and "Show all" are not clipped', ok(!bad.length), bad.join(' | ')); }
+// R6-G3. the chosen brush size looks chosen in every look, and the choice moves when another size is tapped
+{ const bad = [];
+  for (const look of ['glass&theme=sea', 'fridge', 'orbit', 'sports']) { const p = await openAt(1280, 800, `look=${look}&page=doodle`);
+    const read = () => p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-doodle').shadowRoot.querySelectorAll('button.size[aria-label^="Brush"]')].map((b) => { const cs = getComputedStyle(b); return { on: b.getAttribute('aria-pressed') === 'true', bg: cs.backgroundColor, look: cs.backgroundColor + ' ' + cs.boxShadow, dot: getComputedStyle(b.querySelector('i')).backgroundColor }; }));
+    const a = await read(); await p.locator('fh-doodle button.size[aria-label="Brush 22"]').click(); await p.waitForTimeout(150); const b = await read();
+    const clear = (v) => v.filter((x) => x.on).length === 1 && v.filter((x) => !x.on).every((x) => x.look !== v.find((y) => y.on).look) && v.find((x) => x.on).dot !== v.find((x) => x.on).bg;
+    if (!clear(a) || !clear(b) || !b[2].on || a[2].on) bad.push(look.split('&')[0]); await p.context().close(); }
+  console.log('R6-G3 the selected brush size is visibly selected', ok(!bad.length), bad.join(' ')); }
+// R6-G4. Sports: the small bib's initial is 12 px
+{ const p = await openAt(1280, 800, 'look=sports&page=kid&kid=0', '19:30');
+  const fs = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelectorAll('.init.sm')].map((e) => parseFloat(getComputedStyle(e).fontSize)));
+  console.log('R6-G4 Sports small bib initial is at least 12 px', ok(fs.length > 0 && Math.min(...fs) >= 12), Math.min(...fs)); await p.context().close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
