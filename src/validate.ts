@@ -19,7 +19,13 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
   for (const k of config.kids ?? []) if (!k.name) return 'Family Hub: every kid needs a name';
   for (const m of config.meds ?? []) if (!m?.id || !TIME_RE.test(String(m.time ?? ''))) return 'Family Hub: every medicine in "meds" needs an id and a time like "06:30"';
   for (const t of [config.night?.start, config.night?.end]) if (t !== undefined && !TIME_RE.test(String(t))) return 'Family Hub: night start and end need times like "21:00"';
-  for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) return `Family Hub: "${c.entity}" isn't a calendar entity`;
+  for (const c of config.calendars ?? []) {
+    if (!c.entity?.startsWith('calendar.')) return `Family Hub: "${c.entity}" isn't a calendar entity`;
+    for (const k of ['only', 'hide'] as const) if (c[k] !== undefined && !(Array.isArray(c[k]) && c[k]!.every((w) => typeof w === 'string'))) return `Family Hub: ${k} on "${c.entity}" should be a list of words, e.g. ${k}: [Western Australia]`;
+  }
+  const wait = (config as { all_off_wait?: unknown }).all_off_wait;
+  if (wait !== undefined && !(typeof wait === 'number' && Number.isFinite(wait) && wait >= 0 && wait <= 30)) return 'Family Hub: all_off_wait should be a number of seconds, 0 to 30';
+  if (config.pin_shuffle !== undefined && typeof config.pin_shuffle !== 'boolean') return 'Family Hub: pin_shuffle should be true or false';
   if (config.parent_pin !== undefined && !isPin(config.parent_pin)) return 'Family Hub: parent_pin should be 4–8 digits (put it in quotes)';
   if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') return 'Family Hub: sounds should be true, false or quiet';
   const keep = (config as { keep_on?: unknown }).keep_on;

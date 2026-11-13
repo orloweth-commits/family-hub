@@ -28,6 +28,8 @@ const CAL = {
   'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120,'Sampleton community hall, 12 Example Parade')]
 };
 // &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
+// &hol=1|hide|only: a shared holidays calendar with other places' days in it, shown as it is, with a `hide` list, or with an `only` list
+if (q.get('hol')) CAL['calendar.holidays'] = [ev(1,9,0,'Canberra Day',60), ev(2,9,0,'Western Australia Day',60), ev(3,9,0,'Melbourne Cup',60)];
 if (q.get('events') === 'none') for (const k of Object.keys(CAL)) CAL[k] = [];
 if (q.get('events') === 'many') CAL['calendar.family'].push(...Array.from({ length: 12 }, (_, i) => ev(1, 7 + i, 15, ['Assembly', 'Excursion note due', 'Dentist check-up', 'Scooter park', 'Band rehearsal', 'Swimming lesson', 'Parent meeting', 'Haircut', 'Library', 'Tennis coaching', 'Dinner with Nan', 'Pack for camp'][i], 30)));
 if (q.get('events') === 'long' || q.get('stress')) { CAL['calendar.family'].push(ev(1, 9, 0, 'Whole-school end of year assembly and presentation morning followed by the class picnic at the foreshore reserve', 90), ev(2, 10, 0, 'Supercalifragilisticexpialidocious-rehearsal', 60)); CAL['calendar.max'].push(ev(3, 9, 0, 'Kindy orientation for next year, bring hat, water bottle, spare clothes and the signed forms', 120)); }
@@ -219,6 +221,8 @@ el.setConfig({
   art: { idle_minutes: Number(q.get('idle') || 0), ...(q.get('every') ? { interval_minutes: Number(q.get('every')) } : {}), ...(q.get('presence') ? { presence: q.get('presence'), presence_entity: 'binary_sensor.kitchen_presence' } : {}), ...(q.get('backlight') ? { backlight: 'light.panel_backlight' } : {}) },
   // the dock's Dinner button is shown only with an announce script; &dinner=0 leaves it out
   ...(q.get('dinner') === '0' ? {} : { announce_script: 'script.dinner' }),
+  // tests press All off and look at once: the three-second wait is on only with &offwait=<seconds>; &shuffle=0 keeps the PIN pad in its usual order
+  all_off_wait: Number(q.get('offwait') || 0), pin_shuffle: q.get('shuffle') !== '0',
   // &chat=off leaves the Ask button out
   ...(q.get('chat') === 'off' ? {} : { chat: { agent: 'conversation.demo_chat', pipeline: 'demo' } })
 });
@@ -237,6 +241,10 @@ else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
 // &sheet=settings opens Settings (&pane=children|rewards|morning|medicines|pin|house|music|people|advanced, &skid=<n> and &stab=jobs pick a child and his job list, &keys=1 shows the on-screen keyboard, &nopin=1 starts without a PIN)
 if (q.get('quietmute')) el.setConfig({ ...el._config, quiet: { ...(el._config.quiet ?? {}), mute: true } });
+if (q.get('hol')) { hass.states['calendar.holidays'] = { entity_id: 'calendar.holidays', state: 'off', attributes: { friendly_name: 'Holidays', supported_features: 0 } }; el.setConfig({ ...el._config, calendars: [...el._config.calendars, { entity: 'calendar.holidays', colour: 'family', name: 'Holidays', ...(q.get('hol') === 'hide' ? { hide: ['canberra', 'Melbourne Cup'] } : q.get('hol') === 'only' ? { only: ['western australia'] } : {}) }] }); el.hass = { ...hass }; el._fetchedKey = ''; el._refresh(); }
+// &faces=1: Home Assistant holds a picture for the first tracked person
+if (q.get('faces')) hass.states['person.alex'] = { ...hass.states['person.alex'], attributes: { ...hass.states['person.alex'].attributes, entity_picture: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 8 8%22%3E%3Crect width=%228%22 height=%228%22 fill=%22%23c96%22/%3E%3C/svg%3E' } };
+if (q.get('faces')) el.hass = { ...hass };
 if (q.get('nopin')) { const { parent_pin, ...rest } = el._config; el.setConfig(rest); }
 if (q.get('sheet') && q.get('sheet') !== 'settings') el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;

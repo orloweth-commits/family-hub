@@ -718,6 +718,7 @@ export class FhSettings extends LitElement {
         <span class="shint">The PIN is kept in the card’s configuration, where it already lives. Anyone who can edit the dashboard can read it.</span>
       </div>
       ${has ? html`<div class="scard"><h3>What the PIN guards</h3>
+        ${this._row('Numbers move on the PIN pad', 'The digits take a new order each time the pad opens, so the PIN cannot be learnt by watching where a finger goes.', this._sw('Numbers move on the PIN pad', d.pin_shuffle !== false, () => this._edit((x) => { if (x.pin_shuffle === false) delete x.pin_shuffle; else x.pin_shuffle = false; })))}
         ${this._row('Recording medicine', 'Ask for the PIN before a medicine is recorded or a record is removed.', this._sw('PIN for recording medicine', d.meds_pin !== false, () => this._edit((x) => { if (x.meds_pin === false) delete x.meds_pin; else x.meds_pin = false; })))}
         ${d.chat?.agent ? this._row(`${d.chat.name || 'Ask'} after bedtime`, 'After any child’s bedtime and in quiet hours, the helper opens only with the PIN.', this._sw('PIN for Ask after bedtime', d.chat.pin_after_bedtime !== false, () => this._edit((x) => { if (x.chat!.pin_after_bedtime === false) delete x.chat!.pin_after_bedtime; else x.chat!.pin_after_bedtime = false; }))) : nothing}
         <span class="shint">Always behind the PIN: Settings, the look of the panel, a child’s settings, doors and garage, unticking an old job, and rewards marked “Needs PIN”.</span>

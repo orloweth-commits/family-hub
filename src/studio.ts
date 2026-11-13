@@ -161,6 +161,11 @@ export class FhStudio extends LitElement {
     if (this._left <= 0) return 'That’s all the new looks for today. Come back tomorrow!';
     return '';
   }
+  /** The day's limit as a rule of the game, always in view: "2 paints left today". Empty until the record has loaded, or with no painter. */
+  private get _paints(): string {
+    if (!this.hass || !painter(this.hass, this.art.painter) || !this._record) return '';
+    const n = this._left; return n ? `🖌️ ${n} paint${n === 1 ? '' : 's'} left today.` : '🖌️ No paints left today. More tomorrow!';
+  }
   private get _left(): number { return Math.max(0, (this.art.looks_per_day ?? ART_DEFAULTS.looks) - looksToday(this._record ?? [], this.kid.name)); }
   /** Wear the look he has put together: at once when it has been painted before, else have it painted (half a minute or so). */
   private async _wear(): Promise<void> {
@@ -272,7 +277,7 @@ export class FhStudio extends LitElement {
             ${wet ? html`<div class="wet"><span class="brush" aria-hidden="true">🖌️</span><span aria-live="polite">${WAITS[Math.min(WAITS.length - 1, Math.floor(this._tickN / 8))]}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(96, Math.round((this._tickN / 45) * 100))}%"></i></span></div>` : nothing}
           </div>
           ${dirty && !have ? html`<div class="parts" aria-label="What you have picked">${cats.filter((c) => !['none', 'own', 'plain', 'smile'].includes(String(this.d[c.key])) || c.id === 'tops').map((c) => html`<span title=${c.label}>${itemEmoji(c, String(this.d[c.key]))}</span>`)}</div>` : nothing}
-          <span class="pnote" role="status">${wet ? 'You can keep watching, or go back: it will be ready soon.' : cannot ? cannot : dirty && !have ? `Tap Paint it to see your new look. ${this._left} new look${this._left === 1 ? '' : 's'} left today.` : dirty ? 'You’ve had this look before.' : ''}</span>`
+          <span class="pnote" role="status">${wet ? 'You can keep watching, or go back: it will be ready soon.' : cannot ? cannot : dirty && !have ? `Tap Paint it to see your new look. ${this._paints}` : dirty ? 'You’ve had this look before.' : this._paints}</span>`
         : html`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
