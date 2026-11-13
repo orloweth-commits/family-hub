@@ -17,6 +17,7 @@ import './pin';
 import './chat';
 import './settings';
 import { configError } from './validate';
+import { setMediaHass } from './media';
 import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
 import { loadFonts } from './fonts';
@@ -267,6 +268,7 @@ export class FamilyHubCard extends LitElement {
 
   /** Pass fresh hass to the open page without re-rendering the whole card. */
   protected shouldUpdate(ch: PropertyValues): boolean {
+    if (ch.has('hass')) setMediaHass(this.hass);
     if (ch.size === 1 && ch.has('hass') && this._config) {
       const old = ch.get('hass') as Hass | undefined;
       this.renderRoot?.querySelectorAll(CHILD_TAGS).forEach((el) => { (el as any).hass = this.hass; });
@@ -970,7 +972,7 @@ export class FamilyHubCard extends LitElement {
         const k = c.kids?.[this._kid];
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
-        return html`<fh-kid .hass=${this.hass} .kid=${k} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}

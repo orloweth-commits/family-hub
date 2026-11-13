@@ -1,4 +1,5 @@
 import { svg, html, nothing, type SVGTemplateResult, type TemplateResult } from 'lit';
+import './media';
 
 /* ------------------------------------------------------------------ *
  * Avatar model, catalogue and renderer.
@@ -10,16 +11,18 @@ export interface Look {
   hat: string; eyewear: string; top: string; topColour: string; gear: string; buddy: string; scene: string;
   /** iris colour; 'none' keeps the classic dark cartoon eyes */
   eyeColour: string; freckles: string; mole: string;
+  /** a painted character: the picture's file in Home Assistant's media (see media.ts). When set, the picture is shown instead of the drawing. */
+  img: string;
 }
 
 export const DEFAULT_LOOK: Look = {
   skin: '#f1c7a5', hair: 'short', hairColour: '#5a3825', eyes: 'normal', mouth: 'smile',
   hat: 'none', eyewear: 'none', top: 'tee', topColour: '#0b5fa5', gear: 'none', buddy: 'none', scene: 'plain',
-  eyeColour: 'none', freckles: 'no', mole: 'no'
+  eyeColour: 'none', freckles: 'no', mole: 'no', img: ''
 };
 
-const KEYS: [keyof Look, string][] = [['skin', 's'], ['hair', 'h'], ['hairColour', 'hc'], ['eyes', 'e'], ['mouth', 'm'], ['hat', 'a'], ['eyewear', 'u'], ['top', 't'], ['topColour', 'tc'], ['gear', 'g'], ['buddy', 'b'], ['scene', 'sc'], ['eyeColour', 'ec'], ['freckles', 'fr'], ['mole', 'mo']];
-export const encodeLook = (l: Look): string => KEYS.map(([k, s]) => `${s}=${String(l[k]).replace('#', '')}`).join(';');
+const KEYS: [keyof Look, string][] = [['skin', 's'], ['hair', 'h'], ['hairColour', 'hc'], ['eyes', 'e'], ['mouth', 'm'], ['hat', 'a'], ['eyewear', 'u'], ['top', 't'], ['topColour', 'tc'], ['gear', 'g'], ['buddy', 'b'], ['scene', 'sc'], ['eyeColour', 'ec'], ['freckles', 'fr'], ['mole', 'mo'], ['img', 'img']];
+export const encodeLook = (l: Look): string => KEYS.filter(([k]) => k !== 'img' || !!l.img).map(([k, s]) => `${s}=${String(l[k]).replace('#', '')}`).join(';');
 export const decodeLook = (raw: string | undefined, fallback: Partial<Look> = {}): Look => {
   const out: Look = { ...DEFAULT_LOOK, ...fallback };
   if (!raw || raw === 'unknown' || !raw.includes('=')) return out;
@@ -57,15 +60,29 @@ export const CATALOGUE: Category[] = [
 ];
 
 export interface Unlock { cat: Category; id: string; label: string; req: number; swatch?: boolean }
-export const ALL_UNLOCKS: Unlock[] = CATALOGUE.flatMap((c) => [
-  ...c.items.filter((i) => i[2] > 0 && !i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[2] })),
-  ...(c.swatch?.items.filter((i) => i[2] > 0).map((i) => ({ cat: c, id: i[0], label: `${i[1]} ${c.id === 'hair' ? 'hair' : ''}`.trim(), req: i[2], swatch: true })) ?? [])
-]).sort((a, b) => a.req - b.req);
+/** What points unlock, and what growing unlocks, in a catalogue (the drawn one, or a painted child's wardrobe). */
+const sets = new WeakMap<Category[], { all: Unlock[]; grow: Unlock[] }>();
+const unlocksOf = (cats: Category[]): { all: Unlock[]; grow: Unlock[] } => {
+  let u = sets.get(cats);
+  if (!u) {
+    u = {
+      all: cats.flatMap((c) => [
+        ...c.items.filter((i) => i[2] > 0 && !i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[2] })),
+        ...(c.swatch?.items.filter((i) => i[2] > 0).map((i) => ({ cat: c, id: i[0], label: `${i[1]} ${c.id === 'hair' ? 'hair' : ''}`.trim(), req: i[2], swatch: true })) ?? [])
+      ]).sort((a, b) => a.req - b.req),
+      grow: cats.flatMap((c) => c.items.filter((i) => i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[3]! })))
+    };
+    sets.set(cats, u);
+  }
+  return u;
+};
+export const ALL_UNLOCKS: Unlock[] = unlocksOf(CATALOGUE).all;
 
-export const unlocksBetween = (from: number, to: number): Unlock[] => ALL_UNLOCKS.filter((u) => u.req > from && u.req <= to);
+export const unlocksBetween = (from: number, to: number, cats: Category[] = CATALOGUE): Unlock[] => unlocksOf(cats).all.filter((u) => u.req > from && u.req <= to);
 /** Growing-milestone surprises, unlocked by count of practice/reading/homework logs. */
-export const GROW_UNLOCKS: Unlock[] = CATALOGUE.flatMap((c) => c.items.filter((i) => i[3]).map((i) => ({ cat: c, id: i[0], label: i[1], req: i[3]! })));
-export const growBetween = (from: number, to: number): Unlock[] => GROW_UNLOCKS.filter((u) => u.req > from && u.req <= to);
+export const GROW_UNLOCKS: Unlock[] = unlocksOf(CATALOGUE).grow;
+export const growUnlocks = (cats: Category[] = CATALOGUE): Unlock[] => unlocksOf(cats).grow;
+export const growBetween = (from: number, to: number, cats: Category[] = CATALOGUE): Unlock[] => unlocksOf(cats).grow.filter((u) => u.req > from && u.req <= to);
 export const isUnlocked = (it: Item, life: number, grow: number): boolean => it[3] ? grow >= it[3] : life >= it[2];
 
 /** Levels on a curve: level n costs 100 + 50(n-1) points. Named ranks, two levels each. */
@@ -77,14 +94,15 @@ export const levelInfo = (life: number): LevelInfo => {
   const r = Math.min(RANKS.length - 1, Math.floor((lv - 1) / 2));
   return { level: lv, rank: `${RANKS[r]}${(lv - 1) % 2 ? ' II' : ''}`, into: life - base, need: cost, nextRank: lv % 2 ? `${RANKS[r]} II` : RANKS[Math.min(RANKS.length - 1, r + 1)] };
 };
-export const nextUnlock = (life: number, favs: string[] = [], goal?: string): Unlock | undefined => {
-  if (goal) { const g = ALL_UNLOCKS.find((u) => u.id === goal && u.req > life); if (g) return g; }
-  const first = ALL_UNLOCKS.find((u) => u.req > life);
+export const nextUnlock = (life: number, favs: string[] = [], goal?: string, cats: Category[] = CATALOGUE): Unlock | undefined => {
+  const all = unlocksOf(cats).all;
+  if (goal) { const g = all.find((u) => u.id === goal && u.req > life); if (g) return g; }
+  const first = all.find((u) => u.req > life);
   if (!first) return undefined;
-  const fav = ALL_UNLOCKS.filter((u) => u.req > life && favs.includes(u.id)).sort((a, b) => a.req - b.req)[0];
+  const fav = all.filter((u) => u.req > life && favs.includes(u.id)).sort((a, b) => a.req - b.req)[0];
   return fav && fav.req <= first.req + 100 ? fav : first;
 };
-export const prevThreshold = (life: number): number => ALL_UNLOCKS.filter((u) => u.req <= life).reduce((m, u) => Math.max(m, u.req), 0);
+export const prevThreshold = (life: number, cats: Category[] = CATALOGUE): number => unlocksOf(cats).all.filter((u) => u.req <= life).reduce((m, u) => Math.max(m, u.req), 0);
 export const level = (life: number): number => levelInfo(life).level;
 
 /** Apply an item (or "eyes:happy" style face item, or a swatch colour) to a look. */
@@ -236,6 +254,11 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   const size = o.size ?? 200, head = o.crop === 'head';
   const w = size, h = head ? size : Math.round(size * 1.2);
   const jumpCls = o.jump ? (o.jump % 2 ? 'av-jump-a' : 'av-jump-b') : '';
+  // a painted character: his picture, framed on his face for a round chip (the painter puts his eyes a third of the way down)
+  if (look.img) return html`<span class="avwrap avpic ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
+    <fh-pic role="img" aria-label=${o.label ?? 'Avatar'} .media=${look.img} .label=${''}
+      style="width:${w}px;height:${h}px;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`};${head ? '--pic-zoom:1.9;--pic-at:50% 33%;' : '--pic-at:50% 30%;'}"></fh-pic>
+    ${o.ring && head ? html`<span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 ${Math.max(2, Math.round(size * 0.055))}px ${o.ring};pointer-events:none"></span>` : nothing}</span>`;
   const age = o.age ?? 'mid';
   // younger: bigger head, smaller body; teen: slightly narrower face and longer neck
   const headT = age === 'kid' ? 'translate(100 104) scale(1.1) translate(-100 -104)' : '';
@@ -276,6 +299,7 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
 
 /** Shared avatar animation CSS (include in any element that renders avatars). */
 export const avatarCss = `
+  .avwrap.avpic { position: relative; }
   /* parts pop in only where a look is being put together (the studio marks its stage data-avpop): an avatar that is simply shown stays still */
   [data-avpop] .avwrap svg g.av-pop { transform-box: fill-box; transform-origin: center; animation: avPop var(--m-4, 400ms) var(--e-spring, ease) backwards; }
   .avwrap svg g.av-pop.d1, .avwrap svg path.av-pop.d1 { animation-delay: .02s; }

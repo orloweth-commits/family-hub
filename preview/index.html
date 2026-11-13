@@ -50,6 +50,7 @@ const TODOS = {
 if (q.get('empty')) { TODOS['todo.shopping_list'] = []; TODOS['todo.reminders'] = []; }
 const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', description = ''], i) => ({ uid: `${id}-${i}`, summary, status, description }));
 const store = Object.fromEntries(Object.keys(TODOS).map((k) => [k, items(k)]));
+store['todo.family_hub_art'] = [];
 const subs = {};
 const st = (entity_id, state, attributes = {}) => [entity_id, { entity_id, state: String(state), attributes }];
 const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3, { supported_features: 127 }), st(`input_number.${s}_points`, pts), st(`input_number.${s}_lifetime_points`, life), st(`input_number.${s}_streak`, 3),
@@ -57,7 +58,20 @@ const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3, { supported
 // the radar's list of pictures, so the page can be seen without the internet
 const realFetch = window.fetch.bind(window);
 window.fetch = async (u, o) => String(u).includes('photon.komoot.io') ? new Response(JSON.stringify({ features: [{ properties: { name: 'Beatty Park Leisure Centre', street: 'Vincent Street', housenumber: '220', city: 'North Perth', state: 'Western Australia', postcode: '6006', countrycode: 'AU' } }, { properties: { name: 'Beatty Park', city: 'North Perth', state: 'Western Australia', countrycode: 'AU' } }] })) : String(u).includes('rainviewer.com') ? new Response(JSON.stringify({ host: '/none', radar: { past: Array.from({ length: 12 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) - (11 - i) * 600, path: '/f' + i })) } })) : realFetch(u, o);
+// Pictures (&painted=1 gives the children painted characters; &art=1 opens the screensaver, &artn=<n> pictures in its library, &artnight=1 its night clock):
+// a pretend media folder kept in memory, and a pretend painter that takes &paint=<ms> (default 1500) and paints a coloured card
+const paintCard = (label, a = '#2a9d8f', b = '#e9c46a', w = 1024, h = 1024) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, a); gr.addColorStop(1, b); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(w / 2, h / 3, h * 0.17, 0, 7); g.fill(); g.fillRect(w * 0.3, h * 0.56, w * 0.4, h * 0.5); g.fillStyle = '#14141a'; g.beginPath(); g.arc(w / 2 - h * 0.06, h / 3, h * 0.018, 0, 7); g.arc(w / 2 + h * 0.06, h / 3, h * 0.018, 0, 7); g.fill();
+  g.font = `${Math.round(h * 0.045)}px sans-serif`; g.textAlign = 'center'; g.fillText(label, w / 2, h * 0.94); return c.toDataURL('image/jpeg', 0.7); };
+const hue = (s) => { let n = 0; for (const ch of s) n = (n * 31 + ch.charCodeAt(0)) % 360; return n; };
+const MEDIA = (window.__media = {});
+const PAINTED = !!q.get('painted');
+if (PAINTED) for (const [n, c] of [['riley', '#0d9488'], ['charlie', '#d97706'], ['max', '#7c3aed']]) { MEDIA[`sheet-${n}.png`] = paintCard(`${n} sheet`, c, '#f4f1ea'); MEDIA[`fhlook-${n}-base.jpg`] = paintCard(n, c, '#fde68a'); }
+const ARTN = q.get('artn') === null ? 3 : Number(q.get('artn'));
+const ART_THEMES = ['Pirate ship', 'Dragon ride', 'Swimming squad', 'Dinosaur safari', 'Moon picnic', 'Jungle trek'];
+for (let i = 0; i < ARTN; i++) MEDIA[`fhart-demo-${i}.jpg`] = paintCard(ART_THEMES[i % ART_THEMES.length], `hsl(${(i * 67) % 360} 60% 40%)`, `hsl(${(i * 67 + 80) % 360} 70% 65%)`, 1536, 864);
 const hass = {
+  fetchWithAuth: async (path, init) => { (window.__calls ||= []).push('fetch ' + path); if (path.includes('local_source/upload')) { const f = init.body.get('file'); MEDIA[f.name] = await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(f); }); return new Response('{}', { status: 200 }); } return new Response('', { status: 404 }); },
   // Settings saves into the dashboard, which only an administrator may do: &admin=0 signs the preview in as someone who is not one, &yaml=1 pretends the dashboard is a YAML file
   user: { name: q.get('admin') === '0' ? 'Panel' : 'Alex', is_admin: q.get('admin') !== '0' },
   panels: { lovelace: { title: 'Home', config: { mode: q.get('yaml') ? 'yaml' : 'storage' } } },
@@ -76,6 +90,7 @@ const hass = {
     st('input_number.family_jar', 84), st('input_text.fh_panel_message', ''),
     st('calendar.family', 'off', { friendly_name: 'Family' }), st('calendar.alex', 'off', { friendly_name: 'Alex' }), st('calendar.sam', 'off', { friendly_name: 'Sam' }),
     st('todo.shopping_list', 8), st('todo.reminders', 3), st('todo.rewards_owed', 0),
+    ...(q.get('nopainter') ? [] : [st('ai_task.demo_painter', 'unknown', { friendly_name: 'Demo painter' }), st('todo.family_hub_art', ARTN)]), st('binary_sensor.kitchen_presence', 'off', { friendly_name: 'Kitchen presence', device_class: 'occupancy' }), st('binary_sensor.front_door', 'off', { friendly_name: 'Front door', device_class: 'door' }), st('light.panel_backlight', 'on', { friendly_name: 'Panel backlight', brightness: 255 }),
     ...kidStates('riley', 120, 640, 'G------'), ...kidStates('charlie', 65, 310, 'G------'), ...kidStates('max', 80, 150, 'G------'),
     st('light.kitchen', 'on', { friendly_name: 'Kitchen bench', brightness: 200 }), st('light.kitchen_pendant', 'off', { friendly_name: 'Kitchen pendant' }), st('light.lounge', 'on', { friendly_name: 'Lounge lamp', brightness: 120 }),
     st('light.lounge_ceiling', 'off', { friendly_name: 'Lounge ceiling' }), st('media_player.lounge_tv', 'off', { friendly_name: 'Lounge TV' }), st('light.riley', 'off', { friendly_name: 'Riley’s room light' }), st('fan.riley', 'on', { friendly_name: 'Riley’s room fan' }),
@@ -99,7 +114,10 @@ const hass = {
       [['button.kitchen_favorite_current_song', { entity_id: 'button.kitchen_favorite_current_song', platform: 'music_assistant', device_id: 'ma_kitchen' }]])),
   services: { notify: { mobile_app_alex: {}, mobile_app_sam: {} }, music_assistant: { search: {}, play_media: {}, get_queue: {}, transfer_queue: {}, play_announcement: {} }, tts: { speak: {} } },
   callService: async (domain, service, data = {}, target = {}) => {
+    target = target ?? {};
     const id = target.entity_id ?? data.entity_id;
+    if (domain === 'ai_task' && service === 'generate_image') { (window.__calls ??= []).push(`ai_task.generate_image ${JSON.stringify(data).slice(0, 4000)}`); await new Promise((r) => setTimeout(r, Number(q.get('paint') || 1500))); if (window.__paintFail) throw new Error('The painter is busy');
+      return { response: { url: paintCard('painted', `hsl(${hue(data.instructions)} 60% 45%)`, `hsl(${(hue(data.instructions) + 120) % 360} 70% 70%)`, 1024, 1536), width: 1024, height: 1536, model: 'demo' } }; }
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
     if (domain === 'calendar' && service === 'create_event') (CAL[id] ??= []).push({ summary: data.summary, location: data.location, start: data.start_date ? { date: data.start_date } : { dateTime: new Date(data.start_date_time).toISOString() }, end: data.end_date ? { date: data.end_date } : { dateTime: new Date(data.end_date_time).toISOString() } });
     const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
@@ -145,6 +163,9 @@ const hass = {
       const t = String(msg.text).replace(/[?.!]+$/, ''), topic = t.replace(/^(tell me (about )?|play |why (is|are|do|does) )/i, '');
       return { conversation_id: msg.conversation_id || 'demo-1', response: { speech: { plain: { speech: /joke/i.test(t) ? 'Here is a joke! Why did the kangaroo cross the road? Because it was the chicken’s day off.' : `Good question! You asked about ${topic}. Here is something friendly and short about ${topic}, just for the preview.` } } } }; }
     if (msg.type === 'config_entries/get') return [{ entry_id: 'ma1', domain: 'music_assistant' }];
+    if (msg.type === 'media_source/resolve_media') { const n = String(msg.media_content_id).split('/').pop(); if (!MEDIA[n]) throw new Error('not found'); return { url: MEDIA[n], mime_type: 'image/jpeg' }; }
+    if (msg.type === 'media_source/local_source/remove') { delete MEDIA[String(msg.media_content_id).split('/').pop()]; (window.__calls ||= []).push('ws.media remove ' + msg.media_content_id); return null; }
+    if (msg.type === 'media_source/browse_media' && String(msg.media_content_id).startsWith('media-source://media_source/local')) return { children: Object.keys(MEDIA).map((title) => ({ title, media_class: 'image', media_content_id: 'media-source://media_source/local/' + title })) };
     if (msg.type === 'media_source/browse_media') return { children: [{ title: 'ABC Kids listen', media_content_id: 'media-source://radio_browser/abckids' }, { title: 'ABC Jazz', media_content_id: 'media-source://radio_browser/abcjazz' }] };
     if (msg.type === 'call_service' && msg.service === 'search') { const n = msg.service_data.name; const mk = (t, name, sub) => ({ media_type: t, name, uri: `demo://${t}/${name.replace(/\W+/g, '-')}`, image: t === 'radio' ? null : doodle('#' + (name.length * 123457 % 0xffffff).toString(16).padStart(6, '0'), '#ffffff', '#222222'), artists: sub ? [{ name: sub }] : [] });
       return { response: { tracks: [mk('track', n + ' Theme Tune', n), mk('track', 'Dance Mode', n), mk('track', 'Keepy Uppy', n)], albums: [mk('album', n + ' the Album', n), mk('album', 'Dance Mode!', n)], playlists: [mk('playlist', n + ' Essentials'), mk('playlist', n + ' Sleepy Time')], artists: [mk('artist', n)], radio: [mk('radio', 'ABC Kids listen')], podcasts: [mk('podcast', n + ' Brekky Chats')], audiobooks: [mk('audiobook', n + ': The Beach and Other Stories')] } }; }
@@ -169,6 +190,8 @@ const hass = {
       if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
       (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
 };
+{ const today = new Date(), day = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return ymd(d); };
+  for (let i = 0; i < ARTN; i++) store['todo.family_hub_art'].push({ uid: 'art-' + i, summary: `fhart-demo-${i}.jpg`, status: 'needs_action', description: JSON.stringify({ d: day(i < 3 ? 0 : i), kind: 'art', who: ['Riley', 'Max'].slice(0, 1 + (i % 2)), theme: ART_THEMES[i % ART_THEMES.length], look: 'glass', p: 'A demo prompt' }) }); }
 let el = document.createElement('family-hub-card');
 const dash = () => (window.__dash ??= { title: 'Home', views: [{ title: 'Family', type: 'sections', sections: [{ cards: [{ type: 'markdown', content: 'Sample' }, { type: 'vertical-stack', cards: [JSON.parse(JSON.stringify(el._config))] }] }] }] });
 el.setConfig({
@@ -177,9 +200,9 @@ el.setConfig({
     { name: 'Downstairs', rooms: [{ name: 'Kitchen and lounge', zones: [{ name: 'Kitchen', player: 'media_player.kitchen' }, { name: 'Lounge', player: 'media_player.lounge_room_sonos' }] }, { stairs: true }, { name: 'Office', player: 'media_player.office' }] }], weather: 'weather.home', music_player: 'media_player.lounge', music_moments: q.get('moments') ? [{ name: 'Dinner', find: 'downtempo', rooms: ['media_player.lounge_room_sonos'], volume: 25 }, { name: 'Wind down', find: 'sleep sounds', rooms: ['media_player.rileys_homepod', 'media_player.charlies_homepod'], volume: 15 }, { name: 'Tidy-up', find: 'motivation', rooms: 'all' }] : undefined, reminders: 'todo.reminders', groceries: 'todo.shopping_list',
   people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
   kids: [
-    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488', bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }] },
-    { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', look: 'h=styled;hc=e3b85c', bedtime: '20:00' },
-    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', look: 'h=pageboy;hc=6b4226', bedtime: '19:30', star: 10, leave_by: '07:30' }
+    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', ...(PAINTED ? { sheet: 'sheet-riley.png', about: 'A tall twelve-year-old.', look: 'img=fhlook-riley-base.jpg' } : { look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488' }), bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }] },
+    { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', ...(PAINTED ? { sheet: 'sheet-charlie.png', look: 'img=fhlook-charlie-base.jpg' } : { look: 'h=styled;hc=e3b85c' }), bedtime: '20:00' },
+    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', ...(PAINTED ? { sheet: 'sheet-max.png', look: 'img=fhlook-max-base.jpg' } : { look: 'h=pageboy;hc=6b4226' }), bedtime: '19:30', star: 10, leave_by: '07:30' }
   ],
   calendars: [{ entity: 'calendar.family', colour: 'family', name: 'Family' }, { entity: 'calendar.alex', colour: 1, name: 'Alex' }, { entity: 'calendar.sam', colour: 2, name: 'Sam' },
     { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],
