@@ -52,8 +52,10 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) {
   ok('Later asks for the parent PIN', await C(page).locator('fh-pin').count() === 1);
   await pin(page); await page.waitForTimeout(1000);
   ok('then the chip is gone, the sheet has closed and a line says when it comes back', await med(page).count() === 0 && await C(page).locator('.sheet').count() === 0 && /back at 8:00\sam/.test(await toast(page)), await toast(page));
-  ok('the round Medicine button is there while the chip is away', await C(page).locator('header [data-act="meds"]').isVisible());
-  await C(page).locator('header [data-act="meds"]').click(); await page.waitForTimeout(400);
+  // since 0.33.0 (Phase 4) Medicine is in the More sheet, not the header
+  await C(page).locator('header [data-act="more"]').click(); await page.waitForTimeout(400);
+  ok('Medicine is there, in More, while the chip is away', await C(page).locator('.sheet [data-act="meds"]').isVisible());
+  await C(page).locator('.sheet [data-act="meds"]').click(); await page.waitForTimeout(400);
   const back = C(page).locator('.sheet [data-act="med-back"]');
   ok('the sheet says when it is back, and offers it now', await back.count() === 1 && /8:00\sam/.test(await back.innerText()), await back.innerText().catch(() => ''));
   await back.click(); await page.waitForTimeout(300);
@@ -126,13 +128,13 @@ for (const [kid, name, time] of [[0, 'Riley', '19:20'], [1, 'Charlie', '19:20'],
 
 // 7. header buttons say what they are; who is home is faces or names, never initials
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) {
-  const page = await open(`look=${look}&page=planner&faces=1`);
-  const r = await page.evaluate(() => { const hd = document.querySelector('family-hub-card').shadowRoot.querySelector('header');
+  const page = await open(`look=${look}&page=planner&faces=1&sheet=more`);
+  const r = await page.evaluate(() => { const root = document.querySelector('family-hub-card').shadowRoot, hd = root.querySelector('header');
     const btns = [...hd.querySelectorAll('.right > .round.hb')].filter((b) => getComputedStyle(b).display !== 'none').map((b) => { const l = b.querySelector('.rl'), br = b.getBoundingClientRect(), lr = l.getBoundingClientRect(); return { act: b.dataset.act, word: l.textContent.trim(), shown: getComputedStyle(l).display !== 'none' && lr.width > 0, inside: lr.left >= br.left + 2 && lr.right <= br.right - 2 && lr.bottom <= br.bottom - 2, size: parseFloat(getComputedStyle(l).fontSize), h: br.height, w: br.width }; });
-    const p = hd.querySelector('.presence'); return { btns, faces: p.querySelectorAll('.pface img').length, names: [...p.querySelectorAll('.pname')].map((n) => n.textContent.trim()), initials: p.querySelectorAll('.avatar').length, over: hd.scrollWidth > hd.clientWidth + 1, hh: hd.getBoundingClientRect().height }; });
+    const p = root.querySelector('.sheet[data-sheet="more"] .presence'); return { btns, more: [...root.querySelectorAll('.sheet[data-sheet="more"] .morebtn b')].map((b) => b.textContent.trim()), faces: p.querySelectorAll('.pface img').length, names: [...p.querySelectorAll('.pname')].map((n) => n.textContent.trim()), initials: p.querySelectorAll('.avatar').length, over: hd.scrollWidth > hd.clientWidth + 1, hh: hd.getBoundingClientRect().height }; });
   const words = Object.fromEntries(r.btns.map((b) => [b.act, b.word]));
-  ok(`${look}: Ask, Looks, House info and Night each carry their word`, words.ask === 'Ask' && words.looks === 'Looks' && words.info === 'House info' && words.night === 'Night' && r.btns.every((b) => b.shown && b.inside && b.size >= 13 && b.h >= 52 && b.w >= 52), r.btns);
-  ok(`${look}: who is home shows a face where Home Assistant has a picture, a name where it has none, and no lone initials`, r.faces === 1 && r.names.join('|') === 'Sam · out' && r.initials === 0 && !r.over, r);
+  ok(`${look}: Ask and More carry their word in the header; Looks, Medicine, House info and Night carry theirs in More (since 0.33.0)`, words.ask === 'Ask' && words.more === 'More' && r.more.join('|') === 'Looks|Medicine|House info|Night' && r.btns.every((b) => b.shown && b.inside && b.size >= 13 && b.h >= 52 && b.w >= 52), r.btns);
+  ok(`${look}: who is home shows a face where Home Assistant has a picture, a name where it has none, and no lone initials`, r.faces === 1 && r.names.join('|') === 'Sam · out' && r.initials === 0 && !r.over, { faces: r.faces, names: r.names, initials: r.initials });
   await page.context().close();
 }
 { const page = await open('look=glass&page=planner', '16:20', { w: 390, h: 844 });
