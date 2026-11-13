@@ -6859,7 +6859,7 @@ function Me(a, t = {}) {
   const e = t.size ?? 200, i = t.crop === "head", s = e, o = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "";
   if (a.img) return l`<span class="avwrap avpic ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <fh-pic role="img" aria-label=${t.label ?? "Avatar"} .media=${a.img} .label=${""}
-      style="width:${s}px;height:${o}px;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`};${i ? "--pic-zoom:1.9;--pic-at:50% 33%;" : "--pic-at:50% 30%;"}"></fh-pic>
+      style="width:${s}px;height:${o}px;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`};${i ? "--pic-zoom:1.6;--pic-at:50% 21%;" : "--pic-at:50% 30%;"}"></fh-pic>
     ${t.ring && i ? l`<span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 ${Math.max(2, Math.round(e * 0.055))}px ${t.ring};pointer-events:none"></span>` : u}</span>`;
   const n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", d = n === "kid" ? 44 : 46, c = n === "teen" ? 46 : 44, h = b`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, m = n !== "kid" ? b`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : u;
   return l`<span class="avwrap ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
