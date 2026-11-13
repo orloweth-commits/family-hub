@@ -285,7 +285,8 @@ export class FhKid extends LitElement {
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 4px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: 40px; line-height: 1.1; }
-    .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
+    .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: 14px; line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
