@@ -129,8 +129,10 @@ export const styles = css`
   .cap { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
     border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
-  .cap .mwho { max-width: 18ch; }
+  /* the names on a medication chip never shrink away (a look may cap the chip at the row's width): the row then counts as too full, and lesser things step aside first */
+  .cap .mwho { max-width: 18ch; flex-shrink: 0; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
+  .capsule[data-one] .cap .mwho { flex-shrink: 1; }
   .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */

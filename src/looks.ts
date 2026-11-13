@@ -1385,8 +1385,8 @@ const SPORTS = `
   @S[data-n2] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
   @S[data-n2] .dock .item { min-width: 62px; padding: 0 6px; flex-shrink: 0; }
   @S[data-n2] .dock .sep { margin: 0 4px 22px; }
-  /* the kitchen timer's quick pills in the narrow rail (under 1240 px): the number over its unit, so “+10 min” keeps clear of the pill's ring at the full 15 px */
-  @S[data-n1] .quick { white-space: normal; word-spacing: 100vw; line-height: 1.05; padding: 0 4px; }
+  /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
+  @S[data-n1] .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
   @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
   @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
