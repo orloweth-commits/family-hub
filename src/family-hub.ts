@@ -12,6 +12,7 @@ import './music';
 import './weather';
 import './doodle';
 import './morning';
+import { art } from './art';
 import './addevent';
 import { setPinShuffle } from './pin';
 import './chat';
@@ -44,7 +45,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.32.0';
+const VERSION = '0.32.1';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -333,7 +334,20 @@ export class FamilyHubCard extends LitElement {
       ...(c.meds ?? []).flatMap((m) => [`input_datetime.fh_med_${m.id}`, `input_text.fh_med_${m.id}_by`])].filter((x): x is string => !!x);
   }
 
+  /** A pressed header or dock button plays its drawing's little movement once (data-just). A dock place that is about to open plays its arrival instead (see updated). Only one button moves at a time. */
+  private _moveT = 0;
+  private _move(el: Element | null, attr: 'data-just' | 'data-arrive', ms: number): void {
+    if (!el) return;
+    this.renderRoot.querySelectorAll('[data-just], [data-arrive]').forEach((x) => { if (x.matches('.dock .item, .right > .hb')) { x.removeAttribute('data-just'); x.removeAttribute('data-arrive'); } });
+    void (el as HTMLElement).offsetWidth; el.setAttribute(attr, ''); clearTimeout(this._moveT); this._moveT = window.setTimeout(() => el.removeAttribute(attr), ms);
+  }
+  private _btnJust = (e: Event): void => {
+    const b = (e.target as Element | null)?.closest?.('.dock .item, .right > .hb'); if (!b || b.matches('.kidbtn')) return;
+    if (b.hasAttribute('data-arrive') || (b.matches('.dock .item[aria-current]') && b.getAttribute('aria-current') !== 'page')) return; // it has just become the page (the page is drawn before this runs), or is about to: its arrival plays
+    this._move(b, 'data-just', 700);
+  };
   protected updated(ch: PropertyValues): void {
+    if (ch.has('_page') && ch.get('_page') !== undefined && this._page !== 'kid') this._move(this.renderRoot.querySelector('.dock .item[aria-current="page"]:not(.kidbtn)'), 'data-arrive', 900);
     if (ch.has('hass')) this._watchJar();
     // the nightly artwork reads its limit and its style from the record: keep that line in step with this screen
     if (this.hass && this._config) { const key = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[artListOf(this._config)]}`; if (key !== this._nightKey) { this._nightKey = key; void syncNightly(this.hass, this._config, this._lk); } }
@@ -1181,7 +1195,7 @@ export class FamilyHubCard extends LitElement {
           <span style="display:flex;align-items:baseline;gap:10px"><span class="display hm">${clk.hm}</span><span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${clk.ampm} · ${fmtShortDate(now)}</span></span>
         </div>
         ${kid ? this._kidCapsule(kid) : this._capsule()}
-        <div class="right">
+        <div class="right" @click=${this._btnJust}>
           ${w && !kid ? html`
             <button class="glass weather tap" aria-label="Weather" @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
               <span style="color:var(--accent)">${icon(weatherIcon(w.state), 28)}</span>
@@ -1198,11 +1212,11 @@ export class FamilyHubCard extends LitElement {
               <span class="phome" aria-hidden="true">${icon('home', 18)}</span>
               ${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}
             </button>` : nothing}
-          ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
-          <button class="glass tap round hb" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}<span class="rl" aria-hidden="true">${kid ? 'Settings' : 'Looks'}</span></button>
-          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}<span class="rl" aria-hidden="true">Medicine</span></button>` : nothing}
-          ${!kid ? html`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}<span class="rl" aria-hidden="true">House info</span></button>` : nothing}
-          <button class="glass tap round hb" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}<span class="rl" aria-hidden="true">Night</span></button>
+          ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
+          <button class="glass tap round hb" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${kid ? icon('cog') : art('palette')}<span class="rl" aria-hidden="true">${kid ? 'Settings' : 'Looks'}</span></button>
+          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${art('pill')}<span class="rl" aria-hidden="true">Medicine</span></button>` : nothing}
+          ${!kid ? html`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${art('info')}<span class="rl" aria-hidden="true">House info</span></button>` : nothing}
+          <button class="glass tap round hb" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${art('moon')}<span class="rl" aria-hidden="true">Night</span></button>
         </div>
       </header>`;
   }
@@ -1364,10 +1378,11 @@ export class FamilyHubCard extends LitElement {
   }
 
   private _dock(): TemplateResult {
+    const mp = this._config.music_player, playing = !!mp && this.hass?.states[mp]?.state === 'playing';
     const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} @click=${() => { sfx('nav'); on(); }}>${icon(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
+      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
-    return html`<nav class="glass dock" aria-label="Main" @scroll=${(e: Event) => { const d = e.currentTarget as HTMLElement; d.toggleAttribute('data-more', d.scrollWidth - d.scrollLeft - d.clientWidth > 6); }}>
+    return html`<nav class="glass dock" aria-label="Main" @click=${this._btnJust} @scroll=${(e: Event) => { const d = e.currentTarget as HTMLElement; d.toggleAttribute('data-more', d.scrollWidth - d.scrollLeft - d.clientWidth > 6); }}>
       ${kids.map((k, i) => {
         const e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state;
         const look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
@@ -1384,9 +1399,9 @@ export class FamilyHubCard extends LitElement {
       ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep" aria-hidden="true"></span>
-      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}><span style="color:var(--accent)">${icon('bulb', 26)}</span>All on</button>
-      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${icon('bulbOff', 26)}All off</button>
-      ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${icon('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
+      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26)}All on</button>
+      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26)}All off</button>
+      ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${art('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
     </nav>`;
   }
 
