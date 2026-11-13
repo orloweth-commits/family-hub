@@ -43,7 +43,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.28.2';
+const VERSION = '0.29.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -60,7 +60,7 @@ export class FamilyHubCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
@@ -556,7 +556,7 @@ export class FamilyHubCard extends LitElement {
           const start = new Date(sv); if (!sv || isNaN(start.getTime())) continue;
           const ev = allDay ? (r.end?.date ? `${r.end.date}T00:00:00` : '') : r.end?.dateTime;
           let end = new Date(ev); if (!ev || isNaN(end.getTime())) end = new Date(start.getTime() + (allDay ? 86_400_000 : 3_600_000));
-          out.push({ title: String(r.summary ?? '').trim() || '(busy)', start, end, allDay, colour: c.colour, who, location: String(r.location ?? '').trim() || undefined, description: String(r.description ?? '').trim() || undefined });
+          out.push({ title: String(r.summary ?? '').trim() || '(busy)', start, end, allDay, colour: c.colour, who, location: String(r.location ?? '').trim() || undefined, description: String(r.description ?? '').trim() || undefined, entity: c.entity, uid: r.uid ? String(r.uid) : undefined, recurrenceId: r.recurrence_id ? String(r.recurrence_id) : undefined, repeats: !!(r.rrule || r.recurrence_id), rrule: r.rrule ? String(r.rrule) : undefined });
         }
       } catch (e) { failed++; console.warn('Family Hub: calendar fetch failed', c.entity, e); }
     }));
@@ -632,7 +632,30 @@ export class FamilyHubCard extends LitElement {
   }
   /** The event whose details are open, and the day it was opened from. */
   private _evOpen: { ev: CalEvent; day: Date } | null = null;
-  private _openEvent(ev: CalEvent, day: Date): void { if (this._private(ev.title)) return; sfx('tap'); this._evOpen = { ev, day: startOfDay(day) }; this._sheet = 'event'; }
+  private _evAsk: '' | 'delete' | 'edit' = '';
+  private _editScope: '' | 'one' | 'future' = '';
+  private _evBusy = false;
+  private _editEv: CalEvent | null = null;
+  private _openEvent(ev: CalEvent, day: Date): void { if (this._private(ev.title)) return; sfx('tap'); this._evAsk = ''; this._evBusy = false; this._evOpen = { ev, day: startOfDay(day) }; this._sheet = 'event'; }
+  /** What the calendar an event lives in lets this screen do with it: delete needs the calendar's "delete", a change needs "update" or (remove and add again) "delete" and "create". For one of a repeating series it asks which: just this one, this and all later ones, or (to delete) all of them. */
+  private _evCan(ev: CalEvent): { del: boolean; edit: boolean } {
+    const f = Number(this.hass?.states[ev.entity ?? '']?.attributes.supported_features ?? 0), ok = !!ev.uid && !!ev.entity;
+    return { del: ok && !!(f & 2), edit: ok && (!ev.repeats || !!ev.recurrenceId) && (!!(f & 4) || (f & 3) === 3) };
+  }
+  /** Changing or deleting an event is a grown-up's job: with a PIN set, it is asked first. */
+  private _evGuard(reason: string, run: () => void): void { if (this._config.parent_pin) this._pinAsk = { reason, sheet: 'event', run }; else run(); }
+  private async _deleteEvent(scope: 'one' | 'future' | 'all'): Promise<void> {
+    const o = this._evOpen; if (!o || !o.ev.uid || !o.ev.entity || !this.hass || this._evBusy) return;
+    const ev = o.ev; this._evBusy = true;
+    const msg: Record<string, unknown> = { type: 'calendar/event/delete', entity_id: ev.entity, uid: ev.uid };
+    if (ev.recurrenceId && scope !== 'all') { msg.recurrence_id = ev.recurrenceId; if (scope === 'future') msg.recurrence_range = 'THISANDFUTURE'; }
+    try {
+      await inTime(this.hass.callWS(msg), 15_000);
+      this._evBusy = false; this._evAsk = ''; if (this._sheet === 'event') this._sheet = '';
+      this._say(`Deleted: ${ev.title}${ev.repeats ? { all: ' (all of them)', one: ' (just this one)', future: ' (this and later ones)' }[scope] : ''}`);
+      this._fetchedKey = ''; this._refresh(); void this._loadSoon();
+    } catch { this._evBusy = false; sfx('error'); this._say(`${ev.title} was not deleted: Home Assistant did not answer. Please try again.`, 8000); }
+  }
   /** What a screen reader hears for an event: "Dentist, Tuesday 5:00 pm, Charlie". */
   private _evName(ev: CalEvent, day: Date): string {
     return `${ev.title}, ${day.toLocaleDateString('en-AU', { weekday: 'long' })} ${whenOn(ev, day).label}, ${ev.who}${ev.location ? `, at ${ev.location}` : ''}`;
@@ -651,7 +674,26 @@ export class FamilyHubCard extends LitElement {
         ${ev.location ? row(icon('pin', 22), ev.location, 'evplace') : nothing}
         ${notes ? html`<div class="evnotebox"><span class="label" id="evnl">Notes</span><p class="evnotes scrolly" aria-labelledby="evnl" tabindex="0" @scroll=${scrollCue}>${notes}</p></div>` : nothing}
       </div>
-      <div class="sfoot"><span class="muted"></span><button class="lead tap" data-act="ev-close" @click=${() => { this._sheet = ''; }}>Close</button></div>`;
+      ${this._evFoot(ev)}`;
+  }
+  private _evFoot(ev: CalEvent): TemplateResult {
+    const can = this._evCan(ev), busy = this._evBusy, series = !!(ev.repeats && ev.recurrenceId);
+    const edit = (scope: '' | 'one' | 'future'): void => { this._evAsk = ''; this._editScope = scope; this._editEv = ev; this._sheet = 'add'; };
+    if (this._evAsk === 'edit') return html`<div class="sfoot evask rep" role="group" aria-label="Change which?">
+        <span class="muted evq">This one repeats. Change just this one, or this and all later ones?</span>
+        <button class="pill tap" data-act="ev-keep" @click=${() => { this._evAsk = ''; }}>Cancel</button>
+        <button class="pill tap" data-act="ev-edit-one" @click=${() => edit('one')}>Just this one</button>
+        <button class="pill tap" data-act="ev-edit-future" @click=${() => edit('future')}>This and later ones</button></div>`;
+    if (this._evAsk === 'delete') return html`<div class="sfoot evask ${ev.repeats ? 'rep' : ''}" role="group" aria-label="Delete this event?">
+        <span class="muted evq">${ev.repeats ? 'This one repeats. Which should be deleted?' : 'Delete this event? It comes off everyone’s calendar.'}</span>
+        <button class="pill tap" data-act="ev-keep" ?disabled=${busy} @click=${() => { this._evAsk = ''; }}>Keep it</button>
+        ${series ? html`<button class="pill tap evdel" data-act="ev-del-one" ?disabled=${busy} @click=${() => void this._deleteEvent('one')}>Just this one</button>
+          <button class="pill tap evdel" data-act="ev-del-future" ?disabled=${busy} @click=${() => void this._deleteEvent('future')}>This and later ones</button>` : nothing}
+        <button class="lead tap evgo" data-act="ev-del-all" ?disabled=${busy} aria-busy=${String(busy)} @click=${() => void this._deleteEvent('all')}>${busy ? 'Deleting…' : ev.repeats ? 'All of them' : 'Delete'}</button></div>`;
+    return html`<div class="sfoot"><span class="muted">${!can.del && !can.edit ? 'This calendar can only be changed in its own app.' : ev.repeats ? 'This one repeats.' : ''}</span>
+        ${can.del ? html`<button class="pill tap evdel" data-act="ev-delete" @click=${() => this._evGuard('Delete this event?', () => { this._evAsk = 'delete'; })}>${icon('bin', 20)}Delete</button>` : nothing}
+        ${can.edit ? html`<button class="pill tap" data-act="ev-edit" @click=${() => this._evGuard('Change this event?', () => { if (series) this._evAsk = 'edit'; else edit(''); })}>${icon('pencil', 20)}Change</button>` : nothing}
+        <button class="lead tap" data-act="ev-close" @click=${() => { this._sheet = ''; }}>Close</button></div>`;
   }
   private _morningWindow(d = new Date()): boolean {
     const c = this._config, m = c?.morning;
@@ -1158,7 +1200,7 @@ export class FamilyHubCard extends LitElement {
           <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${icon('left', 20)}</button>
           <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${icon('right', 20)}</button>
           <button class="pill tap" @click=${() => { this._anchor = new Date(); }}>Today</button>
-          ${cals.length ? html`<button class="tap lead" data-act="add" @click=${() => { this._sheet = 'add'; }}>${icon('plus', 22)}Add</button>` : nothing}
+          ${cals.length ? html`<button class="tap lead" data-act="add" @click=${() => { this._editEv = null; this._sheet = 'add'; }}>${icon('plus', 22)}Add</button>` : nothing}
           <span style="flex:1"></span>
           <div class="seg" role="group" aria-label="View">
             ${(['day', 'week', 'month'] as View[]).map((x) => html`<button class="tap" aria-pressed=${String(v === x)} @click=${() => { this._view = x; }}>${x[0].toUpperCase() + x.slice(1)}</button>`)}
@@ -1347,9 +1389,9 @@ export class FamilyHubCard extends LitElement {
     if (!s) return nothing;
     const close = () => { this._sheet = ''; };
     if (s === 'settings') return html`<fh-settings .hass=${this.hass} .config=${this._config} ?data-closing=${out} @close=${close} @fh-config=${(e: CustomEvent<FamilyHubConfig>) => this.setConfig(e.detail)}></fh-settings>`;
-    if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .places=${this._config.address_search !== false}
-      ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { if (this._sheet === 'add') close(); this._say(`Added: ${e.detail}`); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
-      @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not added: Home Assistant did not answer`, 8000)}></fh-add-event>`;
+    if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .edit=${this._editEv} .scope=${this._editEv ? this._editScope : ''} .places=${this._config.address_search !== false}
+      ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { const was = this._editEv; if (this._sheet === 'add') close(); this._say(was ? (e.detail.startsWith('!') ? `The new one was added, but the old “${was.title}” could not be removed. Please delete it by hand.` : `Changed: ${e.detail}`) : `Added: ${e.detail}`, was && e.detail.startsWith('!') ? 10000 : undefined); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
+      @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not ${this._editEv ? 'changed' : 'added'}: Home Assistant did not answer`, 8000)}></fh-add-event>`;
     if (s === 'chat') { const ch = this._config.chat, name = ch?.name || 'Ask';
       if (!ch?.agent) return nothing;
       return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>

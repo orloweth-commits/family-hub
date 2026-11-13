@@ -97,7 +97,7 @@ console.log('add: time chips gone:', await ae('.chips button', { hasText: /^\d\d
 await ae('.drum').first().evaluate((d) => { d.scrollTop += 44 * 2; }); await page.waitForTimeout(500);
 await ae('.ampm button', { hasText: /^am$/ }).click();
 console.log('add: after spinning two hours and am:', await ae('.drum i[data-on]').allInnerTexts(), await ae('.ampm button[aria-pressed=true]').innerText());
-await ae('.calbtn').click(); await page.waitForTimeout(200);
+await ae('.calbtn:not(.repbtn)').click(); await page.waitForTimeout(200);
 console.log('add: month picker:', await ae('.month .mnav b').innerText(), '| days:', await ae('.month .mgrid button').count());
 await ae('.month button[aria-label="Year after"]').first().click().catch(() => console.log('add: no year step'));
 await ae('.month .mgrid button:not(:disabled)', { hasText: /^17$/ }).first().click(); await page.waitForTimeout(200);

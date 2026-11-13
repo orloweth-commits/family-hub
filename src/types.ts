@@ -194,6 +194,13 @@ export interface CalEvent {
   location?: string;
   /** the calendar's own notes about it, shown as plain text when the event is opened */
   description?: string;
+  /** where it lives, so it can be changed or deleted: the calendar entity, the event's id, and (for one of a repeating series) which one */
+  entity?: string;
+  uid?: string;
+  recurrenceId?: string;
+  repeats?: boolean;
+  /** how it repeats, when the calendar says (an RRULE) */
+  rrule?: string;
 }
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);

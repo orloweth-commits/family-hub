@@ -3,9 +3,10 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import { addDays, fmtDow, startOfDay } from './dates';
-import { slotVar, type CalendarConfig, type Hass } from './types';
+import { slotVar, type CalEvent, type CalendarConfig, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
 import { getShape, shortNames, sfx } from './util';
+import { DAY_LETTERS, DAY_NAMES, dow, fromRRule, presets, repeatWords, toRRule, type Freq, type Repeat } from './repeat';
 
 const HOURS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], MINS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], ROW = 44;
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -119,17 +120,45 @@ export class FhAddEvent extends LitElement {
     .mgrid button.td { box-shadow: inset 0 0 0 2px var(--accent); }
     .mgrid button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .mgrid button:disabled { opacity: .3; }
+    .veil.top { z-index: 7; } .month.top { z-index: 8; }
+    .month.rep { width: 600px; max-height: 96%; overflow-y: auto; gap: 12px; padding: 16px; }
+    .rhead { display: flex; align-items: baseline; gap: 12px; } .rhead b { font-size: 20px; font-weight: var(--w-heavy, 800); } .rhead .muted { flex: 1; min-width: 0; font-size: 15px; text-align: right; }
+    .rlist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .rlist button, .rseg button { min-height: 44px; padding: 6px 12px; border-radius: 14px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.15; text-align: left; overflow-wrap: anywhere; }
+    .rseg button { text-align: center; flex: 1 1 auto; } .rseg { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 200px; }
+    .rlist button[aria-checked='true'], .rseg button[aria-checked='true'], .rdays button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
+    .rrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .rrow > .sub { flex: 0 0 56px; } .rrow > .muted { font-size: 15px; }
+    .rrow .calbtn { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    .rstep { display: inline-flex; align-items: center; gap: 4px; } .rstep button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 22px; font-weight: 800; } .rstep button:disabled { opacity: .35; } .rstep b { min-width: 34px; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+    .rdays { display: flex; gap: 6px; flex-wrap: wrap; } .rdays button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .rfoot { display: flex; justify-content: flex-end; } .rfoot .lead { height: 48px; padding: 0 26px; font-size: 17px; }
+    .rowhead .repbtn { min-width: 0; flex: 0 1 auto; } .rowhead .repbtn span { overflow: hidden; text-overflow: ellipsis; max-width: 200px; } .rowhead .repbtn[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
+    .what > .field.notes { flex: 1 1 0; font-size: 18px; padding: 0 14px; min-width: 0; }
+    :host([data-phone]) .rlist { grid-template-columns: 1fr; } :host([data-phone]) .month.rep { width: 100%; }
     .veil { position: absolute; inset: 0; z-index: 5; border-radius: inherit; background: rgba(0,0,0,.18); }
   `];
-  static properties = { hass: { attribute: false }, calendars: { attribute: false }, defaultCal: {}, places: { type: Boolean }, _t: { state: true }, _loc: { state: true }, _in: { state: true }, _found: { state: true }, _date: { state: true }, _all: { state: true }, _h: { state: true }, _m: { state: true }, _pm: { state: true }, _dur: { state: true }, _cal: { state: true }, _busy: { state: true }, _err: { state: true }, _caps: { state: true }, _pick: { state: true }, _shown: { state: true } };
+  static properties = { hass: { attribute: false }, calendars: { attribute: false }, defaultCal: {}, edit: { attribute: false }, scope: {}, _rep: { state: true }, _repOpen: { state: true }, _custom: { state: true }, _notes: { state: true }, _pickFor: { state: true }, places: { type: Boolean }, _t: { state: true }, _loc: { state: true }, _in: { state: true }, _found: { state: true }, _date: { state: true }, _all: { state: true }, _h: { state: true }, _m: { state: true }, _pm: { state: true }, _dur: { state: true }, _cal: { state: true }, _busy: { state: true }, _err: { state: true }, _caps: { state: true }, _pick: { state: true }, _shown: { state: true } };
   hass?: Hass;
   calendars: CalendarConfig[] = [];
   defaultCal = '';
   /** look addresses up on the internet as they are typed (on unless turned off) */
   places = true;
+  /** an event being changed: the sheet opens filled in with it, and Save replaces it */
+  edit: CalEvent | null = null;
+  private _span = 1;
+  /** changing one of a repeating series: 'one' (just this one) or 'future' (this and all later ones) */
+  scope: '' | 'one' | 'future' = '';
+  private _rep: Repeat | null = null;
+  /** a rule this sheet cannot show: kept as it is unless another choice is made */
+  private _rawRule = '';
+  private _repOpen = false;
+  private _custom = false;
+  private _pickFor: 'date' | 'until' = 'date';
+  private _notes = '';
+  private _notes0 = '';
   private _t = '';
   private _loc = '';
-  private _in: 'what' | 'where' = 'what';
+  private _in: 'what' | 'where' | 'notes' = 'what';
   private _found: Place[] | null = null;
   private _date = startOfDay(new Date());
   private _all = false;
@@ -153,7 +182,21 @@ export class FhAddEvent extends LitElement {
     const n = new Date(), h = (n.getHours() + 1) % 24;
     this._pm = h >= 12; this._h = h % 12 || 12; this._m = 0;
     if (h === 0) this._date = addDays(startOfDay(n), 1);
+    const e = this.edit;
+    if (e) {
+      this._t = e.title; this._loc = e.location ?? ''; this._date = startOfDay(e.start); this._all = e.allDay; this._cal = e.entity ?? '';
+      this._notes = this._notes0 = (e.description ?? '').replace(/<br\s*\/?>|<\/p>|<\/div>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+      if (this.scope === 'future') { this._rep = fromRRule(e.rrule, this._date); if (!this._rep) this._rawRule = e.rrule ?? ''; else this._custom = !this._presetOf(this._rep); }
+      this._span = Math.max(1, Math.round((e.end.getTime() - e.start.getTime()) / 86_400_000));
+      if (!e.allDay) { const hh = e.start.getHours(); this._pm = hh >= 12; this._h = hh % 12 || 12; this._m = e.start.getMinutes() - (e.start.getMinutes() % 5); this._dur = Math.max(5, Math.round((e.end.getTime() - e.start.getTime()) / 60_000)); }
+    }
   }
+  /** which ready-made choice this is (how it ends does not count), or nothing for a custom one */
+  private _presetOf(r: Repeat | null): Repeat | undefined { if (!r) return undefined; const k = toRRule({ ...r, end: 'never' }, this._date, true); return presets(this._date).find((x) => toRRule(x, this._date, true) === k); }
+  private _rule(): string { return this.scope === 'one' ? '' : this._rep ? toRRule(this._rep, this._date, this._all) : this._rawRule; }
+  private _repWords(): string { return this._rep ? repeatWords(this._rep, this._date) : this._rawRule ? 'Repeats as before' : 'Does not repeat'; }
+  private _setRep(r: Repeat | null): void { sfx('tap'); this._rawRule = ''; this._rep = r ? { ...r, days: [...r.days] } : null; }
+  private _durWord(m = this._dur): string { return m < 60 ? `${m} min` : m % 60 ? `${Math.floor(m / 60)} h ${m % 60}` : `${m / 60} h`; }
 
   /** On a short screen with a mouse (a laptop) the on-screen keyboard is left out: there is a real one, and the sheet then fits. */
   private _hardKeys = false;
@@ -163,7 +206,8 @@ export class FhAddEvent extends LitElement {
     first?.focus({ preventScroll: true });
   }
   private _onKey = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape' && this._pick) { e.preventDefault(); this._pick = false; }
+    if (e.key === 'Escape' && this._pick) { e.preventDefault(); e.stopPropagation(); this._pick = false; this._pickFor = 'date'; }
+    else if (e.key === 'Escape' && this._repOpen) { e.preventDefault(); e.stopPropagation(); this._repOpen = false; }
     else if (e.key === 'Tab') { // focus stays in the sheet while it is open
       const all = [...this.renderRoot.querySelectorAll<HTMLElement>('button:not([disabled]), input, [tabindex="0"]')].filter((x) => x.offsetParent !== null && !x.closest('.keys'));
       const at = all.indexOf((this.renderRoot as ShadowRoot).activeElement as HTMLElement);
@@ -174,12 +218,13 @@ export class FhAddEvent extends LitElement {
   private _summary(): string {
     const cal = this._cal || this.defaultCal || this.calendars[0]?.entity, c = this.calendars.find((x) => x.entity === cal);
     const day = this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }).replace(/,/g, '');
-    const dur = this._dur < 60 ? `${this._dur} min` : `${this._dur / 60} h`;
-    return [this._t.trim(), day, ...(this._all ? ['all day'] : [`${this._h}:${pad(this._m)} ${this._pm ? 'pm' : 'am'}`, dur]), c?.name ?? this.hass?.states[cal ?? '']?.attributes.friendly_name ?? '', this._loc.trim() ? `at ${this._loc.trim().split(',')[0]}` : ''].filter(Boolean).join(' · ');
+    const dur = this._durWord();
+    return [this._t.trim(), day, ...(this._all ? ['all day'] : [`${this._h}:${pad(this._m)} ${this._pm ? 'pm' : 'am'}`, dur]), c?.name ?? this.hass?.states[cal ?? '']?.attributes.friendly_name ?? '', this._rule() ? this._repWords() : '', this._loc.trim() ? `at ${this._loc.trim().split(',')[0]}` : ''].filter(Boolean).join(' · ');
   }
 
   private _key(k: string): void {
     this._err = '';
+    if (this._in === 'notes') { [this._notes] = typeKey(this._notes, k, !this._notes.length || /[.!?]\s$/.test(this._notes)); return; }
     if (this._in === 'where') { [this._loc] = typeKey(this._loc, k, !this._loc.length || /\s$/.test(this._loc) ? true : false); this._lookUp(); }
     else [this._t, this._caps] = typeKey(this._t, k, this._caps);
   }
@@ -269,8 +314,10 @@ export class FhAddEvent extends LitElement {
     const today = startOfDay(new Date()), y = this._shown.getFullYear(), m = this._shown.getMonth();
     const first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
     const go = (dy: number, dm: number) => { this._shown = new Date(y + dy, m + dm, 1); };
-    return html`<div class="veil" @click=${() => { this._pick = false; }}></div>
-      <div class="month" role="dialog" aria-label="Pick a date">
+    const until = this._pickFor === 'until', chosen = until && this._rep?.until ? new Date(`${this._rep.until}T00:00:00`) : this._date, floor = until ? this._date : today;
+    const take = (d: Date): void => { sfx('tap'); if (until) { if (this._rep) this._rep = { ...this._rep, end: 'on', until: ymd(d) }; } else this._date = d; this._pick = false; this._pickFor = 'date'; };
+    return html`<div class="veil top" @click=${() => { this._pick = false; this._pickFor = 'date'; }}></div>
+      <div class="month top" role="dialog" aria-label=${until ? 'Pick the last day' : 'Pick a date'}>
         <div class="mnav">
           <button class="tap" aria-label="Year before" @click=${() => go(-1, 0)}>«</button><button class="tap" aria-label="Month before" @click=${() => go(0, -1)}>${icon('left', 18)}</button>
           <b aria-live="polite">${MONTHS[m]} ${y}</b>
@@ -279,8 +326,38 @@ export class FhAddEvent extends LitElement {
         <div class="mgrid">
           ${['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d) => html`<span aria-hidden="true">${d}</span>`)}
           ${Array.from({ length: lead }, () => html`<span></span>`)}
-          ${Array.from({ length: days }, (_, i) => { const d = new Date(y, m, i + 1); return html`<button class="tap ${same(d, today) ? 'td' : ''}" ?disabled=${d < today} aria-pressed=${String(same(d, this._date))} aria-label=${d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} @click=${() => { sfx('tap'); this._date = d; this._pick = false; }}>${i + 1}</button>`; })}
+          ${Array.from({ length: days }, (_, i) => { const d = new Date(y, m, i + 1); return html`<button class="tap ${same(d, today) ? 'td' : ''}" ?disabled=${d < floor} aria-pressed=${String(same(d, chosen))} aria-label=${d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} @click=${() => take(d)}>${i + 1}</button>`; })}
         </div>
+      </div>`;
+  }
+
+  /** How often: the ready-made choices, a custom one (every N days, weeks, months or years; which days), and how it ends. */
+  private _repeatSheet(): TemplateResult {
+    const d = this._date, r = this._rep, list = presets(d), cur = this._custom ? undefined : this._presetOf(r);
+    const set = (c: Partial<Repeat>): void => { if (!this._rep) return; sfx('tap'); this._rep = { ...this._rep, ...c }; };
+    const step = (label: string, v: number, min: number, max: number, on: (n: number) => void): TemplateResult => html`<span class="rstep" role="group" aria-label=${label}>
+      <button class="tap" aria-label=${`${label}: fewer`} ?disabled=${v <= min} @click=${() => on(Math.max(min, v - 1))}>−</button><b aria-live="polite">${v}</b><button class="tap" aria-label=${`${label}: more`} ?disabled=${v >= max} @click=${() => on(Math.min(max, v + 1))}>+</button></span>`;
+    const opt = (label: string, on: boolean, run: () => void, act = ''): TemplateResult => html`<button class="tap" role="radio" data-act=${act || nothing} aria-checked=${String(on)} @click=${run}>${label}</button>`;
+    const units: [Freq, string][] = [['DAILY', 'day'], ['WEEKLY', 'week'], ['MONTHLY', 'month'], ['YEARLY', 'year']];
+    const until = r?.until ? new Date(`${r.until}T00:00:00`) : null;
+    return html`<div class="veil" @click=${() => { this._repOpen = false; }}></div>
+      <div class="month rep scrolly" role="dialog" aria-label="How often">
+        <div class="rhead"><b>Repeat</b><span class="muted" aria-live="polite">${this._repWords()}</span></div>
+        <div class="rlist" role="radiogroup" aria-label="How often">
+          ${opt('Does not repeat', !r && !this._rawRule, () => { this._custom = false; this._setRep(null); }, 'rep-none')}
+          ${this._rawRule ? opt('Repeats as before', true, () => { /* stays */ }) : nothing}
+          ${list.map((x, i) => opt(repeatWords(x, d), !!cur && toRRule(cur, d, true) === toRRule(x, d, true), () => { this._custom = false; this._setRep({ ...x, end: r?.end ?? 'never', until: r?.until, count: r?.count }); }, `rep-${i}`))}
+          ${opt('Custom…', this._custom, () => { this._custom = true; this._setRep(r ?? list[1]); }, 'rep-custom')}
+        </div>
+        ${this._custom && r ? html`<div class="rrow"><span class="sub">Every</span>${step('How many', r.every, 1, 99, (n) => set({ every: n }))}
+            <div class="rseg" role="radiogroup" aria-label="Days, weeks, months or years">${units.map(([f, w]) => opt(r.every > 1 ? `${w}s` : w, r.freq === f, () => set({ freq: f })))}</div></div>
+          ${r.freq === 'WEEKLY' ? html`<div class="rrow"><span class="sub">On</span><div class="rdays" role="group" aria-label="Which days">${DAY_LETTERS.map((l, i) => html`<button class="tap" aria-label=${DAY_NAMES[i]} aria-pressed=${String(r.days.includes(i))} @click=${() => { const has = r.days.includes(i), days = has ? r.days.filter((x) => x !== i) : [...r.days, i]; set({ days: days.length ? days : [dow(d)] }); }}>${l}</button>`)}</div></div>` : nothing}
+          ${r.freq === 'MONTHLY' ? html`<div class="rrow"><span class="sub">On</span><div class="rseg" role="radiogroup" aria-label="Which day of the month">${opt(repeatWords({ ...r, every: 1, end: 'never', monthBy: 'date' }, d).replace('Every month on ', ''), r.monthBy === 'date', () => set({ monthBy: 'date' }))}${opt(repeatWords({ ...r, every: 1, end: 'never', monthBy: 'weekday' }, d).replace('Every month on ', ''), r.monthBy === 'weekday', () => set({ monthBy: 'weekday' }))}</div></div>` : nothing}` : nothing}
+        ${r ? html`<div class="rrow"><span class="sub">Ends</span><div class="rseg" role="radiogroup" aria-label="When it ends">
+            ${opt('Never', r.end === 'never', () => set({ end: 'never' }), 'end-never')}${opt('On a date', r.end === 'on', () => { set({ end: 'on', until: r.until ?? ymd(addDays(d, 84)) }); }, 'end-on')}${opt('After', r.end === 'after', () => set({ end: 'after', count: r.count ?? 10 }), 'end-after')}</div>
+            ${r.end === 'on' && until ? html`<button class="tap calbtn" data-act="end-date" aria-haspopup="dialog" @click=${() => { this._shown = until; this._pickFor = 'until'; this._pick = true; }}>${icon('calendar', 20)}<span>${until.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</span></button>` : nothing}
+            ${r.end === 'after' ? html`${step('How many times', r.count ?? 10, 1, 99, (n) => set({ count: n }))}<span class="muted">times</span>` : nothing}</div>` : nothing}
+        <div class="rfoot"><button class="tap lead" data-act="rep-done" @click=${() => { sfx('tap'); this._repOpen = false; }}>Done</button></div>
       </div>`;
   }
 
@@ -293,7 +370,11 @@ export class FhAddEvent extends LitElement {
     const d = this._date;
     const data: Record<string, unknown> = { summary: this._t.trim() };
     if (this._loc.trim()) data.location = this._loc.trim();
-    if (this._all) { data.start_date = ymd(d); data.end_date = ymd(addDays(d, 1)); }
+    const ed = this.edit;
+    const notes = this._notes.trim(), rule = this._rule();
+    if (notes) data.description = ed?.description && notes === this._notes0 ? ed.description : notes;
+    if (this.scope === 'future' && !rule) { this._err = 'Choose how it repeats first'; this._repOpen = true; return; }
+    if (this._all) { data.start_date = ymd(d); data.end_date = ymd(addDays(d, ed?.allDay ? this._span : 1)); }
     else {
       const s = new Date(d); s.setHours(this._hour24(), this._m, 0, 0);
       data.start_date_time = local(s); data.end_date_time = local(new Date(s.getTime() + this._dur * 60_000));
@@ -304,16 +385,31 @@ export class FhAddEvent extends LitElement {
     const wait = window.setTimeout(() => { if (gen !== this._saveGen || !this._busy) return; this._busy = false; this._err = 'Still waiting. Try again?'; }, FhAddEvent.WAIT);
     const gone = (): boolean => !this.isConnected || this.hasAttribute('data-closing');
     try {
-      await this.hass.callService('calendar', 'create_event', data, { entity_id: cal });
+      let left = false;
+      const T = (x: unknown): string => String(x).replace(' ', 'T');
+      const event: Record<string, unknown> = { summary: data.summary, dtstart: T(data.start_date ?? data.start_date_time), dtend: T(data.end_date ?? data.end_date_time) };
+      if (data.location) event.location = data.location; if (data.description) event.description = data.description; if (rule) event.rrule = rule;
+      // the "add an event" service cannot say how an event repeats, so a repeating one goes through the calendar's own create
+      const create = async (): Promise<void> => { if (rule) await this.hass!.callWS({ type: 'calendar/event/create', entity_id: cal, event }); else await this.hass!.callService('calendar', 'create_event', data, { entity_id: cal }); };
+      if (ed?.uid && ed.entity) {
+        const f = Number(this.hass.states[ed.entity]?.attributes.supported_features ?? 0);
+        const which = ed.recurrenceId && this.scope ? { recurrence_id: ed.recurrenceId, ...(this.scope === 'future' ? { recurrence_range: 'THISANDFUTURE' } : {}) } : {};
+        if (cal === ed.entity && f & 4) await this.hass.callWS({ type: 'calendar/event/update', entity_id: ed.entity, uid: ed.uid, ...which, event });
+        else {
+          // this calendar cannot change an event in place: the new one is added first, and only then is the old one removed, so nothing is lost if either step fails
+          await create();
+          try { await this.hass.callWS({ type: 'calendar/event/delete', entity_id: ed.entity, uid: ed.uid, ...which }); } catch { left = true; }
+        }
+      } else await create();
       clearTimeout(wait);
       if (gen !== this._saveGen) return; // a second try is on its way and will speak for itself
       // stays busy: the sheet closes on "saved", so there is nothing left to tap twice
       this._busy = true; this._err = '';
-      this.dispatchEvent(new CustomEvent('saved', { detail: summary }));
+      this.dispatchEvent(new CustomEvent('saved', { detail: (left ? '!' : '') + summary }));
     } catch {
       clearTimeout(wait);
       if (gen !== this._saveGen) return;
-      this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false; sfx('error');
+      this._err = ed ? 'Couldn’t change it. Try again in a moment.' : 'Couldn’t add it. Try again in a moment.'; this._busy = false; sfx('error');
       // the sheet was closed while this was on its way: the card says it instead
       if (gone()) this.dispatchEvent(new CustomEvent('failed', { detail: this._t.trim() }));
     }
@@ -329,10 +425,10 @@ export class FhAddEvent extends LitElement {
     const phone = getShape() === 'phone', far = !Array.from({ length: 7 }, (_, i) => addDays(today, i)).some((d) => same(d, this._date));
     const list = this._in === 'where' ? (this._found ?? (this._loc.trim().length < 3 ? this._zones() : [])) : [];
     const sum = this._summary(), soft = phone || this._hardKeys;
-    const add = html`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? 'Adding…' : 'Add'}</button>`;
-    return html`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label="Add to the calendar" @click=${(e: Event) => e.stopPropagation()} @keydown=${this._onKey}>
+    const add = html`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? (this.edit ? 'Saving…' : 'Adding…') : this.edit ? 'Save' : 'Add'}</button>`;
+    return html`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? 'Change this event' : 'Add to the calendar'} @click=${(e: Event) => e.stopPropagation()} @keydown=${this._onKey}>
       <div style="display:flex;gap:12px;align-items:center">
-        <h2 class="t-head" style="white-space:nowrap">Add to the calendar</h2>
+        <h2 class="t-head" style="white-space:nowrap">${this.edit ? 'Change this event' : 'Add to the calendar'}</h2>
         <span class="sum" aria-live="polite">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>
         <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 20)}</button></div>
       <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
@@ -345,13 +441,15 @@ export class FhAddEvent extends LitElement {
           ${this._found ? html`<span class="note">Places: © OpenStreetMap contributors, found by Photon</span>` : nothing}
         </div>` : nothing}
       </div>
+        <input class="field notes ${this._in === 'notes' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="Notes" placeholder="Notes (optional)" .value=${this._notes} @focus=${() => { this._in = 'notes'; }} @input=${(e: Event) => { this._notes = (e.target as HTMLInputElement).value; }}>
         ${phone ? nothing : add}</div>
       <span class="err" role="status" aria-live="polite">${this._err}</span>
       <div class="when">
         <div class="left">
           <div class="rowhead"><span class="sub" id="dayl">Which day</span>
             ${far ? html`<button class="tap farchip" aria-pressed="true" @click=${() => { this._shown = this._date; this._pick = true; }}>${this._date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: this._date.getFullYear() === today.getFullYear() ? undefined : 'numeric' })}</button>` : nothing}
-            <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => { this._shown = this._date; this._pick = true; }}>${icon('calendar', 22)}<span>Other date</span></button></div>
+            <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => { this._shown = this._date; this._pick = true; }}>${icon('calendar', 22)}<span>Other date</span></button>
+            ${this.scope === 'one' ? nothing : html`<button class="tap calbtn repbtn" data-act="repeat" aria-haspopup="dialog" aria-label=${`Repeat: ${this._repWords()}`} aria-pressed=${String(!!this._rule())} @click=${() => { sfx('tap'); this._repOpen = true; }}>${icon('repeat', 22)}<span>${this._rule() ? this._repWords() : 'Repeat'}</span></button>`}</div>
           <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (_, i) => { const d = addDays(today, i); return html`<button class="tap" aria-pressed=${String(same(d, this._date))} @click=${() => { this._date = d; }}>${i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${fmtDow(d)} ${d.getDate()}`}</button>`; })}
           </div>
@@ -365,12 +463,13 @@ export class FhAddEvent extends LitElement {
           </div>
           <div class="side">
             <button class="tap allday" aria-pressed=${String(this._all)} @click=${() => { sfx('tap'); this._all = !this._all; }}>All day</button>
-            <div class="durs" role="group" aria-label="How long">${[30, 60, 90, 120].map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${m < 60 ? `${m} min` : `${m / 60} h`}</button>`)}</div>
+            <div class="durs" role="group" aria-label="How long">${[...new Set([30, 60, 90, 120, this._dur])].sort((a, b) => a - b).map((m) => html`<button class="tap" aria-pressed=${String(this._dur === m)} @click=${() => { this._dur = m; }}>${this._durWord(m)}</button>`)}</div>
           </div>
         </div>
       </div>
-      ${keyboard((k) => this._key(k), this._in === 'where' ? !this._loc.length || /\s$/.test(this._loc) : this._caps, () => { this._caps = !this._caps; }, true, true)}
+      ${keyboard((k) => this._key(k), this._in === 'where' ? !this._loc.length || /\s$/.test(this._loc) : this._in === 'notes' ? !this._notes.length || /[.!?]\s$/.test(this._notes) : this._caps, () => { this._caps = !this._caps; }, true, true)}
       ${phone ? html`<div class="afoot"><span class="sum">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>${add}</div>` : nothing}
+      ${this._repOpen ? this._repeatSheet() : nothing}
       ${this._pick ? this._monthGrid() : nothing}
     </div>`;
   }

@@ -346,6 +346,8 @@ export const styles = css`
   .sfoot { display: flex; align-items: center; gap: 16px; }
   .sfoot > .muted { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; }
   .sfoot > .lead, .sfoot > .pill { flex-shrink: 0; }
+  .sfoot .evdel { color: var(--danger, #b3261e); } .sfoot .evgo { background: var(--danger, #b3261e); color: #fff; } .sfoot.evask { flex-wrap: wrap; justify-content: flex-end; } .sfoot.evask.rep .evq { flex-basis: 100%; } .sfoot.evask .evq { flex: 1 1 240px; font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); }
+  .sfoot > .pill { display: inline-flex; align-items: center; gap: 6px; }
   .sheet.chatsheet { width: min(1180px, 100%); height: min(736px, 100%); gap: 14px; overflow: hidden; }
   /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
   .sheet.chatsheet > fh-chat { flex-shrink: 1; }
