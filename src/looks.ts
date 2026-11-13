@@ -527,6 +527,9 @@ const FRIDGE = `
   @F .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @F .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4.5px var(--kidc), 0 -3px 6px 3px rgba(0,0,0,.14); }
   @F .dock .sep { background: transparent; margin: 0 2px; }
+  /* a portrait tablet with all thirteen magnets (the morning): smaller words and tighter gaps, so the row fits and no two labels touch */
+  @F[data-n3] .dock { gap: 4px; }
+  @F[data-n3] .dock .item { font-size: 14px; }
   @F .tcard { position: relative; border-radius: 4px; background: var(--paper); box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   /* the chosen look: a ring and a tick, never a fill */
   @F .tcard[aria-pressed='true'] { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
@@ -792,6 +795,8 @@ const ORBIT = `
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
+  @O[data-n3] .dock { gap: 4px; }
+  @O[data-n3] .dock .item { font-size: 14px; }
 
   /* lists */
   @O .row { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); }

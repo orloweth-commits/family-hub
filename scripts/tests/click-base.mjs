@@ -708,8 +708,10 @@ page = await open('look=glass&page=doodle');
 await page.close();
 // R16. Ask: the AI note is under the subtitle and in view; the keyboard has punctuation and digits; the three options share a row
 for (const [w, h] of [[1280, 800], [1312, 668]]) { page = await open('look=glass&page=planner&sheet=chat'); await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(500);
+  // measured before the keys open: on a short screen (under 720 px high) the two lines of introduction step aside while the keys are up (round 7)
+  const n = await page.locator('family-hub-card .ainote').boundingBox(), sub = await page.locator('family-hub-card .chatsheet .shead .muted').boundingBox();
   await page.locator('fh-chat input.field').click(); await page.waitForTimeout(300);
-  const n = await page.locator('family-hub-card .ainote').boundingBox(), sub = await page.locator('family-hub-card .chatsheet .shead .muted').boundingBox(), tops = await page.locator('fh-chat .opts .pill').evaluateAll((els) => [...new Set(els.map((e) => Math.round(e.getBoundingClientRect().top)))].length);
+  const tops = await page.locator('fh-chat .opts .pill').evaluateAll((els) => [...new Set(els.map((e) => Math.round(e.getBoundingClientRect().top)))].length);
   for (const k of ['Question mark', 'Full stop']) await page.locator('fh-chat .keys').getByRole('button', { name: k }).click(); await page.locator('fh-chat .keys .key', { hasText: /^7$/ }).click();
   console.log(`R16 ${w}x${h}: note`, parseFloat(await page.locator('family-hub-card .ainote').evaluate((e) => getComputedStyle(e).fontSize)), 'px,', Math.round(n.y - (sub.y + sub.height)), 'px under the subtitle, in view:', n.y + n.height <= h, '| option rows:', tops, '| typed with the keys:', JSON.stringify(await page.locator('fh-chat input.field').inputValue()));
   await page.setViewportSize({ width: 1280, height: 800 }); await page.close(); }
@@ -1071,5 +1073,75 @@ await page.getByRole('button', { name: 'Planner', exact: true }).click(); await 
 console.log('R6-H10 small player lines cut (expect 0):', await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1).length),
   '| R6-H11 least room beside a quick pill’s words (expect >= 6):', await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); })))));
 await page.close();
+// ---------- round 7 ----------
+const sr = (sel) => `document.querySelector('family-hub-card').shadowRoot.querySelector('${sel}').shadowRoot`;
+const srStudio = `${sr('fh-kid')}.querySelector('fh-studio').shadowRoot`;
+const ratio = `(a, b) => { const l = (c) => { let m = c.match(/[\\d.]+/g).map(Number); if (/^color\\(srgb/.test(c)) m = m.map((v, i) => (i < 3 ? v * 255 : v)); const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(m[0]) + 0.7152 * f(m[1]) + 0.0722 * f(m[2]); }; const A = l(a), B = l(b); return (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05); }`;
+// R7-M2. the reward's name under "Spend … ?" is readable on the selected row in every Glass theme and every look (it was 1.01:1 in Space)
+{ const bad = [];
+  for (const look of ['glass&theme=sea', 'glass&theme=sunset', 'glass&theme=reef', 'glass&theme=bush', 'glass&theme=space', 'fridge', 'orbit', 'sports']) for (const time of ['16:20', '18:10']) { const p = await openAt(1280, 800, `look=${look}&page=kid&kid=0`, time);
+    await p.locator('fh-kid button.rw', { hasText: 'Extra screen time' }).click(); await p.waitForTimeout(400);
+    const c = await p.evaluate(`(() => { const ratio = ${ratio}; const row = ${sr('fh-kid')}.querySelector('.rw.ask'); if (!row) return 0; const m = row.querySelector('.q .muted'); let bg = ''; for (let x = row; x && !bg; x = x.parentElement) { const v = getComputedStyle(x).backgroundColor, n = v.match(/[\\d.]+/g); if (n && (n.length < 4 || +n[3] > 0.5)) bg = v; } return ratio(getComputedStyle(m).color, bg || 'rgb(255,255,255)'); })()`);
+    if (c < 4.5) bad.push(`${look} ${time} ${c.toFixed(2)}`); await p.context().close(); }
+  console.log('R7-M2 spend confirmation: the reward name is at least 4.5:1 everywhere', ok(!bad.length), bad.join(' | ')); }
+// R7-M3/m9. doodle: the chosen size, stamp and eraser stand out from their neighbours (3:1 or more) in every Glass theme and look; the three sizes show the tool they belong to
+{ const bad = []; let sizes = '';
+  for (const look of ['glass&theme=sea', 'glass&theme=sunset', 'glass&theme=reef', 'glass&theme=bush', 'glass&theme=space', 'fridge', 'orbit', 'sports']) { const p = await openAt(1280, 800, `look=${look}&page=doodle`);
+    for (const pick of ['Brush 22', 'Dinosaur stamp', 'Eraser']) { await p.locator(`fh-doodle button.size[aria-label="${pick}"]`).click(); await p.waitForTimeout(200);
+      const r = await p.evaluate(`(() => { const ratio = ${ratio}; const R = ${sr('fh-doodle')}; const bs = [...R.querySelectorAll('button.size')]; const bgOf = (e) => { for (let x = e; x; x = x.parentElement) { const v = getComputedStyle(x).backgroundColor, n = v.match(/[\\d.]+/g); if (n && (n.length < 4 || +n[3] > 0.3)) return v; } return 'rgb(255,255,255)'; };
+        const on = bs.filter((b) => b.getAttribute('aria-pressed') === 'true'), off = bs.find((b) => b.getAttribute('aria-pressed') !== 'true'); return { lit: on.map((b) => b.getAttribute('aria-label')), least: Math.min(...on.map((b) => ratio(getComputedStyle(b).backgroundColor, bgOf(off)))) }; })()`);
+      if (r.least < 3 || !r.lit.includes(pick) || r.lit.length !== (pick === 'Brush 22' ? 1 : 2) || (pick !== 'Brush 22' && !r.lit.some((n) => n.startsWith(pick === 'Eraser' ? 'Eraser size' : 'Stamp size')))) bad.push(`${look} ${pick} ${JSON.stringify(r)}`); }
+    if (look === 'fridge') { await p.locator('fh-doodle button.size[aria-label="Dinosaur stamp"]').click(); sizes = await p.evaluate(`[...${sr('fh-doodle')}.querySelectorAll('button.size[aria-label^="Stamp size"] .sz')].map((e) => e.textContent.trim() + getComputedStyle(e).fontSize).join(' ')`); }
+    await p.context().close(); }
+  console.log('R7-M3 doodle: the chosen tool and size are 3:1 or more against their neighbours', ok(!bad.length), bad.join(' | '), '| R7-m9 with a stamp chosen the sizes show that stamp, small to big:', sizes, ok(/🦖14px 🦖21px 🦖28px/.test(sizes))); }
+// R7-M4. Ask with the on-screen keys on a short screen (1312x668): every key is whole and inside the sheet, a sentence with a space can be typed by tapping, the conversation keeps 90 px or more, and the options' words fit their buttons
+{ const bad = [];
+  for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const [w, h, from] of [[1312, 668, 'page=planner'], [1312, 668, 'page=kid&kid=0'], [1312, 668, 'page=kid&kid=2'], [1024, 768, 'page=planner'], [1280, 800, 'page=kid&kid=2']]) { const p = await openAt(w, h, `look=${look}&${from}`);
+    await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._openChat(); }); await p.waitForTimeout(600);
+    await p.locator('fh-chat input.field').click(); await p.waitForTimeout(500);
+    for (const k of ['h', 'i', ' ', 'm', 'u', 'm']) await (k === ' ' ? p.locator('fh-chat .key.space') : p.locator('fh-chat .key', { hasText: new RegExp('^' + k + '$', 'i') }).first()).click();
+    const r = await p.evaluate(`(() => { const R = ${sr('fh-chat')}, sheet = document.querySelector('family-hub-card').shadowRoot.querySelector('.chatsheet').getBoundingClientRect(); let cut = 0;
+      for (const k of R.querySelectorAll('.key')) { const b = k.getBoundingClientRect(), e = R.elementFromPoint(b.left + b.width / 2, b.bottom - 3); if (b.bottom > Math.min(sheet.bottom, innerHeight) + 0.5 || b.top < sheet.top || b.height < 43.5 || b.width < 43.5 || (e !== k && !k.contains(e))) cut++; }
+      const wide = [...R.querySelectorAll('.opts .pill')].filter((b) => { const g = document.createRange(); g.selectNodeContents(b); return g.getBoundingClientRect().width > b.getBoundingClientRect().width + 1; }).length;
+      return { typed: R.querySelector('input').value, keys: R.querySelectorAll('.key').length, cut, thread: Math.round(R.querySelector('.thread').getBoundingClientRect().height), starters: [...R.querySelectorAll('.starter')].filter((s) => s.getClientRects().length).length, wide }; })()`);
+    if (r.typed !== 'Hi mum' || r.keys < 40 || r.cut || r.wide || (h < 720 && (r.thread < 90 || r.starters))) bad.push(`${look} ${w}x${h} ${from} ${JSON.stringify(r)}`); await p.context().close(); }
+  console.log('R7-M4 Ask keys on a short screen: none cut, typing works, 90 px of conversation, option words fit', ok(!bad.length), bad.join(' | ')); }
+// R7-M5. the youngest's "Coming up" at 1312x668: the first row is inside the card, the list scrolls with its fade, and both tabs stay in view; the older boys' studio button is not cut by the hero card
+{ const bad = [];
+  for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const kid of [2, 1]) { const p = await openAt(1312, 668, `look=${look}&page=kid&kid=${kid}`);
+    await p.locator('fh-kid button.tab', { hasText: /Coming up|My week/ }).click(); await p.waitForTimeout(400);
+    const r = await p.evaluate(`(() => { const R = ${sr('fh-kid')}, card = R.querySelector('.tabcard'), c = card.getBoundingClientRect(), body = card.querySelector('.tabbody'), first = card.querySelector('.wk').getBoundingClientRect();
+      const tabs = [...card.querySelectorAll('button.tab')].every((b) => { const t = b.getBoundingClientRect(), e = R.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2); return t.top >= c.top && t.bottom <= c.bottom + 1 && (e === b || b.contains(e)); });
+      const st = R.querySelector('button.studio'), hero = R.querySelector('.hero').getBoundingClientRect();
+      return { first: Math.round(first.top - c.top), inBody: first.top >= body.getBoundingClientRect().top - 1, scrolls: body.scrollHeight > body.clientHeight + 6, cue: body.hasAttribute('data-more'), tabs, studioCut: st ? Math.max(0, Math.round(st.getBoundingClientRect().bottom - hero.bottom)) : 0 }; })()`);
+    if (r.first < 0 || !r.inBody || !r.tabs || r.scrolls !== r.cue || r.studioCut > 1) bad.push(`${look} kid${kid} ${JSON.stringify(r)}`); await p.context().close(); }
+  console.log('R7-M5 kid page at 1312x668: first "Coming up" row inside the card, tabs in view, studio button whole', ok(!bad.length), bad.join(' | ')); }
+// R7-M6. the youngest's studio on the wall panel: every tile of every kind is in the lower half, in one row that moves sideways with an arrow; an older boy's studio keeps its grid
+{ const bad = [];
+  for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await openAt(1920, 1080, `look=${look}&page=kid&kid=2&studio=1`);
+    const n = await p.locator('fh-studio [role=tab]').count();
+    for (let i = 0; i < n; i++) { await p.locator('fh-studio [role=tab]').nth(i).click(); await p.waitForTimeout(250);
+      const r = await p.evaluate(`(() => { const R = ${srStudio}, g = R.querySelector('.grid'), tops = [...R.querySelectorAll('.tile')].map((t) => t.getBoundingClientRect().top); return { high: tops.filter((t) => t < innerHeight / 2).length, rows: new Set(tops.map(Math.round)).size, wide: g.scrollWidth > g.clientWidth + 6, fwd: getComputedStyle(R.querySelector('.rowgo.fwd')).visibility === 'visible' || g.scrollLeft > 6 }; })()`);
+      if (r.high || r.rows !== 1 || (r.wide && !r.fwd)) bad.push(`${look} tab${i} ${JSON.stringify(r)}`); }
+    await p.locator('fh-studio [role=tab]').nth(1).click(); await p.waitForTimeout(250);
+    const x0 = await p.evaluate(`${srStudio}.querySelector('.grid').scrollLeft`); await p.locator('fh-studio .rowgo.fwd').click(); await p.waitForTimeout(900);
+    const x1 = await p.evaluate(`${srStudio}.querySelector('.grid').scrollLeft`); if (!(x1 > x0 + 100)) bad.push(`${look} arrow ${x0}->${x1}`);
+    await p.context().close(); }
+  { const p = await openAt(1920, 1080, 'look=glass&page=kid&kid=0&studio=1'); const rows = await p.evaluate(`new Set([...${srStudio}.querySelectorAll('.tile')].map((t) => Math.round(t.getBoundingClientRect().top))).size`); if (rows < 2) bad.push('kid0 grid became a row'); await p.context().close(); }
+  console.log('R7-M6 the youngest’s studio on the wall: every tile in the lower half, one sliding row with an arrow', ok(!bad.length), bad.join(' | ')); }
+// R7-m10. a timed event that has finished leaves "Coming up"; in the evening the youngest still has Ask within reach on the wall
+{ const p = await openAt(1920, 1080, 'look=glass&page=kid&kid=2', '19:30');
+  const r = await p.evaluate(`(() => { const R = ${sr('fh-kid')}; const a = R.querySelector('button.askbtn'); return { today: [...R.querySelectorAll('.wk')].filter((w) => /Today/.test(w.textContent)).map((w) => w.textContent.replace(/\\s+/g, ' ').trim()), ask: a ? Math.round(a.getBoundingClientRect().top) : -1 }; })()`);
+  console.log('R7-m10 at 7:30 pm nothing that has finished is under Today:', JSON.stringify(r.today), ok(!r.today.some((t) => /7:00 pm/.test(t))), '| the youngest’s Ask button is in the lower half:', r.ask, ok(r.ask >= 540)); await p.context().close(); }
+// R7-N. the event sheet shows the calendar's notes as words only: line breaks kept, markup never becomes an element, nothing runs
+{ const p = await openAt(1280, 800, 'look=glass&page=planner&view=day'); const out = [];
+  for (const [title, want] of [['Swimming squad', /^Bring:\ngoggles and cap\ntowel\nMeet at the far end of pool 2\.\nTimetable: https:\/\/example\.org\/squad$/], ['Clarinet lesson', /^Bring the blue book and a spare reed$/]]) {
+    await p.evaluate((title) => { const c = document.querySelector('family-hub-card'); const ev = [...(c._events ?? []), ...(c._soon ?? [])].find((e) => e.title === title); c._openEvent(ev, ev.start); }, title); await p.waitForTimeout(400);
+    const r = await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet[data-sheet="event"]'), n = s?.querySelector('.evnotes'); return n ? { text: n.textContent, kids: n.querySelectorAll('*').length, bad: s.querySelectorAll('img, script, a[href], iframe').length, label: s.querySelector('.evnotebox .label')?.textContent, ws: getComputedStyle(n).whiteSpace, fs: parseFloat(getComputedStyle(n).fontSize), pwned: window.__pwned ?? 0 } : null; });
+    out.push(`${title}: ${JSON.stringify(r?.text)} ${ok(!!r && want.test(r.text) && !r.kids && !r.bad && r.label === 'Notes' && r.ws === 'pre-line' && r.fs >= 15 && !r.pwned)}`);
+    await p.keyboard.press('Escape'); await p.waitForTimeout(400); }
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); const ev = [...(c._events ?? []), ...(c._soon ?? [])].find((e) => e.title === 'Gym'); c._openEvent(ev, ev.start); }); await p.waitForTimeout(400);
+  out.push('no notes, no block: ' + ok(await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet[data-sheet="event"]'); return !!s && !s.querySelector('.evnotebox'); })));
+  console.log('R7-N event notes as plain text |', out.join(' | ')); await p.context().close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

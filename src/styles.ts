@@ -212,7 +212,9 @@ export const styles = css`
   .evrow .evtx { min-width: 0; overflow-wrap: anywhere; }
   .evrow.evday { font-size: 20px; font-weight: var(--w-bold, 700); }
   .evpart { font-size: 16px; }
-  .evnotes { margin: 4px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: 16px; line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
+  /* the calendar's notes: plain text under a small label, line breaks kept; a long note scrolls inside its own box so the sheet keeps its shape */
+  .evnotebox { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; } .evnotebox .label { font-size: 13px; }
+  .evnotes { margin: 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: 16px; line-height: 1.4; font-weight: 500; white-space: pre-line; overflow-wrap: anywhere; max-height: min(260px, 34vh); overflow-y: auto; overscroll-behavior: contain; }
   .ev .t { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); }
   .ev .n { font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .evs { position: relative; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; padding: 3px; margin: -3px; }
@@ -344,6 +346,11 @@ export const styles = css`
   .ainote { margin: -10px 0 0; font-size: 15px; line-height: 1.3; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
   .chatsheet .shead .muted { color: var(--ink); }
   :host([data-phone]) .sheet.chatsheet { height: auto; overflow-y: auto; }
+  /* a short screen with the on-screen keys open: the Ask sheet takes the full height and drops its two lines of introduction, so the whole keyboard and a few lines of conversation fit */
+  @media (max-height: 720px) {
+    :host(:not([data-phone])) .sheet.chatsheet[data-kb] { height: min(736px, calc(100% + var(--top) + var(--bot) - 24px)); max-height: none; margin: calc(12px - var(--top)) 0 calc(12px - var(--bot)); }
+    :host(:not([data-phone])) .chatsheet[data-kb] .ainote, :host(:not([data-phone])) .chatsheet[data-kb] .shead .muted { display: none; }
+  }
   @keyframes sheet { from { opacity: 0; transform: scale(calc(1 - .06 * var(--m-d, 1))) translateY(calc(12px * var(--m-d, 1))); } }
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }

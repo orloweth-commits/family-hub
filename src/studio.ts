@@ -1,4 +1,4 @@
-import { LitElement, html, css, unsafeCSS, nothing, type TemplateResult } from 'lit';
+import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
@@ -12,12 +12,12 @@ export class FhStudio extends LitElement {
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
   static styles = [styles, css`
-    :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
+    :host { display: flex; gap: 16px; flex: 1; min-height: 0; min-width: 0; position: relative; }
     .mirror { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
     .mirror::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-phone]) { flex: none; }
-    :host([data-phone]) .grid { overflow: visible; flex: none; }
+    :host([data-phone]) .grid, :host([data-phone]) .gridwrap { overflow: visible; flex: none; }
     :host([data-shape='tall']) .mirror { width: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     /* eight tabs in two even rows of four (the picture tabs of a child who cannot read stay in one row) */
@@ -30,8 +30,29 @@ export class FhStudio extends LitElement {
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
     :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .tabs { order: 3; }
     :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .sw { order: 2; }
-    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .grid { align-content: safe end; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid { align-content: safe end; }
+    /* on a wall panel (900 px or taller) he reaches the lower half only, so his things to choose are one row along the bottom of the card that slides sideways: nothing to choose sits above his reach.
+       The row fades at the end that has more, and a big arrow there moves it along for a child who does not know to swipe. */
+    .rowgo { display: none; }
+    @media (min-height: 900px) {
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low { justify-content: flex-end; gap: 6px; padding-bottom: 12px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .gridwrap { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 4px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid { flex: 1 1 0; min-width: 0; display: flex; align-items: stretch; gap: 12px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; scroll-snap-type: x proximity; scrollbar-width: none; padding: 4px 6px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid::-webkit-scrollbar { display: none; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .cell { flex: 0 0 164px; scroll-snap-align: start; scroll-margin-left: 6px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .tile { white-space: nowrap; justify-content: center; padding: 4px 6px 5px; gap: 4px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid[data-fwd]:not([data-back]) { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid[data-back]:not([data-fwd]) { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent); }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid[data-back][data-fwd] { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px calc(100% - 56px), transparent); mask-image: linear-gradient(to right, transparent, #000 56px calc(100% - 56px), transparent); }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .rowgo { display: flex; visibility: hidden; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid[data-fwd] ~ .rowgo.fwd, :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low .grid[data-back] ~ .rowgo.back { visibility: visible; }
+      .rowgo { flex: 0 0 60px; width: 60px; height: 60px; /* token */ border-radius: 50%; align-items: center; justify-content: center; background: var(--ink); color: var(--ring-halo, #fff); }
+      .rowgo.back { order: -1; }
+    }
+    .gridwrap { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; position: relative; }
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
+    /* "Undo all" with nothing to undo is only resting: no padlock and no dashed edge in any look (those mean "locked") */
+    :host([data-look]) .sfoot .pill[disabled] { outline: none; background: var(--chip-soft); color: var(--ink2); } :host([data-look]) .sfoot .pill[disabled]::before { content: none; }
     .label { font-size: 14px; }
     /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
     :host(:not([data-shape='tall'])) .toast { left: 18px; right: auto; margin: 0; max-width: 344px; bottom: 84px; }
@@ -75,6 +96,26 @@ export class FhStudio extends LitElement {
   private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 2200); }
 
   private get _picMode(): boolean { return this.kid.mode === 'picture'; }
+  /** The fade under a list that scrolls down, and (the youngest's single row on a wall panel) which ends of the row have more. */
+  private _cue = (x: Event | Element): void => {
+    scrollCue(x);
+    const el = (x instanceof Event ? x.currentTarget : x) as HTMLElement | null; if (!el) return;
+    el.toggleAttribute('data-fwd', el.scrollWidth - el.scrollLeft - el.clientWidth > 6); el.toggleAttribute('data-back', el.scrollLeft > 6);
+  };
+  private _along(dir: number): void {
+    const g = this.renderRoot.querySelector('.grid') as HTMLElement | null; if (!g) return;
+    g.scrollBy({ left: dir * Math.max(176, g.clientWidth - 2 * 176), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  private _ro?: ResizeObserver;
+  connectedCallback(): void { super.connectedCallback(); this._ro = new ResizeObserver(() => { const g = this.renderRoot.querySelector('.grid'); if (g) this._cue(g); }); this._ro.observe(this); }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._ro?.disconnect(); }
+  protected updated(c: PropertyValues): void {
+    const g = this.renderRoot.querySelector('.grid') as HTMLElement | null; if (!g) return;
+    // a new row starts with what he is wearing in view (the row's own start when that is near it)
+    if (c.has('_tab') && g.scrollWidth > g.clientWidth + 6) { const on = g.querySelector<HTMLElement>(".tile[aria-pressed='true']")?.parentElement, gr = g.getBoundingClientRect(), r = on?.getBoundingClientRect(); g.scrollLeft = r ? Math.max(0, g.scrollLeft + r.left - gr.left - (gr.width - r.width) / 2) : 0; }
+    else if (c.has('_tab')) g.scrollLeft = 0;
+    this._cue(g);
+  }
   private get _goal(): string { return this.hass?.states[kidEntities(this.kid).goal]?.state ?? ''; }
   private _pick(cat: Category, it: Item, swatch = false): void {
     if (!isUnlocked(it, this.life, this.grow)) {
@@ -145,11 +186,11 @@ export class FhStudio extends LitElement {
       </section>
       <section class="glass shelf ${this._picMode ? 'low' : ''}">
         <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
-        ${cat.swatch ? html`<div class="sw"><span class="label" style="width:60px">${cat.swatch.label}</span>
+        ${cat.swatch ? html`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
             style="background:${s[0]}" @click=${() => this._pick(cat, s, true)}></button>`; })}</div>` : nothing}
-        <div class="grid scrolly" @scroll=${scrollCue}>
+        <div class="gridwrap"><div class="grid scrolly" @scroll=${this._cue}>
           ${cat.items.map((it) => {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<div class="cell"><button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
@@ -158,7 +199,7 @@ export class FhStudio extends LitElement {
             </button>
               ${locked && !surprise && !this._picMode ? html`<button class="heart tap" aria-pressed=${String(this._goal === it[0])} aria-label=${this._goal === it[0] ? `${it[1]} is my goal` : `Make ${it[1]} my goal`} @click=${() => this._setGoal(it)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === it[0] ? '#e11d48' : 'none'} stroke=${this._goal === it[0] ? '#9f1239' : 'currentColor'} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : nothing}</div>`;
           })}
-        </div>
+        </div>${this._picMode ? html`<button class="tap rowgo back" aria-label="Go back along the row" @click=${() => this._along(-1)}>${icon('left', 30)}</button><button class="tap rowgo fwd" aria-label="More to choose" @click=${() => this._along(1)}>${icon('right', 30)}</button>` : nothing}</div>
       </section>
       ${this._confetti ? confetti(this._confetti) : nothing}
       ${msg ? html`<div class="toast" role="status" ?data-closing=${msgOut}>${msg}</div>` : nothing}

@@ -172,6 +172,14 @@ export class FhChat extends LitElement {
     :host([data-phone]) .starters { grid-template-columns: 1fr 1fr; }
     :host([data-phone]) .send .lead { padding: 0 18px; }
     :host([data-phone]) .keys, :host([data-phone]) .kb { display: none; }
+    /* a short screen (a laptop inside Home Assistant) with the keys open: the pictures step aside and the conversation keeps at least a few lines, so every key sits inside the sheet */
+    @media (max-height: 720px) {
+      :host([kb]:not([data-phone])) .ctl > .starters { display: none; }
+      :host([kb]:not([data-phone])) .thread { min-height: 90px; }
+      :host([kb]:not([data-phone])) .keys { flex-shrink: 0; }
+    }
+    /* the three options share a row wherever their words fit; when the column is too narrow even for the bare words, they wrap rather than spill out of their buttons */
+    :host(:not([data-phone])) .opts { flex-wrap: wrap; } :host([data-look]:not([data-phone])) .opts .pill { min-width: max-content; padding: 0 4px; }
   `];
 
   static properties = {
@@ -215,7 +223,7 @@ export class FhChat extends LitElement {
     this._reset();
   }
   protected updated(c: PropertyValues): void {
-    if (c.has('_keys')) this.toggleAttribute('kb', this._keys);
+    if (c.has('_keys')) { this.toggleAttribute('kb', this._keys); this.parentElement?.toggleAttribute('data-kb', this._keys); /* the sheet around it makes room for the keys on a short screen */ }
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
 
