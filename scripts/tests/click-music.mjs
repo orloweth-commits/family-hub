@@ -292,6 +292,12 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   console.log('grocery ticked at once and stays put:', await G.locator('button.item', { hasText: name }).first().evaluate((e) => e.classList.contains('done')), JSON.stringify(before) === JSON.stringify(mid), '| min row height:', Math.min(...await G.locator('button.item').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)))));
   await g.waitForTimeout(4300); console.log('then moves to the trolley:', JSON.stringify(await G.locator('button.item').allTextContents()) !== JSON.stringify(mid)); await g.close(); }
 await polish();
+// a speaker that is not on the house map (another network's, say) is never swept up by Whole house or Everyone
+{ const p = await open('look=glass&page=music&mview=list&mextra=1'); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); return { all: m._list.length, home: m._homeList.length, extraInHome: m._homeList.some((x) => x.entity_id === 'media_player.boardroom') }; });
+  await p.evaluate(() => { window.__calls = []; const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); m._everywhere(true, m._list.find((x) => x.state === 'playing')); }); await p.waitForTimeout(500);
+  const joined = await p.evaluate(() => (window.__calls || []).filter((c) => c.includes('media_player.join')).join(' '));
+  console.log('unmapped speaker: listed', r.all, '| counts as the house', r.home, '| swept up by Whole house:', r.extraInHome || /boardroom/.test(joined), '(expect false)'); await p.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
 

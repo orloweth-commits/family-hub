@@ -1,6 +1,6 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 import { loadFonts } from './fonts';
-import { getNarrow, getShape, onShape } from './util';
+import { getNarrow, getShape, onShape, setSoundLook } from './util';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -368,6 +368,7 @@ const subs = new Set<() => void>();
 export const getLook = (): LookId => current;
 export const setLook = (id: LookId): void => {
   current = lookById(id).id;
+  setSoundLook(current);
   loadLookFonts(current);
   subs.forEach((f) => f());
 };

@@ -698,9 +698,17 @@ export class FhMusic extends LitElement {
   private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
   /** True when the music that is playing is already in every room that can be reached. */
+  /** The speakers that count as "the whole house": the ones on the house map when there is one. A speaker Home Assistant has found that is not on the map
+   *  (a neighbour's, or one on another network the laptop has joined) can still be played to by itself, but never by "Whole house", "Everyone" or an "all rooms" pad. */
+  private get _homeList(): HassEntity[] {
+    const list = this._list; if (!this.map?.length || !this.hass) return list;
+    const ids = new Set<string>();
+    for (const f of this.map) for (const r of f.rooms ?? []) for (const z of r.zones ?? (r.player ? [{ player: r.player }] : [])) { const p = findRoom(this.hass, list, z.player); if (p) ids.add(p.entity_id); }
+    return ids.size ? list.filter((p) => ids.has(p.entity_id)) : list;
+  }
   private get _allJoined(): boolean {
     const src = this._source(); if (!src) return false;
-    const lead = this._leader(src) ?? src, mix = this._mix(lead), others = this._list.filter((x) => !this._off(x) && x.entity_id !== lead.entity_id);
+    const lead = this._leader(src) ?? src, mix = this._mix(lead), others = this._homeList.filter((x) => !this._off(x) && x.entity_id !== lead.entity_id);
     return others.length > 0 && others.every((x) => mix.includes(x.entity_id));
   }
   private _spread(): void {
@@ -713,7 +721,7 @@ export class FhMusic extends LitElement {
     if (!p) return;
     if (this._off(p)) { this._say(`${this._name(p)} is offline`); return; }
     if (!on) { for (const id of this._mix(p)) this._h.callService('media_player', 'unjoin', {}, { entity_id: id }).catch((e: unknown) => this._oops('Couldn’t take that room out', e)); return; }
-    const h = this._h, was = this._mix(p), ids = this._list.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id), off = this._offline.map((x) => this._name(x));
+    const h = this._h, was = this._mix(p), ids = this._homeList.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id), off = this._offline.map((x) => this._name(x));
     if (!ids.length) { this._say(off.length ? 'Every other speaker is offline' : 'There is only one speaker'); return; }
     // what each other room was doing, so one tap can put it back
     const groups = this._list.filter((x) => x.entity_id !== p.entity_id && !was.includes(x.entity_id) && this._leader(x)?.entity_id === x.entity_id).map((x) => ({ id: x.entity_id, members: this._mix(x), playing: x.state === 'playing' }));
@@ -816,10 +824,10 @@ export class FhMusic extends LitElement {
   private _moment(m: MomentConfig): void {
     const h = this._h, list = this._list, cur = this._cur;
     const all = m.rooms === 'all', ask: string[] = Array.isArray(m.rooms) ? m.rooms : [], put = this._padSet[m.name];
-    const gone = (all ? list : ask.map((id) => findRoom(h, list, id)).filter((p): p is HassEntity => !!p)).filter((p) => this._off(p)).map((p) => this._name(p));
+    const gone = (all ? this._homeList : ask.map((id) => findRoom(h, list, id)).filter((p): p is HassEntity => !!p)).filter((p) => this._off(p)).map((p) => this._name(p));
     const named = ask.map((id) => findRoom(h, list, id) ?? (h.states[id]?.entity_id.startsWith('media_player.') ? h.states[id] : undefined)).filter((p): p is HassEntity => !!p);
     // every room: the one in focus leads and the others join it
-    const rooms = (all ? [...(cur ? [cur] : []), ...list.filter((p) => p.entity_id !== cur?.entity_id)] : named.length ? named : cur ? [cur] : []).filter((p) => !this._off(p));
+    const home = this._homeList, rooms = (all ? [...(cur && home.includes(cur) ? [cur] : []), ...home.filter((p) => p.entity_id !== cur?.entity_id)] : named.length ? named : cur ? [cur] : []).filter((p) => !this._off(p));
     if (!rooms.length) { this._say(this._offline.length ? 'Those speakers are offline' : 'No speaker to play on'); return; }
     if (named.length < ask.length) console.warn('Family Hub: a moment names a speaker that was not found', m);
     const run = async (): Promise<void> => {
@@ -1344,7 +1352,7 @@ export class FhMusic extends LitElement {
 
   /** Call a room. The rooms and the ready messages are always in reach: as a little house and speech bubbles, or, while the keyboard is up, as a row of room chips and a row of pictures. */
   private _callTab(): TemplateResult {
-    const all = this._list.filter((p) => !this._off(p)).map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
+    const all = this._homeList.filter((p) => !this._off(p)).map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
     const flip = (id: string): void => { this._callTo = this._callTo.includes(id) ? this._callTo.filter((x) => x !== id) : [...this._callTo, id]; };
     // a ready message chosen before any room: say what is missing straight away, not after "Say it"
     const pick = (m: string): void => { this._callMsg = m; if (!this._callTo.length) this._say('Choose a room first'); };
