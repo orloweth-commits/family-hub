@@ -54,7 +54,7 @@ export class FhMusic extends LitElement {
     .stage { --ring-halo: #111; } .stage :is(button, [role='slider'], [role='switch'], [tabindex]):focus-visible { outline-color: #fff; }
     .stage > *:not(.bg) { position: relative; }
     .deck { flex: 1 1 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform var(--mt-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
+    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform var(--mt-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
     .cover.paused { transform: scale(.9); }
     .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
     .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width calc(1s * var(--m-d, 1)) linear; }
@@ -90,8 +90,8 @@ export class FhMusic extends LitElement {
     :host([data-full]) .stage { display: none; }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 52px; height: 48px; padding: 0; } .tabs.inline button span { display: none; }
     .nowbar { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46%; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--chip); }
-    .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
-    .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); }
+    .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
+    .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .ntx b { font-size: 15px; } .ntx span { font-size: 14px; }
@@ -128,7 +128,7 @@ export class FhMusic extends LitElement {
     .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 15px; position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
     .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
+    .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--mark, var(--primary)) 30%, transparent) 28%, transparent 28%); }
     .mz[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
     .shout { display: flex; animation: shout .7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -259,7 +259,7 @@ export class FhMusic extends LitElement {
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
     .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
-    .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
     .pickrow.played .art { filter: grayscale(.8); }
@@ -272,11 +272,11 @@ export class FhMusic extends LitElement {
     .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
     .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 14px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
     .when i { font-style: normal; display: inline-flex; }
-    .pickrow[data-next] .when { background: var(--primary); color: var(--on-primary); }
+    .pickrow[data-next] .when { background: var(--mark, var(--primary)); color: var(--on-mark, var(--on-primary)); }
     .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
-    .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
+    .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .soft { color: var(--ink2); font-size: 14px; font-weight: var(--w-semi, 600); }
 
     /* ---- the house: rooms you can see, music you can pick up ---- */
@@ -334,7 +334,7 @@ export class FhMusic extends LitElement {
     :host([data-look='orbit']) .jsw[aria-checked='true'] i { background: var(--accent); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
     .puck { position: absolute; left: 50%; bottom: 12px; width: 68px; height: 68px; margin-left: -40px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; touch-action: none; cursor: grab;
-      background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
+      background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
     .mzone[data-playing] .puck { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes puck { to { transform: rotate(360deg); } }
     .puck[data-lifted] { opacity: .3; animation: none; }
