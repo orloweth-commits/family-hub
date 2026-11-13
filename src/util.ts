@@ -32,9 +32,11 @@ export const daySlot = (bedtime = '20:00', d = new Date()): Slot => {
   if (n >= hm(bedtime) - 60) return 'bed';
   return 'after';
 };
-/** Fri and Sat nights get an extra half hour. */
+/** Fri and Sat nights get an extra half hour, or whatever the family has set (the card's `bedtime_weekend_extra`). */
+let weekendExtra = 30;
+export const setWeekendExtra = (mins: number | undefined): void => { weekendExtra = Number.isFinite(mins) ? Math.max(0, Math.min(180, Number(mins))) : 30; };
 export const bedtimeFor = (base: string | undefined, d = new Date()): string => {
-  const b = hm(base ?? '20:00') + ([5, 6].includes(d.getDay()) ? 30 : 0);
+  const b = hm(base ?? '20:00') + ([5, 6].includes(d.getDay()) ? weekendExtra : 0);
   return `${Math.floor(b / 60)}:${String(b % 60).padStart(2, '0')}`;
 };
 export const windDown = (bedtime: string | undefined, d = new Date()): boolean => {
@@ -118,6 +120,14 @@ export const isSchoolDay = (d: Date, terms: [string, string][] = [], holidays: s
 export const isQuiet = (d = new Date(), start = '19:30', end = '07:00'): boolean => {
   const n = minsNow(d), a = hm(start), b = hm(end);
   return a <= b ? n >= a && n < b : n >= a || n < b;
+};
+/**
+ * "After bedtime": the one test for everything that is a grown-up's call at night (Ask, All on, music in the whole house, calling a room).
+ * True in the household's quiet hours, and from any child's bedtime until the quiet hours end (never before 5 am).
+ */
+export const afterBedtime = (kids: { bedtime?: string }[] = [], quiet: { start?: string; end?: string } = {}, d = new Date()): boolean => {
+  const n = minsNow(d), wake = Math.max(5 * 60, hm(quiet.end ?? '06:30'));
+  return isQuiet(d, quiet.start ?? '20:00', quiet.end ?? '06:30') || kids.some((k) => n >= hm(bedtimeFor(k.bedtime, d)) || n < wake);
 };
 
 /* ---------------- sound: the palettes live in sound.ts; this keeps the old imports working ---------------- */

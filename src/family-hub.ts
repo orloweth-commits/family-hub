@@ -15,6 +15,10 @@ import './morning';
 import './addevent';
 import './pin';
 import './chat';
+import './settings';
+import { configError } from './validate';
+import { pinFresh, resumeNow } from './settings-store';
+import { setWeekendExtra } from './util';
 import { loadFonts } from './fonts';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -24,7 +28,7 @@ import { kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyH
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
-import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { afterBedtime, bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 /** The picture for a day with nothing on: a kite in the sun. */
 const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -34,8 +38,8 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event';
-const VERSION = '0.26.1';
+type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
+const VERSION = '0.27.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -90,6 +94,8 @@ export class FamilyHubCard extends LitElement {
     if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
   }
   protected willUpdate(ch: PropertyValues): void {
+    // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
+    if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
     if (ch.has('_page') && this._page === 'doodle') this._doodleLow = ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture';
     // remember what opened a sheet, so focus can go back to it when the sheet closes
     // (a sheet that opens after the PIN pad goes back to whatever opened the pad)
@@ -143,6 +149,8 @@ export class FamilyHubCard extends LitElement {
   private _kid = 0;
   private _photo = '';
   private _musicFocus = '';
+  /** the child whose page Music was opened from (his calm setting applies there), or '' */
+  private _musicKid = '';
   private _photos: string[] = [];
   private _photoIdx = 0;
   private _photoTimer?: number;
@@ -162,14 +170,10 @@ export class FamilyHubCard extends LitElement {
   private _toastTimer?: number;
 
   setConfig(config: FamilyHubConfig): void {
-    if (!config) throw new Error('Family Hub: missing configuration');
-    for (const k of config.kids ?? []) if (!k.name) throw new Error('Family Hub: every kid needs a name');
-    for (const m of config.meds ?? []) if (!m?.id || !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(m.time ?? ''))) throw new Error('Family Hub: every medicine in "meds" needs an id and a time like "06:30"');
-    for (const t of [config.night?.start, config.night?.end]) if (t !== undefined && !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(t))) throw new Error('Family Hub: night start and end need times like "21:00"');
+    // the rules live in validate.ts, where Settings applies the same ones before it saves
+    const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
-    for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) throw new Error(`Family Hub: "${c.entity}" isn't a calendar entity`);
-    if (config.parent_pin !== undefined && !/^\d{4,8}$/.test(String(config.parent_pin))) throw new Error('Family Hub: parent_pin should be 4–8 digits (put it in quotes)');
-    if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') throw new Error('Family Hub: sounds should be true, false or quiet');
+    setWeekendExtra(config.bedtime_weekend_extra);
     this._config = config;
     let snd: string | null = null;
     try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
@@ -194,6 +198,8 @@ export class FamilyHubCard extends LitElement {
     this.addEventListener('click', this._tapMark, true); this.addEventListener('click', this._tapSfx);
     loadFonts('Inter', 'Bricolage Grotesque');
     this._tick = window.setInterval(() => this._onTick(), 1000);
+    // Settings was open when the dashboard drew the card again (it does after a save): it comes back open, on the same pane
+    if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
     window.addEventListener('keydown', this._keys);
@@ -830,7 +836,7 @@ export class FamilyHubCard extends LitElement {
   private async _allOn(checked = false): Promise<void> {
     if (this._sceneBusy) return;
     // after any child's bedtime a wall of light is a grown-up's call
-    const c = this._config, n = minsNow(), late = (c.kids ?? []).some((k) => n >= hm(bedtimeFor(k.bedtime)) || n < hm(c.quiet?.end ?? '06:30'));
+    const c = this._config, late = afterBedtime(c.kids, c.quiet);
     if (!checked && late && c.parent_pin) { this._pinAsk = { reason: 'It is after bedtime. Turn the lights on?', run: () => void this._allOn(true) }; return; }
     const ids = c.all_on, S = this.hass?.states ?? {};
     // only what this tap turns on can be undone: lights that were already on stay on
@@ -844,16 +850,34 @@ export class FamilyHubCard extends LitElement {
     if (!off.length) { this._say(what); return; }
     this._say(what, 10_000, { label: 'Undo', run: () => { void this._call('light', 'turn_off', { entity_id: off }).then((done) => { if (done) this._say('Back off'); }); } });
   }
+  /**
+   * What "All off" leaves alone: everything named in `keep_on`, anything inside a group named there, and any group that has one of
+   * those inside it (switching the group off would switch its kept member off with it; its other members are still switched off one by one).
+   */
+  private _kept(): Set<string> {
+    const S = this.hass?.states ?? {}, kept = new Set<string>();
+    const inside = (id: string): string[] => { const m = S[id]?.attributes.entity_id; return Array.isArray(m) ? m.filter((x): x is string => typeof x === 'string') : []; };
+    const add = (id: string): void => { if (kept.has(id)) return; kept.add(id); inside(id).forEach(add); };
+    (this._config.keep_on ?? []).forEach(add);
+    if (!kept.size) return kept;
+    // groups that hold something kept, however deep
+    for (let grew = true; grew;) { grew = false; for (const id of Object.keys(S)) if (!kept.has(id) && inside(id).some((m) => kept.has(m))) { kept.add(id); grew = true; } }
+    return kept;
+  }
   private async _allOff(): Promise<void> {
     if (this._sceneBusy) return;
-    const on = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').map((s) => s.entity_id);
-    if (!on.length) { this._say('Everything’s already off'); return; }
+    const lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on'), kept = this._kept();
+    const on = lit.filter((s) => !kept.has(s.entity_id)).map((s) => s.entity_id);
+    // how many things stay on: the lights themselves, not the groups that only hold them
+    const stay = lit.filter((s) => kept.has(s.entity_id)), leaves = stay.filter((s) => !Array.isArray(s.attributes.entity_id)), n = (leaves.length || stay.length);
+    const keptSay = n ? ` (${n} thing${n === 1 ? '' : 's'} kept on)` : '';
+    if (!on.length) { this._say(n ? `Nothing else to turn off${keptSay}` : 'Everything’s already off'); return; }
     this._sceneBusy = true;
     const ok = await this._call('light', 'turn_off', { entity_id: on });
     this._sceneBusy = false;
     if (!ok) return;
     sfx('untick');
-    this._say('Lights off', 10_000, { label: 'Undo', run: () => { void this._call('light', 'turn_on', { entity_id: on }).then((ok2) => { if (ok2) this._say('Back on'); }); } });
+    this._say(n ? `All off${keptSay}` : 'Lights off', 10_000, { label: 'Undo', run: () => { void this._call('light', 'turn_on', { entity_id: on }).then((ok2) => { if (ok2) this._say('Back on'); }); } });
   }
   /** A timed job tagged @song: play the tidy-up song on the child's speaker for that long, then fade it out. */
   private _tidySong(k: KidConfig, minutes: number): void {
@@ -888,8 +912,8 @@ export class FamilyHubCard extends LitElement {
   }
   /** Ask, the children's chat. After any child's bedtime, and in quiet hours, it is for grown-ups to open. */
   private _chatLate(now = new Date()): boolean {
-    const c = this._config, n = minsNow(now);
-    return isQuiet(now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30') || (c.kids ?? []).some((k) => n >= hm(bedtimeFor(k.bedtime, now)) || n < 5 * 60);
+    const c = this._config;
+    return afterBedtime(c.kids, c.quiet, now);
   }
   private _openChat(): void {
     const c = this._config, open = (): void => { this._sheet = 'chat'; };
@@ -913,7 +937,8 @@ export class FamilyHubCard extends LitElement {
     // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
     const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
     const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
-    const kp = this._kp, calm = this._config.calm === false ? false : kp ? kp.calm : this._config.calm === true;
+    const kp = this._kp, mk = this._page === 'music' && this._musicKid ? this._config.kids?.find((k) => k.name === this._musicKid) : undefined;
+    const calm = this._config.calm === false ? false : kp ? kp.calm : mk ? kidPrefs(mk).calm || this._config.calm === true : this._config.calm === true;
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
@@ -1054,7 +1079,7 @@ export class FamilyHubCard extends LitElement {
           ${c.chat?.agent ? html`<button class="glass tap round" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}</button>` : nothing}
           <button class="glass tap round" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}</button>
           ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round" data-act="meds" aria-label="Medication" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}</button>` : nothing}
-          ${(c.babysitter || c.emergency) && !kid ? html`<button class="glass tap round" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}</button>` : nothing}
+          ${!kid ? html`<button class="glass tap round" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}</button>` : nothing}
           <button class="glass tap round" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
         </div>
       </header>`;
@@ -1256,9 +1281,15 @@ export class FamilyHubCard extends LitElement {
       <span style="line-height:0">${icon('timer', 96)}</span><span class="display" style="font-size:64px;font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${panelMsg(this.hass)?.t || 'Timer’s done!'}</span><span style="font-size:20px;font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
   }
 
+  /** Settings is for grown-ups: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
+  private _openSettings(): void {
+    const open = (): void => { this._sheet = 'settings'; };
+    if (this._config.parent_pin && !pinFresh()) this._pinAsk = { reason: 'Open Settings?', sheet: 'sitter', run: open }; else open();
+  }
   private _sheetView(s: Sheet, out: boolean): TemplateResult | typeof nothing {
     if (!s) return nothing;
     const close = () => { this._sheet = ''; };
+    if (s === 'settings') return html`<fh-settings .hass=${this.hass} .config=${this._config} ?data-closing=${out} @close=${close} @fh-config=${(e: CustomEvent<FamilyHubConfig>) => this.setConfig(e.detail)}></fh-settings>`;
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { if (this._sheet === 'add') close(); this._say(`Added: ${e.detail}`); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not added: Home Assistant did not answer`, 8000)}></fh-add-event>`;
@@ -1273,9 +1304,10 @@ export class FamilyHubCard extends LitElement {
       <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
-  private _sheetHead(title: string, sub = '', ic = ''): TemplateResult {
+  private _sheetHead(title: string, sub = '', ic = '', extra: TemplateResult | typeof nothing = nothing): TemplateResult {
     return html`<div class="shead">
       <div style="flex:1;min-width:0"><h2 class="t-head">${ic ? html`<span style="color:var(--accent);line-height:0">${icon(ic, 26)}</span>` : nothing}${title}</h2>${sub ? html`<span class="muted">${sub}</span>` : nothing}</div>
+      ${extra}
       <button class="round tap xbtn" aria-label="Close" @click=${() => { this._sheet = ''; }}>${icon('close', 20)}</button></div>`;
   }
   private _themeBody(): TemplateResult {
@@ -1456,7 +1488,8 @@ export class FamilyHubCard extends LitElement {
     if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow"><span>Password</span><b>${b.wifi.password}</b></div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);
-    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors', 'info')}
+    const cog = html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${icon('cog', 22)}</button>`;
+    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors', 'info', cog)}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
           ${b.address ? html`<span class="sosaddr">You are at <b>${b.address}</b></span>` : nothing}</div>

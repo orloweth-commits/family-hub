@@ -20,9 +20,12 @@ const ALL = [
   ['weather', 'page=weather'], ['weather-rain', 'page=weather&wx=rain'], ['weather-nobom', 'page=weather&bom=0'], ['planner-rain', 'page=planner&wx=rain'],
   ['home', 'page=home'], ['morning', 'page=morning', '07:10'], ['night', 'page=planner&night=1', '22:30'], ['planner-calm', 'page=planner&calm=1'],
   ['planner-bedtime', 'page=planner', '19:45'], ['kid2-bedtime', 'page=kid&kid=2', '19:45'], ['music-house-quiet', 'page=music&mview=house', '20:30'], ['music-scene-quiet', 'page=music&mview=scene', '20:30'], ['music-call-quiet', 'page=music&mtab=call', '20:30'], ['planner-morning', 'page=planner', '06:45'],
+  // Settings (the cog on the house-info sheet): every pane, and the states that explain themselves
+  ...['children', 'children&stab=jobs', 'rewards', 'morning', 'medicines', 'pin', 'house', 'music&moments=1', 'people', 'advanced'].map((p) => ['settings-' + p.replace(/&.*/, '') + (p.includes('jobs') ? '-jobs' : ''), 'page=planner&sheet=settings&pane=' + p]),
+  ['settings-readonly', 'page=planner&sheet=settings&pane=children&admin=0'], ['settings-yaml', 'page=planner&sheet=settings&pane=house&yaml=1'], ['settings-nopin', 'page=planner&sheet=settings&nopin=1'], ['settings-keys', 'page=planner&sheet=settings&pane=people&keys=1'],
   ['planner-many', 'page=planner&events=many'], ['planner-day-many', 'page=planner&view=day&events=many'], ['planner-month-many', 'page=planner&view=month&events=many'], ['planner-long', 'page=planner&events=long'], ['planner-none', 'page=planner&events=none&empty=1'], ['groceries-empty', 'page=groceries&empty=1'],
 ];
-const CORE = ['planner-week', 'sheet-add', 'kid0', 'kid2', 'groceries', 'music-house', 'music-scene', 'weather-rain', 'home', 'sheet-meds', 'sheet-sitter'];
+const CORE = ['settings-children', 'settings-rewards', 'settings-house', 'planner-week', 'sheet-add', 'kid0', 'kid2', 'groceries', 'music-house', 'music-scene', 'weather-rain', 'home', 'sheet-meds', 'sheet-sitter'];
 const SIZES = [['wall', 1920, 1080], ['ha', 1312, 668], ['tall', 820, 1180], ['phone', 390, 844]];
 const jobs = [];
 for (const [ln, lq] of LOOKS) for (const [n, q, t] of ALL) jobs.push({ f: `${ln}/${n}`, q: `${lq}&${q}`, t, w: 1280, h: 800 });

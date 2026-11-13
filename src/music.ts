@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
+import { afterBedtime, bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
@@ -54,7 +54,7 @@ export class FhMusic extends LitElement {
     .stage { --ring-halo: #111; } .stage :is(button, [role='slider'], [role='switch'], [tabindex]):focus-visible { outline-color: #fff; }
     .stage > *:not(.bg) { position: relative; }
     .deck { flex: 1 1 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform var(--mt-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
+    .cover { height: 100%; max-height: 250px; aspect-ratio: 1; border-radius: 22px; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 20px 50px -12px rgba(0,0,0,.6); transition: transform var(--mt-4, 400ms) cubic-bezier(.2,1.2,.3,1); }
     .cover.paused { transform: scale(.9); }
     .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
     .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width calc(1s * var(--m-d, 1)) linear; }
@@ -90,8 +90,8 @@ export class FhMusic extends LitElement {
     :host([data-full]) .stage { display: none; }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 52px; height: 48px; padding: 0; } .tabs.inline button span { display: none; }
     .nowbar { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46%; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--chip); }
-    .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
-    .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); }
+    .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
+    .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .ntx b { font-size: 15px; } .ntx span { font-size: 14px; }
@@ -128,7 +128,7 @@ export class FhMusic extends LitElement {
     .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 15px; position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
     .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--primary) 30%, transparent) 28%, transparent 28%); }
+    .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--mark, var(--primary)) 30%, transparent) 28%, transparent 28%); }
     .mz[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
     .shout { display: flex; animation: shout .7s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -223,8 +223,16 @@ export class FhMusic extends LitElement {
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
-    /* a family with a child who cannot read yet, on a tall wide screen (the wall panel): he reaches the lower half only, so the coins and "adds a song" go under the night's picks */
-    @media (min-height: 900px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
+    /* a family with a child who cannot read yet, on a wide screen (the wall panel, a laptop): he reaches the lower half only, so the coins and "adds a song" go under the night's picks. A phone and a portrait tablet keep the order they had */
+    @media (min-height: 640px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
+    /* a shorter wide screen (a laptop, the panel inside Home Assistant's frame): the same arrangement, and the night's picks become short rows so a whole pick, with its word, still shows above the coins */
+    @media (min-height: 640px) and (max-height: 739px) {
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow { grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .pickrow { display: grid; grid-template-columns: 68px minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 10px; align-items: center; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .pcover { grid-row: 1 / 3; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .nm { min-height: 0; align-self: end; }
+      :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .when { align-self: start; justify-self: start; }
+    }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
@@ -251,7 +259,7 @@ export class FhMusic extends LitElement {
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
     .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
-    .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
     .pickrow.played .art { filter: grayscale(.8); }
@@ -264,11 +272,11 @@ export class FhMusic extends LitElement {
     .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
     .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 14px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
     .when i { font-style: normal; display: inline-flex; }
-    .pickrow[data-next] .when { background: var(--primary); color: var(--on-primary); }
+    .pickrow[data-next] .when { background: var(--mark, var(--primary)); color: var(--on-mark, var(--on-primary)); }
     .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
-    .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
+    .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .soft { color: var(--ink2); font-size: 14px; font-weight: var(--w-semi, 600); }
 
     /* ---- the house: rooms you can see, music you can pick up ---- */
@@ -326,7 +334,7 @@ export class FhMusic extends LitElement {
     :host([data-look='orbit']) .jsw[aria-checked='true'] i { background: var(--accent); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
     .puck { position: absolute; left: 50%; bottom: 12px; width: 68px; height: 68px; margin-left: -40px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; touch-action: none; cursor: grab;
-      background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
+      background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
     .mzone[data-playing] .puck { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
     @keyframes puck { to { transform: rotate(360deg); } }
     .puck[data-lifted] { opacity: .3; animation: none; }
@@ -702,8 +710,10 @@ export class FhMusic extends LitElement {
     this._gentle(id, () => { this._h.callService('media_player', 'join', { group_members: [id] }, { entity_id: src.entity_id })
       .then(() => { if (!mine) this._say(`${this._name(this.hass!.states[id])} joined the music in ${this._name(src)}`); }).catch((e: unknown) => this._oops('Couldn’t add that room', e)); });
   }
-  /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
-  private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
+  /** After bedtime: the same test the card uses for Ask and All on (quiet hours, or any child's bedtime has passed). */
+  private get _late(): boolean { return afterBedtime(this.kids, this.quiet); }
+  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a grown-up (when a PIN is set). */
+  private _wholeHouse(run: () => void): void { if (this._late) this._guard('It is after bedtime. Whole-house music plays in the bedrooms too.', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
   /** True when the music that is playing is already in every room that can be reached. */
   /** The speakers that count as "the whole house": the ones on the house map when there is one. A speaker Home Assistant has found that is not on the map
@@ -859,7 +869,9 @@ export class FhMusic extends LitElement {
       } catch (e: unknown) { this._oops(`${m.name} couldn’t start`, e); }
       finally { this._momentBusy = ''; }
     };
-    if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`${m.name} plays in a bedroom after bedtime. Play anyway?`, () => { run(); }); else run();
+    // an all-rooms pad is whole-house music: free by day, a grown-up's call after bedtime. A pad for named rooms asks only when one of them is a bedroom after its bedtime.
+    if (all) this._wholeHouse(() => { void run(); });
+    else if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`It is after bedtime. ${m.name} plays in a bedroom.`, () => { void run(); }); else void run();
   }
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. */
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. A tap, or a turn of a few degrees, is not a turn: the song stays where it is. */
@@ -1114,8 +1126,9 @@ export class FhMusic extends LitElement {
     if (!tts) { this._say('Home Assistant has no voice set up for speaking'); return; }
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     // each room's own bedtime comes first; the household's quiet time covers the rest
-    const quiet = isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30'), abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
-    if (!checked && this.pin && (quiet || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `${this._name(this.hass!.states[abed[0]])} is asleep. Call anyway?` : quiet ? 'Quiet time. Call anyway?' : 'A typed message needs a grown-up.', run: () => void this._call(true) }; return; }
+    // by day anyone may call any room (the parents' room too) with a ready message. After bedtime a call wakes people, so it asks a grown-up. A message typed in is always a grown-up's.
+    const late = this._late, abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
+    if (!checked && this.pin && (late || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `It is after bedtime. ${this._name(this.hass!.states[abed[0]])} is asleep.` : late ? 'It is after bedtime. A call now could wake someone.' : 'A typed message is spoken out loud. That needs a grown-up.', run: () => void this._call(true) }; return; }
     this._lastCall = Date.now();
     const h = this._h, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
     // each room answers true when Home Assistant took the call; the toast says "Calling" only for rooms that did
@@ -1348,7 +1361,7 @@ export class FhMusic extends LitElement {
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:15px" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
         ${j.picks.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
-      ${j.picks.length ? html`<div class="picks scrolly" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
+      ${j.picks.length ? html`<div class="picks scrolly ${jlow}" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
         : html`<div class="empty"><span style="color:var(--ink2)">${icon('jukebox', 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
 

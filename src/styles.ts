@@ -30,6 +30,7 @@ export const styles = css`
   /* one grammar under the three looks (claude/family-hub-foreground-spec.md): timings, the selected style, the lead action */
   .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
     --mt-1: calc(var(--m-1) * var(--m-d)); --mt-2: calc(var(--m-2) * var(--m-d)); --mt-3: calc(var(--m-3) * var(--m-d)); --mt-4: calc(var(--m-4) * var(--m-d)); --mt-5: calc(var(--m-5) * var(--m-d));
+    /* a look whose primary colour means ACTION only (Home Ground's yellow) sets --mark / --on-mark for things that are merely current (the next pick, a level, a room that is live) and --art-none for music with no picture; left unset, those use the primary */
     /* selected: a filled tint with no border, so it never reads as an outlined action */ --sel-bg: color-mix(in srgb, var(--primary) 26%, var(--chip-strong)); --sel-ink: var(--ink); --sel-ring: none; --danger: #c62828;
     /* sizes: three control heights, the gutters, the right rail, and where sheets may sit (below the header, above the dock) */
     --ctl: 44px; --ctl-2: 52px; --ctl-3: 60px; --pad-y: 20px; --pad-x: 24px; --gap: 16px; --rail: 272px; --top: 110px; --bot: 122px; --scrim: rgba(6,16,28,.52); }
@@ -128,8 +129,10 @@ export const styles = css`
   .cap { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
     border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
-  .cap .mwho { max-width: 18ch; }
+  /* the names on a medication chip never shrink away (a look may cap the chip at the row's width): the row then counts as too full, and lesser things step aside first */
+  .cap .mwho { max-width: 18ch; flex-shrink: 0; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
+  .capsule[data-one] .cap .mwho { flex-shrink: 1; }
   .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
@@ -238,7 +241,7 @@ export const styles = css`
   .col[data-wrap] .ev .loc { align-items: flex-start; } .col[data-wrap] .ev .loc svg { margin-top: 1px; }
   .col[data-wrap] .ev .loc .ell { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .xpbar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
-  .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width var(--mt-5); }
+  .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--mark, var(--primary)), var(--mark, var(--accent))); border-radius: 4px; transition: width var(--mt-5); }
 
   .daylist { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
   .daylist[data-fit] { gap: 6px; }
@@ -293,7 +296,7 @@ export const styles = css`
   .fh[data-compact] aside > .card.np { flex-direction: row; align-items: center; }
   .fh[data-compact] aside > .card.np .np-main { flex: 1; min-width: 0; }
   .fh[data-compact] aside > .card.np .ctl button:not(.round) { display: none; }
-  .art { width: 56px; height: 56px; border-radius: 12px; background: var(--pic, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; flex-shrink: 0; }
+  .art { width: 56px; height: 56px; border-radius: 12px; background: var(--pic, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; flex-shrink: 0; }
   .progress { height: 4px; border-radius: 2px; background: var(--track); }
   .progress > div { height: 4px; border-radius: 2px; background: var(--ink); }
   .timerrow { display: flex; align-items: center; gap: 10px; }

@@ -8,8 +8,9 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - All lights on / off, announcement button, night mode photo-frame clock
 - Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets), Orbit (dark, built from rings) or Home Ground (`sports`: a local clubhouse on a quiet morning, with mown lanes for the week, a scoreboard that only shows the time, people in bibs with their initials, a different ball each day, and floodlights in the evening; all drawn as plain generic objects, and nothing ever compares one child with another). Set a default with `look: fridge` in the card config.
 - Per-child settings (palette button on a child's page, behind the parent PIN): his own look, print or handwriting, one job at a time (Now / Next / Later), calm mode and sound level. Defaults can be set per kid in the config: `look_id`, `font`, `focus`, `calm`, `sound_level`.
-- Morning board shows team progress (one row of stars everyone fills together), never child against child.
-- Calm mode: on the kids' pages looping motion runs once and tilted cards sit straight. `calm: true` applies it everywhere, `calm: false` turns it off.
+- Morning board shows team progress (one row of stars everyone fills together), never child against child. Time is shown once, for the whole family: one clock that empties towards the next time anyone leaves, with the minutes left and the time in numerals and words. A column says when its own child leaves, with no bar and no count.
+- A child’s rank is shown on that child’s own page and nowhere else.
+- Calm mode: on the kids' pages looping motion runs once and tilted cards sit straight. A child’s calm setting goes with him to the Music page when Music is opened from his page (nothing loops; records stand still). `calm: true` applies it everywhere, `calm: false` turns it off.
 - Looks stay linked to the base through a small contract (`HOOKS` in `src/looks.ts`), checked on every build by `npm run check:looks`. `preview/index.html` and `npm run shots` show every screen in every look with sample data.
 - Looks restyle text through type roles and weight tokens rather than fixed sizes, and never use `!important` (the look check refuses it). Each look can also add drawings of its own: Orbit shows the day view as a clock face with the list beside it, and each look has its own night clock.
 - Colour is never the only cue for a person: chips carry an initial as well (kept distinct when two names start alike).
@@ -29,7 +30,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
       - { name: Dinner, find: "dinner jazz", rooms: [media_player.lounge], volume: 25 }
       - { name: Wind down, find: "sleep sounds", rooms: [media_player.kids_room], volume: 15 }
     ```
-  - After a child’s bedtime their bedroom is asleep: anything that would start music there (adding the room, a record, the play key, Radio, Search, a pad, moving music there) asks for the parent PIN first. Pausing, turning down and taking the room out never ask. Call a room asks for the PIN in quiet time, for a sleeping room, and for a typed message; the ready-made messages are free by day. Three wrong PINs rest the pad for a minute.
+  - After a child’s bedtime their bedroom is asleep: anything that would start music there (adding the room, a record, the play key, Radio, Search, a pad, moving music there) asks for the parent PIN first. Pausing, turning down and taking the room out never ask. Music for the whole house (Whole house, a pad for all rooms, a record dropped on the whole house) and Call a room (the parents’ room included) are free by day. After bedtime they ask for the parent PIN, and the pad says why. “After bedtime” is one test, the same one Ask and All on use: the `quiet` hours, or from any child’s bedtime until the quiet hours end. A typed message to a room always asks. Three wrong PINs rest the pad for a minute.
   - Whole house and the jukebox’s Clear can be undone from the message that follows. A second tap on Sleep fade cancels it. A jukebox turn starts with pictures (that person’s shelf, then the family’s), with Search beside them; the jukebox shows whose turn is next, not a count of turns. Calm mode stops every looping animation.
   - Call a room speaks in `call_language` (default `en-AU`; add `call_voice` for one of that language's voices, e.g. `NatashaNeural` with Home Assistant Cloud) and, on Music Assistant speakers, at `call_volume` (0–100, default 70) whatever the room's music is set to. Other speakers say it at their own volume.
   - The sleep fade uses `script.fh_music_sleep` (fields `player`, `minutes`) if it exists, otherwise the Sonos sleep timer.
@@ -100,6 +101,7 @@ morning: { start: "06:30", end: "08:45", leave_by: "08:15" }   # "Out the door" 
 bring_rules: [{ match: swim, item: Swim bag }]
 jar: { target: 120, reward: pizza night }   # input_number.family_jar
 all_on: [light.lounge]
+keep_on: [light.hallway_night, light.fish_tank]   # "All off" leaves these on (and everything in a group named here), and says how many it kept on
 quiet: { start: "20:00", end: "06:30" }
 sounds: true                        # touch sounds from the panel's own speaker: true, "quiet" (softer) or false; the kitchen timer always sounds
 add_calendar: calendar.family
@@ -165,6 +167,28 @@ The radar and wind maps load from the internet. The radar only ever asks for map
 
 Chore items are to-do list items whose description holds their points, e.g. `+10`. A nightly automation that
 re-opens completed chores and updates streaks keeps things fresh each day.
+
+### Settings (for parents)
+
+Most of the configuration can be changed on the panel itself. Open the house-info sheet (the "i" button) and tap the cog. It asks for the parent PIN every time, except within a minute of the last time; with no PIN yet, its first step is setting one.
+
+- **Children** (one at a time): name, colour, reading mode, bedtime, what the child's page starts with (look, calm mode, sounds), and the child's jobs and routines. Jobs live in Home Assistant to-do lists, so they are changed there straight away, with form fields in place of the tags below.
+- **Rewards**: each child's rewards (name, picture, cost, whether it needs the PIN) and the family jar.
+- **Morning**: when the "Out the door" board shows, leaving times, travel time, the morning routine, things to bring by day, school terms and holidays.
+- **Medicines**: each medicine's name, who it is for and its time, and the names offered under "something else given". A medicine is only a name and a time: there is nowhere to write an amount. A new medicine needs two helpers in Home Assistant (`input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`); Settings lists them and can make them for an administrator.
+- **PIN**: change the PIN, and choose whether recording medicine and Ask after bedtime need it.
+- **House**: night screen and quiet hours, bin night, what "All off" leaves on (`keep_on`), the look, background and sounds a screen starts with, calm mode.
+- **Music**: the moment pads, the sleep timer, call volume.
+- **People and safety**: parents' names, the house-info page, the alert button's phones (a test is sent only after a second, explicit tap), Ask's name.
+- **Advanced**: the wiring (calendars, lists, speakers, scripts), read-only, and "Restore an earlier version".
+
+How saving works: each pane has one Save. The card's configuration is checked with the same rules the card applies when it loads, then written back into the dashboard that hosts the card (`lovelace/config/save`), and the card on that screen takes the new configuration at once. Other screens pick it up when they next load the dashboard (Home Assistant offers "Refresh").
+
+Settings can save only when the person signed in is a Home Assistant **administrator** and the dashboard is kept in the UI (storage mode). A wall panel signed in as an ordinary user, or a YAML dashboard, shows Settings read-only and says why.
+
+Safety net: before every save the card is kept as it was. The last five versions are kept on that screen (browser storage) and the single previous version in the dashboard itself, under the top-level key `family_hub_previous` (safe to delete). The PIN is left out of every kept copy. The toast after a save offers Undo, and Advanced lists the earlier versions to restore.
+
+New options that Settings writes: `bedtime_weekend_extra` (minutes later on Friday and Saturday nights, default 30) and, on a child, `id` (the name the child's helpers were made under, written when a child is renamed so the helpers stay his).
 
 ### Chore tags
 
