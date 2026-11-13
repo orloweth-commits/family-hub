@@ -79,10 +79,11 @@ for (const [kid, name, time] of [[0, 'Riley', '19:20'], [1, 'Charlie', '19:20'],
   const t = (await hero.innerText()).replace(/\s+/g, ' ');
   ok(`${name} at wind-down: no rank, points, stars or progress bars on his card`, await hero.locator('.rank, .xp, .stat, .stats, .starjar').count() === 0 && !/points|stars|more to|to go/i.test(t), t);
   ok(`${name} at wind-down: his jobs show no stars or point values`, await k.locator('.stars, .plus:not(.grow)').count() === 0);
-  await page.context().close();
   const day = await open(`look=glass&page=kid&kid=${kid}`, '16:20');
-  ok(`${name} by day: the score is still there`, await C(day).locator('fh-kid .hero').locator('.rank, .xp, .stat').count() > 0);
-  await day.context().close();
+  // since 0.31.0 (Phase 2) his card counts nothing by day either: what he has to spend is in the Rewards tab, which wind-down shuts
+  await C(day).locator('fh-kid .tab[data-tab="rewards"]').click(); await day.waitForTimeout(250);
+  ok(`${name} by day: what he has to spend is in the Rewards tab (and at wind-down that tab is shut)`, await C(day).locator('fh-kid .tabbody').locator('.ptsline, .stat').count() === 1 && await k.locator('.ptsline, .tabbody .stat').count() === 0);
+  await day.context().close(); await page.context().close();
 }
 
 // 5. All off waits three seconds, with Cancel; Undo is kept

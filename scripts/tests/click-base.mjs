@@ -1106,11 +1106,11 @@ const ratio = `(a, b) => { const l = (c) => { let m = c.match(/[\\d.]+/g).map(Nu
       return { typed: R.querySelector('input').value, keys: R.querySelectorAll('.key').length, cut, thread: Math.round(R.querySelector('.thread').getBoundingClientRect().height), starters: [...R.querySelectorAll('.starter')].filter((s) => s.getClientRects().length).length, wide }; })()`);
     if (r.typed !== 'Hi mum' || r.keys < 40 || r.cut || r.wide || (h < 720 && (r.thread < 90 || r.starters))) bad.push(`${look} ${w}x${h} ${from} ${JSON.stringify(r)}`); await p.context().close(); }
   console.log('R7-M4 Ask keys on a short screen: none cut, typing works, 90 px of conversation, option words fit', ok(!bad.length), bad.join(' | ')); }
-// R7-M5. the youngest's "Coming up" at 1312x668: the first row is inside the card, the list scrolls with its fade, and both tabs stay in view; the older boys' studio button is not cut by the hero card
+// R7-M5. the youngest's "Coming up" at 1312x668 (pictures since 0.31.0; the older boys' week is rows): the first one is inside the card, the list scrolls with its fade, and both tabs stay in view; the older boys' studio button is not cut by the hero card
 { const bad = [];
   for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const kid of [2, 1]) { const p = await openAt(1312, 668, `look=${look}&page=kid&kid=${kid}`);
     await p.locator('fh-kid button.tab', { hasText: /Coming up|My week/ }).click(); await p.waitForTimeout(400);
-    const r = await p.evaluate(`(() => { const R = ${sr('fh-kid')}, card = R.querySelector('.tabcard'), c = card.getBoundingClientRect(), body = card.querySelector('.tabbody'), first = card.querySelector('.wk').getBoundingClientRect();
+    const r = await p.evaluate(`(() => { const R = ${sr('fh-kid')}, card = R.querySelector('.tabcard'), c = card.getBoundingClientRect(), body = card.querySelector('.tabbody'), first = card.querySelector('.wk, .soonpic').getBoundingClientRect();
       const tabs = [...card.querySelectorAll('button.tab')].every((b) => { const t = b.getBoundingClientRect(), e = R.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2); return t.top >= c.top && t.bottom <= c.bottom + 1 && (e === b || b.contains(e)); });
       const st = R.querySelector('button.studio'), hero = R.querySelector('.hero').getBoundingClientRect();
       return { first: Math.round(first.top - c.top), inBody: first.top >= body.getBoundingClientRect().top - 1, scrolls: body.scrollHeight > body.clientHeight + 6, cue: body.hasAttribute('data-more'), tabs, studioCut: st ? Math.max(0, Math.round(st.getBoundingClientRect().bottom - hero.bottom)) : 0 }; })()`);
@@ -1145,18 +1145,20 @@ const ratio = `(a, b) => { const l = (c) => { let m = c.match(/[\\d.]+/g).map(Nu
   console.log('R7-N event notes as plain text |', out.join(' | ')); await p.context().close(); }
 
 // ---- owner's decisions of 13 November (0.27.0) ----
-// D3. a child's rank is on his own page and nowhere else: not on a brother's page, the dock, the morning board, the jukebox or any other page (words and spoken labels)
+// D3. a child's rank is in his own studio and nowhere else (since 0.31.0 not on his page either): not on a brother's page, the dock, the morning board, the jukebox or any other page (words and spoken labels)
 { const RANK = /\b(Explorer|Ranger|Navigator|Captain|Commander|Admiral|Legend|Mythic|Cosmic)\b/;
   const words = (p) => p.evaluate(() => { const out = []; const walk = (root) => { for (const e of root.querySelectorAll('*')) { for (const a of ['aria-label', 'title', 'alt', 'aria-valuetext']) { const v = e.getAttribute(a); if (v) out.push(v); } for (const n of e.childNodes) if (n.nodeType === 3 && n.textContent.trim()) out.push(n.textContent); if (e.shadowRoot) walk(e.shadowRoot); } }; walk(document.querySelector('family-hub-card').shadowRoot); return out.join(' \n '); });
   const p = await openAt(1280, 800, 'look=glass&page=kid&kid=0'); const out = [], own = [];
-  for (let k = 0; k < 3; k++) { await p.evaluate((k) => { const c = document.querySelector('family-hub-card'); c._kid = k; c._page = 'kid'; }, k); await p.waitForTimeout(500);
-    const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot, kid = c.querySelector('fh-kid').shadowRoot; return { chips: [...kid.querySelectorAll('.hero .rank')].map((e) => e.textContent.trim()), outside: [...c.querySelectorAll('header, nav.dock')].map((e) => e.innerText).join(' ') }; });
-    own.push(r.chips.join('/') || '(none: pictures)'); out.push(ok(r.chips.length <= 1 && !RANK.test(r.outside))); }
+  for (let k = 0; k < 3; k++) { await p.evaluate((k) => { const c = document.querySelector('family-hub-card'), kid = c.shadowRoot.querySelector('fh-kid'); if (kid) kid._studio = false; c._kid = k; c._page = 'kid'; }, k); await p.waitForTimeout(500);
+    const page = RANK.exec(await words(p));
+    await p.evaluate(() => { document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid')._studio = true; }); await p.waitForTimeout(500);
+    const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot, st = c.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot; return { chips: [...st.querySelectorAll('.rankline .rank')].map((e) => e.textContent.trim()), outside: [...c.querySelectorAll('header, nav.dock')].map((e) => e.innerText).join(' ') }; });
+    own.push(r.chips.join('/') || '(none: pictures)'); out.push(ok(r.chips.length <= 1 && !RANK.test(r.outside) && !page)); }
   const seen = [];
   for (const [pg, t] of [['planner'], ['planner&view=day'], ['planner&view=month'], ['morning', '07:10'], ['groceries'], ['doodle'], ['home'], ['weather'], ['music&mtab=juke&juke=1'], ['music&mview=house'], ['music&mtab=shelves'], ['music&mtab=call'], ['planner&sheet=themes'], ['planner&sheet=sitter']]) {
     const q = await openAt(1280, 800, 'look=glass&page=' + pg, t); const m = RANK.exec(await words(q)); if (m) seen.push(pg + ': ' + m[0]); await q.context().close(); }
-  const src = fs.readdirSync(path.join(ROOT, 'src')).filter((f) => f.endsWith('.ts') && !['kid.ts', 'avatar.ts'].includes(f)).filter((f) => /levelInfo|\bRANKS\b|nextRank/.test(fs.readFileSync(path.join(ROOT, 'src', f), 'utf8')));
-  console.log('D3 rank on the child’s own page only | own pages:', own.join(' ; '), out.join(' '), '| a rank read on any other page:', seen.join(' ; ') || 'none', ok(!seen.length), '| other source files that read ranks:', src.join(', ') || 'none', ok(!src.length)); await p.context().close(); }
+  const src = fs.readdirSync(path.join(ROOT, 'src')).filter((f) => f.endsWith('.ts') && !['studio.ts', 'avatar.ts'].includes(f)).filter((f) => /levelInfo|\bRANKS\b|nextRank/.test(fs.readFileSync(path.join(ROOT, 'src', f), 'utf8')));
+  console.log('D3 rank in the child’s own studio only (not on his page) | own studios:', own.join(' ; '), out.join(' '), '| a rank read on any other page:', seen.join(' ; ') || 'none', ok(!seen.length), '| other source files that read ranks:', src.join(', ') || 'none', ok(!src.length)); await p.context().close(); }
 
 // D4. the morning board: ONE clock for the family (a face that empties, minutes, the time in numerals and words); no bar, minutes or percentage in any column; calm mode never animates it
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await openAt(1280, 800, `look=${look}&page=morning`, '07:10');
