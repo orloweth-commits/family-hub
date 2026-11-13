@@ -207,7 +207,7 @@ export class FhChat extends LitElement {
   `];
 
   static properties = {
-    agent: {}, pipeline: {}, tts: {}, ttsVoice: {}, helper: {}, _convo: { state: true }, pin: { type: Boolean }, mode: {}, who: {}, minutes: { type: Number }, _leftMin: { state: true }, _over: { state: true },
+    agent: {}, pipeline: {}, tts: {}, ttsVoice: {}, ttsLanguage: {}, helper: {}, _convo: { state: true }, pin: { type: Boolean }, mode: {}, who: {}, minutes: { type: Number }, _leftMin: { state: true }, _over: { state: true },
     _bubbles: { state: true }, _typed: { state: true }, _caps: { state: true }, _keys: { state: true }, _busy: { state: true }, _listening: { state: true }, _read: { state: true }, _grown: { state: true }, _log: { state: true }
   };
 
@@ -218,6 +218,8 @@ export class FhChat extends LitElement {
   /** a text-to-speech entity in Home Assistant (say tts.openai_tts): typed and tapped answers, and the notes, are spoken in its voice instead of the screen's own. `ttsVoice` picks one of its voices */
   tts = '';
   ttsVoice = '';
+  /** the language (and so the accent) the voice speaks, such as en-AU, where the engine offers more than one */
+  ttsLanguage = '';
   /** keep talking: after each spoken answer the microphone opens again by itself, until nothing is heard, the button is tapped off, time is up or the sheet closes */
   private _convo = false;
   private _again = 0;
@@ -328,7 +330,7 @@ export class FhChat extends LitElement {
   private _speak(text: string, then?: () => void): void {
     const n = ++this._said, own = (): void => { if (n !== this._said) return; say(text); if (then) this._again = window.setTimeout(then, Math.max(1500, text.length * 75)); };
     if (!this.tts || !this.hass?.callApi) { own(); return; }
-    within(Promise.resolve(this.hass.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', { engine_id: this.tts, message: text, cache: true, ...(this.ttsVoice ? { options: { voice: this.ttsVoice } } : {}) })), 8000)
+    within(Promise.resolve(this.hass.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', { engine_id: this.tts, message: text, cache: true, ...(this.ttsLanguage ? { language: this.ttsLanguage } : {}), ...(this.ttsVoice ? { options: { voice: this.ttsVoice } } : {}) })), 8000)
       .then((r) => { if (n !== this._said) return; const url = r?.path ?? r?.url; if (!url) { own(); return; } hush(); this._play(String(url), then, own); }, () => own());
   }
   private _press(k: string): void { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); this._typed = this._typed.slice(0, MAX_CHARS); }

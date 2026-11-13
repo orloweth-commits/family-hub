@@ -13510,7 +13510,7 @@ const Eg = [
   }
 }, io = class io extends ft {
   constructor() {
-    super(...arguments), this.lookCtl = new Jt(this), this.agent = "", this.pipeline = "", this.tts = "", this.ttsVoice = "", this._convo = !1, this._again = 0, this.helper = "Ask", this.pin = !1, this.mode = "full", this.who = "", this.minutes = 0, this._leftMin = 0, this._over = !1, this._clock = 0, this._bubbles = [], this._typed = "", this._caps = !0, this._keys = !1, this._busy = !1, this._listening = !1, this._read = !0, this._grown = !1, this._log = [], this._n = 0, this._gen = 0, this._idleT = 0, this._voice = null, this._audio = null, this._poke = () => {
+    super(...arguments), this.lookCtl = new It(this), this.agent = "", this.pipeline = "", this.tts = "", this.ttsVoice = "", this.ttsLanguage = "", this._convo = !1, this._again = 0, this.helper = "Ask", this.pin = !1, this.mode = "full", this.who = "", this.minutes = 0, this._leftMin = 0, this._over = !1, this._clock = 0, this._bubbles = [], this._typed = "", this._caps = !0, this._keys = !1, this._busy = !1, this._listening = !1, this._read = !0, this._grown = !1, this._log = [], this._n = 0, this._gen = 0, this._idleT = 0, this._voice = null, this._audio = null, this._poke = () => {
       clearTimeout(this._idleT), this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent("close")), ru);
     }, this._said = 0;
   }
@@ -13593,7 +13593,7 @@ const Eg = [
       s();
       return;
     }
-    gd(Promise.resolve(this.hass.callApi("POST", "tts_get_url", { engine_id: this.tts, message: t, cache: !0, ...this.ttsVoice ? { options: { voice: this.ttsVoice } } : {} })), 8e3).then((o) => {
+    gd(Promise.resolve(this.hass.callApi("POST", "tts_get_url", { engine_id: this.tts, message: t, cache: !0, ...this.ttsLanguage ? { language: this.ttsLanguage } : {}, ...this.ttsVoice ? { options: { voice: this.ttsVoice } } : {} })), 8e3).then((o) => {
       if (i !== this._said) return;
       const r = o?.path ?? o?.url;
       if (!r) {
@@ -13935,6 +13935,7 @@ io.styles = [Ct, Ia, J`
   pipeline: {},
   tts: {},
   ttsVoice: {},
+  ttsLanguage: {},
   helper: {},
   _convo: { state: !0 },
   pin: { type: Boolean },
@@ -17439,8 +17440,8 @@ const Qu = (a, t) => {
       }}>
         <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${r} ?data-who=${p === null}>${this._sheetHead(r, p === null ? "Who is asking?" : h ? "Tap a picture." : "Ask a question, or tap a picture.")}
           <p class="ainote">${Dc}</p>
-          ${p === null ? f : Ie(p, l`<fh-chat .hass=${this.hass} ?low=${h || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? ""} .ttsVoice=${o.tts_voice ?? ""} .helper=${r} .pin=${!!this._config.parent_pin}
-            .mode=${h ? "pictures" : "full"} .who=${c ? E(c).slug : ""} .minutes=${d?.minutes ?? 0} @close=${i} @pin=${(m) => {
+          ${p === null ? f : Je(p, l`<fh-chat .hass=${this.hass} ?low=${h || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? ""} .ttsVoice=${o.tts_voice ?? ""} .ttsLanguage=${o.tts_language ?? ""} .helper=${r} .pin=${!!this._config.parent_pin}
+            .mode=${h ? "pictures" : "full"} .who=${d ? tt(d).slug : ""} .minutes=${c?.minutes ?? 0} @close=${i} @pin=${(m) => {
         this._pinAsk = { ...m.detail, sheet: "chat" };
       }}></fh-chat>`)}</section></div>`;
     }
