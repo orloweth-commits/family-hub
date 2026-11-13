@@ -70,7 +70,7 @@ export class FhSettings extends LitElement {
     .shd .muted { font-size: 15px; font-weight: var(--w-semi, 600); }
     .shd .xbtn { margin-left: auto; width: 52px; height: 52px; flex-shrink: 0; }
     /* the list of sections */
-    .snav { display: flex; flex-direction: column; gap: 4px; padding: 4px 12px 16px 16px; overflow-y: auto; scrollbar-width: none; min-height: 0; }
+    .snav { grid-row: 2 / 4; display: flex; flex-direction: column; gap: 4px; padding: 4px 12px 16px 16px; overflow-y: auto; scrollbar-width: none; min-height: 0; }
     .snav::-webkit-scrollbar { display: none; }
     .snav button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 16px; text-align: left; font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); }
     .snav button > span { flex: 1; min-width: 0; }
@@ -192,7 +192,7 @@ export class FhSettings extends LitElement {
     :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: 15px; }
     /* a portrait tablet and a phone: the sections become a row of tabs across the top */
     :host([data-shape='tall']) .sheet.sbox, :host([data-phone]) .sheet.sbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
-    :host([data-shape='tall']) .snav, :host([data-phone]) .snav { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }
+    :host([data-shape='tall']) .snav, :host([data-phone]) .snav { grid-row: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }
     :host([data-shape='tall']) .snav button, :host([data-phone]) .snav button { flex: 0 0 auto; min-height: 48px; padding: 0 14px; border-radius: 999px; background: var(--chip); scroll-snap-align: center; white-space: nowrap; gap: 8px; }
     :host([data-shape='tall']) .snav button[aria-current='page'], :host([data-phone]) .snav button[aria-current='page'] { background: var(--sel-bg); }
     :host([data-shape='tall']) .spane, :host([data-phone]) .spane { padding: 4px 14px 16px; }

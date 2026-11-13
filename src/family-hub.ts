@@ -1465,7 +1465,7 @@ export class FamilyHubCard extends LitElement {
     if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow"><span>Password</span><b>${b.wifi.password}</b></div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);
-    const cog = html`<button class="round tap xbtn" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${icon('cog', 22)}</button>`;
+    const cog = html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${icon('cog', 22)}</button>`;
     return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors', 'info', cog)}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
