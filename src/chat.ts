@@ -5,6 +5,7 @@ import { icon } from './icons';
 import type { Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
 import { getShape, hush, say, sfx } from './util';
+import { isMuted } from './sound';
 
 /* ------------------------------------------------------------------ *
  * Ask: a chat with an AI helper, for the children. The helper's own
@@ -23,6 +24,21 @@ const STARTERS: [string, string][] = [
   ['😂', 'Tell me a joke'], ['📖', 'Tell me a short story'], ['🐨', 'Tell me an animal fact'],
   ['🚀', 'Tell me a space fact'], ['🎲', 'Play a guessing game'], ['🌤️', 'Why is the sky blue?']
 ];
+/** What every child is told about the helper: shown on the sheet, and read aloud the first time it is used each day. */
+export const AI_NOTE = 'Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.';
+const TIME_UP = 'That is all the Ask time for today. There is more tomorrow!';
+
+/* ---------------- a child's Ask time for the day, and whether he has heard the note today: kept on this screen ---------------- */
+const USED_KEY = 'fh-ask-used', TOLD_KEY = 'fh-ask-told';
+const dayKey = (): string => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+const readDay = (k: string): Record<string, number> => { try { const v = JSON.parse(localStorage.getItem(k) || '{}'); return v && v.day === dayKey() && v.by && typeof v.by === 'object' ? v.by : {}; } catch { return {}; } };
+const writeDay = (k: string, by: Record<string, number>): void => { try { localStorage.setItem(k, JSON.stringify({ day: dayKey(), by })); } catch { /* storage unavailable */ } };
+/** Seconds of Ask this child has used today, on this screen. */
+export const askUsed = (who: string): number => Number(readDay(USED_KEY)[who]) || 0;
+const addUsed = (who: string, secs: number): void => { const by = readDay(USED_KEY); by[who] = (Number(by[who]) || 0) + secs; writeDay(USED_KEY, by); };
+/** True the first time it is asked each day for this child (or for the panel, when nobody is named). */
+const firstToday = (who: string): boolean => { const by = readDay(TOLD_KEY), k = who || 'panel'; if (by[k] || isMuted()) return false; /* muted (sounds off, or quiet hours set to silence): it has not been heard, so it is still owed */ by[k] = 1; writeDay(TOLD_KEY, by); return true; };
+
 const SORRY = 'I could not get an answer just now. Try again in a moment.';
 const NOT_HEARD = 'I did not hear anything. Tap and try again.';
 const NO_MIC = 'I cannot use the microphone on this screen. You can still type.';
@@ -165,6 +181,12 @@ export class FhChat extends LitElement {
     :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
+    /* pictures only (a child who cannot read): no field, no keys, no microphone. The pictures take the whole row and grow */
+    :host([pics]) .ctl > .starters { grid-column: 1 / -1; }
+    :host([pics]) .starter { min-height: 88px; font-size: 17px; }
+    :host([pics]) .starter span { font-size: 48px; width: 54px; }
+    .left { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); flex-shrink: 0; }
+    :host([low]) .left { grid-column: 1 / -1; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
     :host([data-phone]) .thread { flex: none; height: 42vh; min-height: 220px; padding: 12px; border-radius: 18px; }
@@ -183,7 +205,7 @@ export class FhChat extends LitElement {
   `];
 
   static properties = {
-    agent: {}, pipeline: {}, helper: {}, pin: { type: Boolean },
+    agent: {}, pipeline: {}, helper: {}, pin: { type: Boolean }, mode: {}, who: {}, minutes: { type: Number }, _leftMin: { state: true }, _over: { state: true },
     _bubbles: { state: true }, _typed: { state: true }, _caps: { state: true }, _keys: { state: true }, _busy: { state: true }, _listening: { state: true }, _read: { state: true }, _grown: { state: true }, _log: { state: true }
   };
 
@@ -194,6 +216,16 @@ export class FhChat extends LitElement {
   helper = 'Ask';
   /** true when the panel has a parent PIN: the grown-ups' record then sits behind it */
   pin = false;
+  /** `pictures`: picture prompts only, no typing and no talking (a small child). Anything else is the full helper. */
+  mode: 'full' | 'pictures' = 'full';
+  /** whose Ask time this is (a child's key), and his minutes a day; with no name or 0 minutes nothing is counted */
+  who = '';
+  minutes = 0;
+  /** whole minutes of his time left today, and whether it has run out */
+  private _leftMin = 0;
+  private _over = false;
+  private _clock = 0;
+  private get _timed(): boolean { return !!this.who && this.minutes > 0; }
   private _bubbles: Bubble[] = [];
   private _typed = '';
   private _caps = true;
@@ -215,14 +247,31 @@ export class FhChat extends LitElement {
     super.connectedCallback();
     this.addEventListener('pointerdown', this._poke, { capture: true }); this.addEventListener('keydown', this._poke, { capture: true });
     this._poke();
+    // a child's Ask time runs while his sheet is open; the grown-ups' record does not use it up
+    this._clock = window.setInterval(() => { if (!this._timed || this._over || this._grown) return; addUsed(this.who, 1); this._tally(); }, 1000);
+  }
+  /** Works out the time left; when it has just run out, says so once (kindly, and aloud) and stops the asking. */
+  private _tally(): void {
+    if (!this._timed) { this._leftMin = 0; this._over = false; return; }
+    const left = this.minutes * 60 - askUsed(this.who);
+    this._leftMin = Math.max(0, Math.ceil(left / 60));
+    if (left <= 0 && !this._over) { this._over = true; this._endVoice(); this._add('helper', TIME_UP, true); if (this._read) say(TIME_UP); }
+  }
+  protected firstUpdated(): void {
+    this._tally();
+    // the note about the helper is read out the first time each day, so a child who cannot read has heard it too
+    if (!this._over && firstToday(this.who)) say(AI_NOTE);
   }
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    clearInterval(this._clock);
     this.removeEventListener('pointerdown', this._poke, { capture: true }); this.removeEventListener('keydown', this._poke, { capture: true });
     clearTimeout(this._idleT);
     this._reset();
   }
   protected updated(c: PropertyValues): void {
+    if (c.has('mode')) this.toggleAttribute('pics', this.mode === 'pictures');
+    if (c.has('who') || c.has('minutes')) this._tally();
     if (c.has('_keys')) { this.toggleAttribute('kb', this._keys); this.parentElement?.toggleAttribute('data-kb', this._keys); /* the sheet around it makes room for the keys on a short screen */ }
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
@@ -243,7 +292,7 @@ export class FhChat extends LitElement {
   // ---------- typed and tapped questions ----------
   private async _ask(raw: string): Promise<void> {
     const text = raw.trim().slice(0, MAX_CHARS);
-    if (!text || this._busy || !this.hass || !this.agent) return;
+    if (!text || this._busy || this._over || !this.hass || !this.agent) return;
     const gen = this._gen;
     this._busy = true; this._grown = false; this._typed = ''; this._caps = true;
     this._quiet(); sfx('send');
@@ -270,7 +319,7 @@ export class FhChat extends LitElement {
   // ---------- spoken questions: Home Assistant's Assist pipeline, speech to text → the helper → text to speech ----------
   private async _talk(): Promise<void> {
     if (this._listening) { this._stopListening(); return; }
-    if (this._busy || !this.hass?.connection || !this.pipeline) return;
+    if (this._busy || this._over || this.mode === 'pictures' || !this.hass?.connection || !this.pipeline) return;
     const gen = this._gen, v: NonNullable<FhChat['_voice']> = { held: [] };
     this._busy = true; this._listening = true; this._grown = false; this._voice = v;
     this._quiet(); sfx('listen'); // before the microphone opens, so it is not recorded
@@ -374,33 +423,34 @@ export class FhChat extends LitElement {
   }
 
   render(): TemplateResult {
-    const voice = !!this.pipeline && canListen(), last = [...this._bubbles].reverse().find((b) => b.from === 'helper');
+    const pics = this.mode === 'pictures', voice = !pics && !!this.pipeline && canListen(), last = [...this._bubbles].reverse().find((b) => b.from === 'helper');
     const thinking = this._busy && !this._listening, phone = getShape() === 'phone';
     return html`
       <div class="conv">
         ${this._grown ? this._logView() : html`<div class="thread" role="log" aria-label="Conversation" tabindex="0">
-          ${!this._bubbles.length ? html`<div class="bubble">Hello! Ask me a question${voice ? ', tap the microphone,' : ''} or tap a picture.</div>` : nothing}
+          ${!this._bubbles.length ? html`<div class="bubble">${pics ? 'Hello! Tap a picture.' : html`Hello! Ask me a question${voice ? ', tap the microphone,' : ''} or tap a picture.`}</div>` : nothing}
           ${this._bubbles.map((b) => html`<div class="bubble ${b.from === 'child' ? 'asker' : ''}"><span class="sr">${b.from === 'child' ? 'You asked: ' : `${this.helper} said: `}</span>${b.text}</div>`)}
           ${thinking ? html`<div class="bubble wait" role="status" aria-label="Thinking"><i></i><i></i><i></i></div>` : nothing}
         </div>`}
         <div class="sr" aria-live="polite">${last?.text ?? ''}</div>
-        <form class="send" @submit=${(e: Event) => { e.preventDefault(); this._ask(this._typed); }}>
+        ${pics ? nothing : html`<form class="send" @submit=${(e: Event) => { e.preventDefault(); this._ask(this._typed); }}>
           <input class="field" .value=${this._typed} maxlength=${MAX_CHARS} inputmode=${phone ? 'text' : 'none'} enterkeyhint="send" autocomplete="off" autocapitalize="sentences" placeholder="Type a question…" aria-label="Your question"
             @click=${() => { this._keys = true; }}
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value.slice(0, MAX_CHARS); }} />
           <button type="button" class="pill tap opt kb" style="height:56px;padding:0 16px" aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>
-          <button type="submit" class="tap lead" ?disabled=${this._busy || !this._typed.trim()}>Send</button>
+          <button type="submit" class="tap lead" ?disabled=${this._busy || this._over || !this._typed.trim()}>Send</button>
         </form>
-        ${this._keys ? keyboard((k) => this._press(k), this._caps, () => { this._caps = !this._caps; }, true, true, true) : nothing}
+        ${this._keys ? keyboard((k) => this._press(k), this._caps, () => { this._caps = !this._caps; }, true, true, true) : nothing}`}
       </div>
       <div class="ctl">
         ${voice ? html`<div class="voice">
-          <button class="talk tap" aria-pressed=${String(this._listening)} aria-label=${this._listening ? 'Listening. Tap to stop' : 'Tap to talk'} ?disabled=${this._busy && !this._listening} @click=${() => this._talk()}>${icon('mic', 46)}</button>
+          <button class="talk tap" aria-pressed=${String(this._listening)} aria-label=${this._listening ? 'Listening. Tap to stop' : 'Tap to talk'} ?disabled=${(this._busy && !this._listening) || this._over} @click=${() => this._talk()}>${icon('mic', 46)}</button>
           <b aria-hidden="true">${this._listening ? 'Listening… tap to stop' : thinking ? 'Thinking…' : 'Tap to talk'}</b>
-        </div>` : this.pipeline ? html`<p class="nomic">Talking needs a secure connection on this screen. You can still type.</p>` : nothing}
+        </div>` : this.pipeline && !pics ? html`<p class="nomic">Talking needs a secure connection on this screen. You can still type.</p>` : nothing}
         <div class="starters" role="group" aria-label="Things to ask">
-          ${STARTERS.map(([pic, label]) => html`<button class="starter tap" ?disabled=${this._busy} @click=${() => this._ask(label)}><span aria-hidden="true">${pic}</span>${label}</button>`)}
+          ${STARTERS.map(([pic, label]) => html`<button class="starter tap" ?disabled=${this._busy || this._over} @click=${() => this._ask(label)}><span aria-hidden="true">${pic}</span>${label}</button>`)}
         </div>
+        ${this._timed ? html`<span class="left" role="status">${this._over ? '⏳ No Ask time left today. More tomorrow.' : `⏳ ${this._leftMin} min of Ask left today`}</span>` : nothing}
         <div class="opts">
           <button class="pill tap opt" aria-pressed=${String(this._read)} @click=${() => { this._read = !this._read; if (!this._read) this._quiet(); }}>${this._read ? '🔊' : '🔇'} Read it to me</button>
           <button class="pill tap" @click=${() => { this._reset(); this._grown = false; }}>Start again</button>

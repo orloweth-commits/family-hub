@@ -3,11 +3,10 @@ import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon } from './icons';
-import {
-  avatarCss, decodeLook, levelInfo, nextUnlock, prevThreshold, renderAvatar, unlocksBetween, growBetween, applyItem, type Look, type Unlock
-} from './avatar';
+import { avatarCss, decodeLook, renderAvatar, unlocksBetween, growBetween, applyItem, type Look, type Unlock } from './avatar';
 import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
+import { spentThisWeek, noteSpend, backDay } from './rewards';
 import { calShows, kidEntities, num, slotVar, type CalendarConfig, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
 import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
@@ -29,6 +28,14 @@ const PICS: [RegExp, string][] = [
 ];
 /** A job's picture: the one chosen for it, else the first keyword match. */
 export const picFor = (s: string | { summary: string; pic?: string }): string => (typeof s === 'string' ? undefined : s.pic) ?? PICS.find(([re]) => re.test(typeof s === 'string' ? s : s.summary))?.[1] ?? '⭐';
+/** Pictures for what is coming up, for a child who cannot read (first keyword match wins). */
+const EVENT_PICS: [RegExp, string][] = [
+  [/birthday|party/i, '🎂'], [/swim|pool/i, '🏊'], [/soccer|footy|football/i, '⚽'], [/tennis/i, '🎾'], [/cricket/i, '🏏'], [/dentist|tooth/i, '🦷'], [/doctor|check-up|\bgp\b/i, '🩺'],
+  [/library|book|story/i, '📚'], [/music|band|trumpet|clarinet|piano|concert|choir/i, '🎵'], [/dance/i, '💃'], [/nan\b|nanna|grandma|grandad|granny|pop\b/i, '👵'], [/pizza/i, '🍕'], [/dinner|lunch|breakfast|picnic/i, '🍽️'],
+  [/camp|holiday|trip/i, '🏕️'], [/movie|film|cinema/i, '🎬'], [/zoo|excursion|bus/i, '🚌'], [/beach/i, '🏖️'], [/park|scooter|play/i, '🛴'], [/hair/i, '💇'], [/christmas/i, '🎄'], [/easter/i, '🐣'],
+  [/kindy|school|assembly|orientation|class/i, '🏫'], [/\bbins?\b|rubbish|recycling/i, '🗑️'], [/sport|training|carnival|gym/i, '🏅'], [/paint|art|craft/i, '🎨']
+];
+export const eventPic = (title: string): string => EVENT_PICS.find(([re]) => re.test(title))?.[1] ?? '📅';
 const t12 = (s: string): string => { const m = hm(s), h = Math.floor(m / 60) % 24; return `${h % 12 || 12}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
 const SLOT_NAME: Record<Slot, string> = { am: 'Morning', after: 'After school', bed: 'Bedtime', any: 'Any time' };
 const FEELINGS: [string, string][] = [['😄', 'great'], ['🙂', 'good'], ['😐', 'okay'], ['😟', 'worried'], ['😢', 'sad']];
@@ -199,8 +206,9 @@ export class FhKid extends LitElement {
     .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
     .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
-    .avbtn { position: relative; flex: 0 1 223px; min-height: 110px; display: flex; justify-content: center; }
-    .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 223px; }
+    /* the card holds his picture, his name and the way into his studio: nothing to count, so the picture takes the room */
+    .avbtn { position: relative; flex: 0 1 300px; min-height: 110px; display: flex; justify-content: center; }
+    .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 300px; }
     .starjar { display: grid; grid-template-columns: repeat(5, 24px); gap: 2px 3px; line-height: 0; }
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
@@ -269,6 +277,17 @@ export class FhKid extends LitElement {
     .unl { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
     .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))); } }
+    /* points live where they are spent: one line at the top of the rewards */
+    .ptsline { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; padding: 2px 6px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .ptsline b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .tabbody > .stat { flex-shrink: 0; }
+    /* coming up, for a child who cannot read: three pictures side by side, each with one moon for every sleep until it. A tap reads it out */
+    .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
+    .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 4px; border-radius: 18px; background: var(--chip); text-align: center; }
+    .soonpic .e { font-size: 40px; line-height: 1.1; }
+    .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: 14px; line-height: 1.1; margin-top: auto; }
+    .soonpic .sl { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
@@ -280,7 +299,7 @@ export class FhKid extends LitElement {
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
-    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }
+    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }
   };
 
   hass?: Hass;
@@ -322,12 +341,16 @@ export class FhKid extends LitElement {
   /** rewards this child has spent on that still wait for a grown-up */
   private _owed: string[] = [];
   private _owedSeen = '';
+  /** his lines in the rewards list (each carries its date), for rewards with a weekly limit; and a count that redraws the rows when this screen notes a spend */
+  private _lines: { name: string; description: string }[] = [];
+  private _spentN = 0;
   private async _loadOwed(): Promise<void> {
     const id = this.owed, name = this.kid.name;
     if (!id || !this.hass?.states[id]) return;
     try {
-      const res = await this.hass.callWS<{ items: { summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: id });
+      const res = await this.hass.callWS<{ items: { summary: string; status: string; description?: string | null }[] }>({ type: 'todo/item/list', entity_id: id });
       if (name !== this.kid.name) return;
+      this._lines = res.items.filter((i) => i.summary.startsWith(`${name}: `)).map((i) => ({ name: i.summary.slice(name.length + 2), description: i.description ?? '' }));
       const mine = res.items.filter((i) => i.status === 'needs_action' && i.summary.startsWith(`${name}: `)).map((i) => i.summary.slice(name.length + 2));
       this._owed = [...new Set(mine)].filter((n) => this._needsAdult(n));
     } catch { /* the line is simply left as it was */ }
@@ -390,7 +413,7 @@ export class FhKid extends LitElement {
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
-    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._lookSaid = false; this._loadWeek(); }
+    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._lines = []; this._lookSaid = false; this._loadWeek(); }
     { const key = `${this.kid.name}|${this.hass.states[this.owed]?.state ?? ''}`; if (key !== this._owedSeen) { this._owedSeen = key; void this._loadOwed(); } }
     if (!this._drawn && !this._drawWait) { this._drawWait = true; const go = (): void => { this._drawWait = false; this._drawn = true; };
       if ('requestIdleCallback' in window) (window as any).requestIdleCallback(go, { timeout: 200 }); else requestAnimationFrame(() => requestAnimationFrame(go)); }
@@ -553,6 +576,12 @@ export class FhKid extends LitElement {
   private _rewardTap(r: RewardConfig): void {
     if (Date.now() - this._heldAt < 600) return; // a second tap straight after "Yes" is not a choice
     const have = num(this.hass, this._e.points);
+    if (this._capped(r)) {
+      // a limit is a rule of the game, said kindly: nothing red, and when it comes back
+      const m = `You’ve had ${r.name} this week. It comes back on ${backDay(this._now)}.`;
+      this._sound('locked'); if (this._picMode) say(m); this._say(m);
+      return;
+    }
     if (have < r.cost) {
       this._sound('locked');
       if (this._picMode) say(`${r.name}. Not yet! ${Math.ceil((r.cost - have) / this._star)} more stars.`);
@@ -564,13 +593,15 @@ export class FhKid extends LitElement {
     this._spend = r.name;
     if (this._picMode) say(`${r.name}. Spend ${this._costWords(r)}? Yes, or not now.`);
   }
+  /** A reward with a weekly limit that has been had as often as the limit allows this week. */
+  private _capped(r: RewardConfig): boolean { return !!r.weekly && r.weekly > 0 && (spentThisWeek(this._e.slug, this._lines, this._now)[r.name] ?? 0) >= r.weekly; }
   private _redeeming = false;
   /** the reward whose points are on their way to Home Assistant: its row says "Saving…" until the answer comes */
   private _saving = '';
   private async _redeem(r: RewardConfig, checked = false): Promise<void> {
     const have = num(this.hass, this._e.points);
     this._spend = '';
-    if (have < r.cost || this._redeeming) return;
+    if (have < r.cost || this._redeeming || this._capped(r)) return;
     const needs = r.approve ?? r.cost >= 60;
     if (needs && this.pin && !checked) { this._pinAsk = { reason: `${this.kid.name}: ${r.name}?`, run: () => { void this._redeem(r, true); } }; return; }
     // one spend at a time, and no celebration until Home Assistant has taken the points
@@ -581,6 +612,7 @@ export class FhKid extends LitElement {
     if (this.owed && this.hass!.states[this.owed]) {
       this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
     }
+    if (r.weekly) { noteSpend(this._e.slug, r.name); this._spentN++; }
     this._confetti++; this._jump++; this._sound('unlock');
     // a DJ reward hands tonight's jukebox to this child (the Music page reads this)
     if (r.dj ?? /\bdj\b|dinner music/i.test(r.name)) lsSet('fh-dj', { kid: this.kid.name, day: new Date().toDateString() });
@@ -600,9 +632,10 @@ export class FhKid extends LitElement {
       // the note is real: a notification in Home Assistant, and an event the card can turn into a chip for the parents. Nothing here promises that someone is on the way.
       Promise.resolve(this.hass?.callService('persistent_notification', 'create', { title: kind === 'share' ? `${n} has something good to share` : `${n} would like a chat`,
         message: this._feel ? `${n} is feeling ${this._feel} and would like ${kind === 'share' ? 'to tell a grown-up about it' : 'a chat later'}.` : `${n} would like a chat with a grown-up${this._wind ? ' before bed' : ''}.`, notification_id: `fh_chat_${this._e.slug}` })).catch(() => { /* the event below still reaches the card */ });
-      this.dispatchEvent(new CustomEvent('fh-kid-wants-chat', { bubbles: true, composed: true, detail: { name: n, kind, feeling: this._feel } }));
+      // older mode: the note is private. It goes to Home Assistant's notifications only; no chip with his name appears on the shared pages
+      if (!this.kid.older) this.dispatchEvent(new CustomEvent('fh-kid-wants-chat', { bubbles: true, composed: true, detail: { name: n, kind, feeling: this._feel } }));
     }
-    const msg = kind === 'hug' ? 'Go find a grown-up for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : 'I’ve left a note for a grown-up.';
+    const msg = kind === 'hug' ? 'Go find a grown-up for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : this.kid.older ? 'Sent. Nothing shows on the wall.' : 'I’ve left a note for a grown-up.';
     this._say(msg); if (this._picMode) say(msg.replace(' 🤗', ''));
     this._feel = '';
   }
@@ -648,7 +681,7 @@ export class FhKid extends LitElement {
         <span>Create <b>${e.chores}</b> and <b>${e.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
       <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" ?data-fits=${this._wind} @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._windChat()}${this._jar()}`
         // a small child's own controls sit low on a wall panel: his stars and what is coming up go under the feelings card, the jar (nothing to press) goes on top
-        : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
+        : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this.kid.older ? this._chatCard() : this._feelCard()}`}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
       ${this._confetti && !this._wind ? keyed(this._confetti, confetti(this._confetti)) : nothing}
       ${this._celebrate ? this._celebration() : nothing}
@@ -658,39 +691,15 @@ export class FhKid extends LitElement {
     </div>`;
   }
 
+  /** His card: his picture, his name and the way into his studio. Nothing is counted here: the page keeps two measures only, today's ring (on the jobs card) and the family jar.
+   *  Points are with the rewards, where they are spent; rank and the next unlock are in the studio, where they pay off. */
   private _hero(): TemplateResult {
-    const e = this._e, h = this.hass!, life = this._life, look = this._look, pts = num(h, e.points);
-    const li = levelInfo(life), goal = h.states[e.goal]?.state;
-    const cats = catalogueOf(!!this.kid.sheet), nx = nextUnlock(life, this.kid.favourites, goal && goal !== 'unknown' ? goal : undefined, cats), from = prevThreshold(life, cats);
-    const pct = nx ? Math.max(4, Math.round(((life - from) / Math.max(1, nx.req - from)) * 100)) : 100;
-    const w = (h.states[e.week]?.state ?? '-------').padEnd(7, '-').slice(0, 7);
-    const todayIdx = (this._now.getDay() + 6) % 7;
-    const goodToday = this._goodToday();
-    const goodCount = [...w].filter((c, i) => c === 'G' || (i === todayIdx && goodToday)).length;
+    const e = this._e, h = this.hass!, look = this._look, pts = num(h, e.points);
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode || this._wind ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
-      ${this._wind ? nothing /* wind-down keeps no score: no rank, no points, no bars; only the routine and the time to bed */ : this._picMode ? html`
-        <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
-          <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
-          <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
-      : html`
-        <div style="width:100%;display:flex;flex-direction:column;gap:5px"><div class="xp meter"><div style="width:${Math.round((li.into / li.need) * 100)}%"></div></div>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600);text-align:right">${li.need - li.into} more to ${li.nextRank}</span></div>
-        <div class="stats">
-          <div class="stat"><b>${pts || '✨'}</b><span>${pts ? 'points to spend' : 'Ready to start'}</span></div>
-          <div class="stat" role="group" aria-label="Good days: ${goodCount} this week"><span>Good days</span>
-            <div class="dots" aria-hidden="true">${Array.from({ length: goodCount }, () => html`<i class="g"></i>`)}</div>
-            <span>${goodCount >= 5 ? 'Full week ⭐' : goodCount ? `${goodCount} this week` : 'A fresh week'}</span></div>
-        </div>`}
-      ${this._wind ? html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>`
-        : nx ? html`<div class="nextup">
-        <span class="shimmer" style="border-radius:50%;line-height:0;width:46px;height:46px;flex-shrink:0">${this._drawn ? this._itemPic(look, nx, 46, 'head') : nothing}</span>
-        <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${goal === nx.id ? '♥ Saving for' : 'Next'}: ${nx.label}</span>
-          <div class="xp meter" style="height:7px"><div style="width:${pct}%"></div></div>
-          ${this._picMode ? nothing : html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
-      </div>` : html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1></div>
+      ${this._wind ? html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : nothing}
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind && this._picMode && this.ask ? html`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button></div>` : nothing /* in the evening the studio is shut, but his Ask button stays where he can reach it */}
       ${this._wind ? nothing : (() => {
@@ -706,13 +715,6 @@ export class FhKid extends LitElement {
             this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button></div>`;
       })()}
     </section>`;
-  }
-
-  private _goodToday(): boolean {
-    const r = this._chores.filter((c) => c.lane === 'routine'), j = this._chores.filter((c) => c.lane === 'job');
-    const rd = r.filter((c) => c.status === 'completed' && c.slot !== 'bed').length, rAll = r.filter((c) => c.slot !== 'bed').length;
-    const jd = j.filter((c) => c.status === 'completed').length;
-    return (r.length + j.length) > 0 && rd === rAll && (j.length === 0 || jd >= Math.min(2, j.length));
   }
 
   /** What is on for this part of the day. */
@@ -738,7 +740,7 @@ export class FhKid extends LitElement {
     const C = 2 * Math.PI * 22, frac = total ? done / total : 0;
     const sub = this._wind ? (left ? `Bedtime jobs: ${left} left · bed at ${t12(bt)}` : 'All set for bed. Sleep well 🌙')
       : left ? `${left} left ${slot === 'am' ? 'this morning' : slot === 'after' ? 'this afternoon' : 'tonight'}` : later.length ? 'All done for now 🎉' : 'All done – fresh start tomorrow';
-    const one = this.oneAtATime && !this._showAll;
+    const one = this.oneAtATime && !this._showAll, plain = !!this.kid.older;
     const toBed = Math.min(60, hm(bt) - minsNow(this._now));
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
@@ -754,9 +756,9 @@ export class FhKid extends LitElement {
       ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" data-fits @scroll=${scrollCue}>
         ${this._picMode ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>${routineNow.length ? html`<div class="readrow">${this._reader()}</div>` : nothing}`
           : html`
-            ${routineNow.length ? html`<div class="sec"><h2>${SLOT_NAME[slot]} routine</h2><span>just what we do</span></div>${routineNow.map((c) => this._row(c))}` : nothing}
-            ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2><span>earn points · fill the jar</span></div>${jobs.map((c) => this._row(c))}` : nothing}
-            ${grow.length ? html`<div class="sec"><h2>Growing</h2><span>for you – surprises along the way</span></div>${grow.map((c) => this._row(c))}` : nothing}`}
+            ${routineNow.length ? html`<div class="sec"><h2>${SLOT_NAME[slot]} routine</h2>${plain ? nothing : html`<span>just what we do</span>`}</div>${routineNow.map((c) => this._row(c))}` : nothing}
+            ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2>${plain ? nothing : html`<span>earn points · fill the jar</span>`}</div>${jobs.map((c) => this._row(c))}` : nothing}
+            ${grow.length ? html`<div class="sec"><h2>${plain ? 'Practice and reading' : 'Growing'}</h2>${plain ? nothing : html`<span>for you – surprises along the way</span>`}</div>${grow.map((c) => this._row(c))}` : nothing}`}
         ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._picMode ? picFor(c) : '').join(' ')}</span></div>` : nothing}
         ${!visible.length ? html`<div class="wind"><span style="font-size:44px">🌤️</span><span>Nothing right now. Enjoy!</span></div>` : nothing}
       </div>`}
@@ -793,11 +795,11 @@ export class FhKid extends LitElement {
     return html`<div class="job row ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${big ? 'big' : ''} ${soon ? 'soonjob' : ''}" data-uid=${c.uid} style="padding-right:10px" @pointerdown=${this._press} @click=${() => this._toggle(c)}>
       <button class="tap hit" aria-pressed=${String(d)}>
         <span class="box check">${d ? tickSvg(big ? 26 : 18) : nothing}</span>
-        ${this.kid.mode === 'mixed' ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
+        ${this.kid.mode === 'mixed' && !this.kid.older ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
         <span class="t content">${c.summary}</span></button>
       ${(c.lane === 'grow' || c.song) && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
         : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
-      ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) ? html`<span class="plus grow">🌱</span>` : nothing}
+      ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;
   }
 
@@ -814,26 +816,33 @@ export class FhKid extends LitElement {
 
   private _rewards(): TemplateResult {
     const have = num(this.hass, this._e.points), list = this.kid.rewards ?? DEFAULT_REWARDS, st = this._star;
-    return html`${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
+    // what he has to spend is said here, where it is spent (and nowhere else on the page)
+    const purse = this._picMode ? html`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
+        <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
+        <span>${Math.floor(have / st)} stars in my jar</span></span></div>`
+      : html`<div class="ptsline" role="group" aria-label=${have ? `${have} points to spend` : 'No points to spend yet'}>${have ? html`<b>${have}</b><span>${have === 1 ? 'point' : 'points'} to spend</span>` : html`<span>${this.kid.older ? 'No points to spend yet' : '✨ Ready to start'}</span>`}</div>`;
+    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
-        const saving = this._saving === r.name, held = this._held === r.name || saving;
+        const saving = this._saving === r.name, held = this._held === r.name || saving, capped = this._capped(r), back = backDay(this._now);
         if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held} aria-busy=${saving ? 'true' : nothing}>
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${r.name}</span></span>
           <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${saving ? 'Saving…' : html`${tickSvg(18)}Yes`}</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
-        return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" aria-label="${r.name}: ${ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
+        return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" ?data-capped=${capped} aria-label="${r.name}: ${capped ? `had this week. Back on ${back}` : ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
           <span class="n">${r.name}${this._picMode ? html`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${total > 12 ? html`${starSvg(ok, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${got} / ${total}</b>` : Array.from({ length: total }, (_, k) => starSvg(k < got, 18))}</span>` : nothing}</span>
-          ${this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}" style="margin-left:auto">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
+          ${capped ? html`<span class="cost notyet" style="margin-left:auto">Back ${back}</span>` : this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}" style="margin-left:auto">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
       })}`;
   }
 
   private _tabs(): TemplateResult {
-    const wait = this.oneAtATime && !this._tabPicked && this._block().todo.length > 0;
-    const t = wait ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._picMode) say(label); }}>${label}</button>`;
+    const older = !!this.kid.older, wait = this.oneAtATime && !this._tabPicked && this._block().todo.length > 0;
+    // older mode: his week comes first, in the order of the tabs and in what the card opens on
+    const t = wait || (older && !this._tabPicked) ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" data-tab=${id} aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._picMode) say(label); }}>${label}</button>`;
+    const rw = tab('rewards', this._picMode ? '⭐ My stars' : older ? 'Rewards' : '🎁 Rewards'), wk = tab('week', this._picMode ? '📅 Coming up' : older ? 'My week' : '📅 My week');
     return html`<section class="glass card tabcard" aria-label=${t === 'rewards' ? 'Rewards' : 'Week'}>
-      <div class="tabs">${tab('rewards', this._picMode ? '⭐ My stars' : '🎁 Rewards')}${tab('week', this._picMode ? '📅 Coming up' : '📅 My week')}</div>
+      <div class="tabs">${older ? html`${wk}${rw}` : html`${rw}${wk}`}</div>
       <div class="tabbody scrolly" @scroll=${scrollCue}>${t === 'rewards' ? this._rewards() : this._weekBody()}</div></section>`;
   }
 
@@ -871,6 +880,13 @@ export class FhKid extends LitElement {
     </section>`;
   }
 
+  /** Older mode: no faces on a shared wall. One quiet button leaves a note for a grown-up; nothing about it appears on the panel. */
+  private _chatCard(): TemplateResult {
+    return html`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
+      <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:16px" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>${icon('ask', 20)}Ask for a chat</button>
+      <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
+  }
+
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   private _windChat(): TemplateResult {
     return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
@@ -884,10 +900,19 @@ export class FhKid extends LitElement {
     const label = (d: Date): string => {
       if (sameDay(d, today)) return 'Today';
       const n = Math.round((startOfDay(d).getTime() - startOfDay(today).getTime()) / 86_400_000);
-      if (this._picMode) return `${n} sleep${n > 1 ? 's' : ''}`;
       return n === 1 ? 'Tomorrow' : fmtDow(d);
     };
-    return html`${this._wind ? html`<span class="label">${this._picMode ? 'Coming up' : `${this.kid.name}’s week`}</span>` : nothing}
+    if (this._picMode) {
+      // three pictures, each with its sleeps as moons: a tap reads it out
+      const sleeps = (d: Date): number => Math.max(0, Math.round((startOfDay(d).getTime() - startOfDay(today).getTime()) / 86_400_000));
+      const words = (n: number): string => (n === 0 ? 'Today' : `${n} sleep${n > 1 ? 's' : ''}`);
+      return html`${this._wind ? html`<span class="label">Coming up</span>` : nothing}
+        ${evs.length ? html`<div class="soon">${evs.slice(0, 3).map((e) => { const n = sleeps(e.start); return html`<button class="soonpic tap" aria-label="${e.title}: ${words(n)}" @click=${(x: Event) => { this._sound('tap'); say(`${e.title}. ${n === 0 ? 'Today!' : words(n) + '.'}`, x.currentTarget as Element); }}>
+          <span class="e" aria-hidden="true">${eventPic(e.title)}</span><span class="pt">${e.title}</span>
+          <span class="moons" aria-hidden="true">${n === 0 ? '☀️' : n <= 7 ? Array.from({ length: n }, () => html`<span>🌙</span>`) : '🌙'}</span><span class="sl">${words(n)}</span></button>`; })}</div>`
+          : html`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+    }
+    return html`${this._wind ? html`<span class="label">${`${this.kid.name}’s week`}</span>` : nothing}
       ${evs.length ? evs.map((e, i) => html`<div class="wk"><span class="d">${i && label(evs[i - 1].start) === label(e.start) ? '' : label(e.start)}</span>
         <span style="flex:1;font-weight:var(--w-semi, 600);display:flex;gap:6px;align-items:baseline"><span class="init sm" style="--c:${e.family ? 'var(--p-family)' : 'var(--kid)'};align-self:center" role="img" aria-label=${e.family ? 'Family' : this.kid.name}>${e.family ? 'F' : this.kid.name[0]}</span>
           <span>${e.title}${e.allDay ? '' : html` <span class="muted" style="font-weight:500">· ${fmtTime(e.start)}</span>`}</span></span></div>`)

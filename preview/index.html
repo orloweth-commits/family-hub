@@ -27,6 +27,8 @@ const CAL = {
   'calendar.charlie': [ev(0,15,45,'Tennis',60,'Tennis club'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
   'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120,'Sampleton community hall, 12 Example Parade')]
 };
+// &ask=1 sets Ask by child (the eldest and the middle child full, the youngest pictures only; &ask=off turns the youngest's off); &askmin=<n> gives the eldest n minutes a day
+// &weekly=1 limits the eldest's screen-time reward to once a week; &rwdraft=1 gives him a drafted rewards list in Settings
 // &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
 // &hol=1|hide|only: a shared holidays calendar with other places' days in it, shown as it is, with a `hide` list, or with an `only` list
 if (q.get('hol')) CAL['calendar.holidays'] = [ev(1,9,0,'Canberra Day',60), ev(2,9,0,'Western Australia Day',60), ev(3,9,0,'Melbourne Cup',60)];
@@ -208,9 +210,12 @@ el.setConfig({
     { name: 'Downstairs', rooms: [{ name: 'Kitchen and lounge', zones: [{ name: 'Kitchen', player: 'media_player.kitchen' }, { name: 'Lounge', player: 'media_player.lounge_room_sonos' }] }, { stairs: true }, { name: 'Office', player: 'media_player.office' }] }], weather: 'weather.home', music_player: 'media_player.lounge', music_moments: q.get('moments') ? [{ name: 'Dinner', find: 'downtempo', rooms: ['media_player.lounge_room_sonos'], volume: 25 }, { name: 'Wind down', find: 'sleep sounds', rooms: ['media_player.rileys_homepod', 'media_player.charlies_homepod'], volume: 15 }, { name: 'Tidy-up', find: 'motivation', rooms: 'all' }] : undefined, reminders: 'todo.reminders', groceries: 'todo.shopping_list',
   people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
   kids: [
-    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', ...(PAINTED ? { sheet: 'sheet-riley.png', about: 'A tall twelve-year-old.', look: 'img=fhlook-riley-base.jpg' } : { look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488' }), bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮' }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }] },
-    { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', ...(PAINTED ? { sheet: 'sheet-charlie.png', look: 'img=fhlook-charlie-base.jpg' } : { look: 'h=styled;hc=e3b85c' }), bedtime: '20:00' },
-    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', ...(PAINTED ? { sheet: 'sheet-max.png', look: 'img=fhlook-max-base.jpg' } : { look: 'h=pageboy;hc=6b4226' }), bedtime: '19:30', star: 10, leave_by: '07:30' }
+    { name: 'Riley', colour: 3, mode: 'text', age: 'teen', ...(PAINTED ? { sheet: 'sheet-riley.png', about: 'A tall twelve-year-old.', look: 'img=fhlook-riley-base.jpg' } : { look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488' }), bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮', ...(q.get('weekly') ? { weekly: 1 } : {}) }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }],
+      // the eldest's page shows the whole list unless &nownext=1 (a grown-up's choice here, so the list view stays tested now that Now / Next is every child's default); &older=1 is older mode
+      ...(q.get('nownext') ? {} : { focus: false }), ...(q.get('older') ? { older: true } : {}), ...(q.get('ask') ? { ask: 'full', ...(q.get('askmin') ? { ask_minutes: Number(q.get('askmin')) } : {}) } : {}),
+      ...(q.get('rwdraft') ? { rewards_draft: [{ name: 'Choose the bedtime story', cost: 30, icon: '📖' }, { name: 'Screen time, 20 minutes', cost: 60, icon: '🎮', weekly: 1 }] } : {}) },
+    { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', ...(PAINTED ? { sheet: 'sheet-charlie.png', look: 'img=fhlook-charlie-base.jpg' } : { look: 'h=styled;hc=e3b85c' }), bedtime: '20:00', ...(q.get('ask') ? { ask: 'full' } : {}) },
+    { name: 'Max', colour: 5, mode: 'picture', age: 'kid', ...(PAINTED ? { sheet: 'sheet-max.png', look: 'img=fhlook-max-base.jpg' } : { look: 'h=pageboy;hc=6b4226' }), bedtime: '19:30', star: 10, leave_by: '07:30', ...(q.get('ask') ? { ask: q.get('ask') === 'off' ? 'off' : 'pictures' } : {}) }
   ],
   calendars: [{ entity: 'calendar.family', colour: 'family', name: 'Family' }, { entity: 'calendar.alex', colour: 1, name: 'Alex' }, { entity: 'calendar.sam', colour: 2, name: 'Sam' },
     { entity: 'calendar.riley', colour: 3, name: 'Riley' }, { entity: 'calendar.charlie', colour: 4, name: 'Charlie' }, { entity: 'calendar.max', colour: 5, name: 'Max' }],

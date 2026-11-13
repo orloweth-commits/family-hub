@@ -7,9 +7,12 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Weather, who's home, now playing, kitchen timer, reminders
 - All lights on / off, announcement button, night mode photo-frame clock
 - Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets), Orbit (dark, built from rings) or Home Ground (`sports`: a local clubhouse on a quiet morning, with mown lanes for the week, a scoreboard that only shows the time, people in bibs with their initials, a different ball each day, and floodlights in the evening; all drawn as plain generic objects, and nothing ever compares one child with another). Set a default with `look: fridge` in the card config.
-- Per-child settings (palette button on a child's page, behind the parent PIN): his own look, print or handwriting, one job at a time (Now / Next / Later), calm mode and sound level. Defaults can be set per kid in the config: `look_id`, `font`, `focus`, `calm`, `sound_level`.
+- Per-child settings (palette button on a child's page, behind the parent PIN): his own look, print or handwriting, one job at a time, calm mode and sound level. Defaults can be set per kid in the config: `look_id`, `font`, `focus`, `calm`, `sound_level`.
+- A child's page keeps two measures only: today's ring (did I do my bit) and the family jar (what we are building together). Every child starts on Now / Next, with "Show all" one tap away (`focus: false` shows the whole list). Points are in the Rewards tab, where they are spent; rank and the next unlock are in the style studio, which shows the next three locked things in each group and brings the rest into view as they come within reach.
+- Older mode (`older: true`, or Settings, Children): a plainer page for a child who has outgrown stars. No rank names or pictures on his jobs, his week first, and in place of the feelings faces a private "Ask for a chat" that leaves a note in Home Assistant and shows nothing on the wall.
+- A child who cannot read sees what is coming up as three pictures, each with one moon for every sleep until it; a tap reads it out.
 - Morning board shows team progress (one row of stars everyone fills together), never child against child. Time is shown once, for the whole family: one clock that empties towards the next time anyone leaves, with the minutes left and the time in numerals and words. A column says when its own child leaves, with no bar and no count.
-- A child’s rank is shown on that child’s own page and nowhere else.
+- A child’s rank is shown in that child’s own studio and nowhere else.
 - Calm mode: on the kids' pages looping motion runs once and tilted cards sit straight. A child’s calm setting goes with him to the Music page when Music is opened from his page (nothing loops; records stand still). `calm: true` applies it everywhere, `calm: false` turns it off.
 - Looks stay linked to the base through a small contract (`HOOKS` in `src/looks.ts`), checked on every build by `npm run check:looks`. `preview/index.html` and `npm run shots` show every screen in every look with sample data.
 - Looks restyle text through type roles and weight tokens rather than fixed sizes, and never use `!important` (the look check refuses it). Each look can also add drawings of its own: Orbit shows the day view as a clock face with the list beside it, and each look has its own night clock.
@@ -68,7 +71,11 @@ kids:
     # entities default to todo.riley_chores, input_number.riley_points,
     # input_number.riley_lifetime_points, input_number.riley_streak, input_text.riley_avatar, calendar.riley
     rewards:
-      - { name: Extra screen time, cost: 50, icon: "🎮" }
+      - { name: Choose the bedtime story, cost: 30, icon: "📖" }
+      - { name: Screen time, 20 minutes, cost: 60, icon: "🎮", weekly: 1 }   # weekly: at most this many times a week (Monday to Sunday); the row then says "Back Monday"
+    # older: true             # a plainer page for an older child
+    # ask: full               # Ask for this child: pictures | full | off (see "Ask" below)
+    # ask_minutes: 15         # his minutes of Ask a day (0 = no limit)
     favourites: [skateboard, footy]   # shown first as the next unlock
 parent_pin: "1234"            # optional: guards rewards, locks and automations
 music_players: [media_player.kitchen, media_player.lounge]
@@ -156,6 +163,10 @@ chat:                         # the speech-bubble button in the header; without 
 ```
 
 A sheet with big speech bubbles, six picture buttons a child who cannot read yet can tap, the on-screen keyboard and, with a `pipeline`, a microphone button. What the helper may talk about and how it speaks to a child are its own instructions in Home Assistant, on the agent: write them for your children there. The card sends only the child's words (never names or a location), reads answers aloud unless that is switched off, closes itself after three quiet minutes, and keeps the last 30 questions and answers on that screen only, behind the PIN ("For grown-ups"). The microphone needs a secure page (https or the Home Assistant app); elsewhere the sheet says so and typing still works. After bedtime with no `parent_pin` set, the chat stays shut until morning.
+
+**Ask by child.** Give any child `ask: pictures | full | off` (or `ask_minutes`) and Ask is set by child from then on. On his own page the button opens his kind of Ask; on a shared page the sheet first asks who is asking, with a face for each child and, behind the PIN, "A grown-up". `pictures` is the six pictures only, with no typing and no talking: meant for a child who cannot read. `ask_minutes` (15 unless set, 0 for no limit) is his time a day, counted while his Ask is open on that screen; when it runs out Ask says so and waits for tomorrow. A child whose Ask is `off` has no Ask button on his page. The note about the helper ("Answers come from an AI helper on the internet…") is read aloud the first time Ask is used each day, for each child, so a child who cannot read has heard it too. With no child given an `ask` setting, Ask opens the same way for everyone.
+
+**Rewards.** Settings, Rewards edits each child's list. A list written under `rewards_draft` on a child is a draft: his page keeps showing `rewards` until "Put this draft live" is pressed there and the change is saved.
 
 ### Weather page
 

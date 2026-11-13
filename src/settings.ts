@@ -4,7 +4,7 @@ import { LOOKS, LOOK_KEY, LookController } from './looks';
 import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
-import { kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
+import { askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
 import { ART_DEFAULTS, artListOf, deleteArt, loadArt, markArt, monthSpend, type ArtConfig, type ArtItem } from './artlib';
@@ -239,7 +239,7 @@ export class FhSettings extends LitElement {
     :host([data-n2]) .sitem > .sin.sfull2, :host([data-shape='tall']) .sitem > .sin.sfull2, :host([data-phone]) .sitem > .sin.sfull2 { flex-basis: calc(100% - 68px); }
   `];
   static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
-    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true }, _night: { state: true } };
+    _kid: { state: true }, _ktab: { state: true }, _rwLive: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true }, _night: { state: true } };
   hass?: Hass;
   config!: Cfg;
   /** show the on-screen keyboard whatever the pointer is (the preview and the tests) */
@@ -253,6 +253,8 @@ export class FhSettings extends LitElement {
   private _ask: (() => void) | null = null;
   private _kid = 0;
   private _ktab: 'about' | 'jobs' = 'about';
+  /** Rewards: the child (by position) whose live list is being looked at while a drafted one waits; -1 shows the draft */
+  private _rwLive = -1;
   private _time: TimeAsk | null = null;
   private _kb = '';
   private _caps = true;
@@ -586,9 +588,15 @@ export class FhSettings extends LitElement {
         ${this._row('Look', '', html`<div class="schips" role="group" aria-label="Look">${[['', 'Same as the panel'], ...LOOKS.map((l) => [l.id, l.name])].map(([id, n]) => html`<button class="tap" aria-pressed=${String((k.look_id ?? '') === id)} @click=${() => set((x) => { if (id) x.look_id = id as KidConfig['look_id']; else delete x.look_id; })}>${n}</button>`)}</div>`)}
         ${this._row('Calm mode', 'No looping motion or tilted cards.', this._sw('Calm mode', k.calm ?? true, () => set((x) => { x.calm = !(x.calm ?? true); })))}
         ${this._row('Sounds', 'Timers and alarms always sound.', this._seg('Sounds', k.sound_level ?? 'full', [['off', 'Off'], ['soft', 'Soft'], ['full', 'On']], (v) => set((x) => { x.sound_level = v; })))}
-        ${this._row('One job at a time', 'Shows Now, Next and Later instead of the whole list.', this._sw('One job at a time', k.focus ?? (k.mode ?? 'mixed') !== 'text', () => set((x) => { x.focus = !(x.focus ?? (x.mode ?? 'mixed') !== 'text'); })))}
+        ${this._row('One job at a time', 'Shows Now and Next, with “Show all” one tap away. Off shows the whole list.', this._sw('One job at a time', k.focus ?? true, () => set((x) => { x.focus = !(x.focus ?? true); })))}
+        ${this._row('Older mode', 'A plainer page for an older child: no rank names or pictures on his jobs, his week first, and a private “Ask for a chat” in place of the feelings faces.', this._sw('Older mode', !!k.older, () => set((x) => { if (x.older) delete x.older; else x.older = true; })))}
         ${this._row('Time together', 'A promise shown on the page, never for sale. Leave empty for none.', this._txt(`kid.${i}.special`, 'Time together', k.special_time ?? '', (v) => set((x) => { if (v) x.special_time = v; else delete x.special_time; }), { ph: 'e.g. Sat 10:00 with Dad' }), true)}
         <span class="shint">${k.name} can still change his own character in the style studio, without the PIN. Saving here also resets these four choices on this screen.</span>
+      </div>
+      <div class="scard" data-card="ask"><h3>Ask <span class="muted">the AI helper</span></h3>
+        ${this._row('What Ask is for ' + (k.name || 'this child'), 'Pictures only: six things to tap, no typing and no talking. Full: typing, talking and the pictures.', this._seg('Ask', askFor(k).mode, [['off', 'Off'], ['pictures', 'Pictures only'], ['full', 'Full']], (v) => set((x) => { x.ask = v; })))}
+        ${askFor(k).mode === 'off' ? nothing : this._row('Ask time a day', 'Counted while his Ask is open, on this screen. When it runs out, Ask says so kindly and waits for tomorrow.', this._step('Ask time a day', askFor(k).minutes, (v) => set((x) => { x.ask_minutes = v; }), { max: 120, step: 5, say: (v) => (v ? `${v} min` : 'No limit') }))}
+        <span class="shint">${askByChild(d.kids) ? 'Ask is set by child: opened from a shared page, it first asks who is asking. A grown-up gets in with the PIN.' : 'Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a grown-up gets in with the PIN.'}</span>
       </div>`;
     return html`<p class="sintro">One child at a time. Pick who, then change what you need.</p>
       ${this._kidChips('Which child')}
@@ -612,20 +620,29 @@ export class FhSettings extends LitElement {
   private _rewards(): TemplateResult {
     const d = this._draft, kids = d.kids ?? [], k = kids[this._kid], i = this._kid;
     const DEFAULTS: RewardConfig[] = [{ name: 'Pick the family movie', cost: 100 }, { name: 'Choose Friday dinner', cost: 80 }];
-    const list = k?.rewards, set = (fn: (l: RewardConfig[]) => void): void => this._edit((x) => { const kk = x.kids![i]; kk.rewards = kk.rewards ?? clone(DEFAULTS); fn(kk.rewards); });
+    // a drafted list sits beside the live one: the child's page shows the live list until the draft is put live (and saved)
+    const hasDraft = !!k?.rewards_draft, draft = hasDraft && this._rwLive !== i, key = draft ? 'rewards_draft' : 'rewards';
+    const list = k?.[key], set = (fn: (l: RewardConfig[]) => void): void => this._edit((x) => { const kk = x.kids![i]; kk[key] = kk[key] ?? clone(DEFAULTS); fn(kk[key]!); });
     const jar = d.jar ?? {};
     return html`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a grown-up first.</p>
       ${k ? html`${this._kidChips('Whose rewards')}
-      <div class="scard"><h3>${k.name}’s rewards ${list ? nothing : html`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
+      ${hasDraft ? html`<div class="scard" data-card="rewards-draft"><h3>A drafted list is waiting <span class="muted">not live yet</span></h3>
+        <span class="shint">${k.name} still sees the live list. Change the draft as you like, then put it live and save.</span>
+        ${this._seg('Which list', draft ? 'draft' : 'live', [['draft', `Draft (${k.rewards_draft!.length})`], ['live', `Live now (${(k.rewards ?? DEFAULTS).length})`]], (v) => { this._rwLive = v === 'live' ? i : -1; })}
+        <div style="display:flex;flex-wrap:wrap;gap:10px"><button class="pill tap primary" data-act="draft-live" @click=${() => { this._edit((x) => { const kk = x.kids![i]; kk.rewards = kk.rewards_draft; delete kk.rewards_draft; }); this._rwLive = -1; }}>${icon('check', 18)}Put this draft live</button>
+          <button class="pill tap" data-act="draft-drop" @click=${() => { this._edit((x) => { delete x.kids![i].rewards_draft; }); this._rwLive = -1; }}>Discard the draft</button></div>
+      </div>` : nothing}
+      <div class="scard" data-list=${draft ? 'draft' : 'live'}><h3>${k.name}’s ${draft ? 'drafted rewards' : 'rewards'} ${list ? nothing : html`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
         ${(list ?? DEFAULTS).map((r, n, all) => html`<div class="sitem" data-reward=${n}>
           ${this._txt(`rw.${i}.${n}.icon`, `Picture for ${r.name || 'this reward'} (an emoji)`, r.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎁', pic: true, max: 16 })}
           ${this._txt(`rw.${i}.${n}.name`, `Reward ${n + 1} name`, r.name, (v) => set((l) => { l[n].name = v; }), { cls: 'sgrow sfull2', ph: 'Name of the reward', bad: !r.name.trim() })}
           ${this._step(`Cost of ${r.name || 'this reward'}`, r.cost, (v) => set((l) => { l[n].cost = v; }), { max: 5000, step: 5, unit: 'pts' })}
-          <span class="schips"><button class="tap" aria-pressed=${String(r.approve ?? r.cost >= 60)} aria-label=${`${r.name || 'This reward'} needs a grown-up’s PIN`} @click=${() => set((l) => { l[n].approve = !(l[n].approve ?? l[n].cost >= 60); })}><span class="sbox2" aria-hidden="true">${(r.approve ?? r.cost >= 60) ? icon('check', 16) : nothing}</span>Needs PIN</button></span>
+          <span class="schips"><button class="tap" aria-pressed=${String(r.approve ?? r.cost >= 60)} aria-label=${`${r.name || 'This reward'} needs a grown-up’s PIN`} @click=${() => set((l) => { l[n].approve = !(l[n].approve ?? l[n].cost >= 60); })}><span class="sbox2" aria-hidden="true">${(r.approve ?? r.cost >= 60) ? icon('check', 16) : nothing}</span>Needs PIN</button>
+            <button class="tap" data-act="weekly" aria-pressed=${String(!!r.weekly)} aria-label=${`${r.name || 'This reward'} can be had once a week`} @click=${() => set((l) => { if (l[n].weekly) delete l[n].weekly; else l[n].weekly = 1; })}><span class="sbox2" aria-hidden="true">${r.weekly ? icon('check', 16) : nothing}</span>${r.weekly && r.weekly > 1 ? `${r.weekly} a week` : 'Once a week'}</button></span>
           ${this._move(r.name || 'reward', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}
           ${this._del(`Remove ${r.name || 'this reward'}`, () => set((l) => { l.splice(n, 1); }))}</div>`)}
         <div><button class="pill tap" data-act="reward-add" @click=${() => { const n = (list ?? DEFAULTS).length; set((l) => { l.push({ name: '', cost: 50 }); }); this._focusSoon(`rw.${i}.${n}.name`); }}>${icon('plus', 18)}Add a reward</button></div>
-        <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
+        <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. “Once a week” is a limit: after it is had, the row says “Back Monday”. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
       </div>` : nothing}
       <div class="scard"><h3>${icon('jar', 20)}Family jar <span class="muted">shared by everyone</span></h3>
         ${this._row('Points to fill the jar', '', this._step('Points to fill the jar', jar.target ?? 200, (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), target: v }; }), { min: 10, max: 5000, step: 10, unit: 'pts' }))}
