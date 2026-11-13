@@ -90,6 +90,8 @@ export class FamilyHubCard extends LitElement {
     if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
   }
   protected willUpdate(ch: PropertyValues): void {
+    // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
+    if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
     if (ch.has('_page') && this._page === 'doodle') this._doodleLow = ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture';
     // remember what opened a sheet, so focus can go back to it when the sheet closes
     // (a sheet that opens after the PIN pad goes back to whatever opened the pad)
@@ -143,6 +145,8 @@ export class FamilyHubCard extends LitElement {
   private _kid = 0;
   private _photo = '';
   private _musicFocus = '';
+  /** the child whose page Music was opened from (his calm setting applies there), or '' */
+  private _musicKid = '';
   private _photos: string[] = [];
   private _photoIdx = 0;
   private _photoTimer?: number;
@@ -932,7 +936,8 @@ export class FamilyHubCard extends LitElement {
     // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
     const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
     const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
-    const kp = this._kp, calm = this._config.calm === false ? false : kp ? kp.calm : this._config.calm === true;
+    const kp = this._kp, mk = this._page === 'music' && this._musicKid ? this._config.kids?.find((k) => k.name === this._musicKid) : undefined;
+    const calm = this._config.calm === false ? false : kp ? kp.calm : mk ? kidPrefs(mk).calm || this._config.calm === true : this._config.calm === true;
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
