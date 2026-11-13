@@ -34,7 +34,8 @@ export class FhMorning extends LitElement {
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; position: relative; }
     .board { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
     .team { flex: 1.4; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    .stars { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 4px; line-height: 0; }
+    /* the stars sit in balanced rows (5 and 4, never 8 and a lone one) where the browser can balance; otherwise they wrap as before */
+    .stars { display: block; text-align: center; text-wrap: balance; line-height: 0; } .stars > * { display: inline-block; margin: 1px 2px; vertical-align: top; }
     .tstar path { fill: none; stroke: var(--ink2); stroke-width: 1.500; stroke-linejoin: round; }
     .tstar.lit path { fill: #f5b301; stroke: #8a5a00; }
     .tstar.lit { animation: starpop var(--m-5, 900ms) cubic-bezier(.3,1.8,.5,1) both; }

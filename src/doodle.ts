@@ -77,7 +77,12 @@ export class FhDoodle extends LitElement {
     .size { width: 50px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     /* the chosen brush, stamp or eraser wears the look's selected style (a white chip on a white card showed nothing) */
     .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+    /* Glass: the tinted fill was within a whisker of the card in the light themes, so the chosen one is a solid block of ink there (the halo tone is ink's opposite in every theme) */
+    :host([data-look='glass']) .size[aria-pressed='true'] { background: var(--ink); color: var(--ring-halo, #fff); box-shadow: none; }
     .size i { border-radius: 50%; background: currentColor; display: block; }
+    /* the three sizes draw what they will make: dots for a brush, the chosen stamp small to large, blocks for the eraser */
+    .size i.rub { border-radius: 3px; background: transparent; box-shadow: inset 0 0 0 2.5px currentColor; }
+    .size .sz { line-height: 1; display: flex; align-items: center; justify-content: center; }
     .easel { flex: 1; min-width: 0; border-radius: 28px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
@@ -334,7 +339,8 @@ export class FhDoodle extends LitElement {
         <span class="rule"></span>
         ${STAMPS.map(([st, name]) => html`<button class="size stampbtn tap" aria-label="${name} stamp" aria-pressed=${String(this._stamp === st)} @click=${() => { this._stamp = this._stamp === st ? '' : st; this._erase = false; }}>${st === 'clarinet' ? clarinetSvg() : st}</button>`)}
         <span class="rule"></span>
-        ${SIZES.map((s) => html`<button class="size tap" aria-label="Brush ${s}" aria-pressed=${String(this._size === s)} @click=${() => { this._size = s; }}><i style="width:${Math.min(s, 22)}px;height:${Math.min(s, 22)}px"></i></button>`)}
+        ${SIZES.map((s, n) => { const st = this._stamp, d = Math.min(s, 22), name = ['small', 'medium', 'big'][n] ?? String(s);
+          return html`<button class="size tap" aria-label=${st ? `Stamp size: ${name}` : this._erase ? `Eraser size: ${name}` : `Brush ${s}`} aria-pressed=${String(this._size === s)} @click=${() => { this._size = s; }}>${st ? html`<span class="sz" style="font-size:${14 + n * 7}px" aria-hidden="true">${st === 'clarinet' ? clarinetSvg(16 + n * 9) : st}</span>` : this._erase ? html`<i class="rub" style="width:${10 + n * 8}px;height:${10 + n * 8}px"></i>` : html`<i style="width:${d}px;height:${d}px"></i>`}</button>`; })}
         <button class="size tap" aria-label="Eraser" aria-pressed=${String(this._erase)} @click=${() => { this._erase = !this._erase; if (this._erase) this._stamp = ''; }}>${eraserIcon}</button>
       </section>
       <section class="glass easel ${this._stick ? 'stick' : ''}">
