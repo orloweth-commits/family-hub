@@ -14380,12 +14380,16 @@ const Hp = () => ws && Date.now() < ws.until ? ws : null, tr = (a) => {
     }))}<span class="muted">to</span>${this._tm("Night screen ends", () => this._draft.night?.end, (d) => this._edit((c) => {
       c.night.end = d;
     }))}` : u}`)}
-        ${this._row("Quiet hours", "Sounds are muted; the lights and Ask count as “after bedtime”.", l`${this._tm("Quiet hours start", () => this._draft.quiet?.start, (d) => this._edit((c) => {
+        ${this._row("Quiet hours", "The lights and Ask count as “after bedtime”.", l`${this._tm("Quiet hours start", () => this._draft.quiet?.start, (d) => this._edit((c) => {
       c.quiet = { ...c.quiet ?? {}, start: d };
     }), "20:00")}<span class="muted">to</span>${this._tm("Quiet hours end", () => this._draft.quiet?.end, (d) => this._edit((c) => {
       c.quiet = { ...c.quiet ?? {}, end: d };
     }), "06:30")}`)}
         <span class="shint">${i.start || i.end ? "" : "Quiet hours are 8:00 pm to 6:30 am until you change them."}</span>
+        ${this._row("Silent in quiet hours", "Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.", this._sw("Silent in quiet hours", i.mute === !0, () => this._edit((d) => {
+      const c = d.quiet?.mute === !0;
+      d.quiet = { ...d.quiet ?? {} }, c ? delete d.quiet.mute : d.quiet.mute = !0, Object.keys(d.quiet).length || delete d.quiet;
+    })))}
       </div>
       <div class="scard"><h3>${K("bin", 20)}Bin night</h3>
         ${this._row("Bins go out", "Shown on the planner the evening before collection.", this._sw("Show bin night", !!s, () => this._edit((d) => {
@@ -15451,7 +15455,7 @@ const Qg = (a, t) => {
       this._art.tick(Date.now() - this._lastTouch, this._artBlocked(), this._eventsOn(t, this._soon).map((p) => p.title)), this._art.on !== n && (this._now = t), this._art.backlight(this._isNight() || this._art.on && id(this._config.kids, this._config.quiet, t) ? "night" : this._art.on ? "art" : "hub");
     }
     if ((e || this._dinner || t.getSeconds() % 15 === 0) && (this._now = t), t.getSeconds() % 15) return;
-    qd(gs(t, this._config?.quiet?.start ?? "20:00", this._config?.quiet?.end ?? "06:30"));
+    qd(this._config?.quiet?.mute === !0 && gs(t, this._config?.quiet?.start ?? "20:00", this._config?.quiet?.end ?? "06:30"));
     const i = Date.now() - this._lastTouch;
     !this._idle && i > 6e4 && (this._idle = !0);
     const s = (this._config?.idle_seconds ?? 180) * 1e3, o = this._morningWindow() ? "morning" : "planner";

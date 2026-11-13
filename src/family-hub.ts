@@ -302,7 +302,7 @@ export class FamilyHubCard extends LitElement {
     // second-by-second only while something is counting down; otherwise every 15 s
     if (timerOn || this._dinner || now.getSeconds() % 15 === 0) this._now = now;
     if (now.getSeconds() % 15) return;
-    setMuted(isQuiet(now, this._config?.quiet?.start ?? '20:00', this._config?.quiet?.end ?? '06:30'));
+    setMuted(this._config?.quiet?.mute === true && isQuiet(now, this._config?.quiet?.start ?? '20:00', this._config?.quiet?.end ?? '06:30'));
     const idleFor = Date.now() - this._lastTouch;
     if (!this._idle && idleFor > 60_000) this._idle = true;
     const idle = (this._config?.idle_seconds ?? 180) * 1000;

@@ -230,6 +230,7 @@ if (page === 'kid') { el._kid = Number(q.get('kid') || 0); el._page = 'kid'; }
 else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
 // &sheet=settings opens Settings (&pane=children|rewards|morning|medicines|pin|house|music|people|advanced, &skid=<n> and &stab=jobs pick a child and his job list, &keys=1 shows the on-screen keyboard, &nopin=1 starts without a PIN)
+if (q.get('quietmute')) el.setConfig({ ...el._config, quiet: { ...(el._config.quiet ?? {}), mute: true } });
 if (q.get('nopin')) { const { parent_pin, ...rest } = el._config; el.setConfig(rest); }
 if (q.get('sheet') && q.get('sheet') !== 'settings') el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;

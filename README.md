@@ -102,7 +102,7 @@ bring_rules: [{ match: swim, item: Swim bag }]
 jar: { target: 120, reward: pizza night }   # input_number.family_jar
 all_on: [light.lounge]
 keep_on: [light.hallway_night, light.fish_tank]   # "All off" leaves these on (and everything in a group named here), and says how many it kept on
-quiet: { start: "20:00", end: "06:30" }
+quiet: { start: "20:00", end: "06:30" }   # add mute: true to silence touch sounds in these hours
 art:                                # the screensaver, the artwork and painted characters (Settings, Pictures, changes all of it)
   idle_minutes: 3                   # minutes with no touch (and nobody near) before the artwork comes up; 0 = never
   interval_minutes: 5               # how long each picture stays
