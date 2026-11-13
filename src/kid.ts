@@ -103,7 +103,11 @@ export class FhKid extends LitElement {
     :host([data-shape='wide'][data-n3]) .list, :host([data-shape='wide'][data-n3]) .focus { overflow: visible; flex: none; }
     :host([data-shape='wide'][data-n3]) .side > .tabcard { overflow: visible; }
     /* portrait and shorter than its canvas: the jobs keep a usable height (the side column scrolls inside itself), and the page scrolls a little if it must */
-    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(400px, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(auto, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs { min-height: 400px; }
+    /* one job at a time is never cut off: the card grows to hold Now, Next and "Show all" (a look's Now card may be taller), and the page scrolls */
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs:has(> .focus) { min-height: max-content; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .focus { flex: none; overflow: visible; }
     :host([data-shape='tall'][data-n3]:not([data-phone])) .side { max-height: 440px; }
     :host([data-phone]) { display: flex; flex-direction: column; gap: 12px; flex: none; }
     :host([data-phone]) .jobs { order: 1; flex: none; }
@@ -131,6 +135,15 @@ export class FhKid extends LitElement {
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
     .focus .label { font-size: 14px; margin-top: 4px; }
+    /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */
+    .focus[data-fit] { gap: 6px; --fit: 1; }
+    .focus[data-fit] .label { margin-top: 0; }
+    .focus[data-fit] .picwrap { min-height: 132px; }
+    .focus[data-fit] .pic.big { flex-direction: row; gap: 18px; padding: 8px 96px 8px 18px; }
+    .focus[data-fit] .pic.big .e { font-size: 88px; line-height: 1.1; }
+    .focus[data-fit] .pic.small { flex-basis: 76px; padding-top: 4px; padding-bottom: 4px; }
+    .focus[data-fit] .pic.small .e { font-size: 52px; line-height: 1.1; }
+    .focus[data-fit='2'] .job.big, .focus[data-fit='3'] .job.big { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
     .label { font-size: 14px; }
     .pill { font-size: 15px; }
     .job.big { min-height: 96px; padding: 16px 18px; }
@@ -143,7 +156,7 @@ export class FhKid extends LitElement {
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; }
+    .pic.big .e { font-size: 124px; line-height: 1; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -188,6 +201,13 @@ export class FhKid extends LitElement {
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
     .side > .card { flex-shrink: 0; }
+    /* wind-down: four cards share the column. It tightens in steps (fitBox) so "Ask for a chat" at the bottom is never cut off; only after the last step does it scroll */
+    .side[data-fit] > .card { gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+    .side[data-fit] .wbed { display: none; }
+    .side[data-fit='2'], .side[data-fit='3'] { gap: 8px; }
+    .side[data-fit='2'] > .card, .side[data-fit='3'] > .card { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
+    .side[data-fit='2'] .wq, .side[data-fit='3'] .wq { display: none; }
+    .side[data-fit='3'] .wk:nth-of-type(n+5) { display: none; }
     /* a small child's controls sit low: the jar card above them takes up the spare height, so there is no empty band between the cards */
     .side.low > .card:first-child { flex: 1 0 auto; justify-content: center; }
     /* the youngest reaches the lower half of a wall panel only: his feelings card sits at the very bottom of the column, and the two tab buttons come down to meet it, under their list */
@@ -595,7 +615,7 @@ export class FhKid extends LitElement {
       ${this._hero()}
       ${missing ? html`<section class="glass jobs"><div class="empty"><h2 class="t-sub">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${e.chores}</b> and <b>${e.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
-      <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._jar()}${this._windChat()}`
+      <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" ?data-fits=${this._wind} @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._windChat()}${this._jar()}`
         // a small child's own controls sit low on a wall panel: his stars and what is coming up go under the feelings card, the jar (nothing to press) goes on top
         : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
@@ -725,7 +745,7 @@ export class FhKid extends LitElement {
       <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
       ${done ? html`<button class="pill tap" @click=${() => { this._showAll = true; }}>See what I did</button>` : nothing}</div></div>`;
     const more = rest.length;
-    return html`<div class="focus">
+    return html`<div class="focus" data-fits>
       <span class="label">Now</span>
       ${this._picMode ? html`<div class="picwrap">${this._pic(now, 'big')}${this._reader()}</div>` : this._row(now, true)}
       ${next ? html`<span class="label">Next</span>${this._picMode ? this._pic(next, 'small') : this._row(next, false, true)}` : nothing}
@@ -787,7 +807,7 @@ export class FhKid extends LitElement {
 
   private _windCard(): TemplateResult {
     return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      <span class="muted" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
+      <span class="muted wbed" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
   }
 
   private _jar(): TemplateResult {
@@ -821,7 +841,7 @@ export class FhKid extends LitElement {
 
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   private _windChat(): TemplateResult {
-    return html`<section class="glass card" aria-label="Ask for a grown-up"><span style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
+    return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>💬 Ask for a chat</button></section>`;
   }
 

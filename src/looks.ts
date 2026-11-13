@@ -67,7 +67,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // more of the base that Home Ground dresses
       'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
-    'fh-groceries': ['list', 'items', 'tag', 'who'],
+    'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
       'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
@@ -1023,8 +1023,8 @@ const SPORTS = `
   @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
-  @S .init.sm:not(.avatar) { min-width: 18px; width: 18px; height: 20px; padding: 0 0 3px; font-size: 10px; }
-  @S .init.sm:not(.avatar)::before { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  /* the small bib is the full 22 px one: its initial is never under 12 px */
+  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: 12px; }
   @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
@@ -1180,6 +1180,8 @@ const SPORTS = `
   @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .dots i.g { background: var(--ok); border-color: var(--ok); }
   @S .nextup { background: var(--panel2); border-radius: 10px; }
+  /* room for the ball above and below the bar: at the start of the bar it sat on the label */
+  @S .nextup .meter { margin: 8px 0 6px; }
   @S .jobs .ring { width: auto; height: 36px; padding: 0 10px; border-radius: 8px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); display: flex; align-items: center; }
   @S .jobs .ring svg { display: none; }
   @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
@@ -1204,9 +1206,13 @@ const SPORTS = `
   /* the one to do now: picture on the left, its name and the 60 px button on the right, so the button never covers the picture however short the card is */
   @S .pic.big { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; align-items: center; justify-items: start; column-gap: 22px; row-gap: 6px; padding: 12px 100px 16px 26px; text-align: left; }
   @S .pic.big .e { grid-area: 1 / 1 / 4 / 2; font-size: 112px; line-height: 1.05; }
+  /* on a short panel the kid page sets --fit: the Now card tightens (button 48 px, smaller picture) so its name is never pushed out of the card */
+  @S .pic.big { padding-top: calc(12px - 6px * var(--fit, 0)); padding-bottom: calc(16px - 8px * var(--fit, 0)); row-gap: calc(6px - 4px * var(--fit, 0)); }
+  @S .pic.big .e { font-size: calc(112px - 28px * var(--fit, 0)); }
+  @S .pic.big .pt { font-size: calc(32px - 6px * var(--fit, 0)); }
   @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
   @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
-  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: 60px; margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: 60px; text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
   @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
   @S .pic.small .e { font-size: 48px; }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
@@ -1217,7 +1223,9 @@ const SPORTS = `
   @S .wk { font-size: 15px; }
 
   /* groceries: the canteen docket */
-  @S .list.glass { border-radius: 6px 6px 14px 14px; border-top: 6px solid var(--board); }
+  /* the dark docket bar is painted inside the card, so the card's own corners clip it */
+  @S .list.glass { border-radius: 14px; padding-top: 26px; background: linear-gradient(var(--board), var(--board)) top / 100% 6px no-repeat, radial-gradient(circle at 100% 100%, transparent 0 21px, var(--track) 21.5px 23.5px, transparent 24px) right bottom / 26px 26px no-repeat, var(--panel); }
+  @S .clear { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .items .row { background: transparent; border-radius: 0; border-bottom: 1.5px dashed var(--line); }
   @S .tag { border-radius: 6px; font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .who.glass { border-radius: 12px; background: var(--panel); }
@@ -1243,7 +1251,9 @@ const SPORTS = `
   @S .ink { box-shadow: inset 0 0 0 2px rgba(20,32,26,.55); }
   @S .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--ink); }
   @S .snap { border-radius: 8px; box-shadow: 0 0 0 1.5px var(--line); }
-  @S .by { border-radius: 6px; background: var(--board); color: var(--board-ink); font-family: 'Caveat', 'Inter', sans-serif; font-size: 17px; font-weight: 700; }
+  /* who drew it: a caption under the tile, so it never covers the drawing or hangs off the corner */
+  @S .snaps { row-gap: 30px; padding-bottom: 32px; }
+  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: 18px; line-height: 1.2; font-weight: 700; }
 
   /* style studio: kit laid out on the bench */
   @S .tile { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
@@ -1263,7 +1273,7 @@ const SPORTS = `
   @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
   @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .wtip { background: var(--panel2); border-radius: 10px; }
-  @S .wfact { background: var(--panel2); border-radius: 10px; }
+  @S .wfact { background: var(--panel2); border-radius: 10px; padding: 6px 10px; }
   @S .wday { border-radius: 8px; }
   @S .wday.today { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .wbar { border-radius: 3px; }
@@ -1281,7 +1291,7 @@ const SPORTS = `
 
   /* add an event: the time is picked on a scoreboard drum */
   @S .chips button { font-size: 15px; gap: 5px; }
-  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 11px; }
+  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 12px; }
   @S .dialbox { border-radius: 12px; background: var(--panel2); }
   @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
   @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--hi), inset -5px 0 0 var(--hi); }
@@ -1317,6 +1327,7 @@ const SPORTS = `
   @S .sname { background: var(--board); color: var(--board-ink); border-radius: 6px; box-shadow: 0 0 0 1.5px var(--board-line); font-weight: 700; }
   @S .lamp { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .lamp[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); }
+  @S .lamp[data-other] { font-size: 15px; padding: 0 7px; }
   @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
   @S .slot { --rail-w: 5px; }
   @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }

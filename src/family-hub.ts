@@ -390,7 +390,7 @@ export class FamilyHubCard extends LitElement {
       col.removeAttribute('data-tight'); col.removeAttribute('data-wrap');
       // only a word that is longer than its column may be hyphenated; everything else wraps between words
       const pen = (FamilyHubCard._pen ??= document.createElement('canvas').getContext('2d'));
-      if (pen) for (const n of box.querySelectorAll<HTMLElement>('.ev .n')) { const f = getComputedStyle(n); pen.font = `${f.fontWeight} ${f.fontSize} ${f.fontFamily}`; n.toggleAttribute('data-hy', Math.max(0, ...(n.textContent ?? '').split(/[\s\u2011-]+/).map((w) => pen.measureText(w).width)) > n.clientWidth); }
+      if (pen) for (const n of box.querySelectorAll<HTMLElement>('.ev .n')) { n.removeAttribute('data-hy'); /* measured at its full size: a marked title is set smaller */ const f = getComputedStyle(n); pen.font = `${f.fontWeight} ${f.fontSize} ${f.fontFamily}`; n.toggleAttribute('data-hy', Math.max(0, ...(n.textContent ?? '').split(/[\s\u2011-]+/).map((w) => pen.measureText(w).width)) > n.clientWidth); }
       // the room for events is measured, not guessed: the column, less its padding and its heading
       const cs = getComputedStyle(col), gap = parseFloat(cs.rowGap) || 0, eg = parseFloat(getComputedStyle(box).rowGap) || 0, head = col.querySelector<HTMLElement>('.dayhead');
       const avail = col.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (head ? head.offsetHeight + gap : 0);
@@ -1358,7 +1358,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead('Kitchen timer', on ? 'Beeps everywhere when it finishes.' : 'Tap +1, +5 or +10 to start', 'timer')}
       <div ?data-bump=${!!this._bump} style="display:flex;align-items:center;justify-content:center;gap:24px"><span style="line-height:0">${lookArt(this._lk, 'timer', { frac: this._timerFrac(this._timerLeft()), size: 130 })}</span>
       <span class="display" role="timer" aria-label=${`${mm} minutes ${ss} seconds left`} style="font-size:88px;line-height:1;font-weight:var(--w-bold, 700);text-align:center;font-variant-numeric:tabular-nums">${this._roll(`${mm}:${String(ss).padStart(2, '0')}`)}</span></div>
-      <div class="grid3" style="gap:12px">${[1, 5, 10].map((n) => html`<button class="tap ${n === 5 ? 'lead' : ''}" data-act="plus" style="height:60px;font-size:18px;white-space:nowrap;${n === 5 ? '' : 'border-radius:999px;font-weight:var(--w-bold, 700)'}" aria-label=${`Add ${n} minute${n > 1 ? 's' : ''}`} @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
+      <div class="grid3" style="gap:12px">${[1, 5, 10].map((n) => html`<button class="tap ${n === 5 ? 'lead' : 'quick'}" data-act="plus" style="height:60px;font-size:18px;white-space:nowrap;${n === 5 ? '' : 'border-radius:999px;font-weight:var(--w-bold, 700)'}" aria-label=${`Add ${n} minute${n > 1 ? 's' : ''}`} @click=${() => this._addTimer(n)}>+${n} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px;background:transparent" aria-label="Cancel the kitchen timer" ?disabled=${!on} @click=${() => { void this._cancelTimer(); }}>Cancel</button>`;
   }
   /** In words, who is home and who is away. */

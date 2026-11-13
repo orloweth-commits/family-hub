@@ -75,8 +75,9 @@ export class FhDoodle extends LitElement {
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .rainbow { background: conic-gradient(#e63946, #fcbf49, #2a9d8f, #118ab2, #7b2cbf, #e63946); }
     .size { width: 50px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .size[aria-pressed='true'] { background: var(--chip-strong); }
-    .size i { border-radius: 50%; background: var(--ink); display: block; }
+    /* the chosen brush, stamp or eraser wears the look's selected style (a white chip on a white card showed nothing) */
+    .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+    .size i { border-radius: 50%; background: currentColor; display: block; }
     .easel { flex: 1; min-width: 0; border-radius: 28px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
