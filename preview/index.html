@@ -17,13 +17,13 @@ const now = new Date();
 const mon = new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
 const at = (d, h, m = 0) => { const x = new Date(mon); x.setDate(x.getDate() + d); x.setHours(h, m, 0, 0); return x; };
 const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
-const ev = (d, h, m, title, mins = 60, location) => ({ summary: title, location, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
+const ev = (d, h, m, title, mins = 60, location, description) => ({ summary: title, location, description, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
 const allDay = (d, title) => ({ summary: title, start: { date: ymd(at(d,0)) }, end: { date: ymd(at(d+1,0)) } });
 const CAL = {
   'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
   'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
   'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
-  'calendar.riley': [ev(1,16,0,'Swimming squad',90,'Aquatic centre, pool 2'), ev(2,17,30,'Clarinet lesson',45), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
+  'calendar.riley': [ev(1,16,0,'Swimming squad',90,'Aquatic centre, pool 2','Bring:<br>goggles and cap<br>towel<p>Meet at the far end of pool 2.</p>Timetable: https://example.org/squad'), ev(2,17,30,'Clarinet lesson',45,undefined,'Bring the blue book <img src=x onerror="window.__pwned=1"><script>window.__pwned=2<\/script> and a spare reed'), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
   'calendar.charlie': [ev(0,15,45,'Tennis',60,'Tennis club'), ev(3,15,30,'Playdate',120), ev(1,8,30,'Library bag',15), ev(4,16,0,'Trumpet lesson',45)],
   'calendar.max': [ev(2,9,0,'Kindy',360), ev(4,9,0,'Kindy',360), ev(5,11,0,'Birthday party',120,'Sampleton community hall, 12 Example Parade')]
 };

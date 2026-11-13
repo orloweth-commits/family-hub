@@ -35,7 +35,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event';
-const VERSION = '0.26.0';
+const VERSION = '0.26.1';
 const THEME_KEY = 'family-hub-theme';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
@@ -569,7 +569,7 @@ export class FamilyHubCard extends LitElement {
     const o = this._evOpen; if (!o) return nothing;
     const { ev, day } = o, part = whenOn(ev, day).label;
     // the calendar's notes are shown as plain text: line breaks kept, any markup taken out, nothing run as HTML
-    const notes = (ev.description ?? '').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, '’').replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim();
+    const notes = (ev.description ?? '').replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, ' ').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n').replace(/<(p|div|li)(\s[^>]*)?>/gi, '\n').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, '’').replace(/&amp;/g, '&').replace(/[ \t]{2,}/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
     const row = (ic: TemplateResult, body: unknown, cls = '') => html`<div class="evrow ${cls}"><span class="evic" aria-hidden="true">${ic}</span><span class="evtx">${body}</span></div>`;
     return html`<div class="shead"><h2 class="t-head evtitle" id="evt">${ev.title}</h2></div>
       <div class="evd" style="--c:${slotVar(ev.colour)}">
@@ -577,7 +577,7 @@ export class FamilyHubCard extends LitElement {
         ${row(icon('timer', 22), html`${fmtSpan(ev)}${/^(Day|until|continues)/.test(part) ? html`<span class="muted evpart"> · ${part === 'continues' ? 'continues all day' : part.replace(/^Day/, 'day')}</span>` : nothing}`, 'evwhen')}
         ${row(this._chip(ev.who, ev.colour), ev.who, 'evwho2')}
         ${ev.location ? row(icon('pin', 22), ev.location, 'evplace') : nothing}
-        ${notes ? html`<p class="evnotes">${notes}</p>` : nothing}
+        ${notes ? html`<div class="evnotebox"><span class="label" id="evnl">Notes</span><p class="evnotes scrolly" aria-labelledby="evnl" tabindex="0" @scroll=${scrollCue}>${notes}</p></div>` : nothing}
       </div>
       <div class="sfoot"><span class="muted"></span><button class="lead tap" data-act="ev-close" @click=${() => { this._sheet = ''; }}>Close</button></div>`;
   }
