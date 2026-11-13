@@ -23,6 +23,14 @@ export class FhPin extends LitElement {
     .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; }
     .what { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); align-self: flex-start; margin-top: -8px; }
     @media (max-height: 640px) { .grid { grid-template-columns: repeat(3, 64px); gap: 8px; } .grid button { height: 64px; } .pad { gap: 10px; } }
+    /* the pad fits the space it is given (a page's own pad has only that page's height, and the line that says why can run to four lines): smaller keys first, then the words beside the keys */
+    :host { container-type: size; }
+    @container (max-height: 700px) { .grid { grid-template-columns: repeat(3, 64px); gap: 8px; } .grid button { height: 64px; } .pad { gap: 10px; padding: 16px 28px 18px; } }
+    @container (max-height: 540px) and (min-width: 700px) {
+      .pad { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto 1fr; column-gap: 28px; align-items: start; justify-items: start; width: 640px; }
+      .grid { grid-column: 2; grid-row: 1 / 5; } .note { text-align: left; }
+    }
+    @container (max-height: 400px) { .grid { grid-template-columns: repeat(3, 56px); gap: 6px; } .grid button { height: 56px; font-size: 24px; } }
     .bad { animation: shake var(--m-4, 400ms); }
     .note { min-height: 20px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--danger, #c62a22); text-align: center; }
     .grid button[disabled] { opacity: .4; }

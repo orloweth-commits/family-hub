@@ -24,7 +24,7 @@ import { kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyH
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
-import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { afterBedtime, bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 /** The picture for a day with nothing on: a kite in the sun. */
 const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -830,7 +830,7 @@ export class FamilyHubCard extends LitElement {
   private async _allOn(checked = false): Promise<void> {
     if (this._sceneBusy) return;
     // after any child's bedtime a wall of light is a grown-up's call
-    const c = this._config, n = minsNow(), late = (c.kids ?? []).some((k) => n >= hm(bedtimeFor(k.bedtime)) || n < hm(c.quiet?.end ?? '06:30'));
+    const c = this._config, late = afterBedtime(c.kids, c.quiet);
     if (!checked && late && c.parent_pin) { this._pinAsk = { reason: 'It is after bedtime. Turn the lights on?', run: () => void this._allOn(true) }; return; }
     const ids = c.all_on, S = this.hass?.states ?? {};
     // only what this tap turns on can be undone: lights that were already on stay on
@@ -888,8 +888,8 @@ export class FamilyHubCard extends LitElement {
   }
   /** Ask, the children's chat. After any child's bedtime, and in quiet hours, it is for grown-ups to open. */
   private _chatLate(now = new Date()): boolean {
-    const c = this._config, n = minsNow(now);
-    return isQuiet(now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30') || (c.kids ?? []).some((k) => n >= hm(bedtimeFor(k.bedtime, now)) || n < 5 * 60);
+    const c = this._config;
+    return afterBedtime(c.kids, c.quiet, now);
   }
   private _openChat(): void {
     const c = this._config, open = (): void => { this._sheet = 'chat'; };

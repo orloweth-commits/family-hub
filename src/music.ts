@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
+import { afterBedtime, bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
@@ -710,8 +710,10 @@ export class FhMusic extends LitElement {
     this._gentle(id, () => { this._h.callService('media_player', 'join', { group_members: [id] }, { entity_id: src.entity_id })
       .then(() => { if (!mine) this._say(`${this._name(this.hass!.states[id])} joined the music in ${this._name(src)}`); }).catch((e: unknown) => this._oops('Couldn’t add that room', e)); });
   }
-  /** Music for every room at once reaches the bedrooms too: after bedtime that needs a grown-up. */
-  private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
+  /** After bedtime: the same test the card uses for Ask and All on (quiet hours, or any child's bedtime has passed). */
+  private get _late(): boolean { return afterBedtime(this.kids, this.quiet); }
+  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a grown-up (when a PIN is set). */
+  private _wholeHouse(run: () => void): void { if (this._late) this._guard('It is after bedtime. Whole-house music plays in the bedrooms too.', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
   /** True when the music that is playing is already in every room that can be reached. */
   /** The speakers that count as "the whole house": the ones on the house map when there is one. A speaker Home Assistant has found that is not on the map
@@ -867,7 +869,9 @@ export class FhMusic extends LitElement {
       } catch (e: unknown) { this._oops(`${m.name} couldn’t start`, e); }
       finally { this._momentBusy = ''; }
     };
-    if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`${m.name} plays in a bedroom after bedtime. Play anyway?`, () => { run(); }); else run();
+    // an all-rooms pad is whole-house music: free by day, a grown-up's call after bedtime. A pad for named rooms asks only when one of them is a bedroom after its bedtime.
+    if (all) this._wholeHouse(() => { void run(); });
+    else if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`It is after bedtime. ${m.name} plays in a bedroom.`, () => { void run(); }); else void run();
   }
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. */
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. A tap, or a turn of a few degrees, is not a turn: the song stays where it is. */
@@ -1122,8 +1126,9 @@ export class FhMusic extends LitElement {
     if (!tts) { this._say('Home Assistant has no voice set up for speaking'); return; }
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     // each room's own bedtime comes first; the household's quiet time covers the rest
-    const quiet = isQuiet(new Date(), this.quiet.start ?? '20:00', this.quiet.end ?? '06:30'), abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
-    if (!checked && this.pin && (quiet || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `${this._name(this.hass!.states[abed[0]])} is asleep. Call anyway?` : quiet ? 'Quiet time. Call anyway?' : 'A typed message needs a grown-up.', run: () => void this._call(true) }; return; }
+    // by day anyone may call any room (the parents' room too) with a ready message. After bedtime a call wakes people, so it asks a grown-up. A message typed in is always a grown-up's.
+    const late = this._late, abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
+    if (!checked && this.pin && (late || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `It is after bedtime. ${this._name(this.hass!.states[abed[0]])} is asleep.` : late ? 'It is after bedtime. A call now could wake someone.' : 'A typed message is spoken out loud. That needs a grown-up.', run: () => void this._call(true) }; return; }
     this._lastCall = Date.now();
     const h = this._h, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
     // each room answers true when Home Assistant took the call; the toast says "Calling" only for rooms that did
