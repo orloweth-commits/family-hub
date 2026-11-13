@@ -282,7 +282,8 @@ export const styles = css`
   aside > .card { padding: 12px 14px; gap: 8px; flex-shrink: 0; }
   aside > .card.np .art { width: 44px; height: 44px; border-radius: 10px; }
   aside > .card.np .ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  aside > .card.tmr { max-height: 176px; }
+  /* the hint under the buttons keeps the same room below it as the label has above */
+  aside > .card.tmr { max-height: 190px; padding-bottom: 16px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */

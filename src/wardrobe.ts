@@ -247,7 +247,7 @@ export const lookPrompt = (l: Look, about = ''): string => {
     w('buddy') ? `With him, close beside him and looking friendly: ${w('buddy')}.` : '',
     `Behind him: ${w('scene')}, softly out of focus.`,
     `His expression: ${w('mouth')}.`,
-    'Framing: a square picture, one boy only, seen from the waist up, facing the viewer, centred. His eyes sit one third of the way down the picture and his whole head, and anything on it, is inside the picture with a little space above.',
+    'Framing: a square picture, one boy only, seen from the chest up, facing the viewer, his face exactly in the middle from left to right. His face is about one third of the picture’s width and his eyes sit one third of the way down the picture. His whole head, and anything on it, is inside the picture with a little space above; what he holds and any buddy fit in beside and below him.',
     'It is a picture for a young child’s own profile: bright, warm, kind and funny. Nothing frightening, no weapons that look real, no other people.',
     'No text, letters, numbers, logos, brand names, flags or licensed characters anywhere in the picture.'
   ];

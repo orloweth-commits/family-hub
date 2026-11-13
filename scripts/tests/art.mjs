@@ -70,6 +70,16 @@ ok('the picture changes after its minute', !!first && !!second && first !== seco
 ok('the old picture cross-fades under the new one', await page.locator('family-hub-card .artm img.aimg').count() === 2);
 await page.close();
 
+// 4b. new pictures from the painter's folder are brought into local media, each under its own name
+page = await open('idle=1&artn=0');
+await page.evaluate(() => { for (const n of [1, 2, 3]) { const f = `2026-11-10_02010${n}_family_hub_art_2026_11_10_${n}.png`; window.__media[f] = window.__media['sheet-x'] ?? Object.values(window.__media)[0] ?? ''; } });
+await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); const any = document.createElement('canvas'); any.width = 300; any.height = 200; any.getContext('2d').fillRect(0, 0, 300, 200); const url = any.toDataURL('image/png');
+  for (const n of [1, 2, 3]) { const f = `2026-11-10_02010${n}_family_hub_art_2026_11_10_${n}.png`; window.__media[f] = url; await c.hass.callService('todo', 'add_item', { item: 'media-source://ai_task/image/' + f, description: JSON.stringify({ d: '2026-11-10', kind: 'art', who: ['Riley'], theme: 'T' + n }) }, { entity_id: 'todo.family_hub_art' }); } });
+await ahead(page, '01:10'); await page.waitForTimeout(1500);
+{ const names = (await page.evaluate(() => Object.keys(window.__media))).filter((n) => /^fhart-20261110-/.test(n));
+  ok('three new pictures become three files of their own', names.length === 3 && new Set(names).size === 3, names); }
+await page.close();
+
 // 5. no artwork yet: the clock on the panel's own wallpaper
 page = await open('idle=1&artn=0'); await ahead(page, '01:10');
 ok('with no pictures it still comes up, bare', await page.locator('family-hub-card .artm[data-bare]').count() === 1 && await page.locator('family-hub-card .artm img.aimg').count() === 0);
