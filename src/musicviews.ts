@@ -630,7 +630,7 @@ export const viewsCss = css`
   /* the crate: dividers behind, sleeves fanned in the box */
   .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 31%; }
   .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
-  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 2px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: margin-top var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
   .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }

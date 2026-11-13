@@ -40,7 +40,9 @@ for (const look of LOOKS) for (const v of VP) {
       const shown = (e) => { for (let x = e; x; x = parentOf(x)) { const cs = getComputedStyle(x); if (cs.display === 'none' || cs.visibility !== 'visible' || Number(cs.opacity) < 0.05) return false; } return true; };
       // a box is something painted: a fill, an edge all the way round, or a shadow (a row with only a rule above it is not one)
       const edge = (cs, s) => parseFloat(cs[`border${s}Width`]) > 0 && cs[`border${s}Style`] !== 'none' && alpha(cs[`border${s}Color`]) > 0.1;
-      const isBox = (e, cs) => e.matches('.card, .sheet, input') || alpha(cs.backgroundColor) > 0.06 || cs.backgroundImage !== 'none' || ['Top', 'Right', 'Bottom', 'Left'].every((s) => edge(cs, s)) || (cs.boxShadow !== 'none' && !/^rgba?\([^)]*\) 0px 0px 0px 0px$/.test(cs.boxShadow));
+      const isBox = (e, cs) => !e.matches('h1, h2, h3') && (e.matches('.card, .sheet, input') || alpha(cs.backgroundColor) > 0.06 || cs.backgroundImage !== 'none' || ['Top', 'Right', 'Bottom', 'Left'].every((s) => edge(cs, s)) || (cs.boxShadow !== 'none' && !/^rgba?\([^)]*\) 0px 0px 0px 0px$/.test(cs.boxShadow)));
+      /** turned on purpose (a note pinned a little crooked): its outline is not its edge */
+      const turned = (e) => { for (let x = e, d = 0; x && d < 4; x = parentOf(x), d++) { const cs = getComputedStyle(x); if ((cs.rotate && cs.rotate !== 'none') || (cs.translate && cs.translate !== 'none') || /matrix\((?!1, 0, 0, 1,)/.test(cs.transform)) return true; } return false; };
       /** the part of a box that can be seen: cut by every scroller and clip above it */
       const clipOf = (e, self = false) => { let r = { l: 0, t: 0, r: innerWidth, b: innerHeight }; for (let x = self ? e : parentOf(e); x; x = parentOf(x)) { const cs = getComputedStyle(x); if (/(auto|scroll|hidden|clip)/.test(cs.overflowX + cs.overflowY)) { const b = x.getBoundingClientRect(); r = { l: Math.max(r.l, b.left), t: Math.max(r.t, b.top), r: Math.min(r.r, b.right), b: Math.min(r.b, b.bottom) }; } } return r; };
       const texts = [];
@@ -69,7 +71,7 @@ for (const look of LOOKS) for (const v of VP) {
         }
         // the box that holds it
         let box = null, bcs = null; for (let x = el; x && x !== card; x = parentOf(x)) { const cs = getComputedStyle(x); if (cs.display === 'inline' && !x.matches('button, input')) continue; if (isBox(x, cs) && x.getBoundingClientRect().width > 0) { box = x; bcs = cs; break; } }
-        if (!box) continue;
+        if (!box || turned(box)) continue;
         const b = box.getBoundingClientRect(), big = b.width > 420 || b.height > 220;
         const c = { l: tr.l - b.left, r: b.right - tr.r, t: tr.t - b.top, b: b.bottom - tr.b };
         const vis = { l: Math.max(tr.l, clip.l), r: Math.min(tr.r, clip.r) };
@@ -95,12 +97,12 @@ for (const look of LOOKS) for (const v of VP) {
         for (const e of btns) { const q = e.getBoundingClientRect(); if (q.width < 2 || q.height < 2) continue; const c2 = clipOf(e); if (q.bottom < c2.t || q.top > c2.b || q.right < c2.l || q.left > c2.r) continue;
           const mm = Math.min(q.width, q.height) * MM; if (mm < 12) out.push(`SMALL|${nm(e)}|${(e.getAttribute('aria-label') || e.textContent.trim()).slice(0, 24)}|${mm.toFixed(1)} mm`); }
         for (const t of texts) { const el = t.parentElement; if (!shown(el) || t.nodeValue.trim().length < 3) continue; const q = el.getBoundingClientRect(); if (!q.width) continue; const c2 = clipOf(el, true); if (q.bottom < c2.t || q.top > c2.b) continue;
-          const mm = parseFloat(getComputedStyle(el).fontSize) * (Number(getComputedStyle(card.shadowRoot.querySelector('.fh')).zoom) || 1) * MM; if (mm < 4.5) { const k = `SMALL|${nm(el)}|words`; if (!seen.has(k)) { seen.add(k); out.push(`SMALL|${nm(el)}|${t.nodeValue.trim().slice(0, 24)}|words ${mm.toFixed(1)} mm`); } } }
+          const mm = parseFloat(getComputedStyle(el).fontSize) * (Number(getComputedStyle(card.shadowRoot.querySelector('.fh')).zoom) || 1) * MM; if (mm > 0.5 && mm < 4.4) { const k = `SMALL|${nm(el)}|words`; if (!seen.has(k)) { seen.add(k); out.push(`SMALL|${nm(el)}|${t.nodeValue.trim().slice(0, 24)}|words ${mm.toFixed(1)} mm`); } } }
       }
       // things of one kind, side by side or stacked
       const groups = (root) => { root.querySelectorAll('*').forEach((p) => { if (p.shadowRoot) groups(p.shadowRoot);
-        const by = new Map(); if (p.closest('svg')) return; for (const k of p.children) { const cls = String(k.className?.baseVal ?? k.className ?? '').trim(); if (!cls || !shown(k) || k.matches('[data-next], [data-now], [data-hot], [data-focus], [data-live]') || k.getAnimations().some((a) => a.playState === 'running') || ['true', 'page'].includes(k.getAttribute('aria-pressed') ?? k.getAttribute('aria-selected') ?? k.getAttribute('aria-current') ?? '')) continue; /* the chosen one of a set may stand proud of the rest */ const key = k.localName + '.' + cls.split(/\s+/).filter((c) => !['on', 'done', 'now', 'today', 'hot', 'past', 'next', 'locked', 'shimmer', 'playing', 'sel', 'out'].includes(c)).sort().join('.'); (by.get(key) ?? by.set(key, []).get(key)).push(k); }
-        for (const [key, list] of by) { if (list.length < 2 || list.length > 40) continue; const rs = list.map((k) => k.getBoundingClientRect()).filter((q) => q.width > 4 && q.height > 4); if (rs.length < 2) continue;
+        const by = new Map(); /* the Fridge look pins things up by hand, a little unevenly, on purpose; a scene's shelf is a constellation */ if (p.closest('svg') || card.getAttribute('data-look') === 'fridge' || p.matches('.sitems')) return; for (const k of p.children) { const cls = String(k.className?.baseVal ?? k.className ?? '').trim(); if (!cls || !shown(k) || turned(k) || k.matches('[data-next], [data-now], [data-hot], [data-focus], [data-live]') || k.getAnimations().some((a) => a.playState === 'running') || ['true', 'page'].includes(k.getAttribute('aria-pressed') ?? k.getAttribute('aria-selected') ?? k.getAttribute('aria-current') ?? '')) continue; /* the chosen one of a set may stand proud of the rest */ const key = k.localName + '.' + cls.split(/\s+/).filter((c) => !['on', 'done', 'now', 'today', 'hot', 'past', 'next', 'locked', 'shimmer', 'playing', 'sel', 'out'].includes(c)).sort().join('.'); (by.get(key) ?? by.set(key, []).get(key)).push(k); }
+        for (const [key, list] of by) { if (list.length < 2 || list.length > 40 || [...p.children].some((k) => k.matches('[data-now], [data-next]'))) continue; const rs = list.map((k) => k.getBoundingClientRect()).filter((q) => q.width > 4 && q.height > 4); if (rs.length < 2) continue;
           const clip = clipOf(list[0]); const inView = rs.filter((q) => q.top >= clip.t - 1 && q.bottom <= clip.b + 1 && q.left >= clip.l - 1 && q.right <= clip.r + 1); if (inView.length < 2) continue;
           // one row: every pair overlaps up and down
           const a = inView[0]; const row = inView.filter((q) => Math.abs((q.top + q.bottom) / 2 - (a.top + a.bottom) / 2) < Math.min(q.height, a.height) / 2);

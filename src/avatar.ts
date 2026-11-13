@@ -255,10 +255,10 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   const w = size, h = head ? size : Math.round(size * 1.2);
   const jumpCls = o.jump ? (o.jump % 2 ? 'av-jump-a' : 'av-jump-b') : '';
   // a painted character: his picture, framed on his face for a round chip. The painter puts his eyes a third of the way down and his face in the middle;
-  // the chip shows the picture from 8 % to 70 % of its height, so the hair is in and the eyes sit a little above the middle
+  // the chip shows the middle three quarters of the picture, from 6 % to 83 % of its height: a cartoon head is big, and its hair and chin stay in
   if (look.img) return html`<span class="avwrap avpic ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
     <fh-pic role="img" aria-label=${o.label ?? 'Avatar'} .media=${look.img} .label=${''}
-      style="width:${w}px;height:${h}px;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`};${head ? '--pic-zoom:1.6;--pic-at:50% 21%;' : '--pic-at:50% 30%;'}"></fh-pic>
+      style="width:${w}px;height:${h}px;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`};${head ? '--pic-zoom:1.3;--pic-at:50% 25%;' : '--pic-at:50% 30%;'}"></fh-pic>
     ${o.ring && head ? html`<span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 ${Math.max(2, Math.round(size * 0.055))}px ${o.ring};pointer-events:none"></span>` : nothing}</span>`;
   const age = o.age ?? 'mid';
   // younger: bigger head, smaller body; teen: slightly narrower face and longer neck

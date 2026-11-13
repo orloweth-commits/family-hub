@@ -160,7 +160,7 @@ export class FhKid extends LitElement {
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; line-height: 1; }
+    .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -257,7 +257,8 @@ export class FhKid extends LitElement {
     .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
-    .tab { flex: 1; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
+    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: 14px; letter-spacing: -.01em; }
+    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the page's messages sit at the top here, clear of the buttons a child is reaching for */
     :host(:not([data-phone])) .toast { bottom: auto; top: 4px; }
     .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }

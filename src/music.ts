@@ -174,6 +174,7 @@ export class FhMusic extends LitElement {
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
+    :host([data-phone]) .tabs:not(.inline) button { padding: 0 6px; gap: 4px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .tabs button[data-nod] .i { animation: nod var(--m-4, 400ms) ease-out; }
     .acts .seg button { height: 44px; color: var(--ink); }

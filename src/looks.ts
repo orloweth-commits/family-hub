@@ -67,7 +67,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // more of the base that Home Ground dresses
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
-      'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
+      'tmr', 'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
@@ -647,7 +647,7 @@ const FRIDGE = `
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
   @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
   @F .hit[aria-pressed='true'] { background: var(--note-today); box-shadow: none; border-bottom-color: var(--ink); }
-  @F .st { background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
+  @F .st { padding: 5px 6px 7px; background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
   @F .pickrow { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
@@ -931,7 +931,7 @@ const ORBIT = `
   @O .join[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
-  @O .st { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .st { padding: 5px 6px 7px; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .st.on { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
@@ -1399,7 +1399,9 @@ const SPORTS = `
   @S[data-n2] .dock .item { min-width: 62px; padding: 0 6px; flex-shrink: 0; }
   @S[data-n2] .dock .sep { margin: 0 4px 22px; }
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
-  @S[data-n1] .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  /* a choice of several on a phone wraps to as many rows as its words need */
+  @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
   @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
   @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }

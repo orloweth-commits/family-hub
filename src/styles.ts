@@ -282,8 +282,8 @@ export const styles = css`
   aside > .card { padding: 12px 14px; gap: 8px; flex-shrink: 0; }
   aside > .card.np .art { width: 44px; height: 44px; border-radius: 10px; }
   aside > .card.np .ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  /* the hint under the buttons keeps the same room below it as the label has above */
-  aside > .card.tmr { max-height: 190px; padding-bottom: 16px; }
+  /* the hint under the buttons keeps the same room below it as the label has above, in every look (a look's timer can be taller) */
+  aside > .card.tmr { padding-bottom: 16px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
@@ -427,7 +427,7 @@ export const styles = css`
      the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
   :host([data-n2]) .fh { --rail: 224px; }
   :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
-  :host([data-n2]) .dock .item { min-width: 62px; }
+  :host([data-n2]) .dock .item { min-width: 62px; } :host([data-n2]) .dock .item .kn { max-width: 80px; }
   :host([data-n2]) .dock .sep { margin: 0 3px; }
   :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
   :host([data-n3]) .dock .item .kn { max-width: 60px; }
@@ -470,8 +470,9 @@ export const styles = css`
   :host([data-phone]) .planner { padding: 14px 12px; border-radius: 22px; }
   :host([data-phone]) .bar { gap: 8px; }
   :host([data-phone]) .bar > div:first-child { min-width: 0; flex: 1 1 100%; }
-  :host([data-phone]) .seg { flex: 1 1 100%; }
-  :host([data-phone]) .seg button { flex: 1; min-width: 0; }
+  /* on a phone a choice of several fills the row, and wraps when its words are too long for one */
+  :host([data-phone]) .seg { flex: 1 1 100%; flex-wrap: wrap; height: auto; }
+  :host([data-phone]) .seg button { flex: 1 1 auto; min-width: 0; height: auto; min-height: 44px; padding: 6px 10px; line-height: 1.15; }
   :host([data-phone]) .legend { gap: 6px 10px; font-size: 14px; }
   :host([data-phone]) .week { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; min-height: 400px; }
   :host([data-phone]) .week .col { flex: 0 0 47%; scroll-snap-align: start; }

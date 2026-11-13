@@ -1360,6 +1360,7 @@ const qs = (a, t = "--m-3") => {
       "ainfo",
       "awords",
       "ashade",
+      "tmr",
       "ok",
       "called",
       "mtop",
@@ -2125,7 +2126,7 @@ const t0 = `
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
   @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
   @F .hit[aria-pressed='true'] { background: var(--note-today); box-shadow: none; border-bottom-color: var(--ink); }
-  @F .st { background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
+  @F .st { padding: 5px 6px 7px; background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
   @F .pickrow { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
@@ -2407,7 +2408,7 @@ const t0 = `
   @O .join[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
-  @O .st { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .st { padding: 5px 6px 7px; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .st.on { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
@@ -2873,7 +2874,9 @@ const t0 = `
   @S[data-n2] .dock .item { min-width: 62px; padding: 0 6px; flex-shrink: 0; }
   @S[data-n2] .dock .sep { margin: 0 4px 22px; }
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
-  @S[data-n1] .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  /* a choice of several on a phone wraps to as many rows as its words need */
+  @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
   @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
   @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
@@ -3242,8 +3245,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   aside > .card { padding: 12px 14px; gap: 8px; flex-shrink: 0; }
   aside > .card.np .art { width: 44px; height: 44px; border-radius: 10px; }
   aside > .card.np .ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  /* the hint under the buttons keeps the same room below it as the label has above */
-  aside > .card.tmr { max-height: 190px; padding-bottom: 16px; }
+  /* the hint under the buttons keeps the same room below it as the label has above, in every look (a look's timer can be taller) */
+  aside > .card.tmr { padding-bottom: 16px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
@@ -3387,7 +3390,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
      the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
   :host([data-n2]) .fh { --rail: 224px; }
   :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
-  :host([data-n2]) .dock .item { min-width: 62px; }
+  :host([data-n2]) .dock .item { min-width: 62px; } :host([data-n2]) .dock .item .kn { max-width: 80px; }
   :host([data-n2]) .dock .sep { margin: 0 3px; }
   :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
   :host([data-n3]) .dock .item .kn { max-width: 60px; }
@@ -3430,8 +3433,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .planner { padding: 14px 12px; border-radius: 22px; }
   :host([data-phone]) .bar { gap: 8px; }
   :host([data-phone]) .bar > div:first-child { min-width: 0; flex: 1 1 100%; }
-  :host([data-phone]) .seg { flex: 1 1 100%; }
-  :host([data-phone]) .seg button { flex: 1; min-width: 0; }
+  /* on a phone a choice of several fills the row, and wraps when its words are too long for one */
+  :host([data-phone]) .seg { flex: 1 1 100%; flex-wrap: wrap; height: auto; }
+  :host([data-phone]) .seg button { flex: 1 1 auto; min-width: 0; height: auto; min-height: 44px; padding: 6px 10px; line-height: 1.15; }
   :host([data-phone]) .legend { gap: 6px 10px; font-size: 14px; }
   :host([data-phone]) .week { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; min-height: 400px; }
   :host([data-phone]) .week .col { flex: 0 0 47%; scroll-snap-align: start; }
@@ -6864,7 +6868,7 @@ function Me(a, t = {}) {
   const e = t.size ?? 200, i = t.crop === "head", s = e, o = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "";
   if (a.img) return l`<span class="avwrap avpic ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <fh-pic role="img" aria-label=${t.label ?? "Avatar"} .media=${a.img} .label=${""}
-      style="width:${s}px;height:${o}px;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`};${i ? "--pic-zoom:1.6;--pic-at:50% 21%;" : "--pic-at:50% 30%;"}"></fh-pic>
+      style="width:${s}px;height:${o}px;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`};${i ? "--pic-zoom:1.3;--pic-at:50% 25%;" : "--pic-at:50% 30%;"}"></fh-pic>
     ${t.ring && i ? l`<span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 ${Math.max(2, Math.round(e * 0.055))}px ${t.ring};pointer-events:none"></span>` : u}</span>`;
   const n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", d = n === "kid" ? 44 : 46, c = n === "teen" ? 46 : 44, h = b`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, m = n !== "kid" ? b`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : u;
   return l`<span class="avwrap ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
@@ -8390,7 +8394,7 @@ Ls.styles = [Nt, D`
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; line-height: 1; }
+    .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -8487,7 +8491,8 @@ Ls.styles = [Nt, D`
     .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
-    .tab { flex: 1; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
+    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: 14px; letter-spacing: -.01em; }
+    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the page's messages sit at the top here, clear of the buttons a child is reaching for */
     :host(:not([data-phone])) .toast { bottom: auto; top: 4px; }
     .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
@@ -9455,7 +9460,7 @@ const ec = async (a) => {
   /* the crate: dividers behind, sleeves fanned in the box */
   .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 31%; }
   .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
-  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 2px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: margin-top var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
   .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }
@@ -10997,6 +11002,7 @@ Gs.styles = [Nt, Za, D`${Ut(Ba)}`, bm, D`
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
+    :host([data-phone]) .tabs:not(.inline) button { padding: 0 6px; gap: 4px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .tabs button[data-nod] .i { animation: nod var(--m-4, 400ms) ease-out; }
     .acts .seg button { height: 44px; color: var(--ink); }
@@ -12724,7 +12730,7 @@ Na.styles = [Nt, Za, D`
     :host([data-phone]) .when { flex-direction: column; }
     :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
     :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
-    :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(4, 1fr); }
+    :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)); }
     :host([data-phone]) .durs button { min-width: 0; font-size: 13px; padding: 0 2px; }
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
@@ -14980,10 +14986,12 @@ Ds.styles = [Nt, Za, D`
     .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
-    .spick button { min-height: 48px; height: auto; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    /* a tile has room for a name on two lines and the room it is in; a longer name ends in “…” (search finds it by any word) */
+    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
     .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
     .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
-    .spick button b { font-weight: inherit; overflow-wrap: anywhere; }
+    .spick button b { font-weight: inherit; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .spick button small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .spick button[aria-pressed='true'] small { color: inherit; }
     .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
