@@ -18,7 +18,7 @@ const open = async (qs, { tts = true } = {}) => { const ctx = await browser.newC
   page.on('pageerror', (e) => errs.push(String(e)));
   await page.addInitScript(FAKE); await page.addInitScript(() => { try { localStorage.setItem('fh-ask-told', JSON.stringify({ day: new Date().toDateString(), who: ['', 'riley', 'charlie', 'max'] })); } catch {} });
   await page.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(500);
-  if (tts) await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, chat: { ...c._config.chat, tts: 'tts.demo_voice', tts_voice: 'nova' } }); await c.updateComplete; });
+  if (tts) await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, chat: { ...c._config.chat, tts: 'tts.demo_voice', tts_voice: 'nova', tts_language: 'en-AU' } }); await c.updateComplete; });
   await page.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'chat'; }); await page.waitForTimeout(600); await page.evaluate(() => { window.__said = []; window.__played = []; window.__calls = []; }); return page; };
 const CH = (page) => page.locator('fh-chat');
 const calls = (page, re) => page.evaluate((src) => (window.__calls ?? []).filter((c) => new RegExp(src).test(c)), re);
@@ -27,7 +27,7 @@ const st = (page) => page.evaluate(() => ({ said: window.__said, played: window.
 { const page = await open('look=glass&page=planner');
   await CH(page).locator('.starter').first().click(); await page.waitForTimeout(1800);
   const t = await calls(page, 'tts_get_url'), s = await st(page);
-  ok('with a voice set, an answer is spoken through Home Assistant in that voice', t.length === 1 && /"engine_id":"tts.demo_voice"/.test(t[0]) && /"voice":"nova"/.test(t[0]) && s.played.length === 1 && s.said.length === 0, [t, s]);
+  ok('with a voice set, an answer is spoken through Home Assistant in that voice', t.length === 1 && /"engine_id":"tts.demo_voice"/.test(t[0]) && /"voice":"nova"/.test(t[0]) && /"language":"en-AU"/.test(t[0]) && s.played.length === 1 && s.said.length === 0, [t, s]);
   await page.context().close(); }
 { const page = await open('look=glass&page=planner', { tts: false });
   await CH(page).locator('.starter').first().click(); await page.waitForTimeout(1800);
