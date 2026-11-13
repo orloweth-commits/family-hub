@@ -31,7 +31,7 @@ export class FhAddEvent extends LitElement {
     :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
     :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
     :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(4, 1fr); }
-    :host([data-phone]) .durs button { min-width: 0; }
+    :host([data-phone]) .durs button { min-width: 0; font-size: 13px; padding: 0 2px; }
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
     :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }

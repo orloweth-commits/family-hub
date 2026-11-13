@@ -1259,8 +1259,8 @@ export class FamilyHubCard extends LitElement {
         <div class="np-main" style="display:flex;align-items:center;gap:10px">
           <div class="art" style=${m.attributes.entity_picture ? `--pic:url(${m.attributes.entity_picture})` : ''}></div>
           <div class="np-row" style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
-            <span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.attributes.media_title ?? (m.state === 'off' ? 'Off' : 'Nothing playing')}</span>
-            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${[m.attributes.media_artist, m.attributes.friendly_name].filter(Boolean).join(' · ')}</span>
+            <span style="font-size:15px;font-weight:var(--w-bold, 700);line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere">${m.attributes.media_title ?? (m.state === 'off' ? 'Off' : 'Nothing playing')}</span>
+            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;overflow-wrap:anywhere">${[m.attributes.media_artist, m.attributes.friendly_name].filter(Boolean).join(' · ')}</span>
           </div>
         </div>
         <div class="ctl">
@@ -1571,7 +1571,7 @@ export class FamilyHubCard extends LitElement {
     const amber = this._arcs(this._eventsOn(now, this._soon)).map((x) => ({ ...x, colour: 'rgba(255,178,107,.7)' }));
     const art = lookArt(this._lk, 'night', { now, arcs: amber, size: 230 });
     return html`<button class="night" ?data-closing=${out} ?inert=${out} aria-label="Wake the panel" @click=${() => { this._nightManual = false; this._awakeUntil = Date.now() + 10 * 60_000; this._lastTouch = Date.now(); }}>
-      <div class="nwander" style="transform:translate(${dx}px, ${dy}px)">
+      <div class="nwander" style="--dx:${dx}px;--dy:${dy}px">
       <div class="nclock">${art === nothing ? nothing : html`<span class="nart">${art}</span>`}<div><span class="display big">${clk.hm}</span><div class="ndate">${fmtLongDate(now)}</div></div></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${evs.length ? html`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">

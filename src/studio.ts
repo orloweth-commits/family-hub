@@ -46,6 +46,11 @@ export class FhStudio extends LitElement {
     .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
     .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
+    /* a sheet's footer stacks and sticks on a phone; the studio's two buttons stay side by side under the picture */
+    :host([data-phone]) .mirror > .sfoot { position: static; flex-direction: row; align-items: stretch; margin: 0; padding: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; flex: 1 1 100%; gap: 10px; }
+    /* four tabs across a phone: the picture sits over the word, so no word is cut */
+    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: 13px; line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
+    :host([data-phone]) .tabs:not(.pics) .te { font-size: 18px; line-height: 1; }
     /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
@@ -279,7 +284,7 @@ export class FhStudio extends LitElement {
         </div>
       </section>
       <section class="glass shelf ${this._picMode ? 'low' : ''}">
-        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
+        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`<span class="te" aria-hidden="true">${c.emoji}</span> ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}

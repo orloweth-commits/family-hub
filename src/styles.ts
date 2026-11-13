@@ -312,16 +312,19 @@ export const styles = css`
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
   /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 1px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); }
   /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
   .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
-  .grid3 button { white-space: nowrap; }
+  .grid3 button { white-space: nowrap; padding: 0 2px; }
+  .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
+  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }
-  .dock .kidbtn { min-width: 80px; gap: 5px; }
+  .dock .kidbtn { min-width: 80px; }
   .dock .kidbtn .avatar { overflow: hidden; }
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
@@ -391,7 +394,9 @@ export const styles = css`
     background: #000; animation: scrimin var(--m-4, 400ms) ease backwards;
     /* drawings a look adds here are redrawn in the same dim amber as the digits */
     --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
-  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform calc(55s * var(--m-d, 1)) linear; }
+  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: transform calc(55s * var(--m-d, 1)) linear; }
+  /* a phone has little margin to wander in: the clock keeps inside it */
+  :host([data-phone]) .night .nwander { transform: translate(calc(var(--dx, 0px) * .3), calc(var(--dy, 0px) * .5)); }
   .night .nclock { display: flex; align-items: center; gap: 40px; }
   .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }

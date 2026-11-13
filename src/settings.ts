@@ -90,6 +90,9 @@ export class FhSettings extends LitElement {
     .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 20px 12px; display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
     .spane > * { flex-shrink: 0; }
     .spane > .seg { align-self: flex-start; max-width: 100%; }
+    /* a choice of several, with words too long for one line on a phone: the choices wrap, and each keeps its words whole */
+    :host([data-phone]) .seg, :host([data-shape='tall']) .seg { flex-wrap: wrap; }
+    :host([data-phone]) .seg button, :host([data-shape='tall']) .seg button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 6px 12px; line-height: 1.15; }
     .spane:focus { outline: none; }
     .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -164,8 +167,8 @@ export class FhSettings extends LitElement {
     .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
-    .spick button { min-height: 48px; padding: 4px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
-    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
+    .spick button { min-height: 48px; height: auto; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
     .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
     .spick button b { font-weight: inherit; overflow-wrap: anywhere; }
     .spick button[aria-pressed='true'] small { color: inherit; }

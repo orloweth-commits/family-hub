@@ -3272,16 +3272,19 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
   /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 1px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); }
   /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
   .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
-  .grid3 button { white-space: nowrap; }
+  .grid3 button { white-space: nowrap; padding: 0 2px; }
+  .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
+  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }
-  .dock .kidbtn { min-width: 80px; gap: 5px; }
+  .dock .kidbtn { min-width: 80px; }
   .dock .kidbtn .avatar { overflow: hidden; }
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
@@ -3351,7 +3354,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     background: #000; animation: scrimin var(--m-4, 400ms) ease backwards;
     /* drawings a look adds here are redrawn in the same dim amber as the digits */
     --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
-  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform calc(55s * var(--m-d, 1)) linear; }
+  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: transform calc(55s * var(--m-d, 1)) linear; }
+  /* a phone has little margin to wander in: the clock keeps inside it */
+  :host([data-phone]) .night .nwander { transform: translate(calc(var(--dx, 0px) * .3), calc(var(--dy, 0px) * .5)); }
   .night .nclock { display: flex; align-items: center; gap: 40px; }
   .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
@@ -7452,7 +7457,7 @@ const Lf = async (a, t, e) => {
       <section class="glass shelf ${this._picMode ? "low" : ""}">
         <div class="tabs ${this._picMode ? "pics" : ""}" role="tablist">${i.map((f) => l`<button class="tap" role="tab" aria-label=${f.label} aria-selected=${String(f.id === this._tab)} style=${this._picMode ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
       this._tab = f.id, F("tap"), this._picMode && at(f.label);
-    }}>${this._picMode ? f.emoji : l`${f.emoji} ${f.label}`}</button>`)}</div>
+    }}>${this._picMode ? f.emoji : l`<span class="te" aria-hidden="true">${f.emoji}</span> ${f.label}`}</button>`)}</div>
         ${s.swatch ? l`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${s.swatch.label}</span>
           ${s.swatch.items.map((f) => {
       const x = !Ea(f, this.life, this.grow);
@@ -7490,6 +7495,11 @@ js.styles = [Nt, D`
     .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
     .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
+    /* a sheet's footer stacks and sticks on a phone; the studio's two buttons stay side by side under the picture */
+    :host([data-phone]) .mirror > .sfoot { position: static; flex-direction: row; align-items: stretch; margin: 0; padding: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; flex: 1 1 100%; gap: 10px; }
+    /* four tabs across a phone: the picture sits over the word, so no word is cut */
+    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: 13px; line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
+    :host([data-phone]) .tabs:not(.pics) .te { font-size: 18px; line-height: 1; }
     /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
@@ -8206,7 +8216,7 @@ const Zf = [
       }}>${If}Not now</button></div>` : l`<button class="rw tap ${this._picMode ? "picrow" : ""}" aria-label="${s.name}: ${r ? `spend ${p}` : this._picMode ? `${c} of ${d} stars saved` : `${s.cost - t} points to go`}" @click=${() => this._rewardTap(s)}>
           <span class="rpic" aria-hidden="true">${n}</span>
           <span class="n">${s.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${qa(r, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${c} / ${d}</b>` : Array.from({ length: d }, (g, f) => qa(f < c, 18))}</span>` : u}</span>
-          ${this._picMode ? u : l`<span class="cost ${r ? "" : "notyet"}">${r ? `Spend ${s.cost}` : `${s.cost - t} to go`}</span>`}</button>`;
+          ${this._picMode ? u : l`<span class="cost ${r ? "" : "notyet"}" style="margin-left:auto">${r ? `Spend ${s.cost}` : `${s.cost - t} to go`}</span>`}</button>`;
     })}`;
   }
   _tabs() {
@@ -8282,7 +8292,7 @@ Ls.styles = [Nt, D`
     /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
     @media (max-height: 700px) { :host([data-shape='wide']:not([data-n3])) .hero { gap: 6px; padding-top: 10px; padding-bottom: 10px; } }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
-    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; }
+    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
     .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     .stat { border-radius: 18px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
@@ -8447,8 +8457,9 @@ Ls.styles = [Nt, D`
     .tabbody::-webkit-scrollbar { display: none; }
     :host([data-shape='wide'][data-n3]) .tabbody, :host([data-phone]) .tabbody { overflow: visible; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
-    .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
-    .rw .n { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
+    /* a long reward name keeps a readable line: what it costs drops under it instead of squeezing it */
+    .rw { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
+    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
     .rw .rpic { font-size: 24px; flex-shrink: 0; }
     .rw.picrow .rpic { font-size: 40px; }
     .rw .stars { max-width: 100px; }
@@ -8464,7 +8475,8 @@ Ls.styles = [Nt, D`
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
+    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; min-width: 0; }
+    .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
     .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
     .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
@@ -9409,7 +9421,7 @@ const ec = async (a) => {
   .strip[data-focus] { background: var(--chip-strong); }
   .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
   .strip.master { background: var(--chip-soft); --c: var(--accent); margin-left: 4px; }
-  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 2px 4px; border-radius: 8px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
+  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 4px 6px; border-radius: 8px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
   .lamp { width: 48px; height: 48px; border-radius: 50%; background: #5b6472; color: #fff; font-size: 15px; font-weight: var(--w-heavy, 800); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background var(--m-2, 160ms), box-shadow var(--m-2, 160ms); } .lamp[disabled] { opacity: .5; }
   .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -9443,7 +9455,7 @@ const ec = async (a) => {
   /* the crate: dividers behind, sleeves fanned in the box */
   .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 31%; }
   .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
-  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 2px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 16px; font-weight: var(--w-bold, 700); display: flex; align-items: flex-start; justify-content: center; white-space: nowrap; overflow: hidden;
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 2px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: margin-top var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
   .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }
@@ -9541,8 +9553,8 @@ const ec = async (a) => {
   /* the name chip: opaque, so no orbit, string or wave shows through the words (the second background is for browsers that can work out a colour opposite the ink) */
   .aname { position: relative; z-index: 1; max-width: 200px; min-height: 44px; border-radius: 14px; display: flex; align-items: center; line-height: 1.15; background: var(--chip-strong); background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
   .vscene[data-kind='space'] .aname { background: #1b1e45; background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); }
-  .atx { min-width: 60px; min-height: 44px; padding: 2px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .atx > b { font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; display: inline-flex; align-items: center; } .atx > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .atx { min-width: 60px; min-height: 44px; padding: 4px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .atx > b { font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   /* the shelf in the world */
   .skeys { display: flex; gap: 6px; margin-top: 6px; } .suntx .mkeys { margin-top: 6px; }
   .puck.spot[data-hot] { box-shadow: 0 0 0 5px var(--accent), 0 8px 20px -6px rgba(0,0,0,.55); transform: scale(1.08); }
@@ -11132,7 +11144,9 @@ Gs.styles = [Nt, Za, D`${Ut(Ba)}`, bm, D`
     @keyframes bands { to { background-position-y: 16px; } }
     @keyframes scribble { to { background-position: 5px 0, 0 0; } }
     .zname { position: absolute; left: 6px; top: 6px; right: 56px; min-height: 48px; padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left; border-radius: 14px; }
-    .zname b, .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* a room's name is never cut: a long one takes a second line */
+    .zname b { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
+    .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
     .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
@@ -11218,7 +11232,7 @@ Gs.styles = [Nt, Za, D`${Ut(Ba)}`, bm, D`
     /* ---- polish pass ---- */
     /* the tab pictures in the title row get their words when the page is wide enough */
     .panel { container: panel / inline-size; }
-    .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } .tabs.inline[data-words] button span { display: inline; }
+    .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } :host([data-phone]) .tabs.inline[data-words] button { padding: 0 8px; gap: 4px; } .tabs.inline[data-words] button span { display: inline; }
     /* Whole house is a plain button: play is the one filled key in the toolbar */
     .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: 15px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .acts .pill[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
@@ -11230,7 +11244,7 @@ Gs.styles = [Nt, Za, D`${Ut(Ba)}`, bm, D`
     .mzone:not([data-live]) .zvol { color: var(--ink2); }
     .mzone[data-held] .zvol { transform: scale(1.4); } .mzone[data-held] .grab i { transform: scale(1.15); }
     .mzone > .vstep { position: absolute; right: 12px; z-index: 1; } .mzone > .vstep[data-step='up'] { top: 54px; } .mzone > .vstep[data-step='down'] { bottom: 6px; }
-    .zname b { display: flex; align-items: center; } .zname b .linkd { flex-shrink: 0; }
+    .zname b { display: flex; flex-wrap: wrap; align-items: center; } .zname b .linkd { flex-shrink: 0; }
     /* calling: a picture on every ready message; with the keyboard up the rooms and the messages stay in reach */
     .bpic { font-size: 26px; line-height: 1; flex-shrink: 0; }
     .sayrow { display: flex; gap: 10px; align-items: center; } .qpics { display: flex; gap: 4px; flex-shrink: 0; }
@@ -12711,7 +12725,7 @@ Na.styles = [Nt, Za, D`
     :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
     :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
     :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(4, 1fr); }
-    :host([data-phone]) .durs button { min-width: 0; }
+    :host([data-phone]) .durs button { min-width: 0; font-size: 13px; padding: 0 2px; }
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
     :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }
@@ -14889,6 +14903,9 @@ Ds.styles = [Nt, Za, D`
     .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 20px 12px; display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
     .spane > * { flex-shrink: 0; }
     .spane > .seg { align-self: flex-start; max-width: 100%; }
+    /* a choice of several, with words too long for one line on a phone: the choices wrap, and each keeps its words whole */
+    :host([data-phone]) .seg, :host([data-shape='tall']) .seg { flex-wrap: wrap; }
+    :host([data-phone]) .seg button, :host([data-shape='tall']) .seg button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 6px 12px; line-height: 1.15; }
     .spane:focus { outline: none; }
     .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -14963,8 +14980,8 @@ Ds.styles = [Nt, Za, D`
     .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
-    .spick button { min-height: 48px; padding: 4px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
-    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
+    .spick button { min-height: 48px; height: auto; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
     .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
     .spick button b { font-weight: inherit; overflow-wrap: anywhere; }
     .spick button[aria-pressed='true'] small { color: inherit; }
@@ -16451,8 +16468,8 @@ const Qg = (a, t) => {
         <div class="np-main" style="display:flex;align-items:center;gap:10px">
           <div class="art" style=${e.attributes.entity_picture ? `--pic:url(${e.attributes.entity_picture})` : ""}></div>
           <div class="np-row" style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
-            <span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.attributes.media_title ?? (e.state === "off" ? "Off" : "Nothing playing")}</span>
-            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
+            <span style="font-size:15px;font-weight:var(--w-bold, 700);line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere">${e.attributes.media_title ?? (e.state === "off" ? "Off" : "Nothing playing")}</span>
+            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;overflow-wrap:anywhere">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
         <div class="ctl">
@@ -16781,7 +16798,7 @@ const Qg = (a, t) => {
     return l`<button class="night" ?data-closing=${t} ?inert=${t} aria-label="Wake the panel" @click=${() => {
       this._nightManual = !1, this._awakeUntil = Date.now() + 10 * 6e4, this._lastTouch = Date.now();
     }}>
-      <div class="nwander" style="transform:translate(${p}px, ${d}px)">
+      <div class="nwander" style="--dx:${p}px;--dy:${d}px">
       <div class="nclock">${h === u ? u : l`<span class="nart">${h}</span>`}<div><span class="display big">${i.hm}</span><div class="ndate">${Ua(e)}</div></div></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${r.length ? l`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
