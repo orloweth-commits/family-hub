@@ -2126,7 +2126,7 @@ const t0 = `
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
   @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
   @F .hit[aria-pressed='true'] { background: var(--note-today); box-shadow: none; border-bottom-color: var(--ink); }
-  @F .st { padding: 5px 6px 7px; background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
+  @F .st { padding: 5px 6px 7px; padding-right: max(6px, var(--st-pr, 0px)); background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
   @F .pickrow { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
@@ -2408,7 +2408,7 @@ const t0 = `
   @O .join[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
-  @O .st { padding: 5px 6px 7px; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .st { padding: 5px 6px 7px; padding-right: max(6px, var(--st-pr, 0px)); background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .st.on { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
@@ -11077,7 +11077,7 @@ Gs.styles = [Nt, Za, D`${Ut(Ba)}`, bm, D`
     /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
     :host([data-shape='tall']:not([data-phone])) .panel[data-picking] > .mhead, :host([data-shape='tall']:not([data-phone])) .panel[data-picking] .tabs { display: none; }
     /* the jukebox pictures: the record sits behind its cover and peeks out on the right, as on the shelves; the cover itself is never hidden */
-    .jcovers .st { padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
+    .jcovers .st { --st-pr: 20px; padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
     .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
@@ -12388,7 +12388,7 @@ const Om = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Cp = (a, t) => {
           <span class="nextstep ${h ? "set" : ""}">${h ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${c.total - c.done} to go between us`}</span></div>` : u}
         <div class="goclock ${s > 0 && s <= 10 ? "soon" : ""}" data-part="goclock" role="timer" aria-label=${s > 0 ? `Time to leave: ${Jm(s)} until ${n} at ${o(i.at)}` : s > -5 ? "Time to go" : "Everyone has left"}>
           <span class="face" aria-hidden="true">${Lt(Bt(), "timer", { frac: s > 0 ? Math.min(1, s / 60) : 0, size: 96 })}<b>${s > -5 ? "🚪" : "👋"}</b></span>
-          <div class="words"><div class="leave ${s <= 0 && s > -5 ? "go" : ""}">${s > 0 ? `${s} min` : s > -5 ? "Time to go!" : "Have a great day"}</div>
+          <div class="words"><div class="leave ${s <= 0 && s > -5 ? "go" : ""} ${s > 0 ? "" : "say"}">${s > 0 ? `${s} min` : s > -5 ? "Time to go!" : "Have a great day"}</div>
             ${i && s > 0 ? l`<span class="at">Leave at <b>${o(i.at)}</b></span><span class="who">${Pm(i.at)} · ${n}</span>` : u}</div></div>
       </section>
       ${m.length ? l`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${m.slice(0, 4).map((g) => l`<span class="fev"><span class="mt">${se(g, p).label}</span><span>${g.title}</span></span>`)}</section>` : u}
@@ -12435,6 +12435,8 @@ Os.styles = [Nt, D`
     .goclock .who { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
     :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: 36px; }
+    /* the words (not the countdown) may take two lines and never run off the card */
+    .leave.say { font-size: 34px; white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: 28px; }
     :host([data-phone]) .goclock .words { text-align: left; }
     .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
@@ -15265,7 +15267,7 @@ const Qg = (a, t) => {
 `, Gg = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Sc = "0.28.1", sd = "family-hub-theme", od = "family-hub-sounds", rd = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Sc = "0.28.2", sd = "family-hub-theme", od = "family-hub-sounds", rd = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

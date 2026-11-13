@@ -249,7 +249,7 @@ export class FhMusic extends LitElement {
     /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
     :host([data-shape='tall']:not([data-phone])) .panel[data-picking] > .mhead, :host([data-shape='tall']:not([data-phone])) .panel[data-picking] .tabs { display: none; }
     /* the jukebox pictures: the record sits behind its cover and peeks out on the right, as on the shelves; the cover itself is never hidden */
-    .jcovers .st { padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
+    .jcovers .st { --st-pr: 20px; padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
     .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }

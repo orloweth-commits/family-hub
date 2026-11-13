@@ -647,7 +647,7 @@ const FRIDGE = `
   @F .join[aria-pressed='true'] { background: var(--ok); color: #fff; box-shadow: 0 3px 0 #0d4a27; }
   @F .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); }
   @F .hit[aria-pressed='true'] { background: var(--note-today); box-shadow: none; border-bottom-color: var(--ink); }
-  @F .st { padding: 5px 6px 7px; background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
+  @F .st { padding: 5px 6px 7px; padding-right: max(6px, var(--st-pr, 0px)); background: #fff; border-radius: 2px; box-shadow: 0 5px 8px rgba(0,0,0,.22); font-family: var(--font-content); font-weight: var(--content-weight); color: #26272b; }
   @F .pickrow { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   @F .banner { background: var(--note-today); border-radius: 2px; box-shadow: 0 3px 5px rgba(0,0,0,.14); }
 
@@ -931,7 +931,7 @@ const ORBIT = `
   @O .join[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   @O .hit[aria-pressed='true'] { background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: none; border-radius: 12px; }
-  @O .st { padding: 5px 6px 7px; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
+  @O .st { padding: 5px 6px 7px; padding-right: max(6px, var(--st-pr, 0px)); background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 500; }
   @O .st.on { box-shadow: inset 0 0 0 2px var(--accent); }
   @O .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .banner { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); }
