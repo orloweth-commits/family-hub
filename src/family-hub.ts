@@ -13,7 +13,7 @@ import './weather';
 import './doodle';
 import './morning';
 import './addevent';
-import './pin';
+import { setPinShuffle } from './pin';
 import './chat';
 import './settings';
 import { configError } from './validate';
@@ -28,7 +28,7 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
-import { kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig } from './types';
+import { calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
@@ -43,7 +43,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.29.0';
+const VERSION = '0.30.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -62,7 +62,7 @@ export class FamilyHubCard extends LitElement {
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
-    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true },
+    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
   };
 
@@ -178,6 +178,7 @@ export class FamilyHubCard extends LitElement {
     const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     setWeekendExtra(config.bedtime_weekend_extra);
+    setPinShuffle(config.pin_shuffle !== false);
     this._config = config;
     let snd: string | null = null;
     try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
@@ -250,7 +251,7 @@ export class FamilyHubCard extends LitElement {
     this.removeEventListener('click', this._tapMark, true); this.removeEventListener('click', this._tapSfx);
     window.removeEventListener('resize', this._onResize); this._ro?.disconnect(); window.removeEventListener('keydown', this._keys);
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
-    clearTimeout(this._toastTimer); clearTimeout(this._dinner?.timer);
+    clearTimeout(this._toastTimer); clearTimeout(this._dinner?.timer); clearTimeout(this._off?.timer);
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
   }
@@ -268,7 +269,7 @@ export class FamilyHubCard extends LitElement {
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   private _artBlocked(): boolean {
-    if (this._timerLeft() !== null || this._dinner || this._alarm || this._sheet || this._pinAsk || this._isNight()) return true;
+    if (this._timerLeft() !== null || this._dinner || this._off || this._alarm || this._sheet || this._pinAsk || this._isNight()) return true;
     if (Date.now() - this._musicAt < Math.max(this._art.idleMs, 10 * 60_000) && this._page === 'music') return true;
     const f = this._focused();
     if (f && (f.matches('input, textarea, select') || f.isContentEditable)) return true;
@@ -300,7 +301,7 @@ export class FamilyHubCard extends LitElement {
       this._art.backlight(this._isNight() || (this._art.on && artNight(this._config.kids, this._config.quiet, now)) ? 'night' : this._art.on ? 'art' : 'hub');
     }
     // second-by-second only while something is counting down; otherwise every 15 s
-    if (timerOn || this._dinner || now.getSeconds() % 15 === 0) this._now = now;
+    if (timerOn || this._dinner || this._off || now.getSeconds() % 15 === 0) this._now = now;
     if (now.getSeconds() % 15) return;
     setMuted(this._config?.quiet?.mute === true && isQuiet(now, this._config?.quiet?.start ?? '20:00', this._config?.quiet?.end ?? '06:30'));
     const idleFor = Date.now() - this._lastTouch;
@@ -368,7 +369,7 @@ export class FamilyHubCard extends LitElement {
   /** Escape closes whatever is on top (the PIN pad, then the dinner countdown, then a sheet); Tab stays inside an open sheet. */
   private _keys = (e: KeyboardEvent): void => {
     if (e.key === 'Escape' && !e.defaultPrevented) {
-      if (this._pinAsk) { const pad = this.renderRoot.querySelector('fh-pin') as (HTMLElement & { cancel?: () => void }) | null; if (pad?.cancel) pad.cancel(); else this._pinAsk = null; } else if (this._dinner) this._dinnerCancel(); else if (this._sheet) this._sheet = ''; else return;
+      if (this._pinAsk) { const pad = this.renderRoot.querySelector('fh-pin') as (HTMLElement & { cancel?: () => void }) | null; if (pad?.cancel) pad.cancel(); else this._pinAsk = null; } else if (this._dinner) this._dinnerCancel(); else if (this._off) this._offCancel(); else if (this._sheet) this._sheet = ''; else return;
       e.preventDefault();
     } else if (e.key === 'Tab' && this._sheet && this._sheet !== 'add' && !this._pinAsk) {
       const sheet = this.renderRoot.querySelector<HTMLElement>('.scrim > .sheet'); if (!sheet) return;
@@ -551,6 +552,7 @@ export class FamilyHubCard extends LitElement {
         const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
         const who = c.name ?? this.hass!.states[c.entity]?.attributes.friendly_name ?? c.entity;
         for (const r of rows ?? []) {
+          if (!calShows(c, String(r?.summary ?? ''))) continue;
           // one odd row (no start, no end) must not lose the rest of that calendar
           const allDay = !!r?.start?.date, sv = allDay ? `${r.start.date}T00:00:00` : r?.start?.dateTime;
           const start = new Date(sv); if (!sv || isNaN(start.getTime())) continue;
@@ -776,7 +778,7 @@ export class FamilyHubCard extends LitElement {
     }
   }
   /** Where a daily medicine stands. A helper that has never been set reads as midnight today, given by "unknown": that is not a dose. */
-  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean; missing: boolean } {
+  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean; stale: boolean; missing: boolean } {
     const st = this.hass?.states[`input_datetime.fh_med_${id}`];
     const raw = this.hass?.states[`input_text.fh_med_${id}_by`]?.state ?? '';
     const by = ['unknown', 'unavailable'].includes(raw) ? '' : raw;
@@ -784,13 +786,21 @@ export class FamilyHubCard extends LitElement {
     const neverSet = !!ts && !by && ts.getHours() === 0 && ts.getMinutes() === 0 && ts.getSeconds() === 0;
     const given = ts && !neverSet && sameDay(ts, new Date()) ? ts : null;
     const n = minsNow(this._now), t = hm(time);
-    return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, missing: !st || st.state === 'unavailable' };
+    // overdue is red for its first hour; after that it has been seen, and it settles to amber
+    return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, stale: !given && n > t + 105, missing: !st || st.state === 'unavailable' };
   }
   /** Recording or removing a dose is a grown-up's job: ask for the PIN once each time the sheet is opened (meds_pin: false turns this off). */
   private _medOpen = false;
   private _medGuard(reason: string, run: () => void): void {
     if (this._medOpen || !this._config.parent_pin || this._config.meds_pin === false) { run(); return; }
     this._pinAsk = { reason, sheet: 'meds', run: () => { this._medOpen = true; run(); } };
+  }
+  /** "Later": the header chip is put away until this time (this screen only). The sheet and the round pill button stay. */
+  private _medLater = ((): number => { try { return Number(localStorage.getItem('family-hub-med-later')) || 0; } catch { return 0; } })();
+  private _medSnooze(mins: number): void {
+    this._medLater = mins ? Date.now() + mins * 60_000 : 0;
+    try { if (mins) localStorage.setItem('family-hub-med-later', String(this._medLater)); else localStorage.removeItem('family-hub-med-later'); } catch { /* ignore */ }
+    if (mins) { this._sheet = ''; this._say(`Medicine reminder back at ${fmtTime(new Date(this._medLater))}`); } else this.requestUpdate();
   }
   private _medBusy = ''; private _medBy = '';
   private async _giveMed(id: string, by: string): Promise<void> {
@@ -956,16 +966,21 @@ export class FamilyHubCard extends LitElement {
     for (let grew = true; grew;) { grew = false; for (const id of Object.keys(S)) if (!kept.has(id) && inside(id).some((m) => kept.has(m))) { kept.add(id); grew = true; } }
     return kept;
   }
-  private async _allOff(): Promise<void> {
+  private _off: { at: number; timer?: number } | null = null;
+  private _offCancel(say = true): void { if (!this._off) return; clearTimeout(this._off.timer); this._off = null; if (say) this._say('Cancelled. The lights stay on.'); }
+  private async _allOff(go = false): Promise<void> {
     if (this._sceneBusy) return;
     const lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on'), kept = this._kept();
     const on = lit.filter((s) => !kept.has(s.entity_id)).map((s) => s.entity_id);
     // how many things stay on: the lights themselves, not the groups that only hold them
     const stay = lit.filter((s) => kept.has(s.entity_id)), leaves = stay.filter((s) => !Array.isArray(s.attributes.entity_id)), n = (leaves.length || stay.length);
     const keptSay = n ? ` (${n} thing${n === 1 ? '' : 's'} kept on)` : '';
-    if (!on.length) { this._say(n ? `Nothing else to turn off${keptSay}` : 'Everything’s already off'); return; }
+    if (!on.length) { this._offCancel(false); this._say(n ? `Nothing else to turn off${keptSay}` : 'Everything’s already off'); return; }
+    // one tap must not black out the house: a three-second wait with Cancel, as Dinner has (all_off_wait: 0 goes at once)
+    const wait = Math.max(0, Number(this._config.all_off_wait ?? 3)) * 1000;
+    if (!go && wait) { if (this._off) return; sfx('tap'); this._off = { at: Date.now() + wait, timer: window.setTimeout(() => { this._off = null; void this._allOff(true); }, wait) }; return; }
     this._sceneBusy = true;
-    const ok = await this._call('light', 'turn_off', { entity_id: on });
+    const ok = await this._call('light', 'turn_off', { entity_id: on }, undefined, ...(go ? [this.renderRoot.querySelector('nav [data-nav="lights-off"]')] : []));
     this._sceneBusy = false;
     if (!ok) return;
     sfx('untick');
@@ -1045,6 +1060,7 @@ export class FamilyHubCard extends LitElement {
         ${this._dock()}
         ${this._sheetView(sheet, sheetOut)}
         ${this._dinner ? this._dinnerView() : nothing}
+        ${this._off ? this._offView() : nothing}
         <div class="toasts" role="status" aria-live="polite">${toast ? html`<div class="toast" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.act ? html`<button class="tap" @click=${() => { const a = this._toastAct; this._toast = ''; this._toastAct = null; clearTimeout(this._toastTimer); sfx('undo'); a?.run(); }}>${toast.act.label}</button>` : nothing}</div>` : nothing}</div>
         ${nightOut ? this._night(true) : nothing}
         ${artUp ? this._artView(artOut, calm, theme.id, todKey) : nothing}
@@ -1063,7 +1079,7 @@ export class FamilyHubCard extends LitElement {
         const k = c.kids?.[this._kid];
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
-        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
@@ -1104,13 +1120,15 @@ export class FamilyHubCard extends LitElement {
     const msg = panelMsg(this.hass);
     if (msg && !msg.alarm) chips.push([4, html`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${msg.t}</span></span>`]);
     {
-      const t12 = (t: string) => { const [h, mi] = t.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
       const all = (c.meds ?? []).map((m) => ({ m, s: this._medStatus(m.id, m.time) }));
       const due = all.filter((x) => x.s.due), late = due.some((x) => x.s.late), done = all.filter((x) => x.s.given);
       const open = () => { this._sheet = 'meds'; void this._loadMedLog(); };
-      if (due.length === 1) { const { m, s } = due[0]; const p = s.late ? 0 : 2; chips.push([p, html`<button class="cap tap ${s.late ? 'hot' : ''}" data-kind="med" data-p=${p} aria-label=${`Medication${m.who ? ` for ${m.who}` : ''}: ${s.late ? 'overdue' : 'due'} ${t12(m.time)}`} @click=${open}>${icon('pill', 20)}<span style="white-space:nowrap">${s.late ? 'Overdue' : 'Due'} ${t12(m.time)}${m.who ? ' ·' : ''}</span>${m.who ? html`<span class="ell mwho">${m.who}</span>` : nothing}</button>`]); }
-      else if (due.length > 1) { const who = due.map((x) => x.m.who).filter(Boolean).join(', '), p = late ? 0 : 2; chips.push([p, html`<button class="cap tap ${late ? 'hot' : ''}" data-kind="med" data-p=${p} aria-label=${`Medication: ${due.length} ${late ? 'overdue' : 'due'}${who ? `: ${who}` : ''}`} @click=${open}>${icon('pill', 20)}<span style="white-space:nowrap">${due.length} ${late ? 'overdue' : 'due'}${who ? ':' : ''}</span>${who ? html`<span class="ell mwho">${who}</span>` : nothing}</button>`]); }
-      else if (done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${icon('pill', 20)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
+      // a shared wall: the chip says how many, never who (names are inside the sheet). "Later" in the sheet puts it away for half an hour.
+      if (due.length && Date.now() >= this._medLater) {
+        const red = due.some((x) => x.s.late && !x.s.stale), word = late ? 'overdue' : 'due', p = red ? 0 : late ? 1.5 : 2;
+        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${icon('pill', 20)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
+      }
+      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${icon('pill', 20)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
     }
     // a child tapped "Chat with a grown-up": shown to the grown-ups on the shared pages (never on a child's page), until one of them taps it away
     if (this._page !== 'kid') for (const n of this._wantsChat) chips.push([0.5, html`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${n} would like a chat. Tap to dismiss`} @click=${() => { this._wantsChat = this._wantsChat.filter((x) => x !== n); }}>${icon('ask', 20)}<span>${n} would like a chat</span></button>`]);
@@ -1173,13 +1191,13 @@ export class FamilyHubCard extends LitElement {
           ${tracked.length && !kid ? html`
             <button class="glass presence tap" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
               <span class="phome" aria-hidden="true">${icon('home', 18)}</span>
-              ${tracked.map((p) => html`<span class="avatar ${h?.states[p.entity!]?.state === 'home' ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}">${this._short[p.name] ?? p.name[0]}</span>`)}
+              ${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}
             </button>` : nothing}
-          ${c.chat?.agent ? html`<button class="glass tap round" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}</button>` : nothing}
-          <button class="glass tap round" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}</button>
-          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round" data-act="meds" aria-label="Medication" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}</button>` : nothing}
-          ${!kid ? html`<button class="glass tap round" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}</button>` : nothing}
-          <button class="glass tap round" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
+          ${c.chat?.agent ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
+          <button class="glass tap round hb" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}<span class="rl" aria-hidden="true">${kid ? 'Settings' : 'Looks'}</span></button>
+          ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}<span class="rl" aria-hidden="true">Medicine</span></button>` : nothing}
+          ${!kid ? html`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}<span class="rl" aria-hidden="true">House info</span></button>` : nothing}
+          <button class="glass tap round hb" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}<span class="rl" aria-hidden="true">Night</span></button>
         </div>
       </header>`;
   }
@@ -1375,6 +1393,14 @@ export class FamilyHubCard extends LitElement {
       <button class="pill tap" style="height:60px;padding:0 28px;font-size:17px" @click=${() => this._dinnerCancel()}>Cancel</button></section></div>`;
   }
 
+  private _offView(): TemplateResult {
+    const n = Math.max(1, Math.ceil(((this._off?.at ?? 0) - Date.now()) / 1000));
+    return html`<div class="scrim"><section class="glass sheet" data-w="s" data-offwait style="width:min(520px,100%);align-items:center;text-align:center" role="alertdialog" aria-modal="true" aria-label="Turning the lights off">
+      <span style="color:var(--accent);line-height:0">${icon('bulbOff', 56)}</span><h2 class="t-head">Lights off in ${n}…</h2>
+      <span class="muted">Every light in the house${(this._config.keep_on ?? []).length ? ', except the ones kept on' : ''}</span>
+      <button class="pill tap" style="height:60px;padding:0 28px;font-size:17px" @click=${() => this._offCancel()}>Cancel</button></section></div>`;
+  }
+
   private _alarmView(): TemplateResult {
     return html`<button class="alarm" @click=${() => { this._alarm = 0; void this._call('input_text', 'set_value', { entity_id: 'input_text.fh_panel_message', value: '' }); }}>
       <span style="line-height:0">${icon('timer', 96)}</span><span class="display" style="font-size:64px;font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${panelMsg(this.hass)?.t || 'Timer’s done!'}</span><span style="font-size:20px;font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
@@ -1474,7 +1500,11 @@ export class FamilyHubCard extends LitElement {
     const t12 = (hhmm: string) => { const [h, mi] = hhmm.split(':').map(Number); return `${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
     const pick = (on: boolean, label: string, go: () => void) => html`<button class="tap mchip" aria-pressed=${String(on)} @click=${go}>${label}</button>`;
     const local = !(c.med_log && this.hass?.states[c.med_log]);
-    return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.', 'pill')}
+    // "Later" puts the reminder chip at the top of the screen away for half an hour (a grown-up's call, like recording a dose)
+    const due = (c.meds ?? []).some((d) => { const s = this._medStatus(d.id, d.time); return s.due && !s.missing; }), away = Date.now() < this._medLater;
+    const later = !due ? nothing : away ? html`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${fmtTime(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${fmtTime(new Date(this._medLater))} · </span>show now</span></button>`
+      : html`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard('Remind us about the medicine later?', () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>`;
+    return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.', 'pill', later)}
       <div class="med2">
         <div class="icol">
           <span class="label">Every day</span>
@@ -1485,7 +1515,7 @@ export class FamilyHubCard extends LitElement {
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${d.who ? `${d.who} – ` : ''}${d.label}</b><span class="muted">Due ${t12(d.time)}</span></span>
                 ${this._medBusy === d.id ? html`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>`
                 : html`<b style="font-size:15px;color:${s.given ? 'var(--ok)' : s.late ? 'var(--danger, #dc2626)' : 'var(--ink2)'}">${s.given ? `✓ ${fmtTime(s.given)}${s.by ? ` · ${s.by}` : ''}` : s.missing ? 'Not set up' : s.late ? 'Overdue' : 'Not yet'}</b>`}</div>
-              ${s.missing ? html`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${d.id}</b>, so this cannot be recorded here.</span>`
+              ${s.missing ? html`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A grown-up can finish setting it up in Settings, under Medicines.</span>`
                 : s.given && this._medBusy !== d.id ? nothing : html`<div style="display:flex;gap:8px;flex-wrap:wrap">${parents.map((p) => html`<button class="pill tap ${s.late ? 'primary' : 'ghost'}" data-act="given" style="height:52px;padding:0 18px;font-size:15px" ?disabled=${this._medBusy === d.id} @click=${() => this._medGuard('Record this medicine?', () => { void this._giveMed(d.id, p); })}>Given by ${p}</button>`)}</div>`}
             </div>`;
           })}
@@ -1512,7 +1542,7 @@ export class FamilyHubCard extends LitElement {
         </div>
       </div>
       <div class="sfoot">
-        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${local ? html` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it. Grown-ups: set <b>med_log</b> in the card settings to share it.</span>` : nothing}</span>
+        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${local ? html` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it until a shared list is connected to the panel.</span>` : nothing}</span>
         <button class="tap ${(m.what === 'other' ? m.other.trim() : m.what) ? 'lead' : 'ghost'}" data-act="log" style="height:60px;padding:0 26px;font-size:17px;border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard('Add to the medicine record?', () => { void this._logMed(); })}>Add to the record</button>
       </div>`;
   }
@@ -1527,6 +1557,15 @@ export class FamilyHubCard extends LitElement {
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px;background:transparent" aria-label="Cancel the kitchen timer" ?disabled=${!on} @click=${() => { void this._cancelTimer(); }}>Cancel</button>`;
   }
   /** In words, who is home and who is away. */
+  /** Who is home, as a face: a child's own avatar, or the picture Home Assistant holds for the person. With no picture, the name (never a lone initial: that is a code). */
+  private _face(p: PersonConfig, home: boolean): TemplateResult {
+    const c = this._config, ki = (c.kids ?? []).findIndex((k) => k.name === p.name), k = ki >= 0 ? c.kids![ki] : undefined;
+    const raw = k ? this.hass?.states[kidEntities(k).avatar]?.state : '', look = k && (raw || k.look) ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
+    const pic = String(this.hass?.states[p.entity!]?.attributes.entity_picture ?? '');
+    if (look) return html`<span class="pface ${home ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}">${renderAvatar(look, { size: 36, crop: 'head', still: true, label: p.name, age: k!.age, ring: slotVar(p.colour) })}</span>`;
+    if (pic) return html`<span class="pface ${home ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}"><img src=${pic} alt="" draggable="false" @error=${(e: Event) => { (e.target as HTMLElement).hidden = true; }}></span>`;
+    return html`<span class="pname ${home ? '' : 'away'}" aria-hidden="true" style="--c:${slotVar(p.colour)}">${p.name.split(' ')[0]}${home ? '' : ' · out'}</span>`;
+  }
   private _whoHome(): string {
     // only people Home Assistant tracks are spoken for: someone without a person entity is neither home nor away
     const ppl = (this._config.people ?? []).filter((p) => p.entity).map((p) => ({ name: p.name, st: this.hass?.states[p.entity!]?.state }));

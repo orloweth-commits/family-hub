@@ -7,6 +7,15 @@ import { sfx } from './sound';
 /** Parent PIN pad. Fires `ok` when the right PIN is entered, `cancel` when dismissed. */
 /** Wrong tries are counted across every pad on the panel. */
 const LOCK = { misses: 0, until: 0 };
+/** Whether the digits take a new order each time a pad opens (the card sets this from `pin_shuffle`; on unless that is false). */
+let SHUFFLE = true;
+export const setPinShuffle = (on: boolean): void => { SHUFFLE = on; };
+const ORDER = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+/** The ten digits for one opening of the pad: shuffled, and never left in the usual order. */
+const deal = (): string[] => {
+  if (!SHUFFLE) return ORDER;
+  for (;;) { const d = [...ORDER]; for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } if (d.some((x, i) => x !== ORDER[i])) return d; }
+};
 
 export class FhPin extends LitElement {
   readonly lookCtl = new LookController(this);
@@ -45,12 +54,14 @@ export class FhPin extends LitElement {
   private _wait = 0;
   private _from: HTMLElement | null = null;
   private _tick = 0;
+  private _digits: string[] = ORDER;
 
   connectedCallback(): void {
     super.connectedCallback();
     // remember what had focus, so it can go back there when the pad closes
     let a: Element | null = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
     this._from = a as HTMLElement | null;
+    this._digits = deal();
     this._wait = Math.max(0, Math.ceil((LOCK.until - Date.now()) / 1000));
     this._tick = window.setInterval(() => { this._wait = Math.max(0, Math.ceil((LOCK.until - Date.now()) / 1000)); if (!this._wait && this._note.startsWith('Too many')) this._note = ''; }, 1000);
     // typed digits, Backspace and Escape work wherever focus happens to be while the pad is open
@@ -102,7 +113,7 @@ export class FhPin extends LitElement {
       <div class="dots" role="img" aria-label="${this._typed.length} of ${this.pin.length} digits entered">${Array.from({ length: this.pin.length }, (_, i) => html`<span class=${i < this._typed.length ? 'on' : ''}></span>`)}</div>
       <div class="note" role="alert">${this._wait ? `Too many tries. Ask a grown-up to help. (${this._wait} s)` : this._note}</div>
       <div class="grid">
-        ${['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => k ? html`<button class="tap" ?disabled=${!!this._wait} aria-label=${k === 'del' ? 'Delete' : k} @click=${() => this._key(k)}>${k === 'del' ? icon('backspace', 28) : k}</button>` : html`<span></span>`)}
+        ${[...this._digits.slice(0, 9), '', this._digits[9], 'del'].map((k) => k ? html`<button class="tap" ?disabled=${!!this._wait} aria-label=${k === 'del' ? 'Delete' : k} @click=${() => this._key(k)}>${k === 'del' ? icon('backspace', 28) : k}</button>` : html`<span></span>`)}
       </div>
     </div>`;
   }

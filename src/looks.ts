@@ -455,6 +455,7 @@ const FRIDGE = `
   @F .clock .hm { font-weight: 700; font-size: 50px; }
   @F .cap { background: var(--paper); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -1.2deg); font-weight: 600; }
   @F .cap.hot { background: var(--danger); color: #fff; animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @F .cap[data-warm] { background: #f5b301; color: #2a1a00; }
   @F .weather { border-radius: 4px; rotate: calc(var(--tilt, 1) * -1deg); }
   @F .presence { background: transparent; box-shadow: none; gap: 2px; padding: 0 4px; }
   @F .presence { gap: 10px; }
@@ -750,6 +751,7 @@ const ORBIT = `
   /* the header is drawn a little tighter than the base (smaller rings, closer avatars) so an alert chip has room for all of its words */
   @O .cap { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 500; max-width: 100%; }
   @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @O .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   @O .badge { background: rgba(255,224,138,.18); font-weight: 600; }
   @O .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
   @O .right { gap: 6px; }
@@ -1073,6 +1075,7 @@ const SPORTS = `
   /* status chips: square scoreboard tiles (they tell; an urgent one is the danger colour) */
   @S .cap { border-radius: 8px; background: var(--board); color: var(--board-ink); border: 0; box-shadow: 0 0 0 1.5px var(--board-line); -webkit-backdrop-filter: none; backdrop-filter: none; font-family: 'Outfit', 'Inter', sans-serif; font-weight: 700; letter-spacing: .01em; }
   @S .cap.hot { background: var(--danger); color: var(--on-danger); }
+  @S .cap[data-warm] { background: #f5b301; color: #2a1a00; box-shadow: none; }
   @S .cap.ok { background: var(--ok-wash); color: var(--ok); }
   /* the weather chip is the pitch report */
   @S .weather { border-radius: 12px; height: 56px; padding: 0 12px; gap: 10px; background: var(--panel); }

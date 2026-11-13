@@ -116,6 +116,11 @@ export const styles = css`
   .kid { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; background: var(--chip); font-weight: var(--w-semi, 600); font-size: 15px; }
   .right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .right > .round { width: 52px; height: 52px; }
+  /* each header button says what it is: the picture over one word, as the dock does. Where the header is short (compact, phone) the word goes and the round button stays */
+  .right > .round .rl { display: none; }
+  .fh:not([data-compact]) .right > .round.hb { width: auto; min-width: 58px; height: 52px; padding: 4px 9px 5px; border-radius: 18px; flex-direction: column; justify-content: center; gap: 1px; }
+  .fh:not([data-compact]) .right > .round.hb .rl { display: block; font-size: 13px; line-height: 1.15; font-weight: var(--w-semi, 600); white-space: nowrap; }
+  .fh:not([data-compact]) .right > .round.hb > svg { width: 22px; height: 22px; flex-shrink: 0; }
   /* when the row is too full the weather chip and who-is-home give way, a step at a time (data-fit is set after measuring) */
   header[data-fit~='nobadge'] .weather .badge, header[data-fit~='slim'] .weather .wsub, header[data-fit~='slim'] .weather .wtop { display: none; }
   header[data-fit~='nowho'] .presence, header[data-fit~='nowx'] .weather { display: none; }
@@ -130,14 +135,14 @@ export const styles = css`
     border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
   /* the names on a medication chip never shrink away (a look may cap the chip at the row's width): the row then counts as too full, and lesser things step aside first */
-  .cap .mwho { max-width: 18ch; flex-shrink: 0; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
-  .capsule[data-one] .cap .mwho { flex-shrink: 1; }
   .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
   .cap.hot { background: #c81e1e; color: #fff; border-color: #c81e1e; animation: hotring 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes hotring { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, #c81e1e 38%, transparent); } }
+  /* still waiting after the first hour: amber, steady (no breathing ring), dark ink that reads on it in every look */
+  .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   .cap.ok { background: color-mix(in srgb, var(--ok) 25%, var(--glass)); }
   .presence { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 10px; border-radius: 999px; }
   .presence .phome { display: flex; color: var(--ink2); padding: 0 2px 0 4px; }
@@ -160,6 +165,8 @@ export const styles = css`
   .mchip { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); }
   .mchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   :host([data-phone]) .med2 { grid-template-columns: 1fr; }
+  /* a phone's sheet header has room for one word beside the title */
+  :host([data-phone]) .shead .lt30 { display: none; }
   /* house info: sections flow into up to three columns that end level */
   .info2 { columns: 3 250px; column-gap: 24px; }
   .info2 > .icol { break-inside: avoid; margin-bottom: 12px; }
@@ -173,6 +180,12 @@ export const styles = css`
   .iline { font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.35; padding: 2px 2px; }
   :host([data-phone]) .sos { flex-direction: column; } :host([data-phone]) .sosbtn { flex: none; } 
   .presence .avatar { width: 32px; height: 32px; font-size: 13px; background: var(--c); }
+  /* who is home, as faces: home in full colour with the person's ring; away grey with a dashed ring */
+  .presence .pface { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: inline-flex; background: var(--chip); box-shadow: 0 0 0 2px var(--c); }
+  .presence .pface img { width: 100%; height: 100%; object-fit: cover; }
+  .presence .pface.away { filter: grayscale(1); opacity: .7; box-shadow: none; outline: 2px dashed var(--ink2); outline-offset: 0; }
+  .presence .pname { font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; padding: 0 6px 0 2px; }
+  .presence .pname.away { color: var(--ink2); font-weight: var(--w-semi, 600); }
   /* away: still fully there to read, but grey and dashed */
   .presence .avatar.away { background: var(--chip); color: var(--ink); filter: grayscale(1); outline: 2px dashed var(--ink2); outline-offset: -2px; }
 
@@ -461,7 +474,8 @@ export const styles = css`
   :host([data-phone]) .clock { min-width: 0; flex: 1 1 auto; }
   :host([data-phone]) .clock .hm { font-size: 42px; }
   :host([data-phone]) .right { flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex: 1 1 auto; }
-  :host([data-phone]) .right > button.round { width: 44px !important; height: 44px !important; }
+  :host([data-phone]) .right > button.round { width: 44px !important; height: 44px !important; min-width: 0 !important; padding: 0 !important; border-radius: 50% !important; }
+  :host([data-phone]) .right > .round .rl { display: none !important; }
   :host([data-phone]) .weather { padding: 0 12px; height: 44px; }
   :host([data-phone]) .weather .wsub, :host([data-phone]) .weather .wtop { display: none; }
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }

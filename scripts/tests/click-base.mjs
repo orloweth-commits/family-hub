@@ -216,7 +216,7 @@ page = await open('look=glass&chat=off');
 console.log('chat=off: Ask button:', await page.getByRole('button', { name: 'Ask a question' }).count(), '| old microphone button:', await page.locator('family-hub-card [data-act="assist"]').count());
 await page.close();
 
-// 13. header: one row, chips whole or absent, a due medication chip beside the running timer at 7:10 am, "overdue 6:30 am" not cut in Orbit
+// 13. header: one row, chips whole or absent, a due medication chip beside the running timer at 7:10 am, "1 overdue" (never a name) not cut in Orbit
 const hdr = () => page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, hd = r.querySelector('header'), vis = (e) => e.offsetParent !== null;
   const caps = [...hd.querySelectorAll('.capsule .cap')].filter(vis), top = hd.getBoundingClientRect().top;
   return { chips: caps.map((e) => e.innerText.replace(/\s+/g, ' ').trim()).join(' | '), wrapped: caps.filter((e) => e.getBoundingClientRect().top - top > 40).length, cut: caps.filter((e) => e.scrollWidth > e.clientWidth + 1 || [...e.querySelectorAll('span,b')].some((x) => x.scrollWidth > x.clientWidth + 1 && !x.classList.contains('ell'))).length,
@@ -226,7 +226,7 @@ for (const lk of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1280, 800]
   const r = await hdr(); console.log(`header ${lk} ${w}x${h} 7:10:`, /due/.test(r.chips) && /\d:\d\d/.test(r.chips) && !r.wrapped && !r.cut && r.heights === '52' && r.over <= 0 && !r.pill ? 'ok' : 'WRONG', JSON.stringify(r)); await page.close(); }
 page = await open('look=orbit', '08:10'); await page.setViewportSize({ width: 1280, height: 800 });
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass, S = { ...h.states }; S['input_datetime.fh_med_riley_am'] = { ...S['input_datetime.fh_med_riley_am'], attributes: { timestamp: Date.now() / 1000 } }; S['input_text.fh_med_riley_am_by'] = { ...S['input_text.fh_med_riley_am_by'], state: 'Alex' }; c.hass = { ...h, states: S }; }); await page.waitForTimeout(400);
-{ const r = await hdr(); console.log('header orbit, one overdue:', /Overdue 6:30 am · Charlie/.test(r.chips) && !r.cut && !r.wrapped ? 'ok' : 'WRONG', JSON.stringify(r)); }
+{ const r = await hdr(); console.log('header orbit, one overdue (a count, no name):', /(^|\| )1 overdue/.test(r.chips) && !/Charlie|Riley/.test(r.chips) && !r.cut && !r.wrapped ? 'ok' : 'WRONG', JSON.stringify(r)); }
 await page.setViewportSize({ width: 1280, height: 800 }); await page.close();
 
 // 14. planner: a failed load is not an empty week; empty week and empty day say so; Try again loads
@@ -896,7 +896,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   // R5-10 / R5-13 medication: a record kept in this browser says so; the giver shows at once on a slow link; a failure leaves nothing ticked
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds');
     const note = await p.evaluate(`(() => { const s = ${SR}.querySelector('.sheet'); return { label: [...s.querySelectorAll('.label')].map((x) => x.textContent.trim()), note: s.querySelector('[data-medlocal]')?.textContent.trim() ?? '' }; })()`);
-    console.log('R5-10 no med_log: section label', JSON.stringify(note.label[1]), ok(note.label.includes('Kept on this screen only')), '| note names the key:', ok(/med_log/.test(note.note) && /No other screen/.test(note.note))); await p.context().close(); }
+    console.log('R5-10 no med_log: section label', JSON.stringify(note.label[1]), ok(note.label.includes('Kept on this screen only')), '| note in plain words (no setting names):', ok(!/med_log|card settings/.test(note.note) && /No other screen/.test(note.note) && /shared list/.test(note.note))); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds&slow=1200'); await p.evaluate(() => { document.querySelector('family-hub-card')._medOpen = true; }); await p.evaluate(() => { window.__calls = []; });
     await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await p.waitForTimeout(350);
     const mid = await p.evaluate(`${SR}.querySelector('.sheet [data-saving]')?.textContent.trim() ?? ''`); await p.waitForTimeout(3200);
@@ -1186,9 +1186,9 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await ope
   const v = await p.evaluate(() => { const c = document.querySelector('family-hub-card'), tryIt = (k) => { try { document.createElement('family-hub-card').setConfig({ ...c._config, keep_on: k }); return 'accepted'; } catch (e) { return String(e.message); } }; return [tryIt('light.max'), tryIt([1, 2]), tryIt([]), tryIt(['light.a'])]; });
   console.log('D10 setConfig: a string', JSON.stringify(v[0]), '| numbers', JSON.stringify(v[1]), '| empty list', v[2], '| list of ids', v[3], ok(/keep_on should be a list/.test(v[0]) && /keep_on should be a list/.test(v[1]) && v[2] === 'accepted' && v[3] === 'accepted'));
   // everything kept: nothing to switch, and it says so
-  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, keep_on: ['light.max', 'light.kitchen', 'light.lounge'] }); window.__calls = []; }); await p.locator('family-hub-card .dock [data-nav=lights-off]').click(); await p.waitForTimeout(500);
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, keep_on: ['light.max', 'light.kitchen', 'light.lounge', 'light.panel_backlight'] }); window.__calls = []; }); await p.locator('family-hub-card .dock [data-nav=lights-off]').click(); await p.waitForTimeout(500);
   const t = await p.evaluate(() => ({ toast: (document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.innerText ?? '').trim(), n: (window.__calls || []).filter((c) => /^light\.turn_off/.test(c)).length }));
-  console.log('D10 every light that is on is kept:', t.toast, '| calls', t.n, ok(/^Nothing else to turn off \(3 things kept on\)$/.test(t.toast) && t.n === 0)); await p.context().close(); }
+  console.log('D10 every light that is on is kept:', t.toast, '| calls', t.n, ok(/^Nothing else to turn off \(4 things kept on\)$/.test(t.toast) && t.n === 0)); await p.context().close(); }
 
 // D16. Sea & Sun has a horizon line in its own background (so it is there with the ambient scene off and in calm mode); other themes are as they were
 { const bg = async (qs) => { const p = await openAt(1280, 800, qs); const r = await p.evaluate(() => { const fh = document.querySelector('family-hub-card').shadowRoot.querySelector('.fh'), b = getComputedStyle(fh).backgroundImage; return { grad: (b.match(/linear-gradient/g) || []).length, img: /url\(/.test(b), stop: /57%/.test(b) }; }); await p.context().close(); return r; };
@@ -1213,10 +1213,10 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await ope
     return { seg: cr(bgOf(segOn), solid(bgOf(segOff))), todayOutline: outline, today: cr(outline, solid(bgOf(other))), todayW: /3px/.test(getComputedStyle(today).boxShadow), dock: cr(bgOf(dockOn), solid(bgOf(dockOff))), dockLine: getComputedStyle(c.querySelector('.dock .item[aria-current="page"]')).textDecorationColor, add: bgOf(add) }; });
   console.log('D18 chosen against not chosen: view chip', r.seg + ':1', '| today’s outline', r.todayOutline, r.today + ':1 against the next column', '| this page in the dock', r.dock + ':1', r.dockLine, '| Add is', r.add, ok(r.seg >= 3 && r.today >= 3 && r.todayW && r.dock >= 3 && r.add === 'rgb(255, 214, 10)')); await p.context().close(); }
 
-// leftovers: the Orbit medication chip keeps its names at 1024 x 768; the Sports timer pills keep "+10 min" on one line there
+// leftovers: the Orbit medication chip says how many and names nobody at 1024 x 768 (0.30.0: names are inside the sheet); the Sports timer pills keep "+10 min" on one line there
 { for (const v of ['day', 'week']) { const p = await openAt(1024, 768, 'look=orbit&page=planner&view=' + v);
-    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('.cap[data-kind="med"]'), w = m?.querySelector('.mwho'); const b = w?.getBoundingClientRect(), c = m?.getBoundingClientRect(); return m ? { text: m.textContent.replace(/\s+/g, ' ').trim(), whoW: Math.round(b?.width ?? 0), cut: !!w && w.scrollWidth > w.clientWidth + 1, inside: !!b && b.right <= c.right + 0.5, capCut: m.parentElement.scrollWidth > m.parentElement.clientWidth + 1 } : null; });
-    console.log(`leftover: Orbit medication chip at 1024 x 768 (${v}):`, JSON.stringify(r), ok(!!r && /Riley, Charlie/.test(r.text) && r.whoW > 60 && !r.cut && r.inside && !r.capCut)); await p.context().close(); }
+    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('.cap[data-kind="med"]'); return m ? { text: m.textContent.replace(/\s+/g, ' ').trim(), label: m.getAttribute('aria-label'), cut: m.scrollWidth > m.clientWidth + 1, capCut: m.parentElement.scrollWidth > m.parentElement.clientWidth + 1 } : null; });
+    console.log(`leftover: Orbit medication chip at 1024 x 768 (${v}):`, JSON.stringify(r), ok(!!r && r.text === '2 overdue' && !/Riley|Charlie/.test(r.text + r.label) && !r.cut && !r.capCut)); await p.context().close(); }
   const p = await openAt(1024, 768, 'look=sports&page=planner');
   const q = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].map((b) => { const g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(), o = b.getBoundingClientRect(); return { text: b.textContent.trim(), lines: Math.round(t.height / parseFloat(getComputedStyle(b).fontSize)), gap: Math.round(Math.min(t.left - o.left, o.right - t.right) * 10) / 10, fs: parseFloat(getComputedStyle(b).fontSize), h: Math.round(o.height) }; }));
   console.log('leftover: Sports timer pills at 1024 x 768:', q.map((x) => `${x.text} ${x.lines} line, ${x.gap} px clear, ${x.fs} px`).join(' ; '), ok(q.length === 3 && q.every((x) => x.lines === 1 && x.gap >= 6 && x.fs >= 15 && x.h >= 44))); await p.context().close(); }

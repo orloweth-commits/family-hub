@@ -86,7 +86,14 @@ export interface MedConfig { id: string; label: string; time: string; who?: stri
 export interface BringRule { match: string; item: string; kid?: string }
 export interface StationConfig { name: string; match?: string; id?: string }
 export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }
-export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
+/** A calendar on the planner. `only` keeps just the events whose title has one of these words; `hide` drops the events whose title has one of them (both ignore capitals). For a shared holidays calendar: `hide: [Canberra Day, Melbourne Cup]`. */
+export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string; only?: string[]; hide?: string[] }
+/** Whether a calendar's own word filter lets an event through. */
+export const calShows = (c: Pick<CalendarConfig, 'only' | 'hide'>, title: string): boolean => {
+  const t = title.toLowerCase(), has = (w: string): boolean => !!w.trim() && t.includes(w.trim().toLowerCase());
+  if (c.only?.length && !c.only.some(has)) return false;
+  return !(c.hide ?? []).some(has);
+};
 
 /**
  * The card's configuration. Most of it can be changed on the panel, in Settings (the "i" button, then the cog; parents only): children,
@@ -162,6 +169,10 @@ export interface FamilyHubConfig {
   morning?: { start?: string; end?: string; leave_by?: string; /** minutes to leave before a child's first morning event */ travel?: number };
   bring_rules?: BringRule[];
   jar?: { target?: number; reward?: string; script?: string };
+  /** the PIN pad puts its digits in a new order each time it opens, so the PIN cannot be learnt by watching where a finger goes (default true) */
+  pin_shuffle?: boolean;
+  /** seconds "All off" waits, with a Cancel button, before the lights go out (default 3; 0 = at once) */
+  all_off_wait?: number;
   /** lights switched by "All on" (defaults to every light) */
   all_on?: string[];
   /** things "All off" leaves on (a night light, a fish tank): entity ids. A group named here keeps everything in it on. Absent: All off turns every light off. */

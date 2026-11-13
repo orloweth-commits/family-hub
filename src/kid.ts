@@ -8,7 +8,7 @@ import {
 } from './avatar';
 import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
-import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
+import { calShows, kidEntities, num, slotVar, type CalendarConfig, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
 import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
@@ -276,7 +276,7 @@ export class FhKid extends LitElement {
 
   private _nowUid = '';
   static properties = {
-    hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
+    hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, calRules: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
@@ -288,6 +288,8 @@ export class FhKid extends LitElement {
   /** the card's `art` option: the studio of a painted character needs it */
   art: ArtConfig = {};
   familyCalendars: string[] = [];
+  /** the card's calendars, for each one's own `only` / `hide` words */
+  calRules: CalendarConfig[] = [];
   pin = '';
   owed = 'todo.rewards_owed';
   jarTarget = 120;
@@ -437,6 +439,7 @@ export class FhKid extends LitElement {
         for (const r of rows) {
           const title: string = String(r.summary ?? '').trim() || '(busy)';
           if (priv.some((w) => title.toLowerCase().includes(w))) continue;
+          const rule = this.calRules.find((x) => x.entity === c.id); if (rule && !calShows(rule, title)) continue;
           out.push({ title, start: r.start?.date ? new Date(`${r.start.date}T00:00:00`) : new Date(r.start.dateTime), end: r.end?.dateTime ? new Date(r.end.dateTime) : undefined, allDay: !!r.start?.date, family: c.family });
         }
       } catch { /* ignore */ }
@@ -478,7 +481,7 @@ export class FhKid extends LitElement {
     // the sound and the spark answer the touch, not Home Assistant
     if (!done) { const row = this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`), at = row?.querySelector('.check') ?? row;
       if (at) { spark('tick', at); const words = c.summary.toLowerCase();
-        if (c.pts && !this._picMode) spark('points', at, { text: `+${c.pts}` });
+        if (c.pts && !this._picMode && !this._wind) spark('points', at, { text: `+${c.pts}` });
         if (row && /trumpet|clarinet|piano|practice|music/.test(words)) spark('tada', row, { variant: /clarinet/.test(words) ? 'clarinet' : undefined });
         else if (row && /read|book|library/.test(words)) spark('book', row); } }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
@@ -490,9 +493,9 @@ export class FhKid extends LitElement {
       ticks[c.uid] = Date.now(); lsSet('fh-ticks', ticks);
       this._jump++;
       const id = Date.now();
-      const text = c.lane === 'grow' ? '🌱' : c.pts ? (this._picMode ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
+      const text = c.lane === 'grow' ? '🌱' : c.pts && !this._wind ? (this._picMode ? '★'.repeat(Math.max(1, Math.round(c.pts / this._star))) : `+${c.pts}`) : '✓';
       if (this._picMode || !c.pts) { this._bursts = [...this._bursts, { id, text }]; setTimeout(() => { this._bursts = this._bursts.filter((b) => b.id !== id); }, 1300); }
-      if (this._picMode) say(`${c.summary}. Done! ${c.pts ? 'Here’s a star!' : ''}`);
+      if (this._picMode) say(`${c.summary}. Done! ${c.pts && !this._wind ? 'Here’s a star!' : ''}`);
       this._maybeAllDone();
     } catch (err) {
       console.warn('Family Hub: chore update failed', err);
@@ -667,8 +670,8 @@ export class FhKid extends LitElement {
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
-      ${this._picMode ? html`
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode || this._wind ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
+      ${this._wind ? nothing /* wind-down keeps no score: no rank, no points, no bars; only the routine and the time to bed */ : this._picMode ? html`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
           <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
           <span>${Math.floor(pts / this._star)} stars in my jar</span></span></div>`
@@ -802,7 +805,7 @@ export class FhKid extends LitElement {
     const d = c.status === 'completed', stars = Math.max(1, Math.round(c.pts / this._star));
     return html`<button class="pic tap ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${size}" data-uid=${c.uid} aria-pressed=${String(d)} @pointerdown=${this._press} @click=${() => this._toggle(c)}>
       <span class="e" aria-hidden="true">${picFor(c)}</span><span class="pt">${c.summary}</span>
-      ${c.pts && size !== 'small' ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${d ? html`<span class="tick">${tickSvg(22)}</span>` : nothing}</button>`;
+      ${c.pts && size !== 'small' && !this._wind ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${d ? html`<span class="tick">${tickSvg(22)}</span>` : nothing}</button>`;
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   private _reader(): TemplateResult {

@@ -117,7 +117,10 @@ babysitter: { title: House info, lines: ["Bedtime 7:30"] }
 calendars:
   - { entity: calendar.family, colour: family, name: Family }
   - { entity: calendar.riley, colour: 3, name: Riley }
+  - { entity: calendar.holidays, colour: family, name: Holidays, hide: [Canberra Day, Melbourne Cup] }   # a shared holidays calendar, without the days that are not yours
 ```
+
+A calendar can carry its own word filter: `only: [...]` keeps just the events whose title has one of the words, `hide: [...]` drops those that do (capitals do not matter). It applies wherever that calendar is read: the planner, the header and the children's pages.
 
 ### House info, emergency button, medication and bin night
 
@@ -137,6 +140,8 @@ med_log: todo.medicine_record # where "something else given" (paracetamol and th
 bins: { day: 1, always: [green], alternate: [yellow, red], anchor: "2026-11-09" }   # Monday; yellow went out on the anchor date
 address_search: true          # look places up while adding an event (Photon, OpenStreetMap data, Australia only)
 ```
+
+While a daily medicine is due, the header shows a pill and a count ("2 overdue"), never a name: names are inside the sheet. It is red for the first hour it is overdue and amber after that, and "Later (30 min)" in the sheet puts it away for half an hour (that screen only).
 
 The emergency button must be held for a second and a half, then sends a critical alert (it sounds through silent mode) to each phone through the Home Assistant app. Each daily medication needs two helpers: `input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`. The medication record shows what was given and when; it gives no advice on doses.
 
@@ -184,8 +189,8 @@ Most of the configuration can be changed on the panel itself. Open the house-inf
 - **Rewards**: each child's rewards (name, picture, cost, whether it needs the PIN) and the family jar.
 - **Morning**: when the "Out the door" board shows, leaving times, travel time, the morning routine, things to bring by day, school terms and holidays.
 - **Medicines**: each medicine's name, who it is for and its time, and the names offered under "something else given". A medicine is only a name and a time: there is nowhere to write an amount. A new medicine needs two helpers in Home Assistant (`input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`); Settings lists them and can make them for an administrator.
-- **PIN**: change the PIN, and choose whether recording medicine and Ask after bedtime need it.
-- **House**: night screen and quiet hours, bin night, what "All off" leaves on (`keep_on`), the look, background and sounds a screen starts with, calm mode.
+- **PIN**: change the PIN, choose whether recording medicine and Ask after bedtime need it, and whether the numbers on the PIN pad move each time it opens (`pin_shuffle`, on unless set to false).
+- **House**: night screen and quiet hours, bin night, what "All off" leaves on (`keep_on`; All off waits three seconds with a Cancel button, `all_off_wait: 0` turns the wait off), the look, background and sounds a screen starts with, calm mode.
 - **Music**: the moment pads, the sleep timer, call volume.
 - **People and safety**: parents' names, the house-info page, the alert button's phones (a test is sent only after a second, explicit tap), Ask's name.
 - **Advanced**: the wiring (calendars, lists, speakers, scripts), read-only, and "Restore an earlier version".

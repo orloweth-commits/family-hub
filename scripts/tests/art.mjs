@@ -130,7 +130,7 @@ const pick = async (tab, item) => { await studio.locator('[role=tab]', { hasText
 const make = async () => { await paintBtn.click(); await page.waitForTimeout(200); await page.clock.runFor(1500); await page.waitForTimeout(900); };
 await pick('Hats', 'Party hat');
 ok('a new combination offers to be painted', /Paint it/.test(await paintBtn.innerText()), await paintBtn.innerText());
-ok('and says how many are left today', /3 new looks left today/.test(await studio.locator('.pnote').innerText()), await studio.locator('.pnote').innerText());
+ok('and says how many are left today', /3 paints left today/.test(await studio.locator('.pnote').innerText()), await studio.locator('.pnote').innerText());
 await paintBtn.click(); await page.waitForTimeout(150);
 ok('while it paints he is told so', await studio.locator('.wet').count() === 1 && await paintBtn.isDisabled());
 await page.clock.runFor(1500); await page.waitForTimeout(900);
