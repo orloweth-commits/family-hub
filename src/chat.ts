@@ -172,6 +172,14 @@ export class FhChat extends LitElement {
     :host([data-phone]) .starters { grid-template-columns: 1fr 1fr; }
     :host([data-phone]) .send .lead { padding: 0 18px; }
     :host([data-phone]) .keys, :host([data-phone]) .kb { display: none; }
+    /* a short screen (a laptop inside Home Assistant) with the keys open: the pictures step aside and the conversation keeps at least a few lines, so every key sits inside the sheet */
+    @media (max-height: 720px) {
+      :host([kb]:not([data-phone])) .ctl > .starters { display: none; }
+      :host([kb]:not([data-phone])) .thread { min-height: 90px; }
+      :host([kb]:not([data-phone])) .keys { flex-shrink: 0; }
+    }
+    /* the three options share a row wherever their words fit; when the column is too narrow even for the bare words, they wrap rather than spill out of their buttons */
+    :host(:not([data-phone])) .opts { flex-wrap: wrap; } :host([data-look]:not([data-phone])) .opts .pill { min-width: max-content; padding: 0 4px; }
   `];
 
   static properties = {
@@ -215,7 +223,7 @@ export class FhChat extends LitElement {
     this._reset();
   }
   protected updated(c: PropertyValues): void {
-    if (c.has('_keys')) this.toggleAttribute('kb', this._keys);
+    if (c.has('_keys')) { this.toggleAttribute('kb', this._keys); this.parentElement?.toggleAttribute('data-kb', this._keys); /* the sheet around it makes room for the keys on a short screen */ }
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
 
@@ -224,7 +232,7 @@ export class FhChat extends LitElement {
 
   /** Three minutes without a touch or an answer: the sheet closes itself and the conversation is gone. */
   private _poke = (): void => { clearTimeout(this._idleT); this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent('close')), IDLE_MS); };
-  private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); }
+  private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); if (from === 'helper') sfx(calm ? 'error' : 'answer'); }
   private _quiet(): void { hush(); try { this._audio?.pause(); } catch { /* not playing */ } this._audio = null; }
   /** Forgets the conversation: the bubbles, the thread with the helper, anything being said or heard. */
   private _reset(): void {
@@ -238,7 +246,7 @@ export class FhChat extends LitElement {
     if (!text || this._busy || !this.hass || !this.agent) return;
     const gen = this._gen;
     this._busy = true; this._grown = false; this._typed = ''; this._caps = true;
-    this._quiet(); sfx('tap');
+    this._quiet(); sfx('send');
     this._add('child', text);
     let reply = '';
     try {
@@ -265,7 +273,7 @@ export class FhChat extends LitElement {
     if (this._busy || !this.hass?.connection || !this.pipeline) return;
     const gen = this._gen, v: NonNullable<FhChat['_voice']> = { held: [] };
     this._busy = true; this._listening = true; this._grown = false; this._voice = v;
-    this._quiet();
+    this._quiet(); sfx('listen'); // before the microphone opens, so it is not recorded
     let stream: MediaStream | null = null;
     try {
       stream = await openMic();
@@ -293,7 +301,7 @@ export class FhChat extends LitElement {
     if (!v || !this._listening) return;
     this._listening = false;
     clearTimeout(v.listenT);
-    try { v.stop?.(); } catch { /* already stopped */ } v.stop = undefined;
+    try { v.stop?.(); } catch { /* already stopped */ } v.stop = undefined; sfx('heard');
     if (v.handler !== undefined) { try { this.hass?.connection?.socket?.send(audioFrame(v.handler)); } catch { /* the socket is reconnecting */ } }
     // the answer still has to come: give it the same 20 seconds a typed question gets
     v.waitT = window.setTimeout(() => { if (this._voice === v) { this._endVoice(); this._add('helper', SORRY, true); } }, ANSWER_MS);

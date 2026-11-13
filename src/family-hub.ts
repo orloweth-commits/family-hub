@@ -24,7 +24,7 @@ import { kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyH
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
-import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setVolume, sfx, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 /** The picture for a day with nothing on: a kite in the sun. */
 const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -35,8 +35,9 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event';
-const VERSION = '0.26.0';
+const VERSION = '0.26.1';
 const THEME_KEY = 'family-hub-theme';
+const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
   'clear-night': 'Clear', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms',
   partlycloudy: 'Partly cloudy', pouring: 'Pouring', rainy: 'Rain', snowy: 'Snow', 'snowy-rainy': 'Sleet', sunny: 'Sunny', windy: 'Windy', 'windy-variant': 'Windy'
@@ -51,7 +52,7 @@ export class FamilyHubCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _alarm: { state: true }, _pinAsk: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
@@ -68,6 +69,9 @@ export class FamilyHubCard extends LitElement {
   private _look: LookId = 'glass';
   /** look options the family has switched on, e.g. { hand: true } */
   private _opts: Record<string, boolean> = {};
+  /** touch sounds on this screen: on, quiet (soft) or off; starts from the card's `sounds` setting */
+  private _snd: 'on' | 'quiet' | 'off' = 'on';
+  private _sfxOn = false;
   private _prefTick = 0;
 
   /** The child whose page is open, and his settings (config defaults + what a grown-up changed on the panel). */
@@ -97,6 +101,10 @@ export class FamilyHubCard extends LitElement {
     if (!this._config) return;
     if (this._lk !== getLook()) setLook(this._lk);
     setVolume(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1);
+    setSoundTheme(this._kidOn?.theme ?? this._theme);
+    // a sheet says that it opened or closed (not the one the page loads with)
+    if (this._sfxOn && ch.has('_sheet') && !ch.get('_sheet') !== !this._sheet) sfx(this._sheet ? 'open' : 'close');
+    this._sfxOn = true;
   }
   private _sheet: Sheet = '';
   private _now = new Date();
@@ -161,7 +169,12 @@ export class FamilyHubCard extends LitElement {
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) throw new Error(`Family Hub: "${c.entity}" isn't a calendar entity`);
     if (config.parent_pin !== undefined && !/^\d{4,8}$/.test(String(config.parent_pin))) throw new Error('Family Hub: parent_pin should be 4–8 digits (put it in quotes)');
+    if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') throw new Error('Family Hub: sounds should be true, false or quiet');
     this._config = config;
+    let snd: string | null = null;
+    try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
+    this._snd = snd === 'on' || snd === 'quiet' || snd === 'off' ? snd : config.sounds === false ? 'off' : config.sounds === 'quiet' ? 'quiet' : 'on';
+    setSounds(this._snd === 'off' ? false : this._snd === 'quiet' ? 'quiet' : true);
     let saved: string | null = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
     this._theme = themeById(saved || config.theme || 'sea').id;
@@ -178,6 +191,7 @@ export class FamilyHubCard extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.addEventListener('click', this._tapMark, true); this.addEventListener('click', this._tapSfx);
     loadFonts('Inter', 'Bricolage Grotesque');
     this._tick = window.setInterval(() => this._onTick(), 1000);
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
@@ -221,6 +235,7 @@ export class FamilyHubCard extends LitElement {
   private _ro?: ResizeObserver;
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.removeEventListener('click', this._tapMark, true); this.removeEventListener('click', this._tapSfx);
     window.removeEventListener('resize', this._onResize); this._ro?.disconnect(); window.removeEventListener('keydown', this._keys);
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
     clearTimeout(this._toastTimer); clearTimeout(this._dinner?.timer);
@@ -528,6 +543,7 @@ export class FamilyHubCard extends LitElement {
       // it did not work: the row goes back to how it was, and a calm line says so
       clearTimeout(this._remTk[r.uid]); this._remDue.delete(r.uid);
       if (undo) void this._loadReminders(); else drop();
+      sfx('error');
       this._say(wasSlow() ? SLOW_SAY : undo ? 'That did not save. It is still ticked off.' : 'That did not save. Try again in a moment.');
     });
     // the toast carries Undo for eight seconds, longer than the row stays
@@ -569,7 +585,7 @@ export class FamilyHubCard extends LitElement {
     const o = this._evOpen; if (!o) return nothing;
     const { ev, day } = o, part = whenOn(ev, day).label;
     // the calendar's notes are shown as plain text: line breaks kept, any markup taken out, nothing run as HTML
-    const notes = (ev.description ?? '').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, '’').replace(/&amp;/g, '&').replace(/\n{3,}/g, '\n\n').trim();
+    const notes = (ev.description ?? '').replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, ' ').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n').replace(/<(p|div|li)(\s[^>]*)?>/gi, '\n').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, '’').replace(/&amp;/g, '&').replace(/[ \t]{2,}/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
     const row = (ic: TemplateResult, body: unknown, cls = '') => html`<div class="evrow ${cls}"><span class="evic" aria-hidden="true">${ic}</span><span class="evtx">${body}</span></div>`;
     return html`<div class="shead"><h2 class="t-head evtitle" id="evt">${ev.title}</h2></div>
       <div class="evd" style="--c:${slotVar(ev.colour)}">
@@ -577,7 +593,7 @@ export class FamilyHubCard extends LitElement {
         ${row(icon('timer', 22), html`${fmtSpan(ev)}${/^(Day|until|continues)/.test(part) ? html`<span class="muted evpart"> · ${part === 'continues' ? 'continues all day' : part.replace(/^Day/, 'day')}</span>` : nothing}`, 'evwhen')}
         ${row(this._chip(ev.who, ev.colour), ev.who, 'evwho2')}
         ${ev.location ? row(icon('pin', 22), ev.location, 'evplace') : nothing}
-        ${notes ? html`<p class="evnotes">${notes}</p>` : nothing}
+        ${notes ? html`<div class="evnotebox"><span class="label" id="evnl">Notes</span><p class="evnotes scrolly" aria-labelledby="evnl" tabindex="0" @scroll=${scrollCue}>${notes}</p></div>` : nothing}
       </div>
       <div class="sfoot"><span class="muted"></span><button class="lead tap" data-act="ev-close" @click=${() => { this._sheet = ''; }}>Close</button></div>`;
   }
@@ -634,7 +650,7 @@ export class FamilyHubCard extends LitElement {
   /** children who tapped "Chat with a grown-up" this session and have not been answered yet */
   private _wantsChat: string[] = [];
   private _addTimer(min: number): void {
-    sfx('tap'); const was = this._timerLeft() !== null;
+    const was = this._timerLeft() !== null; sfx(was ? 'tap' : 'timer');
     void this._call('script', 'fh_timer_add', { minutes: min }).then((ok) => { const t = this.renderRoot.querySelector('.timerrow'); if (ok && t) spark(was ? 'add' : 'rocket', t);
       // the new time arrives with a small roll of the digits and a quick sweep of the ring
       if (ok) { const b = Date.now(); this._bump = b; window.setTimeout(() => { if (this._bump === b) this._bump = 0; }, 450); } });
@@ -778,17 +794,33 @@ export class FamilyHubCard extends LitElement {
     this._toastTimer = window.setTimeout(() => { this._toast = ''; this._toastAct = null; }, act ? Math.max(5000, ms) : ms);
   }
   private _setTheme(id: ThemeId): void {
-    this._theme = id; sfx('tap');
+    this._theme = id; setSoundTheme(id); sfx('look');
     try { localStorage.setItem(THEME_KEY, id); } catch { /* ignore */ }
   }
   private _setLook(id: LookId): void {
-    this._look = id; setLook(id); sfx('tap');
+    this._look = id; setLook(id); sfx('look');
     try { localStorage.setItem(LOOK_KEY, id); } catch { /* ignore */ }
   }
   private _toggleOpt(id: string): void {
-    this._opts = { ...this._opts, [id]: !this._opts[id] }; sfx('tap');
+    this._opts = { ...this._opts, [id]: !this._opts[id] }; sfx(this._opts[id] ? 'on' : 'off');
     try { localStorage.setItem(LOOK_OPTS_KEY, JSON.stringify(this._opts)); } catch { /* ignore */ }
   }
+  private _setSounds(m: 'on' | 'quiet' | 'off'): void {
+    this._snd = m; setSounds(m === 'off' ? false : m === 'quiet' ? 'quiet' : true); sfx('tap');
+    try { localStorage.setItem(SOUNDS_KEY, m); } catch { /* ignore */ }
+  }
+  /** Any plain button says "tap" (a switch says on or off) unless its own handler has already asked for a sound. A part of the page that is keeping quiet marks itself `data-hush`. */
+  private _asksAt = 0;
+  private _tapWhat: 'tap' | 'on' | 'off' | '' = '';
+  /** On the way down, before any handler has run: what this press is (a switch is read before it flips). */
+  private _tapMark = (e: Event): void => {
+    this._asksAt = sfxAsked(); this._tapWhat = '';
+    let b: HTMLElement | null = null;
+    for (const n of e.composedPath()) { if (!(n instanceof HTMLElement)) continue; if (n.hasAttribute('data-hush')) return; if (!b && (n.classList.contains('tap') || n.getAttribute('role') === 'switch')) b = n; if (n === this) break; }
+    if (b) this._tapWhat = b.getAttribute('role') === 'switch' ? (b.getAttribute('aria-checked') === 'true' ? 'off' : 'on') : 'tap';
+  };
+  /** On the way back up, after the handlers and the re-draw they asked for: a sheet that opened, a tick, a page change have spoken by now. */
+  private _tapSfx = (): void => { const at = this._asksAt, s = this._tapWhat; if (s) window.setTimeout(() => { if (sfxAsked() === at) sfx(s); }, 0); };
   private _shift(dir: number): void {
     const a = this._anchor;
     this._anchor = this._view === 'day' ? addDays(a, dir) : this._view === 'week' ? addDays(a, this._span * dir) : new Date(a.getFullYear(), a.getMonth() + dir, 1);
@@ -896,7 +928,7 @@ export class FamilyHubCard extends LitElement {
         ${this._dock()}
         ${this._sheetView(sheet, sheetOut)}
         ${this._dinner ? this._dinnerView() : nothing}
-        <div class="toasts" role="status" aria-live="polite">${toast ? html`<div class="toast" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.act ? html`<button class="tap" @click=${() => { const a = this._toastAct; this._toast = ''; this._toastAct = null; clearTimeout(this._toastTimer); a?.run(); }}>${toast.act.label}</button>` : nothing}</div>` : nothing}</div>
+        <div class="toasts" role="status" aria-live="polite">${toast ? html`<div class="toast" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.act ? html`<button class="tap" @click=${() => { const a = this._toastAct; this._toast = ''; this._toastAct = null; clearTimeout(this._toastTimer); sfx('undo'); a?.run(); }}>${toast.act.label}</button>` : nothing}</div>` : nothing}</div>
         ${nightOut ? this._night(true) : nothing}
         ${this._alarm ? this._alarmView() : nothing}
         ${this._pinAsk ? html`<fh-pin .pin=${String(this._config.parent_pin ?? '')} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
@@ -1186,14 +1218,14 @@ export class FamilyHubCard extends LitElement {
 
   private _dock(): TemplateResult {
     const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} @click=${() => { sfx('tap'); on(); }}>${icon(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
+      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} @click=${() => { sfx('nav'); on(); }}>${icon(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
     return html`<nav class="glass dock" aria-label="Main" @scroll=${(e: Event) => { const d = e.currentTarget as HTMLElement; d.toggleAttribute('data-more', d.scrollWidth - d.scrollLeft - d.clientWidth > 6); }}>
       ${kids.map((k, i) => {
         const e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state;
         const look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
         const on = this._page === 'kid' && this._kid === i;
-        return html`<button class="item kidbtn tap" style="--kidc:${slotVar(k.colour)}" aria-current=${on ? 'page' : 'false'} @click=${() => { sfx('tap'); this._kid = i; this._page = 'kid'; }}>
+        return html`<button class="item kidbtn tap" style="--kidc:${slotVar(k.colour)}" aria-current=${on ? 'page' : 'false'} @click=${() => { sfx('nav'); this._kid = i; this._page = 'kid'; }}>
           <span class="avatar" style="width:44px;height:44px;background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 44, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span><span class="lb kn" data-t=${k.name}>${k.name}</span></button>`;
       })}
       ${kids.length ? html`<span class="sep" aria-hidden="true"></span>` : nothing}
@@ -1255,6 +1287,8 @@ export class FamilyHubCard extends LitElement {
         </button>`)}
       </div>
       ${(lookById(this._look).options ?? []).map((o) => this._optRow(o, !!this._opts[o.id], () => this._toggleOpt(o.id)))}
+      <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Taps, ticks and keys from this screen. Timers always sound.</span></span>
+        <div class="seg" role="group" aria-label="Sounds" data-set="sounds">${([['off', 'Off'], ['quiet', 'Soft'], ['on', 'On']] as const).map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._snd === v)} @click=${() => this._setSounds(v)}>${l}</button>`)}</div></div>
       ${!lookById(this._look).themed ? nothing : html`<span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>

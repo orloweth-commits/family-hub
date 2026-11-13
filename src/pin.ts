@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
+import { sfx } from './sound';
 
 /** Parent PIN pad. Fires `ok` when the right PIN is entered, `cancel` when dismissed. */
 /** Wrong tries are counted across every pad on the panel. */
@@ -52,13 +53,14 @@ export class FhPin extends LitElement {
 
   private _key(k: string): void {
     if (this._wait) return;
-    if (k === 'del') { this._typed = this._typed.slice(0, -1); return; }
+    if (k === 'del') { if (this._typed) sfx('del'); this._typed = this._typed.slice(0, -1); return; }
     if (this._bad) return;
-    this._typed += k; this._note = '';
+    // every digit sounds the same, so the PIN cannot be learnt by ear
+    this._typed += k; this._note = ''; if (this._typed.length < this.pin.length) sfx('pin');
     if (this._typed.length >= this.pin.length) {
-      if (this._typed === this.pin) { LOCK.misses = 0; this._leave('ok'); }
+      if (this._typed === this.pin) { LOCK.misses = 0; sfx('pinok'); this._leave('ok'); }
       else {
-        LOCK.misses += 1; this._bad = true;
+        LOCK.misses += 1; this._bad = true; sfx('pinno');
         // three wrong tries: the pad rests for a minute, so it cannot be guessed by mashing
         if (LOCK.misses >= 3) { LOCK.misses = 0; LOCK.until = Date.now() + 60_000; this._wait = 60; this._note = 'Too many tries. Ask a grown-up to help.'; } else this._note = 'Not that one. Try again.';
         setTimeout(() => { this._bad = false; this._typed = ''; }, 420);

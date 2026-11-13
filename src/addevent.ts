@@ -223,7 +223,9 @@ export class FhAddEvent extends LitElement {
 
   private _hour24(): number { return (this._h % 12) + (this._pm ? 12 : 0); }
   private _setDrum(which: 'h' | 'm', i: number): void {
+    const was = which === 'h' ? this._h : this._m;
     if (which === 'h') this._h = HOURS[Math.max(0, Math.min(HOURS.length - 1, i))]; else this._m = MINS[Math.max(0, Math.min(MINS.length - 1, i))];
+    if ((which === 'h' ? this._h : this._m) !== was) sfx('step');
   }
   private _scrolled(which: 'h' | 'm', e: Event): void {
     const el = e.currentTarget as HTMLElement;
@@ -260,7 +262,7 @@ export class FhAddEvent extends LitElement {
         // Page Up and Page Down move three places (three hours, a quarter of an hour); Home and End go to the first and the last
         else if (e.key === 'PageUp' || e.key === 'PageDown') { e.preventDefault(); this._setDrum(which, list.indexOf(v as never) + (e.key === 'PageUp' ? -3 : 3)); }
         else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._setDrum(which, e.key === 'Home' ? 0 : list.length - 1); } }}>
-      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => { sfx('tap'); this._setDrum(which, i); }}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
+      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => this._setDrum(which, i)}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
   }
 
   private _monthGrid(): TemplateResult {
@@ -311,7 +313,7 @@ export class FhAddEvent extends LitElement {
     } catch {
       clearTimeout(wait);
       if (gen !== this._saveGen) return;
-      this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false;
+      this._err = 'Couldn’t add it. Try again in a moment.'; this._busy = false; sfx('error');
       // the sheet was closed while this was on its way: the card says it instead
       if (gone()) this.dispatchEvent(new CustomEvent('failed', { detail: this._t.trim() }));
     }

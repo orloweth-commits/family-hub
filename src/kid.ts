@@ -14,7 +14,7 @@ import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, 
 import './studio';
 import './pin';
 
-interface KEvent { title: string; start: Date; allDay: boolean; family: boolean }
+interface KEvent { title: string; start: Date; end?: Date; allDay: boolean; family: boolean }
 
 /** Picture-mode icons for common jobs (first keyword match wins). */
 const PICS: [RegExp, string][] = [
@@ -57,6 +57,8 @@ export class FhKid extends LitElement {
   static styles = [styles, css`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
+    /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
+    @media (max-height: 700px) { :host([data-shape='wide']:not([data-n3])) .hero { gap: 6px; padding-top: 10px; padding-bottom: 10px; } }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
     .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; }
     .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
@@ -217,6 +219,11 @@ export class FhKid extends LitElement {
     /* the older boys' column reaches the bottom of the page: the tab card takes the spare height */
     :host(:not([data-phone]):not([data-shape='tall'])) .side:not(.low) > .tabcard { flex-grow: 1; }
     .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
+    /* the list under the tabs scrolls inside its own box (from its first row, with the fade that says there is more), so the two tabs never leave the card */
+    .tabcard > .tabs { flex-shrink: 0; }
+    .tabbody { display: flex; flex-direction: column; gap: 8px; flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 6px; margin: -6px; }
+    .tabbody::-webkit-scrollbar { display: none; }
+    :host([data-shape='wide'][data-n3]) .tabbody, :host([data-phone]) .tabbody { overflow: visible; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
     .rw .n { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
@@ -230,7 +237,7 @@ export class FhKid extends LitElement {
     .rw.ask[data-held] { pointer-events: none; }
     @keyframes lockwig { 0%, 100% { rotate: 0deg; } 25% { rotate: calc(-16deg * var(--m-d, 1)); } 60% { rotate: calc(12deg * var(--m-d, 1)); } 82% { rotate: calc(-6deg * var(--m-d, 1)); } }
     .studio[data-nudge] svg { transform-origin: 50% 20%; animation: lockwig var(--m-4, 400ms) var(--e-out, ease) 1; }
-    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); }
+    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); } .rw.ask .q .muted { color: inherit; /* the row's own selected ink: the muted ink vanished on the pale selected fill in Space */ }
     .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
@@ -364,6 +371,8 @@ export class FhKid extends LitElement {
 
   protected updated(ch: PropertyValues): void {
     if (!this.hass || !this.kid) return;
+    // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
+    this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
     const e = this._e;
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
@@ -421,7 +430,7 @@ export class FhKid extends LitElement {
         for (const r of rows) {
           const title: string = String(r.summary ?? '').trim() || '(busy)';
           if (priv.some((w) => title.toLowerCase().includes(w))) continue;
-          out.push({ title, start: r.start?.date ? new Date(`${r.start.date}T00:00:00`) : new Date(r.start.dateTime), allDay: !!r.start?.date, family: c.family });
+          out.push({ title, start: r.start?.date ? new Date(`${r.start.date}T00:00:00`) : new Date(r.start.dateTime), end: r.end?.dateTime ? new Date(r.end.dateTime) : undefined, allDay: !!r.start?.date, family: c.family });
         }
       } catch { /* ignore */ }
     }));
@@ -667,6 +676,7 @@ export class FhKid extends LitElement {
           ${this._picMode ? nothing : html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
       </div>` : html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
+      ${this._wind && this._picMode && this.ask ? html`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button></div>` : nothing /* in the evening the studio is shut, but his Ask button stays where he can reach it */}
       ${this._wind ? nothing : (() => {
         const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
         // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
@@ -808,7 +818,7 @@ export class FhKid extends LitElement {
     const t = wait ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._picMode) say(label); }}>${label}</button>`;
     return html`<section class="glass card tabcard" aria-label=${t === 'rewards' ? 'Rewards' : 'Week'}>
       <div class="tabs">${tab('rewards', this._picMode ? '⭐ My stars' : '🎁 Rewards')}${tab('week', this._picMode ? '📅 Coming up' : '📅 My week')}</div>
-      ${t === 'rewards' ? this._rewards() : this._weekBody()}</section>`;
+      <div class="tabbody scrolly" @scroll=${scrollCue}>${t === 'rewards' ? this._rewards() : this._weekBody()}</div></section>`;
   }
 
   private _windCard(): TemplateResult {
@@ -852,7 +862,9 @@ export class FhKid extends LitElement {
   }
 
   private _weekBody(): TemplateResult {
-    const today = new Date(), evs = this._events.filter((e) => e.allDay ? e.start >= startOfDay(today) : e.start.getTime() > today.getTime() - 3_600_000).slice(0, 5);
+    // a timed event leaves the list when it finishes (when it has no end, an hour after it starts); an all-day one stays for its day
+    const today = new Date(), over = (e: KEvent): number => (e.end && !isNaN(e.end.getTime()) ? e.end.getTime() : e.start.getTime() + 3_600_000);
+    const evs = this._events.filter((e) => e.allDay ? e.start >= startOfDay(today) : over(e) > today.getTime()).slice(0, 5);
     const label = (d: Date): string => {
       if (sameDay(d, today)) return 'Today';
       const n = Math.round((startOfDay(d).getTime() - startOfDay(today).getTime()) / 86_400_000);

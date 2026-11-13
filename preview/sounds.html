@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub sounds (audition page)</title>
+<style>
+  html,body{margin:0;min-height:100%;background:#1d2026;color:#e9ecf2;font:15px/1.4 system-ui,sans-serif}
+  #bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 14px;background:#12141a;border-bottom:1px solid #333a48}
+  #bar b{font-size:16px} #bar label{display:flex;gap:8px;align-items:center;cursor:pointer}
+  #bar input[type=range]{width:220px}
+  #last{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9;min-width:330px;text-align:right}
+  button{font:inherit;color:inherit;border:1px solid #556;background:#262b36;border-radius:8px;cursor:pointer}
+  button:hover{background:#30374a} button:active{background:#3b4560} button:focus-visible{outline:3px solid #e9ecf2;outline-offset:2px}
+  #wrap{padding:12px}
+  table{border-collapse:separate;border-spacing:4px;width:100%}
+  th{font-weight:600;text-align:left;vertical-align:bottom;padding:4px 6px}
+  thead th{position:sticky;top:56px;background:#1d2026;z-index:3}
+  thead th small{display:block;font-weight:400;opacity:.7;font-size:12px;max-width:190px;line-height:1.3;margin:2px 0 6px}
+  thead th button{padding:6px 10px;font-size:13px}
+  tbody th{white-space:nowrap;width:1%} tbody th small{opacity:.65;font-weight:400}
+  tr.grp td{padding:14px 6px 2px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.75;border-bottom:1px solid #333a48}
+  td button{width:100%;min-width:92px;min-height:44px;padding:4px 6px;font-size:12px;font-variant-numeric:tabular-nums;line-height:1.25}
+  td button b{display:block;font-size:14px}
+  td button.on{background:#3d5a80;border-color:#98c1d9}
+  p.note{max-width:980px;margin:6px 14px 0;opacity:.8}
+</style></head>
+<body>
+<!-- Audition page for src/sound.ts: every palette (columns) against every sound (rows). Nothing here talks to Home Assistant: the sounds leave by this browser only.
+     Loads dist/sound.js if it exists (npx esbuild src/sound.ts --bundle --format=esm --outfile=dist/sound.js), else the card bundle (npm run build), which sets window.fhSound.
+     ?palette=sports shows one column. -->
+<div id="bar"><b>Family Hub sounds</b>
+  <label>Volume <input type="range" id="vol" min="0" max="300" step="5" value="100"><span id="volv">100% (as shipped)</span></label>
+  <label><input type="checkbox" id="indoors"> Alarm as in quiet hours</label>
+  <button id="stop" style="padding:6px 12px">Stop “play all”</button>
+  <span id="last">Tap any cell to hear it.</span></div>
+<p class="note">Rows are the things that happen, columns are the looks. Each cell plays that sound exactly as the panel would at full sound level; the numbers are its length and its highest peak. “Play all” runs down one column, one sound every 0.8 s. The things on screen (record, jukebox, stamp…) sound the same in every look, only muffled under water (Sea, Reef); the boys’ own three sounds are the same everywhere.</p>
+<div id="wrap"><table><thead><tr id="head"><th>Sound</th></tr></thead><tbody id="rows"></tbody></table></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+let S;
+try { S = await import('../dist/sound.js'); }
+catch { try { await import('../dist/family-hub.js'); } catch { /* not built */ } S = window.fhSound; }
+if (!S) document.body.insertAdjacentHTML('beforeend', '<p style="padding:20px">The sounds are not built yet: run <code>npm run build</code> (or build dist/sound.js, see the comment at the top of this file).</p>');
+else {
+  window.fhSound ??= S;
+  const SAY = { key: 'keyboard key', space: 'keyboard space', del: 'keyboard delete', send: 'send / add', tap: 'button', nav: 'dock: page change', open: 'sheet opens', close: 'sheet closes', on: 'switch on', off: 'switch off', tick: 'tick', untick: 'untick',
+    coin: 'job done (coin)', jar: 'marble in the jar', done: 'all done', unlock: 'reward unlocked', locked: 'not yet (locked)', error: 'did not work', undo: 'undo', pin: 'PIN digit', pinok: 'PIN accepted', pinno: 'PIN refused',
+    slide: 'slider detent', set: 'slider let go', step: 'time drum step', timer: 'timer started', alarm: 'timer alarm', look: 'look changed (signature)', listen: 'Ask: listening', heard: 'Ask: stopped listening', answer: 'Ask: answer arrived', poke: 'creature / room touched',
+    sleeve: 'record sleeve pulled', needle: 'needle down', slot: 'jukebox coin', tune: 'tuner detent', static: 'static between stations', pad: 'desk pad', stamp: 'doodle stamp', rub: 'eraser', stick: 'stuck on the fridge',
+    clarinet: 'his own: clarinet', trumpet: 'his own: trumpet', roar: 'his own: roar' };
+  const GROUPS = [['Keys and buttons', ['key', 'space', 'del', 'send', 'tap', 'pin', 'slide', 'set', 'step']], ['Moving about', ['nav', 'open', 'close', 'look']], ['Switches and ticks', ['on', 'off', 'tick', 'untick', 'undo', 'timer']],
+    ['Rewards', ['coin', 'jar', 'done', 'unlock', 'pinok', 'answer']], ['Gentle “no”', ['locked', 'error', 'pinno']], ['Ask', ['listen', 'heard']], ['Alarm', ['alarm']],
+    ['Things on screen', ['poke', 'sleeve', 'needle', 'slot', 'tune', 'static', 'pad', 'stamp', 'rub', 'stick']], ['The boys’ own', ['clarinet', 'trumpet', 'roar']]];
+  const pals = S.PALETTES.filter((p) => !q.get('palette') || q.get('palette').split(',').includes(p));
+  const head = document.getElementById('head'), rows = document.getElementById('rows'), last = document.getElementById('last'), indoors = document.getElementById('indoors');
+  const db = (x) => (x > 0 ? (20 * Math.log10(x)).toFixed(1) : '−∞');
+  const measure = async (p, e) => { const x = await S.render(p, e, { indoors: e === 'alarm' && indoors.checked }); let peak = 0, end = 0; for (let i = 0; i < x.length; i++) { const a = Math.abs(x[i]); if (a > peak) peak = a; if (a > 1e-5) end = i; } return { ms: Math.round((end / 48000) * 1000), peak }; };
+  let run = 0;
+  const play = async (p, e, btn) => {
+    S.audition(p, e, e === 'alarm' && indoors.checked);
+    document.querySelectorAll('td button.on').forEach((b) => b.classList.remove('on')); btn?.classList.add('on'); setTimeout(() => btn?.classList.remove('on'), 400);
+    const m = await measure(p, e), L = S.LIMITS[S.CLASS[e]];
+    last.textContent = `${S.paletteInfo(p).name} · ${SAY[e] ?? e}: ${m.ms} ms, peak ${db(m.peak)} dBFS (class “${S.CLASS[e]}”: up to ${Math.round(L.max * 1000)} ms, ${L.cap} dBFS)`;
+  };
+  for (const p of pals) { const i = S.paletteInfo(p), th = document.createElement('th'); th.innerHTML = `${i.name}<small>${i.idea}</small><button data-all="${p}">▶ Play all</button>`; head.append(th); }
+  for (const [name, evs] of GROUPS) {
+    rows.insertAdjacentHTML('beforeend', `<tr class="grp"><td colspan="${pals.length + 1}">${name}</td></tr>`);
+    for (const e of evs) { const tr = document.createElement('tr'); tr.innerHTML = `<th>${SAY[e] ?? e} <small>${e}</small></th>` + pals.map((p) => `<td><button data-p="${p}" data-e="${e}" aria-label="${S.paletteInfo(p).name}: ${SAY[e] ?? e}"><b>▶</b><span>…</span></button></td>`).join(''); rows.append(tr); }
+  }
+  document.addEventListener('click', async (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.e) { run++; void play(b.dataset.p, b.dataset.e, b); }
+    else if (b.dataset.all) { const mine = ++run, p = b.dataset.all; for (const btn of document.querySelectorAll(`td button[data-p="${p}"]`)) { if (run !== mine) return; btn.scrollIntoView({ block: 'nearest' }); await play(p, btn.dataset.e, btn); await new Promise((r) => setTimeout(r, btn.dataset.e === 'alarm' ? 1700 : 800)); } }
+    else if (b.id === 'stop') run++;
+  });
+  const vol = document.getElementById('vol'), volv = document.getElementById('volv');
+  vol.addEventListener('input', () => { S.setMaster(vol.value / 100); volv.textContent = `${vol.value}%${vol.value === '100' ? ' (as shipped)' : ''}`; });
+  const fill = async () => { for (const b of document.querySelectorAll('td button[data-e]')) { const m = await measure(b.dataset.p, b.dataset.e); b.querySelector('span').textContent = `${m.ms} ms · ${db(m.peak)} dB`; } window.__ready = true; };
+  indoors.addEventListener('change', () => { for (const b of document.querySelectorAll('td button[data-e="alarm"]')) measure(b.dataset.p, 'alarm').then((m) => { b.querySelector('span').textContent = `${m.ms} ms · ${db(m.peak)} dB`; }); });
+  void fill();
+}
+</script>
+</body></html>

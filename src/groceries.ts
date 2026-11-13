@@ -170,8 +170,8 @@ export class FhGroceries extends LitElement {
     if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
     // a failed add says so and gives the words back, so nothing typed is lost
     if (this._adding.includes(nice)) return; // already on its way
-    this._adding = [...this._adding, nice];
-    void watched(el, Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity }))).then((ok) => { this._adding = this._adding.filter((x) => x !== nice); if (ok) return; this._say(wasSlow() ? SLOW_SAY : `Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
+    this._adding = [...this._adding, nice]; sfx('send');
+    void watched(el, Promise.resolve(this.hass.callService('todo', 'add_item', { item: nice }, { entity_id: this.entity }))).then((ok) => { this._adding = this._adding.filter((x) => x !== nice); if (ok) return; sfx('error'); this._say(wasSlow() ? SLOW_SAY : `Couldn’t add ${nice}. Try again`); if (typed && !this._typed) { this._typed = nice; this._caps = false; } });
     if (typed) { this._typed = ''; this._caps = true; }
   }
   private _toggle(i: TodoItem): void {
@@ -194,7 +194,7 @@ export class FhGroceries extends LitElement {
     this._just = i.uid; window.setTimeout(() => { if (this._just === i.uid) this._just = ''; }, 700);
     inTime(this.hass?.callService('todo', 'update_item', { item: i.uid, status: to }, { entity_id: this.entity })).then(() => '', (err: unknown) => (err instanceof SlowError ? 'slow' : 'no')).then((bad) => {
       clearTimeout(slow); const e = this._tk[i.uid]; if (!e || e.n !== n) return;
-      if (bad) { clearTimeout(e.t); drop(); this._say(bad === 'slow' ? SLOW_SAY : `Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); return; }
+      if (bad) { clearTimeout(e.t); drop(); sfx('error'); this._say(bad === 'slow' ? SLOW_SAY : `Couldn’t ${to === 'completed' ? 'tick' : 'untick'} ${i.summary}. Try again`); return; }
       if (e.due) drop(); else patch({ out: false, busy: false });
     });
   }
@@ -288,7 +288,7 @@ export class FhGroceries extends LitElement {
         </div>
         ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
       </section>
-      <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => this._undo?.()}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
+      <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => { sfx('undo'); this._undo?.(); }}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }
 
   private _row(i: TodoItem): TemplateResult {

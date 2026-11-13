@@ -101,6 +101,7 @@ bring_rules: [{ match: swim, item: Swim bag }]
 jar: { target: 120, reward: pizza night }   # input_number.family_jar
 all_on: [light.lounge]
 quiet: { start: "20:00", end: "06:30" }
+sounds: true                        # touch sounds from the panel's own speaker: true, "quiet" (softer) or false; the kitchen timer always sounds
 add_calendar: calendar.family
 babysitter: { title: House info, lines: ["Bedtime 7:30"] }
 calendars:
