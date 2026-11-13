@@ -90,6 +90,9 @@ export class FhSettings extends LitElement {
     .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 20px 12px; display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
     .spane > * { flex-shrink: 0; }
     .spane > .seg { align-self: flex-start; max-width: 100%; }
+    /* a choice of several, with words too long for one line on a phone: the choices wrap, and each keeps its words whole */
+    :host([data-phone]) .seg, :host([data-shape='tall']) .seg { flex-wrap: wrap; }
+    :host([data-phone]) .seg button, :host([data-shape='tall']) .seg button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 6px 12px; line-height: 1.15; }
     .spane:focus { outline: none; }
     .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -164,10 +167,12 @@ export class FhSettings extends LitElement {
     .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
-    .spick button { min-height: 48px; padding: 4px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
-    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
+    /* a tile has room for a name on two lines and the room it is in; a longer name ends in “…” (search finds it by any word) */
+    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
     .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
-    .spick button b { font-weight: inherit; overflow-wrap: anywhere; }
+    .spick button b { font-weight: inherit; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .spick button small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .spick button[aria-pressed='true'] small { color: inherit; }
     .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -739,8 +744,9 @@ export class FhSettings extends LitElement {
       <div class="scard"><h3>${icon('moon', 20)}Night</h3>
         ${this._row('Night screen', 'The panel goes dark between these times, and wakes for ten minutes when touched.', html`${this._sw('Night screen', !!night, () => this._edit((x) => { if (x.night) delete x.night; else x.night = { start: '21:00', end: '06:00' }; }))}
           ${night ? html`${this._tm('Night screen starts', () => this._draft.night?.start, (v) => this._edit((x) => { x.night!.start = v; }))}<span class="muted">to</span>${this._tm('Night screen ends', () => this._draft.night?.end, (v) => this._edit((x) => { x.night!.end = v; }))}` : nothing}`)}
-        ${this._row('Quiet hours', 'Sounds are muted; the lights and Ask count as “after bedtime”.', html`${this._tm('Quiet hours start', () => this._draft.quiet?.start, (v) => this._edit((x) => { x.quiet = { ...(x.quiet ?? {}), start: v }; }), '20:00')}<span class="muted">to</span>${this._tm('Quiet hours end', () => this._draft.quiet?.end, (v) => this._edit((x) => { x.quiet = { ...(x.quiet ?? {}), end: v }; }), '06:30')}`)}
+        ${this._row('Quiet hours', 'The lights and Ask count as “after bedtime”.', html`${this._tm('Quiet hours start', () => this._draft.quiet?.start, (v) => this._edit((x) => { x.quiet = { ...(x.quiet ?? {}), start: v }; }), '20:00')}<span class="muted">to</span>${this._tm('Quiet hours end', () => this._draft.quiet?.end, (v) => this._edit((x) => { x.quiet = { ...(x.quiet ?? {}), end: v }; }), '06:30')}`)}
         <span class="shint">${q.start || q.end ? '' : 'Quiet hours are 8:00 pm to 6:30 am until you change them.'}</span>
+        ${this._row('Silent in quiet hours', 'Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.', this._sw('Silent in quiet hours', q.mute === true, () => this._edit((x) => { const m = x.quiet?.mute === true; x.quiet = { ...(x.quiet ?? {}) }; if (m) delete x.quiet.mute; else x.quiet.mute = true; if (!Object.keys(x.quiet).length) delete x.quiet; })))}
       </div>
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>
         ${this._row('Bins go out', 'Shown on the planner the evening before collection.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}

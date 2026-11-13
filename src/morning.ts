@@ -66,6 +66,8 @@ export class FhMorning extends LitElement {
     .goclock .who { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
     :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: 36px; }
+    /* the words (not the countdown) may take two lines and never run off the card */
+    .leave.say { font-size: 34px; white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: 28px; }
     :host([data-phone]) .goclock .words { text-align: left; }
     .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
@@ -205,7 +207,7 @@ export class FhMorning extends LitElement {
           <span class="nextstep ${ready ? 'set' : ''}">${ready ? 'Morning jobs: all done. Go team! 🎉' : `Morning jobs: ${team.total - team.done} to go between us`}</span></div>` : nothing}
         <div class="goclock ${left > 0 && left <= 10 ? 'soon' : ''}" data-part="goclock" role="timer" aria-label=${left > 0 ? `Time to leave: ${minWords(left)} until ${who} at ${t12(next!.at)}` : left > -5 ? 'Time to go' : 'Everyone has left'}>
           <span class="face" aria-hidden="true">${lookArt(getLook(), 'timer', { frac: left > 0 ? Math.min(1, left / 60) : 0, size: 96 })}<b>${left > -5 ? '🚪' : '👋'}</b></span>
-          <div class="words"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
+          <div class="words"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''} ${left > 0 ? '' : 'say'}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
             ${next && left > 0 ? html`<span class="at">Leave at <b>${t12(next.at)}</b></span><span class="who">${clockWords(next.at)} · ${who}</span>` : nothing}</div></div>
       </section>
       ${fam.length ? html`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${fam.slice(0, 4).map((ev) => html`<span class="fev"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></span>`)}</section>` : nothing}

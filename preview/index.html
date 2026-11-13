@@ -30,9 +30,9 @@ const CAL = {
 // &events=many|none|long: a crowded Tuesday, an empty week, or very long titles; &empty=1 empties the shopping list and reminders
 if (q.get('events') === 'none') for (const k of Object.keys(CAL)) CAL[k] = [];
 if (q.get('events') === 'many') CAL['calendar.family'].push(...Array.from({ length: 12 }, (_, i) => ev(1, 7 + i, 15, ['Assembly', 'Excursion note due', 'Dentist check-up', 'Scooter park', 'Band rehearsal', 'Swimming lesson', 'Parent meeting', 'Haircut', 'Library', 'Tennis coaching', 'Dinner with Nan', 'Pack for camp'][i], 30)));
-if (q.get('events') === 'long') { CAL['calendar.family'].push(ev(1, 9, 0, 'Whole-school end of year assembly and presentation morning followed by the class picnic at the foreshore reserve', 90), ev(2, 10, 0, 'Supercalifragilisticexpialidocious-rehearsal', 60)); CAL['calendar.max'].push(ev(3, 9, 0, 'Kindy orientation for next year, bring hat, water bottle, spare clothes and the signed forms', 120)); }
+if (q.get('events') === 'long' || q.get('stress')) { CAL['calendar.family'].push(ev(1, 9, 0, 'Whole-school end of year assembly and presentation morning followed by the class picnic at the foreshore reserve', 90), ev(2, 10, 0, 'Supercalifragilisticexpialidocious-rehearsal', 60)); CAL['calendar.max'].push(ev(3, 9, 0, 'Kindy orientation for next year, bring hat, water bottle, spare clothes and the signed forms', 120)); }
 const TODOS = {
-  'todo.shopping_list': q.get('long') ? ['Milk','Bananas','Sourdough loaf','Chicken thighs','Pasta','Dishwasher tablets','Greek yoghurt','Frozen peas','Apples','Carrots','Rice','Butter','Tomatoes','Mince','Wraps','Orange juice','Toilet paper','Cheese','Honey','Oats','Broccoli','Salmon'].map((x) => [x]) : [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
+  'todo.shopping_list': (q.get('long') || q.get('stress')) ? ['Milk','Bananas','Sourdough loaf','Chicken thighs','Pasta','Dishwasher tablets','Greek yoghurt','Frozen peas','Apples','Carrots','Rice','Butter','Tomatoes','Mince','Wraps','Orange juice','Toilet paper','Cheese','Honey','Oats','Broccoli','Salmon'].map((x) => [x]) : [['Milk'],['Bananas'],['Sourdough loaf'],['Chicken thighs'],['Pasta'],['Dishwasher tablets'],['Greek yoghurt'],['Frozen peas'],['Eggs','completed'],['Coffee','completed']],
   'todo.family_music': [['Dinner Party Essentials','needs_action','apple_music://playlist/1 | ' + doodle('#264653','#e9c46a','#e76f51')],['Housework Hits!','needs_action','spotify://playlist/2 | ' + doodle('#8ecae6','#023047','#ffb703')],['ABC Jazz','needs_action','radio://abcjazz']],
   'todo.riley_music': [['Minecraft – Volume Alpha','needs_action','apple_music://album/3 | ' + doodle('#2a9d8f','#264653','#e9c46a')],['Clarinet Classics','needs_action','spotify://playlist/4 | @calm']],
   'todo.charlie_music': [['Trumpet Heroes','needs_action','spotify://playlist/5 | ' + doodle('#f4a261','#e76f51','#264653')]],
@@ -230,6 +230,7 @@ if (page === 'kid') { el._kid = Number(q.get('kid') || 0); el._page = 'kid'; }
 else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
 // &sheet=settings opens Settings (&pane=children|rewards|morning|medicines|pin|house|music|people|advanced, &skid=<n> and &stab=jobs pick a child and his job list, &keys=1 shows the on-screen keyboard, &nopin=1 starts without a PIN)
+if (q.get('quietmute')) el.setConfig({ ...el._config, quiet: { ...(el._config.quiet ?? {}), mute: true } });
 if (q.get('nopin')) { const { parent_pin, ...rest } = el._config; el.setConfig(rest); }
 if (q.get('sheet') && q.get('sheet') !== 'settings') el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;
@@ -248,6 +249,24 @@ if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelec
 if (q.get('art')) { await el.updateComplete; el._art.enter(); }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
 if (q.get('sheet') === 'settings') { el._sheet = 'settings'; await el.updateComplete; const sv = el.shadowRoot.querySelector('fh-settings'); if (sv) { if (q.get('pane')) sv._pane = q.get('pane'); if (q.get('skid')) sv._kid = Number(q.get('skid')); if (q.get('stab')) sv._ktab = q.get('stab'); if (q.get('keys')) sv.forceKeys = true; } }
+// &stress=1: every name the panel shows becomes a much longer one, to see that words keep their room (scripts/tests/clearance.mjs)
+if (q.get('stress')) {
+  const c = JSON.parse(JSON.stringify(el._config)), long = ['Maximilian-James', 'Christopher', 'Bartholomew'];
+  c.kids.forEach((k, i) => { k.id = k.name.toLowerCase(); k.name = long[i]; k.special_time = 'Saturday 10:00 with Grandad at the hardware shop'; for (const r of k.rewards ?? []) r.name += ' with all the trimmings, on Saturday afternoon'; });
+  c.family_name = 'the whole extended household'; c.people = (c.people ?? []).map((p, i) => ({ ...p, name: ['Alexandria', 'Samantha-Jo', ...long][i] ?? p.name }));
+  c.calendars = (c.calendars ?? []).map((x, i) => ({ ...x, name: ['Family and friends', 'Alexandria', 'Samantha-Jo', ...long][i] ?? x.name }));
+  c.meds = (c.meds ?? []).map((m, i) => ({ ...m, who: long[i] ?? m.who, label: 'Morning dose with breakfast' }));
+  c.grocery_usuals = ['Semi-skimmed milk', 'Wholemeal sourdough', 'Free-range eggs', 'Lady finger bananas', 'Extra tasty cheese', 'Decaffeinated coffee'];
+  if (c.babysitter) c.babysitter.title = 'Everything the babysitter needs to know';
+  for (const f of c.music_map ?? []) for (const r of f.rooms ?? []) { if (r.name) r.name = r.name.replace('Riley', long[0]).replace('Charlie', long[1]).replace('Alex', 'Alexandria') + ' upstairs'; r.kids = (r.kids ?? []).map((n) => ({ Riley: long[0], Charlie: long[1], Max: long[2] })[n] ?? n); }
+  el.setConfig(c);
+  const S = hass.states, name = (id, n) => { if (S[id]) S[id] = { ...S[id], attributes: { ...S[id].attributes, friendly_name: n } }; };
+  for (const id of Object.keys(S)) if (/^(light|fan|lock|cover|script|automation)\./.test(id)) name(id, S[id].attributes.friendly_name + ' by the back verandah door');
+  for (const id of ['media_player.kitchen', 'media_player.lounge', 'media_player.charlies_homepod']) if (S[id]) S[id] = { ...S[id], attributes: { ...S[id].attributes, media_title: 'The Incredibly Long Song About Everything (Extended Dance Remix, Remastered)', media_artist: 'The Extraordinarily Named Travelling Family Orchestra' } };
+  for (const l of ['todo.reminders']) if (store[l]) store[l] = store[l].map((x) => ({ ...x, summary: x.summary + ' before the end of the school week, without fail' }));
+  S['input_text.fh_panel_message'] = S['input_text.fh_panel_message'];
+  el.hass = { ...hass }; await el.updateComplete;
+}
 window.__ready = true;
 </script>
 </body></html>

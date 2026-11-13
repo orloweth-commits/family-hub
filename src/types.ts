@@ -166,7 +166,8 @@ export interface FamilyHubConfig {
   all_on?: string[];
   /** things "All off" leaves on (a night light, a fish tank): entity ids. A group named here keeps everything in it on. Absent: All off turns every light off. */
   keep_on?: string[];
-  quiet?: { start?: string; end?: string };
+  /** quiet hours: lights and Ask count as "after bedtime". `mute: true` also silences the panel's touch sounds in those hours (default: they keep playing). */
+  quiet?: { start?: string; end?: string; mute?: boolean };
   /** the house-info sheet (the "i" button). `lines` like "Dad: 0400 000 000" become contacts; other lines are notes. */
   babysitter?: { title?: string; lines?: string[]; address?: string; contacts?: { name: string; phone: string }[]; wifi?: { name: string; password?: string }; notes?: string[] };
   /** the red hold-to-send button on the house-info sheet: notify services to alert (e.g. notify.mobile_app_dads_phone), as a critical alert that sounds through silent mode */

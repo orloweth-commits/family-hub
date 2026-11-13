@@ -62,7 +62,7 @@ export class FhKid extends LitElement {
     /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
     @media (max-height: 700px) { :host([data-shape='wide']:not([data-n3])) .hero { gap: 6px; padding-top: 10px; padding-bottom: 10px; } }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
-    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; }
+    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
     .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     .stat { border-radius: 18px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
@@ -160,7 +160,7 @@ export class FhKid extends LitElement {
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; line-height: 1; }
+    .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -227,8 +227,9 @@ export class FhKid extends LitElement {
     .tabbody::-webkit-scrollbar { display: none; }
     :host([data-shape='wide'][data-n3]) .tabbody, :host([data-phone]) .tabbody { overflow: visible; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
-    .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
-    .rw .n { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
+    /* a long reward name keeps a readable line: what it costs drops under it instead of squeezing it */
+    .rw { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
+    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
     .rw .rpic { font-size: 24px; flex-shrink: 0; }
     .rw.picrow .rpic { font-size: 40px; }
     .rw .stars { max-width: 100px; }
@@ -244,7 +245,8 @@ export class FhKid extends LitElement {
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
+    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; min-width: 0; }
+    .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
     .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
     .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
@@ -255,7 +257,8 @@ export class FhKid extends LitElement {
     .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
-    .tab { flex: 1; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
+    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: 14px; letter-spacing: -.01em; }
+    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the page's messages sit at the top here, clear of the buttons a child is reaching for */
     :host(:not([data-phone])) .toast { bottom: auto; top: 4px; }
     .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
@@ -819,7 +822,7 @@ export class FhKid extends LitElement {
         return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" aria-label="${r.name}: ${ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
           <span class="n">${r.name}${this._picMode ? html`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${total > 12 ? html`${starSvg(ok, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${got} / ${total}</b>` : Array.from({ length: total }, (_, k) => starSvg(k < got, 18))}</span>` : nothing}</span>
-          ${this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
+          ${this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}" style="margin-left:auto">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
       })}`;
   }
 

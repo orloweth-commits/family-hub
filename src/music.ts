@@ -174,6 +174,7 @@ export class FhMusic extends LitElement {
     .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
+    :host([data-phone]) .tabs:not(.inline) button { padding: 0 6px; gap: 4px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .tabs button[data-nod] .i { animation: nod var(--m-4, 400ms) ease-out; }
     .acts .seg button { height: 44px; color: var(--ink); }
@@ -248,7 +249,7 @@ export class FhMusic extends LitElement {
     /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
     :host([data-shape='tall']:not([data-phone])) .panel[data-picking] > .mhead, :host([data-shape='tall']:not([data-phone])) .panel[data-picking] .tabs { display: none; }
     /* the jukebox pictures: the record sits behind its cover and peeks out on the right, as on the shelves; the cover itself is never hidden */
-    .jcovers .st { padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
+    .jcovers .st { --st-pr: 20px; padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
     .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
@@ -321,7 +322,9 @@ export class FhMusic extends LitElement {
     @keyframes bands { to { background-position-y: 16px; } }
     @keyframes scribble { to { background-position: 5px 0, 0 0; } }
     .zname { position: absolute; left: 6px; top: 6px; right: 56px; min-height: 48px; padding: 4px 8px; display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left; border-radius: 14px; }
-    .zname b, .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* a room's name is never cut: a long one takes a second line */
+    .zname b { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
+    .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
     .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
@@ -407,7 +410,7 @@ export class FhMusic extends LitElement {
     /* ---- polish pass ---- */
     /* the tab pictures in the title row get their words when the page is wide enough */
     .panel { container: panel / inline-size; }
-    .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } .tabs.inline[data-words] button span { display: inline; }
+    .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } :host([data-phone]) .tabs.inline[data-words] button { padding: 0 8px; gap: 4px; } .tabs.inline[data-words] button span { display: inline; }
     /* Whole house is a plain button: play is the one filled key in the toolbar */
     .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: 15px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .acts .pill[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
@@ -419,7 +422,7 @@ export class FhMusic extends LitElement {
     .mzone:not([data-live]) .zvol { color: var(--ink2); }
     .mzone[data-held] .zvol { transform: scale(1.4); } .mzone[data-held] .grab i { transform: scale(1.15); }
     .mzone > .vstep { position: absolute; right: 12px; z-index: 1; } .mzone > .vstep[data-step='up'] { top: 54px; } .mzone > .vstep[data-step='down'] { bottom: 6px; }
-    .zname b { display: flex; align-items: center; } .zname b .linkd { flex-shrink: 0; }
+    .zname b { display: flex; flex-wrap: wrap; align-items: center; } .zname b .linkd { flex-shrink: 0; }
     /* calling: a picture on every ready message; with the keyboard up the rooms and the messages stay in reach */
     .bpic { font-size: 26px; line-height: 1; flex-shrink: 0; }
     .sayrow { display: flex; gap: 10px; align-items: center; } .qpics { display: flex; gap: 4px; flex-shrink: 0; }

@@ -164,8 +164,10 @@ if (run('rules')) {
     await pg.close(); }
   for (const [qs, want] of [['look=glass&theme=reef&page=planner', 'reef'], ['look=glass&theme=space&page=planner', 'space'], ['look=orbit&page=planner', 'orbit'], ['look=sports&page=planner', 'sports'], ['look=glass&theme=sea&scene=sports&page=planner', 'sports']]) {
     const pg = await open(qs), pal = await pg.evaluate(() => window.fhSound.state().palette); ok(pal === want, `${qs.split('&page')[0]} plays the ${want} palette`, pal); await pg.close(); }
-  { const pg = await open('look=glass&theme=sea&page=planner&night=0', { time: '20:40' }); await pg.waitForTimeout(1500);
-    const late = await tryAll(pg, SOME); ok(late.join() === 'alarm', 'quiet hours: nothing but the alarm', late.join(' ') || 'none');
+  { const pg0 = await open('look=glass&theme=sea&page=planner&night=0', { time: '20:40' }); await pg0.waitForTimeout(1500);
+    const on = await tryAll(pg0, SOME); ok(on.includes('tap') && on.includes('alarm') && on.length > 3, 'quiet hours: touch sounds keep playing unless "Silent in quiet hours" is on', on.join(' ') || 'none'); await pg0.close(); }
+  { const pg = await open('look=glass&theme=sea&page=planner&night=0&quietmute=1', { time: '20:40' }); await pg.waitForTimeout(1500);
+    const late = await tryAll(pg, SOME); ok(late.join() === 'alarm', 'quiet hours with "Silent in quiet hours" on: nothing but the alarm', late.join(' ') || 'none');
     await pg.close(); }
   // what a touch says: the dock changes page, a sheet opens and closes, a plain button taps, a key is a key
   { const pg = await open('look=glass&theme=sea&page=planner');

@@ -282,8 +282,8 @@ export const styles = css`
   aside > .card { padding: 12px 14px; gap: 8px; flex-shrink: 0; }
   aside > .card.np .art { width: 44px; height: 44px; border-radius: 10px; }
   aside > .card.np .ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  /* the hint under the buttons keeps the same room below it as the label has above */
-  aside > .card.tmr { max-height: 190px; padding-bottom: 16px; }
+  /* the hint under the buttons keeps the same room below it as the label has above, in every look (a look's timer can be taller) */
+  aside > .card.tmr { padding-bottom: 16px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
@@ -312,16 +312,19 @@ export const styles = css`
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
   /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 1px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); }
   /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
   .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
-  .grid3 button { white-space: nowrap; }
+  .grid3 button { white-space: nowrap; padding: 0 2px; }
+  .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
+  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }
-  .dock .kidbtn { min-width: 80px; gap: 5px; }
+  .dock .kidbtn { min-width: 80px; }
   .dock .kidbtn .avatar { overflow: hidden; }
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
@@ -391,7 +394,9 @@ export const styles = css`
     background: #000; animation: scrimin var(--m-4, 400ms) ease backwards;
     /* drawings a look adds here are redrawn in the same dim amber as the digits */
     --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
-  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transition: transform calc(55s * var(--m-d, 1)) linear; }
+  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: transform calc(55s * var(--m-d, 1)) linear; }
+  /* a phone has little margin to wander in: the clock keeps inside it */
+  :host([data-phone]) .night .nwander { transform: translate(calc(var(--dx, 0px) * .3), calc(var(--dy, 0px) * .5)); }
   .night .nclock { display: flex; align-items: center; gap: 40px; }
   .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
@@ -422,7 +427,7 @@ export const styles = css`
      the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
   :host([data-n2]) .fh { --rail: 224px; }
   :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
-  :host([data-n2]) .dock .item { min-width: 62px; }
+  :host([data-n2]) .dock .item { min-width: 62px; } :host([data-n2]) .dock .item .kn { max-width: 80px; }
   :host([data-n2]) .dock .sep { margin: 0 3px; }
   :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
   :host([data-n3]) .dock .item .kn { max-width: 60px; }
@@ -465,8 +470,9 @@ export const styles = css`
   :host([data-phone]) .planner { padding: 14px 12px; border-radius: 22px; }
   :host([data-phone]) .bar { gap: 8px; }
   :host([data-phone]) .bar > div:first-child { min-width: 0; flex: 1 1 100%; }
-  :host([data-phone]) .seg { flex: 1 1 100%; }
-  :host([data-phone]) .seg button { flex: 1; min-width: 0; }
+  /* on a phone a choice of several fills the row, and wraps when its words are too long for one */
+  :host([data-phone]) .seg { flex: 1 1 100%; flex-wrap: wrap; height: auto; }
+  :host([data-phone]) .seg button { flex: 1 1 auto; min-width: 0; height: auto; min-height: 44px; padding: 6px 10px; line-height: 1.15; }
   :host([data-phone]) .legend { gap: 6px 10px; font-size: 14px; }
   :host([data-phone]) .week { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; min-height: 400px; }
   :host([data-phone]) .week .col { flex: 0 0 47%; scroll-snap-align: start; }
