@@ -125,7 +125,9 @@ page = await open('look=glass'); ok('a family without pictures keeps the drawn a
 page = await open('painted=1&page=kid&kid=0&studio=1&paint=300');
 const studio = page.locator('fh-studio'), paintBtn = studio.locator('[data-act="paint"]');
 ok('the studio opens on what he is wearing', (await paintBtn.innerText()).trim() === 'Done', await paintBtn.innerText());
-ok('the wardrobe is bigger than the drawn catalogue', await studio.locator('.tile').count() > 20, await studio.locator('.tile').count());
+// since 0.31.0 a group shows what he has and the next three locked things; the rest are counted on the "more to discover" tile
+{ const shown = await studio.locator('.tile').count(), more = Number(/^(\d+) more/.exec((await studio.locator('.cell.more').getAttribute('aria-label').catch(() => '')) ?? '')?.[1] ?? 0);
+  ok('the wardrobe is bigger than the drawn catalogue', shown + more > 20 && await studio.locator('.tile.locked').count() <= 3, `${shown} shown, ${more} more`); }
 const pick = async (tab, item) => { await studio.locator('[role=tab]', { hasText: tab }).click(); await page.waitForTimeout(150); await studio.locator('.tile', { hasText: item }).first().click(); await page.waitForTimeout(150); };
 const make = async () => { await paintBtn.click(); await page.waitForTimeout(200); await page.clock.runFor(1500); await page.waitForTimeout(900); };
 await pick('Hats', 'Party hat');

@@ -132,7 +132,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   page = await open('look=glass&page=planner&ask=1'); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
   await C(page).locator('.askwho .whobtn', { hasText: 'A grown-up' }).click(); await page.waitForTimeout(400);
   ok('a grown-up is asked for the PIN', (await C(page).locator('fh-pin').count()) === 1 && (await C(page).locator('fh-chat').count()) === 0);
-  await pin(page); chat = C(page).locator('fh-chat');
+  await pin(page); chat = C(page).locator('fh-chat'); await chat.locator('.send').waitFor({ timeout: 5000 }).catch(() => {});
   ok('then gets the full helper with no clock', (await chat.locator('.send').count()) === 1 && (await chat.locator('.left').count()) === 0 && (await chat.getAttribute('pics')) === null);
   await page.context().close();
   // on his own page it is his Ask, with no question about who

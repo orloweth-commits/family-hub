@@ -283,7 +283,7 @@ export class FhKid extends LitElement {
     .tabbody > .stat { flex-shrink: 0; }
     /* coming up, for a child who cannot read: three pictures side by side, each with one moon for every sleep until it. A tap reads it out */
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
-    .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 4px; border-radius: 18px; background: var(--chip); text-align: center; }
+    .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: 40px; line-height: 1.1; }
     /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
     .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
