@@ -24,5 +24,12 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
   if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') return 'Family Hub: sounds should be true, false or quiet';
   const keep = (config as { keep_on?: unknown }).keep_on;
   if (keep !== undefined && !(Array.isArray(keep) && keep.every((x) => typeof x === 'string'))) return 'Family Hub: keep_on should be a list of entity ids, e.g. [light.hallway_night]';
+  const art = (config as { art?: Record<string, unknown> }).art;
+  if (art !== undefined) {
+    if (!art || typeof art !== 'object' || Array.isArray(art)) return 'Family Hub: art should be a group of options, e.g. art: { idle_minutes: 3 }';
+    for (const k of ['idle_minutes', 'interval_minutes', 'cap', 'cost', 'looks_per_day', 'camera_sensitivity', 'camera_margin', 'backlight_art', 'backlight_night']) if (art[k] !== undefined && !(typeof art[k] === 'number' && Number.isFinite(art[k]) && (art[k] as number) >= 0)) return `Family Hub: art.${k} should be a number, 0 or more`;
+    if (art.presence !== undefined && !['none', 'sensor', 'camera'].includes(String(art.presence))) return 'Family Hub: art.presence should be none, sensor or camera';
+    for (const k of ['presence_entity', 'backlight', 'list', 'painter']) if (art[k] !== undefined && !/^[a-z_]+\.[a-z0-9_]+$/.test(String(art[k]))) return `Family Hub: art.${k} should be an entity id, e.g. binary_sensor.kitchen_presence`;
+  }
   return null;
 };

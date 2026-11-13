@@ -17,7 +17,7 @@ for (const m of /parts: \{([\s\S]*)\n  \}/.exec(hooksSrc)[1].matchAll(/'([\w-]+)
   partsByTag[m[1]] = names(m[2]);
   for (const n of partsByTag[m[1]]) owner.set(n, [...(owner.get(n) ?? []), m[1]]);
 }
-const FILES = { 'family-hub-card': 'family-hub.ts', 'fh-kid': 'kid.ts', 'fh-groceries': 'groceries.ts', 'fh-music': ['music.ts', 'musicviews.ts'], 'fh-home': 'home.ts', 'fh-doodle': 'doodle.ts', 'fh-morning': 'morning.ts', 'fh-weather': 'weather.ts', 'fh-studio': 'studio.ts', 'fh-add-event': 'addevent.ts', 'fh-pin': 'pin.ts', 'fh-chat': 'chat.ts', 'fh-settings': 'settings.ts' };
+const FILES = { 'family-hub-card': ['family-hub.ts', 'artmode.ts'], 'fh-kid': 'kid.ts', 'fh-groceries': 'groceries.ts', 'fh-music': ['music.ts', 'musicviews.ts'], 'fh-home': 'home.ts', 'fh-doodle': 'doodle.ts', 'fh-morning': 'morning.ts', 'fh-weather': 'weather.ts', 'fh-studio': 'studio.ts', 'fh-add-event': 'addevent.ts', 'fh-pin': 'pin.ts', 'fh-chat': 'chat.ts', 'fh-settings': 'settings.ts' };
 const base = fs.readdirSync(dir).filter((f) => f.endsWith('.ts') && f !== 'looks.ts').map(read).join('\n');
 const drawings = looks.slice(looks.indexOf('little drawings the looks add'), looks.indexOf('look styles (shared by every component)'));
 const has = (txt, n) => new RegExp(`(?<![\\w-])${n}(?![\\w-])`).test(txt);

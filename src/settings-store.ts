@@ -146,7 +146,9 @@ export const draftErrors = (c: Cfg): { pane: string; msg: string }[] => {
     if (k.leave_by !== undefined && !isTime(k.leave_by)) add('morning', `${n || 'A child'}’s leaving time is not a time. Use one like 07:50.`);
     (k.rewards ?? []).forEach((r) => { if (!(r.name ?? '').trim()) add('rewards', `One of ${n}’s rewards has no name.`); if (!Number.isFinite(r.cost) || r.cost < 0) add('rewards', `“${r.name}” needs a cost of 0 or more.`); });
   });
-  const m = c.morning ?? {};
+  const art = (c as { art?: import('./artlib').ArtConfig }).art;
+  if (art?.presence === 'sensor' && !art.presence_entity) add('pictures', 'Choose the sensor that tells the panel someone is there, or go back to touch only.');
+    const m = c.morning ?? {};
   for (const [label, t] of [['start', m.start], ['end', m.end], ['leaving time', m.leave_by]] as const) if (t !== undefined && !isTime(t)) add('morning', `The morning board’s ${label} is not a time. Use one like 06:30.`);
   if (isTime(m.start ?? '06:30') && isTime(m.end ?? '08:45') && hm(m.end ?? '08:45') <= hm(m.start ?? '06:30')) add('morning', 'The morning board has to end after it starts.');
   for (const [a, b] of c.school_terms ?? []) if (!a || !b || a > b) add('morning', 'A school term needs a first day and a later last day.');

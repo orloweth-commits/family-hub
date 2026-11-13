@@ -86,7 +86,7 @@ const hass = {
     ...(q.get('meds') === 'missing' ? [] : ['riley_am', 'charlie_am'].flatMap((id) => { const never = q.get('meds') === 'new', d = new Date(); d.setHours(0, 0, 0, 0); const ts = never ? d.getTime() / 1000 : d.getTime() / 1000 - 17 * 3600; return [st(`input_datetime.fh_med_${id}`, 'x', { timestamp: ts }), st(`input_text.fh_med_${id}_by`, never ? 'unknown' : 'Sam')]; })),
     st('person.alex', 'home'), st('person.sam', 'not_home'),
     st('media_player.lounge', 'playing', { friendly_name: 'Lounge', media_title: 'ABC Jazz', media_artist: 'Radio' }),
-    st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
+    (q.get('timer') === '0' || q.get('art') || q.get('idle')) ? st('timer.kitchen', 'idle') : st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
     st('input_number.family_jar', 84), st('input_text.fh_panel_message', ''),
     st('calendar.family', 'off', { friendly_name: 'Family' }), st('calendar.alex', 'off', { friendly_name: 'Alex' }), st('calendar.sam', 'off', { friendly_name: 'Sam' }),
     st('todo.shopping_list', 8), st('todo.reminders', 3), st('todo.rewards_owed', 0),
@@ -209,6 +209,8 @@ el.setConfig({
   grocery_recipients: [{ name: 'Sam', colour: 2, notify: 'notify.mobile_app_sam' }, { name: 'Alex', colour: 1, notify: 'notify.mobile_app_alex' }],
   parent_pin: '1234', meds: [{ id: 'riley_am', who: 'Riley', label: 'Morning dose', time: '06:30' }, { id: 'charlie_am', who: 'Charlie', label: 'Morning dose', time: '06:30' }], parents: ['Alex', 'Sam'], bins: { day: 1, always: ['green'], alternate: ['yellow', 'red'], anchor: '2026-11-09' }, babysitter: { address: '1 Example Street, Sampleton', lines: ['Mum: 0400 000 001', 'Dad: 0400 000 002', 'Nan next door: 0400 000 003', 'Max is allergic to nothing but dislikes peas', 'Torch and first-aid kit are in the laundry cupboard'], wifi: { name: 'Example-Guest', password: 'welcome-in' } }, emergency: { notify: ['notify.mobile_app_demo_one', 'notify.mobile_app_demo_two'], who: 'Mum and Dad' }, morning: { start: '06:30', end: '08:45', leave_by: '07:50' },
   idle_seconds: 0,
+  // the screensaver is off in the preview unless asked for: &idle=<minutes> (fractions allowed), &every=<minutes a picture stays>, &presence=sensor|camera, &backlight=1
+  art: { idle_minutes: Number(q.get('idle') || 0), ...(q.get('every') ? { interval_minutes: Number(q.get('every')) } : {}), ...(q.get('presence') ? { presence: q.get('presence'), presence_entity: 'binary_sensor.kitchen_presence' } : {}), ...(q.get('backlight') ? { backlight: 'light.panel_backlight' } : {}) },
   // the dock's Dinner button is shown only with an announce script; &dinner=0 leaves it out
   ...(q.get('dinner') === '0' ? {} : { announce_script: 'script.dinner' }),
   // &chat=off leaves the Ask button out
@@ -243,6 +245,7 @@ if (q.get('keep')) {
 if (q.get('guest') || q.get('ambient') === '0' || q.get('calm')) { el.setConfig({ ...el._config, ...(q.get('guest') ? { ambient_demo: q.get('guest') } : {}), ...(q.get('ambient') === '0' ? { ambient: false } : {}), ...(q.get('calm') ? { calm: true } : {}) }); }
 if (q.get('mview')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) m._view = q.get('mview'); }
 if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
+if (q.get('art')) { await el.updateComplete; el._art.enter(); }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
 if (q.get('sheet') === 'settings') { el._sheet = 'settings'; await el.updateComplete; const sv = el.shadowRoot.querySelector('fh-settings'); if (sv) { if (q.get('pane')) sv._pane = q.get('pane'); if (q.get('skid')) sv._kid = Number(q.get('skid')); if (q.get('stab')) sv._ktab = q.get('stab'); if (q.get('keys')) sv.forceKeys = true; } }
 window.__ready = true;
