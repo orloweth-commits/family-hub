@@ -683,7 +683,6 @@ const FRIDGE = `
   @F .nextstep { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); font-weight: 600; }
   @F .nextstep.set { background: color-mix(in srgb, var(--ok) 22%, var(--paper)); }
   @F .lchip { background: transparent; border-radius: 0; border-bottom: 2px dashed var(--ink); padding-left: 2px; padding-right: 2px; font-weight: 600; }
-  @F .lchip.soon, @F .lchip.now { background: var(--note-today); border-radius: 3px; border-bottom-color: transparent; padding-left: 10px; padding-right: 10px; }
   @F .leave { font-family: 'Fredoka', sans-serif; font-weight: 700; }
 
   /* night: the kitchen clock keeps watch */
@@ -877,7 +876,6 @@ const ORBIT = `
   @O .nextstep { background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 50%, transparent); font-weight: 500; }
   @O .nextstep.set { background: color-mix(in srgb, var(--ok) 11%, transparent); box-shadow: inset 0 0 0 1.5px var(--ok); }
   @O .lchip { background: transparent; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--glass-line); padding-left: 14px; padding-right: 14px; font-weight: 500; }
-  @O .lchip.soon, @O .lchip.now { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
   @O .leave { font-family: 'Outfit', sans-serif; font-weight: 400; }
 
   /* music: rooms are cells on the ring; the one you control carries the 'now' yellow */
@@ -1279,7 +1277,6 @@ const SPORTS = `
   @S .nextstep { border-radius: 8px; background: var(--wash); box-shadow: inset 0 0 0 1.5px var(--ink); }
   @S .nextstep.set { background: var(--ok-wash); color: var(--ok); box-shadow: none; }
   @S .lchip { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; }
-  @S .lchip.soon, @S .lchip.now { background: var(--wash); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
   @S .leave { font-family: 'Outfit', sans-serif; font-weight: 700; }
 
   /* weather: the pitch report. The verdict comes first, then the readings */
