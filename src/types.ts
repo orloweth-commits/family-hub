@@ -148,6 +148,8 @@ export interface FamilyHubConfig {
   jar?: { target?: number; reward?: string; script?: string };
   /** lights switched by "All on" (defaults to every light) */
   all_on?: string[];
+  /** things "All off" leaves on (a night light, a fish tank): entity ids. A group named here keeps everything in it on. Absent: All off turns every light off. */
+  keep_on?: string[];
   quiet?: { start?: string; end?: string };
   /** the house-info sheet (the "i" button). `lines` like "Dad: 0400 000 000" become contacts; other lines are notes. */
   babysitter?: { title?: string; lines?: string[]; address?: string; contacts?: { name: string; phone: string }[]; wifi?: { name: string; password?: string }; notes?: string[] };
