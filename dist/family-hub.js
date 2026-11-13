@@ -2878,6 +2878,8 @@ const f0 = `
   @S[data-n2] .dock .sep { margin: 0 4px 22px; }
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
   @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  /* a compact screen (1024 x 768) drops the other looks' timer pills to 14 px; these keep the look's 15 px, which the tighter drawing above leaves room for */
+  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: 15px; }
   /* a choice of several on a phone wraps to as many rows as its words need */
   @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
@@ -3298,8 +3300,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
-  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut.
+     His name rests on the same line as every other label (the same 6 px under it): the picture, not the name, gives up the 2 px, rising into the dock's own padding */
+  .dock .item.kidbtn { gap: 2px; } .dock .item .kn { flex-shrink: 0; }
   .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }

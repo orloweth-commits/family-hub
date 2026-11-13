@@ -332,8 +332,9 @@ export const styles = css`
   .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
-  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut.
+     His name rests on the same line as every other label (the same 6 px under it): the picture, not the name, gives up the 2 px, rising into the dock's own padding */
+  .dock .item.kidbtn { gap: 2px; } .dock .item .kn { flex-shrink: 0; }
   .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }

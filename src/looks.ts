@@ -1403,6 +1403,8 @@ const SPORTS = `
   @S[data-n2] .dock .sep { margin: 0 4px 22px; }
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
   @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
+  /* a compact screen (1024 x 768) drops the other looks' timer pills to 14 px; these keep the look's 15 px, which the tighter drawing above leaves room for */
+  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: 15px; }
   /* a choice of several on a phone wraps to as many rows as its words need */
   @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
