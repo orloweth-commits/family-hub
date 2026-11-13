@@ -1,7 +1,7 @@
 import { LitElement, html, css, svg, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
-import { FitController, linger } from './util';
+import { FitController, linger, sfx } from './util';
 import { icon } from './icons';
 import { kidEntities, slotVar, type Hass, type KidConfig } from './types';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
@@ -183,16 +183,19 @@ export class FhDoodle extends LitElement {
     this._last = this._pt(e);
     if (this._stamp) {
       const st: Stroke = { ink: '', size: this._size, erase: false, hue: 0, pts: [[this._last.x, this._last.y, 0, 0, 0]], stamp: this._stamp };
-      this._strokes.push(st); this._drawStamp(st); this._blank = false; this._last = null; return;
+      this._strokes.push(st); this._drawStamp(st); this._blank = false; this._last = null; sfx('stamp'); return;
     }
     this._cur = { ink: this._ink, size: this._size, erase: this._erase, hue: this._hue, pts: [] };
     this._strokes.push(this._cur);
     if (this._strokes.length > 400) this._strokes.splice(0, this._strokes.length - 400);
     this._seg(this._cur, this._last, this._last, e.pressure);
     this._blank = false;
+    if (this._erase) { sfx('rub'); this._rubAt = Date.now(); }
   }
   private _move(e: PointerEvent): void {
     if (!this._last || !this._cur) return;
+    // the eraser ticks now and then while it rubs (a tick for a movement, never a loop)
+    if (this._cur.erase && Date.now() - this._rubAt > 240) { sfx('rub'); this._rubAt = Date.now(); }
     const evs = (e as any).getCoalescedEvents?.() as PointerEvent[] | undefined;
     for (const ev of evs?.length ? evs : [e]) { const p = this._pt(ev); this._seg(this._cur, this._last!, p, ev.pressure); this._last = p; }
   }
@@ -229,7 +232,9 @@ export class FhDoodle extends LitElement {
     this._blank = !this._strokes.slice(from).length;
   }
 
+  private _rubAt = 0;
   private _undoOne(): void {
+    if (this._strokes.length) sfx('undo');
     this._strokes.pop();
     this._redraw();
   }
@@ -275,9 +280,9 @@ export class FhDoodle extends LitElement {
         const list: Pic[] = JSON.parse(localStorage.getItem(LOCAL_KEY) ?? '[]');
         list.unshift({ title: `doodle-${stamp}${this._artist ? `-${this._artist.toLowerCase()}` : ''}`, url });
         localStorage.setItem(LOCAL_KEY, JSON.stringify(list.slice(0, 8)));
-      } catch { this._say('The fridge is full – clear a few doodles'); return; }
+      } catch { sfx('error'); this._say('The fridge is full – clear a few doodles'); return; }
     }
-    this._say(shared ? 'Stuck on the fridge!' : 'Stuck on this panel’s fridge');
+    sfx('stick'); this._say(shared ? 'Stuck on the fridge!' : 'Stuck on this panel’s fridge');
     this._clear(); this._strokes = [];
     this._loadFridge();
   }

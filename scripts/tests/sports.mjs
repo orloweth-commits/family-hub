@@ -109,52 +109,12 @@ if (run('others')) for (const [qs, id] of [['look=fridge&page=planner&guest=ants
   await page.close();
 }
 
-// ---- sounds: a pretend AudioContext that writes down every node ----
-const STUB = () => {
-  const log = (window.__audio = []); let now = 0;
-  const param = (v) => ({ value: v, events: [], setValueAtTime(x, t) { this.events.push([t, x]); }, exponentialRampToValueAtTime(x, t) { this.events.push([t, x]); }, linearRampToValueAtTime(x, t) { this.events.push([t, x]); } });
-  const node = (kind, more = {}) => { const n = { kind, to: [], connect(d) { this.to.push(d.kind ?? 'param'); if (d.kind && this.kind !== 'gain') d.fed = (d.fed ?? 0) + 1; return d; }, start(t) { this.t0 = t; }, stop(t) { this.t1 = t; }, ...more }; log.push(n); return n; };
-  window.AudioContext = class { get currentTime() { return now; } get sampleRate() { return 48000; } state = 'running'; destination = { kind: 'out' }; resume() {}
-    createOscillator() { return node('osc', { type: 'sine', frequency: param(440) }); } createGain() { return node('gain', { gain: param(1) }); }
-    createBiquadFilter() { return node('filter', { type: 'lowpass', frequency: param(350), Q: param(1) }); } createBufferSource() { return node('noise', { buffer: null, loop: false }); }
-    createBuffer(ch, len, rate) { (window.__buffers ??= []).push(len / rate); return { sampleRate: rate, length: len, getChannelData: () => new Float32Array(len) }; } };
-  window.webkitAudioContext = window.AudioContext;
-};
-/** in the page: play one sound and sum up what was built */
-const play = (page, s) => page.evaluate((s) => { window.__audio.length = 0; window.fhSfx(s); const L = window.__audio, src = L.filter((n) => n.kind === 'osc' || n.kind === 'noise'), gains = L.filter((n) => n.kind === 'gain' && n.to.includes('out') || (n.kind === 'gain' && n.to.includes('filter')));
-  const peak = (g) => Math.max(0, ...g.gain.events.map((e) => e[1])) * Math.max(1, g.fed ?? 1), spans = gains.map((g) => { const ev = g.gain.events; return [ev[0]?.[0] ?? 0, ev[ev.length - 1]?.[0] ?? 0, peak(g)]; });
-  const loud = Math.max(0, ...spans.map(([a]) => spans.filter(([b, c]) => b <= a + 0.001 && c > a + 0.001).reduce((n, x) => n + x[2], 0)));
-  return { nodes: L.length, osc: L.filter((n) => n.kind === 'osc').map((o) => `${o.type}:${o.frequency.events[0]?.[1] ?? o.frequency.value}`), noise: L.filter((n) => n.kind === 'noise').length, filters: L.filter((n) => n.kind === 'filter').map((f) => `${f.type}:${f.frequency.events[0]?.[1] ?? f.frequency.value}`), end: Math.max(0, ...src.map((n) => n.t1 ?? 0)), longest: Math.max(0, ...src.map((n) => (n.t1 ?? 0) - (n.t0 ?? 0))), loud: +loud.toFixed(3), buffers: window.__buffers ?? [] }; }, s);
-const SOUNDS = ['tap', 'tick', 'untick', 'done', 'unlock', 'locked', 'coin', 'jar', 'alarm'], PLAIN = { tap: 0.08, tick: 0.14, untick: 0.08, done: 0.13, unlock: 0.12, locked: 0.06, coin: 0.06, jar: 0.12, alarm: 0.12 };
-// what the plain look builds today (from src/util.ts as it was before the Sports forms): oscillators only
-const WAS = { tap: ['triangle:660'], tick: ['triangle:880', 'triangle:1320'], untick: ['sine:520'], coin: ['square:988', 'square:1319'], locked: ['sawtooth:180'], jar: ['sine:1200', 'sine:1600', 'sine:2100'], done: ['triangle:523', 'triangle:659', 'triangle:784', 'triangle:1047'],
-  unlock: ['triangle:392', 'triangle:523', 'triangle:659', 'triangle:784', 'triangle:1047', 'triangle:1319', 'sine:1568'], alarm: Array.from({ length: 6 }, () => ['square:1046', 'square:1318']).flat(), clarinet: ['square:587', 'square:698', 'square:880'], trumpet: ['sawtooth:523', 'sawtooth:523', 'sawtooth:784'], roar: ['sawtooth:140', 'square:210'] };
-
-// 8. Sports sounds by day: each builds nodes, is done within a second (the alarm: each whistle), and is no louder than the plain one
-if (run('sound')) { const page = await open('look=glass&scene=sports&page=planner', { init: STUB });
-  for (const s of SOUNDS) { const r = await play(page, s), short = s === 'alarm' ? r.longest < 1 && r.end < 3.2 : r.end < 1;
-    ok(r.nodes > 0 && short && r.loud <= PLAIN[s] + 1e-6 && JSON.stringify(r.osc) !== JSON.stringify(WAS[s]), `sound ${s}`, `${r.nodes} nodes, ${r.osc.length} osc, ${r.noise} noise, ends ${r.end.toFixed(2)} s, peak ${r.loud} (plain ${PLAIN[s]})`); }
-  for (const s of ['clarinet', 'trumpet', 'roar']) { const r = await play(page, s); ok(JSON.stringify(r.osc) === JSON.stringify(WAS[s]) && !r.noise, `sound ${s} is left as it is`, r.osc.join(' ')); }
-  const b = (await play(page, 'tap')).buffers; ok(b.length === 1 && Math.abs(b[0] - 0.2) < 1e-6, 'one shared 0.2 s noise buffer', b.join(' '));
+// 8–10. the sounds moved to src/sound.ts, where every look has its own palette; scripts/tests/sounds.mjs measures them (length, level, spectrum, quiet hours).
+// Here only: the Sports world plays the Sports palette, and its "done" is the two-note pea whistle (two sines 17 Hz apart on each note, with vibrato).
+if (run('sound')) { const page = await open('look=glass&scene=sports&page=planner');
+  const r = await page.evaluate(() => { const S = window.fhSound, v = S.recipe('sports', 'done'); return { pal: S.state().palette, f: v.map((x) => x.f), vib: v.every((x) => x.vib), len: Math.max(...v.map((x) => x.t + x.d)), alarm: S.recipe('sports', 'alarm').length }; });
+  ok(r.pal === 'sports' && r.f.join() === '2093,2110,2637,2654' && r.vib && r.len <= 0.4 && r.alarm === 12, 'sound: the Sports palette, a two-note pea whistle for "done" (under 0.4 s), three rounds of pip-peep for the alarm', JSON.stringify(r));
   await page.close(); }
-// 9. quiet hours (9 pm): everything silent but the alarm, which whistles once, at 60%, through a low-pass
-if (run('sound')) { const page = await open('look=glass&scene=sports&page=planner&night=0', { init: STUB, time: '20:40' });
-  await page.waitForTimeout(1500); // the card looks at the clock once a second
-  const made = []; for (const s of SOUNDS.filter((x) => x !== 'alarm')) made.push((await play(page, s)).nodes);
-  const a = await play(page, 'alarm');
-  ok(made.every((n) => n === 0), 'quiet hours: no Sports sound but the alarm', made.join(' '));
-  ok(a.osc.filter((o) => o.startsWith('sine:23')).length === 2 && Math.abs(a.loud - 0.06) < 1e-6 && a.filters.join() === 'lowpass:2500' && a.osc.length === 3 && a.end < 1, 'quiet hours: the alarm once, at 60%, through a 2.5 kHz low-pass', JSON.stringify(a));
-  await page.close(); }
-// 10. the other looks sound exactly as before, by day and in quiet hours
-if (run('sound')) { const page = await open('look=fridge&page=planner', { init: STUB });
-  const diff = []; for (const s of Object.keys(WAS)) { const r = await play(page, s); if (JSON.stringify(r.osc) !== JSON.stringify(WAS[s]) || r.noise || r.filters.length || r.nodes !== 2 * WAS[s].length) diff.push(s); }
-  ok(!diff.length, 'Fridge: all twelve sounds build the same oscillators as before', diff.join(' '));
-  await page.close();
-  const late = await open('look=orbit&page=planner', { init: STUB, time: '20:40' });
-  await late.waitForTimeout(1500);
-  const n = []; for (const s of Object.keys(WAS)) n.push((await play(late, s)).nodes);
-  ok(n.filter(Boolean).length === 1 && (await play(late, 'alarm')).nodes === 24, 'Orbit in quiet hours: only the alarm, as before', n.join(' '));
-  await late.close(); }
 
 // 11. round 6 (H1): on tablets the whole touchline is on the screen, by day and with the morning's extra place: every place at least 44 px, no two labels touching
 if (run('dock')) for (const [w, h] of [[1024, 768], [768, 1024], [820, 1180], [1180, 820]]) for (const time of ['16:20', '07:10']) { const page = await open('look=sports&page=planner', { w, h, time });
