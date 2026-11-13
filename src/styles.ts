@@ -347,7 +347,9 @@ export const styles = css`
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
-  .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* a child's own picker: "Same as the panel" and every look */
+  .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; }
@@ -400,6 +402,7 @@ export const styles = css`
   :host([data-shape='tall']) .dock .item { min-width: 62px; }
   :host([data-shape='tall']) .dock .sep { margin: 0 3px; }
   :host([data-shape='tall']) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :host([data-shape='tall']) .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* tablets narrower than the canvas (data-n1 under 1240 px, data-n2 under 1100 px, data-n3 under 900 px): nothing is scaled down;
      the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */

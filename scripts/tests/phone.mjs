@@ -1,4 +1,5 @@
 // Phone check at 390x844: confirms the phone arrangement is on, nothing scrolls sideways or sits off the right edge.
+// LOOK=glass|fridge|orbit|sports picks the look (default glass); PAGES= a comma-separated list of page queries.
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');

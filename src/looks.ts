@@ -28,13 +28,14 @@ import { getNarrow, getShape, onShape } from './util';
  *   data-tod="day|eve|night"   time of day (evening tokens apply to eve + night)
  *   data-calm                  calm mode: no looping motion, no tilt
  *   data-opt-<id>              a look option the family switched on
+ *   data-dow="0…6"             the day of the week, Sunday first (Home Ground shows a different ball each day)
  * ------------------------------------------------------------------ */
 
-export type LookId = 'glass' | 'fridge' | 'orbit';
+export type LookId = 'glass' | 'fridge' | 'orbit' | 'sports';
 export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
 /** Places in the base where a look may add a drawing of its own. */
-export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night' | 'player';
-export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number; /** cover art and whether it is playing, for the music player */ img?: string; playing?: boolean }
+export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night' | 'player' | 'wx' | 'steps';
+export interface ArtCtx { now?: Date; arcs?: DialArc[]; frac?: number; size?: number; /** cover art and whether it is playing, for the music player */ img?: string; playing?: boolean; /** today's weather, for a look that sums it up on the header chip */ wx?: { state: string; uv?: number; rain?: number; max?: number }; /** one person's own progress through a list: how many are done, out of how many */ done?: number; total?: number }
 /** A switch a look offers. With `off`/`on` labels it is drawn as a two-way toggle (e.g. Print | Handwriting). */
 export interface LookOption { id: string; label: string; hint?: string; off?: string; on?: string; onStyle?: string }
 export interface LookDef {
@@ -48,27 +49,32 @@ export interface LookDef {
   options?: LookOption[];
   /** how the look pictures itself in the look picker; drawn with the look's own tokens */
   preview?: () => TemplateResult;
+  /** false = the picker card does not repeat the look's clock drawing (it is not a self-contained picture) */
+  previewClock?: boolean;
 }
 
 /** The contract between the base interface and the looks (see the note at the top). */
 export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
   // shared building blocks: styled once per look, wherever they appear
   roles: ['fh', 'glass', 'card', 'sheet', 'scrim', 'toast', 'label', 'muted', 'display', 'pill', 'round', 'primary', 'lead', 'tap', 'quick', 'avatar',
-    'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i', 'seg'],
+    'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i', 'seg', 'init', 'sm', 'verdict'],
   // named regions, by the component that owns them
   parts: {
     'family-hub-card': ['clock', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
-      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart'],
-    'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk'],
+      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
+      // more of the base that Home Ground dresses
+      'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
+    'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
     'fh-home': ['rooms', 'room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
+    'fh-pin': ['grid', 'what'],
     'fh-chat': ['thread', 'bubble', 'asker', 'starter', 'talk'],
     'fh-add-event': ['box', 'chips', 'durs', 'ampm', 'allday', 'dialbox', 'drums'],
     'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
@@ -182,6 +188,78 @@ export const timerFace = (frac: number, size = 56): TemplateResult => {
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
 };
 
+/* ---- Home Ground (sports): a scoreboard that only ever shows the time, a touchline meter, the ball of the day.
+   Everything is a plain, generic object drawn here by hand: no club, league or brand marks. ---- */
+const sv = (inner: string, vb = '0 0 24 24'): string => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${inner}</svg>`)}")`;
+const ballG = (inner: string): string => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
+/** One code a day, Sunday first (as Date.getDay()): Sunday is free play, so it carries the whistle. */
+export const DAY_BALL = ['whistle', 'soccer', 'tennis', 'hockey', 'floor', 'rugby', 'footy'];
+const BALLS: Record<string, string> = {
+  soccer: ballG('<circle cx="12" cy="12" r="9.7" fill="#fff"/><path d="M12 8.6l3.2 2.3-1.2 3.9h-4l-1.2-3.9z" fill="#14201A"/><path d="M12 8.6V3.5M15.2 10.900l4.5-1.5M14 14.800l2.800 4M10 14.800l-2.800 4M8.800 10.900L4.300 9.400" fill="none"/>'),
+  tennis: ballG('<circle cx="12" cy="12" r="9.7" fill="#D4E157"/><path d="M4.600 6.500c4.200 2 4.200 9 0 11M19.400 6.500c-4.200 2-4.200 9 0 11" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="9.7" fill="none"/>'),
+  hockey: ballG('<path d="M17 2.500L10.800 15.800Q9.300 19.200 6 18Q4 17 4.600 14.600" fill="none" stroke="#B7814A" stroke-width="3"/><circle cx="17.500" cy="17.500" r="3.7" fill="#fff"/>'),
+  floor: ballG('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="#14201A" stroke="none"><circle cx="12" cy="6.600" r="1.7"/><circle cx="7.200" cy="10.300" r="1.7"/><circle cx="16.800" cy="10.300" r="1.7"/><circle cx="9" cy="16" r="1.7"/><circle cx="15" cy="16" r="1.7"/><circle cx="12" cy="11.600" r="1.3"/></g>'),
+  rugby: ballG('<g transform="rotate(-35 12 12)"><ellipse cx="12" cy="12" rx="10.5" ry="6.800" fill="#fff"/><path d="M5.500 9.200c1.600 1.800 1.600 3.800 0 5.600M18.500 9.200c-1.600 1.800-1.600 3.800 0 5.600" fill="none" stroke="#B7814A" stroke-width="1.6"/><path d="M9 12h6M10.500 10.800v2.400M12 10.800v2.400M13.500 10.800v2.400" fill="none" stroke-width="1.2"/></g>'),
+  footy: ballG('<g transform="rotate(-35 12 12)"><path d="M1.500 12Q12 3.200 22.500 12 12 20.800 1.500 12z" fill="#C8372D"/><path d="M9 10.300h6M10.200 9.300v2M12 9.300v2M13.800 9.300v2" fill="none" stroke="#fff" stroke-width="1.3"/></g>'),
+  whistle: ballG('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
+};
+const lineG = (inner: string, stroke: string, w = 2): string => `<g fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
+const BIB = 'M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z';
+const flag = (staff: string, fill: string): string => sv(`<path fill="${fill}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${staff}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${staff}" stroke-width="2.4" stroke-linecap="round"/>`);
+const WHISTLE = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>';
+const CONE = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>';
+/** The look's small pictures as tokens on the root, so rules (and the evening) can use them; kept out of `vars` so the picker card stays light. */
+const sportsArt = (): string => {
+  const root = ":host([data-look='sports']) .fh", eve = `${root}[data-tod='eve'], ${root}[data-tod='night']`;
+  const day: string[] = Object.entries(BALLS).map(([k, v]) => `--s-${k}:${sv(v)}`);
+  day.push(`--s-ball:var(--s-soccer)`, `--s-bib:${sv(`<path d="${BIB}"/>`)}`, `--s-lock:${sv(lineG('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', '#000'))}`,
+    `--s-tick:${sv(lineG('<path d="M5 12.500l4.500 4.500L19 7.500"/>', '#000', 3))}`, `--s-flag:${flag('#14201A', '#FFD60A')}`, `--s-flag-ok:${flag('#14201A', '#17703A')}`,
+    `--s-away:${sv(`<path d="${BIB}" fill="none" stroke="#5C6961" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
+    `--s-cone:${sv(lineG(CONE, '#B42318'))}`, `--s-pea:${sv(lineG(WHISTLE, '#14201A'))}`,
+    `--s-clip:${sv('<rect x="1" y="-8" width="118" height="30" rx="8" fill="#9AA59D" stroke="#14201A" stroke-width="2"/><rect x="1" y="16" width="118" height="5" fill="rgba(0,0,0,.14)"/><circle cx="60" cy="9" r="6" fill="#fff" stroke="#14201A" stroke-width="2"/>', '0 0 120 24')}`,
+    `--s-bag:${sv('<g stroke="#14201A" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.500 7h9l3.300 8.500A4.500 4.500 0 0 1 15.600 22H8.400a4.500 4.500 0 0 1-4.200-6.500z" fill="#fff"/><circle cx="9.500" cy="17" r="2.6" fill="#D4E157"/><circle cx="14.800" cy="17.300" r="2.6" fill="#fff"/><circle cx="12" cy="12.300" r="2.4" fill="#C8372D"/><path d="M9 7c0-2.500 1.200-4 3-4s3 1.500 3 4" fill="none" stroke="#B7814A" stroke-width="2"/></g>')}`,
+    `--s-goal:${sv(lineG('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', '#14201A'), '0 0 32 24')}`);
+  const night = [`--s-flag:${flag('#F1F4EA', '#FFD60A')}`, `--s-flag-ok:${flag('#F1F4EA', '#6FD896')}`, `--s-away:${sv(`<path d="${BIB}" fill="none" stroke="#93A097" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
+    `--s-cone:${sv(lineG(CONE, '#FF9485'))}`, `--s-goal:${sv(lineG('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', '#F1F4EA'), '0 0 32 24')}`];
+  return `${root} {${day.join(';')}}\n${eve} {${night.join(';')}}\n${DAY_BALL.map((b, i) => `${root}[data-dow='${i}'] {--s-ball:var(--s-${b})}`).join('\n')}\n`;
+};
+/** The header clock: digit tiles on a charcoal board, each split by a hairline like a flap board, with a hi-vis colon and the ball of the day. */
+export const scoreClock = (now: Date, size?: number): TemplateResult => {
+  const h = String(now.getHours() % 12 || 12), m = String(now.getMinutes()).padStart(2, '0');
+  return html`<span class="sboard" role="img" aria-label=${`${h}:${m}`} style=${size ? `--sz:${size}px` : ''}>${[...h].map((d) => html`<b class="dg">${d}</b>`)}<i class="colon"></i>${[...m].map((d) => html`<b class="dg">${d}</b>`)}<i class="dball" data-ball=${DAY_BALL[now.getDay()]}></i></span>`;
+};
+/** The ball of the day, for a day head on the planner. */
+export const dayBall = (d: Date): TemplateResult => html`<i class="dball" data-ball=${DAY_BALL[d.getDay()]} aria-hidden="true"></i>`;
+/** The match clock's touchline: time played fills from the left, a ball stands where the clock is up to, and a mark shows half-way. */
+export const touchMeter = (frac: number, size = 120): TemplateResult => {
+  const f = Math.max(0, Math.min(1, frac)), played = f > 0 ? 1 - f : 0, x = 12 + 216 * played;
+  return html`<svg class="tmeter" aria-hidden="true" width=${size * 2} height=${Math.round(size * 2 * 0.117)} viewBox="0 0 240 28" fill="none">${svg`
+    <rect x="12" y="11.5" width="216" height="5" rx="2.5" fill="var(--track)"></rect>
+    <rect x="12" y="11.5" width=${216 * played} height="5" rx="2.5" fill="var(--ink)"></rect>
+    <rect x="119" y="4" width="2" height="20" rx="1" fill="var(--ink3)"></rect>
+    <g style="transform:translateX(${x}px);transition:transform var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"><circle cx="0" cy="14" r="9.5" fill="#fff" stroke="#14201A" stroke-width="2"></circle><path d="M0 10.6l3.200 2.300-1.200 3.800h-4l-1.200-3.800z" fill="#14201A"></path></g>`}</svg>`;
+};
+/**
+ * One person's own jobs as a training drill: a marker for each, the done ones ticked, the pennant and the ball at the one to do now,
+ * and a goal at the end. It only ever shows one list (never two people side by side). Drawn with inline styles, so it works in any component.
+ */
+export const drillLine = (done: number, total: number): TemplateResult => {
+  const n = Math.max(1, Math.min(12, total)), d = Math.max(0, Math.min(n, Math.round((done / Math.max(1, total)) * n))), s = n > 8 ? 22 : 28;
+  const line = (on: boolean): TemplateResult => html`<i style="flex:1;min-width:6px;height:0;border-top:3px ${on ? 'solid var(--ok)' : 'dashed var(--track)'}"></i>`;
+  const tick = html`<i style="width:${s}px;height:${s}px;flex-shrink:0;border-radius:50%;background:var(--ok);display:grid;place-items:center"><svg viewBox="0 0 24 24" width=${s - 10} height=${s - 10} fill="none" stroke="var(--on-ok, #fff)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></i>`;
+  return html`<div aria-hidden="true" style="display:flex;align-items:center;height:40px;flex-shrink:0;padding:0 2px">
+    ${Array.from({ length: n }, (_, i) => html`${i ? line(i <= d) : nothing}${i < d ? tick
+      : i === d ? html`<i style="width:22px;height:26px;margin:0 -2px -6px 0;flex-shrink:0;align-self:flex-start;background:var(--s-flag) center / contain no-repeat"></i><i style="width:34px;height:34px;flex-shrink:0;background:var(--s-ball) center / contain no-repeat"></i>`
+      : html`<i style="width:14px;height:14px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--ink3)"></i>`}`)}
+    ${line(d >= n)}<i style="width:44px;height:33px;flex-shrink:0;background:var(--s-goal) center / contain no-repeat"></i></div>`;
+};
+export type Verdict = 'on' | 'hat' | 'wet';
+/** The pitch report in one word or three, from what the weather entity already says: rain, storms or a wet forecast first, then sun strength. */
+export const playVerdict = (state: string, uv = 0, rainMm = 0, max = 0): Verdict => (/rain|pour|storm|lightning|hail|snow/.test(state) || rainMm >= 5 ? 'wet' : uv >= 6 || max >= 30 ? 'hat' : 'on');
+export const VERDICT: Record<Verdict, string> = { on: 'Play is on', hat: 'Take a hat', wet: 'Wet weather plan' };
+/** The verdict as a square status tile (it tells; it is not pressed). */
+export const verdictTile = (v: Verdict, big = false): TemplateResult => html`<span class="verdict" ?data-big=${big} data-v=${v}>${v === 'on' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}${VERDICT[v]}</span>`;
+
 /* ---------------- the looks ---------------- */
 
 const PEOPLE = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0f766e', '--p-4': '#c2410c', '--p-5': '#7c3aed', '--p-family': '#475569', '--on-person': '#ffffff' };
@@ -234,6 +312,38 @@ export const LOOKS: LookDef[] = [
       '--timer': '#ffe08a', '--timer-face': 'rgba(255,255,255,.06)', '--timer-rim': 'rgba(255,255,255,.44)', '--bg': 'none',
       '--w-title': '400', '--w-sub': '500', '--w-heavy': '600', '--w-bold': '500', '--w-semi': '400'
     }
+  },
+  {
+    id: 'sports', name: 'Home Ground', tagline: 'Turf, chalk lines and a scoreboard', swatch: '#2a7541',
+    fonts: ['Bricolage Grotesque', 'Outfit', 'Inter'], previewClock: false,
+    art: { clock: (c) => scoreClock(c.now ?? new Date(), c.size), day: (c) => (c.now ? dayBall(c.now) : html``), night: (c) => scoreClock(c.now ?? new Date(), 150),
+      // the kitchen timer is a match clock on a touchline; a small timer (a child's practice, bedtime) stays a round stopwatch face
+      timer: (c) => (c.size === undefined || c.size >= 100 ? touchMeter(c.frac ?? 0, c.size) : timerFace(c.frac ?? 0, c.size)),
+      steps: (c) => (c.total ? drillLine(c.done ?? 0, c.total) : html``),
+      wx: (c) => (c.wx ? verdictTile(playVerdict(c.wx.state, c.wx.uv, c.wx.rain, c.wx.max)) : html``) },
+    preview: () => html`<span class="lp-lanes"><i></i><i class="lp-now"><b></b></i><i></i><i></i></span><span class="lp-turf"></span>`,
+    vars: {
+      ...PEOPLE, '--p-family': '#3f4b45',
+      // match day: a pale clubhouse wall, white boards, charcoal ink; hi-vis yellow is the one hero and the mark for now
+      '--ink': '#14201a', '--ink2': '#44524a', '--ink3': '#5c6961', '--ink-done': '#44524a', '--ground': '#ecefe6', '--panel': '#ffffff', '--panel2': '#f2f5ec', '--line': '#c3cdbf', '--track': '#d3dbce',
+      '--hi': '#ffd60a', '--wash': '#fff6c4', '--edge': '#14201a', '--sel': '#14201a', '--on-sel': '#ffffff',
+      '--ok': '#17703a', '--ok-wash': '#ddf0e2', '--on-ok': '#ffffff', '--danger': '#b42318', '--danger-wash': '#fbe4e1', '--on-danger': '#ffffff', '--wet': '#1f5f99',
+      '--turf': '#2a7541', '--turf2': '#25693a', '--mow1': '#e1ecd8', '--mow2': '#ebf2e4', '--chalk': '#ffffff', '--board': '#17211c', '--tile': '#0a100d', '--board-ink': '#f4f6ee', '--board-ink2': '#b9c4bb', '--board-line': 'transparent',
+      '--bib-edge': 'transparent', '--evcard': '#ffffff', '--kid-mix': '100%', '--flood': 'none',
+      '--glass': 'var(--panel)', '--glass-line': 'var(--line)', '--shadow': '0 1px 0 rgba(20,32,26,.06)',
+      '--chip': 'var(--panel2)', '--chip-strong': 'var(--panel)', '--chip-soft': 'var(--panel2)', '--chip-faint': 'transparent',
+      '--sel-bg': 'var(--sel)', '--sel-ink': 'var(--on-sel)', '--sel-ring': 'inset 0 -5px 0 var(--hi)', '--primary': '#ffd60a', '--on-primary': '#14201a', '--accent': '#7a5e00',
+      '--timer': '#14201a', '--timer-face': 'var(--panel)', '--timer-rim': 'var(--ink)', '--ring-halo': '#ffffff', '--scrim': 'rgba(9,18,13,.58)', '--bg': 'none'
+    },
+    // under lights: a dark ground with two soft pools of floodlight; the same marks, and bibs gain a chalk outline
+    evening: {
+      '--ink': '#f1f4ea', '--ink2': '#bac5bc', '--ink3': '#93a097', '--ink-done': '#bac5bc', '--ground': '#0d1411', '--panel': '#18231d', '--panel2': '#202d26', '--line': '#34443b', '--track': '#3a4a41',
+      '--wash': '#3a3508', '--edge': '#000000', '--sel': '#f1f4ea', '--on-sel': '#14201a',
+      '--ok': '#6fd896', '--ok-wash': '#17382a', '--on-ok': '#0d1411', '--danger': '#ff9485', '--danger-wash': '#43201c', '--on-danger': '#2a0d09', '--wet': '#8fcbff',
+      '--turf': '#144226', '--turf2': '#113a21', '--mow1': '#15261c', '--mow2': '#192c21', '--chalk': 'rgba(255,255,255,.34)', '--board': '#070b09', '--tile': '#000000', '--board-line': 'var(--line)',
+      '--p-family': '#55625a', '--bib-edge': 'rgba(255,255,255,.75)', '--evcard': '#223029', '--kid-mix': '42%', '--shadow': 'none', '--accent': '#ffd60a', '--timer': '#f1f4ea', '--ring-halo': '#0d1411',
+      '--flood': 'radial-gradient(520px 300px at 0 0, rgba(255,244,190,.13), transparent 70%), radial-gradient(520px 300px at 100% 0, rgba(255,244,190,.13), transparent 70%)'
+    }
   }
 ];
 
@@ -249,7 +359,7 @@ export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult 
 export const lookPreview = (l: LookDef, height = 120, theme = ''): TemplateResult => {
   const vars = l.vars ? Object.entries(l.vars).map(([k, v]) => `${k}:${v}`).join(';') : theme;
   return html`<span class="lookprev" data-prev=${l.id} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
-    ${l.art?.clock ? html`<span class="lp-clock">${l.art.clock({ now: new Date(2000, 0, 1, 10, 10), arcs: [] })}</span>` : nothing}${l.preview?.() ?? nothing}
+    ${l.art?.clock && l.previewClock !== false ? html`<span class="lp-clock">${l.art.clock({ now: new Date(2000, 0, 1, 10, 10), arcs: [] })}</span>` : nothing}${l.preview?.() ?? nothing}
     <span class="lp-people">${[1, 2, 3, 4, 5].map((n) => html`<i style="background:var(--p-${n})"></i>`)}</span></span>`;
 };
 
@@ -856,6 +966,421 @@ const ORBIT = `
   @O[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 11px; }
 `;
 
+const SPORTS = `
+  /* Home Ground. Round things can be pressed; square things only tell you something.
+     hero = hi-vis fill on a 4 px step · action = chalk pill, 2 px edge and step · choice = flat · selected = inverted with a hi-vis bar · now = pennant and heavy edge · done = green tick */
+  @S .fh { font-family: 'Inter', system-ui, sans-serif; font-weight: 500; background: var(--flood), var(--ground); transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
+  @S .fh::before { display: none; }
+  /* calm mode: the mown stripes lose their contrast, for the plainest possible calendar */
+  @S .fh[data-calm] { --mow1: var(--mow2); }
+  @S h1, @S h2 { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; letter-spacing: -.015em; }
+  @S .display { font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  @S .label { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .09em; color: var(--ink2); }
+  /* windows: boards on the clubhouse wall, with one chalk corner arc */
+  @S .glass { background: radial-gradient(circle at 100% 100%, transparent 0 21px, var(--track) 21.5px 23.5px, transparent 24px) right bottom / 26px 26px no-repeat, var(--panel); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+  @S .card { border-radius: 14px; }
+  /* actions */
+  @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: 16px; }
+  @S .round { border-radius: 50%; }
+  @S .quick { border-radius: 999px; min-height: 44px; font-size: 15px; white-space: nowrap; }
+  @S .pill.primary, @S .primary, @S .lead { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
+  @S .lead { font-size: 18px; padding: 0 24px; }
+  @S .tap:active { opacity: 1; }
+  @S .pill.tap:active, @S .round.tap:active, @S .quick.tap:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .lead.tap:active, @S .primary.tap:active { transform: translateY(calc(4px * var(--m-d, 1))) scale(calc(1 + .02 * var(--m-d, 1)), calc(1 - .04 * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); opacity: 1; }
+  /* disabled: dashed, no step, a padlock; the reason stays in words beside it */
+  @S .pill[disabled], @S .lead[disabled], @S .quick[disabled], @S .mchip[disabled] { opacity: 1; background: transparent; color: var(--ink3); outline: 2px dashed var(--ink3); outline-offset: -2px; }
+  @S .pill[disabled]::before, @S .lead[disabled]::before { content: ''; width: 16px; height: 16px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--s-lock) center / contain no-repeat; mask: var(--s-lock) center / contain no-repeat; }
+  /* busy: a diagonal hatch while Home Assistant answers */
+  @S [data-busy] { opacity: 1; background-image: repeating-linear-gradient(135deg, var(--panel2) 0 8px, var(--panel) 8px 16px); }
+  /* failed: a training cone and a red edge, with the way out in words */
+  @S .calfail, @S .remfail { color: var(--danger); }
+  @S .remfail { padding: 8px 10px 8px 38px; border-radius: 10px; background: var(--s-cone) 9px 9px / 22px 22px no-repeat, var(--danger-wash); box-shadow: inset 0 0 0 2px var(--danger); }
+  /* choices: flat, no step; the chosen one is inverted with a hi-vis bar */
+  @S .seg { height: 52px; padding: 3px; border-radius: 28px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink); gap: 2px; }
+  @S .seg button { height: 46px; border-radius: 24px; font-weight: 600; font-size: 16px; color: var(--ink); }
+  @S .seg button[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); font-weight: 700; }
+  @S .mchip, @S .chips button, @S .durs button, @S .ampm button, @S .allday { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .mchip[aria-pressed='true'], @S .chips button[aria-pressed='true'], @S .durs button[aria-pressed='true'], @S .ampm button[aria-pressed='true'], @S .allday[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); font-weight: 700; }
+  @S .tabs { background: transparent; border-radius: 0; gap: 8px; padding: 0; }
+  @S .tab { border-radius: 10px 10px 4px 4px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .tab[aria-pressed='true'], @S .tab[aria-selected='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); font-weight: 700; }
+  /* lists: a tick box; done is green and struck through; the current row carries the pennant */
+  @S .row { border-radius: 10px; }
+  @S .check { border-radius: 8px; border: 2px solid var(--ink); background: var(--panel); }
+  @S .done .check { background: var(--ok); border-color: var(--ok); color: var(--on-ok); }
+  @S .field { background: transparent; box-shadow: none; border-radius: 0; border-bottom: 2.5px solid var(--ink); font-weight: 700; min-width: 0; }
+  /* keys: bench-seat tiles that sink when pressed */
+  @S .key { background: var(--panel2); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); font-weight: 700; }
+  @S .key:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 1.5px var(--line); background: var(--panel); }
+  @S .key[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); }
+  /* meters: a ball on the touchline */
+  @S .meter { height: 5px; border-radius: 3px; background: var(--track); overflow: visible; }
+  @S .meter > div { position: relative; height: 5px; min-width: 1px; background: var(--ink); border-radius: 3px; }
+  @S .meter > div::after { content: ''; position: absolute; right: -10px; top: -8px; width: 20px; height: 20px; background: var(--s-ball) center / contain no-repeat; }
+  /* bibs: a person's colour is always worn with their initial; under lights the bib gets a chalk outline */
+  @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
+    filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
+  @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
+  @S .init.sm:not(.avatar) { min-width: 18px; width: 18px; height: 20px; padding: 0 0 3px; font-size: 10px; }
+  @S .init.sm:not(.avatar)::before { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
+    filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
+  @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
+  @S .presence .avatar.away { background: var(--s-away) center / contain no-repeat; color: var(--ink); filter: none; outline: 0; opacity: 1; }
+  @S .presence .avatar.away::before { display: none; }
+
+  /* header: the scoreboard only ever shows the time */
+  @S .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; align-content: center; }
+  @S .clock .sboard { grid-row: 1 / span 2; }
+  @S .clock .hm { display: none; }
+  @S .sboard { --u: var(--sz, 46px); display: inline-flex; align-items: center; gap: calc(var(--u) * .075); height: calc(var(--u) * 1.36); padding: 0 calc(var(--u) * .2); border-radius: calc(var(--u) * .22); background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); flex-shrink: 0; line-height: 1; }
+  @S .dg { position: relative; width: calc(var(--u) * .667); height: var(--u); border-radius: calc(var(--u) * .11); background: var(--tile); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: calc(var(--u) * .78); line-height: var(--u); text-align: center; font-variant-numeric: tabular-nums; }
+  @S .dg::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: rgba(0,0,0,.55); box-shadow: 0 1px 0 rgba(255,255,255,.07); }
+  @S .colon { width: calc(var(--u) * .2); height: calc(var(--u) * .5); background: radial-gradient(circle at 50% 14%, var(--hi) 0 calc(var(--u) * .058), transparent calc(var(--u) * .07)), radial-gradient(circle at 50% 86%, var(--hi) 0 calc(var(--u) * .058), transparent calc(var(--u) * .07)); }
+  @S .dball { display: inline-block; width: 22px; height: 22px; flex-shrink: 0; background: center / contain no-repeat; }
+  @S .dball[data-ball='soccer'] { background-image: var(--s-soccer); }
+  @S .dball[data-ball='tennis'] { background-image: var(--s-tennis); }
+  @S .dball[data-ball='hockey'] { background-image: var(--s-hockey); }
+  @S .dball[data-ball='floor'] { background-image: var(--s-floor); }
+  @S .dball[data-ball='rugby'] { background-image: var(--s-rugby); }
+  @S .dball[data-ball='footy'] { background-image: var(--s-footy); }
+  @S .dball[data-ball='whistle'] { background-image: var(--s-whistle); }
+  @S .sboard .dball { width: calc(var(--u) * .5); height: calc(var(--u) * .5); margin-left: calc(var(--u) * .12); }
+  @S .fh[data-compact] .sboard { --u: 38px; }
+  /* status chips: square scoreboard tiles (they tell; an urgent one is the danger colour) */
+  @S .cap { border-radius: 8px; background: var(--board); color: var(--board-ink); border: 0; box-shadow: 0 0 0 1.5px var(--board-line); -webkit-backdrop-filter: none; backdrop-filter: none; font-family: 'Outfit', 'Inter', sans-serif; font-weight: 700; letter-spacing: .01em; }
+  @S .cap.hot { background: var(--danger); color: var(--on-danger); }
+  @S .cap.ok { background: var(--ok-wash); color: var(--ok); }
+  /* the weather chip is the pitch report */
+  @S .weather { border-radius: 12px; height: 56px; padding: 0 12px; gap: 10px; background: var(--panel); }
+  @S .badge { border-radius: 6px; background: var(--wash); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .badge.hot { background: var(--danger); color: var(--on-danger); box-shadow: none; }
+  @S .verdict { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border-radius: 6px; background: var(--ok-wash); color: var(--ok); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .02em; white-space: nowrap; flex-shrink: 0; }
+  @S .verdict[data-v='hat'] { background: var(--wash); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  @S .verdict[data-v='wet'] { background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
+  @S .presence { background: transparent; border: 0; box-shadow: none; gap: 5px; padding: 0 2px; }
+  @S .right { gap: 10px; }
+  @S .right > button.round { background: var(--panel); }
+
+  /* planner: the week is seven mown lanes with chalk between them */
+  @S .planner { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 0; gap: 10px; }
+  @S .legend { font-size: 15px; font-weight: 600; color: var(--ink); gap: 16px; }
+  @S .week { gap: 0; border-radius: 14px; border: 1.5px solid var(--line); background: var(--mow2); overflow: hidden; }
+  @S .col { border-radius: 0; background: transparent; border-left: 2px solid var(--chalk); padding: 0 6px 6px; box-shadow: none; }
+  @S .col:nth-child(odd) { background: var(--mow1); }
+  @S .col:first-child { border-left: 0; }
+  @S .col.today { background: var(--wash); box-shadow: none; }
+  @S .dayhead { height: 46px; flex-shrink: 0; margin: 0 -6px; padding: 0 8px; gap: 4px; border-bottom: 2px solid var(--chalk); }
+  @S .dayhead .dball { margin-left: auto; }
+  @S .num { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 700; }
+  @S .today .num { width: auto; height: 28px; padding: 0 6px; border-radius: 6px; background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -3px 0 var(--hi); font-size: 19px; }
+  @S .col.today .dayhead::before { content: ''; width: 20px; height: 20px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; }
+  /* events are fixture cards: the person's colour down the edge, the time on the scoreboard face */
+  @S .ev { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: 8px; padding: 6px 5px 7px 7px; }
+  @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink2); }
+  @S .ev .content { font-size: 16px; font-weight: 600; }
+  /* who it is for: their bib in the corner of the card, with their initial (the name itself stays for screen readers) */
+  @S .ev { position: relative; }
+  @S .ev .t { padding-right: 26px; }
+  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 8px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 12px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
+  @S .ev .w::first-letter { font-size: 12px; }
+  @S .col.today .ev.past .w { display: block; }
+  @S .ev.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 30px top 6px / 18px 18px no-repeat, var(--evcard); }
+  @S .ev.past, @S .dayrow.past { opacity: 1; background: transparent; border-style: dashed; border-left-style: solid; border-left-color: color-mix(in srgb, var(--c) 55%, transparent); }
+  @S .ev.past .t, @S .ev.past .content, @S .dayrow.past .content, @S .dayrow.past .muted { color: var(--ink-done); font-weight: 500; }
+  @S .col.today .ev.past .t::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 5px; vertical-align: -2px; background: var(--ok); -webkit-mask: var(--s-tick) center / contain no-repeat; mask: var(--s-tick) center / contain no-repeat; }
+  @S .more { background: transparent; }
+  /* month: the season fixture, a grid of small tiles */
+  @S .cell { border-radius: 8px; background: var(--evcard); border: 1px solid var(--line); }
+  @S .cell.out { background: transparent; border-style: dashed; color: var(--ink3); }
+  @S .cell.today { background: var(--wash); border: 2px solid var(--ink); }
+  @S .cell.today .mtop > span:first-child { font-weight: 800; text-decoration: underline; text-decoration-color: var(--hi); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: 15px; }
+  /* day: the match-day programme, one lane */
+  @S .dayrow { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c, var(--line)); border-radius: 8px; }
+  @S .daylist { background: var(--mow1); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; }
+  @S .dayrow.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 10px top 10px / 22px 22px no-repeat, var(--evcard); }
+
+  /* a free day: the ball of the day resting on the line */
+  @S .freeday > span:first-child { width: 150px; height: 60px; border-bottom: 3px solid var(--ink); background: var(--s-ball) center bottom / 54px 54px no-repeat; }
+  @S .freeday > span:first-child svg { display: none; }
+  @S .freeday h2 { font-size: 0; }
+  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, 22px); }
+  /* the rail: now playing sits on a scoreboard; the kitchen timer is the match clock; the family jar is the ball bag */
+  @S .np { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
+  @S .np .muted { color: var(--board-ink2); }
+  @S .np .art { border-radius: 50%; box-shadow: 0 0 0 2px var(--board-ink); }
+  @S .np .round { background: var(--board-ink); color: #14201a; box-shadow: none; }
+  @S .timerrow { flex-wrap: wrap; row-gap: 6px; }
+  @S .timerrow .tmeter { order: 3; flex: 0 0 100%; width: 100%; height: auto; }
+  @S .tmeter { max-width: 100%; }
+  @S .tread { margin: 0; padding: 0 12px; border-radius: 8px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-size: 30px; font-weight: 700; }
+  @S .timerrow .tcancel { color: var(--ink2); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+  @S .timerrow.on .hint { display: none; }
+  @S .jarpic { width: 34px; height: 34px; flex-shrink: 0; background: var(--s-bag) center / contain no-repeat; }
+  @S .jarpic svg { display: none; }
+  @S .rem { font-weight: 500; font-size: 16px; }
+
+  /* dock: the touchline. Mown turf with a chalk line; places to go are white balls standing on it */
+  @S .dock { align-self: stretch; margin: 0 calc(-1 * var(--pad-x)) calc(-1 * var(--pad-y)); padding: 9px 12px 9px; gap: 10px; justify-content: center; border: 0; border-top: 3px solid var(--chalk); border-radius: 0; box-shadow: none; background: repeating-linear-gradient(90deg, var(--turf) 0 80px, var(--turf2) 80px 160px); }
+  @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; }
+  @S .dock .item svg.i { width: 54px; height: 54px; padding: 14px; border-radius: 50%; background: #fff; color: #14201a; box-shadow: inset 0 0 0 2px #14201a, 0 3px 0 rgba(8,24,14,.55); stroke-width: 2; }
+  @S .dock .item.tap:active svg.i { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px #14201a; }
+  @S .dock .item.tap:active { transform: none; }
+  @S .dock .item[aria-current='page'] { background: transparent; font-weight: 800; text-decoration: underline; text-decoration-color: #ffd60a; text-decoration-thickness: 3px; text-underline-offset: 5px; }
+  @S .dock .item[aria-current='page'] svg.i { background: #14201a; color: #ffd60a; box-shadow: 0 0 0 3px #ffd60a; }
+  @S .dock .kidbtn .avatar { scale: 1.2; margin: 5px 0 4px; box-shadow: 0 0 0 2px #fff, 0 3px 0 2px rgba(8,24,14,.45); }
+  @S .dock .kidbtn[aria-current='page'] { box-shadow: none; }
+  @S .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 5px #ffd60a; }
+  @S .dock .sep { width: 2px; height: 54px; margin: 0 6px 22px; border-radius: 1px; background: rgba(255,255,255,.55); }
+  /* Dinner is the whistle */
+  @S .dock .item[data-nav='dinner'] svg.i { background: var(--s-pea) center / 28px 28px no-repeat, #fff; }
+  @S .dock .item[data-nav='dinner'] svg.i > * { display: none; }
+  @S .dock .called { color: #fff; }
+  @S .dock .item > span { display: inline-flex; }
+
+  /* sheets: the team sheet on a clipboard */
+  @S .sheet { background: var(--s-clip) center top -1px / 120px 24px no-repeat, var(--panel); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 10px 0 rgba(9,18,13,.35); padding-top: 30px; }
+  /* the kitchen timer's sheet: the time left on the scoreboard */
+  @S .sheet [role='timer'] { padding: 16px 24px; border-radius: 12px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
+  /* the PIN pad: a scoreboard keypad. Lamps fill as you type, with the count in words beside them */
+  @S .grid button { border-radius: 8px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .grid button:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 1.5px var(--line); background: var(--panel); opacity: 1; }
+  @S .what ~ [role='img'] { align-items: center; height: 24px; gap: 10px; }
+  @S .what ~ [role='img'] span { width: 18px; height: 18px; border: 2px solid var(--ink); background: var(--panel); }
+  @S .what ~ [role='img'] span.on { background: var(--hi); border-color: var(--ink); }
+  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: 15px; font-weight: 600; color: var(--ink2); white-space: nowrap; }
+  /* toasts: the linesman's flag */
+  @S .toast { background: var(--panel); color: var(--ink); border-radius: 12px; box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 rgba(20,32,26,.18); text-align: left; padding: 12px 18px 12px 14px; gap: 10px; }
+  @S .toast::before { content: ''; width: 22px; height: 22px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; transform-origin: 25% 90%; animation: sFlag var(--mt-4, 400ms) var(--e-spring, ease) both; }
+  @S .toast button { background: transparent; color: var(--ink2); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+  @S .toast button:focus-visible { outline-color: var(--ink); }
+  /* the look picker: the chosen card is a ring and a tick, never a fill */
+  @S .tcard { position: relative; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); border-radius: 14px; }
+  @S .tcard[aria-pressed='true'] { background: var(--panel2); color: var(--ink); box-shadow: 0 0 0 3px var(--ink); }
+  @S .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 8px; background: var(--sel); color: var(--on-sel); font-size: 17px; font-weight: 800; line-height: 27px; text-align: center; box-shadow: inset 0 -4px 0 var(--hi), 0 0 0 3px var(--panel); }
+  /* the floodlight switch, with its word */
+  @S .opt { gap: 8px; font-weight: 700; font-size: 16px; }
+  @S .opt::after { content: 'Off'; min-width: 28px; text-align: left; }
+  @S .opt[aria-checked='true']::after { content: 'On'; }
+  @S .opt .sw { width: 68px; height: 36px; border-radius: 18px; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink3); }
+  @S .opt .sw::after { top: 4px; left: 4px; width: 28px; height: 28px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .opt .sw::before { content: ''; position: absolute; left: 10px; top: 10px; width: 16px; height: 16px; background: var(--on-ok); -webkit-mask: var(--s-tick) center / contain no-repeat; mask: var(--s-tick) center / contain no-repeat; opacity: 0; }
+  @S .opt[aria-checked='true'] .sw { background: var(--ok); box-shadow: none; }
+  @S .opt[aria-checked='true'] .sw::before { opacity: 1; }
+  @S .opt[aria-checked='true'] .sw::after { transform: translateX(32px); background: #fff; box-shadow: inset 0 0 0 2px #14201a; }
+
+  /* a child's page: his peg in the change room. Only his own progress is ever shown */
+  @S .hero::before { display: none; }
+  @S .name { font-size: 44px; font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
+  @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .stat { background: var(--panel2); border-radius: 10px; }
+  @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .dots i.g { background: var(--ok); border-color: var(--ok); }
+  @S .nextup { background: var(--panel2); border-radius: 10px; }
+  @S .jobs .ring { width: auto; height: 36px; padding: 0 10px; border-radius: 8px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); display: flex; align-items: center; }
+  @S .jobs .ring svg { display: none; }
+  @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
+  @S .job { border-radius: 10px; background: var(--panel2); }
+  @S .row.now { padding-left: 38px; background: var(--s-flag) 10px center / 22px 22px no-repeat, var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .job.done .check { background: var(--ok); border-color: var(--ok); }
+  @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: 16px; }
+  @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
+  @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .later { background: var(--panel2); border-radius: 10px; }
+  @S .rw { background: var(--panel2); border-radius: 10px; min-height: 52px; }
+  @S .side { gap: 10px; border-radius: 14px; }
+  @S .rw button { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
+  @S .rw button.save { background: transparent; color: var(--ink2); box-shadow: none; text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+  @S .rw .cost { border-radius: 6px; font-family: 'Outfit', sans-serif; background: var(--panel); }
+  @S .rw .notyet { box-shadow: none; outline: 1.5px dashed var(--ink3); outline-offset: -1.5px; background: transparent; }
+  /* the picture job: a card with a heavy edge; the one to do now carries the pennant and the big hi-vis button */
+  @S .pic { background: var(--panel); border: 2px solid var(--ink); border-radius: 12px; }
+  @S .pic.now { box-shadow: none; background: var(--s-flag) 10px 10px / 26px 26px no-repeat, var(--panel); }
+  @S .pic.done { background: var(--ok-wash); border-color: var(--ok); }
+  /* the one to do now: picture on the left, its name and the 60 px button on the right, so the button never covers the picture however short the card is */
+  @S .pic.big { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; align-items: center; justify-items: start; column-gap: 22px; row-gap: 6px; padding: 12px 100px 16px 26px; text-align: left; }
+  @S .pic.big .e { grid-area: 1 / 1 / 4 / 2; font-size: 112px; line-height: 1.05; }
+  @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
+  @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: 60px; margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: 60px; text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
+  @S .pic.small .e { font-size: 48px; }
+  @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
+  @S .pic.big.done::after { display: none; }
+  @S .readme, @S .seedone { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
+  @S .studio[data-locked] { background: transparent; color: var(--ink3); box-shadow: none; outline: 2px dashed var(--ink3); outline-offset: -2px; }
+  @S .sec h2 { font-size: 18px; }
+  @S .wk { font-size: 15px; }
+
+  /* groceries: the canteen docket */
+  @S .list.glass { border-radius: 6px 6px 14px 14px; border-top: 6px solid var(--board); }
+  @S .items .row { background: transparent; border-radius: 0; border-bottom: 1.5px dashed var(--line); }
+  @S .tag { border-radius: 6px; font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .who.glass { border-radius: 12px; background: var(--panel); }
+
+  /* home: ground controls. Each room is a board; a room with a light on is floodlit */
+  @S .rooms { background: transparent; border: 0; box-shadow: none; }
+  @S .room { background: var(--panel); border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .room.lit { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .dev { background: var(--panel2); border-radius: 10px; }
+  @S .room.lit .dev { background: var(--panel); }
+  @S .dicon { background: var(--panel); color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ink3); }
+  @S .dev.on .dicon { background: var(--hi); color: #14201a; box-shadow: inset 0 0 0 2px #14201a; }
+  @S .toggle { width: 64px; height: 36px; border-radius: 18px; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink3); }
+  @S .toggle::after { top: 4px; left: 4px; width: 28px; height: 28px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .toggle::before { content: ''; position: absolute; left: 9px; top: 10px; width: 16px; height: 16px; background: var(--on-ok); -webkit-mask: var(--s-tick) center / contain no-repeat; mask: var(--s-tick) center / contain no-repeat; opacity: 0; }
+  @S [aria-checked='true'] > .toggle { background: var(--ok); box-shadow: none; }
+  @S [aria-checked='true'] > .toggle::before { opacity: 1; }
+  @S [aria-checked='true'] > .toggle::after { transform: translateX(28px); background: #fff; box-shadow: inset 0 0 0 2px #14201a; }
+  @S .scene { background: var(--panel); border-radius: 22px; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
+
+  /* doodle: the tactics board */
+  @S .pad { border-radius: 10px; box-shadow: 0 0 0 2px var(--ink), 0 5px 0 var(--track); }
+  @S .ink { box-shadow: inset 0 0 0 2px rgba(20,32,26,.55); }
+  @S .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--ink); }
+  @S .snap { border-radius: 8px; box-shadow: 0 0 0 1.5px var(--line); }
+  @S .by { border-radius: 6px; background: var(--board); color: var(--board-ink); font-family: 'Caveat', 'Inter', sans-serif; font-size: 17px; font-weight: 700; }
+
+  /* style studio: kit laid out on the bench */
+  @S .tile { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
+  @S .tile[aria-pressed='true'] { background: var(--panel); box-shadow: inset 0 0 0 3px var(--ink), inset 0 -8px 0 var(--hi); }
+
+  /* morning board: each boy has his own column; columns never show totals or an order */
+  @S .kcol { border-top: 6px solid var(--kid); border-radius: 14px; }
+  @S .khead h2 { font-weight: 800; }
+  @S .nextstep { border-radius: 8px; background: var(--wash); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  @S .nextstep.set { background: var(--ok-wash); color: var(--ok); box-shadow: none; }
+  @S .lchip { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .lchip.soon, @S .lchip.now { background: var(--wash); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  @S .leave { font-family: 'Outfit', sans-serif; font-weight: 700; }
+
+  /* weather: the pitch report. The verdict comes first, then the readings */
+  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: 20px; gap: 8px; align-self: flex-start; flex-shrink: 0; }
+  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
+  @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
+  @S .wtip { background: var(--panel2); border-radius: 10px; }
+  @S .wfact { background: var(--panel2); border-radius: 10px; }
+  @S .wday { border-radius: 8px; }
+  @S .wday.today { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .wbar { border-radius: 3px; }
+  @S .wwarn { border-radius: 8px; background: var(--danger); color: var(--on-danger); }
+  @S .sky .cloud { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  @S .sky .disc, @S .sky .moon, @S .sky .bolt { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  @S .mbox { border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
+
+  /* Ask: the coach's corner. Your words are a slip on the right; answers sit on the board */
+  @S .thread { background: var(--panel2); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .bubble { background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .bubble.asker { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -4px 0 var(--hi); }
+  @S .starter { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
+  @S .talk { box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); }
+
+  /* add an event: the time is picked on a scoreboard drum */
+  @S .chips button { font-size: 15px; gap: 5px; }
+  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 11px; }
+  @S .dialbox { border-radius: 12px; background: var(--panel2); }
+  @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
+  @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--hi), inset -5px 0 0 var(--hi); }
+
+  /* music */
+  @S .stage { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
+  @S .stage .glass { background: transparent; border-color: transparent; box-shadow: none; }
+  @S .stage .muted { color: var(--board-ink2); }
+  @S .stage .round, @S .stage .pill { background: var(--board-ink); color: #14201a; box-shadow: none; }
+  @S .spk { background: var(--panel); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .spk.focus { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .spk.inmix { box-shadow: inset 0 0 0 2px var(--ok); }
+  @S .mroom { background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--ink3); }
+  @S .mstairs { border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .mzone { --stream: var(--ink); }
+  @S .mzone[data-focus] { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .pool { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--c) 30%, var(--panel)) 0 14px, color-mix(in srgb, var(--c) 22%, var(--panel)) 14px 28px); border-top: 2px solid var(--c); }
+  @S .pool::before { display: none; }
+  @S .puck { border: 2px solid var(--ink); box-shadow: 0 3px 0 rgba(8,24,14,.4); }
+  @S .mshelf { background: var(--panel2); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .wholeh { border-radius: 10px; border-color: var(--ink3); }
+  @S .viewbtn { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
+  @S .vcard { background: var(--panel2); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .vcard[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -6px 0 var(--hi); }
+  @S .bigdial, @S .desk, @S .rig, @S .vscene { --stream: var(--ink); }
+  @S .dplate { fill: var(--panel); stroke: var(--ink); stroke-width: 2; }
+  @S .dtrack { stroke: var(--track); }
+  @S .dknob { fill: #fff; stroke: #14201a; stroke-width: 3; }
+  @S .dcover { box-shadow: 0 0 0 3px var(--ink); }
+  @S .dcard, @S .tuner { background: var(--panel); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .desk { background: var(--panel); border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .strip[data-focus] { background: var(--wash); }
+  @S .sname { background: var(--board); color: var(--board-ink); border-radius: 6px; box-shadow: 0 0 0 1.5px var(--board-line); font-weight: 700; }
+  @S .lamp { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
+  @S .lamp[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); }
+  @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
+  @S .slot { --rail-w: 5px; }
+  @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }
+  @S .mpad { border-radius: 10px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
+  @S .dart { border-radius: 8px; box-shadow: 0 0 0 2px var(--ink); }
+  @S .cab { background: var(--panel); color: var(--ink); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--ink3); }
+  @S .sock { background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .sock[aria-pressed='true'] { background: var(--c); }
+  @S .cdisc { box-shadow: 0 0 0 2px var(--ink); }
+  @S .cbox { background-color: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .ttable { background: var(--panel); border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .tkey { border-radius: 8px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); }
+  @S .tkey[data-go] { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); }
+  @S .ctab { border-radius: 10px 10px 4px 4px; }
+  /* the Scene view is a training ground: mown stripes, rooms as players, a dotted pass line between rooms that share */
+  @S .vscene { background: repeating-linear-gradient(90deg, var(--mow1) 0 88px, var(--mow2) 88px 176px); border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .aname { background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .suntx { padding: 5px 10px 7px; border-radius: 10px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .join { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
+  @S .join[aria-pressed='true'] { background: var(--ok); color: var(--on-ok); box-shadow: none; }
+  @S .hit { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--line); }
+  @S .hit[aria-pressed='true'] { background: var(--wash); box-shadow: inset 4px 0 0 var(--ink); }
+  @S .st { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 700; }
+  @S .st.on { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
+  @S .crate .st, @S .presets .st { background: transparent; box-shadow: none; }
+  @S .presets .st.on { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -6px 0 var(--hi); }
+  @S .pickrow { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); }
+  @S .banner { background: var(--wash); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+  /* night: the ground after dark. Near-black, the scoreboard dimmed to tan, one floodlight on low; nothing moves */
+  @S .night { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); background: radial-gradient(520px 320px at 0 0, rgba(255,214,150,.05), transparent 70%), #020403; }
+  @S .night .big { display: none; }
+  @S .night .nart { opacity: 1; }
+  @S .night .dball { opacity: .4; }
+  @S .night .breathe { animation: none; opacity: .7; }
+
+  /* portrait tablets: the same touchline, with the balls closer together so every place still fits */
+  @S[data-shape='tall'] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
+  @S[data-shape='tall'] .dock .item { min-width: 62px; }
+  @S[data-shape='tall'] .dock .sep { margin: 0 4px 22px; }
+  /* phone: the scoreboard shrinks; the dock is the touchline along the bottom */
+  @S[data-phone] .sboard { --u: 34px; }
+  @S[data-phone] .weather .verdict { display: none; }
+  @S[data-phone] .night .sboard { --u: 84px; }
+  @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+  @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
+  @S[data-phone] .dock .item { min-width: 64px; height: 74px; font-size: 14px; gap: 5px; }
+  @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
+  @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
+  @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }
+  @S[data-phone] .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffd60a; }
+  /* the bar fades into turf at the right while there is more to slide to (the words never fade over the page) */
+  @S[data-phone] .dock[data-more] { -webkit-mask-image: none; mask-image: none; }
+  @S[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 36px; height: calc(86px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--turf2) 85%); pointer-events: none; }
+  @S[data-phone] .week { overflow-x: auto; }
+  /* phone: the picture job stacks, and its button runs along the bottom beside the speaker */
+  @S[data-phone] .pic.big { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 14px 14px 16px; text-align: center; }
+  @S[data-phone] .pic.big .e { grid-area: auto; font-size: 96px; }
+  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: 28px; }
+  @S[data-phone] .pic.big .stars { grid-area: auto; justify-content: center; }
+  @S[data-phone] .pic.big::after { grid-area: auto; margin: 6px 86px 0 0; }
+  @S[data-phone] .planner { padding: 0; }
+  @S[data-phone] .sheet { padding-top: 30px; }
+`;
+
 const KEYFRAMES = `
   /* the fridge door gets a bump now and then: every note jiggles on its pin (needs --tilt registered as a number, see ambient.ts) */
   @keyframes fjig { 0%, 93%, 100% { --tilt: 1; } 94.5% { --tilt: 2.3; } 96% { --tilt: -.2; } 97.5% { --tilt: 1.6; } 99% { --tilt: .7; } }
@@ -863,6 +1388,8 @@ const KEYFRAMES = `
   @keyframes fhHot { 50% { box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); } }
   .vinyl .spin { transform-box: fill-box; transform-origin: center; animation: fhSpin 5s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
+  /* Home Ground: the linesman's flag tips up once as a toast arrives (it stands still in calm mode) */
+  @keyframes sFlag { from { transform: rotate(calc(20deg * var(--m-d, 1))); } }
 `;
 
 /* The look picker's little pictures. They are built from each look's tokens, never from fixed colours. */
@@ -883,6 +1410,15 @@ const PREVIEW = `
   .lookprev .lp-note.lp-today { height: 64%; background: var(--note-today); rotate: 1deg; }
   .lookprev .lp-note::before { content: ''; position: absolute; top: -4px; left: 50%; margin-left: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink3); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
   .lookprev .lp-note.lp-today::before { background: var(--danger); }
+  .lookprev .lp-lanes { position: absolute; inset: 10px 10px 30px; display: flex; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--line); background: var(--mow2); }
+  .lookprev .lp-lanes i { flex: 1; border-left: 2px solid var(--chalk); }
+  .lookprev .lp-lanes i:nth-child(odd) { background: var(--mow1); }
+  .lookprev .lp-lanes i:first-child { border-left: 0; }
+  .lookprev .lp-lanes .lp-now { background: var(--wash); display: flex; align-items: center; justify-content: center; }
+  .lookprev .lp-lanes b { width: 70%; height: 12px; border-radius: 6px; background: var(--primary); box-shadow: inset 0 0 0 1.5px var(--edge), 0 2px 0 var(--edge); }
+  .lookprev .lp-turf { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; border-top: 2px solid var(--chalk); background: repeating-linear-gradient(90deg, var(--turf) 0 26px, var(--turf2) 26px 52px); }
+  .lookprev[data-prev='sports'] .lp-people { z-index: 1; }
+  .lookprev[data-prev='sports'] .lp-people i { box-shadow: 0 0 0 1.5px #fff; }
   .lookprev .lp-ring { width: 56px; height: 56px; border-radius: 50%; border: 8px solid var(--track); border-top-color: var(--accent); border-right-color: var(--p-1); flex-shrink: 0; }
 `;
 
@@ -918,4 +1454,4 @@ const tokens = (l: LookDef): string => {
   return `${root} {${decl(l.vars)}}\n${l.evening ? `${root}[data-tod='eve'], ${root}[data-tod='night'] {${decl(l.evening)}}\n` : ''}`;
 };
 
-export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(GLASS, 'glass') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit'));
+export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(GLASS, 'glass') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit') + sportsArt() + scope(SPORTS, 'sports'));

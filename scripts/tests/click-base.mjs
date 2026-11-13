@@ -954,5 +954,37 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=1&studio=1'); const r = await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot; const rows = {}; for (const b of s.querySelectorAll('.tabs button')) { const y = Math.round(b.getBoundingClientRect().top); rows[y] = (rows[y] || 0) + 1; } return { rows: Object.values(rows), cut: [...s.querySelectorAll('.tabs button')].filter((b) => b.scrollWidth > b.clientWidth + 1).length }; }); console.log('R5-16 studio tabs per row:', JSON.stringify(r), ok(r.rows.join() === '4,4' && r.cut === 0)); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=0'); const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, s = k.querySelector('.side'); return Math.round(s.getBoundingClientRect().bottom - Math.max(...[...s.children].map((c) => c.getBoundingClientRect().bottom))); }); console.log('R5-16 older boys’ right column: gap under its last card (px):', r, ok(r <= 2)); await p.context().close(); }
 }
+
+// Home Ground (the sports look): it can be chosen in the picker, the header clock is digit tiles, the dock is there, and no page throws
+{ let page = await open('look=glass&sheet=themes');
+  const cards = page.locator('family-hub-card .looks .tcard');
+  const count = await cards.count();
+  await cards.filter({ hasText: 'Home Ground' }).click(); await page.waitForTimeout(300);
+  console.log('HG1 picker: four looks', count === 4, '| choosing Home Ground sets the look', await page.evaluate(() => document.querySelector('family-hub-card').getAttribute('data-look') === 'sports' && localStorage.getItem('family-hub-look') === 'sports'),
+    '| its card is the chosen one', await cards.filter({ hasText: 'Home Ground' }).getAttribute('aria-pressed') === 'true');
+  await page.close();
+  page = await open('look=sports&page=planner');
+  const clock = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, b = r.querySelector('header .sboard'), dg = [...r.querySelectorAll('header .sboard .dg')];
+    return { tiles: dg.map((d) => d.textContent).join(''), label: b?.getAttribute('aria-label'), tileBg: dg[0] ? getComputedStyle(dg[0]).backgroundColor : '', hm: getComputedStyle(r.querySelector('header .hm')).display, ball: r.querySelector('header .sboard .dball')?.dataset.ball, dow: r.querySelector('.fh').dataset.dow }; });
+  console.log('HG2 header clock: digit tiles', clock.tiles === '420' && clock.label === '4:20', '| tiles are dark', clock.tileBg === 'rgb(10, 16, 13)', '| plain digits hidden', clock.hm === 'none', '| ball of the day (Tuesday: tennis)', clock.ball === 'tennis' && clock.dow === '2');
+  const dock = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, d = r.querySelector('nav.dock'), items = [...d.querySelectorAll('.item')], b = d.getBoundingClientRect();
+    return { n: items.length, small: items.filter((i) => { const q = i.getBoundingClientRect(); return q.width < 44 || q.height < 44; }).length, wide: Math.round(b.width) === innerWidth, bottom: Math.round(b.bottom) === innerHeight, current: d.querySelector('[aria-current="page"]')?.dataset.nav,
+      leads: r.querySelectorAll('.planner .lead').length, lanes: r.querySelectorAll('.week .col').length, balls: r.querySelectorAll('.week .dayhead .dball').length, verdict: r.querySelector('header .weather .verdict')?.textContent.trim() }; });
+  console.log('HG3 dock: present with its items', dock.n >= 9 && dock.small === 0, '| a touchline across the bottom', dock.wide && dock.bottom, '| current page marked', dock.current === 'calendar', '| one hero on the planner', dock.leads === 1, '| seven lanes, a ball in each', dock.lanes === 7 && dock.balls === 7, '| pitch report on the weather chip:', dock.verdict);
+  await page.close();
+  const before = errs.filter((e) => !/^404|^failed/.test(e)).length, blank = [];
+  for (const [qs, time] of [['page=planner&view=day'], ['page=planner&view=month'], ['page=planner', '19:30'], ['page=planner&calm=1'], ['page=planner&events=none&empty=1'], ['page=kid&kid=0'], ['page=kid&kid=1'], ['page=kid&kid=2'], ['page=kid&kid=2', '19:30'], ['page=kid&kid=0&studio=1'], ['page=groceries'], ['page=doodle'],
+    ...['house', 'scene', 'dial', 'desk', 'cables', 'list'].map((v) => ['page=music&mview=' + v]), ...['shelves', 'juke&juke=1', 'radio', 'call'].map((t) => ['page=music&mtab=' + t]), ['page=weather'], ['page=weather&wx=rain'], ['page=home'], ['page=morning', '07:10'], ['page=planner&night=1', '22:30'],
+    ...['add', 'meds', 'sitter', 'timer', 'themes', 'chat'].map((sh) => ['page=planner&sheet=' + sh]), ['page=kid&kid=0&sheet=kidprefs']]) {
+    const p = await open('look=sports&' + qs, time);
+    if (!(await p.evaluate(() => { const c = document.querySelector('family-hub-card'); return c.getAttribute('data-look') === 'sports' && c.shadowRoot.querySelector('.fh').children.length > 0; }))) blank.push(qs);
+    await p.close(); }
+  console.log('HG4 every page, sheet and view opens in Home Ground:', blank.length ? 'BLANK ' + blank.join(', ') : true, '| nothing throws', errs.filter((e) => !/^404|^failed/.test(e)).length === before);
+  page = await open('look=sports&page=weather&wx=rain');
+  console.log('HG5 weather page: the verdict tile comes first:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot, v = r.querySelector('.wnow .verdict'); return v && v.previousElementSibling?.tagName === 'H2' ? v.textContent.trim() : 'MISSING'; }));
+  await page.close();
+  page = await open('look=sports&page=music&mview=scene');
+  console.log('HG6 music scene is the training ground', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, v = r.querySelector('.vscene'); return v?.dataset.kind === 'sports' && r.querySelectorAll('.vscene .actor').length > 0 && !!r.querySelector('.backdrop .bgchalk'); }));
+  await page.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

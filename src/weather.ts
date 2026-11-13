@@ -1,6 +1,6 @@
 import { LitElement, html, svg, css, nothing, type TemplateResult, type PropertyValues } from 'lit';
 import { styles } from './styles';
-import { LookController, getLook } from './looks';
+import { LookController, getLook, verdictTile, type Verdict } from './looks';
 import type { Hass, HassEntity } from './types';
 import { FitController, changed, motion, sfx, say } from './util';
 import { icon } from './icons';
@@ -95,7 +95,8 @@ const speakerIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria
 const TITLES: Record<string, [string, string, string, string]> = {
   glass: ['Right now', 'The next hours', 'The week ahead', 'From above'],
   fridge: ['Today', 'Later on', 'This week', 'Rain and wind'],
-  orbit: ['Weather now', 'Next 24 hours', 'Seven-day outlook', 'Rain radar and wind']
+  orbit: ['Weather now', 'Next 24 hours', 'Seven-day outlook', 'Rain radar and wind'],
+  sports: ['Pitch report', 'The next hours', 'The week ahead', 'Rain radar and wind']
 };
 
 
@@ -363,6 +364,8 @@ export class FhWeather extends LitElement {
     if (!out.length) out.push(night ? { id: 'blanket', say: 'A calm night. Sleep well.' } : { id: 'outside', say: 'A good day to be outside.' });
     return out.slice(0, 3);
   }
+  /** Home Ground's verdict tile sums up the same advice the page already gives: wet weather first, then sun and heat. */
+  private _verdict(tips: { id: TipId }[]): Verdict { return tips.some((t) => t.id === 'inside' || t.id === 'rain') ? 'wet' : tips.some((t) => t.id === 'sun' || t.id === 'water') ? 'hat' : 'on'; }
   /* ---------------- drawing ---------------- */
 
   private _titles(): [string, string, string, string] { return TITLES[getLook()] ?? TITLES.glass; }
@@ -393,6 +396,7 @@ export class FhWeather extends LitElement {
     const small = [chance !== undefined, since !== undefined, hum !== undefined, !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
     return html`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
+      ${getLook() === 'sports' ? verdictTile(this._verdict(tips), true) : nothing}
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
       <div class="top">
         ${sky(w?.state, 72)}
@@ -481,7 +485,9 @@ export class FhWeather extends LitElement {
     </section>`;
   }
 
-  private get _dark(): boolean { return getLook() === 'orbit' || (getLook() === 'glass' && this.theme === 'space'); }
+  /** Home Ground goes dark under lights (from 6 pm until 6 am), and the radar map goes with it. */
+  private get _eve(): boolean { const h = new Date().getHours(); return h >= 18 || h < 6; }
+  private get _dark(): boolean { return getLook() === 'orbit' || (getLook() === 'sports' && this._eve) || (getLook() === 'glass' && this.theme === 'space'); }
   private _windUrl(): string {
     // rounded to a tenth of a degree (about 10 km): enough to centre the map, without sending the address of the house
     const lat = Math.round((this.hass?.config?.latitude ?? -31.95) * 10) / 10, lon = Math.round((this.hass?.config?.longitude ?? 115.86) * 10) / 10;

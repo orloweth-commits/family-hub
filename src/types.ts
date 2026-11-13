@@ -63,7 +63,7 @@ export interface KidConfig {
   /** points per star for pre-readers (stars = points / star) */
   star?: number;
   /* The next five are defaults; a grown-up can change each one on the panel (palette button on the child's page, behind the PIN). */
-  /** this child's own look for his page: glass | fridge | orbit (default: same as the panel) */
+  /** this child's own look for his page: glass | fridge | orbit | sports (default: same as the panel) */
   look_id?: LookId;
   /** print (default) or hand, where the look offers handwriting */
   font?: 'print' | 'hand';
@@ -88,7 +88,7 @@ export interface FamilyHubConfig {
   theme?: ThemeId;
   /** calm mode (no looping motion, no tilt): true = everywhere, false = never; default is on for the kids' pages only */
   calm?: boolean;
-  /** whole design language: glass (default), fridge or orbit; the panel's palette button changes it */
+  /** whole design language: glass (default), fridge, orbit or sports (Home Ground); the panel's palette button changes it */
   look?: LookId;
   weather?: string;
   /** the Weather page: where to find the hourly forecast, the Bureau's sensors, and whether to show the radar and wind maps; false leaves the page out */

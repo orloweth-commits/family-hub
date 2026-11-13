@@ -20,8 +20,8 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
 const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
-  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.' };
-export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
+  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.', sports: 'Two players together share the music.' };
+export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : look === 'sports' ? 'sports' : 'orbit');
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? SCENE_HINT[sceneKind(look, theme)] : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
 export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; /** plays the music in the player (the room that leads it included) */ on: boolean; /** grouped with at least one other room, whichever room is selected */ linked: boolean; /** a home speaker that cannot be reached right now */ offline: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
@@ -317,6 +317,10 @@ const ACTORS: Record<string, (r: Room, v: number) => TemplateResult> = {
     <g class="sway"><path class=${r.live ? 'afill edge' : 'aidle edge'} d="M50 ${y - 26}L73 ${y}L50 ${y + 26}L27 ${y}Z"></path><path class="aline thin" d="M50 ${y - 26}V${y + 26}M27 ${y}H73"></path></g>`; },
   fridge: (r, v) => { const y = 96 - 72 * (r.hasVol ? v : 0); return svg`<path class="aline" d="M50 14C53 44 47 76 50 106"></path>${[0, 1, 2, 3, 4].map((k) => svg`<path class="aline thin" d="M43 ${18 + k * 21}h14"></path>`)}
     <g class="jig"><circle class="ashade" cx="52" cy=${y + 4} r="23"></circle><circle class=${r.live ? 'afill' : 'aidle'} cx="50" cy=${y} r="23"></circle><text class="ainit" x="50" y=${y + 7}>${r.name[0]}</text></g>`; },
+  // Home Ground: each room is a player (a disc in the room's colour with its initial); a room with music has the ball at its feet
+  sports: (r) => svg`<ellipse class="ashade" cx="50" cy="103" rx="27" ry="5"></ellipse>
+    <g class="bob"><circle class="pring" cx="50" cy="64" r="32"></circle><circle class=${r.live ? 'afill pdisc' : 'aidle pdisc'} cx="50" cy="64" r="28"></circle><text class="ainit" x="50" y="73">${r.name[0]}</text></g>
+    ${r.live ? svg`<g class="pball" transform="translate(83 92)"><circle r="12"></circle><path d="M0 -4.200l4 2.900-1.500 4.700h-5l-1.500-4.700z"></path></g>` : nothing}`,
   orbit: (r, v) => { const p = 23 + 9 * v; return svg`<circle class="aorbit" cx="50" cy="68" r="38"></circle>${r.playing ? svg`<circle class="aglow" cx="50" cy="68" r=${p + 8}></circle>` : nothing}
     <circle class=${r.live ? 'afill' : 'aidle edge'} cx="50" cy="68" r=${p}></circle>`; }
 };
@@ -326,7 +330,9 @@ const BACKDROP: Record<string, TemplateResult> = {
   space: svg`${[[8, 14], [22, 40], [40, 8], [63, 22], [81, 12], [93, 44], [52, 50]].map(([x, y], i) => svg`<circle class="bgstar" style="animation-delay:${-i * 0.5}s" cx=${x} cy=${y} r=".7"></circle>`)}`,
   bush: svg`<path class="bg2" d="M0 96h100"></path>${[[12, 30], [88, 22], [50, 14], [70, 44]].map(([x, y], i) => svg`<circle class="bgfly" style="animation-delay:${-i * 0.8}s" cx=${x} cy=${y} r=".8"></circle>`)}`,
   sunset: svg`<path class="bg2" d="M0 96q25 -8 50 0t50 0"></path>`,
-  fridge: svg``, orbit: svg``
+  fridge: svg``, orbit: svg``,
+  // the markings are deliberately no one's: a boundary, a halfway line, a centre circle and two shallow arcs
+  sports: svg`<path class="bgchalk" d="M2.500 5H97.500V95H2.500ZM50 5V95M43 50a7 17 0 1 0 14 0a7 17 0 1 0 -14 0M2.500 30a6 20 0 0 1 0 40M97.500 30a6 20 0 0 0 0 40"></path>`
 };
 
 /** Where each room floats, in percent of the scene. Wide: rooms sharing music sail together along the top, beside what is playing, and the quiet ones wait in a line below, across the whole width. Narrow: every room has a place in rows, the ones with music first. The CSS keeps each one whole inside the edge. */
@@ -342,7 +348,7 @@ const spots = (c: Ctx): Record<string, [number, number]> => {
   idle.forEach((r, i) => { out[r.id] = [2 + ((i + 0.5) / idle.length) * 96, live.length ? 60 : 45]; });
   return out;
 };
-const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos' };
+const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos', sports: 'kit bag' };
 /** Previous, play and next, small, beside the title. */
 const sceneKeys = (c: Ctx): TemplateResult => miniKeys(c.now.playing, () => c.prev(), () => c.playPause(), () => c.next());
 /** The shelf, drawn into the world along the bottom of the scene: buoys on the sea, shells on the reef, a constellation in space, lanterns in the bush, beach balls at sunset, photos pegged up on the fridge. Carry one to a room or to the music; tap it to play in the room in focus. */
@@ -805,6 +811,19 @@ export const viewsCss = css`
   @keyframes asway { from { transform: translateX(-5px) rotate(-8deg); } to { transform: translateX(5px) rotate(8deg); } }
   .actor[data-playing] .jig { transform-origin: center; animation: ajig .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  /* Home Ground: the training ground. Chalk markings, players as discs (a quiet room is a dashed outline), the music as a ball, and a dotted pass line between rooms that share */
+  .bgchalk { stroke: var(--chalk, #fff); stroke-width: 2.500px; }
+  .pring { fill: none; } .pball { display: none; }
+  .vscene[data-kind='sports'] .pring { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+  .vscene[data-kind='sports'] .pdisc { stroke: none; }
+  .vscene[data-kind='sports'] .aidle { fill: var(--panel, #fff); opacity: 1; }
+  .vscene[data-kind='sports'] .actor:not([data-live]) .pring { fill: var(--panel, #fff); stroke: var(--ink3); stroke-dasharray: 5 4; }
+  .vscene[data-kind='sports'] .actor:not([data-live]) .ainit { fill: var(--ink2); }
+  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; }
+  .vscene[data-kind='sports'] .pball { display: block; } .pball circle { fill: #fff; stroke: #14201a; stroke-width: 2; } .pball path { fill: #14201a; }
+  .vscene[data-kind='sports'] .actor:not([data-playing]) .pball { opacity: .55; }
+  .vscene[data-kind='sports'] .tie { stroke: var(--ink); stroke-width: 3px; stroke-dasharray: 2 10; opacity: 1; }
+  .vscene[data-kind='sports'] .slabel { border-radius: 8px; box-shadow: inset 0 0 0 1.500px var(--line); }
   .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
   :host([data-phone]) .vscene { flex: none; height: 720px; --k: .5; --sq: .9; }
   /* two rooms side by side on a phone: the name may take two lines so the chips never overlap */
