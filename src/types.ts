@@ -195,7 +195,7 @@ export interface FamilyHubConfig {
   emergency?: { notify: string[]; who?: string; message?: string };
   home_hide?: string[];
   /** Ask: a chat with an AI helper for the children (the speech-bubble button in the header). `agent` is a conversation entity; `pipeline` is the id of an Assist pipeline, for talking instead of typing; `name` is what the helper is called (default "Ask"). After any child's bedtime and in quiet hours it opens only with the parent PIN, unless `pin_after_bedtime` is false. What the helper may talk about is set in Home Assistant, on the agent itself. */
-  chat?: { agent: string; pipeline?: string; name?: string; pin_after_bedtime?: boolean };
+  chat?: { agent: string; pipeline?: string; name?: string; pin_after_bedtime?: boolean; /** a text-to-speech entity (say tts.openai_tts): Ask speaks its typed and tapped answers in that voice, falling back to the screen's own voice if it cannot */ tts?: string; /** one of that engine's voices */ tts_voice?: string; /** the language and accent it speaks, such as en-AU */ tts_language?: string };
   /** the screensaver, the nightly artwork and the painted characters (Settings, Pictures) */
   art?: import('./artlib').ArtConfig;
   /** calendar used by the quick-add sheet */

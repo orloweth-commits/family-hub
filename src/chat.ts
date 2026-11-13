@@ -126,6 +126,8 @@ export class FhChat extends LitElement {
     .talk { width: 96px; height: 96px; border-radius: 50%; flex-shrink: 0; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; }
     .talk[aria-pressed='true'] { background: var(--danger); color: #fff; animation: fhc-pulse 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
     .voice b { font-size: 20px; font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .voice .convo { height: 52px; padding: 0 16px; font-size: 15px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+    :host([low]) .voice .convo { margin-left: 0; }
     .nomic { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
     .starters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
@@ -205,7 +207,7 @@ export class FhChat extends LitElement {
   `];
 
   static properties = {
-    agent: {}, pipeline: {}, helper: {}, pin: { type: Boolean }, mode: {}, who: {}, minutes: { type: Number }, _leftMin: { state: true }, _over: { state: true },
+    agent: {}, pipeline: {}, tts: {}, ttsVoice: {}, ttsLanguage: {}, helper: {}, _convo: { state: true }, pin: { type: Boolean }, mode: {}, who: {}, minutes: { type: Number }, _leftMin: { state: true }, _over: { state: true },
     _bubbles: { state: true }, _typed: { state: true }, _caps: { state: true }, _keys: { state: true }, _busy: { state: true }, _listening: { state: true }, _read: { state: true }, _grown: { state: true }, _log: { state: true }
   };
 
@@ -213,6 +215,14 @@ export class FhChat extends LitElement {
   hass?: Hass;
   agent = '';
   pipeline = '';
+  /** a text-to-speech entity in Home Assistant (say tts.openai_tts): typed and tapped answers, and the notes, are spoken in its voice instead of the screen's own. `ttsVoice` picks one of its voices */
+  tts = '';
+  ttsVoice = '';
+  /** the language (and so the accent) the voice speaks, such as en-AU, where the engine offers more than one */
+  ttsLanguage = '';
+  /** keep talking: after each spoken answer the microphone opens again by itself, until nothing is heard, the button is tapped off, time is up or the sheet closes */
+  private _convo = false;
+  private _again = 0;
   helper = 'Ask';
   /** true when the panel has a parent PIN: the grown-ups' record then sits behind it */
   pin = false;
@@ -255,12 +265,13 @@ export class FhChat extends LitElement {
     if (!this._timed) { this._leftMin = 0; this._over = false; return; }
     const left = this.minutes * 60 - askUsed(this.who);
     this._leftMin = Math.max(0, Math.ceil(left / 60));
-    if (left <= 0 && !this._over) { this._over = true; this._endVoice(); this._add('helper', TIME_UP, true); if (this._read) say(TIME_UP); }
+    if (left <= 0 && !this._over) { this._over = true; this._endVoice(); this._add('helper', TIME_UP, true); if (this._read) this._speak(TIME_UP); }
   }
   protected firstUpdated(): void {
+    try { this._convo = localStorage.getItem('fh-ask-convo') === '1'; } catch { /* storage unavailable */ }
     this._tally();
     // the note about the helper is read out the first time each day, so a child who cannot read has heard it too
-    if (!this._over && firstToday(this.who)) say(AI_NOTE);
+    if (!this._over && firstToday(this.who)) this._speak(AI_NOTE);
   }
   disconnectedCallback(): void {
     super.disconnectedCallback();
@@ -282,7 +293,7 @@ export class FhChat extends LitElement {
   /** Three minutes without a touch or an answer: the sheet closes itself and the conversation is gone. */
   private _poke = (): void => { clearTimeout(this._idleT); this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent('close')), IDLE_MS); };
   private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); if (from === 'helper') sfx(calm ? 'error' : 'answer'); }
-  private _quiet(): void { hush(); try { this._audio?.pause(); } catch { /* not playing */ } this._audio = null; }
+  private _quiet(): void { this._said++; clearTimeout(this._again); hush(); try { this._audio?.pause(); } catch { /* not playing */ } this._audio = null; }
   /** Forgets the conversation: the bubbles, the thread with the helper, anything being said or heard. */
   private _reset(): void {
     this._gen++; this._quiet(); this._endVoice();
@@ -305,7 +316,7 @@ export class FhChat extends LitElement {
       if (r?.conversation_id) this._cid = r.conversation_id;
       if (!reply) throw new Error('no answer');
       this._add('helper', reply);
-      if (this._read) say(reply);
+      if (this._read) this._speak(reply);
     } catch (e) {
       if (gen !== this._gen) return;
       console.warn('Family Hub: the helper did not answer', e);
@@ -313,6 +324,14 @@ export class FhChat extends LitElement {
     } finally {
       if (gen === this._gen) { this._busy = false; addLog(text, reply); }
     }
+  }
+  /** Says something aloud: in Home Assistant's voice when one is set (`tts`), otherwise (or if that fails) in the screen's own. `then` runs when the words have ended. */
+  private _said = 0;
+  private _speak(text: string, then?: () => void): void {
+    const n = ++this._said, own = (): void => { if (n !== this._said) return; say(text); if (then) this._again = window.setTimeout(then, Math.max(1500, text.length * 75)); };
+    if (!this.tts || !this.hass?.callApi) { own(); return; }
+    within(Promise.resolve(this.hass.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', { engine_id: this.tts, message: text, cache: true, ...(this.ttsLanguage ? { language: this.ttsLanguage } : {}), ...(this.ttsVoice ? { options: { voice: this.ttsVoice } } : {}) })), 8000)
+      .then((r) => { if (n !== this._said) return; const url = r?.path ?? r?.url; if (!url) { own(); return; } hush(); this._play(String(url), then, own); }, () => own());
   }
   private _press(k: string): void { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); this._typed = this._typed.slice(0, MAX_CHARS); }
 
@@ -380,31 +399,39 @@ export class FhChat extends LitElement {
       }
       case 'tts-end': {
         const url = d.tts_output?.url;
-        if (url && this._read && v.reply) { v.spoke = true; this._play(String(url)); }
+        if (url && this._read && v.reply) { v.spoke = true; this._said++; this._play(String(url), () => this._relisten()); }
         break;
       }
       case 'error': {
         console.warn('Family Hub: voice pipeline', d.code, d.message);
         if (!v.reply) this._add('helper', d.code === 'stt-no-text-recognized' ? NOT_HEARD : SORRY, true);
+        if (!v.reply) this._convo = false; // nothing was heard, or something went wrong: the conversation rests until the microphone is tapped again
         v.done = true; this._endVoice();
         break;
       }
       case 'run-end': {
         // the pipeline made no speech of its own (no voice set up): the panel reads the answer instead
-        if (v.reply && this._read && !v.spoke) say(v.reply);
+        const reply = v.reply, spoke = v.spoke;
         v.done = true; this._endVoice();
+        if (reply && !spoke) { if (this._read) this._speak(reply, () => this._relisten()); else this._again = window.setTimeout(() => this._relisten(), 1500); }
         break;
       }
     }
   }
   /** Plays the pipeline's spoken answer. A path from Home Assistant is made into a full address first. */
-  private _play(url: string): void {
+  private _play(url: string, then?: () => void, failed?: () => void): void {
+    const no = (e: unknown): void => { console.warn('Family Hub: could not play the answer', e); if (failed) failed(); else then?.(); };
     try {
       const a = new Audio(/^https?:/.test(url) ? url : this.hass?.hassUrl ? this.hass.hassUrl(url) : url);
       this._audio = a;
-      a.play().catch((e) => console.warn('Family Hub: could not play the answer', e));
-    } catch (e) { console.warn('Family Hub: could not play the answer', e); }
+      a.addEventListener('ended', () => { if (this._audio === a) { this._audio = null; then?.(); } });
+      a.addEventListener('error', () => { if (this._audio === a) { this._audio = null; no('audio error'); } });
+      a.play().catch(no);
+    } catch (e) { no(e); }
   }
+  /** Keep talking: when an answer has been spoken, listen again (if that is switched on and nothing else has begun). */
+  private _relisten(): void { if (this._convo && this.isConnected && !this._busy && !this._over && !this._grown && canListen()) void this._talk(); }
+  private _setConvo(on: boolean): void { this._convo = on; try { localStorage.setItem('fh-ask-convo', on ? '1' : ''); } catch { /* storage unavailable */ } if (!on) clearTimeout(this._again); }
   /** Always safe to call: stops the microphone, the timers and the subscription, and records what was said. */
   private _endVoice(): void {
     const v = this._voice;
@@ -446,7 +473,8 @@ export class FhChat extends LitElement {
         ${voice ? html`<div class="voice">
           <button class="talk tap" aria-pressed=${String(this._listening)} aria-label=${this._listening ? 'Listening. Tap to stop' : 'Tap to talk'} ?disabled=${(this._busy && !this._listening) || this._over} @click=${() => this._talk()}>${icon('mic', 46)}</button>
           <b aria-hidden="true">${this._listening ? 'Listening… tap to stop' : thinking ? 'Thinking…' : 'Tap to talk'}</b>
-        </div>` : this.pipeline && !pics ? html`<p class="nomic">Talking needs a secure connection on this screen. You can still type.</p>` : nothing}
+          <button class="pill tap opt convo" data-act="convo" aria-pressed=${String(this._convo)} aria-label="Keep talking: listen again after each answer" @click=${() => { sfx('tap'); this._setConvo(!this._convo); }}>${this._convo ? 'Keep talking: on' : 'Keep talking'}</button>
+        </div>` : this.pipeline && !pics ? html`<p class="nomic">Talking needs a secure connection (https) on this screen. You can still type.</p>` : nothing}
         <div class="starters" role="group" aria-label="Things to ask">
           ${STARTERS.map(([pic, label]) => html`<button class="starter tap" ?disabled=${this._busy || this._over} @click=${() => this._ask(label)}><span aria-hidden="true">${pic}</span>${label}</button>`)}
         </div>
