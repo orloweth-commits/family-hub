@@ -32,9 +32,11 @@ export const daySlot = (bedtime = '20:00', d = new Date()): Slot => {
   if (n >= hm(bedtime) - 60) return 'bed';
   return 'after';
 };
-/** Fri and Sat nights get an extra half hour. */
+/** Fri and Sat nights get an extra half hour, or whatever the family has set (the card's `bedtime_weekend_extra`). */
+let weekendExtra = 30;
+export const setWeekendExtra = (mins: number | undefined): void => { weekendExtra = Number.isFinite(mins) ? Math.max(0, Math.min(180, Number(mins))) : 30; };
 export const bedtimeFor = (base: string | undefined, d = new Date()): string => {
-  const b = hm(base ?? '20:00') + ([5, 6].includes(d.getDay()) ? 30 : 0);
+  const b = hm(base ?? '20:00') + ([5, 6].includes(d.getDay()) ? weekendExtra : 0);
   return `${Math.floor(b / 60)}:${String(b % 60).padStart(2, '0')}`;
 };
 export const windDown = (bedtime: string | undefined, d = new Date()): boolean => {
