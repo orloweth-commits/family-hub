@@ -7130,7 +7130,7 @@ const Ya = `
   ["rainbow", "Rainbow", 2400, "🌈", "his own haircut dyed in rainbow stripes"],
   ["glitter", "Glitter", 2800, "✨", "his own haircut full of sparkling gold glitter"]
 ], _f = [
-  ["smile", "Smile", 0, "🙂", "a warm closed-mouth smile"],
+  ["smile", "Smile", 0, "🙂", "his own warm, natural smile, as on his character sheet"],
   ["cheeky", "Cheeky", 0, "😏", "a cheeky closed-mouth grin with one eyebrow up"],
   ["wow", "Wow", 0, "😮", "a look of delighted amazement"],
   ["laugh", "Laughing", 0, "😄", "laughing happily"],
