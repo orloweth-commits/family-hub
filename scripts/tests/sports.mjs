@@ -156,6 +156,13 @@ if (run('sound')) { const page = await open('look=fridge&page=planner', { init: 
   ok(n.filter(Boolean).length === 1 && (await play(late, 'alarm')).nodes === 24, 'Orbit in quiet hours: only the alarm, as before', n.join(' '));
   await late.close(); }
 
+// 11. round 6 (H1): on tablets the whole touchline is on the screen, by day and with the morning's extra place: every place at least 44 px, no two labels touching
+if (run('dock')) for (const [w, h] of [[1024, 768], [768, 1024], [820, 1180], [1180, 820]]) for (const time of ['16:20', '07:10']) { const page = await open('look=sports&page=planner', { w, h, time });
+  const r = await page.evaluate(() => { const nav = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock'), b = [...nav.querySelectorAll('.item, .cta')].map((e) => { const r = e.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(e.querySelector('.lb') || e); const t = g.getBoundingClientRect(); return { n: e.textContent.trim(), l: r.left, r: r.right, b: r.bottom, w: r.width, h: r.height, tl: t.left, tr: t.right }; });
+    return { n: b.length, off: b.filter((x) => x.l < -0.5 || x.r > innerWidth + 0.5 || x.b > innerHeight + 0.5).map((x) => x.n), small: b.filter((x) => x.w < 43.5 || x.h < 43.5).map((x) => x.n), touch: b.filter((x, i) => i && x.tl < b[i - 1].tr + 1).map((x) => x.n), scrolls: nav.scrollWidth > nav.clientWidth + 1 }; });
+  ok(r.n >= (time === '07:10' ? 13 : 12) && !r.off.length && !r.small.length && !r.touch.length && !r.scrolls, `dock ${w}x${h} at ${time}: all ${r.n} places on the screen`, JSON.stringify(r));
+  await page.close(); }
+
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails || errs.length ? `FAILED: ${fails} check(s)` : 'all passed');
 await browser.close(); srv.close();
