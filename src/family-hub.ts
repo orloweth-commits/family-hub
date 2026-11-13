@@ -35,7 +35,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event';
-const VERSION = '0.26.1';
+const VERSION = '0.27.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
