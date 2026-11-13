@@ -403,6 +403,18 @@ const GLASS = `
   @G .ev.past .t, @G .ev.past .w, @G .ev.past .content, @G .dayrow.past .content, @G .dayrow.past .muted { color: var(--ink-done); }
   /* an alert chip pulses with a ring inside its edge; the words keep their full contrast */
   @G .cap.hot { animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  /* Glass: each dock button's drawing sits on a pale tile of its own hue (a rounded square for a place, a circle for something done to the whole house); the page you are on fills its tile */
+  @G .dock .item { gap: 4px; }
+  @G .dock .item svg.i { width: 40px; height: 40px; padding: 8px; border-radius: 12px; background: var(--bt, transparent); color: var(--bl, currentColor); --ic-a: #fff; --ic-b: color-mix(in srgb, currentColor 55%, transparent); transition: background-color var(--m-2) ease, color var(--m-2) ease, transform var(--mt-1) ease; }
+  @G .dock .item[data-nav='lights-on'] svg.i, @G .dock .item[data-nav='lights-off'] svg.i, @G .dock .item[data-nav='dinner'] svg.i { border-radius: 50%; }
+  @G .dock .item[data-nav='lights-off'] svg.i, @G .dock .item[data-nav='dinner'] svg.i { --ic-a: rgba(255,255,255,.22); --ic-b: rgba(255,255,255,.5); }
+  @G .dock .item[data-nav='lights-off'] svg.i { box-shadow: 0 0 0 1.5px rgba(255,255,255,.75); }
+  @G .dock .item[aria-current='page'] svg.i { background: var(--bl); color: #fff; --ic-a: rgba(255,255,255,.25); --ic-b: rgba(255,255,255,.6); }
+  @G .dock .item.tap:active svg.i { transform: scale(calc(1 - .08 * var(--m-d, 1))); }
+  @G .dock .called svg.i { background: var(--ok); }
+  @G .right > button.round[data-act='ask'] > svg.i, @G .right > button.round[data-act='night'] > svg.i { width: 34px; height: 24px; padding: 2px 7px; border-radius: 9px; background: var(--bt); color: var(--bl); --ic-a: #fff; }
+  @G .right > button.round[data-act='night'] > svg.i { --ic-a: rgba(255,215,90,.3); --ic-b: #ffd75a; }
+  @G[data-phone] .dock .item svg.i { width: 34px; height: 34px; padding: 6px; border-radius: 10px; }
   /* someone who is out keeps their letter at full strength inside a ring of their colour */
   @G .presence .avatar.away { opacity: 1; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--c); }
   /* a warning is the theme's danger colour with ink that reads on it (dark ink on Space's pale red) */
@@ -522,6 +534,8 @@ const FRIDGE = `
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
   @F .dock .item { font-weight: 600; font-size: 15px; height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
+  @F .dock .item:not([data-nav^='lights']):not([data-nav='dinner']):not([aria-current='page']) svg.i { background: var(--bt, var(--magnet)); color: var(--bl, var(--ink)); --ic-a: #fff; }
+  @F .dock .item[data-nav='lights-off'] svg.i, @F .dock .item[data-nav='dinner'] svg.i { --ic-a: rgba(255,255,255,.22); --ic-b: rgba(255,255,255,.5); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #ffd75a; }
   @F .dock .item[data-nav='lights-off'] svg.i { background: #4a4f55; color: #fff; }
   @F .dock .item[data-nav='dinner'] svg.i { background: var(--danger); color: #fff; }
@@ -800,6 +814,13 @@ const ORBIT = `
   @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
+  /* Orbit: the ring and the line take the button's hue; the three house actions are filled planets */
+  @O .dock .item svg.i { box-shadow: inset 0 0 0 1.5px var(--bo, var(--ctl-line)); color: var(--bo, var(--ink)); --ic-a: color-mix(in srgb, currentColor 24%, transparent); }
+  @O .dock .item[data-nav='lights-on'] svg.i, @O .dock .item[data-nav='dinner'] svg.i { background: var(--bo); color: #0a0f1e; box-shadow: none; --ic-a: rgba(255,255,255,.55); --ic-b: rgba(10,15,30,.45); }
+  @O .dock .item[data-nav='lights-off'] svg.i { background: #2a3350; }
+  @O .dock .item[aria-current='page'] svg.i { color: #0a0f1e; box-shadow: none; --ic-a: rgba(255,255,255,.5); --ic-b: rgba(10,15,30,.45); }
+  @O .right > button.round[data-act='ask'] { box-shadow: inset 0 0 0 1.5px var(--bo); } @O .right > button.round[data-act='ask'] > svg.i { color: var(--bo); }
+  @O .right > button.round[data-act='night'] > svg.i { color: var(--bo); }
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
@@ -1151,6 +1172,8 @@ const SPORTS = `
   @S .dock { align-self: stretch; margin: 0 calc(-1 * var(--pad-x)) calc(-1 * var(--pad-y)); padding: 9px 12px 9px; gap: 10px; justify-content: center; border: 0; border-top: 3px solid var(--chalk); border-radius: 0; box-shadow: none; background: repeating-linear-gradient(90deg, var(--turf) 0 80px, var(--turf2) 80px 160px); }
   @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; }
   @S .dock .item svg.i { width: 54px; height: 54px; padding: 14px; border-radius: 50%; background: #fff; color: #14201a; box-shadow: inset 0 0 0 2px #14201a, 0 3px 0 rgba(8,24,14,.55); stroke-width: 2; }
+  @S .dock .item svg.i { --ic-a: var(--bt, #fff); --ic-b: color-mix(in srgb, currentColor 45%, transparent); }
+  @S .dock .item[data-nav='lights-off'] svg.i, @S .dock .item[data-nav='dinner'] svg.i, @S .dock .item[aria-current='page'] svg.i { --ic-a: color-mix(in srgb, currentColor 18%, transparent); }
   @S .dock .item.tap:active svg.i { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px #14201a; }
   @S .dock .item.tap:active { transform: none; }
   @S .dock .item[aria-current='page'] { background: transparent; font-weight: 800; text-decoration: underline; text-decoration-color: #fff; text-decoration-thickness: 3px; text-underline-offset: 5px; }
