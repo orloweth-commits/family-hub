@@ -299,6 +299,17 @@ await polish();
   const joined = await p.evaluate(() => (window.__calls || []).filter((c) => c.includes('media_player.join')).join(' '));
   console.log('unmapped speaker: listed', r.all, '| counts as the house', r.home, '| swept up by Whole house:', r.extraInHome || /boardroom/.test(joined), '(expect false)'); await p.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
+// R7-M1. the jukebox picture picker: every cover is in front of its record (the point at a cover's centre is the cover), with the record peeking out beside it
+{ const bad = [];
+  for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const [w, h] of [[1920, 1080], [1280, 800], [768, 1024]]) { const p = await open(`look=${look}&page=music&mtab=juke`); await p.setViewportSize({ width: w, height: h }); await p.waitForTimeout(500);
+    await M(p).locator('button.coin[aria-label^="Max"]').click(); await p.waitForTimeout(400); // the youngest's coin opens his pictures straight away
+    if (!(await M(p).locator('.jcovers').count())) await M(p).getByRole('button', { name: /Max adds a song/ }).click(); await p.waitForTimeout(700);
+    const r = await p.evaluate(() => { const root = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; let n = 0, hid = 0, peek = 99, small = 0;
+      for (const st of root.querySelectorAll('.jcovers .st')) { st.scrollIntoView({ block: 'center' }); const img = st.querySelector('.img'), b = img.getBoundingClientRect(), d = st.querySelector('.disc').getBoundingClientRect(); n++;
+        if (root.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2) !== img) hid++; peek = Math.min(peek, d.right - b.right); if (b.width < 64) small++; }
+      return { n, hid, peek: Math.round(peek), small }; });
+    if (!r.n || r.hid || r.peek < 3 || r.small) bad.push(`${look} ${w}x${h} ${JSON.stringify(r)}`); await p.close(); }
+  console.log('R7-M1 jukebox picker: no cover is hidden by its record, in four looks at three sizes', bad.length ? 'FAIL ' + bad.join(' | ') : 'ok'); }
 await browser.close(); srv.close();
 
 // ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----

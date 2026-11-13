@@ -136,7 +136,7 @@ export class FhMusic extends LitElement {
     /* shelves: a crate of records next to the house */
     .shelfrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .crate { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-    .chiprow.dividers { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 3px 3px; margin: -4px -3px -3px; } .chiprow.dividers .pchip { flex: 0 1 auto; min-width: 44px; white-space: nowrap; }
+    /* whose shelf: every name in full; on a narrow crate the dividers take a second row rather than cutting the names */ .chiprow.dividers { flex-wrap: wrap; row-gap: 8px; padding: 4px 3px 3px; margin: -4px -3px -3px; } .chiprow.dividers .pchip { flex: 0 0 auto; min-width: 44px; white-space: nowrap; }
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
     .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
     :host(:not([data-phone])) .crate.low .chiprow { order: 9; } :host(:not([data-phone])) .crate.low .covers, :host(:not([data-phone])) .jcovers.low { align-content: safe end; }
@@ -237,6 +237,11 @@ export class FhMusic extends LitElement {
     .coin .cnext { height: 16px; font-size: 14px; font-weight: var(--w-heavy, 800); color: var(--ink); }
     .coin[data-next] .face { box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .jcovers { flex: 1; min-height: 0; }
+    /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
+    :host([data-shape='tall']:not([data-phone])) .panel[data-picking] > .mhead, :host([data-shape='tall']:not([data-phone])) .panel[data-picking] .tabs { display: none; }
+    /* the jukebox pictures: the record sits behind its cover and peeks out on the right, as on the shelves; the cover itself is never hidden */
+    .jcovers .st { padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
+    .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
     .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background var(--m-2, 160ms); flex-shrink: 0; }
@@ -1139,7 +1144,7 @@ export class FhMusic extends LitElement {
     if (this._tab === 'rooms' && !this._viewAsk && !HINTED.has(this._mode)) { HINTED.add(this._mode); window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${one} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
+      <section class="glass panel" aria-label="Music" ?data-one=${one} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
         <div class="mhead" ?data-one=${one} ?data-hinting=${one && this._coach}><h1 class="t-title">Music</h1>${one ? this._tools() : nothing}
           ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
