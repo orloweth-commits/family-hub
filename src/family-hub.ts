@@ -15,6 +15,7 @@ import './morning';
 import './addevent';
 import { setPinShuffle } from './pin';
 import './chat';
+import { AI_NOTE } from './chat';
 import './settings';
 import { configError } from './validate';
 import { setMediaHass } from './media';
@@ -28,7 +29,7 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
-import { calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
+import { askByChild, askFor, calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
@@ -43,7 +44,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.30.0';
+const VERSION = '0.31.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -62,7 +63,7 @@ export class FamilyHubCard extends LitElement {
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
-    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true },
+    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
   };
 
@@ -166,6 +167,8 @@ export class FamilyHubCard extends LitElement {
   private _alarm = 0;
   private _alarmSeen = 0;
   private _pinAsk: { reason: string; run: () => void; sheet?: string } | null = null;
+  /** who the open Ask sheet is for: a child's name; '' for a grown-up (or anyone, when Ask is not set by child); null while it is still asking who */
+  private _asker: string | null = '';
   private _tick?: number;
   private _poll?: number;
   private _fetchedKey = '';
@@ -1023,7 +1026,9 @@ export class FamilyHubCard extends LitElement {
     return afterBedtime(c.kids, c.quiet, now);
   }
   private _openChat(): void {
-    const c = this._config, open = (): void => { this._sheet = 'chat'; };
+    const c = this._config, kid = this._kidOn, rules = askByChild(c.kids);
+    // Ask set by child: on his own page it is his Ask; anywhere else the sheet first asks who is asking. Not set by child: it opens for anyone, as it always did.
+    const open = (): void => { this._asker = !rules ? '' : kid && askFor(kid).mode !== 'off' ? kid.name : null; this._sheet = 'chat'; };
     if (!c.chat?.agent) return;
     if (c.chat.pin_after_bedtime === false || !this._chatLate()) open();
     else if (c.parent_pin) this._pinAsk = { reason: 'Chat after bedtime?', run: open };
@@ -1080,7 +1085,7 @@ export class FamilyHubCard extends LitElement {
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
         return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
-          .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
+          .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
@@ -1193,7 +1198,7 @@ export class FamilyHubCard extends LitElement {
               <span class="phome" aria-hidden="true">${icon('home', 18)}</span>
               ${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}
             </button>` : nothing}
-          ${c.chat?.agent ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
+          ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           <button class="glass tap round hb" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}<span class="rl" aria-hidden="true">${kid ? 'Settings' : 'Looks'}</span></button>
           ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round hb" data-act="meds" aria-label="Medicine" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}<span class="rl" aria-hidden="true">Medicine</span></button>` : nothing}
           ${!kid ? html`<button class="glass tap round hb" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}<span class="rl" aria-hidden="true">House info</span></button>` : nothing}
@@ -1418,12 +1423,22 @@ export class FamilyHubCard extends LitElement {
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .edit=${this._editEv} .scope=${this._editEv ? this._editScope : ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { const was = this._editEv; if (this._sheet === 'add') close(); this._say(was ? (e.detail.startsWith('!') ? `The new one was added, but the old “${was.title}” could not be removed. Please delete it by hand.` : `Changed: ${e.detail}`) : `Added: ${e.detail}`, was && e.detail.startsWith('!') ? 10000 : undefined); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not ${this._editEv ? 'changed' : 'added'}: Home Assistant did not answer`, 8000)}></fh-add-event>`;
-    if (s === 'chat') { const ch = this._config.chat, name = ch?.name || 'Ask';
+    if (s === 'chat') { const ch = this._config.chat, name = ch?.name || 'Ask', kids = this._config.kids ?? [];
       if (!ch?.agent) return nothing;
+      const who = this._asker, kid = who ? kids.find((k) => k.name === who) : undefined, rule = kid ? askFor(kid) : undefined, pics = rule?.mode === 'pictures';
+      // set by child and opened from a shared page: first, who is asking? Each child then gets his own kind of Ask and his own time; a grown-up goes through the PIN
+      const pick = who === null ? html`<div class="askwho" role="group" aria-label="Who is asking?">
+          ${kids.filter((k) => askFor(k).mode !== 'off').map((k) => { const e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
+            return html`<button class="whobtn tap" data-who=${e.slug} style="--kidc:${slotVar(k.colour)}" @click=${() => { sfx('tap'); this._asker = k.name; }}>
+              <span class="avatar" style="width:104px;height:104px;background:${slotVar(k.colour)};font-size:44px">${look ? renderAvatar(look, { size: 104, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span><span class="wn">${k.name}</span></button>`; })}
+          <button class="whobtn tap" data-who="grown-up" @click=${() => { const run = (): void => { this._asker = ''; }; sfx('tap'); if (this._config.parent_pin) this._pinAsk = { reason: 'Ask as a grown-up?', run, sheet: 'chat' }; else run(); }}>
+            <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${icon('lock', 40)}</span><span class="wn">A grown-up</span></button>
+        </div>` : nothing;
       return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-        <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${name}>${this._sheetHead(name, 'Ask a question, or tap a picture.')}
-          <p class="ainote">Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.</p>
-          <fh-chat .hass=${this.hass} ?low=${this._page === 'kid' && this._kidOn?.mode === 'picture'} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .helper=${name} .pin=${!!this._config.parent_pin} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat></section></div>`; }
+        <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${name} ?data-who=${who === null}>${this._sheetHead(name, who === null ? 'Who is asking?' : pics ? 'Tap a picture.' : 'Ask a question, or tap a picture.')}
+          <p class="ainote">${AI_NOTE}</p>
+          ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
+            .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
     const body = s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
       <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
@@ -1483,7 +1498,7 @@ export class FamilyHubCard extends LitElement {
           <span style="font-size:16px;font-weight:var(--w-bold, 700)">${name}</span><span class="muted" style="font-size:13px">${tag}</span></button>`)}
       </div>
       ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}
-      ${this._switchRow('One job at a time', 'Shows Now, Next and Later instead of the whole list.', p.focus, () => this._setKidPref({ focus: !p.focus }))}
+      ${this._switchRow('One job at a time', 'Shows Now and Next, with “Show all” one tap away. Off shows the whole list.', p.focus, () => this._setKidPref({ focus: !p.focus }))}
       ${this._switchRow('Calm mode', 'No looping motion or tilted cards.', p.calm, () => this._setKidPref({ calm: !p.calm }))}
       <div class="setrow"><span class="setlabel"><b>Days off</b><span class="muted">A sick day or a holiday never counts against ${k.name}’s week.</span></span>
         <button class="pill tap" data-act="days-off" @click=${() => { this._sheet = ''; (this.renderRoot.querySelector('fh-kid') as (HTMLElement & { openDays?: () => void }) | null)?.openDays?.(); }}>Mark days off</button></div>

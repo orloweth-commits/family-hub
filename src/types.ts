@@ -30,7 +30,8 @@ export interface Hass {
 export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
-export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean }
+export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean;
+  /** a limit: at most this many times a week, Monday to Sunday (e.g. `weekly: 1` on a screen-time reward). When it is used up the row says when it comes back. */ weekly?: number }
 /** A speaker's patch of an open-plan room. */
 export interface MapZoneConfig { name?: string; player: string }
 /** A room on the Music page's house view. `zones` splits one open room between speakers; `kids` makes it a bedroom that goes quiet at their bedtime; `stairs` draws a stairwell. */
@@ -47,6 +48,8 @@ export interface KidConfig {
   /** picture = big icons and stars (pre-readers), mixed, or text */
   mode?: 'picture' | 'mixed' | 'text';
   rewards?: RewardConfig[];
+  /** a list being worked on in Settings, Rewards: the child's page never shows it. "Put this draft live" there makes it his `rewards`. */
+  rewards_draft?: RewardConfig[];
   theme?: ThemeId;
   /** starting look, e.g. "h=quiff;hc=e3b85c". For a painted character, "img=<file>" names his picture in Home Assistant's media. */
   look?: string;
@@ -79,8 +82,15 @@ export interface KidConfig {
   calm?: boolean;
   /** interface sounds on his page: full (default) | soft | off */
   sound_level?: 'full' | 'soft' | 'off';
-  /** one job at a time (Now / Next / Later); default true except in text mode */
+  /** one job at a time (Now / Next, with "Show all" one tap away); default true for every child */
   focus?: boolean;
+  /** older mode: a plainer page for a child who has outgrown stars and ranks. No rank names, no pictures on his jobs, his week first, and a private "ask for a chat" in place of the feelings faces */
+  older?: boolean;
+  /** Ask (the AI helper) for this child: `pictures` (picture prompts only: no typing, no talking), `full`, or `off`. Unset: pictures for a child in picture mode, full otherwise.
+   *  As soon as any child has `ask` or `ask_minutes`, the Ask button asks who is asking, and each child gets his own kind of Ask and his own daily time. */
+  ask?: 'pictures' | 'full' | 'off';
+  /** minutes of Ask a day for this child (default 15; 0 = no limit) */
+  ask_minutes?: number;
 }
 export interface MedConfig { id: string; label: string; time: string; who?: string }
 export interface BringRule { match: string; item: string; kid?: string }
@@ -213,6 +223,11 @@ export interface CalEvent {
   /** how it repeats, when the calendar says (an RRULE) */
   rrule?: string;
 }
+
+/** Whether Ask is set by child: true once any child has `ask` or `ask_minutes`. Until then Ask opens for anyone, as it always did. */
+export const askByChild = (kids: KidConfig[] | undefined): boolean => (kids ?? []).some((k) => k.ask !== undefined || k.ask_minutes !== undefined);
+/** A child's kind of Ask and his minutes a day (0 = no limit). */
+export const askFor = (k: KidConfig): { mode: 'pictures' | 'full' | 'off'; minutes: number } => ({ mode: k.ask ?? (k.mode === 'picture' ? 'pictures' : 'full'), minutes: Math.max(0, Number.isFinite(k.ask_minutes) ? Number(k.ask_minutes) : 15) });
 
 export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' || c === undefined ? 'var(--p-family)' : `var(--p-${c})`);
 

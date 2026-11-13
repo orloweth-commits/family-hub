@@ -332,8 +332,9 @@ export const styles = css`
   .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
-  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut */
-  .dock .item.kidbtn { gap: 2px; padding-bottom: 4px; } .dock .item .kn { flex-shrink: 0; }
+  /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut.
+     His name rests on the same line as every other label (the same 6 px under it): the picture, not the name, gives up the 2 px, rising into the dock's own padding */
+  .dock .item.kidbtn { gap: 2px; } .dock .item .kn { flex-shrink: 0; }
   .dock .item .kn { display: block; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
   .dock .item .kn::after { display: block; }
   .dock .item[aria-current='page'] { background: var(--chip-strong); font-weight: var(--w-heavy, 800); }
@@ -365,6 +366,12 @@ export const styles = css`
   /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
   .sheet.chatsheet > fh-chat { flex-shrink: 1; }
   /* the note about the helper sits directly under the subtitle, so it is read before anything is asked */
+  /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a grown-up's way in */
+  .askwho { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; align-content: center; gap: 18px; }
+  .whobtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-width: 168px; min-height: 176px; padding: 16px 14px; border-radius: 28px; background: var(--chip); font-size: 20px; font-weight: var(--w-bold, 700); color: var(--ink); }
+  .whobtn .avatar { overflow: hidden; flex-shrink: 0; }
+  .whobtn .wn { max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :host([data-phone]) .whobtn { min-width: 132px; min-height: 150px; }
   .ainote { margin: -10px 0 0; font-size: 15px; line-height: 1.3; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
   .chatsheet .shead .muted { color: var(--ink); }
   :host([data-phone]) .sheet.chatsheet { height: auto; overflow-y: auto; }

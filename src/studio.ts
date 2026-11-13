@@ -2,7 +2,7 @@ import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type Te
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
-import { avatarCss, applyItem, decodeLook, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
+import { avatarCss, applyItem, decodeLook, encodeLook, isUnlocked, isWorn, levelInfo, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
 import { FitController, linger, say, scrollCue, sfx } from './util';
 import { confetti, fxCss } from './fx';
 import { kidEntities, num, slotVar, type Hass, type KidConfig } from './types';
@@ -28,7 +28,18 @@ const paintLook = (hass: Hass, kid: KidConfig, look: Look, art: ArtConfig): Prom
   return done;
 };
 
-/** Avatar Studio: try on everything, locked items show what they need. */
+/** How many locked things a group shows: the nearest few. The rest appear as they come within reach, so the catalogue never looks mostly closed. */
+export const LOCKED_SHOWN = 3;
+/** What a group shows: everything unlocked, the nearest locked things (by points first; surprises fill any places left), and whatever he is saving for. */
+export const shownItems = (items: Item[], life: number, grow: number, goal = ''): { show: Item[]; hidden: number } => {
+  const locked = items.filter((it) => !isUnlocked(it, life, grow));
+  const near = [...locked.filter((it) => !it[3]).sort((a, b) => a[2] - b[2]), ...locked.filter((it) => it[3]).sort((a, b) => (a[3] ?? 0) - (b[3] ?? 0))].slice(0, LOCKED_SHOWN);
+  const keep = new Set(near.map((it) => it[0])); if (goal) keep.add(goal);
+  const show = items.filter((it) => isUnlocked(it, life, grow) || keep.has(it[0]));
+  return { show, hidden: items.length - show.length };
+};
+
+/** Avatar Studio: try on everything he has, and see the next few things he can earn. */
 export class FhStudio extends LitElement {
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
@@ -97,6 +108,13 @@ export class FhStudio extends LitElement {
     .sw button { width: 44px; height: 44px; /* token */ border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
     .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
+    /* "more to come": not a button, so it has no fill and no outline */
+    .cell.more { align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 96px; padding: 8px; border-radius: 20px; border: 2px dashed var(--track); color: var(--ink2); font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; }
+    .cell.more .e { font-size: 30px; line-height: 1; }
+    .swmore { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
+    /* his rank lives here, where it pays off, under the studio's title */
+    .rankline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 4px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); }
     /* a painted character: his picture, and what he has chosen that is not painted yet */
     .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: 50px; line-height: 1; }
@@ -264,11 +282,14 @@ export class FhStudio extends LitElement {
     const have = painted && (!!this._files?.has(this._file) || this._file === this._base.img), wet = !!this._wet, cannot = painted && dirty && !have ? this._cannot.trim() : '';
     const leave = (): void => { if (painted || !dirty) this.dispatchEvent(new CustomEvent('close')); else void this._save(); };
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
+    // rank names are for the younger two: a child in older mode, and one who cannot read, see none
+    const li = !this._picMode && !this.kid.older ? levelInfo(this.life) : null;
+    const items = shownItems(cat.items, this.life, this.grow, this._goal), sw = cat.swatch ? shownItems(cat.swatch.items, this.life, this.grow) : null;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
       <section class="glass mirror ${this._picMode ? 'low' : ''}">
         <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label=${dirty && !painted ? 'Back, and keep this look' : 'Back'} @click=${leave}>${icon('left', 18)}</button>
-          <h1 class="t-title" style="flex:1">${this.kid.name}’s studio</h1>
+          <div style="flex:1;min-width:0"><h1 class="t-title">${this.kid.name}’s studio</h1>${li ? html`<div class="rankline"><span class="rank">${li.rank}</span><span>${li.need - li.into} more to ${li.nextRank}</span></div>` : nothing}</div>
           <button class="round tap" aria-label="Surprise look" ?disabled=${wet} @click=${() => this._random()}>${icon('shuffle', 18)}</button>
         </div>
         ${painted ? html`
@@ -291,11 +312,11 @@ export class FhStudio extends LitElement {
       <section class="glass shelf ${this._picMode ? 'low' : ''}">
         <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`<span class="te" aria-hidden="true">${c.emoji}</span> ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${cat.swatch.label}</span>
-          ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
+          ${sw!.show.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
-            style="background:${s[0]}" @click=${() => this._pick(cat, s, true)}></button>`; })}</div>` : nothing}
+            style="background:${s[0]}" @click=${() => this._pick(cat, s, true)}></button>`; })}${sw!.hidden ? html`<span class="swmore">+${sw!.hidden} more later</span>` : nothing}</div>` : nothing}
         <div class="gridwrap"><div class="grid scrolly" @scroll=${this._cue}>
-          ${cat.items.map((it) => {
+          ${items.show.map((it) => {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<div class="cell"><button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
               <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${painted ? 76 : cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : painted ? html`<span class="emo" aria-hidden="true">${itemEmoji(cat, it[0])}</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
@@ -303,6 +324,7 @@ export class FhStudio extends LitElement {
             </button>
               ${locked && !surprise && !this._picMode ? html`<button class="heart tap" aria-pressed=${String(this._goal === it[0])} aria-label=${this._goal === it[0] ? `${it[1]} is my goal` : `Make ${it[1]} my goal`} @click=${() => this._setGoal(it)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === it[0] ? '#e11d48' : 'none'} stroke=${this._goal === it[0] ? '#9f1239' : 'currentColor'} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : nothing}</div>`;
           })}
+          ${items.hidden ? html`<div class="cell more" role="note" aria-label="${items.hidden} more to discover later"><span class="e" aria-hidden="true">✨</span>${this._picMode ? nothing : html`<span>${items.hidden} more to discover</span>`}</div>` : nothing}
         </div>${this._picMode ? html`<button class="tap rowgo back" aria-label="Go back along the row" @click=${() => this._along(-1)}>${icon('left', 30)}</button><button class="tap rowgo fwd" aria-label="More to choose" @click=${() => this._along(1)}>${icon('right', 30)}</button>` : nothing}</div>
       </section>
       ${this._confetti ? confetti(this._confetti) : nothing}

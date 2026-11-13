@@ -16,7 +16,12 @@ export const isPin = (p: unknown): boolean => /^\d{4,8}$/.test(String(p ?? ''));
 /** The first thing wrong with a configuration, in words for the person who wrote it, or null when the card accepts it. */
 export const configError = (config: FamilyHubConfig | null | undefined): string | null => {
   if (!config) return 'Family Hub: missing configuration';
-  for (const k of config.kids ?? []) if (!k.name) return 'Family Hub: every kid needs a name';
+  for (const k of config.kids ?? []) {
+    if (!k.name) return 'Family Hub: every kid needs a name';
+    if (k.ask !== undefined && !['pictures', 'full', 'off'].includes(String(k.ask))) return `Family Hub: ask for ${k.name} should be pictures, full or off`;
+    if (k.ask_minutes !== undefined && !(typeof k.ask_minutes === 'number' && Number.isFinite(k.ask_minutes) && k.ask_minutes >= 0)) return `Family Hub: ask_minutes for ${k.name} should be a number of minutes, 0 or more`;
+    for (const r of [...(k.rewards ?? []), ...(k.rewards_draft ?? [])]) if (r?.weekly !== undefined && !(typeof r.weekly === 'number' && Number.isFinite(r.weekly) && r.weekly >= 0)) return `Family Hub: weekly on “${r.name}” should be a number of times a week, 0 or more`;
+  }
   for (const m of config.meds ?? []) if (!m?.id || !TIME_RE.test(String(m.time ?? ''))) return 'Family Hub: every medicine in "meds" needs an id and a time like "06:30"';
   for (const t of [config.night?.start, config.night?.end]) if (t !== undefined && !TIME_RE.test(String(t))) return 'Family Hub: night start and end need times like "21:00"';
   for (const c of config.calendars ?? []) {

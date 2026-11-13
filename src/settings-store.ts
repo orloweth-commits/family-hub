@@ -145,6 +145,7 @@ export const draftErrors = (c: Cfg): { pane: string; msg: string }[] => {
     if (k.bedtime !== undefined && !isTime(k.bedtime)) add('children', `${n || 'A child'}’s bedtime is not a time. Use one like 19:30.`);
     if (k.leave_by !== undefined && !isTime(k.leave_by)) add('morning', `${n || 'A child'}’s leaving time is not a time. Use one like 07:50.`);
     (k.rewards ?? []).forEach((r) => { if (!(r.name ?? '').trim()) add('rewards', `One of ${n}’s rewards has no name.`); if (!Number.isFinite(r.cost) || r.cost < 0) add('rewards', `“${r.name}” needs a cost of 0 or more.`); });
+    (k.rewards_draft ?? []).forEach((r) => { if (!(r.name ?? '').trim()) add('rewards', `One of ${n}’s drafted rewards has no name.`); if (!Number.isFinite(r.cost) || r.cost < 0) add('rewards', `“${r.name}” needs a cost of 0 or more.`); });
   });
   const art = (c as { art?: import('./artlib').ArtConfig }).art;
   if (art?.presence === 'sensor' && !art.presence_entity) add('pictures', 'Choose the sensor that tells the panel someone is there, or go back to touch only.');
