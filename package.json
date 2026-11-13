@@ -20,7 +20,8 @@
     "test:phase2": "node scripts/tests/phase2.mjs",
     "test:phase3": "node scripts/tests/phase3.mjs",
     "test:buttons": "node scripts/tests/buttons.mjs",
-    "test:ask": "node scripts/tests/ask.mjs"
+    "test:ask": "node scripts/tests/ask.mjs",
+    "test:phase4": "node scripts/tests/phase4.mjs"
   },
   "dependencies": {
     "lit": "^3.2.0"
