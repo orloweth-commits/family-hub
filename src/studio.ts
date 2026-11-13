@@ -2,10 +2,31 @@ import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type Te
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
-import { avatarCss, applyItem, CATALOGUE, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
+import { avatarCss, applyItem, decodeLook, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
 import { FitController, linger, say, scrollCue, sfx } from './util';
 import { confetti, fxCss } from './fx';
 import { kidEntities, num, slotVar, type Hass, type KidConfig } from './types';
+import { catalogueOf, itemEmoji, lookFile, lookKey, lookPrompt, wardrobeLook } from './wardrobe';
+import { cropJpeg, keepMedia, localFiles, painter, paint } from './media';
+import { ART_DEFAULTS, loadArt, logArt, looksToday, monthSpend, type ArtConfig, type ArtItem } from './artlib';
+
+/** Looks being painted right now, by file: the painting carries on if the child leaves the studio, and a second tap never starts a second one. */
+const painting = new Map<string, { at: number; done: Promise<string> }>();
+const WAITS = ['Mixing the colours…', 'Sketching your face…', 'Finding the right hat…', 'Painting very carefully…', 'Adding the sparkle…', 'Nearly there…'];
+/** Have a look painted from the child's character sheet, keep the picture in Home Assistant's media and note it in the record. Gives the file's name. */
+const paintLook = (hass: Hass, kid: KidConfig, look: Look, art: ArtConfig): Promise<string> => {
+  const file = lookFile(kidEntities(kid).slug, look), going = painting.get(file);
+  if (going) return going.done;
+  const done = (async (): Promise<string> => {
+    const made = await paint(hass, painter(hass, art.painter), 'Family Hub look', lookPrompt(look, kid.about), [kid.sheet!]);
+    const jpg = await cropJpeg(await (await fetch(made.url)).blob(), 768, 1, 1 / 3);
+    if (!await keepMedia(hass, file, jpg)) throw new Error('The picture could not be kept');
+    await logArt(hass, art.list || 'todo.family_hub_art', file, { kind: 'look', who: [kid.name] });
+    return file;
+  })().finally(() => { painting.delete(file); });
+  painting.set(file, { at: Date.now(), done });
+  return done;
+};
 
 /** Avatar Studio: try on everything, locked items show what they need. */
 export class FhStudio extends LitElement {
@@ -72,11 +93,26 @@ export class FhStudio extends LitElement {
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
     .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
     .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); }
+    /* a painted character: his picture, and what he has chosen that is not painted yet */
+    .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: 50px; line-height: 1; }
+    .tile.locked .emo { filter: grayscale(1); opacity: .5; }
+    .easel { position: relative; z-index: 1; width: 300px; height: 300px; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
+    .easel fh-pic { width: 100%; height: 100%; }
+    .easel[data-old] fh-pic { filter: saturate(.55) brightness(.92); }
+    .easel .blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 96px; background: var(--chip); }
+    .parts { z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+    .parts span { width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; }
+    .pnote { z-index: 1; font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; min-height: 20px; }
+    .wet { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: color-mix(in srgb, var(--kid) 34%, rgba(20,20,26,.72)); color: #fff; text-align: center; padding: 18px; font-size: 18px; font-weight: var(--w-bold, 700); }
+    .wet .brush { font-size: 64px; animation: brush 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    @keyframes brush { from { transform: translate(calc(-26px * var(--m-d, 1)), 0) rotate(-14deg); } to { transform: translate(calc(26px * var(--m-d, 1)), calc(-8px * var(--m-d, 1))) rotate(12deg); } }
+    .wet .bar { width: 76%; height: 10px; border-radius: 999px; background: rgba(255,255,255,.28); overflow: hidden; } .wet .bar i { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width 1s linear; }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
 
-  static properties = { hass: { attribute: false }, kid: { attribute: false }, look: { attribute: false }, life: { type: Number }, grow: { type: Number },
+  static properties = { hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, look: { attribute: false }, life: { type: Number }, grow: { type: Number },
+    _files: { state: true }, _record: { state: true }, _wet: { state: true }, _tickN: { state: true },
     _draft: { state: true }, _tab: { state: true }, _shake: { state: true }, _msg: { state: true }, _jump: { state: true }, _confetti: { state: true } };
 
   hass?: Hass;
@@ -85,14 +121,60 @@ export class FhStudio extends LitElement {
   life = 0;
   grow = 0;
   private _draft?: Look;
-  private _tab = 'hair';
+  private _tab = '';
   private _shake = '';
   private _msg = '';
   private _jump = 0;
   private _confetti = 0;
   private _t?: number;
 
-  private get d(): Look { return this._draft ?? this.look; }
+  /** the card's `art` option */
+  art: ArtConfig = {};
+  private _files: Set<string> | null = null;
+  private _record: ArtItem[] | null | undefined;
+  /** the file being painted while he watches */
+  private _wet = '';
+  private _tickN = 0; private _wetT?: number;
+  /** his character is a painted picture: his looks are painted from his character sheet */
+  private get _painted(): boolean { return !!this.kid?.sheet; }
+  private get _cats(): Category[] { return catalogueOf(this._painted); }
+  private get d(): Look { const l = this._draft ?? this.look; return this._painted ? wardrobeLook(l) : l; }
+  /** the picture he starts with (the card's `look` for him): it is his plain look, whatever its file is called */
+  private get _base(): Look { return decodeLook('', this.kid.look ? decodeLook(this.kid.look) : {}); }
+  private get _file(): string { const b = this._base; return b.img && lookKey(this.d) === lookKey(wardrobeLook(b)) ? b.img : lookFile(kidEntities(this.kid).slug, this.d); }
+  private get _list(): string { return this.art.list || 'todo.family_hub_art'; }
+  private async _loadPainted(fresh = false): Promise<void> {
+    if (!this._painted || !this.hass) return;
+    const [files, record] = await Promise.all([localFiles(this.hass, fresh), loadArt(this.hass, this._list)]);
+    this._files = new Set(files); this._record = record;
+  }
+  /** Why a new look cannot be painted just now, in words for the child; empty when it can. */
+  private get _cannot(): string {
+    if (!this.hass || !painter(this.hass, this.art.painter) || !this.hass.states[this._list] || this._record === null) return 'The painter isn’t set up yet. Ask a grown-up.';
+    if (this._record === undefined) return ' ';
+    if (monthSpend(this._record, this.art.cost ?? ART_DEFAULTS.cost).usd >= (this.art.cap ?? ART_DEFAULTS.cap)) return 'The painter is having a rest until next month.';
+    if (this._left <= 0) return 'That’s all the new looks for today. Come back tomorrow!';
+    return '';
+  }
+  private get _left(): number { return Math.max(0, (this.art.looks_per_day ?? ART_DEFAULTS.looks) - looksToday(this._record ?? [], this.kid.name)); }
+  /** Wear the look he has put together: at once when it has been painted before, else have it painted (half a minute or so). */
+  private async _wear(): Promise<void> {
+    const look = this.d, file = this._file, hass = this.hass, id = kidEntities(this.kid).avatar;
+    if (!hass || this._wet) return;
+    if (!hass.states[id]) { this._say(`Create ${id} in Home Assistant to save looks`); return; }
+    const put = async (): Promise<boolean> => { try { await hass.callService('input_text', 'set_value', { entity_id: id, value: encodeLook({ ...look, img: file }) }); return true; } catch { this._say('Couldn’t save – try again'); return false; } };
+    if (!this._files?.has(file) && file !== this._base.img) {
+      if (this._cannot) { sfx('locked'); this._say(this._cannot); return; }
+      this._wet = file; this._tickN = 0; sfx('tap');
+      if (this._picMode) say('Painting your new look. It takes a little while.');
+      this._wetT = window.setInterval(() => { this._tickN++; }, 1000);
+      try { await paintLook(hass, this.kid, look, this.art); }
+      catch (e) { console.warn('Family Hub: the look could not be painted', e); this._say('The painter couldn’t finish that one. Try again in a minute.'); return; }
+      finally { clearInterval(this._wetT); this._wet = ''; void this._loadPainted(true); }
+      this._files = new Set([...(this._files ?? []), file]);
+    }
+    if (await put()) { this._draft = undefined; this._confetti++; this._jump++; sfx('coin'); }
+  }
   private _say(m: string): void { this._msg = m; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; }, 2200); }
 
   private get _picMode(): boolean { return this.kid.mode === 'picture'; }
@@ -107,8 +189,8 @@ export class FhStudio extends LitElement {
     g.scrollBy({ left: dir * Math.max(176, g.clientWidth - 2 * 176), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
   private _ro?: ResizeObserver;
-  connectedCallback(): void { super.connectedCallback(); this._ro = new ResizeObserver(() => { const g = this.renderRoot.querySelector('.grid'); if (g) this._cue(g); }); this._ro.observe(this); }
-  disconnectedCallback(): void { super.disconnectedCallback(); this._ro?.disconnect(); }
+  connectedCallback(): void { super.connectedCallback(); void this._loadPainted(); this._ro = new ResizeObserver(() => { const g = this.renderRoot.querySelector('.grid'); if (g) this._cue(g); }); this._ro.observe(this); }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._ro?.disconnect(); clearInterval(this._wetT); }
   protected updated(c: PropertyValues): void {
     const g = this.renderRoot.querySelector('.grid') as HTMLElement | null; if (!g) return;
     // a new row starts with what he is wearing in view (the row's own start when that is near it)
@@ -118,6 +200,7 @@ export class FhStudio extends LitElement {
   }
   private get _goal(): string { return this.hass?.states[kidEntities(this.kid).goal]?.state ?? ''; }
   private _pick(cat: Category, it: Item, swatch = false): void {
+    if (this._wet) return;
     if (!isUnlocked(it, this.life, this.grow)) {
       this._shake = `${cat.id}:${it[0]}`; setTimeout(() => { this._shake = ''; }, 460);
       sfx('locked');
@@ -142,8 +225,8 @@ export class FhStudio extends LitElement {
 
   private _random(): void {
     let l = { ...this.d };
-    for (const c of CATALOGUE) {
-      if (c.id === 'face') continue;
+    for (const c of this._cats) {
+      if (c.id === 'face' && !this._painted) continue;
       const ok = c.items.filter((i) => isUnlocked(i, this.life, this.grow));
       const it = ok[Math.floor(Math.random() * ok.length)];
       if (it) l = applyItem(l, c, it[0]);
@@ -164,28 +247,39 @@ export class FhStudio extends LitElement {
 
   render(): TemplateResult {
     const [msg, msgOut] = linger(this, 'msg', this._msg);
-    const cat = CATALOGUE.find((c) => c.id === this._tab) ?? CATALOGUE[0];
-    const nx = nextUnlock(this.life, this.kid.favourites, this._goal || undefined), from = prevThreshold(this.life);
-    const dirty = !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
+    const cats = this._cats, cat = cats.find((c) => c.id === this._tab) ?? cats[0], painted = this._painted;
+    const nx = nextUnlock(this.life, this.kid.favourites, this._goal || undefined, cats), from = prevThreshold(this.life, cats);
+    // a painted look is "new" when its picture is not the one he is wearing
+    const dirty = painted ? lookKey(this.d) !== lookKey(wardrobeLook(this.look)) : !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
+    const have = painted && (!!this._files?.has(this._file) || this._file === this._base.img), wet = !!this._wet, cannot = painted && dirty && !have ? this._cannot.trim() : '';
+    const leave = (): void => { if (painted || !dirty) this.dispatchEvent(new CustomEvent('close')); else void this._save(); };
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
       <section class="glass mirror ${this._picMode ? 'low' : ''}">
         <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
-          <button class="round tap" aria-label=${dirty ? 'Back, and keep this look' : 'Back'} @click=${() => { if (dirty) void this._save(); else this.dispatchEvent(new CustomEvent('close')); }}>${icon('left', 18)}</button>
+          <button class="round tap" aria-label=${dirty && !painted ? 'Back, and keep this look' : 'Back'} @click=${leave}>${icon('left', 18)}</button>
           <h1 class="t-title" style="flex:1">${this.kid.name}’s studio</h1>
-          <button class="round tap" aria-label="Surprise look" @click=${() => this._random()}>${icon('shuffle', 18)}</button>
+          <button class="round tap" aria-label="Surprise look" ?disabled=${wet} @click=${() => this._random()}>${icon('shuffle', 18)}</button>
         </div>
-        <button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>
+        ${painted ? html`
+          <div class="easel" ?data-old=${dirty && !have && !wet} role="img" aria-label=${wet ? 'Your new look is being painted' : dirty && !have ? 'The look you are wearing now. Your new one has not been painted yet' : `${this.kid.name}’s look`}>
+            ${have || this.look.img ? html`<fh-pic .media=${have ? this._file : this.look.img}></fh-pic>` : html`<span class="blank" aria-hidden="true">🎨</span>`}
+            ${wet ? html`<div class="wet"><span class="brush" aria-hidden="true">🖌️</span><span aria-live="polite">${WAITS[Math.min(WAITS.length - 1, Math.floor(this._tickN / 8))]}</span><span class="bar" aria-hidden="true"><i style="width:${Math.min(96, Math.round((this._tickN / 45) * 100))}%"></i></span></div>` : nothing}
+          </div>
+          ${dirty && !have ? html`<div class="parts" aria-label="What you have picked">${cats.filter((c) => !['none', 'own', 'plain', 'smile'].includes(String(this.d[c.key])) || c.id === 'tops').map((c) => html`<span title=${c.label}>${itemEmoji(c, String(this.d[c.key]))}</span>`)}</div>` : nothing}
+          <span class="pnote" role="status">${wet ? 'You can keep watching, or go back: it will be ready soon.' : cannot ? cannot : dirty && !have ? `Tap Paint it to see your new look. ${this._left} new look${this._left === 1 ? '' : 's'} left today.` : dirty ? 'You’ve had this look before.' : ''}</span>`
+        : html`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
         <div class="sfoot">
-          <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
-          <button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>
+          <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty || wet} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
+          ${painted ? html`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:16px" ?disabled=${wet || (dirty && !have && !!cannot)} aria-busy=${wet ? 'true' : nothing} @click=${() => { if (dirty) void this._wear(); else leave(); }}>${wet ? 'Painting…' : !dirty ? 'Done' : have ? 'Wear this look' : html`🖌️ Paint it!`}</button>`
+          : html`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>`}
         </div>
       </section>
       <section class="glass shelf ${this._picMode ? 'low' : ''}">
-        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${CATALOGUE.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
+        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`${c.emoji} ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${cat.swatch.label}</span>
           ${cat.swatch.items.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
@@ -194,7 +288,7 @@ export class FhStudio extends LitElement {
           ${cat.items.map((it) => {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<div class="cell"><button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
-              <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
+              <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${painted ? 76 : cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : painted ? html`<span class="emo" aria-hidden="true">${itemEmoji(cat, it[0])}</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
               ${locked ? html`<span class="lock">${surprise ? '🌱' : html`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? html`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
             </button>
               ${locked && !surprise && !this._picMode ? html`<button class="heart tap" aria-pressed=${String(this._goal === it[0])} aria-label=${this._goal === it[0] ? `${it[1]} is my goal` : `Make ${it[1]} my goal`} @click=${() => this._setGoal(it)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === it[0] ? '#e11d48' : 'none'} stroke=${this._goal === it[0] ? '#9f1239' : 'currentColor'} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : nothing}</div>`;

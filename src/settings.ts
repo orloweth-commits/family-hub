@@ -7,6 +7,11 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
+import { ART_DEFAULTS, artListOf, deleteArt, loadArt, markArt, monthSpend, type ArtConfig, type ArtItem } from './artlib';
+import { mediaHass, painter } from './media';
+import { nightlyAutomation, nightlyMissing, NIGHTLY_ID, syncNightly, type NightStatus } from './nightly';
+import { CameraWatch, cameraFault, threshold, type CamFault } from './presence';
+import { decodeLook } from './avatar';
 import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNote, history, medId, noPin, onePic, paneWanted, pinMark, resumeSoon, same, saveCard, setNote, StaleError, wantPane,
   type Access, type Blocked, type Cfg, type ChoreForm, type Version } from './settings-store';
 
@@ -19,7 +24,7 @@ import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNot
  * Children are edited one at a time and never shown side by side.
  * ------------------------------------------------------------------ */
 
-type PaneId = 'children' | 'rewards' | 'morning' | 'medicines' | 'pin' | 'house' | 'music' | 'people' | 'advanced';
+type PaneId = 'children' | 'rewards' | 'morning' | 'medicines' | 'pin' | 'house' | 'pictures' | 'music' | 'people' | 'advanced';
 const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'children', name: 'Children', sub: 'Bedtimes, jobs and how each page looks', ic: 'kid' },
   { id: 'rewards', name: 'Rewards', sub: 'What points can be spent on', ic: 'star' },
@@ -27,6 +32,7 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'medicines', name: 'Medicines', sub: 'Names and times on the medication sheet', ic: 'pill' },
   { id: 'pin', name: 'PIN', sub: 'The parent PIN and what it guards', ic: 'lock' },
   { id: 'house', name: 'House', sub: 'Night screen, bins, lights, look and sounds', ic: 'home' },
+  { id: 'pictures', name: 'Pictures', sub: 'The screensaver, the artwork and the children’s characters', ic: 'palette' },
   { id: 'music', name: 'Music', sub: 'Moments, the sleep timer and calls', ic: 'music' },
   { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page and alerts', ic: 'info' },
   { id: 'advanced', name: 'Advanced', sub: 'What is wired up, and earlier versions', ic: 'cog' }
@@ -139,6 +145,22 @@ export class FhSettings extends LitElement {
     .pill.danger { color: var(--danger, #c62828); }
     .snote { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 16%, var(--chip-strong)); color: var(--ink); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.4; display: flex; flex-direction: column; gap: 8px; }
     .snote b { font-weight: var(--w-heavy, 800); }
+    /* Pictures: a child's character, the camera's test picture, and the grid of every picture */
+    .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 26px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .spic fh-pic { width: 100%; height: 100%; }
+    .sitem .sin.sgrow { width: 100%; box-sizing: border-box; }
+    .scam { position: relative; width: min(100%, 320px); aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: #111; }
+    .scam video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
+    .scam .sarea { position: absolute; inset: var(--m, 10%); border: 2px dashed #fff; border-radius: 6px; box-shadow: 0 0 0 999px rgba(0,0,0,.45); pointer-events: none; }
+    .scam .smeter { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,.7); color: #fff; font-size: 14px; font-weight: var(--w-bold, 700); }
+    .scam .smeter[data-on='true'] { background: #15803d; }
+    .slib { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+    .sart { display: flex; flex-direction: column; gap: 6px; border-radius: 16px; background: var(--chip); padding: 8px; min-width: 0; }
+    .sart fh-pic { width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; }
+    .sart[data-hidden] fh-pic { opacity: .35; filter: grayscale(1); }
+    .scap { display: flex; flex-direction: column; font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; overflow-wrap: anywhere; } .scap small { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .sacts { display: flex; gap: 6px; justify-content: flex-end; } .sacts .sico[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); }
+    .sacts .sico[data-sure='true'] { width: auto; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: var(--w-heavy, 800); }
     .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
@@ -212,7 +234,7 @@ export class FhSettings extends LitElement {
     :host([data-n2]) .sitem > .sin.sfull2, :host([data-shape='tall']) .sitem > .sin.sfull2, :host([data-phone]) .sitem > .sin.sfull2 { flex-basis: calc(100% - 68px); }
   `];
   static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
-    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true } };
+    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true }, _night: { state: true } };
   hass?: Hass;
   config!: Cfg;
   /** show the on-screen keyboard whatever the pointer is (the preview and the tests) */
@@ -257,7 +279,7 @@ export class FhSettings extends LitElement {
   }
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    window.removeEventListener('keydown', this._keys, true); clearInterval(this._noteT);
+    window.removeEventListener('keydown', this._keys, true); clearInterval(this._noteT); this._camStop();
     // closed by a grown-up: the PIN window starts now. Taken away by the dashboard drawing itself again: Settings comes back on the same pane.
     pinMark(); wantPane(this._closed ? '' : this._pane); if (!this._closed) resumeSoon();
   }
@@ -749,6 +771,126 @@ export class FhSettings extends LitElement {
       </div>`;
   }
 
+  /* ---------------- Pictures: the screensaver, who is there, the painted characters, the record ---------------- */
+  private _lib: ArtItem[] | null | undefined;
+  private _libBusy = ''; private _zap = ''; private _libShow: 'art' | 'look' = 'art';
+  private _cam: CameraWatch | null = null; private _camTick = 0; private _camT?: number; private _camSeen = 0;
+  private _night: NightStatus | null = null;
+  private async _loadLib(): Promise<void> { this._lib = await loadArt(this.hass, artListOf(this._draft)); this._night = await syncNightly(this.hass, this.config, this._draft.look ?? 'glass'); }
+  /** Write (or rewrite) the nightly automation in Home Assistant from the saved configuration. A new one is left switched off. */
+  private async _setUpNightly(existing?: string): Promise<void> {
+    if (!this.hass || this._libBusy) return; this._libBusy = 'night';
+    try {
+      await this.hass.callApi('POST', `config/automation/config/${NIGHTLY_ID}`, nightlyAutomation(this.hass, this.config));
+      if (!existing) { await new Promise((r) => window.setTimeout(r, 1500)); const now = mediaHass() ?? this.hass, id = Object.keys(now.states).find((e) => e.startsWith('automation.') && /family hub.*art/i.test(String(now.states[e].attributes.friendly_name ?? ''))); if (id) await this.hass.callService('automation', 'turn_off', { stop_actions: false }, { entity_id: id }); }
+      this._say(existing ? 'The nightly artwork has been updated.' : 'Set up. Switch it on when you are ready.');
+    } catch { this._say('Home Assistant would not save the automation. Try again.'); }
+    finally { this._libBusy = ''; }
+  }
+  private _camStop(): void { clearInterval(this._camT); this._cam?.stop(); this._cam = null; }
+  private async _camTest(): Promise<void> {
+    if (this._cam) { this._camStop(); return; }
+    const cam = this._cam = new CameraWatch(() => ({ sensitivity: this._draft.art?.camera_sensitivity, margin: this._draft.art?.camera_margin }), () => { this._camSeen = Date.now(); }, () => { this._camTick++; });
+    await cam.start();
+    if (cam.fault) { this._cam = null; this._camFault = cam.fault; return; }
+    this._camFault = '';
+    this._camT = window.setInterval(() => { this._camTick++; }, 250);
+    void this.updateComplete.then(() => { const box = this.renderRoot.querySelector('.scam'); if (box && cam.video) { cam.video.setAttribute('aria-hidden', 'true'); box.prepend(cam.video); } });
+  }
+  private _camFault: CamFault = '';
+  /** Make the to-do list that records the pictures (Home Assistant's own "Local to-do" list). */
+  private async _makeList(): Promise<void> {
+    if (!this.hass || this._libBusy) return; this._libBusy = 'list';
+    try {
+      const f = await this.hass.callApi<{ flow_id: string }>('POST', 'config/config_entries/flow', { handler: 'local_todo', show_advanced_options: false });
+      await this.hass.callApi('POST', `config/config_entries/flow/${f.flow_id}`, { todo_list_name: 'Family Hub art' });
+      this._say('The picture list is made.'); window.setTimeout(() => void this._loadLib(), 1500);
+    } catch { this._say('Home Assistant would not make the list. Add a “Local to-do” list called “Family Hub art” under Settings, Devices & services.'); }
+    finally { this._libBusy = ''; }
+  }
+  private _pictures(): TemplateResult {
+    // the newest states (this pane shows a sensor and an automation as they are now)
+    const d = this._draft, a: ArtConfig = d.art ?? {}, S = (mediaHass() ?? this.hass)?.states ?? {};
+    const set = (fn: (x: ArtConfig) => void): void => this._edit((c) => { const n = { ...(c.art ?? {}) }; fn(n); if (Object.keys(n).length) c.art = n; else delete c.art; });
+    const idle = a.idle_minutes ?? ART_DEFAULTS.idle, every = a.interval_minutes ?? ART_DEFAULTS.interval, src = a.presence ?? 'none';
+    const list = artListOf(d), hasList = !!S[list], paint = painter(this.hass, a.painter);
+    if (this._lib === undefined && hasList) { this._lib = null; void this._loadLib(); }
+    const lib = this._lib ?? [], spend = monthSpend(lib, a.cost ?? ART_DEFAULTS.cost), cap = a.cap ?? ART_DEFAULTS.cap;
+    const nightly = Object.keys(S).find((e) => e.startsWith('automation.') && /family hub.*art/i.test(String(S[e].attributes.friendly_name ?? '')));
+    const youngest = (d.kids ?? []).map((k) => k.bedtime ?? '20:00').sort()[0];
+    const fault: Record<string, TemplateResult> = {
+      insecure: html`<b>This screen cannot use its camera yet,</b> because the page is not a secure one (its address starts with http). Either open Home Assistant over https, or, on the kiosk PC, set the Edge policies <i>OverrideSecurityRestrictionsOnInsecureOrigin</i> and <i>VideoCaptureAllowedUrls</i> to this address. Until then the panel wakes by touch.`,
+      nocamera: html`<b>No camera was found on this screen.</b> The panel wakes by touch.`,
+      denied: html`<b>The browser has not allowed the camera.</b> Allow it for this address in the browser’s site settings, then test again.`,
+      busy: html`<b>The camera could not be opened.</b> Something else may be using it.`
+    };
+    const camFault = this._camFault || (src === 'camera' ? cameraFault() : '');
+    const shown = lib.filter((i) => i.kind === this._libShow).sort((x, y) => (x.d < y.d ? 1 : x.d > y.d ? -1 : 0));
+    const act = async (it: ArtItem, what: 'fav' | 'hide' | 'del'): Promise<void> => {
+      if (!this.hass || this._libBusy) return;
+      if (what === 'del' && this._zap !== it.uid) { this._zap = it.uid; return; }
+      this._libBusy = it.uid; this._zap = '';
+      const ok = what === 'del' ? await deleteArt(this.hass, list, it) : await markArt(this.hass, list, it, what === 'fav' ? { fav: !it.fav } : { hidden: !it.hidden });
+      this._libBusy = ''; if (!ok) this._say('Home Assistant did not answer. Try again.'); await this._loadLib();
+    };
+    return html`
+      <div class="scard"><h3>${icon('moon', 20)}Screensaver</h3>
+        <p class="sintro">After a while with nobody using it, the panel fades into the artwork with a clock. A touch brings it straight back, and that touch presses nothing else.</p>
+        ${this._row('Show the artwork after', 'With no touch, and nobody near.', this._seg('Show the artwork after', idle, [[0, 'Never'], [1, '1 min'], [3, '3 min'], [5, '5 min'], [10, '10 min'], [15, '15 min']], (v) => set((x) => { x.idle_minutes = v; })))}
+        ${idle ? this._row('Each picture stays', '', this._seg('Each picture stays', every, [[1, '1 min'], [3, '3 min'], [5, '5 min'], [10, '10 min'], [30, '30 min']], (v) => set((x) => { x.interval_minutes = v; }))) : nothing}
+        <span class="shint">${youngest ? `From ${t12(youngest)} (the earliest bedtime) until morning, a dim clock shows instead of the artwork.` : ''} It never comes up over a timer, an alarm, a call, an open sheet or the keyboard.</span>
+      </div>
+      <div class="scard"><h3>${icon('home', 20)}Wake when someone walks up</h3>
+        ${this._row('The panel knows someone is there from', '', this._seg('Presence source', src, [['none', 'Touch only'], ['sensor', 'A sensor'], ['camera', 'This screen’s camera']], (v) => { this._camStop(); set((x) => { if (v === 'none') { delete x.presence; } else x.presence = v; }); }))}
+        ${src === 'sensor' ? html`<span class="shint">Any occupancy, motion or presence sensor that Home Assistant has. Pair it in Home Assistant, then choose it here.</span>
+          ${this._picker('presence', 'sensors', a.presence_entity ? [a.presence_entity] : [], ['binary_sensor'], (l) => set((x) => { const pick = l.filter((e) => e !== a.presence_entity).pop() ?? (l.includes(a.presence_entity ?? '') ? a.presence_entity : undefined); if (pick) x.presence_entity = pick; else delete x.presence_entity; }))}
+          ${a.presence_entity && S[a.presence_entity] ? html`<span class="stag" role="status">Right now: ${S[a.presence_entity].state === 'on' ? 'someone is there' : 'nobody there'}</span>` : nothing}` : nothing}
+        ${src === 'camera' ? html`
+          <span class="shint">The picture is looked at in this browser only, twice a second, for movement. Nothing is recorded or sent anywhere. The camera’s light will stay on.</span>
+          ${camFault ? html`<div class="snote" role="note"><span>${fault[camFault]}</span></div>` : nothing}
+          ${this._row('How little movement counts', 'Higher notices smaller movements.', this._step('Camera sensitivity', a.camera_sensitivity ?? ART_DEFAULTS.sensitivity, (v) => set((x) => { x.camera_sensitivity = v; }), { min: 1, max: 10 }))}
+          ${this._row('Ignore the edges', 'So a doorway or a window at the side does not wake it.', this._step('Ignore the edges', a.camera_margin ?? ART_DEFAULTS.margin, (v) => set((x) => { x.camera_margin = v; }), { min: 0, max: 40, step: 5, unit: '%' }))}
+          ${this._row('Try it', 'Shows what the camera sees, on this screen only.', html`<button class="pill tap" data-act="cam-test" @click=${() => void this._camTest()}>${this._cam ? 'Stop' : 'Test the camera'}</button>`)}
+          ${this._cam ? html`<div class="scam" style="--m:${a.camera_margin ?? ART_DEFAULTS.margin}%"><i class="sarea" aria-hidden="true"></i><span class="smeter" role="status" data-on=${String(Date.now() - this._camSeen < 1500)}>${Date.now() - this._camSeen < 1500 ? 'Movement seen' : 'Still'} · ${(this._cam.level * 100).toFixed(1)}% (wakes at ${(threshold(a.camera_sensitivity) * 100).toFixed(1)}%)</span></div>` : nothing}` : nothing}
+      </div>
+      <div class="scard"><h3>${icon('bulb', 20)}Screen brightness <span class="muted">optional</span></h3>
+        <span class="shint">A light or number in Home Assistant that sets this screen’s backlight. Leave it empty until there is one: nothing happens without it. The screen is never switched off.</span>
+        ${this._picker('backlight', 'lights and numbers', a.backlight ? [a.backlight] : [], ['light', 'number', 'input_number'], (l) => set((x) => { const pick = l.filter((e) => e !== a.backlight).pop(); if (pick) x.backlight = pick; else delete x.backlight; }))}
+        ${a.backlight ? html`${this._row('While the artwork shows', '', this._step('Brightness with the artwork', a.backlight_art ?? ART_DEFAULTS.dimArt, (v) => set((x) => { x.backlight_art = v; }), { min: 5, max: 100, step: 5, unit: '%' }))}
+          ${this._row('At night', '', this._step('Brightness at night', a.backlight_night ?? ART_DEFAULTS.dimNight, (v) => set((x) => { x.backlight_night = v; }), { min: 1, max: 100, step: 1, unit: '%' }))}` : nothing}
+      </div>
+      <div class="scard"><h3>${icon('palette', 20)}The painter</h3>
+        ${paint ? html`<span class="shint">Pictures are painted by <b>${this._name(paint)}</b>, in Home Assistant. The key stays there.</span>` : html`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
+        ${hasList ? nothing : html`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${list}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
+        ${this._row('Stop at', `This month: ${spend.n} picture${spend.n === 1 ? '' : 's'}, about US$${spend.usd.toFixed(2)}.`, this._step('Monthly limit', cap, (v) => set((x) => { x.cap = v; }), { min: 0, max: 200, step: 5, say: (v) => `US$${v} a month` }))}
+        ${this._row('A picture is reckoned at', 'An estimate: check it against your OpenAI bill.', this._step('Cost of one picture', Math.round((a.cost ?? ART_DEFAULTS.cost) * 100), (v) => set((x) => { x.cost = v / 100; }), { min: 1, max: 200, step: 1, say: (v) => `US$${(v / 100).toFixed(2)}` }))}
+        ${this._row('New looks a day, each child', 'In the style studio. Looks made before are free.', this._step('New looks a day', a.looks_per_day ?? ART_DEFAULTS.looks, (v) => set((x) => { x.looks_per_day = v; }), { min: 0, max: 10 }))}
+        ${nightly ? html`${this._row('Three new artworks every night', `At 2 am, about US$${(3 * (a.cost ?? ART_DEFAULTS.cost)).toFixed(2)} a night. ${S[nightly].attributes.last_triggered ? `Last ran ${new Date(String(S[nightly].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Has not run yet.'}${this._night?.d ? ` ${this._night.made ?? 0} painted on ${this._night.d}. ${this._night.note ?? ''}` : ''}`, this._sw('Nightly artwork', S[nightly].state === 'on', () => { void Promise.resolve(this.hass?.callService('automation', S[nightly].state === 'on' ? 'turn_off' : 'turn_on', {}, { entity_id: nightly })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }))}
+          ${this._row('After changing the children, their sheets or their calendars', 'Save first, then rewrite the nightly automation from what is saved.', html`<button class="pill tap" data-act="night-update" ?disabled=${!!this._libBusy || !!nightlyMissing(this.hass, this.config)} @click=${() => void this._setUpNightly(nightly)}>Update it</button>`)}`
+          : this._row('Three new artworks every night', nightlyMissing(this.hass, this.config) || `Painted in Home Assistant at 2 am from the saved character sheets, about US$${(3 * (a.cost ?? ART_DEFAULTS.cost)).toFixed(2)} a night. It is set up switched off.`, html`<button class="pill tap" data-act="night-setup" ?disabled=${!!this._libBusy || !!nightlyMissing(this.hass, this.config)} @click=${() => void this._setUpNightly()}>Set it up</button>`)}
+        ${nightly ? this._row('The artwork is painted', '', this._seg('Artwork style', a.style ?? 'look', [['look', 'In the panel’s look'], ['house', 'In the house style']], (v) => set((x) => { if (v === 'look') delete x.style; else x.style = v; }))) : nothing}
+      </div>
+      <div class="scard"><h3>${paneIcon('kid', 20)}The children’s characters</h3>
+        <span class="shint">A child with a character sheet has a painted character, and his studio paints his looks from it. The sheet and the words stay in Home Assistant.</span>
+        ${(d.kids ?? []).map((k, i) => html`<div class="sitem" style="align-items:flex-start;flex-wrap:wrap">
+          <span class="spic">${decodeLook(S[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {}).img ? html`<fh-pic .media=${decodeLook(S[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {}).img}></fh-pic>` : k.name[0]}</span>
+          <span style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px"><b>${k.name}</b>
+            ${this._txt(`sheet.${i}`, `${k.name}’s character sheet, a file in Home Assistant’s media`, k.sheet ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v.trim()) x.sheet = v.trim(); else delete x.sheet; }), { ph: 'Character sheet file, e.g. sheet.png', cls: 'sgrow', pic: true })}
+            ${this._txt(`about.${i}`, `A few words about ${k.name} for the painter`, k.about ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v) x.about = v; else delete x.about; }), { ph: 'A few words for the painter: age, hair, eyes, build', cls: 'sgrow', max: 400 })}
+            ${this._txt(`likes.${i}`, `What ${k.name} likes, for the nightly artwork`, k.likes ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v) x.likes = v; else delete x.likes; }), { ph: 'What he likes: swimming, dragons, trucks…', cls: 'sgrow', max: 200 })}</span></div>`)}
+      </div>
+      <div class="scard"><h3>Every picture <span class="muted">${lib.length}</span></h3>
+        ${this._seg('Which pictures', this._libShow, [['art', `Artwork (${lib.filter((i) => i.kind === 'art').length})`], ['look', `Looks (${lib.filter((i) => i.kind === 'look').length})`]], (v) => { this._libShow = v; this._zap = ''; })}
+        ${shown.length ? html`<div class="slib" role="list">${shown.slice(0, 60).map((it) => html`<div class="sart" role="listitem" ?data-hidden=${it.hidden}>
+          <fh-pic .media=${it.file} .label=${`${it.theme ?? (it.kind === 'look' ? 'A look' : 'Artwork')}, ${it.who.join(' and ')}`}></fh-pic>
+          <span class="scap">${it.theme ?? it.who.join(', ')}<small>${it.d}${it.who.length && it.theme ? ` · ${it.who.join(', ')}` : ''}</small></span>
+          <span class="sacts">${it.kind === 'art' ? html`<button class="sico tap" aria-pressed=${String(!!it.fav)} aria-label=${it.fav ? 'A favourite. Tap to undo' : 'Make it a favourite'} @click=${() => void act(it, 'fav')}>${icon('star', 20)}</button>
+            <button class="sico tap" aria-pressed=${String(it.hidden)} aria-label=${it.hidden ? 'Hidden. Tap to show it again' : 'Hide it from the screensaver'} @click=${() => void act(it, 'hide')}>${icon('moon', 20)}</button>` : nothing}
+            <button class="sico tap bad" data-sure=${String(this._zap === it.uid)} aria-label=${this._zap === it.uid ? 'Tap again to delete it for good' : 'Delete'} @click=${() => void act(it, 'del')}>${this._zap === it.uid ? 'Sure?' : icon('bin', 20)}</button></span></div>`)}</div>`
+          : html`<span class="shint">${hasList ? (this._libShow === 'art' ? 'No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some.' : 'No looks have been painted yet.') : ''}</span>`}
+      </div>`;
+  }
+
   private _speakers(): string[] {
     const d = this._draft, ids = new Set<string>(d.music_players ?? []);
     for (const f of d.music_map ?? []) for (const r of f.rooms ?? []) { if (r.player) ids.add(r.player); for (const z of r.zones ?? []) ids.add(z.player); }
@@ -892,7 +1034,7 @@ export class FhSettings extends LitElement {
     if (!this._draft) return nothing;
     this._fields.clear();
     const p = PANES.find((x) => x.id === this._pane)!, ro = this._ro, a = this._access, locked = !this.config.parent_pin && !ro;
-    const body = this._pane === 'children' ? this._children() : this._pane === 'rewards' ? this._rewards() : this._pane === 'morning' ? this._morning() : this._pane === 'medicines' ? this._medicines() : this._pane === 'pin' ? this._pinPane() : this._pane === 'house' ? this._house() : this._pane === 'music' ? this._music() : this._pane === 'people' ? this._people() : this._advanced();
+    const body = this._pane === 'children' ? this._children() : this._pane === 'rewards' ? this._rewards() : this._pane === 'morning' ? this._morning() : this._pane === 'medicines' ? this._medicines() : this._pane === 'pin' ? this._pinPane() : this._pane === 'house' ? this._house() : this._pane === 'pictures' ? this._pictures() : this._pane === 'music' ? this._music() : this._pane === 'people' ? this._people() : this._advanced();
     const note = getNote(); void this._tick;
     const dirty = this._dirty;
     return html`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(e: Event) => e.stopPropagation()}>

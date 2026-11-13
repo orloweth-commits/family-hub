@@ -48,8 +48,12 @@ export interface KidConfig {
   mode?: 'picture' | 'mixed' | 'text';
   rewards?: RewardConfig[];
   theme?: ThemeId;
-  /** starting look, e.g. "h=quiff;hc=e3b85c" */
+  /** starting look, e.g. "h=quiff;hc=e3b85c". For a painted character, "img=<file>" names his picture in Home Assistant's media. */
   look?: string;
+  /** a painted character: his character sheet (a file in Home Assistant's media) and a few words about him for the painter. With a sheet, his studio paints his looks instead of drawing them. Keep both out of any public repository. */
+  sheet?: string; about?: string;
+  /** what he likes, for the nightly artwork, e.g. "swimming, clarinet, painting miniatures" */
+  likes?: string;
   /** catalogue item ids this kid loves – shown first as the next unlock */
   favourites?: string[];
   /** school-night bedtime, e.g. "19:00" (later on Fri/Sat by `bedtime_weekend_extra`, 30 min unless set) */
@@ -170,6 +174,8 @@ export interface FamilyHubConfig {
   home_hide?: string[];
   /** Ask: a chat with an AI helper for the children (the speech-bubble button in the header). `agent` is a conversation entity; `pipeline` is the id of an Assist pipeline, for talking instead of typing; `name` is what the helper is called (default "Ask"). After any child's bedtime and in quiet hours it opens only with the parent PIN, unless `pin_after_bedtime` is false. What the helper may talk about is set in Home Assistant, on the agent itself. */
   chat?: { agent: string; pipeline?: string; name?: string; pin_after_bedtime?: boolean };
+  /** the screensaver, the nightly artwork and the painted characters (Settings, Pictures) */
+  art?: import('./artlib').ArtConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */

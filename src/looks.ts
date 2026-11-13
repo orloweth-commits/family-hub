@@ -65,6 +65,8 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // drawings a look adds through art
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
       // more of the base that Home Ground dresses
+      // the screensaver (artmode.ts)
+      'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
       'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
@@ -688,6 +690,10 @@ const FRIDGE = `
 
   /* night: the kitchen clock keeps watch */
   @F .night .big { font-weight: 400; }
+  /* the screensaver: the time is a note under a magnet, a little crooked */
+  @F .artm:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
+  @F .artm:not([data-night]) .aplate { background: #fffdf6; color: #23262b; border: 0; border-radius: 5px; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 12px 22px rgba(0,0,0,.34); rotate: -1.4deg; }
+  @F .artm .atime .big { font-weight: 600; }
   /* weather: today is a note under a magnet, the week is a strip torn off a calendar, the maps are a photo taped to the door */
   @F .wnow, @F .wweek, @F .whours, @F .wmaps { background: var(--note, var(--paper)); border-radius: 3px; box-shadow: 0 6px 8px rgba(0,0,0,.18); }
   @F .wnow { rotate: calc(var(--tilt, 1) * -.6deg); }
@@ -936,6 +942,9 @@ const ORBIT = `
 
   /* night: only the dial and the time */
   @O .night .big { font-weight: 300; }
+  /* the screensaver: an instrument panel, thin and exact */
+  @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
+  @O .artm .atime .big { font-weight: 300; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
   @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
   @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
@@ -1373,6 +1382,10 @@ const SPORTS = `
   /* night: the ground after dark. Near-black, the scoreboard dimmed to tan, one floodlight on low; nothing moves */
   @S .night { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); background: radial-gradient(520px 320px at 0 0, rgba(255,214,150,.05), transparent 70%), #020403; }
   @S .night .big { display: none; }
+  /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
+  @S .artm .atime { display: none; }
+  @S .artm .aplate { border-radius: 22px; }
+  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: 26px; }
   @S .night .nart { opacity: 1; }
   @S .night .dball { opacity: .4; }
   @S .night .breathe { animation: none; opacity: .7; }

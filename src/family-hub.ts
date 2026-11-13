@@ -17,6 +17,10 @@ import './pin';
 import './chat';
 import './settings';
 import { configError } from './validate';
+import { setMediaHass } from './media';
+import { ArtMode, artCss, artNight, artView } from './artmode';
+import { artListOf } from './artlib';
+import { syncNightly } from './nightly';
 import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
 import { loadFonts } from './fonts';
@@ -39,7 +43,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.27.0';
+const VERSION = '0.28.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -52,7 +56,7 @@ const CHILD_TAGS = 'fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh
 export class FamilyHubCard extends LitElement {
   readonly fitCtl = new FitController(this as never);
   readonly lookCtl = new LookController(this);
-  static styles = [styles, keysCss, css`${unsafeCSS(avatarCss)}`];
+  static styles = [styles, keysCss, css`${unsafeCSS(avatarCss)}`, css`${unsafeCSS(artCss)}`];
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
@@ -195,6 +199,7 @@ export class FamilyHubCard extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.addEventListener('click', this._swallow, true); window.addEventListener('pointerup', this._wakeUp, true); window.addEventListener('pointercancel', this._wakeUp, true);
     this.addEventListener('click', this._tapMark, true); this.addEventListener('click', this._tapSfx);
     loadFonts('Inter', 'Bricolage Grotesque');
     this._tick = window.setInterval(() => this._onTick(), 1000);
@@ -241,6 +246,7 @@ export class FamilyHubCard extends LitElement {
   private _ro?: ResizeObserver;
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.removeEventListener('click', this._swallow, true); window.removeEventListener('pointerup', this._wakeUp, true); window.removeEventListener('pointercancel', this._wakeUp, true); this._art.dispose();
     this.removeEventListener('click', this._tapMark, true); this.removeEventListener('click', this._tapSfx);
     window.removeEventListener('resize', this._onResize); this._ro?.disconnect(); window.removeEventListener('keydown', this._keys);
     clearInterval(this._tick); clearInterval(this._poll); clearInterval(this._photoTimer);
@@ -248,10 +254,51 @@ export class FamilyHubCard extends LitElement {
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
   }
-  private _touched = (): void => { this._lastTouch = Date.now(); if (this._idle) this._idle = false; };
+  private _touched = (): void => {
+    this._lastTouch = Date.now(); if (this._idle) this._idle = false;
+    if (this._page === 'music') this._musicAt = Date.now();
+    // the touch that wakes the panel from its artwork does only that: whatever lies under the finger is not pressed
+    if (this._art.on) { this._wakeDown = true; this._art.wake(); }
+  };
+  /** The screensaver (artmode.ts). Presence counts as a touch. */
+  private _art = new ArtMode(this, () => this._config, () => { this._lastTouch = Date.now(); if (this._idle) this._idle = false; });
+  private _nightKey = '';
+  private _musicAt = 0; private _wakeDown = false; private _swallowUntil = 0;
+  private _wakeUp = (): void => { if (this._wakeDown) { this._wakeDown = false; this._swallowUntil = Date.now() + 120; } };
+  private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
+  /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
+  private _artBlocked(): boolean {
+    if (this._timerLeft() !== null || this._dinner || this._alarm || this._sheet || this._pinAsk || this._isNight()) return true;
+    if (Date.now() - this._musicAt < Math.max(this._art.idleMs, 10 * 60_000) && this._page === 'music') return true;
+    const f = this._focused();
+    if (f && (f.matches('input, textarea, select') || f.isContentEditable)) return true;
+    const page = this.renderRoot.querySelector('fh-music, fh-kid, fh-doodle') as (HTMLElement & { _calling?: boolean; _practice?: unknown; _studio?: boolean }) | null;
+    return !!(page?._calling || page?._practice || page?.shadowRoot?.querySelector('fh-studio [aria-busy="true"], fh-pin'));
+  }
+  /** A line or two for the artwork's clock: when to leave, what is next, the bins, the weather. Never the whole planner. */
+  private _artLines(): string[] {
+    const c = this._config, now = this._now, t = now.getTime(), out: string[] = [];
+    if (this._morningWindow(now)) {
+      const mins = minsNow(now), leave = [...new Set((c.kids ?? []).map((k) => hm(k.leave_by ?? c.morning?.leave_by ?? '08:15')))].filter((m) => m > mins && m - mins <= 90).sort((a, b) => a - b)[0];
+      if (leave !== undefined) out.push(leave - mins === 1 ? 'Leave in 1 minute' : `Leave in ${leave - mins} minutes`);
+    }
+    const next = this._soon.find((e) => !e.allDay && e.start.getTime() > t && e.start.getTime() - t < 18 * 3_600_000 && !this._private(e.title));
+    if (next) { const mins = Math.round((next.start.getTime() - t) / 60000); out.push(mins <= 45 ? `${next.title} in ${mins} min` : `${sameDay(next.start, now) ? '' : 'Tomorrow: '}${next.title} at ${fmtTime(next.start)}`); }
+    const bn = this._bins(now);
+    if (bn && bn.bins.length && (sameDay(bn.night, now) || sameDay(bn.night, addDays(now, 1)))) out.push(`${sameDay(bn.night, now) ? 'Bins out tonight' : 'Bins out tomorrow'}: ${bn.bins.join(' and ')}`);
+    const w = this.hass?.states[c.weather ?? ''];
+    if (w) { const temp = Number(w.attributes.temperature), max = this._wx.max; out.push([COND[w.state] ?? '', Number.isFinite(temp) ? `${Math.round(temp)}°` : '', max !== undefined && now.getHours() < 15 ? `top of ${Math.round(max)}°` : ''].filter(Boolean).join(' · ')); }
+    return out.filter(Boolean).slice(0, 2);
+  }
 
   private _onTick(): void {
     const now = new Date(), timerOn = this._timerLeft() !== null;
+    if (this._config) {
+      const was = this._art.on;
+      this._art.tick(Date.now() - this._lastTouch, this._artBlocked(), this._eventsOn(now, this._soon).map((e) => e.title));
+      if (this._art.on !== was) this._now = now;
+      this._art.backlight(this._isNight() || (this._art.on && artNight(this._config.kids, this._config.quiet, now)) ? 'night' : this._art.on ? 'art' : 'hub');
+    }
     // second-by-second only while something is counting down; otherwise every 15 s
     if (timerOn || this._dinner || now.getSeconds() % 15 === 0) this._now = now;
     if (now.getSeconds() % 15) return;
@@ -267,6 +314,7 @@ export class FamilyHubCard extends LitElement {
 
   /** Pass fresh hass to the open page without re-rendering the whole card. */
   protected shouldUpdate(ch: PropertyValues): boolean {
+    if (ch.has('hass')) setMediaHass(this.hass);
     if (ch.size === 1 && ch.has('hass') && this._config) {
       const old = ch.get('hass') as Hass | undefined;
       this.renderRoot?.querySelectorAll(CHILD_TAGS).forEach((el) => { (el as any).hass = this.hass; });
@@ -283,6 +331,8 @@ export class FamilyHubCard extends LitElement {
 
   protected updated(ch: PropertyValues): void {
     if (ch.has('hass')) this._watchJar();
+    // the nightly artwork reads its limit and its style from the record: keep that line in step with this screen
+    if (this.hass && this._config) { const key = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[artListOf(this._config)]}`; if (key !== this._nightKey) { this._nightKey = key; void syncNightly(this.hass, this._config, this._lk); } }
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor') || this._span !== this._spanWas) { this._spanWas = this._span; this._refresh(); }
     if (ch.has('hass')) this._checkAlarm();
     const root = this.renderRoot.querySelector('.fh');
@@ -294,7 +344,7 @@ export class FamilyHubCard extends LitElement {
     // one entrance for a change of page or planner view (waking from the night screen is not a change of page)
     if (ch.has('_page') || ch.has('_kid') || ch.has('_view')) { const b = this.renderRoot.querySelector<HTMLElement>('.fh > .body'); if (b) { b.removeAttribute('data-in'); void b.offsetWidth; b.setAttribute('data-in', ''); } }
     // what lies behind an open sheet or the PIN pad is out of reach of the keyboard and of a screen reader
-    { const behind = !!this._sheet || !!this._pinAsk; this.renderRoot.querySelectorAll<HTMLElement>('.fh > header, .fh > .body, .fh > nav.dock').forEach((x) => { x.inert = behind; }); }
+    { const behind = !!this._sheet || !!this._pinAsk || this._art.on; this.renderRoot.querySelectorAll<HTMLElement>('.fh > header, .fh > .body, .fh > nav.dock').forEach((x) => { x.inert = behind; }); }
     // the PIN pad has gone and a sheet is open: focus goes into the sheet, not back to the header behind it
     if (ch.has('_pinAsk') && !this._pinAsk && this._sheet && !ch.has('_sheet') && this._sheet !== 'add') this._focusSheet();
     if (ch.has('_sheet')) {
@@ -943,7 +993,7 @@ export class FamilyHubCard extends LitElement {
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
     // things that fade out before they leave: the sheet, the toast, the PIN pad's question and the night screen
-    const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [, nightOut] = linger(this, 'night', night, 400);
+    const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [, nightOut] = linger(this, 'night', night, 400), [artUp, artOut] = linger(this, 'art', this._art.on, 250);
     if (night) return html`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${calm} style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
     return html`
       <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} data-dow=${this._now.getDay()} ?data-calm=${calm} ?data-compact=${this._compact} style=${`${skin}--tod:${tod};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
@@ -955,6 +1005,7 @@ export class FamilyHubCard extends LitElement {
         ${this._dinner ? this._dinnerView() : nothing}
         <div class="toasts" role="status" aria-live="polite">${toast ? html`<div class="toast" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.act ? html`<button class="tap" @click=${() => { const a = this._toastAct; this._toast = ''; this._toastAct = null; clearTimeout(this._toastTimer); sfx('undo'); a?.run(); }}>${toast.act.label}</button>` : nothing}</div>` : nothing}</div>
         ${nightOut ? this._night(true) : nothing}
+        ${artUp ? this._artView(artOut, calm, theme.id, todKey) : nothing}
         ${this._alarm ? this._alarmView() : nothing}
         ${this._pinAsk ? html`<fh-pin .pin=${String(this._config.parent_pin ?? '')} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
       </div>`;
@@ -970,7 +1021,7 @@ export class FamilyHubCard extends LitElement {
         const k = c.kids?.[this._kid];
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
-        return html`<fh-kid .hass=${this.hass} .kid=${k} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
@@ -986,6 +1037,12 @@ export class FamilyHubCard extends LitElement {
     return html`${this._planner()}${this._aside()}`;
   }
 
+  private _artView(closing: boolean, calm: boolean, theme: string, tod: string): TemplateResult {
+    const now = this._now, clk = fmtClock(now), night = artNight(this._config.kids, this._config.quiet, now);
+    const arcs = this._arcs(this._eventsOn(now, this._soon)).map((x) => (night ? { ...x, colour: 'rgba(255,178,107,.7)' } : x));
+    return artView(this._art, { now, hm: clk.hm, ampm: clk.ampm, date: fmtLongDate(now), art: lookArt(this._lk, 'night', { now, arcs, size: 190 }), lines: closing ? [] : this._artLines(), night, closing, calm, look: this._lk, theme, tod,
+      onWake: (e: Event) => { if (e.type === 'keydown') { e.preventDefault(); this._lastTouch = Date.now(); this._art.wake(); } } });
+  }
   private _isNight(): boolean {
     if (this._nightManual) return true;
     const n = this._config.night;

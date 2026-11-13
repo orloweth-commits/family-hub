@@ -12,6 +12,8 @@ import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig
 import { spark } from './sparks';
 import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
+import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
+import type { ArtConfig } from './artlib';
 import './pin';
 
 interface KEvent { title: string; start: Date; end?: Date; allDay: boolean; family: boolean }
@@ -271,7 +273,7 @@ export class FhKid extends LitElement {
 
   private _nowUid = '';
   static properties = {
-    hass: { attribute: false }, kid: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
+    hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
@@ -280,6 +282,8 @@ export class FhKid extends LitElement {
 
   hass?: Hass;
   kid!: KidConfig;
+  /** the card's `art` option: the studio of a painted character needs it */
+  art: ArtConfig = {};
   familyCalendars: string[] = [];
   pin = '';
   owed = 'todo.rewards_owed';
@@ -401,7 +405,7 @@ export class FhKid extends LitElement {
     const life = this._life, grow = this._grow, slug = this._e.slug;
     const seen = lsGet<number | null>(`family-hub-seen-${slug}`, null), seenG = lsGet<number | null>(`family-hub-seen-grow-${slug}`, null);
     if (seen === null || seenG === null) { lsSet(`family-hub-seen-${slug}`, Math.max(seen ?? 0, life)); lsSet(`family-hub-seen-grow-${slug}`, Math.max(seenG ?? 0, grow)); return; }
-    const fresh = [...unlocksBetween(seen, life), ...growBetween(seenG, grow)];
+    const cats = catalogueOf(!!this.kid.sheet), fresh = [...unlocksBetween(seen, life, cats), ...growBetween(seenG, grow, cats)];
     if (fresh.length) {
       const f = this.kid.favourites ?? [];
       this._celebrate = [...fresh].sort((a, b) => Number(f.includes(b.id)) - Number(f.includes(a.id)));
@@ -619,11 +623,17 @@ export class FhKid extends LitElement {
   private _msgTimer?: number;
   private _say(m: string): void { this._msg = m; clearTimeout(this._msgTimer); this._msgTimer = window.setTimeout(() => { this._msg = ''; }, 2800); }
 
+  /** The little picture of something to unlock: the drawn avatar wearing it, or (a painted character) the thing's own picture. */
+  private _itemPic(look: Look, u: Unlock, size: number, crop: 'head' | 'full'): TemplateResult {
+    if (this.kid.sheet) return html`<span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:${crop === 'head' ? '50%' : '22%'};background:${u.swatch ? u.id : 'var(--chip-strong)'};font-size:${Math.round(size * 0.56)}px;line-height:1">${u.swatch ? '' : itemEmoji(u.cat, u.id)}</span>`;
+    return renderAvatar(applyItem(look, u.cat, u.id, u.swatch), { size, crop, still: true, age: this.kid.age });
+  }
+
   /* ---------------- render ---------------- */
   render(): TemplateResult | typeof nothing {
     if (!this.kid || !this.hass) return nothing;
     const [msg, msgOut] = linger(this, 'msg', this._msg);
-    if (this._studio) return html`<fh-studio .hass=${this.hass} .kid=${this.kid} .look=${this._look} .life=${this._life} .grow=${this._grow} @close=${() => { this._studio = false; this._jump++; }}></fh-studio>`;
+    if (this._studio) return html`<fh-studio .hass=${this.hass} .kid=${this.kid} .art=${this.art} .look=${this._look} .life=${this._life} .grow=${this._grow} @close=${() => { this._studio = false; this._jump++; }}></fh-studio>`;
     const e = this._e, h = this.hass;
     const missing = !h.states[e.points] || !h.states[e.chores];
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">
@@ -645,7 +655,7 @@ export class FhKid extends LitElement {
   private _hero(): TemplateResult {
     const e = this._e, h = this.hass!, life = this._life, look = this._look, pts = num(h, e.points);
     const li = levelInfo(life), goal = h.states[e.goal]?.state;
-    const nx = nextUnlock(life, this.kid.favourites, goal && goal !== 'unknown' ? goal : undefined), from = prevThreshold(life);
+    const cats = catalogueOf(!!this.kid.sheet), nx = nextUnlock(life, this.kid.favourites, goal && goal !== 'unknown' ? goal : undefined, cats), from = prevThreshold(life, cats);
     const pct = nx ? Math.max(4, Math.round(((life - from) / Math.max(1, nx.req - from)) * 100)) : 100;
     const w = (h.states[e.week]?.state ?? '-------').padEnd(7, '-').slice(0, 7);
     const todayIdx = (this._now.getDay() + 6) % 7;
@@ -670,7 +680,7 @@ export class FhKid extends LitElement {
         </div>`}
       ${this._wind ? html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>`
         : nx ? html`<div class="nextup">
-        <span class="shimmer" style="border-radius:50%;line-height:0;width:46px;height:46px;flex-shrink:0">${this._drawn ? renderAvatar(applyItem(look, nx.cat, nx.id, nx.swatch), { size: 46, crop: 'head', still: true, age: this.kid.age }) : nothing}</span>
+        <span class="shimmer" style="border-radius:50%;line-height:0;width:46px;height:46px;flex-shrink:0">${this._drawn ? this._itemPic(look, nx, 46, 'head') : nothing}</span>
         <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${goal === nx.id ? '♥ Saving for' : 'Next'}: ${nx.label}</span>
           <div class="xp meter" style="height:7px"><div style="width:${pct}%"></div></div>
           ${this._picMode ? nothing : html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${nx.req - life} to go</span>`}</span>
@@ -885,13 +895,13 @@ export class FhKid extends LitElement {
         <span class="rank" style="font-size:14px">${items.some((u) => GROW_IDS.has(u.id)) ? 'SURPRISE!' : `NEW UNLOCK${items.length > 1 ? 'S' : ''}`}</span>
         <h1 class="t-hero" style="text-align:center">${this.kid.name}, you unlocked ${items.length > 1 ? `${items.length} things` : items[0].label}!</h1>
         <div class="unl">${items.slice(0, 8).map((u, i) => html`<div style="animation-delay:${0.15 + i * 0.12}s">
-          ${renderAvatar(applyItem(look, u.cat, u.id, u.swatch), { size: 96, crop: u.cat.crop, still: true, age: this.kid.age })}${u.label}</div>`)}</div>
+          ${this._itemPic(look, u, 96, u.cat.crop)}${u.label}</div>`)}</div>
         <div style="display:flex;gap:12px"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => this._closeCelebrate(false)}>Later</button>
           ${this._wind ? nothing : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => this._closeCelebrate(true)}>${icon('star', 18)}Try it on</button>`}</div>
       </div>
     </div>`;
   }
 }
-import { GROW_UNLOCKS } from './avatar';
-const GROW_IDS = new Set(GROW_UNLOCKS.map((u) => u.id));
+import { GROW_UNLOCKS, growUnlocks } from './avatar';
+const GROW_IDS = new Set([...GROW_UNLOCKS, ...growUnlocks(WARDROBE)].map((u) => u.id));
 if (!customElements.get('fh-kid')) customElements.define('fh-kid', FhKid);
