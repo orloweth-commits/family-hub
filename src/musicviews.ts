@@ -455,7 +455,7 @@ export const viewsCss = css`
   .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: translateY(calc(-3px * var(--m-d, 1))); } .vcard[aria-pressed='true'] span { color: inherit; }
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* ---- one family of volume controls: 44 px to touch, a fill up to the value (--v), a 32 px thumb, the number, quieter and louder at the ends ---- */
-  .vs { display: flex; align-items: center; gap: 2px; min-width: 0; --rail-w: 8px; --vc: var(--c, var(--stream, var(--primary))); }
+  .vs { display: flex; align-items: center; gap: 2px; min-width: 0; --rail-w: 8px; --vc: var(--c, var(--stream, var(--mark, var(--primary)))); }
   .vstep { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); touch-action: manipulation; }
   .vstep[disabled] { opacity: .38; }
   .vstep:focus-visible, .vrail:focus-visible, .cknob:focus-visible, .agrab:focus-visible, .grab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
@@ -537,7 +537,7 @@ export const viewsCss = css`
   .dripple { fill: none; stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: dripple 2.8s ease-out infinite; animation-iteration-count: var(--loops, infinite); }
   .dripple.late { animation-delay: -1.4s; }
   @keyframes dripple { from { transform: scale(1); opacity: .7; } to { transform: scale(1.22); opacity: 0; } }
-  .dcover { position: absolute; left: 26%; top: 26%; width: 48%; height: 48%; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,.28), rgba(0,0,0,.28)), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 0 0 3px #fff, 0 12px 26px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
+  .dcover { position: absolute; left: 26%; top: 26%; width: 48%; height: 48%; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,.28), rgba(0,0,0,.28)), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 3px #fff, 0 12px 26px -10px rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; }
   .dcover span { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
   .dcover:active span { transform: scale(.9); }
   .dlabels { position: absolute; inset: 0; pointer-events: none; } .dlabels > * { pointer-events: auto; }
@@ -569,7 +569,7 @@ export const viewsCss = css`
   .dside { flex: 0 0 27%; min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(60px, 1fr) clamp(52px, 13cqh, 64px) minmax(108px, 1.3fr); gap: 12px; padding: 4px 8px 4px 4px; }
   .dstrips { flex: 1; min-width: 0; display: flex; gap: 6px; }
   .dnow { min-height: 0; display: flex; align-items: center; gap: 12px; }
-  .dart { height: 100%; max-height: 150px; aspect-ratio: 1; flex-shrink: 0; border-radius: 20px; background: var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / cover; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
+  .dart { height: 100%; max-height: 150px; aspect-ratio: 1; flex-shrink: 0; border-radius: 20px; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
   .dart i { width: 22%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 0 2px rgba(0,0,0,.15); opacity: 0; }
   .dart[data-playing] i { opacity: 1; animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .dtx { min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.15; }
@@ -654,7 +654,7 @@ export const viewsCss = css`
   .ttable[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--stream, var(--primary)); }
   .tplat { position: relative; width: var(--P); height: var(--P); margin-right: calc(var(--P) * .1); flex-shrink: 0; }
   .cdisc { position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 14px 22px -10px rgba(0,0,0,.6);
-    background: radial-gradient(circle closest-side, #f4efe3 0 2.6%, transparent 3%), radial-gradient(circle closest-side, transparent 34%, #17140f 34.6% 46%, #3a342b 46.4% 47.2%, #17140f 47.6% 59%, #3a342b 59.4% 60.2%, #17140f 60.6% 72%, #3a342b 72.4% 73.2%, #17140f 73.6% 85%, #3a342b 85.4% 86.2%, #17140f 86.6% 100%), var(--art, linear-gradient(135deg, var(--accent), var(--primary))) center / 70% 70% no-repeat, #17140f; }
+    background: radial-gradient(circle closest-side, #f4efe3 0 2.6%, transparent 3%), radial-gradient(circle closest-side, transparent 34%, #17140f 34.6% 46%, #3a342b 46.4% 47.2%, #17140f 47.6% 59%, #3a342b 59.4% 60.2%, #17140f 60.6% 72%, #3a342b 72.4% 73.2%, #17140f 73.6% 85%, #3a342b 85.4% 86.2%, #17140f 86.6% 100%), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / 70% 70% no-repeat, #17140f; }
   .cdisc[data-playing] { animation: puck 3.6s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .cdisc:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   .tpivot { position: absolute; left: 102.5%; top: 7.5%; width: 13%; height: 13%; margin: -6.5% 0 0 -6.5%; border-radius: 50%; background: radial-gradient(circle, #8b8477 0 34%, #26272b 36%); pointer-events: none; }

@@ -17,6 +17,18 @@ const star = (on: boolean): TemplateResult => html`<svg class="tstar ${on ? 'lit
 const TILE_PICS: [RegExp, string][] = [[/hat|cap/i, '🧢'], [/sunscreen|sun cream/i, '🧴'], [/library|book|reader/i, '📚'], [/swim|bathers|togs|towel/i, '🩱'], [/sport|uniform|shirt/i, '👕'], [/shoe|runner|boot/i, '👟'], [/jumper|jacket|coat|rain/i, '🧥'],
   [/lunch|sandwich/i, '🥪'], [/fruit|snack|crunch/i, '🍎'], [/water|drink|bottle/i, '🚰'], [/trumpet/i, '🎺'], [/clarinet|recorder|flute/i, '🎶'], [/violin|guitar/i, '🎻'], [/music|instrument|band/i, '🎵'], [/homework|note|form|slip/i, '📝'],
   [/tennis|racquet/i, '🎾'], [/ball|soccer|footy|netball/i, '⚽'], [/scooter|bike|helmet/i, '🛴'], [/toy|teddy|show/i, '🧸'], [/art|paint|smock/i, '🎨']];
+/** A count of minutes in words, for the clock's spoken name. */
+const minWords = (m: number): string => `${m} minute${m === 1 ? '' : 's'}`;
+const NUM = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
+/** A time of day in the words people say: "half past seven", "ten to eight". Other minutes are said plainly: "42 minutes past seven". */
+export const clockWords = (mins: number): string => {
+  const h = Math.floor(mins / 60) % 24, m = ((mins % 60) + 60) % 60, hr = NUM[h % 12], nx = NUM[(h + 1) % 12];
+  if (m === 0) return `${hr} o’clock`;
+  if (m === 15) return `quarter past ${hr}`; if (m === 30) return `half past ${hr}`; if (m === 45) return `quarter to ${nx}`;
+  const W: Record<number, string> = { 5: 'five', 10: 'ten', 20: 'twenty', 25: 'twenty-five' };
+  if (W[m]) return `${W[m]} past ${hr}`; if (W[60 - m]) return `${W[60 - m]} to ${nx}`;
+  return `${m} minutes past ${hr}`;
+};
 export const tileOf = (item: string): [string, string] => {
   const m = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/u.exec(item);
   const name = item.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, '').trim() || item;
@@ -26,7 +38,8 @@ export const tileOf = (item: string): [string, string] => {
  * "Out the door": the school-morning board.
  * Progress is shown for the team as a whole (one row of stars everyone fills together, and one pooled line of words), never child
  * against child: a column says when that child leaves, what to bring and what is on today. Nothing in a column says how far
- * through the morning its child is, because three columns side by side would turn that into a race.
+ * through the morning its child is, because three columns side by side would turn that into a race. Time is shown once, for the
+ * whole family: one clock that empties towards the next time anyone leaves. No column has a bar or a count of minutes.
  */
 export class FhMorning extends LitElement {
   readonly lookCtl = new LookController(this);
@@ -43,7 +56,17 @@ export class FhMorning extends LitElement {
     @keyframes starpop { from { transform: scale(calc(1 - .8 * var(--m-d, 1))) rotate(calc(-40deg * var(--m-d, 1))); } }
     .teambar { width: 100%; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
     .teambar > div { height: 100%; border-radius: 7px; background: #f5b301; box-shadow: inset 0 0 0 1.5px #8a5a00; transition: width var(--mt-5, 900ms); }
-    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
+    /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */
+    .goclock { display: flex; align-items: center; gap: 16px; justify-content: flex-end; flex: 1.2; min-width: 0; }
+    .goclock .face { position: relative; flex-shrink: 0; line-height: 0; border-radius: 50%; }
+    .goclock .face > b { position: absolute; right: -6px; bottom: -6px; width: 40px; height: 40px; border-radius: 50%; background: var(--chip-strong); box-shadow: 0 0 0 2px var(--ink3); display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; }
+    .goclock.soon .face { box-shadow: 0 0 0 4px var(--accent); }
+    .goclock .words { display: flex; flex-direction: column; gap: 4px; text-align: right; min-width: 0; }
+    .goclock .at { font-size: 20px; font-weight: var(--w-bold, 700); } .goclock .at b { font-weight: var(--w-heavy, 800); white-space: nowrap; }
+    .goclock .who { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: 36px; }
+    :host([data-phone]) .goclock .words { text-align: left; }
     .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
     .kcols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
@@ -65,21 +88,14 @@ export class FhMorning extends LitElement {
     .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; justify-content: space-between; }
-    .lchip.soon { background: color-mix(in srgb, var(--accent) 32%, var(--chip)); }
-    .lchip.now { background: color-mix(in srgb, var(--accent) 55%, var(--chip)); animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
+    /* a column says when its own child leaves, in plain words: the same chip in every column whatever the time, so the three never read as a race */
+    .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; gap: 8px; align-items: baseline; }
     /* what the whole family has on is said once, across the top, not in every column */
     .fam { border-radius: 22px; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; flex-shrink: 0; }
     .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
     .fam .fev .mt { color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; }
-    /* the lower half of each column is for someone who cannot read yet: a bar that fills as leaving time comes, and a picture for each thing to bring or wear */
+    /* the lower half of each column is for someone who cannot read yet: a picture for each thing to bring or wear. (The time left is on the one clock above, never in a column.) */
     .klow { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
-    .kgo { display: flex; flex-direction: column; gap: 6px; }
-    .kgo .gobar { position: relative; height: 28px; border-radius: 14px; background: var(--track); box-shadow: inset 0 0 0 2px var(--ink2); overflow: hidden; }
-    .kgo .gobar > i { position: absolute; inset: 0 auto 0 0; width: var(--f, 0%); min-width: 14px; border-radius: 14px; background: var(--kid); transition: width var(--mt-5, 900ms) var(--e-out, ease); }
-    .kgo .gobar > span { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; line-height: 1; }
-    .kgo.soon .gobar { box-shadow: inset 0 0 0 3px var(--accent); }
-    .kgo.now .gobar { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
     .tile { min-width: 76px; min-height: 84px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; }
     .tile .te { font-size: 40px; line-height: 1.1; }
@@ -171,7 +187,8 @@ export class FhMorning extends LitElement {
     const next = legs.filter((l) => l.at - nowM > -5).sort((a, b) => a.at - b.at)[0];
     const left = next ? next.at - nowM : -99;
     const t12 = (m: number): string => fmtTime(new Date(new Date(this._now).setHours(Math.floor(m / 60), m % 60, 0, 0)));
-    const who = next ? (legs.filter((l) => l.at === next.at).length === legs.length ? 'everyone leaves' : `${legs.filter((l) => l.at === next.at).map((l) => l.k.name).join(' & ')} leaves`) : '';
+    const first = next ? legs.filter((l) => l.at === next.at) : [];
+    const who = !next ? '' : first.length === legs.length ? 'everyone leaves' : first.length > 1 ? `${first.map((l) => l.k.name).join(' & ')} leave` : `${first[0].k.name} leaves`;
     const today = this._now;
     const priv = this.privateWords.map((w) => w.toLowerCase());
     const team = this._team(), ready = team.total > 0 && team.done === team.total;
@@ -186,10 +203,10 @@ export class FhMorning extends LitElement {
           ${team.total <= 18 ? html`<div class="stars">${Array.from({ length: team.total }, (_, i) => star(i < team.done))}</div>`
             : html`<div class="teambar"><div style="width:${(team.done / team.total) * 100}%"></div></div>`}
           <span class="nextstep ${ready ? 'set' : ''}">${ready ? 'Morning jobs: all done. Go team! 🎉' : `Morning jobs: ${team.total - team.done} to go between us`}</span></div>` : nothing}
-        <div style="display:flex;align-items:center;gap:14px;justify-content:flex-end;flex:1">
-          ${left > 0 ? lookArt(getLook(), 'timer', { frac: Math.min(1, left / 60), size: 64 }) : nothing}
-          <div style="text-align:right"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
-            <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${next && left > 0 ? `until ${who} at ${t12(next.at)}` : ''}</span></div></div>
+        <div class="goclock ${left > 0 && left <= 10 ? 'soon' : ''}" data-part="goclock" role="timer" aria-label=${left > 0 ? `Time to leave: ${minWords(left)} until ${who} at ${t12(next!.at)}` : left > -5 ? 'Time to go' : 'Everyone has left'}>
+          <span class="face" aria-hidden="true">${lookArt(getLook(), 'timer', { frac: left > 0 ? Math.min(1, left / 60) : 0, size: 96 })}<b>${left > -5 ? '🚪' : '👋'}</b></span>
+          <div class="words"><div class="leave ${left <= 0 && left > -5 ? 'go' : ''}">${left > 0 ? `${left} min` : left > -5 ? 'Time to go!' : 'Have a great day'}</div>
+            ${next && left > 0 ? html`<span class="at">Leave at <b>${t12(next.at)}</b></span><span class="who">${clockWords(next.at)} · ${who}</span>` : nothing}</div></div>
       </section>
       ${fam.length ? html`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${fam.slice(0, 4).map((ev) => html`<span class="fev"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></span>`)}</section>` : nothing}
       <div class="kcols" style="--n:${this.kids.length}">
@@ -199,17 +216,13 @@ export class FhMorning extends LitElement {
           const evs = this._own(k);
           const bring = this._bring(k, evs);
           const lv = legs.find((l) => l.k === k)!, kl = lv.at - nowM;
-          const goCls = kl <= 0 && kl > -5 ? 'now' : kl <= 10 && kl > 0 ? 'soon' : '';
-          return html`<button class="glass kcol tap" style="--kid:${slotVar(k.colour)}" aria-label=${`${k.name}: ${kl > 0 ? `leaves at ${t12(lv.at)}, in ${kl} minutes` : kl > -5 ? 'time to go' : 'has left'}${bring.length ? `. Bring and wear: ${bring.map((x) => tileOf(x)[1]).join(', ')}` : ''}. Opens ${k.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
+          return html`<button class="glass kcol tap" style="--kid:${slotVar(k.colour)}" aria-label=${`${k.name}: ${kl > -5 ? `leaves at ${t12(lv.at)}` : 'has left'}${bring.length ? `. Bring and wear: ${bring.map((x) => tileOf(x)[1]).join(', ')}` : ''}. Opens ${k.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
             <div class="khead">${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2></div>
             <span class="label">Today</span>
             ${evs.length ? evs.slice(0, 3).map((ev) => html`<div class="mev2"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></div>`)
               : html`<span class="muted" style="font-size:15px">Just school today</span>`}
             <div class="klow">
-              <div class="kgo ${goCls}" data-part="countdown">
-                <div class="gobar" style="--f:${Math.round(Math.max(0, Math.min(1, 1 - kl / 60)) * 100)}%"><i></i><span aria-hidden="true">${kl > -5 ? '🚪' : '✓'}</span></div>
-                <div class="lchip ${goCls}"><span>Leave ${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span><span>${kl > 0 ? `${kl} min` : kl > -5 ? 'Go!' : '✓'}</span></div>
-              </div>
+              <div class="lchip" data-part="leaves"><span>${kl > -5 ? `Leave ${t12(lv.at)}` : 'Left'}</span>${lv.why !== 'school' && kl > -5 ? html`<span class="muted" style="font-weight:var(--w-semi, 600);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lv.why}</span>` : nothing}</div>
               ${bring.length ? html`<div class="tiles" data-part="bring">${bring.map((x) => { const [pic, name] = tileOf(x); return html`<span class="tile"><span class="te" aria-hidden="true">${pic}</span><span class="tl">${name}</span></span>`; })}</div>` : nothing}
             </div>
           </button>`;

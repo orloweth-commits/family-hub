@@ -310,6 +310,71 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
       return { n, hid, peek: Math.round(peek), small }; });
     if (!r.n || r.hid || r.peek < 3 || r.small) bad.push(`${look} ${w}x${h} ${JSON.stringify(r)}`); await p.close(); }
   console.log('R7-M1 jukebox picker: no cover is hidden by its record, in four looks at three sizes', bad.length ? 'FAIL ' + bad.join(' | ') : 'ok'); }
+// ---- owner's decisions of 13 November (0.27.0) ----
+{ const okk = (b) => (b ? 'ok' : 'FAIL');
+  const atv = async (w, h, qs, time = '16:20') => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: w < 500, isMobile: w < 500 }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+    await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+  const pin = async (p) => { for (const d of '1234') await M(p).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await p.waitForTimeout(700); };
+  const pad = (p) => p.evaluate(() => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('fh-pin'); return f ? `${f.getAttribute('reason')} / ${f.shadowRoot.querySelector('.what')?.textContent.trim()}` : ''; });
+  const said = (p, re) => p.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).length, re.source);
+
+  // D7. the jukebox with a child who cannot read: his coins and "adds a song" sit under the night's picks on every wide screen where they fit (not only 900 px and taller); a phone and a portrait tablet keep their order
+  { const bad = [], seen = [];
+    for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const [w, h, low] of [[1920, 1080, true], [1280, 800, true], [1312, 668, true], [1024, 768, true], [820, 1180, false], [390, 844, false]]) { const p = await atv(w, h, `look=${look}&page=music&mtab=juke&juke=1`);
+      const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, box = (s) => m.querySelector(s)?.getBoundingClientRect(), coins = box('.coins'), acts = box('.acts.jlow'), picks = box('.picks'), add = box('.acts.jlow .primary'), pk = m.querySelector('.picks');
+        const cards = [...m.querySelectorAll('.pickrow')].map((e) => e.getBoundingClientRect()), whens = [...m.querySelectorAll('.pickrow .when')].map((e) => e.getBoundingClientRect());
+        return { under: coins.top >= picks.bottom - 0.5 && acts.top >= coins.bottom - 0.5, over: coins.bottom <= picks.top + 0.5, addMid: Math.round(add.top + add.height / 2), half: innerHeight / 2, coinTop: Math.round(coins.top), whole: cards.every((c) => c.bottom <= picks.bottom + 0.5) && whens.every((c) => c.bottom <= picks.bottom + 0.5 && c.height >= 20), scroll: pk.scrollHeight - pk.clientHeight, n: cards.length, panelBottom: Math.round(m.querySelector('.panel').getBoundingClientRect().bottom), actsBottom: Math.round(acts.bottom) }; });
+      const good = low ? r.under && r.addMid > r.half && r.coinTop >= r.half - 4 && r.whole && r.scroll <= 0 && r.n === 4 && r.actsBottom <= r.panelBottom : r.over;
+      if (look === 'glass') seen.push(`${w}x${h}: ${low ? `coins at ${r.coinTop}, add at ${r.addMid} of ${h}` : 'coins above the picks'}`);
+      if (!good) bad.push(`${look} ${w}x${h} ${JSON.stringify(r)}`); await p.context().close(); }
+    console.log('D7 jukebox coins and "adds a song" in the lower half, nothing overlapping, every pick whole (four looks):', seen.join(' ; '), bad.length ? 'FAIL ' + bad.join(' | ') : 'ok'); }
+
+  // D9. whole-house music and calling a room (the parents' room too): no PIN by day; after bedtime the PIN pad asks, and says why
+  { const d = await atv(1280, 800, 'look=glass&page=music&mview=house');
+    await d.evaluate(() => { window.__calls = []; }); await M(d).locator('.wholeh').click(); await d.waitForTimeout(600);
+    const dayWhole = { pad: await pad(d), joins: await said(d, /media_player\.join/) }; await d.context().close();
+    const dp = await atv(1280, 800, 'look=glass&page=music&mview=desk&moments=1'); await dp.evaluate(() => { window.__calls = []; }); await M(dp).locator('.mpad', { hasText: 'Tidy-up' }).click(); await dp.waitForTimeout(900);
+    const dayPad = { pad: await pad(dp), plays: await said(dp, /play_media|media_player\.join/) }; await dp.context().close();
+    const dc = await atv(1280, 800, 'look=glass&page=music&mtab=call'); await dc.evaluate(() => { window.__calls = []; });
+    await M(dc).locator('.mz[data-zone="media_player.alexs_homepod"]').click(); await M(dc).locator('.bubble').first().click(); await M(dc).locator('.sayit').click(); await dc.waitForTimeout(700);
+    const dayCall = { pad: await pad(dc), said: await said(dc, /tts|play_announcement/) }; await dc.context().close();
+    const de = await atv(1280, 800, 'look=glass&page=music&mtab=call'); await de.evaluate(() => { window.__calls = []; });
+    await M(de).getByRole('button', { name: 'Everyone', exact: true }).click(); await M(de).locator('.bubble').first().click(); await M(de).locator('.sayit').click(); await de.waitForTimeout(700);
+    const dayAll = { pad: await pad(de), said: await said(de, /tts|play_announcement/) }; await de.context().close();
+    console.log('D9 by day, no PIN: Whole house', JSON.stringify(dayWhole), okk(!dayWhole.pad && dayWhole.joins > 0), '| all-rooms pad', JSON.stringify(dayPad), okk(!dayPad.pad && dayPad.plays > 0), '| call the parents’ room', JSON.stringify(dayCall), okk(!dayCall.pad && dayCall.said > 0), '| call Everyone', JSON.stringify(dayAll), okk(!dayAll.pad && dayAll.said > 0));
+    // 19:45: the youngest's bedtime (19:30) has passed, the household's quiet time (20:00) has not: the same "after bedtime" test as Ask and All on
+    const n = await atv(1280, 800, 'look=glass&page=music&mview=house', '19:45');
+    await n.evaluate(() => { window.__calls = []; }); await M(n).locator('.wholeh').click(); await n.waitForTimeout(600);
+    const w1 = { pad: await pad(n), joins: await said(n, /media_player\.join/) }; await pin(n); const w2 = { pad: await pad(n), joins: await said(n, /media_player\.join/) }; await n.context().close();
+    const np = await atv(1280, 800, 'look=glass&page=music&mview=desk&moments=1', '19:45'); await np.evaluate(() => { window.__calls = []; }); await M(np).locator('.mpad', { hasText: 'Tidy-up' }).click(); await np.waitForTimeout(700);
+    const p1 = { pad: await pad(np), plays: await said(np, /play_media|media_player\.join/) }; await pin(np); await np.waitForTimeout(500); const p2 = await said(np, /play_media|media_player\.join/); await np.context().close();
+    const nc = await atv(1280, 800, 'look=glass&page=music&mtab=call', '19:45'); await nc.evaluate(() => { window.__calls = []; });
+    await M(nc).locator('.mz[data-zone="media_player.alexs_homepod"]').click(); await M(nc).locator('.bubble').first().click(); await M(nc).locator('.sayit').click(); await nc.waitForTimeout(700);
+    const c1 = { pad: await pad(nc), said: await said(nc, /tts|play_announcement/) }; await pin(nc); const c2 = await said(nc, /tts|play_announcement/); await nc.context().close();
+    const WHY = /^It is after bedtime\. .+ \/ Enter the parent PIN to go on\.$/;
+    console.log('D9 after bedtime (7:45 pm), the PIN pad says why: Whole house', JSON.stringify(w1), okk(WHY.test(w1.pad) && /bedrooms/.test(w1.pad) && w1.joins === 0), 'then with the PIN: joins', w2.joins, okk(!w2.pad && w2.joins > 0),
+      '| all-rooms pad', JSON.stringify(p1), okk(WHY.test(p1.pad) && p1.plays === 0), 'then', p2, okk(p2 > 0), '| call the parents’ room', JSON.stringify(c1), okk(WHY.test(c1.pad) && c1.said === 0), 'then', c2, okk(c2 > 0));
+    // the test is the card's one test: Ask and All on ask at the same minute
+    const hub = await atv(1280, 800, 'look=glass&page=planner', '19:45'); await hub.locator('family-hub-card .dock [data-nav=lights-on]').click(); await hub.waitForTimeout(400);
+    const allOn = await hub.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-pin')?.getAttribute('reason') ?? ''); const late = await hub.evaluate(() => document.querySelector('family-hub-card')._chatLate()); await hub.context().close();
+    const day = await atv(1280, 800, 'look=glass&page=planner', '16:20'); const dayLate = await day.evaluate(() => document.querySelector('family-hub-card')._chatLate()); await day.context().close();
+    console.log('D9 the same minute for All on and Ask: All on asks', JSON.stringify(allOn), '| Ask late', late, '| by day', dayLate, okk(/after bedtime/.test(allOn) && late === true && dayLate === false)); }
+
+  // D12. a child's calm setting comes with him to Music when Music is opened from his page: nothing loops, the record stands still. From any other page Music moves as usual
+  { const loops = (p) => p.evaluate(() => { const c = document.querySelector('family-hub-card'), m = c.shadowRoot.querySelector('fh-music'); const all = []; const walk = (root) => { all.push(...root.getAnimations()); for (const e of root.querySelectorAll('*')) if (e.shadowRoot) walk(e.shadowRoot); }; if (m) walk(m.shadowRoot);
+      return { page: c._page, calm: !!c.shadowRoot.querySelector('.fh[data-calm]'), still: !!m?.hasAttribute('data-still'), loops: all.filter((a) => a.playState === 'running' && a.effect?.getComputedTiming().iterations === Infinity).length }; });
+    const go = async (p, name) => { await p.locator('family-hub-card nav.dock .item', { hasText: name }).click(); await p.waitForTimeout(1600); };
+    const p = await atv(1280, 800, 'look=glass&page=kid&kid=0'); // Riley: calm is on (the default)
+    await go(p, 'Music'); await M(p).evaluate((m) => { m._view = 'house'; }); await p.waitForTimeout(1500); const fromKid = await loops(p);
+    for (const v of ['scene', 'dial', 'desk', 'cables']) { await M(p).evaluate((m, v) => { m._view = v; }, v); await p.waitForTimeout(1300); const r = await loops(p); fromKid.loops += r.loops; }
+    await M(p).evaluate((m) => { m._tab = 'juke'; }); await p.waitForTimeout(1300); fromKid.loops += (await loops(p)).loops;
+    await go(p, 'Planner'); await go(p, 'Music'); await M(p).evaluate((m) => { m._view = 'house'; m._tab = 'rooms'; }); await p.waitForTimeout(1500); const fromPlanner = await loops(p); await p.context().close();
+    // a child whose calm mode a grown-up has turned off
+    const q = await atv(1280, 800, 'look=glass&page=planner'); await q.evaluate(() => { localStorage.setItem('family-hub-kid-charlie', JSON.stringify({ calm: false })); const c = document.querySelector('family-hub-card'); c._kid = 1; c._page = 'kid'; }); await q.waitForTimeout(600);
+    await go(q, 'Music'); await M(q).evaluate((m) => { m._view = 'house'; }); await q.waitForTimeout(1500); const notCalm = await loops(q); await q.evaluate(() => localStorage.removeItem('family-hub-kid-charlie')); await q.context().close();
+    console.log('D12 Music opened from a calm child’s page:', JSON.stringify(fromKid), okk(fromKid.page === 'music' && fromKid.calm && fromKid.still && fromKid.loops === 0), '| then from the Planner:', JSON.stringify(fromPlanner), okk(!fromPlanner.calm && !fromPlanner.still && fromPlanner.loops > 0),
+      '| from a child with calm off:', JSON.stringify(notCalm), okk(!notCalm.calm && !notCalm.still && notCalm.loops > 0)); }
+  console.log('errors (decisions):', errs.length ? errs.join('\n') : 'none'); }
 await browser.close(); srv.close();
 
 // ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----

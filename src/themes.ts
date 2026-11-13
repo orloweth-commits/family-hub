@@ -22,4 +22,14 @@ const PEOPLE: Record<string, string> = { '--p-1': '#2563eb', '--p-2': '#db2777',
 for (const t of THEMES) Object.assign(t.vars, PEOPLE);
 
 export const themeById = (id: string): ThemeDef => THEMES.find((t) => t.id === id) ?? THEMES[0];
-export const themeStyle = (t: ThemeDef): string => Object.entries(t.vars).map(([k, v]) => `${k}:${v}`).join(';') + `;--bg:url(${t.bg})`;
+/**
+ * Sea & Sun has a horizon you can find at a glance: the sky pales down to one crisp line and the sea begins under it
+ * (the picture alone fades from cloud to water over a wide blur). It is drawn over the picture as part of the background, so it is there
+ * with the ambient scene off, in calm mode and in the theme's thumbnail. It only ever LIGHTENS: pale sky is laid over the blur above the
+ * line and nothing is laid over the sea, so no ink written over the picture can lose contrast. The line sits where the picture's water
+ * has reached its full blue (57% down); the time-of-day tint goes over it in the evening like the rest of the picture.
+ */
+const HORIZON: Partial<Record<ThemeId, string>> = {
+  sea: 'linear-gradient(to bottom, rgba(228,244,253,0) 42%, rgba(228,244,253,.97) 51%, rgba(232,246,254,.98) 56.7%, rgba(255,255,255,.98) 56.7%, rgba(255,255,255,.98) 57%, rgba(255,255,255,0) 57%)',
+};
+export const themeStyle = (t: ThemeDef): string => Object.entries(t.vars).map(([k, v]) => `${k}:${v}`).join(';') + `;--bg:${HORIZON[t.id] ? `${HORIZON[t.id]}, ` : ''}url(${t.bg})`;

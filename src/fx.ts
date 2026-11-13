@@ -27,5 +27,5 @@ export const fxCss = `
   .shimmer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); transform: translateX(-100%); animation: shimmer 2.8s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
   .xp { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
-  .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1); }
+  .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--mark, var(--primary)), var(--mark, var(--accent))); transition: width var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1); }
 `;
