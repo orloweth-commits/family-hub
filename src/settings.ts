@@ -76,6 +76,8 @@ export class FhSettings extends LitElement {
     .snav button > span { flex: 1; min-width: 0; }
     .snav button[aria-current='page'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .snav button[aria-disabled='true'] { opacity: .5; }
+    /* the list scrolls, so its buttons carry the focus ring inside their own edge */
+    .snav button:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
     .snav .sdot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: spop var(--m-3, 240ms) var(--e-spring, ease) backwards; }
     @keyframes spop { from { transform: scale(calc(1 - var(--m-d, 1))); opacity: 0; } }
     /* the pane */
@@ -85,7 +87,7 @@ export class FhSettings extends LitElement {
     .spane:focus { outline: none; }
     .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-    .scard > h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 8px; }
+    .scard > h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; }
     .scard > h3 > span.muted { font-size: 14px; font-weight: var(--w-semi, 600); }
     .shint { font-size: 14px; font-weight: 500; color: var(--ink2); line-height: 1.35; }
     .srow { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; min-height: 52px; flex-wrap: wrap; }
@@ -94,6 +96,7 @@ export class FhSettings extends LitElement {
     .srow > .sctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
     .srow.wide > .sctl { flex: 1 1 320px; justify-content: stretch; }
     .srow.wide > .sctl > .sin { flex: 1; }
+    .srow.wide > .sctl > .sin.pic { flex: 0 0 60px; }
     .srow + .srow, .sitem + .sitem { border-top: 1px solid color-mix(in srgb, var(--ink2) 18%, transparent); padding-top: 10px; }
     /* text boxes */
     .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
@@ -120,7 +123,7 @@ export class FhSettings extends LitElement {
     .srange output { min-width: 52px; text-align: right; font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     /* lists that are edited a row at a time */
     .sitem { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 52px; }
-    .sitem > .sgrow { flex: 1 1 180px; min-width: 0; }
+    .sitem > .sgrow { flex: 1 1 120px; min-width: 0; }
     .sitem > .sin.sgrow { width: auto; }
     .sitem .sname { font-size: 16px; font-weight: var(--w-bold, 700); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sico { width: 44px; height: 44px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; line-height: 1; }
@@ -140,8 +143,10 @@ export class FhSettings extends LitElement {
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
     .spick button { min-height: 48px; padding: 4px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
-    .spick button > span { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
-    .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
+    .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
+    .spick button b { font-weight: inherit; overflow-wrap: anywhere; }
+    .spick button[aria-pressed='true'] small { color: inherit; }
     .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
     [aria-pressed='true'] > .sbox2 { background: var(--primary); color: var(--on-primary); box-shadow: none; }
@@ -179,7 +184,9 @@ export class FhSettings extends LitElement {
     .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 16px; font-weight: var(--w-bold, 700); }
     .sampm button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sdial .lead { align-self: stretch; }
-    .toast.toast { z-index: 8; bottom: 96px; }
+    :host(:not(family-hub-card)) .sbox .toast { z-index: 8; bottom: 96px; }
+    /* while the on-screen keyboard is up the foot steps aside, so the field being typed in stays in view (Done brings it back) */
+    .sbox[data-kb] .sft, .sbox[data-kb] .shd .muted { display: none; }
     /* a narrower tablet: a slimmer list */
     :host([data-n2]) .sheet.sbox { grid-template-columns: 216px minmax(0, 1fr); }
     :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: 15px; }
@@ -187,6 +194,7 @@ export class FhSettings extends LitElement {
     :host([data-shape='tall']) .sheet.sbox, :host([data-phone]) .sheet.sbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
     :host([data-shape='tall']) .snav, :host([data-phone]) .snav { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }
     :host([data-shape='tall']) .snav button, :host([data-phone]) .snav button { flex: 0 0 auto; min-height: 48px; padding: 0 14px; border-radius: 999px; background: var(--chip); scroll-snap-align: center; white-space: nowrap; gap: 8px; }
+    :host([data-shape='tall']) .snav button[aria-current='page'], :host([data-phone]) .snav button[aria-current='page'] { background: var(--sel-bg); }
     :host([data-shape='tall']) .spane, :host([data-phone]) .spane { padding: 4px 14px 16px; }
     :host([data-shape='tall']) .sft, :host([data-phone]) .sft { grid-column: 1; padding: 10px 14px 12px; }
     :host([data-phone]) .shd { padding: 12px 10px 8px 16px; gap: 8px; }
@@ -198,6 +206,10 @@ export class FhSettings extends LitElement {
     :host([data-phone]) .sin { width: 100%; } :host([data-phone]) .sin.short { width: 96px; } :host([data-phone]) .sin.pic { width: 60px; }
     :host([data-phone]) .sadv { grid-template-columns: 1fr; gap: 0 0; } :host([data-phone]) .sadv > span { margin-bottom: 8px; }
     :host([data-phone]) .skeys { display: none; }
+    :host([data-phone]) .sjob .sname { white-space: normal; }
+    :host([data-phone]) .sitem > .sin.sfull { flex-basis: 100%; }
+    /* where a row of controls will not fit beside its name, the name takes the first line whole instead of being cut */
+    :host([data-n2]) .sitem > .sin.sfull2, :host([data-shape='tall']) .sitem > .sin.sfull2, :host([data-phone]) .sitem > .sin.sfull2 { flex-basis: calc(100% - 68px); }
   `];
   static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
     _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true } };
@@ -424,6 +436,7 @@ export class FhSettings extends LitElement {
 
   /* ---------------- the time dial ---------------- */
 
+  private _setAt = 0;
   private _hmOf(): [number, number] { const v = this._time?.get() ?? ''; const [h, m] = isTime(v) ? v.split(':').map(Number) : [7, 0]; return [h, m]; }
   private _mins(m: number): number[] { const l = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]; return l.includes(m) ? l : [...l, m].sort((a, b) => a - b); }
   private _setTime(h: number, m: number): void { const [h0, m0] = this._hmOf(); if (h === h0 && m === m0) return; sfx('step'); this._time?.set(`${pad(h)}:${pad(m)}`); this.requestUpdate(); }
@@ -434,10 +447,10 @@ export class FhSettings extends LitElement {
   private _drum(which: 'h' | 'm'): TemplateResult {
     const [h, m] = this._hmOf(), list = which === 'h' ? HOURS : this._mins(m), v = which === 'h' ? h % 12 || 12 : m, at = list.indexOf(v);
     return html`<div class="drum" data-d=${which} tabindex="0" role="spinbutton" aria-label=${which === 'h' ? 'Hour' : 'Minutes'} aria-valuenow=${v} aria-valuetext=${which === 'h' ? `${v} ${h < 12 ? 'am' : 'pm'}` : `${pad(v)} minutes`} aria-valuemin=${list[0]} aria-valuemax=${list[list.length - 1]}
-      @scroll=${(e: Event) => { const el = e.currentTarget as HTMLElement; clearTimeout(this._spin[which]); this._spin[which] = window.setTimeout(() => { this._spin[which] = 0; this._drumTo(which, Math.round(el.scrollTop / ROW)); }, 90); }}
+      @scroll=${(e: Event) => { const el = e.currentTarget as HTMLElement; if (Date.now() - this._setAt < 600) return; /* the drum is still rolling to a value set by a key or a tap */ clearTimeout(this._spin[which]); this._spin[which] = window.setTimeout(() => { this._spin[which] = 0; this._drumTo(which, Math.round(el.scrollTop / ROW)); }, 90); }}
       @keydown=${(e: KeyboardEvent) => { const d = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : e.key === 'PageUp' ? -3 : e.key === 'PageDown' ? 3 : 0;
-        if (d) { e.preventDefault(); this._drumTo(which, Math.abs(d) === 1 ? (at + d + list.length) % list.length : at + d); } else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._drumTo(which, e.key === 'Home' ? 0 : list.length - 1); } else if (e.key === 'Enter') { e.preventDefault(); this._time = null; } }}>
-      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => this._drumTo(which, i)}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
+        if (d) { e.preventDefault(); this._setAt = Date.now(); this._drumTo(which, Math.abs(d) === 1 ? (at + d + list.length) % list.length : at + d); } else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._setAt = Date.now(); this._drumTo(which, e.key === 'Home' ? 0 : list.length - 1); } else if (e.key === 'Enter') { e.preventDefault(); this._time = null; } }}>
+      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => { this._setAt = Date.now(); this._drumTo(which, i); }}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
   }
   private _dial(): TemplateResult {
     const t = this._time!, [h, m] = this._hmOf(), pm = h >= 12;
@@ -492,7 +505,7 @@ export class FhSettings extends LitElement {
     const entity = kidEntities(this.config.kids?.[this._kid] ?? k).chores, raw = this._lists[entity], st = this.hass?.states[entity];
     if (raw === 'fail') return html`<div class="snote ro" role="note"><span><b>${k.name}’s job list could not be read.</b> Home Assistant has ${st ? 'not answered for' : 'no to-do list called'} <code>${entity}</code>. ${st ? 'Try again in a moment.' : 'Make a to-do list with that name in Home Assistant (Settings, Devices and services, Helpers, To-do list), then come back.'}</span></div>`;
     if (!raw) return html`<span class="shint" role="status">Reading ${k.name}’s list…</span>`;
-    const feats = Number(st?.attributes.supported_features ?? 0), canMove = (feats & 8) === 8 && !only, ro = this._ro;
+    const feats = Number(st?.attributes.supported_features ?? 0), canMove = (feats & 8) === 8 && !only, ro = this._ro, phone = getShape() === 'phone';
     const SLOTS: [ChoreForm['slot'], string][] = [['am', 'Morning'], ['after', 'After school'], ['bed', 'Bedtime'], ['any', 'Any time']], LANE: Record<string, string> = { routine: 'Routine', job: 'Job', grow: 'Practice' };
     const form = (j: JobEdit): TemplateResult => { const f = j.form, set = (p: Partial<ChoreForm>): void => { this._job = { ...j, form: { ...f, ...p } }; };
       return html`<div class="sform" role="group" aria-label=${j.uid ? `Change ${f.name}` : 'New job'}>
@@ -502,6 +515,7 @@ export class FhSettings extends LitElement {
         ${f.lane === 'grow' ? nothing : this._row('Points', '', this._step('Points', f.pts, (v) => set({ pts: v }), { max: 500, step: 5 }))}
         ${this._row('Timer', 'A timed job shows a start button.', this._step('Timer minutes', f.minutes, (v) => set({ minutes: v, song: v ? f.song : false }), { max: 120, step: 5, say: (v) => (v ? `${v} min` : 'None') }))}
         ${f.minutes ? this._row('Music while the timer runs', 'The music stops when time is up.', this._sw('Music while the timer runs', f.song, () => set({ song: !f.song }))) : nothing}
+        ${j.uid && canMove && phone ? (() => { const l = raw as Chore[], at = l.findIndex((x) => x.uid === j.uid); return html`<div class="sbtns" style="justify-content:flex-start"><button class="pill tap" ?disabled=${at <= 0 || !!this._busy} @click=${() => void this._moveJob(entity, l, at, at - 1)}>Move up</button><button class="pill tap" ?disabled=${at >= l.length - 1 || !!this._busy} @click=${() => void this._moveJob(entity, l, at, at + 1)}>Move down</button></div>`; })() : nothing}
         <div class="sbtns">${j.uid ? html`<button class="pill tap danger" data-act="job-remove" ?disabled=${!!this._busy} @click=${() => { const c = (raw as Chore[]).find((x) => x.uid === j.uid); if (c) void this._removeJob(entity, c); }}>${icon('bin', 18)}Remove</button>` : nothing}
           <span style="flex:1"></span><button class="pill tap" @click=${() => { this._job = null; }}>Cancel</button>
           <button class="pill tap primary" data-act="job-save" ?data-busy=${this._busy === 'job'} ?disabled=${!!this._busy} @click=${() => void this._saveJob()}>${j.uid ? 'Save this job' : 'Add this job'}</button></div></div>`; };
@@ -510,7 +524,7 @@ export class FhSettings extends LitElement {
       return html`<div class="sitem" style="border:0;padding:0"><button class="sjob tap sgrow" ?disabled=${ro} aria-label=${`Change ${f.name}`} @click=${() => { this._job = { entity, uid: c.uid, form: f }; }}>
         <span class="spic" aria-hidden="true">${f.pic || '•'}</span><span class="sname sgrow">${f.name}</span>
         ${f.minutes ? html`<span class="stag">${f.minutes} min${f.song ? ' ♪' : ''}</span>` : nothing}<span class="stag">${LANE[f.lane]}</span>${f.pts ? html`<span class="stag">+${f.pts}</span>` : nothing}</button>
-        ${canMove && !ro ? this._move(f.name, i, (raw as Chore[]).length, (to) => void this._moveJob(entity, raw as Chore[], i, to)) : nothing}</div>`; };
+        ${canMove && !ro && !phone ? this._move(f.name, i, (raw as Chore[]).length, (to) => void this._moveJob(entity, raw as Chore[], i, to)) : nothing}</div>`; };
     const items = (raw as Chore[]).map((c, i) => ({ c, i, f: choreForm(c) })), shown = only ? items.filter((x) => x.f.slot === only) : items;
     const adding = this._job && this._job.uid === null && this._job.entity === entity ? form(this._job) : nothing;
     return html`<div class="sjobs">
@@ -578,7 +592,7 @@ export class FhSettings extends LitElement {
       <div class="scard"><h3>${k.name}’s rewards ${list ? nothing : html`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
         ${(list ?? DEFAULTS).map((r, n, all) => html`<div class="sitem" data-reward=${n}>
           ${this._txt(`rw.${i}.${n}.icon`, `Picture for ${r.name || 'this reward'} (an emoji)`, r.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎁', pic: true, max: 16 })}
-          ${this._txt(`rw.${i}.${n}.name`, `Reward ${n + 1} name`, r.name, (v) => set((l) => { l[n].name = v; }), { cls: 'sgrow', ph: 'Name of the reward', bad: !r.name.trim() })}
+          ${this._txt(`rw.${i}.${n}.name`, `Reward ${n + 1} name`, r.name, (v) => set((l) => { l[n].name = v; }), { cls: 'sgrow sfull2', ph: 'Name of the reward', bad: !r.name.trim() })}
           ${this._step(`Cost of ${r.name || 'this reward'}`, r.cost, (v) => set((l) => { l[n].cost = v; }), { max: 5000, step: 5, unit: 'pts' })}
           <span class="schips"><button class="tap" aria-pressed=${String(r.approve ?? r.cost >= 60)} aria-label=${`${r.name || 'This reward'} needs a grown-up’s PIN`} @click=${() => set((l) => { l[n].approve = !(l[n].approve ?? l[n].cost >= 60); })}><span class="sbox2" aria-hidden="true">${(r.approve ?? r.cost >= 60) ? icon('check', 16) : nothing}</span>Needs PIN</button></span>
           ${this._move(r.name || 'reward', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}
@@ -647,7 +661,7 @@ export class FhSettings extends LitElement {
         ${meds.map((m, n) => { const [dt, tx] = this._helpers(m), miss = [dt, tx].filter((id) => !S[id]), isNew = !saved.has(m.id);
           return html`<div class="sitem" data-med=${n} style="align-items:flex-start">
             <div class="sgrow" style="display:flex;flex-direction:column;gap:8px">
-              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${n}.label`, `Medicine ${n + 1} name`, m.label, (v) => set((l) => { l[n].label = v; }), { cls: 'sgrow', ph: 'Name shown on the panel', bad: !m.label.trim() })}
+              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${n}.label`, `Medicine ${n + 1} name`, m.label, (v) => set((l) => { l[n].label = v; }), { cls: 'sgrow sfull', ph: 'Name shown on the panel', bad: !m.label.trim() })}
                 ${this._tm(`Time for ${m.label || 'this medicine'}`, () => this._draft.meds?.[n]?.time, (v) => set((l) => { l[n].time = v; }), '07:00')}${this._del(`Remove ${m.label || 'this medicine'}`, () => set((l) => { l.splice(n, 1); }))}</div>
               <div class="schips" role="group" aria-label=${`Who ${m.label || 'this medicine'} is for`}>${[...kids.map((k) => k.name), ''].map((who) => html`<button class="tap" aria-pressed=${String((m.who ?? '') === who)} @click=${() => set((l) => { if (who) l[n].who = who; else delete l[n].who; })}>${who || 'Anyone'}</button>`)}</div>
               ${isNew ? html`<span class="shint" role="note">New. After you save, it needs two helpers in Home Assistant before it can be recorded; Settings will offer to make them.</span>`
@@ -691,7 +705,7 @@ export class FhSettings extends LitElement {
     const on = (e: string): boolean => chosen.includes(e);
     const shown = all.filter((x) => !q || `${x.name} ${x.area} ${x.id} ${x.id.replace(/[._]/g, ' ')}`.toLowerCase().includes(q)).sort((a, b) => Number(on(b.id)) - Number(on(a.id)) || a.name.localeCompare(b.name));
     return html`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${icon('search', 22)}</span>${this._txt(`${id}.find`, `Search ${what}`, this._find, (v) => { this._find = v; }, { cls: 'sgrow', ph: `Search ${what}` })}<span class="stag" role="status">${chosen.length} chosen</span></div>
-      <div class="spick" role="group" aria-label=${what}>${shown.map((x) => html`<button class="tap" data-e=${x.id} aria-pressed=${String(on(x.id))} @click=${() => set(on(x.id) ? chosen.filter((e) => e !== x.id) : [...chosen, x.id])}><span class="sbox2" aria-hidden="true">${on(x.id) ? icon('check', 16) : nothing}</span><span><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.name}</b>${x.area ? html`<small>${x.area}</small>` : nothing}</span></button>`)}</div>
+      <div class="spick" role="group" aria-label=${what}>${shown.map((x) => html`<button class="tap" data-e=${x.id} aria-pressed=${String(on(x.id))} @click=${() => set(on(x.id) ? chosen.filter((e) => e !== x.id) : [...chosen, x.id])}><span class="sbox2" aria-hidden="true">${on(x.id) ? icon('check', 16) : nothing}</span><span><b>${x.name}</b>${x.area ? html`<small>${x.area}</small>` : nothing}</span></button>`)}</div>
       ${shown.length ? nothing : html`<span class="shint">Nothing matches “${this._find}”.</span>`}`;
   }
   private _house(): TemplateResult {
@@ -751,7 +765,7 @@ export class FhSettings extends LitElement {
         ${shown.slice(0, 4).map((m, n, all) => { const where = m.rooms === 'all' ? 'all' : Array.isArray(m.rooms) && m.rooms.length ? 'some' : 'focus', rooms = Array.isArray(m.rooms) ? m.rooms : [], open = this._open === n;
           const sum = [m.find || (m.uri ? 'One exact thing' : 'Nothing to play yet'), where === 'all' ? 'every room' : where === 'some' ? rooms.map((r) => this._name(r)).join(' and ') : 'the room in focus', m.volume === undefined ? '' : `${m.volume}%`].filter(Boolean).join(' · ');
           if (!open) return html`<div class="sitem" data-moment=${n}><button class="sjob tap sgrow" aria-expanded="false" aria-label=${`Change ${m.name || 'this moment'}`} @click=${() => { this._open = n; }}><span class="spic" aria-hidden="true">${m.icon || '🎵'}</span><span class="sgrow" style="display:flex;flex-direction:column;min-width:0;line-height:1.3"><span class="sname">${m.name || 'New moment'}</span><span class="shint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sum}</span></span></button>
-            ${this._move(m.name || 'moment', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}${this._del(`Remove ${m.name || 'this moment'}`, () => { set((l) => { l.splice(n, 1); }); this._open = -1; })}</div>`;
+            ${this._move(m.name || 'moment', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}</div>`;
           return html`<div class="sform" data-moment=${n} role="group" aria-label=${m.name || 'New moment'}>
             ${this._row('Name', '', html`${this._txt(`mo.${n}.icon`, `Picture for ${m.name || 'this moment'} (an emoji)`, m.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎵', pic: true, max: 16 })}${this._txt(`mo.${n}.name`, `Moment ${n + 1} name`, m.name, (v) => set((l) => { l[n].name = v; }), { ph: 'Name', bad: !m.name.trim() })}`, true)}
             ${this._row('What to play', m.uri && !m.find ? 'This moment plays one exact thing, set in YAML. Typing here searches for something instead.' : 'Searched for in your music.', this._txt(`mo.${n}.find`, `What ${m.name || 'this moment'} plays`, m.find ?? '', (v) => set((l) => { l[n].find = v; if (v) delete l[n].uri; }), { ph: m.uri ? cut(m.uri, 30) : 'e.g. dinner jazz' }), true)}
@@ -761,7 +775,7 @@ export class FhSettings extends LitElement {
             ${this._row('Volume', m.volume === undefined ? 'Left as the room already is.' : 'Set when the moment starts.', html`<div class="schips"><button class="tap" aria-pressed=${String(m.volume === undefined)} aria-label=${`Leave the volume as it is for ${m.name}`} @click=${() => set((l) => { if (l[n].volume === undefined) l[n].volume = 30; else delete l[n].volume; })}>As it is</button></div>
               ${m.volume === undefined ? nothing : this._range(`Volume for ${m.name}`, m.volume, (v) => set((l) => { l[n].volume = v; }))}`)}
             ${this._row('Shuffle', '', this._sw(`Shuffle ${m.name}`, !!m.shuffle, () => set((l) => { if (l[n].shuffle) delete l[n].shuffle; else l[n].shuffle = true; })))}
-            <div class="sbtns"><button class="pill tap" data-act="moment-close" @click=${() => { this._open = -1; }}>Close</button></div>
+            <div class="sbtns"><button class="pill tap danger" data-act="moment-remove" @click=${() => { set((l) => { l.splice(n, 1); }); this._open = -1; }}>${icon('bin', 18)}Remove</button><span style="flex:1"></span><button class="pill tap" data-act="moment-close" @click=${() => { this._open = -1; }}>Close</button></div>
           </div>`; })}
         ${shown.length < 4 ? html`<div><button class="pill tap" data-act="moment-add" @click=${() => { const n = shown.length; set((l) => { l.push({ name: '', find: '' }); }); this._open = n; this._focusSoon(`mo.${n}.name`); }}>${icon('plus', 18)}Add a moment</button></div>` : html`<span class="shint">The desk has room for four moments.</span>`}
         <span class="shint">A pad that was given different music on a screen’s own Music page keeps that music on that screen.</span>
@@ -816,7 +830,7 @@ export class FhSettings extends LitElement {
         <span class="shint">The red hold-to-send button on the house-info page. It sounds on these phones even on silent.</span>
         ${this._row('It says “Alert …”', '', this._txt('sos.who', 'Who the alert button names', e?.who ?? '', (v) => setE((x) => { if (v) x.who = v; else delete x.who; }), { ph: 'the parents' }), true)}
         <span class="label">Phones to alert</span>
-        <div class="spick" role="group" aria-label="Phones to alert">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" aria-pressed=${String(to.includes(id))} @click=${() => setE((x) => { x.notify = x.notify.includes(id) ? x.notify.filter((n) => n !== id) : [...x.notify, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
+        <div class="spick" role="group" aria-label="Phones to alert">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" aria-pressed=${String(to.includes(id))} @click=${() => setE((x) => { x.notify = x.notify.includes(id) ? x.notify.filter((n) => n !== id) : [...x.notify, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
         ${svcs.length || to.length ? nothing : html`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${to.length ? this._sure === 'test'
           ? html`<div class="snote" role="alertdialog" aria-label="Send a test alert"><span><b>Send a test to ${to.length} phone${to.length === 1 ? '' : 's'} now?</b> It is an ordinary message that says it is only a test.</span><div class="sbtns" style="justify-content:flex-start"><button class="pill tap primary" data-act="test-send" ?disabled=${!!this._busy} @click=${() => void this._testAlert()}>Send the test</button><button class="pill tap" @click=${() => { this._sure = ''; }}>Cancel</button></div></div>`
@@ -881,7 +895,7 @@ export class FhSettings extends LitElement {
     const body = this._pane === 'children' ? this._children() : this._pane === 'rewards' ? this._rewards() : this._pane === 'morning' ? this._morning() : this._pane === 'medicines' ? this._medicines() : this._pane === 'pin' ? this._pinPane() : this._pane === 'house' ? this._house() : this._pane === 'music' ? this._music() : this._pane === 'people' ? this._people() : this._advanced();
     const note = getNote(); void this._tick;
     const dirty = this._dirty;
-    return html`<div class="glass sheet sbox" role="dialog" aria-modal="true" aria-label="Settings" @click=${(e: Event) => e.stopPropagation()}>
+    return html`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(e: Event) => e.stopPropagation()}>
       <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${icon('cog', 26)}</span>Settings</h2><span class="muted">For grown-ups. ${p.sub}.</span></div>
         <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${icon('close', 20)}</button></div>
       <nav class="snav" aria-label="Sections">${PANES.map((x) => { const off = locked && x.id !== 'pin' && x.id !== 'advanced';

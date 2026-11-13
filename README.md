@@ -166,6 +166,28 @@ The radar and wind maps load from the internet. The radar only ever asks for map
 Chore items are to-do list items whose description holds their points, e.g. `+10`. A nightly automation that
 re-opens completed chores and updates streaks keeps things fresh each day.
 
+### Settings (for parents)
+
+Most of the configuration can be changed on the panel itself. Open the house-info sheet (the "i" button) and tap the cog. It asks for the parent PIN every time, except within a minute of the last time; with no PIN yet, its first step is setting one.
+
+- **Children** (one at a time): name, colour, reading mode, bedtime, what the child's page starts with (look, calm mode, sounds), and the child's jobs and routines. Jobs live in Home Assistant to-do lists, so they are changed there straight away, with form fields in place of the tags below.
+- **Rewards**: each child's rewards (name, picture, cost, whether it needs the PIN) and the family jar.
+- **Morning**: when the "Out the door" board shows, leaving times, travel time, the morning routine, things to bring by day, school terms and holidays.
+- **Medicines**: each medicine's name, who it is for and its time, and the names offered under "something else given". A medicine is only a name and a time: there is nowhere to write an amount. A new medicine needs two helpers in Home Assistant (`input_datetime.fh_med_<id>` and `input_text.fh_med_<id>_by`); Settings lists them and can make them for an administrator.
+- **PIN**: change the PIN, and choose whether recording medicine and Ask after bedtime need it.
+- **House**: night screen and quiet hours, bin night, what "All off" leaves on (`keep_on`), the look, background and sounds a screen starts with, calm mode.
+- **Music**: the moment pads, the sleep timer, call volume.
+- **People and safety**: parents' names, the house-info page, the alert button's phones (a test is sent only after a second, explicit tap), Ask's name.
+- **Advanced**: the wiring (calendars, lists, speakers, scripts), read-only, and "Restore an earlier version".
+
+How saving works: each pane has one Save. The card's configuration is checked with the same rules the card applies when it loads, then written back into the dashboard that hosts the card (`lovelace/config/save`), and the card on that screen takes the new configuration at once. Other screens pick it up when they next load the dashboard (Home Assistant offers "Refresh").
+
+Settings can save only when the person signed in is a Home Assistant **administrator** and the dashboard is kept in the UI (storage mode). A wall panel signed in as an ordinary user, or a YAML dashboard, shows Settings read-only and says why.
+
+Safety net: before every save the card is kept as it was. The last five versions are kept on that screen (browser storage) and the single previous version in the dashboard itself, under the top-level key `family_hub_previous` (safe to delete). The PIN is left out of every kept copy. The toast after a save offers Undo, and Advanced lists the earlier versions to restore.
+
+New options that Settings writes: `bedtime_weekend_extra` (minutes later on Friday and Saturday nights, default 30) and, on a child, `id` (the name the child's helpers were made under, written when a child is renamed so the helpers stay his).
+
 ### Chore tags
 
 Put tags in each to-do item's description:
