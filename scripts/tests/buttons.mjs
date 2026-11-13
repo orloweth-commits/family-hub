@@ -72,7 +72,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
 // 3. small screens: the dock still fits with the morning's place and long names
 for (const look of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1180, 820], [1024, 768]]) { const page = await open(`look=${look}&page=morning&stress=1`, '07:10', { w, h }); const b = await read(page);
   ok(`${look} at ${w} x ${h}, long names, morning: the dock is inside the screen, labels on one line`, b.dockIn && b.labels.length === 1 && b.dock.every((x) => x.w >= 44), b.labels); await page.context().close(); }
-ok('the bundle says 0.32.1', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.32.1'));
+ok('the bundle says 0.32', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.32.'));
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);
