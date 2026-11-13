@@ -83,7 +83,7 @@ export const styles = css`
   :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--ring-halo, #fff); }
   /* the ring has two tones: ink, with a halo of the opposite tone inside it (--ring-halo), so it shows on any coloured surface.
      Rows and tiles that sit in a box that clips (lists that scroll, grids, the dock) carry the ring inside their own edge instead. */
-  :is(.rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
+  :is(.ev, .dayrow, .rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
   input[type='range']:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 0 4px var(--ring-halo, #fff); }
   /* words waiting in an empty field read as text, in every theme */
   input::placeholder, textarea::placeholder { color: var(--ink2); opacity: 1; }
@@ -130,6 +130,7 @@ export const styles = css`
   .cap[hidden] { display: none; }
   .cap .mwho { max-width: 18ch; }
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
+  .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
   .cap.hot { background: #c81e1e; color: #fff; border-color: #c81e1e; animation: hotring 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
@@ -142,7 +143,7 @@ export const styles = css`
   .sos000 > b { font-size: 22px; font-weight: var(--w-heavy, 800); }
   .sosaddr { margin-top: 4px; font-size: 16px; }
   .sosbtn { position: relative; overflow: hidden; flex: 0 0 290px; min-height: 84px; border-radius: 20px; padding: 0 18px; background: #c81e1e; color: #fff; display: flex; align-items: center; gap: 12px; text-align: left; box-shadow: 0 6px 0 #7f1212, 0 12px 18px rgba(127,18,18,.35); touch-action: none; -webkit-user-select: none; user-select: none; }
-  .sosbtn b { display: block; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: 13px; font-weight: var(--w-semi, 600); opacity: .9; }
+  .sosbtn b { display: block; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: 14px; font-weight: var(--w-semi, 600); }
   .sosbtn > span { position: relative; }
   .sosbtn > i { position: absolute; inset: 0; background: rgba(255,255,255,.3); transform: scaleX(0); transform-origin: left; }
   .sosbtn[data-s='hold'] { transform: translateY(4px); box-shadow: 0 2px 0 #7f1212; }
@@ -164,7 +165,7 @@ export const styles = css`
   .med2 .icol > .label:first-child { margin-top: 0; }
   .irow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); }
   .irow b { font-weight: var(--w-bold, 700); min-width: 0; }
-  a.irow { color: inherit; text-decoration: none; min-height: 46px; box-sizing: border-box; align-items: center; }
+  a.irow { color: inherit; text-decoration: none; min-height: 48px; box-sizing: border-box; align-items: center; }
   a.irow .display { text-decoration: underline; text-underline-offset: 3px; }
   .iline { font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.35; padding: 2px 2px; }
   :host([data-phone]) .sos { flex-direction: column; } :host([data-phone]) .sosbtn { flex: none; } 
@@ -174,6 +175,8 @@ export const styles = css`
 
   /* body */
   .body { display: flex; gap: var(--gap); flex: 1; min-height: 0; }
+  /* a page never pushes the body wider than the screen: it gives way and reflows inside */
+  .body > * { min-width: 0; }
   .planner { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
   .bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .seg { display: flex; padding: 3px; border-radius: 12px; background: var(--track); }
@@ -182,9 +185,9 @@ export const styles = css`
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   /* a person's colour never stands alone: the chip carries their initial too */
-  .init { min-width: 18px; height: 18px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 11px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
+  .init { min-width: 19px; height: 19px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 12px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-style: normal; text-transform: none; }
-  .init.sm { min-width: 15px; height: 15px; padding: 0 3px; border-radius: 5px; font-size: 10px; }
+  .init.sm { min-width: 16px; height: 16px; padding: 0 2px; border-radius: 5px; font-size: 12px; }
   /* a list with more below fades out at the bottom edge instead of cutting a row in half */
   .scrolly[data-more] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); }
 
@@ -196,6 +199,20 @@ export const styles = css`
   .pchip { margin-left: auto; font-size: 13px; opacity: .7; }
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 14px; }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
+  /* an event is a button: it opens its details */
+  button.ev, button.dayrow { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  button.ev { align-items: stretch; }
+  .ev.tap:active, .dayrow.tap:active { transform: none; opacity: .8; }
+  .cap.evcap { cursor: pointer; color: inherit; font-family: inherit; }
+  /* the details of one event: read-only */
+  .evtitle { overflow-wrap: anywhere; }
+  .evd { display: flex; flex-direction: column; gap: 10px; padding-left: 14px; border-left: 6px solid var(--c, var(--p-family)); }
+  .evrow { display: flex; align-items: flex-start; gap: 12px; font-size: 18px; font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .evrow .evic { flex: 0 0 26px; display: flex; justify-content: center; padding-top: 1px; color: var(--ink2); }
+  .evrow .evtx { min-width: 0; overflow-wrap: anywhere; }
+  .evrow.evday { font-size: 20px; font-weight: var(--w-bold, 700); }
+  .evpart { font-size: 16px; }
+  .evnotes { margin: 4px 0 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: 16px; line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
   .ev .t { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); }
   .ev .n { font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .evs { position: relative; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; padding: 3px; margin: -3px; }
@@ -216,6 +233,8 @@ export const styles = css`
   .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
   .ev .loc svg, .dayrow .loc svg { flex: 0 0 auto; }
   .col[data-tight] .ev .loc { display: none; }
+  .col[data-wrap] .ev .loc { align-items: flex-start; } .col[data-wrap] .ev .loc svg { margin-top: 1px; }
+  .col[data-wrap] .ev .loc .ell { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .xpbar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
   .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width var(--mt-5); }
 
@@ -227,7 +246,11 @@ export const styles = css`
   .dayview .dayart { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding: 0 6px; line-height: 0; }
   .dayview .daylist { min-width: 0; }
   .dayrow .content, .dayrow .evwho, .ev .w { overflow-wrap: anywhere; }
-  .ev .n[data-hy], .dayrow .content[data-hy] { hyphens: auto; -webkit-hyphens: auto; }
+  /* only a word too long for its column is hyphenated (12 letters or more, where the browser can limit it); shorter words move to the next line whole */
+  .ev .n[data-hy], .dayrow .content[data-hy] { hyphens: auto; -webkit-hyphens: auto; hyphenate-limit-chars: 12 4 4; }
+  /* a title with a word wider than its column is set a step smaller first, so most such words stay whole */
+  .ev .n[data-hy] { font-size: 13px; }
+  .dayrow.next .dwhen { color: var(--ink); }
   .dayrow { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c, transparent) 22%, transparent); border-left: 6px solid var(--c, transparent); }
 
   .month { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px; }
@@ -257,7 +280,8 @@ export const styles = css`
   aside > .card.tmr { max-height: 176px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
-  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
+  .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 12px; margin: -6px -12px; }
   .remmore { height: 16px; line-height: 16px; font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
   .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
   @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
@@ -281,7 +305,11 @@ export const styles = css`
 
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 1px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 9px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
+  .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
+  .grid3 button { white-space: nowrap; }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
   .dock .item .kn { display: block; max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: anywhere; }
@@ -322,7 +350,9 @@ export const styles = css`
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
-  .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* a child's own picker: "Same as the panel" and every look */
+  .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; }
@@ -333,6 +363,10 @@ export const styles = css`
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }
   /* toasts: centred in a strip that lets touches through; only the toast's own box takes a tap */
   .toasts { position: absolute; left: 0; right: 0; bottom: calc(var(--bot) + 4px); z-index: 44; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+  /* a standing place for spoken messages: it is always in the page, so a screen reader hears what is put into it */
+  .says { position: absolute; inset: 0; pointer-events: none; }
+  /* a read-aloud button while its words are being spoken */
+  [data-speaking] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--ink); }
   .toast:empty { display: none; }
   .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn var(--m-3, 240ms) var(--e-out, ease) backwards; }
   /* a page's own toast (it has no strip around it) sits centred above the dock; pages sit inside the card's body, so this is measured from the page's own bottom edge */
@@ -371,6 +405,36 @@ export const styles = css`
   :host([data-shape='tall']) .dock .item { min-width: 62px; }
   :host([data-shape='tall']) .dock .sep { margin: 0 3px; }
   :host([data-shape='tall']) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :host([data-shape='tall']) .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* tablets narrower than the canvas (data-n1 under 1240 px, data-n2 under 1100 px, data-n3 under 900 px): nothing is scaled down;
+     the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
+  :host([data-n2]) .fh { --rail: 224px; }
+  :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
+  :host([data-n2]) .dock .item { min-width: 62px; }
+  :host([data-n2]) .dock .sep { margin: 0 3px; }
+  :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
+  :host([data-n3]) .dock .item .kn { max-width: 60px; }
+  :host([data-n3]) nav.dock { padding: 6px; }
+  :host([data-n3]) .planner { padding: 12px 14px 14px; gap: 10px; border-radius: 22px; }
+  :host([data-n3]) .bar { gap: 8px; }
+  :host([data-n3]) .bar > div:first-child { min-width: 0 !important; flex: 1 1 150px; }
+  :host([data-n3]) .legend { gap: 6px 12px; }
+  /* a short month keeps every day a full target and scrolls inside the planner */
+  :host([data-n3]) .month, :host([data-n2]) .month { grid-auto-rows: minmax(44px, 1fr); overflow-y: auto; }
+  :host([data-shape='wide'][data-n2]) aside { overflow-y: auto; scrollbar-width: none; }
+  :host([data-shape='wide'][data-n2]) aside > .card.rems { min-height: 120px; }
+  :host([data-n2]) .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  :host([data-n3]) .themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :host([data-n3]) .sheet { padding: 18px 18px; border-radius: 26px; }
+  :host([data-n3]) .info2 { columns: 2 220px; }
+  :host([data-n3]) .sosbtn { flex-basis: 240px; }
+  /* portrait and narrower than its canvas: the header keeps one row of controls and puts its chips on a second */
+  :host([data-shape='tall']) .fh[data-compact] header { height: auto; max-height: none; }
+  :host([data-shape='tall'][data-n3]) .weather .wsub, :host([data-shape='tall'][data-n3]) .weather .wtop, :host([data-shape='tall'][data-n3]) .weather .badge, :host([data-shape='tall'][data-n3]) .presence { display: none; }
+  :host([data-shape='tall'][data-n3]) .right { gap: 8px; }
+  :host([data-shape='tall'][data-n3]) aside > .card.rems { min-height: 100px; }
+  :host([data-shape='tall']) .planner { min-height: 0; }
 
   /* phones: one column that scrolls, with the dock fixed along the bottom. Nothing here applies to any other screen. */
   :host([data-phone]) { height: auto; }
@@ -404,7 +468,7 @@ export const styles = css`
   :host([data-phone]) aside { flex-direction: column; }
   :host([data-phone]) nav.dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 9; max-width: none; overflow-x: auto; justify-content: flex-start; padding: 6px; border-radius: 22px; scrollbar-width: none; }
   :host([data-phone]) nav.dock::-webkit-scrollbar { display: none; }
-  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 12px; }
+  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 13px; }
   :host([data-phone]) nav.dock[data-more] { -webkit-mask-image: linear-gradient(to left, transparent, #000 36px); mask-image: linear-gradient(to left, transparent, #000 36px); }
   :host([data-phone]) .dock .kidbtn .avatar { width: 34px !important; height: 34px !important; }
 

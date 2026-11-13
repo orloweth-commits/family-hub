@@ -20,8 +20,8 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
 const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to share the music.', reef: 'Swim two fish together to share the music.', space: 'Drag a planet onto an orbit to join that music.', bush: 'Move two fires together to share the music.',
-  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.' };
-export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : 'orbit');
+  sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.', sports: 'Two players together share the music.' };
+export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : look === 'sports' ? 'sports' : 'orbit');
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? SCENE_HINT[sceneKind(look, theme)] : VIEWS.find((v) => v.id === id)?.hint ?? '');
 
 export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; /** plays the music in the player (the room that leads it included) */ on: boolean; /** grouped with at least one other room, whichever room is selected */ linked: boolean; /** a home speaker that cannot be reached right now */ offline: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
@@ -105,7 +105,7 @@ const railDown = (o: Vol) => (e: PointerEvent): void => {
 /** The plain member of the family: quieter, a rail with its fill and thumb, louder, the number. Lying down by default; `vert` stands it up (a fader). */
 export const volCtl = (o: Vol): TemplateResult => html`<div class="vs" ?data-vert=${!!o.vert} ?data-idle=${!o.live} ?data-held=${!!o.held} style="--v:${o.v}">
   ${stepBtn(o.name, o.v, false, () => o.set(clamp(o.v - STEP), true))}
-  <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${o.name}" aria-orientation=${o.vert ? 'vertical' : 'horizontal'} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${o.v} aria-valuetext="${o.v}${o.live ? '' : ', quiet'}"
+  <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${o.name}" aria-orientation=${o.vert ? 'vertical' : 'horizontal'} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${o.v} aria-valuetext="${o.v} per cent${o.live ? '' : ', quiet'}"
     @pointerdown=${railDown(o)} @keydown=${volKey(o.v, (v) => o.set(v, true))}><i class="slot"></i><i class="vfill"></i><i class="fcap"><b aria-hidden="true">${o.v}</b></i></div>
   ${stepBtn(o.name, o.v, true, () => o.set(clamp(o.v + STEP), true))}
   <b class="vnum" aria-hidden="true">${o.v}</b></div>`;
@@ -125,7 +125,7 @@ const keys = (c: Ctx, r: Room) => (e: KeyboardEvent): void => {
 };
 /** One word for what a room is doing. A room with nothing on is "Quiet" in every view. */
 const state = (r: Room): string => (r.offline ? 'Offline' : r.live ? (r.playing ? 'Playing' : 'Paused') : r.asleep ? 'Asleep' : 'Quiet');
-const vtext = (r: Room): string => `${r.vol}, ${state(r).toLowerCase()}`;
+const vtext = (r: Room): string => `${r.vol} per cent, ${state(r).toLowerCase()}`;
 const col = (r: Room): string => (r.colour ? `--c:${r.colour}` : '');
 /** Rooms that play together carry this mark, whichever room is selected. */
 const link = (r: Room): TemplateResult | typeof nothing => (r.linked ? html`<i class="linkd" role="img" aria-label="linked with another room"></i>` : nothing);
@@ -210,7 +210,7 @@ export const deskView = (c: Ctx): TemplateResult => {
   const strip = (r: Room): TemplateResult => {
     const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
     // a lamp says ON only for a room playing the music on this desk; a room with other music shows a note
-    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? '♪' : r.asleep ? '☾' : 'OFF';
+    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? 'PLAYING' : r.asleep ? '☾' : 'OFF';
     const says = r.offline ? `${r.name} is offline` : r.on ? (r.lead ? `ON: ${r.name} plays this music. ${r.playing ? 'Pause' : 'Play'}` : `ON. Remove ${r.name} from the music`) : r.live ? `${r.name} has other music. Swap it for this music` : `OFF. Add ${r.name} to the music`;
     return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
       <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><span>${r.name}</span>${link(r)}</button>
@@ -317,6 +317,10 @@ const ACTORS: Record<string, (r: Room, v: number) => TemplateResult> = {
     <g class="sway"><path class=${r.live ? 'afill edge' : 'aidle edge'} d="M50 ${y - 26}L73 ${y}L50 ${y + 26}L27 ${y}Z"></path><path class="aline thin" d="M50 ${y - 26}V${y + 26}M27 ${y}H73"></path></g>`; },
   fridge: (r, v) => { const y = 96 - 72 * (r.hasVol ? v : 0); return svg`<path class="aline" d="M50 14C53 44 47 76 50 106"></path>${[0, 1, 2, 3, 4].map((k) => svg`<path class="aline thin" d="M43 ${18 + k * 21}h14"></path>`)}
     <g class="jig"><circle class="ashade" cx="52" cy=${y + 4} r="23"></circle><circle class=${r.live ? 'afill' : 'aidle'} cx="50" cy=${y} r="23"></circle><text class="ainit" x="50" y=${y + 7}>${r.name[0]}</text></g>`; },
+  // Home Ground: each room is a player (a disc in the room's colour with its initial); a room with music has the ball at its feet
+  sports: (r) => svg`<ellipse class="ashade" cx="50" cy="103" rx="27" ry="5"></ellipse>
+    <g class="bob"><circle class="pring" cx="50" cy="64" r="32"></circle><circle class=${r.live ? 'afill pdisc' : 'aidle pdisc'} cx="50" cy="64" r="28"></circle><text class="ainit" x="50" y="73">${r.name[0]}</text></g>
+    ${r.live ? svg`<g class="pball" transform="translate(83 92)"><circle r="12"></circle><path d="M0 -4.200l4 2.900-1.500 4.700h-5l-1.500-4.700z"></path></g>` : nothing}`,
   orbit: (r, v) => { const p = 23 + 9 * v; return svg`<circle class="aorbit" cx="50" cy="68" r="38"></circle>${r.playing ? svg`<circle class="aglow" cx="50" cy="68" r=${p + 8}></circle>` : nothing}
     <circle class=${r.live ? 'afill' : 'aidle edge'} cx="50" cy="68" r=${p}></circle>`; }
 };
@@ -326,7 +330,9 @@ const BACKDROP: Record<string, TemplateResult> = {
   space: svg`${[[8, 14], [22, 40], [40, 8], [63, 22], [81, 12], [93, 44], [52, 50]].map(([x, y], i) => svg`<circle class="bgstar" style="animation-delay:${-i * 0.5}s" cx=${x} cy=${y} r=".7"></circle>`)}`,
   bush: svg`<path class="bg2" d="M0 96h100"></path>${[[12, 30], [88, 22], [50, 14], [70, 44]].map(([x, y], i) => svg`<circle class="bgfly" style="animation-delay:${-i * 0.8}s" cx=${x} cy=${y} r=".8"></circle>`)}`,
   sunset: svg`<path class="bg2" d="M0 96q25 -8 50 0t50 0"></path>`,
-  fridge: svg``, orbit: svg``
+  fridge: svg``, orbit: svg``,
+  // the markings are deliberately no one's: a boundary, a halfway line, a centre circle and two shallow arcs
+  sports: svg`<path class="bgchalk" d="M2.500 5H97.500V95H2.500ZM50 5V95M43 50a7 17 0 1 0 14 0a7 17 0 1 0 -14 0M2.500 30a6 20 0 0 1 0 40M97.500 30a6 20 0 0 0 0 40"></path>`
 };
 
 /** Where each room floats, in percent of the scene. Wide: rooms sharing music sail together along the top, beside what is playing, and the quiet ones wait in a line below, across the whole width. Narrow: every room has a place in rows, the ones with music first. The CSS keeps each one whole inside the edge. */
@@ -342,7 +348,7 @@ const spots = (c: Ctx): Record<string, [number, number]> => {
   idle.forEach((r, i) => { out[r.id] = [2 + ((i + 0.5) / idle.length) * 96, live.length ? 60 : 45]; });
   return out;
 };
-const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos' };
+const SHELF_NAME: Record<string, string> = { sea: 'buoys', reef: 'shells', space: 'stars', orbit: 'stars', bush: 'lanterns', sunset: 'beach balls', fridge: 'photos', sports: 'kit bag' };
 /** Previous, play and next, small, beside the title. */
 const sceneKeys = (c: Ctx): TemplateResult => miniKeys(c.now.playing, () => c.prev(), () => c.playPause(), () => c.next());
 /** The shelf, drawn into the world along the bottom of the scene: buoys on the sea, shells on the reef, a constellation in space, lanterns in the bush, beach balls at sunset, photos pegged up on the fridge. Carry one to a room or to the music; tap it to play in the room in focus. */
@@ -516,7 +522,8 @@ export const viewsCss = css`
   .darc { --c: var(--stream, var(--primary)); cursor: grab; touch-action: none; outline: none; }
   .darc:focus-visible .dtrack { stroke: var(--ink); stroke-opacity: 1; } .darc:focus-visible .dknob { stroke: var(--ink); stroke-width: 5; }
   .tuner:focus-visible, .jog:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-  .dhit { fill: none; stroke: transparent; stroke-width: 46; }
+  /* the place to press is 46 px across whatever size the dial is drawn at */
+  .dhit { fill: none; stroke: transparent; stroke-width: 46px; vector-effect: non-scaling-stroke; }
   .dtrack { fill: none; stroke: var(--track); stroke-width: 26; stroke-linecap: round; }
   .dfill { fill: none; stroke: var(--ink3); stroke-width: 26; stroke-linecap: round; opacity: .55; transition: stroke var(--m-2, 160ms); }
   .darc[data-live] .dfill { stroke: var(--c); opacity: 1; }
@@ -544,6 +551,13 @@ export const viewsCss = css`
   :host([data-shape='tall']:not([data-phone])) .dmid { grid-column: 1 / -1; grid-row: 1; }
   :host([data-shape='tall']:not([data-phone])) .dcard { grid-row: 2; width: auto; height: auto; justify-self: stretch; align-self: stretch; }
   :host([data-shape='tall']:not([data-phone])) .dturn { grid-column: 2; } :host([data-shape='tall']:not([data-phone])) .tuner { grid-row: 3; }
+  /* a landscape tablet narrower than the canvas: the two cards stack at the left and the dial keeps the rest, so nothing runs off the side */
+  :host([data-shape='wide'][data-n2]) .dialwrap { grid-template-columns: minmax(230px, 270px) minmax(0, 1fr); }
+  :host([data-shape='wide'][data-n2]) .dmid { grid-column: 2; padding: 0 118px; }
+  :host([data-shape='wide'][data-n2]) .dcard { grid-column: 1; grid-row: 1; width: auto; justify-self: stretch; height: auto; max-height: calc(50% - 5px); }
+  :host([data-shape='wide'][data-n2]) .dnext { align-self: start; } :host([data-shape='wide'][data-n2]) .dturn { align-self: end; }
+  :host([data-n1]) .dcoins { flex-wrap: wrap; overflow: visible; }
+  :host([data-stack][data-shape='tall']:not([data-phone])) .dialwrap { grid-template-rows: minmax(260px, 1fr) auto auto; }
   :host([data-phone]) .dialwrap { flex: none; display: flex; flex-direction: column; container-type: normal; gap: 12px; } :host([data-phone]) .dmid { padding: 0; }
   :host([data-phone]) .bigdial { height: auto; aspect-ratio: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; } :host([data-phone]) .bigdial > svg { position: static; width: 250px; height: 250px; }
   :host([data-phone]) .dcover { left: calc(50% - 60px); top: 65px; width: 120px; height: 120px; }
@@ -587,7 +601,8 @@ export const viewsCss = css`
   .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
-  .lamp[data-other] { background: var(--c); font-size: 18px; }
+  /* a room with other music says so in a word, on a lamp wide enough to hold it */
+  .lamp[data-other] { background: var(--c); font-size: 13px; width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
   .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 2px; }
@@ -796,6 +811,19 @@ export const viewsCss = css`
   @keyframes asway { from { transform: translateX(-5px) rotate(-8deg); } to { transform: translateX(5px) rotate(8deg); } }
   .actor[data-playing] .jig { transform-origin: center; animation: ajig .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes ajig { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  /* Home Ground: the training ground. Chalk markings, players as discs (a quiet room is a dashed outline), the music as a ball, and a dotted pass line between rooms that share */
+  .bgchalk { stroke: var(--chalk, #fff); stroke-width: 2.500px; }
+  .pring { fill: none; } .pball { display: none; }
+  .vscene[data-kind='sports'] .pring { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+  .vscene[data-kind='sports'] .pdisc { stroke: none; }
+  .vscene[data-kind='sports'] .aidle { fill: var(--panel, #fff); opacity: 1; }
+  .vscene[data-kind='sports'] .actor:not([data-live]) .pring { fill: var(--panel, #fff); stroke: var(--ink3); stroke-dasharray: 5 4; }
+  .vscene[data-kind='sports'] .actor:not([data-live]) .ainit { fill: var(--ink2); }
+  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; }
+  .vscene[data-kind='sports'] .pball { display: block; } .pball circle { fill: #fff; stroke: #14201a; stroke-width: 2; } .pball path { fill: #14201a; }
+  .vscene[data-kind='sports'] .actor:not([data-playing]) .pball { opacity: .55; }
+  .vscene[data-kind='sports'] .tie { stroke: var(--ink); stroke-width: 3px; stroke-dasharray: 2 10; opacity: 1; }
+  .vscene[data-kind='sports'] .slabel { border-radius: 8px; box-shadow: inset 0 0 0 1.500px var(--line); }
   .vscene[data-kind='space'] .aidle, .vscene[data-kind='orbit'] .aidle { fill: transparent; stroke: var(--ink2); stroke-width: 2; opacity: 1; }
   :host([data-phone]) .vscene { flex: none; height: 720px; --k: .5; --sq: .9; }
   /* two rooms side by side on a phone: the name may take two lines so the chips never overlap */

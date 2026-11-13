@@ -5,9 +5,12 @@ import { type CSSResult, type TemplateResult, type nothing } from 'lit';
  *
  * `always` is the slow life that is there the whole time (clouds, water, stars). `cast` is who wanders through, one at a time.
  * Everything is drawn as inline SVG or plain elements, animated with transform and opacity only, and never takes a touch.
- * Class names in `css` must start with the world's own prefix (`sea-`, `reef-`, `bush-`, `sp-`, `fr-`) so worlds cannot clash.
+ * Class names in `css` must start with the world's own prefix (`sea-`, `reef-`, `bush-`, `sp-`, `fr-`, `gd-`) so worlds cannot clash.
  */
-export interface Ctx { look: string; theme: string; tod: 'day' | 'eve' | 'night'; /** minutes since midnight */ mins: number; /** 0 = Sunday */ weekday: number; month: number; date: number }
+export interface Ctx { look: string; theme: string; tod: 'day' | 'eve' | 'night'; /** minutes since midnight */ mins: number; /** 0 = Sunday */ weekday: number; month: number; date: number; /** where the page's furniture is (only for worlds that ask with `solo`) */ lay?: Lay; /** the weather entity says rain */ rainy?: boolean }
+/** The page as the layer finds it, in the layer's own px: its size, the body's top and bottom, the dock's box, and the free lanes
+ *  (`gutter` between body and dock, `strip` under the dock, `corner` beside it). On a phone the dock floats, so there are no lanes. */
+export interface Lay { w: number; h: number; top: number; bottom: number; dl: number; dr: number; dt: number; db: number; gutter: number; strip: number; corner: number; phone: boolean }
 export interface Visitor {
   id: string;
   /** how long the visit lasts, in ms (the element is removed after this) */
@@ -15,8 +18,8 @@ export interface Visitor {
   /** how it moves: built-in paths from ambient.ts (`across`, `streak`, `up`, `down`, `flit`, `buzz`, `peek`, with `bobbing`, `wobble`, `foot`) or the world's own class with its own keyframes. `--t` is the visit's duration, `--y` and `--x` its start in % */
   move: string;
   art: TemplateResult;
-  /** more likely the higher (default 1) */
-  weight?: number;
+  /** more likely the higher (default 1); a function when it depends on the day */
+  weight?: number | ((c: Ctx) => number);
   /** where it may start, in % of the height (default 1 to 10: the open band above the panels) */
   y?: [number, number];
   /** may come from either side (the art is mirrored when it comes from the right); default true */
@@ -25,8 +28,22 @@ export interface Visitor {
   front?: boolean;
   /** only at certain times (evening only, Fridays, December…) */
   when?: (c: Ctx) => boolean;
+  /** it keeps to the gutter above the dock, the strip under it or the corners beside it, so it is drawn outside the masks that hide visitors there */
+  lane?: boolean;
+  /** a rare surprise: at most once a day, or once an hour (kept in memory; it also counts towards the world's `rare` limits) */
+  max?: 'day' | 'hour';
 }
-export interface Scene { css: CSSResult; always(c: Ctx): TemplateResult | typeof nothing; cast: Visitor[] }
+export interface Scene {
+  css: CSSResult; always(c: Ctx): TemplateResult | typeof nothing; cast: Visitor[];
+  /** the quiet gap between visitors, in ms, counted from when the last one has gone (default: 25 to 80 s from when it came) */
+  gap?: [number, number];
+  /** one visitor at a time over both layers, never the same one twice running, none while the card says `hold`, gone when the tab is hidden; the layer also measures the page (`Ctx.lay`) */
+  solo?: boolean;
+  /** `always` has nothing that moves, so it stays in calm mode and with reduce-motion */
+  still?: boolean;
+  /** limits for all visitors that have a `max`: at least `every` ms apart, at most `day` a day, none from `until` (minutes since midnight) */
+  rare?: { every: number; day: number; until?: number };
+}
 
 /** The same "random" every time, so a sky does not reshuffle on each render. */
 export const rnd = (seed: number): (() => number) => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };

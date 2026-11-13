@@ -2,13 +2,14 @@
 // and (CHECKS=text,ring,contrast,target; all on by default, CHECKS=fit for the old behaviour) cut-off text, outlines and focus rings
 // that an overflow would clip, text under WCAG AA contrast measured from the painted pixels, and touch targets under 44 px.
 // TIME=HH:MM sets the clock; THEME= picks a Glass theme; MAX= caps the lines printed per check (default 8).
-// Usage: npm run build && PLAYWRIGHT=<path to playwright index.mjs> [CHROME=<chrome binary>] [VP=name:WxH,…] [PAGES=…] [LOOK=fridge] [SHOT=1] node scripts/tests/audit.mjs
+// Usage: npm run build && PLAYWRIGHT=<path to playwright index.mjs> [CHROME=<chrome binary>] [VP=name:WxH,…] [PAGES=…] [LOOK=glass|fridge|orbit|sports] [SHOT=1] node scripts/tests/audit.mjs
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const PORT = Number(process.env.PORT || 4781); // PORT= moves the test server when another run holds the usual port
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
-  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(4781);
+  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
 const VP = (process.env.VP || 'wall:1920x1080,laptop-in-HA:1312x668,design:1280x800,ipad-air:1180x820,ipad-old:1024x768,ipad-portrait:820x1180,phone:390x844').split(',').map((s) => { const [n, d] = s.split(':'); const [w, h] = d.split('x').map(Number); return { n, w, h }; });
 const PAGES = (process.env.PAGES || 'planner,planner&view=day,planner&view=month,kid&kid=0,kid&kid=1,kid&kid=2,groceries,doodle,music,home,planner&sheet=add,planner&sheet=themes').split(',');
 const CHECKS = (process.env.CHECKS || 'fit,text,ring,contrast,target').split(','), MAX = Number(process.env.MAX || 8), totals = {};
@@ -20,7 +21,9 @@ for (const v of VP) {
   for (const pg of PAGES) {
     const page = await ctx.newPage();
     await page.clock.setFixedTime(new Date(`2026-11-10T${process.env.TIME || '16:20'}:00+08:00`));
-    await page.goto(`http://localhost:4781/?look=${process.env.LOOK || 'glass'}${process.env.THEME ? '&theme=' + process.env.THEME : ''}&page=${pg}`); await page.waitForFunction('window.__ready === true').catch(() => {}); await page.waitForTimeout(1500);
+    await page.goto(`http://localhost:${PORT}/?look=${process.env.LOOK || 'glass'}${process.env.THEME ? '&theme=' + process.env.THEME : ''}&page=${pg}`); await page.waitForFunction('window.__ready === true').catch(() => {}); await page.waitForTimeout(1500);
+    // a sheet is measured once it has arrived: its entrance scales it, and a slow first frame can leave that entrance still running
+    await page.evaluate(() => Promise.race([Promise.all(document.getAnimations().filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime)).map((a) => a.finished.catch(() => {}))), new Promise((r) => setTimeout(r, 3000))]));
     const r = await page.evaluate(() => {
       const out = [], card = document.querySelector('family-hub-card'), fh = card.shadowRoot.querySelector('.fh');
       const z = Number(getComputedStyle(fh).zoom) || 1;

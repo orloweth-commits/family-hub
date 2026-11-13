@@ -3,13 +3,14 @@ import http from 'node:http'; import fs from 'node:fs'; import path from 'node:p
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const PORT = Number(process.env.PORT || 4782); // PORT= moves the test server when another run holds the usual port
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
-  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(4782);
+  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 const errs = [];
 const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
-  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:4782/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const calls = (page, re) => page.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).slice(-3).join(' || '), re.source);
 const M = (page) => page.locator('fh-music');
 // ONLY=polish runs just the polish-pass tests at the end of this file
@@ -273,7 +274,7 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   for (const [qs, name] of [['look=orbit&page=planner&guest=saucer', 'orbit'], ['look=glass&theme=space&page=planner&guest=shoot', 'glass space'], ['look=glass&theme=sea&page=planner&guest=gulls', 'glass sea'], ['look=glass&theme=reef&page=planner&guest=turtle', 'glass reef'], ['look=glass&theme=bush&page=planner&guest=roo', 'glass bush'], ['look=fridge&page=planner&guest=ants', 'fridge'], ['look=orbit&page=planner&guest=saucer&calm=1', 'orbit, calm'], ['look=fridge&page=planner&calm=1', 'fridge, calm'], ['look=orbit&page=planner&ambient=0', 'orbit, switched off']]) {
     const o = await open(qs); await o.waitForTimeout(300); console.log(`ambient, ${name}:`, JSON.stringify(await amb(o))); await o.close(); } }
 // 0.20.0: one grammar: a lead action per page, one selected style per look, a touch that answers at once
-{ for (const look of ['glass', 'fridge', 'orbit']) { const o = await open(`look=${look}&page=planner`);
+{ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const o = await open(`look=${look}&page=planner`);
     const r = await o.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot, cs = (e) => getComputedStyle(e), lead = c.querySelectorAll('.lead'), seg = c.querySelector(".seg button[aria-pressed='true']"), off = c.querySelector(".seg button[aria-pressed='false']");
       const solid = [...c.querySelectorAll('button')].filter((b) => cs(b).backgroundColor === cs(lead[0]).backgroundColor && b.offsetParent).length;
       return { leads: lead.length, leadH: Math.round(lead[0].getBoundingClientRect().height), sameFillAsLead: solid, selected: cs(seg).backgroundColor, unselected: cs(off).backgroundColor, selText: cs(seg).color, pressMs: cs(c.querySelector('.tap')).transitionDuration.split(',')[0].trim() }; });
@@ -291,11 +292,44 @@ await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') });
   console.log('grocery ticked at once and stays put:', await G.locator('button.item', { hasText: name }).first().evaluate((e) => e.classList.contains('done')), JSON.stringify(before) === JSON.stringify(mid), '| min row height:', Math.min(...await G.locator('button.item').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)))));
   await g.waitForTimeout(4300); console.log('then moves to the trolley:', JSON.stringify(await G.locator('button.item').allTextContents()) !== JSON.stringify(mid)); await g.close(); }
 await polish();
+// a speaker that is not on the house map (another network's, say) is never swept up by Whole house or Everyone
+{ const p = await open('look=glass&page=music&mview=list&mextra=1'); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); return { all: m._list.length, home: m._homeList.length, extraInHome: m._homeList.some((x) => x.entity_id === 'media_player.boardroom') }; });
+  await p.evaluate(() => { window.__calls = []; const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); m._everywhere(true, m._list.find((x) => x.state === 'playing')); }); await p.waitForTimeout(500);
+  const joined = await p.evaluate(() => (window.__calls || []).filter((c) => c.includes('media_player.join')).join(' '));
+  console.log('unmapped speaker: listed', r.all, '| counts as the house', r.home, '| swept up by Whole house:', r.extraInHome || /boardroom/.test(joined), '(expect false)'); await p.close(); }
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();
 
 // ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----
+// Round 5: hints whole in three looks, the Dial's 44 px arcs, one call per tap on a slow link, plain words on the search and the Desk
+async function round5() {
+  const at = async (w, h, qs) => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e))); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+  const ok = (b) => (b ? 'ok' : 'FAIL');
+  for (const look of ['glass', 'fridge', 'orbit']) { const out = []; for (const v of ['scene', 'dial', 'desk', 'cables', 'list']) { const p = await at(1280, 800, `look=${look}&page=music&mview=${v}`);
+      const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, h = m.querySelector('.hint[data-on]'); if (!h) return null; const rg = document.createRange(); rg.selectNodeContents(h); const rr = rg.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { lines: Math.round(hb.height / parseFloat(getComputedStyle(h).lineHeight)), cut: h.scrollHeight > h.clientHeight + 1 || rr.bottom > hb.bottom + 1 || rr.right > hb.right + 1, ends: /[.!?]$/.test(h.textContent.trim()) }; });
+      out.push(`${v} ${r ? `${r.lines} line${r.lines > 1 ? 's' : ''}${r.cut ? ' CUT' : ''}` : 'no hint'} ${ok(!!r && !r.cut && r.lines <= 2 && r.ends)}`); await p.context().close(); }
+    console.log(`R5-5 hints at 1280x800 in ${look}:`, out.join(' | ')); }
+  for (const [w, h] of [[1280, 800], [820, 1180], [390, 844]]) { const p = await at(w, h, 'look=glass&page=music&mview=dial');
+    await p.locator('fh-music .bigdial').scrollIntoViewIfNeeded(); await p.waitForTimeout(200);
+    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, arcs = [...m.querySelectorAll('.darc')]; const widths = arcs.map((a) => { const cs = getComputedStyle(a.querySelector('.dhit')); return cs.vectorEffect === 'non-scaling-stroke' ? parseFloat(cs.strokeWidth) : 0; });
+      // press 20 px to the side of the middle of each arc's centre line: the arc itself must be what is hit
+      const hits = arcs.map((a) => { const t = a.querySelector('.dtrack'), len = t.getTotalLength(), pt = t.getPointAtLength(len / 2), m2 = t.getScreenCTM(), sx = pt.x * m2.a + pt.y * m2.c + m2.e, sy = pt.x * m2.b + pt.y * m2.d + m2.f, sv = a.ownerSVGElement.getBoundingClientRect(), cx = sv.left + sv.width / 2, cy = sv.top + sv.height / 2, d = Math.hypot(sx - cx, sy - cy), ux = (sx - cx) / d, uy = (sy - cy) / d; return [20, -20].every((o) => { const el = a.getRootNode().elementFromPoint(sx + ux * o, sy + uy * o); return !!el && a.contains(el); }); });
+      return { n: arcs.length, min: Math.min(...widths), hit20: hits.filter(Boolean).length }; });
+    console.log(`R5-6 Dial arcs at ${w}x${h}: hit stroke ${r.min} px (expect >= 44)`, ok(r.min >= 44), `| pressed 20 px either side of the line: ${r.hit20} of ${r.n} arcs answer`, ok(r.hit20 === r.n)); await p.context().close(); }
+  { const probe = async (qs, pick, re) => { const p = await at(1280, 800, qs + '&slow=1500');
+      const r = await p.evaluate(async ([pick, re]) => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = pick === 'go' ? m.querySelector('.go') : [...m.querySelectorAll('button')].find((x) => /^(Add|Remove) .* (to|from) the music/.test(x.getAttribute('aria-label') || '')); if (!b) return null; window.__calls = []; const fire = () => { b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true })); b.click(); }; fire(); fire(); await new Promise((r) => setTimeout(r, 400)); const busy = b.hasAttribute('data-busy') && getComputedStyle(b).cursor === 'progress'; fire(); await new Promise((r) => setTimeout(r, 2400)); return { name: b.getAttribute('aria-label'), busy, calls: window.__calls.filter((c) => new RegExp(re).test(c)).length, after: b.hasAttribute('data-busy') }; }, [pick, re]);
+      await p.context().close(); return r; };
+    const a = await probe('look=glass&page=music&mview=list', 'go', 'media_play_pause'), b = await probe('look=glass&page=music&mview=list', 'room', 'join'), c = await probe('look=glass&page=music&mview=house', 'room', 'join');
+    for (const [n, r] of [['player Play/Pause', a], ['List room "+"', b], ['House room "+"', c]]) console.log(`R5-8 ${n} tapped three times on a slow link:`, JSON.stringify(r), ok(!!r && r.busy && r.calls === 1 && !r.after)); }
+  { const p = await at(1280, 800, 'look=glass&page=music&mtab=search&find=Bluey'); await p.waitForTimeout(900);
+    const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = [...m.querySelectorAll('button')].find((x) => /the keyboard$/.test(x.getAttribute('aria-label') || '')); const k = [...m.querySelectorAll('.kind')].map((e) => parseFloat(getComputedStyle(e).fontSize)); return { word: b?.textContent.trim(), name: b?.getAttribute('aria-label'), h: b && Math.round(b.getBoundingClientRect().height), kinds: k.length, kindMin: k.length ? Math.min(...k) : null }; });
+    console.log('R5-17 search keyboard button:', JSON.stringify(r), ok(r.word === 'Keyboard' && r.h >= 44), '| R5-2 kind badges (px):', r.kindMin, ok(r.kinds === 0 || r.kindMin >= 12)); await p.context().close(); }
+  { const p = await at(1280, 800, 'look=glass&page=music&mview=desk'); const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const l = [...m.querySelectorAll('.lamp')]; return { lamps: l.map((e) => e.textContent.trim()), cut: l.filter((e) => e.scrollWidth > e.clientWidth + 1).length + [...m.querySelectorAll('.strip')].filter((e) => e.scrollWidth > e.clientWidth + 1).length, text: m.querySelector('[role=slider][aria-valuetext]')?.getAttribute('aria-valuetext') }; });
+    console.log('R5-17 Desk lamps:', JSON.stringify(r.lamps), ok(!r.lamps.includes('♪') && r.cut === 0), '| R5-15 volume value text:', JSON.stringify(r.text), ok(/per cent/.test(r.text ?? ''))); await p.context().close(); }
+}
 async function polish() {
+  await round5();
   const toast = async (pg) => (await M(pg).locator('.toast').textContent() ?? '').trim().replace(/\s+/g, ' ');
   const clear = (pg) => pg.evaluate(() => { (window.__calls ||= []).length = 0; });
   const count = (pg, re) => pg.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).length, re.source);
@@ -352,7 +386,7 @@ async function polish() {
     console.log('slow Home Assistant: busy at once:', early, '| busy after 250 ms:', await M(s).locator('[data-busy]').count(), '| cleared when it answers:', (await s.waitForTimeout(1400), await M(s).locator('[data-busy]').count())); await s.close();
     // on a phone a swipe up the page that starts on a slider scrolls and changes nothing; a slide along it sets the volume
     const pc = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }), ph = await pc.newPage(); ph.on('pageerror', (e) => errs.push(String(e)));
-    await ph.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await ph.goto('http://localhost:4782/?look=glass&page=music&mview=list'); await ph.waitForFunction('window.__ready === true'); await ph.waitForTimeout(700);
+    await ph.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await ph.goto('http://localhost:' + PORT + '/?look=glass&page=music&mview=list'); await ph.waitForFunction('window.__ready === true'); await ph.waitForTimeout(700);
     const cdp = await pc.newCDPSession(ph), rail = M(ph).locator('.spk[data-zone="media_player.alexs_homepod"] .vrail'); await rail.scrollIntoViewIfNeeded(); await ph.waitForTimeout(300);
     const touch = async (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
     const swipe = async (x0, y0, x1, y1) => { await touch('touchStart', x0, y0); for (let i = 1; i <= 8; i++) { await touch('touchMove', x0 + ((x1 - x0) * i) / 8, y0 + ((y1 - y0) * i) / 8); await ph.waitForTimeout(30); } await touch('touchEnd'); await ph.waitForTimeout(500); };
@@ -406,6 +440,6 @@ async function polish() {
     console.log('tabs keep one line when the selection changes:', new Set([...y0, ...y1]).size === 1, '| every tab named:', (await M(l).locator('[role=tab]').evaluateAll((e) => e.every((x) => !!x.getAttribute('aria-label')))));
     await M(l).locator('[role=tab]').first().click(); await l.waitForTimeout(300);
     console.log('list: names from the house map:', (await M(l).locator('.sn2').allInnerTexts()).join(', '), '| states:', [...new Set(await M(l).locator('.rst').allInnerTexts())].join(', '), '| move button:', await M(l).locator('.moveb').first().evaluate((e) => Math.round(e.getBoundingClientRect().height) + ' px / ' + getComputedStyle(e).fontSize)); await l.close();
-    const w = await ctx.newPage(); await w.setViewportSize({ width: 1920, height: 1080 }); await w.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await w.goto('http://localhost:4782/?look=glass&page=music&mview=desk'); await w.waitForFunction('window.__ready === true'); await w.waitForTimeout(700);
+    const w = await ctx.newPage(); await w.setViewportSize({ width: 1920, height: 1080 }); await w.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await w.goto('http://localhost:' + PORT + '/?look=glass&page=music&mview=desk'); await w.waitForFunction('window.__ready === true'); await w.waitForTimeout(700);
     console.log('wide screen: tab words shown in the title row:', await M(w).locator('.tabs.inline button span').evaluateAll((e) => e.filter((x) => x.getClientRects().length).length)); await w.close(); }
 }

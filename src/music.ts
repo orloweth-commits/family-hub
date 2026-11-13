@@ -4,7 +4,7 @@ import { styles } from './styles';
 import { LookController, getLook, lookArt } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
-import { bedtimeFor, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown } from './util';
+import { bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
@@ -35,11 +35,14 @@ const today = (): string => new Date().toDateString();
 const ls = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* blocked */ } };
 
+/** The shape the Music page arranges itself for: a landscape screen under 900 px wide takes the portrait arrangement and scrolls. */
+const shp = (): 'wide' | 'tall' | 'phone' => { const s = getShape(); return s === 'wide' && getNarrow() >= 3 ? 'tall' : s; };
 /**
  * Music: what is playing and where, one search across every service, a shelf of favourites per child,
  * a take-turns jukebox, radio, and a way to call a room.
  */
 export class FhMusic extends LitElement {
+  readonly stackNarrow = true;
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
   static styles = [styles, keysCss, css`${unsafeCSS(avatarCss)}`, viewsCss, css`
@@ -78,6 +81,11 @@ export class FhMusic extends LitElement {
     .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
+    /* the hint is never cut, and never takes a row of its own on a wide screen (a tap takes the hint away, and a row that vanished under the finger would lose the tap):
+       the tab words go first, then the small player beside it, and the buttons after it in the row wait while it shows */
+    .mhead[data-hintwide] .nowbar { display: none; }
+    :host([data-shape='wide']) .acts .hint[data-on] ~ * { display: none; }
+    .hint[data-wrap] { max-height: none; display: block; }
     .mhead[data-one][data-hinting] .finder { display: none; }
     :host([data-full]) .stage { display: none; }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 52px; height: 48px; padding: 0; } .tabs.inline button span { display: none; }
@@ -131,6 +139,8 @@ export class FhMusic extends LitElement {
     .chiprow.dividers { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 4px 3px 3px; margin: -4px -3px -3px; } .chiprow.dividers .pchip { flex: 0 1 auto; min-width: 44px; white-space: nowrap; }
     .dividers .pchip { border-radius: 16px 16px 6px 6px; box-shadow: inset 0 -4px 0 var(--c); margin-left: 0; opacity: 1; }
     .dividers .pchip[aria-pressed='true'] { background: var(--c); color: var(--on-person, #fff); box-shadow: none; transform: translateY(-3px); }
+    :host(:not([data-phone])) .crate.low .chiprow { order: 9; } :host(:not([data-phone])) .crate.low .covers, :host(:not([data-phone])) .jcovers.low { align-content: safe end; }
+    :host(:not([data-phone])) .crate.low .dividers .pchip { border-radius: 6px 6px 16px 16px; box-shadow: inset 0 4px 0 var(--c); } :host(:not([data-phone])) .crate.low .dividers .pchip[aria-pressed='true'] { box-shadow: none; transform: translateY(3px); }
     .crate .st { touch-action: pan-y; background: transparent; padding: 0 14px 0 0; }
     .crate .st .img { position: relative; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .disc { position: absolute; top: 3%; right: 14px; width: calc(100% - 14px); aspect-ratio: 1; border-radius: 50%; transform: translateX(11%) scale(.94); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1);
@@ -196,7 +206,7 @@ export class FhMusic extends LitElement {
     .hit .tx b, .hit .tx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hit .tx b { font-size: 15px; font-weight: var(--w-bold, 700); }
     .hit .tx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .kind { font-size: 11px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
+    .kind { font-size: 12px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 6px; }
@@ -213,6 +223,8 @@ export class FhMusic extends LitElement {
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
+    /* a family with a child who cannot read yet, on a tall wide screen (the wall panel): he reaches the lower half only, so the coins and "adds a song" go under the night's picks */
+    @media (min-height: 900px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
@@ -326,11 +338,13 @@ export class FhMusic extends LitElement {
     .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
     .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
-    .srec { width: min(100%, calc(var(--row) - 30px)); min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
+    /* the label has the whole column (the record alone is sized by the row), so a long name is not cut */
+    .srec { width: 100%; min-width: 44px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; border-radius: 14px; }
+    .srec .puck.onshelf { width: min(100%, max(44px, calc(var(--row) - 49px))); }
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 26px; font-size: 13px; line-height: 13px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .srec span { max-width: 100%; height: 45px; font-size: 14px; line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); }
     .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
@@ -367,6 +381,10 @@ export class FhMusic extends LitElement {
     .map[data-fit] .floor { min-height: 78px; }
     .map[data-fit] .puck { width: 56px; height: 56px; margin-left: -28px; }
     :host([data-shape='tall']) { flex-direction: column; }
+    /* a landscape tablet under 900 px wide: the same stack, and the page scrolls so the panel keeps a usable height */
+    :host([data-stack]) { overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-stack]) .panel { flex: 0 0 780px; }
+    :host([data-stack]) .stage { order: 2; }
     :host([data-shape='tall']) .stage { width: auto; flex-direction: row; flex-wrap: wrap; align-items: center; }
     :host([data-shape='tall']) .stage > *:not(.bg) { flex: 1 1 100%; }
     :host([data-shape='tall']) .stage { gap: 6px; padding: 14px 18px; flex: 0 0 auto; }
@@ -506,9 +524,13 @@ export class FhMusic extends LitElement {
   /** Home Assistant, watched: a control whose call is still out after 250 ms shows it (data-busy) until the answer comes. */
   private get _h(): Hass {
     const real = this.hass!;
-    if (!this._hx || Object.getPrototypeOf(this._hx) !== real) { this._hx = Object.create(real) as Hass; this._hx.callService = (d, s, data, target) => this._watch(real.callService(d, s, data, target)); }
+    if (!this._hx || Object.getPrototypeOf(this._hx) !== real) { this._hx = Object.create(real) as Hass; this._hx.callService = (d, s, data, target) => {
+      // the same request is never sent twice while the first is still out: a second tap on Pause, "+" or Whole house waits for the answer
+      const key = `${d}.${s} ${JSON.stringify(data ?? {})} ${JSON.stringify(target ?? {})}`, out = this._out.get(key); if (out) return out as ReturnType<Hass['callService']>;
+      const p = this._watch(inTime(real.callService(d, s, data, target))), clear = (): void => { this._out.delete(key); }; this._out.set(key, p); p.then(clear, clear); return p; }; }
     return this._hx;
   }
+  private _out = new Map<string, Promise<unknown>>();
   private _watch<T>(p: Promise<T>): Promise<T> {
     const el = Date.now() - this._pressAt < 1200 ? this._pressEl : null;
     if (el) { const t = window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250), done = (): void => { clearTimeout(t); el.removeAttribute('data-busy'); el.removeAttribute('aria-busy'); }; p.then(done, done); }
@@ -517,7 +539,7 @@ export class FhMusic extends LitElement {
   private _undoLabel = 'Undo';
   private _say(m: string, undo?: () => void, label = 'Undo'): void { this._msg = m; this._undo = undo ?? null; this._undoLabel = label; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
   /** Something did not work: say so plainly and calmly, and keep the detail for the console. */
-  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(`${what}. Try again in a moment.`); }
+  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(e instanceof SlowError ? SLOW_SAY : `${what}. Try again in a moment.`); }
   private _undo: (() => void) | null = null;
 
   private get _list(): HassEntity[] {
@@ -540,7 +562,8 @@ export class FhMusic extends LitElement {
   private get _offline(): HassEntity[] { return this._list.filter((p) => this._off(p)); }
   private get _cur(): HassEntity | undefined {
     const l = this._list;
-    return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass!, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l.find((p) => !this._off(p)) ?? l[0];
+    if (!this.hass) return undefined; // before Home Assistant has connected there is no room to show
+    return l.find((p) => p.entity_id === this._focus) ?? findRoom(this.hass, l, this.preferred) ?? l.find((p) => p.state === 'playing') ?? l.find((p) => !this._off(p)) ?? l[0];
   }
   private get _stations(): StationConfig[] {
     const s = this.stations.length ? this.stations : DEFAULT_STATIONS;
@@ -584,15 +607,24 @@ export class FhMusic extends LitElement {
     const fin = head.querySelector<HTMLElement>('.finder'), nb = head.querySelector<HTMLElement>('.nowbar');
     // the search field and the hint share one place: whichever is showing must keep at least 118 px, so the words do not come and go with the hint
     const slot = fin?.offsetParent ? fin : head.querySelector<HTMLElement>('.hint[data-on]');
-    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230);
+    // the hint is never cut: the tab words go first, and if it is still cut it takes a row of its own
+    const hint = head.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
+    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230) && !cut();
     if (!ok) tabs.removeAttribute('data-words');
+  }
+  /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
+  private _fitHint(): void {
+    const hint = this.renderRoot.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
+    if (cut()) hint!.closest('.mhead')?.setAttribute('data-hintwide', '');
+    if (cut()) hint!.setAttribute('data-wrap', '');
   }
   protected updated(ch: PropertyValues): void {
     // a change of tab fades its body in and its icon nods; arriving on the page does neither (the page itself is what arrives)
     if (ch.has('_tab') && ch.get('_tab') !== undefined) { const m = motion(this, '--m-3');
       this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
       this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
-    this._fitTabs();
+    this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintwide]')?.removeAttribute('data-hintwide');
+    this._fitTabs(); this._fitHint();
     const p = this._cur;
     if (!this.hass || !p) return;
     // refresh "up next" when the track or the room changes
@@ -668,9 +700,17 @@ export class FhMusic extends LitElement {
   private _wholeHouse(run: () => void): void { if (this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.length))) this._guard('Some bedrooms are asleep. Play in the whole house anyway?', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
   /** True when the music that is playing is already in every room that can be reached. */
+  /** The speakers that count as "the whole house": the ones on the house map when there is one. A speaker Home Assistant has found that is not on the map
+   *  (a neighbour's, or one on another network the laptop has joined) can still be played to by itself, but never by "Whole house", "Everyone" or an "all rooms" pad. */
+  private get _homeList(): HassEntity[] {
+    const list = this._list; if (!this.map?.length || !this.hass) return list;
+    const ids = new Set<string>();
+    for (const f of this.map) for (const r of f.rooms ?? []) for (const z of r.zones ?? (r.player ? [{ player: r.player }] : [])) { const p = findRoom(this.hass, list, z.player); if (p) ids.add(p.entity_id); }
+    return ids.size ? list.filter((p) => ids.has(p.entity_id)) : list;
+  }
   private get _allJoined(): boolean {
     const src = this._source(); if (!src) return false;
-    const lead = this._leader(src) ?? src, mix = this._mix(lead), others = this._list.filter((x) => !this._off(x) && x.entity_id !== lead.entity_id);
+    const lead = this._leader(src) ?? src, mix = this._mix(lead), others = this._homeList.filter((x) => !this._off(x) && x.entity_id !== lead.entity_id);
     return others.length > 0 && others.every((x) => mix.includes(x.entity_id));
   }
   private _spread(): void {
@@ -683,17 +723,21 @@ export class FhMusic extends LitElement {
     if (!p) return;
     if (this._off(p)) { this._say(`${this._name(p)} is offline`); return; }
     if (!on) { for (const id of this._mix(p)) this._h.callService('media_player', 'unjoin', {}, { entity_id: id }).catch((e: unknown) => this._oops('Couldn’t take that room out', e)); return; }
-    const h = this._h, was = this._mix(p), ids = this._list.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id), off = this._offline.map((x) => this._name(x));
+    const h = this._h, was = this._mix(p), ids = this._homeList.filter((x) => !this._off(x)).map((x) => x.entity_id).filter((id) => id !== p.entity_id), off = this._offline.map((x) => this._name(x));
     if (!ids.length) { this._say(off.length ? 'Every other speaker is offline' : 'There is only one speaker'); return; }
     // what each other room was doing, so one tap can put it back
     const groups = this._list.filter((x) => x.entity_id !== p.entity_id && !was.includes(x.entity_id) && this._leader(x)?.entity_id === x.entity_id).map((x) => ({ id: x.entity_id, members: this._mix(x), playing: x.state === 'playing' }));
+    // one join at a time: a second tap while Home Assistant is still answering is ignored (it would group the rooms twice and say so twice)
+    if (this._wholeBusy) return;
+    this._wholeBusy = true;
     h.callService('media_player', 'join', { group_members: ids }, { entity_id: p.entity_id })
       .then(() => this._say(`Playing in the whole house${off.length ? `, except ${off.join(' and ')} (offline)` : ''}`, () => {
         for (const id of ids) if (!was.includes(id)) h.callService('media_player', 'unjoin', {}, { entity_id: id }).catch(() => { /* said below if it matters */ });
         window.setTimeout(() => { for (const g of groups) { if (g.members.length) h.callService('media_player', 'join', { group_members: g.members }, { entity_id: g.id }).catch(() => { /* best effort */ }); if (g.playing) h.callService('media_player', 'media_play', {}, { entity_id: g.id }).catch(() => { /* best effort */ }); } }, 600);
         this._say('Put back as it was');
-      })).catch((e: unknown) => this._oops('Couldn’t reach every room', e));
+      })).catch((e: unknown) => this._oops('Couldn’t reach every room', e)).finally(() => { this._wholeBusy = false; });
   }
+  private _wholeBusy = false;
   private _move(to: HassEntity, from = this._cur): void {
     if (!from) return;
     if (this._asleep(to.entity_id) && this._cleared !== to.entity_id && this._cleared !== '*') { this._gentle(to.entity_id, () => this._move(to, from)); return; }
@@ -756,7 +800,7 @@ export class FhMusic extends LitElement {
     const chooser = [...people].sort((p1, p2) => Number(asked.has(p1.name)) - Number(asked.has(p2.name)) || turns(p1.name) - turns(p2.name))[0]?.name ?? '';
     const favs = (this._items.Family ?? []).slice(0, 4), stns = this._stations.filter((st) => !favs.some((m) => m.name.toLowerCase() === st.name.toLowerCase())).slice(0, Math.max(0, 7 - favs.length)), station = cur && playing ? LAST[cur.entity_id] : '';
     const stops = [...favs.map((m) => ({ name: m.name, on: playing && !station && this._lastUri === m.uri, go: () => { if (cur) this._gentle(cur.entity_id, () => { delete LAST[cur.entity_id]; this._shelfPlay(m, cur); }); } })), ...stns.map((st) => ({ name: st.name, on: station === st.name, go: () => { if (cur) this._gentle(cur.entity_id, () => this._play(st)); } }))];
-    const shape = getShape();
+    const shape = shp();
     return { rooms, dial: { next: upNext, more: waiting.length ? Math.max(0, waiting.length - 3) : Math.max(0, (this._q?.items ?? 0) - 2), turn: people.map((x) => ({ name: x.name, face: html`${this._face(x.name, 48)}`, colour: slotVar(x.colour), now: x.name === chooser })), chooser,
         choose: (name) => { this._saveJuke({ who: name }); this._prev = 'rooms'; this._tab = 'juke'; this._jpick = true; },
         sleep: { mins: this.sleepMinutes, left: this._sleepLeft(cur), room: this._name(cur), can: !!cur && !this._off(cur) }, sleepGo: () => this._sleep(), stops: stops.map((x) => ({ name: x.name, on: x.on })),
@@ -782,10 +826,10 @@ export class FhMusic extends LitElement {
   private _moment(m: MomentConfig): void {
     const h = this._h, list = this._list, cur = this._cur;
     const all = m.rooms === 'all', ask: string[] = Array.isArray(m.rooms) ? m.rooms : [], put = this._padSet[m.name];
-    const gone = (all ? list : ask.map((id) => findRoom(h, list, id)).filter((p): p is HassEntity => !!p)).filter((p) => this._off(p)).map((p) => this._name(p));
+    const gone = (all ? this._homeList : ask.map((id) => findRoom(h, list, id)).filter((p): p is HassEntity => !!p)).filter((p) => this._off(p)).map((p) => this._name(p));
     const named = ask.map((id) => findRoom(h, list, id) ?? (h.states[id]?.entity_id.startsWith('media_player.') ? h.states[id] : undefined)).filter((p): p is HassEntity => !!p);
     // every room: the one in focus leads and the others join it
-    const rooms = (all ? [...(cur ? [cur] : []), ...list.filter((p) => p.entity_id !== cur?.entity_id)] : named.length ? named : cur ? [cur] : []).filter((p) => !this._off(p));
+    const home = this._homeList, rooms = (all ? [...(cur && home.includes(cur) ? [cur] : []), ...home.filter((p) => p.entity_id !== cur?.entity_id)] : named.length ? named : cur ? [cur] : []).filter((p) => !this._off(p));
     if (!rooms.length) { this._say(this._offline.length ? 'Those speakers are offline' : 'No speaker to play on'); return; }
     if (named.length < ask.length) console.warn('Family Hub: a moment names a speaker that was not found', m);
     const run = async (): Promise<void> => {
@@ -851,7 +895,7 @@ export class FhMusic extends LitElement {
   private _volDown(e: PointerEvent, p: HassEntity): void {
     const t = e.target as HTMLElement, v0 = this._volOf(p);
     if (!e.isPrimary || t.closest('.zname, .join, .puck, .vstep') || v0 === null || this._off(p)) return;
-    if (getShape() === 'phone' && !t.closest('.grab')) return;
+    if (shp() === 'phone' && !t.closest('.grab')) return;
     const el = e.currentTarget as HTMLElement, id = p.entity_id, x0 = e.clientX, y0 = e.clientY, g = el.querySelector<HTMLElement>('.grab'), cs = g ? getComputedStyle(g) : null;
     // the level runs between the two end buttons: the same length the styles use (--r0 and --r1)
     const h = Math.max(40, el.getBoundingClientRect().height - (cs ? (parseFloat(cs.getPropertyValue('--r0')) || 0) + (parseFloat(cs.getPropertyValue('--r1')) || 0) : 72));
@@ -939,7 +983,7 @@ export class FhMusic extends LitElement {
         <button class="zname tap" aria-pressed=${String(focus)} aria-label="${z.name}: ${what}${vol !== null ? `, volume ${vol}` : ''}${linked ? ', linked with another room' : ''}" @click=${() => { this._focus = id; }}><b>${asleep ? '☾ ' : ''}${z.name}${linked ? html`<i class="linkd" aria-hidden="true"></i>` : nothing}</b><span>${what}</span></button>
         ${id === mine?.entity_id || offline ? nothing : html`<button class="join tap" aria-pressed=${String(inmix)} aria-label="${inmix ? 'Remove' : 'Add'} ${z.name} ${inmix ? 'from' : 'to'} the music" @click=${() => this._join(id)}>${inmix ? '✓' : '＋'}</button>`}
         ${can ? html`${stepBtn(z.name, vol!, true, () => this._volStep(id, 5))}
-          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol!} aria-valuetext="${vol}${lead ? '' : ', quiet'}" @keydown=${volKey(vol!, (v) => this._setVol(id, v, true))}><i></i></span>
+          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${z.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${vol!} aria-valuetext="${vol} per cent${lead ? '' : ', quiet'}" @keydown=${volKey(vol!, (v) => this._setVol(id, v, true))}><i></i></span>
           ${stepBtn(z.name, vol!, false, () => this._volStep(id, -5))}<b class="zvol" aria-hidden="true">${vol}</b>` : nothing}
         ${lead?.entity_id === id ? html`<span class="puck" role="button" tabindex="0" ?data-lifted=${drag?.from === id} style=${art} aria-label="${lead.attributes.media_title ?? 'Music'} in ${z.name}. Tap to ${playing ? 'pause' : 'play'}, drag to move it to another room."
           @pointerdown=${(e: PointerEvent) => this._carryDown(e, { lead })} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._focus = id; this._svc('media_play_pause', {}, id); } }}></span>` : nothing}
@@ -1097,7 +1141,7 @@ export class FhMusic extends LitElement {
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${one} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
         <div class="mhead" ?data-one=${one} ?data-hinting=${one && this._coach}><h1 class="t-title">Music</h1>${one ? this._tools() : nothing}
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, albums, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
@@ -1140,7 +1184,7 @@ export class FhMusic extends LitElement {
   }
 
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
-  private get _one(): boolean { return this._full && getShape() !== 'phone' && getShape() !== 'tall'; }
+  private get _one(): boolean { return this._full && shp() !== 'phone' && shp() !== 'tall'; }
   private _coach = false; private _coachT = 0;
   /** The view's own tools, the same on every layout: Switcheroo, Whole house, "Just this room", the offline note, "?" and the hint beside it. */
   private _tools(): TemplateResult {
@@ -1201,10 +1245,10 @@ export class FhMusic extends LitElement {
 
   private _searchBar(): TemplateResult {
     const hits = this._hits;
-    return html`<div class="sbar"><input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
+    return html`<div class="sbar"><input class="field" inputmode=${shp() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
         <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
-        ${hits ? html`<button class="round tap" style="width:52px;height:52px;font-size:17px;font-weight:var(--w-heavy, 800)" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Aa</button>` : nothing}
+        ${hits ? html`<button class="pill tap" style="height:52px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>` : nothing}
         <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => { this._tab = this._adding ? 'juke' : this._prev; this._adding = false; }}>${icon('close', 22)}</button></div>`;
   }
 
@@ -1243,7 +1287,8 @@ export class FhMusic extends LitElement {
     const all = this._items[this._shelf] ?? [], list = wind ? all.filter((x) => x.calm) : all;
     const room = this._shelfRoom(kid);
     const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
-    return html`<div class="shelfrow"><div class="crate">
+    // the youngest reaches the lower half of a wall panel only: on his shelf the records sit low and the row of faces goes under them
+    return html`<div class="shelfrow"><div class="crate ${kid?.mode === 'picture' ? 'low' : ''}">
       <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
         <span class="avatar" aria-hidden="true">${n === 'Family' ? icon('home', 18) : this._face(n, 32)}</span>${n}</button>`)}
 </div>
@@ -1268,10 +1313,13 @@ export class FhMusic extends LitElement {
     if (this._jpick && j.who) {
       // a turn starts with pictures: that person's own shelf, then the family's. No reading, no typing.
       const seen = new Set<string>(), list = [...(this._items[j.who] ?? []), ...(this._items.Family ?? [])].filter((m) => !seen.has(m.uri) && !!seen.add(m.uri));
-      return html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>
-        ${list.length ? html`<div class="covers scrolly jcovers" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
+      const low = this.kids.find((k) => k.name === j.who)?.mode === 'picture';
+      const banner = html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>`;
+      // on the youngest's turn the pictures sit low, with the words and the way back under them
+      return html`${low ? nothing : banner}
+        ${list.length ? html`<div class="covers scrolly jcovers ${low ? 'low' : ''}" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.name}</span></button>`)}</div>`
-        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}`;
+        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
     }
     const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
     // each state has its own picture as well as its word: a play mark for the next one, an hourglass for waiting, a tick for played
@@ -1283,10 +1331,11 @@ export class FhMusic extends LitElement {
       <span class="when">${when(p)}</span></div>`;
     // whose song is waiting: that person's coin wears its cover (never a count of how many each has had)
     const theirs = (n: string): Pick | undefined => waiting.find((p) => p.who === n);
+    const jlow = this.kids.some((k) => k.mode === 'picture') ? 'jlow' : '';
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
-      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
+      <div class="coins ${jlow}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
         <span class="face"><span class="fpic">${this._face(p.name, 50)}</span>${w ? html`<i class="has" style=${w.img ? `--art:url(${w.img})` : ''}>${w.img ? nothing : solid('play', 12)}</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Next' : ''}</span></button>`; })}</div>
-      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
+      <div class="acts ${jlow}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:15px" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
         ${j.picks.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
@@ -1306,7 +1355,7 @@ export class FhMusic extends LitElement {
 
   /** Call a room. The rooms and the ready messages are always in reach: as a little house and speech bubbles, or, while the keyboard is up, as a row of room chips and a row of pictures. */
   private _callTab(): TemplateResult {
-    const all = this._list.filter((p) => !this._off(p)).map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
+    const all = this._homeList.filter((p) => !this._off(p)).map((p) => p.entity_id), every = all.length > 0 && all.every((id) => this._callTo.includes(id));
     const flip = (id: string): void => { this._callTo = this._callTo.includes(id) ? this._callTo.filter((x) => x !== id) : [...this._callTo, id]; };
     // a ready message chosen before any room: say what is missing straight away, not after "Say it"
     const pick = (m: string): void => { this._callMsg = m; if (!this._callTo.length) this._say('Choose a room first'); };
@@ -1317,7 +1366,7 @@ export class FhMusic extends LitElement {
           <span style="align-self:flex-start">${everyone}</span></div>
         <div class="bubbles">${CALLS.map((m, i) => html`<button class="bubble tap" aria-pressed=${String(this._callMsg === m)} @click=${() => pick(m)}><span class="bpic" aria-hidden="true">${CALL_PIC[i]}</span>${m}</button>`)}</div></div>`}
       <div class="sayrow">${this._ckeys ? html`<span class="qpics" role="group" aria-label="Ready messages">${CALLS.map((m, i) => html`<button class="qpic tap" aria-pressed=${String(this._callMsg === m)} aria-label=${m} @click=${() => pick(m)}>${CALL_PIC[i]}</button>`)}</span>` : nothing}
-        <input class="field" inputmode=${getShape() === 'phone' ? 'text' : 'none'} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
+        <input class="field" inputmode=${shp() === 'phone' ? 'text' : 'none'} aria-label="Message to say" placeholder="Or type what to say…" .value=${this._callMsg} @focus=${() => { this._ckeys = true; }} @input=${(e: Event) => { this._callMsg = (e.target as HTMLInputElement).value; }}>
         <button class="pill tap primary sayit" ?disabled=${this._calling} ?data-busy=${this._calling} aria-busy=${this._calling ? 'true' : nothing} @click=${() => void this._call()}>${icon('megaphone', 22)} Say it</button>
         ${this._ckeys ? html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" aria-label="Hide the keyboard" @click=${() => { this._ckeys = false; }}>${icon('close', 22)}</button>` : nothing}</div>
       ${this._ckeys ? html`<div style="margin:auto 0 0">${keyboard((k) => { [this._callMsg, this._caps] = typeKey(this._callMsg, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>`

@@ -68,6 +68,10 @@ let shape: Shape = 'wide';
 const shapeSubs = new Set<() => void>();
 export const getShape = (): Shape => shape;
 export const setShape = (s: Shape): void => { if (s !== shape) { shape = s; shapeSubs.forEach((f) => f()); } };
+/** How much narrower than the design canvas a tablet is: 0 (wide enough), 1 (under 1240 px), 2 (under 1100 px), 3 (under 900 px). Components carry data-n1…data-n3, cumulatively. */
+let narrow = 0;
+export const getNarrow = (): number => narrow;
+export const setNarrow = (n: number): void => { if (n !== narrow) { narrow = n; shapeSubs.forEach((f) => f()); } };
 export const onShape = (f: () => void): (() => void) => { shapeSubs.add(f); return () => shapeSubs.delete(f); };
 
 /**
@@ -139,8 +143,63 @@ const tone = (f: number, t0: number, dur: number, type: OscillatorType = 'sine',
   g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t0 + dur);
   o.connect(g).connect(a.destination); o.start(a.currentTime + t0); o.stop(a.currentTime + t0 + dur + 0.05);
 };
+/* A look may have its own voice for the sounds. `looks.ts` says which look is on screen; nothing here imports the looks. */
+let soundLook = '';
+/** the preview's `&scene=sports` plays the Sports sounds whatever the look is */
+const forcedSound = ((): string => { try { return String((globalThis as { __fhScene?: string }).__fhScene ?? ''); } catch { return ''; } })();
+/** Call when a look is applied (its id): the sounds follow the look on screen. */
+export const setSoundLook = (id: string): void => { soundLook = id; };
+/** One shared 0.2 s of white noise: the thud of a boot, the pock of a racquet, the swish of a net. */
+let hiss: AudioBuffer | null = null;
+/** A burst of that noise through one filter. The same gates as `tone` (quiet hours, sounds off); the soft level leaves the noise out. */
+const noise = (t0: number, dur: number, vol: number, type: BiquadFilterType, freq: number, q = 0.7, sweep?: number): void => {
+  if (level < 1) return;
+  const a = ac(); if (!a) return;
+  if (!hiss || hiss.sampleRate !== a.sampleRate) { hiss = a.createBuffer(1, Math.round(a.sampleRate * 0.2), a.sampleRate); const d = hiss.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const n = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(), t = a.currentTime + t0;
+  n.buffer = hiss; n.loop = dur > 0.19;
+  f.type = type; f.Q.value = q; f.frequency.setValueAtTime(freq, t); if (sweep) f.frequency.exponentialRampToValueAtTime(sweep, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.003, dur / 2)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(f).connect(g).connect(a.destination); n.start(t); n.stop(t + dur + 0.02);
+};
+/** A pea whistle: two sines a few hertz apart (the beat is the pea) with a quick vibrato, held for `hold` seconds, through an optional low-pass. `fall` lets the pitch sag at the end. */
+const whistle = (f1: number, f2: number, t0: number, hold: number, vol: number, vib: [rate: number, depth: number], o: { attack?: number; fall?: number; lp?: number; always?: boolean } = {}): void => {
+  if (!o.always) { if (level <= 0) return; vol *= level; }
+  const a = ac(o.always); if (!a) return;
+  const t = a.currentTime + t0, up = o.attack ?? 0.01, end = t + up + hold, g = a.createGain(), lfo = a.createOscillator(), depth = a.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = vib[0]; depth.gain.value = vib[1]; lfo.connect(depth);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol / 2, t + up); g.gain.setValueAtTime(vol / 2, end); g.gain.exponentialRampToValueAtTime(0.0001, end + 0.05);
+  for (const f of [f1, f2]) { const o2 = a.createOscillator(); o2.type = 'sine'; o2.frequency.setValueAtTime(f, t); if (o.fall) { o2.frequency.setValueAtTime(f, end - 0.08); o2.frequency.exponentialRampToValueAtTime(f * (1 - o.fall), end + 0.05); } depth.connect(o2.frequency); o2.connect(g); o2.start(t); o2.stop(end + 0.08); }
+  if (o.lp) { const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; g.connect(f).connect(a.destination); } else g.connect(a.destination);
+  lfo.start(t); lfo.stop(end + 0.08);
+};
+/** Home Ground's sounds (the Sports look). Each is under a second and no louder than the plain one it replaces. False = this look has no form of its own. */
+const sportsSfx = (s: Sfx): boolean => {
+  switch (s) {
+    /* boot on turf */
+    case 'tap': noise(0, 0.006, 0.03, 'bandpass', 1800, 1.2); tone(220, 0, 0.05, 'sine', 0.05, 160); return true;
+    /* racquet, there and back: pock, and a fifth up, pock */
+    case 'tick': noise(0, 0.008, 0.04, 'bandpass', 2200, 1.2); tone(440, 0, 0.06, 'triangle', 0.1); noise(0.09, 0.008, 0.04, 'bandpass', 2200, 1.2); tone(660, 0.09, 0.06, 'triangle', 0.1); return true;
+    /* the ball rolled back */
+    case 'untick': tone(330, 0, 0.14, 'sine', 0.06, 220); noise(0, 0.08, 0.02, 'lowpass', 600); return true;
+    /* a short two-note pea whistle */
+    case 'done': whistle(2093, 2110, 0, 0.08, 0.05, [28, 30], { lp: 5000 }); whistle(2637, 2655, 0.13, 0.21, 0.05, [28, 30], { lp: 5000 }); return true;
+    /* over the bar: the flight, the net, two notes */
+    case 'unlock': tone(300, 0, 0.35, 'sine', 0.07, 900); noise(0.35, 0.25, 0.05, 'bandpass', 3000, 1, 1200); tone(784, 0.6, 0.15, 'triangle', 0.09); tone(1047, 0.75, 0.15, 'triangle', 0.09); return true;
+    /* off the post, gently: a donk, not a buzzer */
+    case 'locked': tone(196, 0, 0.12, 'sine', 0.04); tone(294, 0, 0.02, 'triangle', 0.02); return true;
+    /* a ball coming to rest, then a ting */
+    case 'coin': [[0, 0.06], [0.16, 0.048], [0.27, 0.036], [0.34, 0.025]].forEach(([t, v]) => tone(520, t, 0.06, 'sine', v, 380)); tone(1319, 0.42, 0.15, 'triangle', 0.05); return true;
+    /* into the ball bag: the drop, then the net */
+    case 'jar': noise(0, 0.04, 0.05, 'lowpass', 900); tone(180, 0, 0.08, 'sine', 0.07); noise(0.09, 0.09, 0.03, 'bandpass', 4000, 1); return true;
+    /* the referee's long whistle, three times; in quiet hours once, softer, as if from indoors. Someone set the timer on purpose, so it always sounds. */
+    case 'alarm': if (muted) whistle(2350, 2392, 0, 0.6, 0.06, [26, 40], { attack: 0.03, fall: 0.03, lp: 2500, always: true }); else for (let i = 0; i < 3; i++) whistle(2350, 2392, i * 1.08, 0.6, 0.1, [26, 40], { attack: 0.03, fall: 0.03, always: true }); return true;
+    default: return false;
+  }
+};
 export type Sfx = 'tick' | 'untick' | 'done' | 'unlock' | 'locked' | 'tap' | 'coin' | 'alarm' | 'jar' | 'clarinet' | 'trumpet' | 'roar';
 export const sfx = (s: Sfx): void => {
+  if ((forcedSound || soundLook) === 'sports' && sportsSfx(s)) return;
   switch (s) {
     case 'tap': tone(660, 0, 0.06, 'triangle', 0.08); break;
     case 'tick': tone(880, 0, 0.09, 'triangle', 0.14); tone(1320, 0.07, 0.14, 'triangle', 0.12); break;
@@ -157,9 +216,15 @@ export const sfx = (s: Sfx): void => {
   }
 };
 
+/* for the preview, the tests and trying things from the console */
+try { (globalThis as { fhSfx?: typeof sfx }).fhSfx ??= sfx; } catch { /* no window */ }
+
 /* ---------------- speech: on-device, Australian English where available ---------------- */
 let voice: SpeechSynthesisVoice | null | undefined;
-export const say = (text: string): void => {
+/** `by` is the read-aloud button that was pressed: it shows that it is speaking (data-speaking) until the words end or something else is read. */
+let speaker: Element | null = null;
+export const say = (text: string, by?: Element | null): void => {
+  speaker?.removeAttribute('data-speaking'); speaker = null;
   if (muted || !('speechSynthesis' in window)) return;
   try {
     if (voice === undefined) {
@@ -171,12 +236,13 @@ export const say = (text: string): void => {
     const u = new SpeechSynthesisUtterance(text);
     if (voice) u.voice = voice;
     u.lang = voice?.lang ?? 'en-AU'; u.rate = 0.95; u.pitch = 1.1;
+    if (by) { speaker = by; by.setAttribute('data-speaking', ''); const end = (): void => { if (speaker === by) { by.removeAttribute('data-speaking'); speaker = null; } }; u.onend = end; u.onerror = end; window.setTimeout(end, Math.max(4000, text.length * 110)); }
     speechSynthesis.speak(u);
   } catch { /* speech unavailable */ }
 };
 
 /** Stops whatever `say` is reading out. */
-export const hush = (): void => { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
+export const hush = (): void => { speaker?.removeAttribute('data-speaking'); speaker = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
 
 /** Read a JSON panel message from input_text.fh_panel_message. */
 export interface PanelMsg { t: string; ttl?: number; ts?: number; alarm?: number; parent?: number }
@@ -221,11 +287,18 @@ export function linger<T>(host: { requestUpdate(): void }, key: string, v: T, ms
   if (!e.until) { e.until = Date.now() + ms; window.setTimeout(() => { if (e.until) { e.last = v; e.until = 0; host.requestUpdate(); } }, ms); }
   return [e.last as T, true];
 }
+/** A call that Home Assistant never answers is given up after twelve seconds, so nothing on the panel waits for ever. */
+export const SLOW_MS = 12_000, SLOW_SAY = 'Home Assistant is slow. Try again.';
+export class SlowError extends Error {}
+export const inTime = <T>(p: Promise<T> | T, ms = SLOW_MS): Promise<T> => new Promise<T>((yes, no) => { const t = window.setTimeout(() => no(new SlowError('no answer')), ms); Promise.resolve(p).then((v) => { clearTimeout(t); yes(v); }, (e) => { clearTimeout(t); no(e); }); });
+let slowLast = false;
+/** True when the `watched` call that has just resolved false gave up waiting (rather than being refused). */
+export const wasSlow = (): boolean => slowLast;
 /** One call to Home Assistant from a control: after 250 ms without an answer the control shows it is waiting (data-busy, aria-busy)
  *  until the answer comes. Resolves true when the call worked and false when it did not; it never throws, and never shows the error's own words. */
 export async function watched(el: Element | null | undefined, p: Promise<unknown> | undefined): Promise<boolean> {
   const t = el ? window.setTimeout(() => { el.setAttribute('data-busy', ''); el.setAttribute('aria-busy', 'true'); }, 250) : 0;
-  try { if (!p) throw new Error('not connected'); await p; return true; } catch { return false; }
+  try { if (!p) throw new Error('not connected'); await inTime(p); slowLast = false; return true; } catch (e) { slowLast = e instanceof SlowError; return false; }
   finally { clearTimeout(t); el?.removeAttribute('data-busy'); el?.removeAttribute('aria-busy'); }
 }
 /** A motion token of the panel in milliseconds (--m-1 … --m-5), and whether things may travel (calm mode and reduce-motion say no). */

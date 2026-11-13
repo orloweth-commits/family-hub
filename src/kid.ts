@@ -10,7 +10,7 @@ import { confetti, fxCss } from './fx';
 import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { kidEntities, num, slotVar, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
-import { bedtimeFor, hm, changed, linger, watched, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import './pin';
 
@@ -47,6 +47,8 @@ const speakerSvg = (s = 26): TemplateResult => html`<svg viewBox="0 0 24 24" wid
 const listSvg = html`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`;
 
 const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
+/** What the feelings card asks next, shown and (for a child who cannot read) spoken. */
+const FEEL_ASK: Record<'up' | 'mid' | 'down', string> = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' };
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 export class FhKid extends LitElement {
@@ -87,6 +89,26 @@ export class FhKid extends LitElement {
     :host([data-shape='tall']) .hero { width: auto; grid-column: 1; grid-row: 1; }
     :host([data-shape='tall']) .side { width: auto; grid-column: 2; grid-row: 1; max-height: 560px; }
     :host([data-shape='tall']) .jobs { grid-column: 1 / -1; grid-row: 2; }
+    /* tablets narrower than the canvas: the side columns narrow first; under 900 px the jobs come first at full width and the page scrolls */
+    :host([data-shape='wide'][data-n1]) .hero { width: 290px; }
+    :host([data-shape='wide'][data-n1]) .side { width: 272px; }
+    :host([data-shape='wide'][data-n2]) .hero { width: 256px; padding: 14px 12px; }
+    :host([data-shape='wide'][data-n2]) .side { width: 256px; }
+    :host([data-shape='wide'][data-n2]) .side > .card { padding: 12px; }
+    :host([data-n1]) .feel button, :host([data-n1]) .side .round { flex-shrink: 0; min-width: 44px; }
+    :host([data-shape='wide'][data-n3]) { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(max-content, 1fr) max-content; overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]) .jobs { grid-column: 1 / -1; grid-row: 1; }
+    :host([data-shape='wide'][data-n3]) .hero { width: auto; grid-column: 1; grid-row: 2; }
+    :host([data-shape='wide'][data-n3]) .side { width: auto; grid-column: 2; grid-row: 2; max-height: none; overflow: visible; }
+    :host([data-shape='wide'][data-n3]) .list, :host([data-shape='wide'][data-n3]) .focus { overflow: visible; flex: none; }
+    :host([data-shape='wide'][data-n3]) .side > .tabcard { overflow: visible; }
+    /* portrait and shorter than its canvas: the jobs keep a usable height (the side column scrolls inside itself), and the page scrolls a little if it must */
+    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(auto, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs { min-height: 400px; }
+    /* one job at a time is never cut off: the card grows to hold Now, Next and "Show all" (a look's Now card may be taller), and the page scrolls */
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs:has(> .focus) { min-height: max-content; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .focus { flex: none; overflow: visible; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .side { max-height: 440px; }
     :host([data-phone]) { display: flex; flex-direction: column; gap: 12px; flex: none; }
     :host([data-phone]) .jobs { order: 1; flex: none; }
     :host([data-phone]) .hero { order: 2; }
@@ -113,6 +135,15 @@ export class FhKid extends LitElement {
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
     .focus .label { font-size: 14px; margin-top: 4px; }
+    /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */
+    .focus[data-fit] { gap: 6px; --fit: 1; }
+    .focus[data-fit] .label { margin-top: 0; }
+    .focus[data-fit] .picwrap { min-height: 132px; }
+    .focus[data-fit] .pic.big { flex-direction: row; gap: 18px; padding: 8px 96px 8px 18px; }
+    .focus[data-fit] .pic.big .e { font-size: 88px; line-height: 1.1; }
+    .focus[data-fit] .pic.small { flex-basis: 76px; padding-top: 4px; padding-bottom: 4px; }
+    .focus[data-fit] .pic.small .e { font-size: 52px; line-height: 1.1; }
+    .focus[data-fit='2'] .job.big, .focus[data-fit='3'] .job.big { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
     .label { font-size: 14px; }
     .pill { font-size: 15px; }
     .job.big { min-height: 96px; padding: 16px 18px; }
@@ -125,7 +156,7 @@ export class FhKid extends LitElement {
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; }
+    .pic.big .e { font-size: 124px; line-height: 1; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -161,6 +192,8 @@ export class FhKid extends LitElement {
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
     .avph { display: block; width: 186px; max-width: 100%; aspect-ratio: 200 / 240; border-radius: 22px; background: var(--chip-soft); }
+    .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
+    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
     .avbtn { position: relative; flex: 0 1 223px; min-height: 110px; display: flex; justify-content: center; }
     .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 223px; }
@@ -168,8 +201,21 @@ export class FhKid extends LitElement {
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
     .side > .card { flex-shrink: 0; }
+    /* wind-down: four cards share the column. It tightens in steps (fitBox) so "Ask for a chat" at the bottom is never cut off; only after the last step does it scroll */
+    .side[data-fit] > .card { gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+    .side[data-fit] .wbed { display: none; }
+    .side[data-fit='2'], .side[data-fit='3'] { gap: 8px; }
+    .side[data-fit='2'] > .card, .side[data-fit='3'] > .card { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
+    .side[data-fit='2'] .wq, .side[data-fit='3'] .wq { display: none; }
+    .side[data-fit='3'] .wk:nth-of-type(n+5) { display: none; }
     /* a small child's controls sit low: the jar card above them takes up the spare height, so there is no empty band between the cards */
     .side.low > .card:first-child { flex: 1 0 auto; justify-content: center; }
+    /* the youngest reaches the lower half of a wall panel only: his feelings card sits at the very bottom of the column, and the two tab buttons come down to meet it, under their list */
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .feelcard { order: 3; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard { order: 2; justify-content: flex-end; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .side.low > .tabcard > .tabs { order: 9; }
+    /* the older boys' column reaches the bottom of the page: the tab card takes the spare height */
+    :host(:not([data-phone]):not([data-shape='tall'])) .side:not(.low) > .tabcard { flex-grow: 1; }
     .side > .tabcard { flex: 0 1 auto; min-height: 180px; overflow-y: auto; scrollbar-width: none; gap: 8px; }
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     .rw { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
@@ -178,16 +224,19 @@ export class FhKid extends LitElement {
     .rw.picrow .rpic { font-size: 40px; }
     .rw .stars { max-width: 100px; }
     .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
-    .rw .cost.notyet { box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    /* "80 to go" is a status, not something to press: a flat tile with no outline */
+    .rw .cost.notyet { box-shadow: none; background: var(--track); color: var(--ink); font-weight: var(--w-semi, 600); }
     .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
     .rw.ask[data-held] { pointer-events: none; }
-    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); }
+    @keyframes lockwig { 0%, 100% { rotate: 0deg; } 25% { rotate: calc(-16deg * var(--m-d, 1)); } 60% { rotate: calc(12deg * var(--m-d, 1)); } 82% { rotate: calc(-6deg * var(--m-d, 1)); } }
+    .studio[data-nudge] svg { transform-origin: 50% 20%; animation: lockwig var(--m-4, 400ms) var(--e-out, ease) 1; }
+    .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); }
     .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
-    .wk .init { min-width: 20px; height: 20px; font-size: 13px; }
+    .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
     .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
     .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -216,8 +265,8 @@ export class FhKid extends LitElement {
   private _nowUid = '';
   static properties = {
     hass: { attribute: false }, kid: { attribute: false }, familyCalendars: { attribute: false }, pin: {}, owed: {}, jarTarget: { type: Number }, jarReward: {},
-    privateWords: { attribute: false }, quiet: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
-    _chores: { state: true }, _events: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
+    privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
+    _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
     _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }
   };
@@ -231,6 +280,8 @@ export class FhKid extends LitElement {
   jarReward = 'a family treat';
   privateWords: string[] = [];
   quiet = false;
+  /** the helper is set up: a picture-mode child gets an "Ask" button on his own page */
+  ask = false;
   /** one job at a time: Now / Next / Later, and "first jobs, then studio" */
   oneAtATime = false;
   private _showAll = false;
@@ -276,6 +327,9 @@ export class FhKid extends LitElement {
   private _subGen = 0;
   private _evFor = '';
   private _busy = new Set<string>();
+  /** ticks (and unticks) whose call to Home Assistant is still out: a list that arrives meanwhile, from an earlier call, must not take them back */
+  private _pending = new Map<string, Chore['status']>();
+  private _withPending(list: ParsedChore[]): ParsedChore[] { return this._pending.size ? list.map((x) => { const st = this._pending.get(x.uid); return st && x.status !== st ? { ...x, status: st } : x; }) : list; }
   private _tick?: number;
 
   connectedCallback(): void {
@@ -314,7 +368,7 @@ export class FhKid extends LitElement {
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
       const gen = ++this._subGen, list = e.chores;
-      this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { if (gen === this._subGen) this._chores = m.items.map(parseChore); }, { type: 'todo/item/subscribe', entity_id: list })
+      this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { if (gen === this._subGen) this._chores = this._withPending(m.items.map(parseChore)); }, { type: 'todo/item/subscribe', entity_id: list })
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
@@ -402,8 +456,9 @@ export class FhKid extends LitElement {
     this._busy.add(c.uid);
     const rowOf = (): Element | null => this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`);
     const slow = window.setTimeout(() => { const r = rowOf(); r?.setAttribute('data-busy', ''); r?.setAttribute('aria-busy', 'true'); }, 250);
-    const prev = this._chores;
-    this._chores = prev.map((x) => x.uid === c.uid ? { ...x, status: done ? 'needs_action' : 'completed' } : x);
+    const to: Chore['status'] = done ? 'needs_action' : 'completed';
+    this._pending.set(c.uid, to);
+    this._chores = this._chores.map((x) => x.uid === c.uid ? { ...x, status: to } : x);
     // the sound and the spark answer the touch, not Home Assistant
     if (!done) { const row = this.renderRoot.querySelector(`[data-uid="${CSS.escape(c.uid)}"]`), at = row?.querySelector('.check') ?? row;
       if (at) { spark('tick', at); const words = c.summary.toLowerCase();
@@ -412,8 +467,9 @@ export class FhKid extends LitElement {
         else if (row && /read|book|library/.test(words)) spark('book', row); } }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
-      await this.hass!.callService('todo', 'update_item', { item: c.uid, status: done ? 'needs_action' : 'completed' }, { entity_id: this._e.chores });
-      await this._award(c, done ? -1 : 1);
+      await inTime(this.hass!.callService('todo', 'update_item', { item: c.uid, status: to }, { entity_id: this._e.chores }));
+      this._pending.delete(c.uid); // saved: from here the list from Home Assistant is the truth for this job
+      await inTime(this._award(c, done ? -1 : 1));
       if (done) { delete ticks[c.uid]; lsSet('fh-ticks', ticks); return; }
       ticks[c.uid] = Date.now(); lsSet('fh-ticks', ticks);
       this._jump++;
@@ -424,8 +480,9 @@ export class FhKid extends LitElement {
       this._maybeAllDone();
     } catch (err) {
       console.warn('Family Hub: chore update failed', err);
-      this._chores = prev;
-      this._say('Couldn’t save that one – try again');
+      // only this job goes back to how it was: the others ticked meanwhile keep their ticks
+      if (this._pending.delete(c.uid)) this._chores = this._chores.map((x) => x.uid === c.uid ? { ...x, status: c.status } : x);
+      this._say(err instanceof SlowError ? SLOW_SAY : 'Couldn’t save that one – try again');
     } finally { this._busy.delete(c.uid); clearTimeout(slow); const r = rowOf(); r?.removeAttribute('data-busy'); r?.removeAttribute('aria-busy'); }
   }
 
@@ -489,6 +546,8 @@ export class FhKid extends LitElement {
     if (this._picMode) say(`${r.name}. Spend ${this._costWords(r)}? Yes, or not now.`);
   }
   private _redeeming = false;
+  /** the reward whose points are on their way to Home Assistant: its row says "Saving…" until the answer comes */
+  private _saving = '';
   private async _redeem(r: RewardConfig, checked = false): Promise<void> {
     const have = num(this.hass, this._e.points);
     this._spend = '';
@@ -496,10 +555,10 @@ export class FhKid extends LitElement {
     const needs = r.approve ?? r.cost >= 60;
     if (needs && this.pin && !checked) { this._pinAsk = { reason: `${this.kid.name}: ${r.name}?`, run: () => { void this._redeem(r, true); } }; return; }
     // one spend at a time, and no celebration until Home Assistant has taken the points
-    this._redeeming = true;
+    this._redeeming = true; this._saving = r.name;
     try {
-      await Promise.race([this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 12000))]);
-    } catch { this._say('That did not go through, so no points were spent. Try again in a moment.'); return; } finally { window.setTimeout(() => { this._redeeming = false; }, 1500); }
+      await inTime(this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }));
+    } catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'That did not go through, so no points were spent. Try again in a moment.'); return; } finally { this._saving = ''; window.setTimeout(() => { this._redeeming = false; }, 1500); }
     if (this.owed && this.hass!.states[this.owed]) {
       this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
     }
@@ -513,7 +572,8 @@ export class FhKid extends LitElement {
 
   private _feelPick(f: string): void {
     this._feel = f; this._sound('tap');
-    if (this._picMode) say({ up: 'Yay! I’m glad you feel happy.', mid: 'Okay. Thanks for telling me.', down: 'Thanks for telling me. Let’s find a grown-up for a hug.' }[FEEL_KIND(f)]);
+    // a child who cannot read hears the follow-up question that the card now shows
+    if (this._picMode) say(FEEL_ASK[FEEL_KIND(f)]);
   }
   private _feelReply(kind: 'hug' | 'chat' | 'ok' | 'share'): void {
     const n = this.kid.name;
@@ -561,7 +621,7 @@ export class FhKid extends LitElement {
       ${this._hero()}
       ${missing ? html`<section class="glass jobs"><div class="empty"><h2 class="t-sub">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${e.chores}</b> and <b>${e.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
-      <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._jar()}${this._windChat()}`
+      <div class="side scrolly ${this._picMode && !this._wind ? 'low' : ''}" ?data-fits=${this._wind} @scroll=${scrollCue}>${this._wind ? html`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._windChat()}${this._jar()}`
         // a small child's own controls sit low on a wall panel: his stars and what is coming up go under the feelings card, the jar (nothing to press) goes on top
         : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
@@ -569,7 +629,7 @@ export class FhKid extends LitElement {
       ${this._celebrate ? this._celebration() : nothing}
       ${this._days ? this._daysSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      ${msg ? html`<div class="toast" role="status" ?data-closing=${msgOut}>${msg}</div>` : nothing}
+      <div class="says" role="status" aria-live="polite">${msg ? html`<div class="toast" ?data-closing=${msgOut}>${msg}</div>` : nothing}</div>
     </div>`;
   }
 
@@ -585,7 +645,7 @@ export class FhKid extends LitElement {
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
-      <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode ? nothing : html`<span class="rank">${li.rank}</span>`}</div>
       ${this._picMode ? html`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
           <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(pts / this._star); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
@@ -609,11 +669,15 @@ export class FhKid extends LitElement {
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind ? nothing : (() => {
         const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
+        // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
+        const askOn = this._picMode && this.ask;
         return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
-          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:52px;width:100%;justify-content:center;font-size:16px;flex-shrink:0;${wait ? '' : 'margin-top:auto'}" @click=${() => {
+          <div class="lowrow" style=${wait ? '' : 'margin-top:auto'}>${askOn ? html`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(e: Event) => {
             // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
-            if (wait) { this._sound('locked'); if (this._picMode && !this._lookSaid) { this._lookSaid = true; say(`Jobs first, then your look. ${left} to go.`); } return; }
-            this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button>`;
+            // not yet: the padlock gives a small wiggle and, for a child who cannot read, the reason is spoken. Nothing red, no error message.
+            if (wait) { this._sound('locked'); const b = e.currentTarget as HTMLElement; b.removeAttribute('data-nudge'); void b.offsetWidth; b.setAttribute('data-nudge', ''); if (this._picMode) say(left === 1 ? 'One more job, then your look.' : `${left} jobs to go.`); return; }
+            this._studio = true; this._sound('tap'); }}>${wait ? html`${icon('lock', 20)}${left} job${left === 1 ? '' : 's'} to go` : html`${icon('palette', 20)}${this._picMode ? 'My look' : 'Style studio'}`}</button></div>`;
       })()}
     </section>`;
   }
@@ -660,6 +724,7 @@ export class FhKid extends LitElement {
         <div class="ring" role="img" aria-label="${done} of ${total} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
           <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${C} stroke-dashoffset=${C * (1 - frac)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${done}/${total}</b></div>
       </div>
+      ${lookArt(getLook(), 'steps', { done, total })}
       ${one ? this._focusList(todo, done, later.length) : html`<div class="list scrolly" data-fits @scroll=${scrollCue}>
         ${this._picMode ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>${routineNow.length ? html`<div class="readrow">${this._reader()}</div>` : nothing}`
           : html`
@@ -686,7 +751,7 @@ export class FhKid extends LitElement {
       <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
       ${done ? html`<button class="pill tap" @click=${() => { this._showAll = true; }}>See what I did</button>` : nothing}</div></div>`;
     const more = rest.length;
-    return html`<div class="focus">
+    return html`<div class="focus" data-fits>
       <span class="label">Now</span>
       ${this._picMode ? html`<div class="picwrap">${this._pic(now, 'big')}${this._reader()}</div>` : this._row(now, true)}
       ${next ? html`<span class="label">Next</span>${this._picMode ? this._pic(next, 'small') : this._row(next, false, true)}` : nothing}
@@ -718,7 +783,7 @@ export class FhKid extends LitElement {
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   private _reader(): TemplateResult {
-    return html`<button class="readme tap" aria-label="Read my jobs" @click=${() => { const left = this._block().routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary); this._sound('tap'); say(left.length ? left.join('. Then, ') + '.' : 'All done! Great job!'); }}>${speakerSvg(36)}</button>`;
+    return html`<button class="readme tap" aria-label="Read my jobs" @click=${(e: Event) => { const by = e.currentTarget as Element, left = this._block().routineNow.filter((c) => c.status !== 'completed').map((c) => c.summary); this._sound('tap'); say(left.length ? left.join('. Then, ') + '.' : 'All done! Great job!', by); }}>${speakerSvg(36)}</button>`;
   }
 
   private _rewards(): TemplateResult {
@@ -726,10 +791,10 @@ export class FhKid extends LitElement {
     return html`${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
-        const held = this._held === r.name;
-        if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held}>
+        const saving = this._saving === r.name, held = this._held === r.name || saving;
+        if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held} aria-busy=${saving ? 'true' : nothing}>
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${r.name}</span></span>
-          <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${tickSvg(18)}Yes</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
+          <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${saving ? 'Saving…' : html`${tickSvg(18)}Yes`}</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
         return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" aria-label="${r.name}: ${ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
@@ -748,7 +813,7 @@ export class FhKid extends LitElement {
 
   private _windCard(): TemplateResult {
     return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      <span class="muted" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
+      <span class="muted wbed" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span></section>`;
   }
 
   private _jar(): TemplateResult {
@@ -767,21 +832,22 @@ export class FhKid extends LitElement {
   private _feelCard(): TemplateResult {
     const faces = this._picMode ? FEELINGS_3 : FEELINGS, kind = this._feel ? FEEL_KIND(this._feel) : 'mid';
     const big = this._picMode ? 'height:56px;font-size:18px' : '';
-    const ask = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' }[kind];
-    return html`<section class="glass card" aria-label="How are you feeling">
-      ${this._feel ? html`<span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
+    const ask = FEEL_ASK[kind];
+    return html`<section class="glass card feelcard" aria-label="How are you feeling">
+      ${this._feel ? html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
+            ${this._picMode ? html`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(e: Event) => say(ask, e.currentTarget as Element)}>🔊</button>` : nothing}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${kind === 'up'
           ? html`<button class="pill tap" style=${big} @click=${() => this._feelReply('share')}>💬 Leave a note</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>👍 All good</button>`
           : html`<button class="pill tap" style=${big} @click=${() => this._feelReply('hug')}>🤗 Hug</button><button class="pill tap" style=${big} @click=${() => this._feelReply('chat')}>💬 Chat later</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>I’m OK</button>`}</div>`
         : html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${() => say('How are you feeling?')}>🔊</button>` : nothing}</div>
+            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(e: Event) => say('How are you feeling?', e.currentTarget as Element)}>🔊</button>` : nothing}</div>
           <div class="feel ${this._picMode ? 'three' : ''}">${faces.map(([e, w]) => html`<button class="tap" aria-label=${w} @click=${() => this._feelPick(w)}>${e}</button>`)}</div>`}
     </section>`;
   }
 
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   private _windChat(): TemplateResult {
-    return html`<section class="glass card" aria-label="Ask for a grown-up"><span style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
+    return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>💬 Ask for a chat</button></section>`;
   }
 

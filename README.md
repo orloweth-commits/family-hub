@@ -6,7 +6,7 @@ A glassy, themeable family planner card for Home Assistant wall panels.
 - Five themes: Sea & Sun, Cottesloe Sunset, Coral Reef, Aussie Bush, Space Mission
 - Weather, who's home, now playing, kitchen timer, reminders
 - All lights on / off, announcement button, night mode photo-frame clock
-- Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets) or Orbit (dark, built from rings). Set a default with `look: fridge` in the card config.
+- Looks: switch the whole design language from the palette button – Glass (the original, with photo themes), Fridge door (sticky notes and magnets), Orbit (dark, built from rings) or Home Ground (`sports`: a local clubhouse on a quiet morning, with mown lanes for the week, a scoreboard that only shows the time, people in bibs with their initials, a different ball each day, and floodlights in the evening; all drawn as plain generic objects, and nothing ever compares one child with another). Set a default with `look: fridge` in the card config.
 - Per-child settings (palette button on a child's page, behind the parent PIN): his own look, print or handwriting, one job at a time (Now / Next / Later), calm mode and sound level. Defaults can be set per kid in the config: `look_id`, `font`, `focus`, `calm`, `sound_level`.
 - Morning board shows team progress (one row of stars everyone fills together), never child against child.
 - Calm mode: on the kids' pages looping motion runs once and tilted cards sit straight. `calm: true` applies it everywhere, `calm: false` turns it off.

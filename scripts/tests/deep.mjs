@@ -51,7 +51,10 @@ const RING = () => { const A = window.__fhAudit, now = [], focus = {};
 
 const TARGET = () => { const A = window.__fhAudit, small = {};
   const sel = 'button,a[href],input:not([type=hidden]),select,[role=button],[role=tab],[role=switch],[role=slider],[role=checkbox]';
-  for (const e of A.all()) { if (!e.matches(sel) || !A.shown(e) || e.disabled) continue; const b = e.getBoundingClientRect(); if (Math.min(b.width, b.height) >= 43.5) continue;
+  for (const e of A.all()) { if (!e.matches(sel) || !A.shown(e) || e.disabled) continue; let b = e.getBoundingClientRect();
+    // a drawn control (an arc on the Dial) is pressed on its see-through hit stroke, which the box of the shape does not include: the stroke's width is its size across
+    const hit = e.querySelector?.('.dhit'); if (hit) { const cs = getComputedStyle(hit), sw = parseFloat(cs.strokeWidth) * (cs.vectorEffect === 'non-scaling-stroke' ? 1 : hit.getBoundingClientRect().width / Math.max(1, hit.getBBox().width)); b = { width: Math.max(b.width, sw), height: Math.max(b.height, sw) }; }
+    if (Math.min(b.width, b.height) >= 43.5) continue;
     if (e.closest('label') && Math.min(e.closest('label').getBoundingClientRect().width, e.closest('label').getBoundingClientRect().height) >= 43.5) continue;
     const k = A.name(e); (small[k] ??= { n: 0, w: 1e9, h: 1e9, eg: A.label(e) }).n++; small[k].w = Math.min(small[k].w, Math.round(b.width)); small[k].h = Math.min(small[k].h, Math.round(b.height)); }
   return Object.entries(small).map(([k, v]) => `${k} ×${v.n} (e.g. "${v.eg}") is ${v.w}×${v.h}`); };

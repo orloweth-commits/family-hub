@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass, HassEntity } from './types';
-import { FitController, getShape } from './util';
+import { FitController, getNarrow, getShape, inTime, SlowError, SLOW_SAY } from './util';
 import './pin';
 
 const CONTROL = ['light', 'switch', 'fan', 'cover', 'lock', 'climate', 'media_player', 'input_boolean'];
@@ -47,6 +47,14 @@ export class FhHome extends LitElement {
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
     :host([data-shape='tall']) .side > section { flex: 1 1 0; min-width: 0; }
+    /* tablets narrower than the canvas: two columns of rooms beside a narrower side; under 900 px the side drops below and the page scrolls */
+    :host([data-shape='wide'][data-n2]) .side { width: 272px; gap: 12px; }
+    :host([data-shape='wide'][data-n2]) .rooms { padding: 14px; }
+    :host([data-shape='wide'][data-n3]) { flex-direction: column; overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]) .rooms { flex: none; }
+    :host([data-shape='wide'][data-n3]) .rgrid { overflow: visible; flex: none; }
+    :host([data-shape='wide'][data-n3]) .side { width: auto; flex-direction: row; flex-shrink: 0; }
+    :host([data-shape='wide'][data-n3]) .side > section { flex: 1 1 0; min-width: 0; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .rooms { padding: 14px; border-radius: 22px; }
     :host([data-phone]) .rgrid { overflow: visible; flex: none; flex-direction: column; align-items: stretch; }
@@ -147,16 +155,19 @@ export class FhHome extends LitElement {
     return cols.map((c) => c.rooms);
   }
 
+  private _flight = new Set<string>();
   private _tell(m: string): void { this.dispatchEvent(new CustomEvent('say', { detail: m })); }
   /** One call to Home Assistant for a tile: shows it as busy if it takes a while, says what happened, and says so if it failed. */
   private async _call(id: string, name: string, run: () => Promise<unknown>, done?: string, hold?: Record<string, boolean>): Promise<void> {
+    // a tile, a switch or a scene that is still waiting for its answer takes no second tap
+    if (this._flight.has(id)) return; this._flight.add(id);
     const t = window.setTimeout(() => { this._busy = [...this._busy, id]; }, 250);
     // a switch shows where it is going straight away and holds that until Home Assistant has answered; a failure puts it back
     if (hold) this._opt = { ...this._opt, ...hold };
     const release = (ids: string[]): void => { const o = { ...this._opt }; for (const k of ids) if (hold && o[k] === hold[k]) delete o[k]; this._opt = o; };
-    try { await run(); if (done) this._tell(done); if (hold) window.setTimeout(() => release(Object.keys(hold)), 1500); }
-    catch { if (hold) release(Object.keys(hold)); this._tell(`${name} didn’t respond. Try again`); }
-    finally { clearTimeout(t); this._busy = this._busy.filter((x) => x !== id); }
+    try { await inTime(run()); if (done) this._tell(done); if (hold) window.setTimeout(() => release(Object.keys(hold)), 1500); }
+    catch (e) { if (hold) release(Object.keys(hold)); this._tell(e instanceof SlowError ? SLOW_SAY : `${name} didn’t respond. Try again`); }
+    finally { clearTimeout(t); this._flight.delete(id); this._busy = this._busy.filter((x) => x !== id); }
   }
   /** what a switch shows: where a touch has sent it, until Home Assistant catches up */
   private _opt: Record<string, boolean> = {};
@@ -232,12 +243,12 @@ export class FhHome extends LitElement {
     const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     const lost = rooms.reduce((n, r) => n + r.ents.filter(gone).length, 0);
     const left = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1000));
-    const cols = this._columns(rooms, shape === 'phone' ? 1 : rooms.length > 9 ? 4 : 3);
+    const cols = this._columns(rooms, shape === 'phone' ? 1 : shape === 'wide' && getNarrow() >= 2 ? 2 : getNarrow() >= 1 ? 3 : rooms.length > 9 ? 4 : 3);
     return html`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           ${rooms.length ? html`<span class="muted" style="font-size:15px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div>
-          ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for grown-ups"><span class="ut">${DRAWN.unlocked}<span>Unlocked for grown-ups · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
+          ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'}"><span class="ut">${DRAWN.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'} · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e));

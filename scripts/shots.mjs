@@ -9,7 +9,7 @@ const srv = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'); const p = path.join(ROOT, u.pathname === '/' ? 'preview/index.html' : u.pathname);
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); });
 }).listen(PORT);
-const [looks = 'glass,fridge,orbit', pages = 'planner,planner?view=day,planner?view=month,planner?sheet=themes,kid?kid=0,kid?kid=1,kid?kid=2,groceries,doodle,music,home', hhmm = '16:20'] = process.argv.slice(2);
+const [looks = 'glass,fridge,orbit,sports', pages = 'planner,planner?view=day,planner?view=month,planner?sheet=themes,kid?kid=0,kid?kid=1,kid?kid=2,groceries,doodle,music,home', hhmm = '16:20'] = process.argv.slice(2);
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME, args: ['--no-sandbox'] } : {});
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'en-AU' });

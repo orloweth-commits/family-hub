@@ -3,21 +3,22 @@ import http from 'node:http'; import fs from 'node:fs'; import path from 'node:p
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2' };
+const PORT = Number(process.env.PORT || 4779); // PORT= moves the test server when another run holds the usual port
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
-  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(4779);
+  fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 const errs = [];
 const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
   page.on('requestfailed', (r) => errs.push('failed ' + r.url())); page.on('response', (r) => { if (r.status() === 404 && !/favicon/.test(r.url())) errs.push('404 ' + r.url()); });
-  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:4779/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const shot = (page, n) => page.screenshot({ path: path.join(PREV, 'shots', n + '.png') });
 
 // 1. fonts load from beside the card, nothing from a font service
 let page = await open('look=fridge');
 const reqs = []; page.on('request', (r) => reqs.push(r.url()));
 await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(1500);
-console.log('font requests:', reqs.filter((u) => /woff2|googleapis|gstatic/.test(u)).map((u) => u.replace('http://localhost:4779', '')).join(' '));
+console.log('font requests:', reqs.filter((u) => /woff2|googleapis|gstatic/.test(u)).map((u) => u.replace('http://localhost:' + PORT + '', '')).join(' '));
 console.log('fonts ready:', await page.evaluate(() => ['Inter', 'Bricolage Grotesque', 'Fredoka', 'Caveat'].map((f) => f + '=' + document.fonts.check(`16px "${f}"`)).join(' ')));
 await page.close();
 
@@ -209,7 +210,7 @@ for (const d of '1234') await page.getByRole('button', { name: d, exact: true })
 console.log('chat at 20:30: sheet after the PIN:', await page.locator('fh-chat').count());
 await page.close();
 page = await open('look=glass&page=kid&kid=2');
-console.log('chat on a child’s page: button:', await page.getByRole('button', { name: 'Ask a question' }).count());
+console.log('chat on a picture-mode child’s page: buttons (expect 2: the header’s and the big Ask in reach):', await page.getByRole('button', { name: 'Ask a question' }).count());
 await page.close();
 page = await open('look=glass&chat=off');
 console.log('chat=off: Ask button:', await page.getByRole('button', { name: 'Ask a question' }).count(), '| old microphone button:', await page.locator('family-hub-card [data-act="assist"]').count());
@@ -289,7 +290,7 @@ await page.close();
 page = await open('look=glass&sheet=add&slow=500', '14:20');
 await ae('button.lead').click(); await page.waitForTimeout(200); console.log('add: no title:', await ae('.err').innerText());
 for (const k of ['S', 'w', 'i', 'm']) await ae('.key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
-console.log('add: error after typing:', await ae('.err').count(), '| summary:', await ae('.sum').first().innerText(), '| chip heights:', await ae('.chips button, .durs button, .ampm button, .allday').evaluateAll((els) => [...new Set(els.map((e) => e.offsetHeight))].join(',')));
+console.log('add: error after typing:', (await ae('.err').innerText()).trim().length, '| summary:', await ae('.sum').first().innerText(), '| chip heights:', await ae('.chips button, .durs button, .ampm button, .allday').evaluateAll((els) => [...new Set(els.map((e) => e.offsetHeight))].join(',')));
 await page.evaluate(() => { window.__calls = []; }); const sum = await ae('.sum').first().innerText();
 await ae('button.lead').dblclick(); await ae('button.lead').click({ force: true, timeout: 500 }).catch(() => {}); await page.waitForTimeout(1500);
 console.log('add: events created by three quick taps:', await page.evaluate(() => window.__calls.filter((c) => /create_event/.test(c)).length), '| toast matches summary:', (await page.locator('family-hub-card .toast').innerText()).trim() === 'Added: ' + sum);
@@ -340,7 +341,7 @@ await page.close();
   console.log('looks: space family chip is AA, every theme has --danger:', await Q(o, `(() => { ${lum} const c = document.querySelector('family-hub-card').shadowRoot, i = c.querySelector('.legend .init'), cs = getComputedStyle(i); return CR(cs.backgroundColor, cs.color) >= 4.5 && getComputedStyle(c.querySelector('.fh')).getPropertyValue('--danger').trim() === '#ff8a7a'; })()`)); await o.close();
   // phone: the dock is a solid bar with labels, the page ends above it, and Orbit stacks the day ring over the list
   const ph = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'Australia/Perth', locale: 'en-AU' });
-  for (const look of ['fridge', 'orbit']) { const pg = await ph.newPage(); await pg.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await pg.goto(`http://localhost:4779/?look=${look}&page=planner`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(700);
+  for (const look of ['fridge', 'orbit']) { const pg = await ph.newPage(); await pg.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await pg.goto(`http://localhost:${PORT}/?look=${look}&page=planner`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(700);
     console.log(`looks: ${look} phone dock is a solid bar with labels, nothing off the right:`, await Q(pg, `(() => { const c = document.querySelector('family-hub-card').shadowRoot, d = c.querySelector('.dock'), cs = getComputedStyle(d), it = d.querySelector(".item[data-nav='calendar']"), dial = c.querySelector('.ddial'), list = c.querySelector('.daylist'); const solid = !/rgba?\\(0, 0, 0, 0\\)/.test(cs.backgroundColor) && parseFloat(cs.borderTopWidth) >= 1; const label = parseFloat(getComputedStyle(it).fontSize) >= 14 && it.getBoundingClientRect().bottom <= innerHeight + 1 && it.scrollHeight <= it.clientHeight + 1; const stacked = !dial || (dial.getBoundingClientRect().bottom <= list.getBoundingClientRect().top + 1 && [...dial.querySelectorAll('text')].every((x) => parseFloat(getComputedStyle(x).fontSize) * dial.getBoundingClientRect().width / 200 >= 12)); const pad = parseFloat(getComputedStyle(c.querySelector('.fh')).paddingBottom) >= d.getBoundingClientRect().height / (Number(getComputedStyle(c.querySelector('.fh')).zoom) || 1); return solid && label && stacked && pad && document.documentElement.scrollWidth <= innerWidth + 2; })()`));
     await pg.close(); }
   await ph.close(); }
@@ -351,7 +352,7 @@ const calls = (p) => p.evaluate(() => (window.__calls ?? []).join('\n'));
 const toastOf = async (p, host) => (await p.locator(`${host} .toast`).allInnerTexts()).join(' ').replace(/\s+/g, ' ').trim();
 // groceries on a phone: the Add button stays on the screen and the page does not widen (finding 4)
 { const ph = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, timezoneId: 'Australia/Perth', locale: 'en-AU' });
-  for (const look of ['glass', 'fridge', 'orbit']) { const p = await ph.newPage(); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto(`http://localhost:4779/?look=${look}&page=groceries`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(700);
+  for (const look of ['glass', 'fridge', 'orbit']) { const p = await ph.newPage(); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto(`http://localhost:${PORT}/?look=${look}&page=groceries`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(700);
     const add = await p.getByRole('button', { name: 'Add', exact: true }).boundingBox(), dock = await p.locator('family-hub-card nav.dock').boundingBox();
     console.log(`phone groceries ${look}: Add right edge ${Math.round(add.x + add.width)} (≤ 390), page width ${await p.evaluate(() => document.documentElement.scrollWidth)} (≤ 392), dock ${Math.round(dock.x)}..${Math.round(dock.x + dock.width)}`); await p.close(); }
   await ph.close(); }
@@ -444,10 +445,10 @@ await page.locator('fh-kid').getByRole('button', { name: 'sad' }).click(); await
 console.log('chat: event', JSON.stringify(await page.evaluate(() => window.__chat)), '| child reads:', await toastOf(page, 'fh-kid'), '| note:', (await calls(page)).split('\n').filter((c) => /persistent_notification/.test(c)).join('').replace(/.*"message":"([^"]*)".*/, '$1'));
 await page.close();
 // Max: his aids are low, "jobs first" is kept, and all done is a picture with one big button (finding 9)
-{ const wall = await browser.newContext({ viewport: { width: 1920, height: 1080 }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await wall.newPage(); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:4779/?look=glass&page=kid&kid=2'); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900);
+{ const wall = await browser.newContext({ viewport: { width: 1920, height: 1080 }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await wall.newPage(); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + '/?look=glass&page=kid&kid=2'); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900);
   await p.getByRole('button', { name: /My stars/ }).click(); await p.waitForTimeout(300);
   const rd = await p.getByRole('button', { name: 'Read my jobs' }).boundingBox(), tabs = await p.locator('fh-kid .tabcard').boundingBox(), feel = await p.locator('fh-kid section[aria-label="How are you feeling"]').boundingBox();
-  console.log('Max on the wall: reader', Math.round(rd.width) + ' px, centre y', Math.round(rd.y + rd.height / 2), '(> 540) | stars panel below feelings:', tabs.y > feel.y, '| reward pictures:', (await p.locator('fh-kid .rw .rpic').allInnerTexts()).join(' '), '| reward stars drawn:', await p.locator('fh-kid .rw .sstar').count());
+  console.log('Max on the wall: reader', Math.round(rd.width) + ' px, centre y', Math.round(rd.y + rd.height / 2), '(> 540) | feelings card under the stars panel, in the lower half:', feel.y > tabs.y && feel.y > 540, '| reward pictures:', (await p.locator('fh-kid .rw .rpic').allInnerTexts()).join(' '), '| reward stars drawn:', await p.locator('fh-kid .rw .sstar').count());
   await p.getByRole('button', { name: /My look/ }).click(); await p.waitForTimeout(300);
   console.log('My look with a job left: studio open', await p.locator('fh-studio').count(), '| toast (expect none):', JSON.stringify(await toastOf(p, 'fh-kid')), '| button reads:', (await p.locator('fh-kid .studio').innerText()).trim(), '| padlock:', await p.locator('fh-kid .studio[data-locked] svg').count());
   await p.locator('fh-kid .pic.big').click(); await p.waitForTimeout(1200);
@@ -590,7 +591,7 @@ page = await open('look=glass&page=planner&sheet=add');
   await page.locator('family-hub-card .seg button', { hasText: 'Day' }).click(); await page.waitForTimeout(600);
   console.log('R2a day rows with a place:', (await page.locator('family-hub-card .dayrow .loc').allInnerTexts()).map((t) => t.trim()).join(' | '));
   await page.locator('family-hub-card .seg button', { hasText: 'Week' }).click(); await page.waitForTimeout(600);
-  console.log('R2a week cards with a place:', await page.locator('family-hub-card .ev .loc').count(), '| each on one line:', await page.locator('family-hub-card .ev .loc').evaluateAll((els) => els.filter((e) => e.offsetParent).every((e) => e.offsetHeight < 22))); }
+  console.log('R2a week cards with a place:', await page.locator('family-hub-card .ev .loc').count(), '| none taller than two lines:', await page.locator('family-hub-card .ev .loc').evaluateAll((els) => els.filter((e) => e.offsetParent).every((e) => e.offsetHeight < 38)), '| none cut where its day has room:', await page.locator('family-hub-card .col[data-wrap] .ev .loc .ell').evaluateAll((els) => els.every((e) => e.scrollHeight <= e.clientHeight + 1 || e.offsetHeight > 30))); }
 await page.close(); page = await open('look=glass&page=planner&sheet=add&slow=1500&fail=1');
 { const A = (s) => page.locator('fh-add-event ' + s);
   await A('input[aria-label="What’s on"]').fill('Dentist'); await A('button.lead').click(); await A('.xbtn').click(); await page.waitForTimeout(600);
@@ -683,7 +684,11 @@ for (const q of ['look=glass&page=planner&events=long', 'look=orbit&page=planner
 // R11. Music: Whole house shows that it is joined; a volume jump of more than 30 in one drag can be taken back
 page = await open('look=glass&page=music&mview=dial');
 { const M = page.locator('fh-music'), wh = M.locator('.wholeb');
-  console.log('R11 tab words beside the icons at 1280x800 (Dial):', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')), '| row overflows:', await M.locator('.mhead').evaluate((h) => h.scrollWidth > h.clientWidth + 1));
+  console.log('R11 tab words beside the icons at 1280x800 (Dial; while the hint shows they give way to it):', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')), '| row overflows:', await M.locator('.mhead').evaluate((h) => h.scrollWidth > h.clientWidth + 1));
+  // R4-5: while the hint shows it is never cut (the tab words give way first); the words come back when it goes
+  console.log('R4-5 hint cut while showing (expect false):', await M.locator('.hint[data-on]').evaluateAll((els) => els.some((h) => h.scrollHeight > h.clientHeight + 1)));
+  await page.waitForTimeout(4600);
+  console.log('R4-5 tab words once the hint has gone:', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')));
   const before = await wh.getAttribute('aria-pressed'); await wh.click(); await page.waitForTimeout(900);
   console.log('R11 Whole house: pressed before', before, '| after joining', await wh.getAttribute('aria-pressed'), '|', (await toastOf(page, 'fh-music')).slice(0, 40));
   const r = await page.evaluate(async () => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'), id = 'media_player.office', v0 = Math.round(m.hass.states[id].attributes.volume_level * 100);
@@ -716,5 +721,355 @@ page = await open('look=glass&page=planner&sheet=timer', '19:45');
   console.log('R17 timer that finished 90 s ago: treated as running', await page.evaluate(() => document.querySelector('family-hub-card')._timerLeft() !== null), '| weather chip:', (await page.locator('family-hub-card header .wsub').innerText().catch(() => '(chip hidden)')).trim()); }
 await page.close();
 }
+
+// ---- round 4 ----
+const openAt = async (w, h, qs, time = '16:20') => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
+  await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+const ok = (b) => (b ? 'ok' : 'FAIL');
+// R4-1. the card is never scaled below 1: tablets reflow instead (and the dock stays on the screen)
+for (const [w, h] of [[1024, 768], [1180, 820], [800, 600], [768, 1024], [820, 1180]]) for (const look of ['glass', 'fridge', 'orbit']) {
+  const p = await openAt(w, h, `look=${look}&page=planner`);
+  const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card'), fh = c.shadowRoot.querySelector('.fh'), d = c.shadowRoot.querySelector('nav.dock').getBoundingClientRect(); const items = [...c.shadowRoot.querySelectorAll('nav.dock .item')].map((e) => e.getBoundingClientRect());
+    return { z: Number(getComputedStyle(fh).zoom), dock: d.left >= -1 && d.right <= innerWidth + 1 && d.bottom <= innerHeight + 1, small: items.filter((b) => Math.min(b.width, b.height) < 43.5).length, cols: c.shadowRoot.querySelectorAll('.week .col').length, sideways: document.documentElement.scrollWidth > innerWidth + 1 }; });
+  console.log(`R4-1 ${look} ${w}x${h}: zoom ${r.z} (expect >= 1) ${ok(r.z >= 1)} | dock on screen ${ok(r.dock)} | dock items under 44: ${r.small} ${ok(!r.small)} | week days shown: ${r.cols} | sideways scroll ${ok(!r.sideways)}`);
+  await p.context().close();
+}
+// R4-2 and R4-3. events open a read-only sheet; overnight and multi-day events read honestly on their later days
+{ const p = await openAt(1280, 800, 'look=glass&page=planner');
+  const inject = () => p.evaluate(async () => { const c = document.querySelector('family-hub-card'), h = c.hass, api = h.callApi;
+    c.hass = { ...h, callApi: async (m, path, body) => { const r = await api(m, path, body); if (!/^calendars\/calendar\.family/.test(path)) return r;
+      return [...r, { summary: 'Night shift', description: 'Bring <b>ID</b><br>Gate 3 &amp; sign in', location: 'Depot', start: { dateTime: '2026-11-10T22:00:00+08:00' }, end: { dateTime: '2026-11-11T06:00:00+08:00' } },
+        { summary: 'School camp', start: { dateTime: '2026-11-11T10:00:00+08:00' }, end: { dateTime: '2026-11-13T15:00:00+08:00' } }, { summary: 'Grandma visits', start: { date: '2026-11-12' }, end: { date: '2026-11-15' } },
+        { summary: 'Road works', start: { dateTime: '2026-11-09T22:00:00+08:00' }, end: { dateTime: '2026-11-10T06:00:00+08:00' } }]; } };
+    c._fetchedKey = ''; c._refresh(); await c._loadSoon(); await new Promise((r) => setTimeout(r, 300)); });
+  await inject(); await p.waitForTimeout(500);
+  const week = (day) => p.evaluate((day) => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll(`.evs[data-day="${day}"] .ev`)].map((e) => `${e.querySelector('.t')?.textContent.trim().replace(/ /g, ' ')}|${e.querySelector('.n')?.textContent.trim() ?? ''}`), day);
+  const tue = await week('2026-11-10'), wed = await week('2026-11-11'), thu = await week('2026-11-12'), fri = await week('2026-11-13');
+  console.log('R4-3 week Tue has "10:00 pm|Night shift":', ok(tue.includes('10:00 pm|Night shift')), '| Tue "until 6:00 am|Road works" first:', ok(tue[0] === 'until 6:00 am|Road works'));
+  console.log('R4-3 week Wed:', wed.join(' ; '), '| "until 6:00 am|Night shift" before every start time:', ok(wed.includes('until 6:00 am|Night shift') && wed.findIndex((x) => x.startsWith('until')) < wed.findIndex((x) => /^\d/.test(x)) && !wed.includes('10:00 pm|Night shift')));
+  console.log('R4-3 week Thu:', thu.join(' ; '), '| camp "continues", all-day "Day 1 of 3":', ok(thu.includes('continues|School camp') && thu.includes('Day 1 of 3|Grandma visits')), '| Fri "until 3:00 pm" and "Day 2 of 3":', ok(fri.includes('until 3:00 pm|School camp') && fri.includes('Day 2 of 3|Grandma visits')));
+  // the event is a button with a full name; it opens a sheet with one action
+  const card = p.locator('family-hub-card');
+  const ns = card.locator('.evs[data-day="2026-11-10"] button.ev', { hasText: 'Night shift' });
+  console.log('R4-2 week card name:', await ns.getAttribute('aria-label'), ok((await ns.getAttribute('aria-label')).replace(/\u00a0/g, ' ') === 'Night shift, Tuesday 10:00 pm, Family, at Depot'));
+  await ns.focus(); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+  const sheet = () => p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet[data-sheet="event"]'); if (!s) return null; const b = s.getBoundingClientRect();
+    return { text: s.innerText.replace(/ /g, ' ').replace(/\s+/g, ' '), buttons: [...s.querySelectorAll('button, a[href], input')].map((x) => x.innerText.trim()), markup: !!s.querySelector('.evnotes *'), notes: s.querySelector('.evnotes')?.textContent ?? '', label: s.getAttribute('aria-label'), inside: b.left >= 0 && b.right <= innerWidth && b.bottom <= innerHeight }; });
+  let sh = await sheet();
+  console.log('R4-2 Enter opens the sheet:', ok(!!sh), '| title, day, span, who, place:', ok(!!sh && /Night shift/.test(sh.text) && /Tuesday 10 November/.test(sh.text) && /Tue, 10 Nov 10:00 pm to Wed, 11 Nov 6:00 am/.test(sh.text) && /Family/.test(sh.text) && /Depot/.test(sh.text)), '| notes as plain text:', JSON.stringify(sh?.notes), ok(!!sh && !sh.markup && sh.notes === 'Bring ID\nGate 3 & sign in'), '| one action, "Close":', JSON.stringify(sh?.buttons), ok(!!sh && sh.buttons.length === 1 && sh.buttons[0] === 'Close'), '| dialog name:', sh?.label);
+  await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+  console.log('R4-2 Escape closes it and focus returns to the event:', ok((await sheet()) === null && await p.evaluate(() => document.querySelector('family-hub-card').shadowRoot.activeElement?.classList.contains('ev'))));
+  await card.locator('.evs[data-day="2026-11-11"] button.ev', { hasText: 'Night shift' }).click(); await p.waitForTimeout(400); sh = await sheet();
+  console.log('R4-2 opened from its second day: says Wednesday and "until 6:00 am":', ok(!!sh && /Wednesday 11 November/.test(sh.text) && /until 6:00 am/.test(sh.text)));
+  await card.locator('.sheet[data-sheet="event"] button', { hasText: 'Close' }).click(); await p.waitForTimeout(500);
+  console.log('R4-2 Close closes it:', ok((await sheet()) === null));
+  // the "next up" chip in the header
+  const chip = card.locator('header button.cap[data-kind="next"]');
+  if (await chip.count() && await chip.isVisible()) { await chip.click(); await p.waitForTimeout(400); sh = await sheet(); console.log('R4-2 header "next up" chip opens its event:', await chip.getAttribute('aria-label'), ok(!!sh)); await p.keyboard.press('Escape'); await p.waitForTimeout(500); }
+  else console.log('R4-2 header "next up" chip: not showing in this state (a button when it shows:', await p.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('header .cap[data-kind="next"]')?.tagName ?? 'absent'), ')');
+  // day view
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._anchor = new Date(2026, 10, 11); c._view = 'day'; }); await p.waitForTimeout(700);
+  const rows = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('button.dayrow')].map((e) => `${e.querySelector('.dwhen').textContent.trim().replace(/ /g, ' ')}|${e.querySelector('.content').textContent.trim()}`));
+  console.log('R4-3 day view Wed:', rows.join(' ; '), ok(rows[0] === 'until 6:00 am|Night shift' && rows.includes('10:00 am|School camp')));
+  await card.locator('button.dayrow', { hasText: 'School camp' }).click(); await p.waitForTimeout(400); sh = await sheet();
+  console.log('R4-2 day row opens the sheet with the whole span:', ok(!!sh && /Wed, 11 Nov 10:00 am to Fri, 13 Nov 3:00 pm/.test(sh.text)), '| name:', await card.locator('button.dayrow', { hasText: 'School camp' }).getAttribute('aria-label'));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._anchor = new Date(2026, 10, 12); }); await p.waitForTimeout(700);
+  const thuRows = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('button.dayrow')].map((e) => `${e.querySelector('.dwhen').textContent.trim()}|${e.querySelector('.content').textContent.trim()}`));
+  console.log('R4-3 day view Thu:', thuRows.join(' ; '), ok(thuRows.includes('continues|School camp') && thuRows.includes('Day 1 of 3|Grandma visits')));
+  // month view: lines carry the same words, in the same order, and a line opens its event
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._view = 'month'; }); await p.waitForTimeout(900);
+  const mon = await p.evaluate(() => { const cell = [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.month .cell')].find((x) => /Wednesday 11 November/.test(x.getAttribute('aria-label'))); return [...cell.querySelectorAll('.mev')].map((e) => e.getAttribute('title').replace(/ /g, ' ')); });
+  console.log('R4-3 month Wed first line:', mon[0], ok(/^Night shift, Wednesday until 6:00 am/.test(mon[0] ?? '')));
+  await p.evaluate(() => { const cell = [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.month .cell')].find((x) => /Wednesday 11 November/.test(x.getAttribute('aria-label'))); cell.querySelector('.mev .ell').click(); }); await p.waitForTimeout(400); sh = await sheet();
+  console.log('R4-2 month line opens the sheet:', ok(!!sh && /Night shift/.test(sh.text)), '| view stays month:', await p.evaluate(() => document.querySelector('family-hub-card')._view));
+  await p.context().close();
+  // the morning board: what runs on from yesterday says so; family events once, across the top
+  const m = await openAt(1920, 1080, 'look=glass&page=morning', '07:10');
+  await m.evaluate(async () => { const c = document.querySelector('family-hub-card'), h = c.hass, api = h.callApi;
+    c.hass = { ...h, callApi: async (mm, path, body) => { const r = await api(mm, path, body);
+      if (/^calendars\/calendar\.family/.test(path)) return [...r, { summary: 'Road works', start: { dateTime: '2026-11-09T22:00:00+08:00' }, end: { dateTime: '2026-11-10T06:00:00+08:00' } }];
+      if (/^calendars\/calendar\.riley/.test(path)) return [...r, { summary: 'Camp', start: { dateTime: '2026-11-09T10:00:00+08:00' }, end: { dateTime: '2026-11-11T15:00:00+08:00' } }]; return r; } };
+    await c._loadSoon(); await new Promise((r) => setTimeout(r, 300)); }); await m.waitForTimeout(500);
+  const mb = await m.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-morning').shadowRoot, z = Number(getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.fh')).zoom) || 1;
+    const tx = (e) => e.textContent.replace(/ /g, ' ').replace(/\s+/g, ' ').trim(), tiles = [...r.querySelectorAll('.tile')].map((e) => e.getBoundingClientRect()), bars = [...r.querySelectorAll('.kgo')].map((e) => e.getBoundingClientRect());
+    return { fam: [...r.querySelectorAll('.fam .fev')].map(tx), cols: [...r.querySelectorAll('.kcol')].map((k) => [...k.querySelectorAll('.mev2')].map(tx).join(' ; ')), tiles: tiles.length, tileMin: Math.round(Math.min(...tiles.map((b) => Math.min(b.width, b.height))) / z), tileTop: Math.round(Math.min(...tiles.map((b) => b.top))), bars: bars.length, barTop: Math.round(Math.min(...bars.map((b) => b.top))), kids: r.querySelectorAll('.kcol').length, gotx: [...r.querySelectorAll('.kgo .lchip')].map(tx), half: innerHeight / 2, progress: r.querySelectorAll('.kcol .stars, .kcol .teambar, .kcol [role="progressbar"]').length }; });
+  console.log('R4-3 morning board family strip:', mb.fam.join(' ; '), ok(mb.fam.some((x) => /^until 6:00 am ?Road works/.test(x))), '| Riley:', mb.cols[0], ok(/continues ?Camp/.test(mb.cols[0])));
+  console.log('R4-4a family events once across the top, not in the columns:', ok(mb.fam.some((x) => /Bins out/.test(x)) && !mb.cols.some((c) => /Bins out|Road works/.test(c))), '| picture tiles:', mb.tiles, 'smallest', mb.tileMin, 'px (expect >= 72)', ok(mb.tiles > 0 && mb.tileMin >= 72), '| tiles in the lower half: top', mb.tileTop, '>', mb.half, ok(mb.tileTop > mb.half),
+    '| a countdown for each child:', mb.bars, 'of', mb.kids, mb.gotx.join(' ; '), ok(mb.bars === mb.kids && mb.barTop > mb.half && mb.gotx.every((x) => /Leave \d/.test(x))), '| per-child job progress (expect 0):', mb.progress);
+  await m.context().close();
+  // on the wall the header has room for the "next up" chip: it is a button that opens its event
+  const w = await openAt(1920, 1080, 'look=glass&page=planner'); const chip2 = w.locator('family-hub-card header button.cap[data-kind="next"]');
+  if (await chip2.count() && await chip2.isVisible()) { const nm = await chip2.getAttribute('aria-label'); await chip2.click(); await w.waitForTimeout(400);
+    console.log('R4-2 header "next up" chip at 1920x1080:', nm.replace(/\u00a0/g, ' '), '| opens its event:', ok(await w.evaluate(() => !!document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet[data-sheet="event"]')))); }
+  else console.log('R4-2 header "next up" chip at 1920x1080: not showing');
+  await w.context().close(); }
+// R4-4b and c. a child who cannot read reaches Ask, the chat's pictures and the doodle colours in the lower half of the wall panel
+{ const p = await openAt(1920, 1080, 'look=glass&page=kid&kid=2'); const half = 540;
+  const kid = () => p.evaluate(() => { const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.askbtn'), z = Number(getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.fh')).zoom) || 1; if (!b) return null; const r = b.getBoundingClientRect(); return { top: Math.round(r.top), h: Math.round(r.height / z), text: b.innerText.trim(), name: b.getAttribute('aria-label'), svg: !!b.querySelector('svg') }; });
+  const a = await kid();
+  console.log('R4-4b Ask button on a picture-mode page:', JSON.stringify(a), ok(!!a && a.top > half && a.h >= 72 && a.text === 'Ask' && a.svg));
+  await p.locator('family-hub-card fh-kid .askbtn').click(); await p.waitForTimeout(600);
+  const ch = await p.evaluate(() => { const c = document.querySelector('family-hub-card'), r = c.shadowRoot.querySelector('fh-chat')?.shadowRoot; if (!r) return null; const top = (e) => Math.round(e.getBoundingClientRect().top), talk = r.querySelector('.talk'), th = r.querySelector('.thread').getBoundingClientRect();
+    return { sheet: c._sheet, low: c.shadowRoot.querySelector('fh-chat').hasAttribute('low'), talk: talk ? top(talk) : null, starters: [...r.querySelectorAll('.starter')].map(top), threadBottom: Math.round(th.bottom), kb: getComputedStyle(r.querySelector('.send .kb')).fontSize, bottom: Math.round(Math.max(...[...r.querySelectorAll('.starter, .opts button')].map((e) => e.getBoundingClientRect().bottom))), vh: innerHeight }; });
+  console.log('R4-4b Ask opens the chat:', ch?.sheet, '| microphone top', ch?.talk, '| six pictures tops', JSON.stringify(ch?.starters), '> ', half, ok(!!ch && ch.low && ch.starters.length === 6 && ch.starters.every((y) => y > half) && (ch.talk === null || ch.talk > half)), '| conversation above them:', ok(!!ch && ch.threadBottom <= Math.min(...ch.starters)), '| all on screen:', ok(!!ch && ch.bottom <= ch.vh), '| "Keyboard" label', ch?.kb, ok(!!ch && parseFloat(ch.kb) >= 15));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+  await p.locator('family-hub-card nav.dock [data-nav="pencil"]').click(); await p.waitForTimeout(900);
+  const dd = () => p.evaluate(() => { const d = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-doodle'), tops = [...d.shadowRoot.querySelectorAll('.brushes button')].map((e) => e.getBoundingClientRect()); return { low: d.hasAttribute('low'), n: tops.length, minTop: Math.round(Math.min(...tops.map((b) => b.top))), maxBottom: Math.round(Math.max(...tops.map((b) => b.bottom))), small: tops.filter((b) => Math.min(b.width, b.height) < 43.5).length, pad: Math.round(d.shadowRoot.querySelector('.pad').getBoundingClientRect().height), vh: innerHeight }; });
+  let d = await dd();
+  console.log('R4-4c Doodle opened from his page: colours and brushes along the bottom:', JSON.stringify(d), ok(d.low && d.minTop > half && d.maxBottom <= d.vh && !d.small && d.pad > 250));
+  await p.locator('family-hub-card nav.dock [data-nav="calendar"]').click(); await p.waitForTimeout(500); await p.locator('family-hub-card nav.dock [data-nav="pencil"]').click(); await p.waitForTimeout(900); d = await dd();
+  console.log('R4-4c Doodle opened from the planner keeps its side palette:', ok(!d.low));
+  await p.context().close(); }
+// R4-5. leftovers: phone dock labels, the week initials, the shelf labels, taps while a scene or "Whole house" is in flight
+for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage();
+  await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + `/?look=${look}&page=planner`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(800);
+  const fs = await p.evaluate(() => Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('nav.dock .item')].map((e) => parseFloat(getComputedStyle(e).fontSize))));
+  console.log(`R4-5 phone dock labels in ${look}: ${fs}px (expect >= 13)`, ok(fs >= 13)); await c.close(); }
+{ const p = await openAt(1280, 800, 'look=glass&page=kid&kid=0');
+  await p.locator('family-hub-card fh-kid .tabs button', { hasText: 'My week' }).click(); await p.waitForTimeout(400);
+  const wk = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; const a = [...r.querySelectorAll('.wk .init')]; return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cut: a.filter((e) => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1).length }; });
+  console.log('R4-5 kid week initials:', JSON.stringify(wk), ok(wk.n > 0 && wk.fs >= 14 && !wk.cut)); await p.context().close(); }
+{ const p = await openAt(1280, 800, 'look=glass&page=music&mview=house'); await p.waitForTimeout(4600);
+  const sh = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const a = [...r.querySelectorAll('.srec span')].filter((e) => e.offsetWidth); return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cutBelow: a.filter((e) => e.getBoundingClientRect().bottom > e.closest('.mshelf, .srecs').getBoundingClientRect().bottom + 1).length }; });
+  console.log('R4-5 House shelf labels:', JSON.stringify(sh), ok(sh.n > 0 && sh.fs >= 14 && !sh.cutBelow));
+  // the dock scenes: two taps in the same instant make one call
+  await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock [data-nav="lights-off"]'); b.click(); b.click(); }); await p.waitForTimeout(600);
+  console.log('R4-5 "All off" tapped twice at once: calls', await p.evaluate(() => window.__calls.filter((x) => /^light\.turn_off/.test(x)).length), '(expect 1)');
+  await p.keyboard.press('Escape'); await p.context().close();
+  const d = await openAt(1280, 800, 'look=glass&page=music&mview=dial'); await d.waitForTimeout(600);
+  await d.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.wholeb'); b.click(); b.click(); b.click(); }); await d.waitForTimeout(900);
+  console.log('R4-5 "Whole house" tapped three times at once: join calls', await d.evaluate(() => window.__calls.filter((x) => /^media_player\.join/.test(x)).length), '(expect 1)');
+  await d.context().close(); }
+{ const p = await openAt(390, 844, 'look=fridge&page=planner&sheet=sitter');
+  const rows = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.sheet a.irow')].map((e) => Math.round(e.getBoundingClientRect().height)));
+  console.log('R4-5 house-info phone rows (heights, expect each >= 44):', JSON.stringify(rows), ok(rows.length > 0 && rows.every((h) => h >= 44))); await p.context().close(); }
+
+// ---------- Round 5: the cold reviewers' majors and minors ----------
+{ const SR = `document.querySelector('family-hub-card').shadowRoot`;
+  const deepFocus = (p) => p.evaluate(() => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a ? (a.getAttribute('aria-label') || a.textContent.trim().slice(0, 24) || a.tagName) : ''; });
+  const settle = (p) => p.evaluate(() => Promise.race([Promise.all(document.getAnimations().filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime)).map((a) => a.finished.catch(() => {}))), new Promise((r) => setTimeout(r, 3000))]));
+  // R5-2 no initial chip under 12 px
+  for (const pg of ['planner', 'planner&view=day', 'planner&view=month', 'planner&sheet=add']) { const p = await openAt(1280, 800, 'look=glass&page=' + pg);
+    const r = await p.evaluate(() => { const out = []; const walk = (root) => root.querySelectorAll('*').forEach((e) => { if (e.matches('.init') && e.getClientRects().length) out.push([parseFloat(getComputedStyle(e).fontSize), e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1]); if (e.shadowRoot) walk(e.shadowRoot); }); walk(document.querySelector('family-hub-card').shadowRoot); return { n: out.length, min: Math.min(...out.map((x) => x[0])), clipped: out.filter((x) => x[1]).length }; });
+    console.log('R5-2 initials on', pg + ':', JSON.stringify(r), ok(r.n > 0 && r.min >= 12 && r.clipped === 0)); await p.context().close(); }
+  // R5-3 a place wraps to two lines where its day has room; R5-4 Fridge titles may run to four lines
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&events=long'); const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot; const locs = [...c.querySelectorAll('.col[data-wrap] .ev .loc .ell')]; return { wrapDays: c.querySelectorAll('.col[data-wrap]').length, tightDays: c.querySelectorAll('.col[data-tight]').length, twoLine: locs.filter((e) => e.offsetHeight > 22).length, clamp: locs[0] ? getComputedStyle(locs[0]).webkitLineClamp : '', overflowing: [...c.querySelectorAll('.week > .col')].filter((col) => { const b = col.querySelector('.evs'); return b && b.scrollHeight > b.clientHeight + 2; }).length }; });
+    console.log('R5-3 week places:', JSON.stringify(r), ok(r.wrapDays > 0 && r.clamp === '2' && r.overflowing === 0)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=fridge&page=planner&events=long'); const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot; const t = [...c.querySelectorAll('.col:not([data-tight]) .ev .content')]; return { clamp: t[0] ? getComputedStyle(t[0]).webkitLineClamp : '', most: Math.max(...t.map((e) => Math.round(e.offsetHeight / parseFloat(getComputedStyle(e).lineHeight)))), cutAtTwo: t.filter((e) => e.scrollHeight > e.clientHeight + 1 && Math.round(e.offsetHeight / parseFloat(getComputedStyle(e).lineHeight)) <= 2).length }; });
+    console.log('R5-4 Fridge week titles:', JSON.stringify(r), ok(r.clamp === '4' && r.cutAtTwo === 0)); await p.context().close(); }
+  // R5-7 the Ask sheet by keyboard: opened with Enter, typed into, sent with Enter, tabbed through, closed with Escape
+  { const p = await openAt(1280, 800, 'look=glass&page=planner'); await p.getByRole('button', { name: 'Ask a question' }).first().focus(); await p.keyboard.press('Enter'); await p.waitForTimeout(600);
+    const first = await deepFocus(p); await p.keyboard.type('why is the sky blue'); await p.keyboard.press('Enter'); await p.waitForTimeout(2500);
+    const bub = await p.locator('fh-chat .thread .bubble').allInnerTexts(), open1 = await p.evaluate(`document.querySelector('family-hub-card')._sheet`);
+    const seen = new Set(); for (let i = 0; i < 16; i++) { await p.keyboard.press('Tab'); seen.add(await deepFocus(p)); }
+    const inert = await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => x.inert)`);
+    await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+    console.log('R5-7 Ask by keyboard: focus on open "' + first + '"', ok(first === 'Your question'), '| typed and sent with Enter:', ok(bub.some((b) => /why is the sky blue/.test(b)) && open1 === 'chat'), '| Tab reaches', seen.size, 'controls incl. Close, a starter and Send/Keyboard:', ok(seen.has('Close') && [...seen].some((x) => /Tell me a joke/.test(x)) && seen.has('Keyboard') && seen.has('For grown-ups')), '| page behind is inert:', ok(inert), '| Escape closes, focus back on:', await deepFocus(p), ok((await p.evaluate(`document.querySelector('family-hub-card')._sheet`)) === '' && (await deepFocus(p)) === 'Ask a question'));
+    console.log('R5-15 page no longer inert once the sheet has gone:', ok(await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => !x.inert)`))); await p.context().close(); }
+  { const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); await p.goto('http://localhost:' + PORT + '/?look=glass&page=planner&sheet=chat'); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900);
+    console.log('R5-7 on a touch screen the field is not focused (no system keyboard):', ok(await p.evaluate(() => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.tagName !== 'INPUT'; }))); await c.close(); }
+  // R5-8 repeat taps while a call is out: Home scene, timer Cancel, a reminder and a grocery tick each send one call, and show they are waiting
+  { const p = await openAt(1280, 800, 'look=glass&page=home&slow=1500');
+    const r = await p.evaluate(async () => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot, b = h.querySelector('.scene'); window.__calls = []; b.click(); b.click(); await new Promise((r) => setTimeout(r, 450)); const busy = b.hasAttribute('data-busy'); b.click(); await new Promise((r) => setTimeout(r, 1800)); return { busy, calls: window.__calls.filter((c) => /^script\.turn_on/.test(c)).length }; });
+    console.log('R5-8 Home scene tapped three times on a slow link:', JSON.stringify(r), ok(r.busy && r.calls === 1));
+    const sw = await p.evaluate(async () => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot, b = h.querySelector('.rh .sw'); if (!b) return null; window.__calls = []; b.click(); b.click(); await new Promise((r) => setTimeout(r, 380)); const busyBy400 = b.hasAttribute('data-busy') && getComputedStyle(b).cursor === 'progress'; await new Promise((r) => setTimeout(r, 1600)); return { busyBy400, calls: window.__calls.filter((c) => /^light\.turn_/.test(c)).length }; });
+    console.log('R5-14 Home room switch on a slow link:', JSON.stringify(sw), ok(sw && sw.busyBy400 && sw.calls === 1)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&slow=1500');
+    const r = await p.evaluate(async () => { const c = document.querySelector('family-hub-card').shadowRoot, b = c.querySelector('button.rem'); window.__calls = []; b.click(); b.click(); b.click(); await new Promise((r) => setTimeout(r, 2200)); return { calls: window.__calls.filter((x) => /^todo\.update_item/.test(x)).length, ticked: b.getAttribute('aria-pressed') }; });
+    console.log('R5-8 reminder tapped three times on a slow link:', JSON.stringify(r), ok(r.calls === 1)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=groceries&slow=1500');
+    const r = await p.evaluate(async () => { const g = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries').shadowRoot, b = g.querySelector('button.item'); window.__calls = []; b.click(); b.click(); b.click(); await new Promise((r) => setTimeout(r, 400)); const busy = b.hasAttribute('data-busy'); await new Promise((r) => setTimeout(r, 1800)); return { busy, calls: window.__calls.filter((x) => /^todo\.update_item/.test(x)).length }; });
+    console.log('R5-8 grocery row tapped three times on a slow link:', JSON.stringify(r), ok(r.busy && r.calls === 1));
+    const a = await p.evaluate(async () => { const g = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries'); window.__calls = []; g._add('Zucchini', null); g._add('Zucchini', null); await new Promise((r) => setTimeout(r, 380)); const row = g.shadowRoot.querySelector('.item.pending'); const got = { pendingBy400: !!row, says: row?.textContent.replace(/\s+/g, ' ').trim() }; await new Promise((r) => setTimeout(r, 2000)); got.calls = window.__calls.filter((x) => /^todo\.add_item/.test(x)).length; got.goneAfter = !g.shadowRoot.querySelector('.item.pending'); got.status = g.shadowRoot.querySelector('.says')?.getAttribute('role'); return got; });
+    console.log('R5-14 grocery Add on a slow link:', JSON.stringify(a), ok(a.pendingBy400 && a.calls === 1 && a.goneAfter && a.status === 'status')); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=timer&slow=1200'); await p.evaluate(() => { const h = document.querySelector('family-hub-card').hass; h.states['timer.kitchen'] = { ...h.states['timer.kitchen'], state: 'active', attributes: { ...(h.states['timer.kitchen']?.attributes ?? {}), finishes_at: new Date(Date.now() + 300000).toISOString(), duration: '0:05:00' } }; document.querySelector('family-hub-card').hass = { ...h }; }); await p.waitForTimeout(300);
+    const heroes = await p.evaluate(`${SR}.querySelectorAll('.sheet .lead').length`), wraps = await p.evaluate(`[...${SR}.querySelectorAll('.sheet [data-act="plus"]')].filter((b) => b.offsetHeight > 62 || getComputedStyle(b).whiteSpace !== 'nowrap').length`);
+    const r = await p.evaluate(async () => { const c = document.querySelector('family-hub-card').shadowRoot, b = c.querySelector('.sheet [aria-label="Cancel the kitchen timer"]'); if (!b || b.disabled) return { skipped: 'timer not running in the preview' }; window.__calls = []; b.click(); b.click(); b.click(); await new Promise((r) => setTimeout(r, 1700)); return { calls: window.__calls.filter((x) => /^timer\.cancel/.test(x)).length }; });
+    console.log('R5-8 timer Cancel tapped three times on a slow link:', JSON.stringify(r), ok(r.skipped || r.calls === 1), '| R5-17 one hero on the timer sheet:', heroes, ok(heroes === 1), '| +N min buttons that could wrap:', wraps, ok(wraps === 0)); await p.context().close(); }
+  // R5-9 add-event sheet controls are 44 px high once the sheet has arrived, at both sizes
+  for (const [w, h] of [[1280, 800], [390, 844]]) { const p = await openAt(w, h, 'look=glass&page=planner&sheet=add'); await settle(p);
+    const hs = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-add-event').shadowRoot; return [...r.querySelectorAll('.chips.days button, .chips.cals button, .calbtn, .allday')].filter((e) => e.getClientRects().length).map((e) => Math.round(e.getBoundingClientRect().height * 10) / 10); });
+    console.log(`R5-9 add sheet ${w}x${h}: date and people chips, "Other date", "All day" heights:`, [...new Set(hs)].join(','), ok(hs.length > 4 && hs.every((x) => x >= 44))); await p.context().close(); }
+  // R5-10 / R5-13 medication: a record kept in this browser says so; the giver shows at once on a slow link; a failure leaves nothing ticked
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds');
+    const note = await p.evaluate(`(() => { const s = ${SR}.querySelector('.sheet'); return { label: [...s.querySelectorAll('.label')].map((x) => x.textContent.trim()), note: s.querySelector('[data-medlocal]')?.textContent.trim() ?? '' }; })()`);
+    console.log('R5-10 no med_log: section label', JSON.stringify(note.label[1]), ok(note.label.includes('Kept on this screen only')), '| note names the key:', ok(/med_log/.test(note.note) && /No other screen/.test(note.note))); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds&slow=1200'); await p.evaluate(() => { document.querySelector('family-hub-card')._medOpen = true; }); await p.evaluate(() => { window.__calls = []; });
+    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await p.waitForTimeout(350);
+    const mid = await p.evaluate(`${SR}.querySelector('.sheet [data-saving]')?.textContent.trim() ?? ''`); await p.waitForTimeout(3200);
+    const order = await p.evaluate(() => window.__calls.filter((c) => /^input_(text|datetime)\./.test(c)).map((c) => c.split(' ')[0]));
+    console.log('R5-13 slow link: row says', JSON.stringify(mid), ok(/Saving/.test(mid) && /Alex/.test(mid)), '| giver written before the time:', order.join(' > '), ok(order[0] === 'input_text.set_value' && order[1] === 'input_datetime.set_datetime')); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._medOpen = true; const h = c.hass, real = h.callService; window.__calls2 = []; h.callService = async (d, s, data, t) => { window.__calls2.push(d + '.' + s + ' ' + JSON.stringify(data)); if (d === 'input_datetime' && window.__calls2.filter((x) => /^input_datetime/.test(x)).length === 1) throw new Error('refused'); return real(d, s, data, t); }; });
+    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await p.waitForTimeout(900);
+    const r = await p.evaluate(() => ({ calls: window.__calls2.map((x) => x.split(' ')[0]), lastBy: JSON.parse(window.__calls2.filter((x) => /^input_text/.test(x)).pop().split(' ').slice(1).join(' ')).value, row: document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet .card b:last-of-type')?.textContent.trim(), toast: document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.textContent.trim() }));
+    console.log('R5-13 time write refused: the name is put back (' + r.lastBy + '), row not ticked, and it says so:', JSON.stringify(r.calls), '|', r.toast, ok(r.lastBy !== 'Alex' && /not recorded/.test(r.toast ?? '') && r.calls.filter((x) => /^input_text/.test(x)).length === 2)); await p.context().close(); }
+  { const p = await openAt(1280, 600, 'look=glass&page=planner&sheet=meds'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._medOpen = true; const now = Date.now(); localStorage.setItem('family-hub-med-log', JSON.stringify(Array.from({ length: 9 }, (_, i) => new Date(now - (i + 1) * 3600000).toISOString() + '|Riley|Paracetamol|Sam'))); return c._loadMedLog().then(() => c.requestUpdate()); }); await p.waitForTimeout(300);
+    await p.evaluate(`(() => { const c = document.querySelector('family-hub-card'); c._mx = { ...c._mx, what: 'Ibuprofen', who: 'Charlie', by: 'Alex' }; c.requestUpdate(); })()`); await p.waitForTimeout(200); await p.evaluate(`${SR}.querySelector('.sheet').scrollTop = 9999`); await p.evaluate(`${SR}.querySelector('.sheet [data-act="log"]').click()`); await p.waitForTimeout(1200);
+    const v = await p.evaluate(`(() => { const s = ${SR}.querySelector('.sheet'), row = [...s.querySelectorAll('.irow[data-at]')].find((x) => /Ibuprofen/.test(x.textContent)); if (!row) return null; const a = row.getBoundingClientRect(), b = s.getBoundingClientRect(); return a.top >= b.top - 1 && a.bottom <= b.bottom + 1; })()`);
+    console.log('R5-13 a new record is scrolled into view:', v, ok(v === true)); await p.evaluate(() => localStorage.removeItem('family-hub-med-log')); await p.context().close(); }
+  // R5-11 jobs left: "My look" answers with a wiggle of the padlock and, in picture mode, a spoken line; nothing red, no toast
+  for (const k of [2, 0]) { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=' + k); await p.evaluate(() => { window.__said = []; const real = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = (u) => { window.__said.push(u.text); }; });
+    const b = p.locator('fh-kid .studio'); const locked = await b.getAttribute('data-locked'); if (locked === null) { console.log('R5-11 kid', k, 'has no jobs left in the preview: not tested'); await p.context().close(); continue; }
+    await b.click(); await p.waitForTimeout(150);
+    const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'), b = k.shadowRoot.querySelector('.studio'), sv = b.querySelector('svg'); return { nudge: b.hasAttribute('data-nudge'), anim: getComputedStyle(sv).animationName, toast: k.shadowRoot.querySelector('.toast')?.textContent ?? '', studio: k._studio, said: window.__said, pic: k._picMode }; });
+    console.log('R5-11 kid', k, 'locked "My look":', JSON.stringify(r), ok(r.nudge && r.anim === 'lockwig' && !r.toast && !r.studio && (r.pic ? /One more job, then your look|jobs to go/.test(r.said.join(' ')) : r.said.length === 0))); await p.context().close(); }
+  // R5-12 the youngest at the wall: feelings and its speaker in the lower half; faces under the records on his shelf and on his jukebox turn
+  { const p = await openAt(1920, 1080, 'look=glass&page=kid&kid=2'); const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; const t = (s) => Math.round(k.querySelector(s).getBoundingClientRect().top); return { speaker: t('[aria-label="Read the question"]'), faces: t('.feel'), tabs: t('.tabs'), look: t('.studio') }; });
+    await p.evaluate(() => { window.__said = []; speechSynthesis.speak = (u) => { window.__said.push(u.text); }; }); await p.locator('fh-kid .feel button').first().click(); await p.waitForTimeout(200);
+    const f = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; return { asked: k.querySelector('.feelcard span')?.textContent.trim(), said: window.__said.join(' | '), again: Math.round(k.querySelector('[aria-label="Read the question"]').getBoundingClientRect().top) }; });
+    await p.locator('fh-kid [aria-label="Read the question"]').click(); await p.waitForTimeout(100); const speaking = await p.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('[aria-label="Read the question"]').hasAttribute('data-speaking'));
+    console.log('R5-12 Max at 1920x1080 (tops, all > 540):', JSON.stringify(r), ok(Object.values(r).every((y) => y > 540)), '| R5-17 follow-up shown and spoken:', JSON.stringify(f.asked), ok(f.said.includes(f.asked) && f.again > 540), '| read-aloud button shows it is speaking:', ok(speaking)); await p.context().close(); }
+  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=shelves'); await p.locator('fh-music .dividers .pchip', { hasText: 'Max' }).click(); await p.waitForTimeout(500);
+    const s = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const c = m.querySelector('.dividers').getBoundingClientRect(), t = [...m.querySelectorAll('.crate .covers .st')].map((x) => x.getBoundingClientRect()); return { chipsTop: Math.round(c.top), tilesTop: Math.round(Math.min(...t.map((x) => x.top))), tilesBottom: Math.round(Math.max(...t.map((x) => x.bottom))) }; });
+    await p.locator('fh-music .dividers .pchip', { hasText: 'Riley' }).click(); await p.waitForTimeout(400); const other = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return m.querySelector('.dividers').getBoundingClientRect().top < m.querySelector('.crate .covers, .crate .empty').getBoundingClientRect().top; });
+    console.log('R5-12 Max’s shelf at the wall:', JSON.stringify(s), ok(s.chipsTop >= s.tilesBottom && s.tilesTop > 540), '| an older child’s shelf keeps its faces on top:', ok(other)); await p.context().close(); }
+  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=juke'); await p.locator('fh-music .coin', { hasText: 'Max' }).click(); await p.waitForTimeout(600);
+    const s = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = m.querySelector('.banner').getBoundingClientRect(), t = [...m.querySelectorAll('.jcovers .st')].map((x) => x.getBoundingClientRect()); return { bannerTop: Math.round(b.top), tiles: t.length, tilesTop: Math.round(Math.min(...t.map((x) => x.top))), tilesBottom: Math.round(Math.max(...t.map((x) => x.bottom))) }; });
+    console.log('R5-12 Max’s jukebox turn at the wall:', JSON.stringify(s), ok(s.tiles > 0 && s.bannerTop >= s.tilesBottom && s.tilesTop > 500)); await p.context().close(); }
+  // R5-14 a call that never answers is given up after 12 s: the tick goes back and a calm line says so; a failed clear stays until dismissed; a reward says "Saving…"
+  { const p = await openAt(1280, 800, 'look=glass&page=groceries'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.hass.callService = () => new Promise(() => {}); });
+    await p.locator('fh-groceries button.item').first().click(); await p.waitForTimeout(300); const held = await p.locator('fh-groceries button.item[aria-pressed="true"]').count(); await p.clock.fastForward(12500); // held counts the row just ticked with those already in the trolley await p.waitForTimeout(400);
+    const r = { held, after: await p.locator('fh-groceries button.item[aria-pressed="true"]').count(), toast: (await p.locator('fh-groceries .toast').innerText().catch(() => '')).trim() };
+    console.log('R5-14 grocery tick never answered:', JSON.stringify(r), ok(r.after === r.held - 1 && r.toast === 'Home Assistant is slow. Try again.')); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=groceries&fail=1'); const g = p.locator('fh-groceries'); const has = await g.locator('.clear').count();
+    if (has) { await g.locator('.clear').click(); await p.clock.fastForward(6500); await p.waitForTimeout(600); const t1 = (await g.locator('.toast').innerText().catch(() => '')).replace(/\s+/g, ' ').trim(); await p.clock.fastForward(20000); await p.waitForTimeout(300); const still = await g.locator('.toast').count(); await g.locator('.toast button').click(); await p.waitForTimeout(500);
+      console.log('R5-14 "Clear ticked" failed:', JSON.stringify(t1), '| still there 20 s later:', ok(still === 1), '| goes when OK is tapped:', ok((await g.locator('.toast:not([data-closing])').count()) === 0)); } else console.log('R5-14 "Clear ticked": nothing ticked in the preview, not tested'); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=1&slow=1500'); const k = p.locator('fh-kid'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'), kid = c.shadowRoot.querySelector('fh-kid'), id = kid._e.points; c.hass = { ...c.hass, states: { ...c.hass.states, [id]: { ...c.hass.states[id], state: '500' } } }; kid._tab = 'rewards'; kid._tabPicked = true; kid.requestUpdate(); }); await p.waitForTimeout(300);
+    const can = k.locator('button.rw:has(.cost:not(.notyet))'); let asked = false; for (let i = 0; i < await can.count() && !asked; i++) { await can.nth(i).click(); await p.waitForTimeout(250); asked = (await k.locator('.rw.ask').count()) > 0; if (!asked) await p.keyboard.press('Escape'); }
+    if (asked) { await k.locator('.rw.ask button').first().click(); await p.waitForTimeout(380); const t = (await k.locator('.rw.ask button').first().innerText().catch(() => '')).trim(); console.log('R5-14 reward "Yes" on a slow link says within 400 ms:', JSON.stringify(t), ok(t === 'Saving…')); } else console.log('R5-14 reward Saving: no reward affordable in the preview, not tested');
+    const flat = await p.evaluate(() => { const e = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.cost.notyet'); return e ? getComputedStyle(e).boxShadow : 'none-found'; }); console.log('R5-17 "N to go" is a flat tile (no outline):', flat, ok(flat === 'none' || flat === 'none-found')); await p.context().close(); }
+  // R5-15 semantics: drums, value text, reminders' ring room, status regions
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=add'); const d = p.locator('fh-add-event .drum[data-d="h"]'), m = p.locator('fh-add-event .drum[data-d="m"]'); await d.focus(); const h0 = await d.getAttribute('aria-valuenow');
+    await p.keyboard.press('Home'); const home = await d.getAttribute('aria-valuenow'); await p.keyboard.press('PageDown'); const pd = await d.getAttribute('aria-valuenow'); await p.keyboard.press('End'); const end = await d.getAttribute('aria-valuenow'); await p.keyboard.press('PageUp'); const pu = await d.getAttribute('aria-valuenow');
+    console.log('R5-15 hour drum keys: start', h0, '| Home', home, '| PageDown', pd, '| End', end, '| PageUp', pu, ok(home === '1' && pd === '4' && end === '12' && pu === '9'), '| value text:', await d.getAttribute('aria-valuetext'), '/', await m.getAttribute('aria-valuetext'), ok(/ (am|pm)$/.test(await d.getAttribute('aria-valuetext'))), '| message region is standing:', ok((await p.locator('fh-add-event .err[role="status"]').count()) === 1)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner'); const r = await p.evaluate(`(() => { const l = ${SR}.querySelector('.remlist'), b = l.querySelector('.rem'); const lb = l.getBoundingClientRect(), bb = b.getBoundingClientRect(); return { left: Math.round(bb.left - lb.left), right: Math.round(lb.right - bb.right) }; })()`);
+    console.log('R5-15 room for a reminder’s focus ring inside the clip (px each side, need 6):', JSON.stringify(r), ok(r.left >= 6 && r.right >= 6));
+    const dock = await p.evaluate(`(() => { const out = {}; for (const b of ${SR}.querySelectorAll('nav.dock .item')) { const rg = document.createRange(); const tn = [...b.childNodes].reverse().find((n) => n.textContent.trim()); rg.selectNodeContents(tn); out[b.textContent.trim()] = Math.round(rg.getBoundingClientRect().bottom); } return out; })()`);
+    console.log('R5-16 dock labels on one line (bottoms):', JSON.stringify(dock), ok(Math.max(...Object.values(dock)) - Math.min(...Object.values(dock)) <= 1), '| Dinner shown with an announce script:', ok('Dinner' in dock)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&dinner=0'); console.log('R5-17 no announce script: Dinner in the dock (expect 0):', await p.evaluate(`${SR}.querySelectorAll('nav.dock [data-nav="dinner"]').length`)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=sitter'); const w = await p.evaluate(`[...${SR}.querySelectorAll('.sheet .irow')].map((x) => x.textContent.trim()).filter((t) => /^(Network|Password)/.test(t)).map((t) => t.slice(0, 8))`); console.log('R5-17 House info Wi-Fi rows:', JSON.stringify(w), ok(w.length === 2 && /^Network/.test(w[0]) && /^Password/.test(w[1]))); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&empty=1'); const t = await p.evaluate(`${SR}.querySelector('.rems')?.textContent.replace(/\\s+/g, ' ').trim() ?? ''`); console.log('R5-17 empty reminders:', JSON.stringify(t.slice(0, 60)), ok(/Nothing to remember/.test(t) || !/All done/.test(t))); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=weather'); const r = await p.evaluate(() => { const w = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot; return { winds: [...w.querySelectorAll('.hchart .wind')].map((t) => t.textContent.trim()).filter(Boolean).slice(0, 4), key: w.querySelector('.hkey')?.textContent.trim() }; }); console.log('R5-16 hourly wind labels:', JSON.stringify(r), ok(r.winds.every((t) => /^\d+$/.test(t)) && /km\/h/.test(r.key ?? ''))); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=1&studio=1'); const r = await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot; const rows = {}; for (const b of s.querySelectorAll('.tabs button')) { const y = Math.round(b.getBoundingClientRect().top); rows[y] = (rows[y] || 0) + 1; } return { rows: Object.values(rows), cut: [...s.querySelectorAll('.tabs button')].filter((b) => b.scrollWidth > b.clientWidth + 1).length }; }); console.log('R5-16 studio tabs per row:', JSON.stringify(r), ok(r.rows.join() === '4,4' && r.cut === 0)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=0'); const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, s = k.querySelector('.side'); return Math.round(s.getBoundingClientRect().bottom - Math.max(...[...s.children].map((c) => c.getBoundingClientRect().bottom))); }); console.log('R5-16 older boys’ right column: gap under its last card (px):', r, ok(r <= 2)); await p.context().close(); }
+}
+
+// Home Ground (the sports look): it can be chosen in the picker, the header clock is digit tiles, the dock is there, and no page throws
+{ let page = await open('look=glass&sheet=themes');
+  const cards = page.locator('family-hub-card .looks .tcard');
+  const count = await cards.count();
+  await cards.filter({ hasText: 'Home Ground' }).click(); await page.waitForTimeout(300);
+  console.log('HG1 picker: four looks', count === 4, '| choosing Home Ground sets the look', await page.evaluate(() => document.querySelector('family-hub-card').getAttribute('data-look') === 'sports' && localStorage.getItem('family-hub-look') === 'sports'),
+    '| its card is the chosen one', await cards.filter({ hasText: 'Home Ground' }).getAttribute('aria-pressed') === 'true');
+  await page.close();
+  page = await open('look=sports&page=planner');
+  const clock = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, b = r.querySelector('header .sboard'), dg = [...r.querySelectorAll('header .sboard .dg')];
+    return { tiles: dg.map((d) => d.textContent).join(''), label: b?.getAttribute('aria-label'), tileBg: dg[0] ? getComputedStyle(dg[0]).backgroundColor : '', hm: getComputedStyle(r.querySelector('header .hm')).display, ball: r.querySelector('header .sboard .dball')?.dataset.ball, dow: r.querySelector('.fh').dataset.dow }; });
+  console.log('HG2 header clock: digit tiles', clock.tiles === '420' && clock.label === '4:20', '| tiles are dark', clock.tileBg === 'rgb(10, 16, 13)', '| plain digits hidden', clock.hm === 'none', '| ball of the day (Tuesday: tennis)', clock.ball === 'tennis' && clock.dow === '2');
+  const dock = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, d = r.querySelector('nav.dock'), items = [...d.querySelectorAll('.item')], b = d.getBoundingClientRect();
+    return { n: items.length, small: items.filter((i) => { const q = i.getBoundingClientRect(); return q.width < 44 || q.height < 44; }).length, wide: Math.round(b.width) === innerWidth, bottom: Math.round(b.bottom) === innerHeight, current: d.querySelector('[aria-current="page"]')?.dataset.nav,
+      leads: r.querySelectorAll('.planner .lead').length, lanes: r.querySelectorAll('.week .col').length, balls: r.querySelectorAll('.week .dayhead .dball').length, verdict: r.querySelector('header .weather .verdict')?.textContent.trim() }; });
+  console.log('HG3 dock: present with its items', dock.n >= 9 && dock.small === 0, '| a touchline across the bottom', dock.wide && dock.bottom, '| current page marked', dock.current === 'calendar', '| one hero on the planner', dock.leads === 1, '| seven lanes, a ball in each', dock.lanes === 7 && dock.balls === 7, '| pitch report on the weather chip:', dock.verdict);
+  await page.close();
+  const before = errs.filter((e) => !/^404|^failed/.test(e)).length, blank = [];
+  for (const [qs, time] of [['page=planner&view=day'], ['page=planner&view=month'], ['page=planner', '19:30'], ['page=planner&calm=1'], ['page=planner&events=none&empty=1'], ['page=kid&kid=0'], ['page=kid&kid=1'], ['page=kid&kid=2'], ['page=kid&kid=2', '19:30'], ['page=kid&kid=0&studio=1'], ['page=groceries'], ['page=doodle'],
+    ...['house', 'scene', 'dial', 'desk', 'cables', 'list'].map((v) => ['page=music&mview=' + v]), ...['shelves', 'juke&juke=1', 'radio', 'call'].map((t) => ['page=music&mtab=' + t]), ['page=weather'], ['page=weather&wx=rain'], ['page=home'], ['page=morning', '07:10'], ['page=planner&night=1', '22:30'],
+    ...['add', 'meds', 'sitter', 'timer', 'themes', 'chat'].map((sh) => ['page=planner&sheet=' + sh]), ['page=kid&kid=0&sheet=kidprefs']]) {
+    const p = await open('look=sports&' + qs, time);
+    if (!(await p.evaluate(() => { const c = document.querySelector('family-hub-card'); return c.getAttribute('data-look') === 'sports' && c.shadowRoot.querySelector('.fh').children.length > 0; }))) blank.push(qs);
+    await p.close(); }
+  console.log('HG4 every page, sheet and view opens in Home Ground:', blank.length ? 'BLANK ' + blank.join(', ') : true, '| nothing throws', errs.filter((e) => !/^404|^failed/.test(e)).length === before);
+  page = await open('look=sports&page=weather&wx=rain');
+  console.log('HG5 weather page: the verdict tile comes first:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot, v = r.querySelector('.wnow .verdict'); return v && v.previousElementSibling?.tagName === 'H2' ? v.textContent.trim() : 'MISSING'; }));
+  await page.close();
+  page = await open('look=sports&page=music&mview=scene');
+  console.log('HG6 music scene is the training ground', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, v = r.querySelector('.vscene'); return v?.dataset.kind === 'sports' && r.querySelectorAll('.vscene .actor').length > 0 && !!r.querySelector('.backdrop .bgchalk'); }));
+  await page.close(); }
+// R6-G1. wind-down (19:30): every card of the kid page's side column fits, "Ask for a chat" included, on a short panel in every look and on the wall sizes
+{ const bad = [];
+  for (const [w, h, look, kids] of [[1312, 668, 'glass&theme=sea', [0, 1, 2]], [1312, 668, 'fridge', [0, 1, 2]], [1312, 668, 'orbit', [0, 1, 2]], [1312, 668, 'sports', [0, 1, 2]], [1280, 800, 'sports', [0]], [1920, 1080, 'sports', [0]]]) for (const kid of kids) {
+    const p = await openAt(w, h, `look=${look}&page=kid&kid=${kid}`, '19:30');
+    const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, s = k.querySelector('.side'), sb = s.getBoundingClientRect(), last = s.lastElementChild.getBoundingClientRect(), chat = [...s.querySelectorAll('button')].find((b) => /Ask for a chat/.test(b.textContent))?.getBoundingClientRect();
+      return { over: s.scrollHeight - s.clientHeight, last: Math.round(last.bottom - Math.min(sb.bottom, innerHeight)), chat: chat ? Math.round(chat.bottom - Math.min(sb.bottom, innerHeight)) : 999 }; });
+    if (r.over > 2 || r.last > 1 || r.chat > 0) bad.push(`${w}x${h} ${look.split('&')[0]} kid${kid} ${JSON.stringify(r)}`);
+    await p.context().close(); }
+  console.log('R6-G1 wind-down side column fits with nothing cut off', ok(!bad.length), bad.join(' | ')); }
+// R6-G2. one job at a time on a tablet: Now, Next and "Show all" are inside the jobs card in the Sports look too (it grows; the page scrolls)
+{ const bad = [];
+  for (const [w, h] of [[820, 1180], [768, 1024]]) for (const kid of [1, 2]) { const p = await openAt(w, h, `look=sports&page=kid&kid=${kid}`);
+    const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot, f = k.querySelector('.focus'), l = k.querySelector('.later'), j = k.querySelector('.jobs').getBoundingClientRect();
+      return { clip: f.scrollHeight - f.clientHeight, later: l ? Math.round(l.getBoundingClientRect().bottom - j.bottom) : 999 }; });
+    if (r.clip > 2 || r.later > 0) bad.push(`${w}x${h} kid${kid} ${JSON.stringify(r)}`); await p.context().close(); }
+  console.log('R6-G2 tablet: the Sports Now card and "Show all" are not clipped', ok(!bad.length), bad.join(' | ')); }
+// R6-G3. the chosen brush size looks chosen in every look, and the choice moves when another size is tapped
+{ const bad = [];
+  for (const look of ['glass&theme=sea', 'fridge', 'orbit', 'sports']) { const p = await openAt(1280, 800, `look=${look}&page=doodle`);
+    const read = () => p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-doodle').shadowRoot.querySelectorAll('button.size[aria-label^="Brush"]')].map((b) => { const cs = getComputedStyle(b); return { on: b.getAttribute('aria-pressed') === 'true', bg: cs.backgroundColor, look: cs.backgroundColor + ' ' + cs.boxShadow, dot: getComputedStyle(b.querySelector('i')).backgroundColor }; }));
+    const a = await read(); await p.locator('fh-doodle button.size[aria-label="Brush 22"]').click(); await p.waitForTimeout(150); const b = await read();
+    const clear = (v) => v.filter((x) => x.on).length === 1 && v.filter((x) => !x.on).every((x) => x.look !== v.find((y) => y.on).look) && v.find((x) => x.on).dot !== v.find((x) => x.on).bg;
+    if (!clear(a) || !clear(b) || !b[2].on || a[2].on) bad.push(look.split('&')[0]); await p.context().close(); }
+  console.log('R6-G3 the selected brush size is visibly selected', ok(!bad.length), bad.join(' ')); }
+// R6-G4. Sports: the small bib's initial is 12 px
+{ const p = await openAt(1280, 800, 'look=sports&page=kid&kid=0', '19:30');
+  const fs = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelectorAll('.init.sm')].map((e) => parseFloat(getComputedStyle(e).fontSize)));
+  console.log('R6-G4 Sports small bib initial is at least 12 px', ok(fs.length > 0 && Math.min(...fs) >= 12), Math.min(...fs)); await p.context().close(); }
+// Round 6 (builder B)
+// R6-H2. Ask with the on-screen keys open: no key lies under the pictures, and "dogs ok" can be typed by tapping, from the youngest's page and on a portrait tablet
+for (const [look, pg, w, h] of [['sports', 'kid&kid=2', 1280, 800], ['glass', 'kid&kid=2', 1024, 768], ['fridge', 'kid&kid=2', 1920, 1080], ['orbit', 'planner', 820, 1180], ['sports', 'planner', 768, 1024]]) {
+  page = await open(`look=${look}&page=${pg}`); await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(500);
+  await page.getByRole('button', { name: /^Ask/ }).first().click(); await page.waitForTimeout(700);
+  await page.locator('fh-chat').getByRole('button', { name: 'Keyboard' }).click(); await page.waitForTimeout(500);
+  const kb = await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot, keys = [...sr.querySelectorAll('.key')];
+    const covered = keys.filter((k) => { const r = k.getBoundingClientRect(), e = sr.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !(e === k || k.contains(e)) || r.bottom > innerHeight; }).length;
+    return { keys: keys.length, covered, thread: Math.round(sr.querySelector('.thread').getBoundingClientRect().height) }; });
+  for (const c of 'dogs ok') { const pt = await page.evaluate((c) => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot, k = [...sr.querySelectorAll('.key')].find((k) => c === ' ' ? k.classList.contains('space') : k.textContent.trim().toLowerCase() === c), r = k.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, c); await page.mouse.click(pt[0], pt[1]); await page.waitForTimeout(60); }
+  const typed = await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.field').value);
+  console.log(`R6-H2 ${look} ${pg} ${w}x${h}: keys covered (expect 0 of 44):`, kb.covered, 'of', kb.keys, '| typed by tapping:', JSON.stringify(typed), typed.toLowerCase() === 'dogs ok', '| conversation at least 80 px high:', kb.thread >= 80, kb.thread);
+  await page.locator('fh-chat').getByRole('button', { name: 'Keyboard' }).click(); await page.waitForTimeout(300);
+  console.log('   keys closed: the pictures are back:', await page.evaluate(() => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.starters'); return getComputedStyle(st).display !== 'none' && st.getBoundingClientRect().height > 60; }));
+  await page.close(); }
+// R6-H3. "Spend 50 points?" reads on its row in every look (it was white on white in Home Ground, Fridge and Orbit), by day and in the evening
+for (const look of ['sports', 'fridge', 'orbit', 'glass']) for (const time of ['16:20', '18:10']) { page = await open(`look=${look}&page=kid&kid=0`, time);
+  await page.locator('fh-kid button.rw').first().click(); await page.waitForTimeout(1500);
+  const cr = await page.evaluate(() => { const row = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.rw.ask'); if (!row) return ['no spend row'];
+    const par = (n) => n.parentElement || (n.getRootNode() instanceof ShadowRoot ? n.getRootNode().host : null), cv = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    const rgb = (c) => { cv.clearRect(0, 0, 1, 1); cv.fillStyle = c; cv.fillRect(0, 0, 1, 1); const d = cv.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+    const bg = (e) => { const stack = []; for (let n = e; n; n = par(n)) { const c = rgb(getComputedStyle(n).backgroundColor); if (c[3] > 0) { stack.push(c); if (c[3] >= 1) break; } } let out = [255, 255, 255]; for (const c of stack.reverse()) out = out.map((v, i) => v * (1 - c[3]) + c[i] * c[3]); return out; };
+    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+    return [...row.querySelectorAll('.q, button')].map((e) => { const a = lum(rgb(getComputedStyle(e).color)), b = lum(bg(e)); return Number(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)).toFixed(2)); }); });
+  console.log(`R6-H3 ${look} ${time}: spend question and its two buttons at 4.5:1 or better:`, cr.length === 3 && cr.every((x) => x >= 4.5), cr.join(' '));
+  await page.close(); }
+// R6-H4. the youngest on the wall panel (1920x1080) reaches the lower half only: his studio's way back, colours and kinds of thing, and the jukebox's coins and "adds a song", are all below the middle
+page = await open('look=sports&page=kid&kid=2&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('R6-H4 studio tops (expect all >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { back: y('[aria-label^="Back"]'), surprise: y('[aria-label="Surprise look"]'), kinds: y('.tabs'), colours: y('.sw'), done: y('.sfoot') }; })));
+await page.close();
+page = await open('look=sports&page=kid&kid=0&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('   an older child’s studio keeps its tabs and Back at the top:', await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => sr.querySelector(q).getBoundingClientRect().top; return y('.tabs') < 300 && y('[aria-label^="Back"]') < 300; }));
+await page.close();
+page = await open('look=sports&page=music&mtab=juke&juke=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
+console.log('R6-H4 jukebox tops (expect both >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { coins: y('.coin'), adds: y('.acts .primary') }; })));
+await page.close();
+// R6-H6. five quick ticks on a slow connection (each answer takes 3 s): the count of done jobs never goes back, and every tick is kept
+for (const kid of [0, 1]) { page = await open(`look=sports&page=kid&kid=${kid}&slow=3000`);
+  const jobs = () => page.evaluate(() => { const rows = [...document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelectorAll('[data-uid]')]; return { done: rows.filter((r) => r.classList.contains('done')).length, left: rows.filter((r) => !r.classList.contains('done')).map((r) => r.dataset.uid) }; });
+  const first = await jobs(), seen = [first.done]; let taps = 0;
+  for (let i = 0; i < 5; i++) { const now = await jobs(); if (!now.left.length) break; await page.evaluate((u) => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector(`[data-uid="${u}"]`).click(), now.left[0]); taps++; for (let k = 0; k < 3; k++) { await page.waitForTimeout(500); seen.push((await jobs()).done); } }
+  for (let k = 0; k < 14; k++) { await page.waitForTimeout(500); seen.push((await jobs()).done); }
+  const calls = await page.evaluate(() => (window.__calls || []).filter((c) => /update_item/.test(c) && /completed/.test(c)).length);
+  console.log(`R6-H6 kid ${kid}: ${taps} quick ticks on a slow connection; done count never goes back:`, kid === 1 || seen.every((n, i) => !i || n >= seen[i - 1]), '| every tick reached Home Assistant:', calls === taps, `${calls}/${taps}`, '| none left unticked on the page:', (await jobs()).left.length === (kid === 1 ? 0 : first.left.length - taps));
+  await page.close(); }
+// R6-H8. a text field on the add sheet shows a focus ring in the looks that draw it as an underline
+for (const look of ['sports', 'fridge', 'orbit']) { page = await open(`look=${look}&page=planner&sheet=add`);
+  console.log(`R6-H8 ${look}: the focused field has a 3 px outline:`, await page.evaluate(() => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-add-event').shadowRoot.querySelector('input.field'); f.focus(); const c = getComputedStyle(f); return c.outlineStyle === 'solid' && c.outlineWidth === '3px'; }));
+  await page.close(); }
+// R6-H9. Home Ground at 1024x768: a seven-letter name stays on one line in the page title
+page = await open('look=sports&page=kid&kid=1'); await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(600);
+console.log('R6-H9 lines in the name (expect 1):', await page.evaluate(() => { const n = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.name'), g = document.createRange(); g.selectNodeContents(n); return new Set([...g.getClientRects()].map((r) => Math.round(r.top))).size; }));
+// R6-H10/H11. the same screen's rail: the small player's second line is not cut, and "+10 min" keeps clear of its pill's edge
+await page.getByRole('button', { name: 'Planner', exact: true }).click(); await page.waitForTimeout(700);
+console.log('R6-H10 small player lines cut (expect 0):', await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1).length),
+  '| R6-H11 least room beside a quick pill’s words (expect >= 6):', await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); })))));
+await page.close();
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close();

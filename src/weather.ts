@@ -1,6 +1,6 @@
 import { LitElement, html, svg, css, nothing, type TemplateResult, type PropertyValues } from 'lit';
 import { styles } from './styles';
-import { LookController, getLook } from './looks';
+import { LookController, getLook, verdictTile, type Verdict } from './looks';
 import type { Hass, HassEntity } from './types';
 import { FitController, changed, motion, sfx, say } from './util';
 import { icon } from './icons';
@@ -95,7 +95,8 @@ const speakerIcon = svg`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria
 const TITLES: Record<string, [string, string, string, string]> = {
   glass: ['Right now', 'The next hours', 'The week ahead', 'From above'],
   fridge: ['Today', 'Later on', 'This week', 'Rain and wind'],
-  orbit: ['Weather now', 'Next 24 hours', 'Seven-day outlook', 'Rain radar and wind']
+  orbit: ['Weather now', 'Next 24 hours', 'Seven-day outlook', 'Rain radar and wind'],
+  sports: ['Pitch report', 'The next hours', 'The week ahead', 'Rain radar and wind']
 };
 
 
@@ -117,6 +118,15 @@ export class FhWeather extends LitElement {
     :host([data-shape='tall']) .wweek { grid-area: 1 / 2; }
     :host([data-shape='tall']) .whours { grid-area: 2 / 1 / 3 / 3; }
     :host([data-shape='tall']) .wmaps { grid-area: 3 / 1 / 4 / 3; }
+    /* tablets narrower than the canvas: narrower side columns; under 900 px the portrait arrangement, and the page scrolls */
+    :host([data-shape='wide'][data-n1]) { grid-template-columns: 290px minmax(0, 1fr) 264px; }
+    :host([data-shape='wide'][data-n2]) { grid-template-columns: 252px minmax(0, 1fr) 252px; gap: 12px; }
+    :host([data-shape='wide'][data-n2]) section { padding: 14px; }
+    :host([data-shape='wide'][data-n3]) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: max-content max-content 380px; overflow-y: auto; }
+    :host([data-shape='wide'][data-n3]) .wnow { overflow: visible; grid-area: 1 / 1; }
+    :host([data-shape='wide'][data-n3]) .wweek { grid-area: 1 / 2; }
+    :host([data-shape='wide'][data-n3]) .whours { grid-area: 2 / 1 / 3 / 3; }
+    :host([data-shape='wide'][data-n3]) .wmaps { grid-area: 3 / 1 / 4 / 3; }
     :host([data-phone]) { display: flex; flex-direction: column; flex: none; }
     :host([data-phone]) .wmaps { height: 420px; }
     :host([data-phone]) section { border-radius: 22px; }
@@ -165,11 +175,13 @@ export class FhWeather extends LitElement {
     .hscroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
     /* whole hours only: the columns are sized to the strip, and an edge with more beyond it fades */
     .hhead { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: -8px 0 -6px; }
-    .hhead h2 { flex: 1; min-width: 0; }
+    .hhead h2 { flex: 0 1 auto; min-width: 0; }
     .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .hchart { display: block; }
     .hchart text { font-size: 14px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
     .hchart .wind { font-size: 14px; }
+    /* the unit is said once, here, so the hours below carry the number alone */
+    .hkey { flex: 1 1 0; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
@@ -352,6 +364,8 @@ export class FhWeather extends LitElement {
     if (!out.length) out.push(night ? { id: 'blanket', say: 'A calm night. Sleep well.' } : { id: 'outside', say: 'A good day to be outside.' });
     return out.slice(0, 3);
   }
+  /** Home Ground's verdict tile sums up the same advice the page already gives: wet weather first, then sun and heat. */
+  private _verdict(tips: { id: TipId }[]): Verdict { return tips.some((t) => t.id === 'inside' || t.id === 'rain') ? 'wet' : tips.some((t) => t.id === 'sun' || t.id === 'water') ? 'hat' : 'on'; }
   /* ---------------- drawing ---------------- */
 
   private _titles(): [string, string, string, string] { return TITLES[getLook()] ?? TITLES.glass; }
@@ -382,6 +396,7 @@ export class FhWeather extends LitElement {
     const small = [chance !== undefined, since !== undefined, hum !== undefined, !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
     return html`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
+      ${getLook() === 'sports' ? verdictTile(this._verdict(tips), true) : nothing}
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
       <div class="top">
         ${sky(w?.state, 72)}
@@ -395,7 +410,7 @@ export class FhWeather extends LitElement {
       </div>
       <div class="wtip" role="group" aria-label="What to wear today">
         <div class="tips">${tips.map((x) => html`<span class="tipone">${tipPic(x.id)}<span>${TIP_WORDS[x.id]}</span></span>`)}</div>
-        <button class="speak tap" aria-label="Read the advice aloud" @click=${() => { sfx('tap'); say(tips.map((x) => x.say).join(' ')); }}>${speakerIcon}</button>
+        <button class="speak tap" aria-label="Read the advice aloud" @click=${(e: Event) => { sfx('tap'); say(tips.map((x) => x.say).join(' '), e.currentTarget as Element); }}>${speakerIcon}</button>
       </div>
       <div class="facts">
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
@@ -420,7 +435,7 @@ export class FhWeather extends LitElement {
     const pts = hs.map((h, i) => `${x(i)} ${y(h.temperature ?? lo)}`);
     const step = (dir: number): void => { const el = this.renderRoot.querySelector<HTMLElement>('.hscroll'); if (el) el.scrollTo({ left: Math.round((el.scrollLeft + dir * el.clientWidth) / this._hw) * this._hw, behavior: motion(this).travel ? 'smooth' : 'auto' }); };
     return html`<section class="glass whours">
-      <div class="hhead"><h2>${this._titles()[1]}</h2>
+      <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
         <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => step(-1)}>${icon('left', 20)}</button>
         <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => step(1)}>${icon('right', 20)}</button></div>
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
@@ -436,7 +451,7 @@ export class FhWeather extends LitElement {
               <svg class="sky" x=${x(i) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${glyph(h.condition)}</svg>
               <circle cx=${x(i)} cy=${y(h.temperature ?? lo)} r="3.5" fill=${tcol(h.temperature ?? lo)}></circle>
               <text class="tv" x=${x(i)} y=${y(h.temperature ?? lo) - 9}>${Math.round(h.temperature ?? 0)}°</text>
-              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? `${Math.round(h.wind_speed)} km/h` : ''}</text>`}`;
+              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? Math.round(h.wind_speed) : ''}</text>`}`;
           })}`}
         </svg>
       </div>
@@ -470,7 +485,9 @@ export class FhWeather extends LitElement {
     </section>`;
   }
 
-  private get _dark(): boolean { return getLook() === 'orbit' || (getLook() === 'glass' && this.theme === 'space'); }
+  /** Home Ground goes dark under lights (from 6 pm until 6 am), and the radar map goes with it. */
+  private get _eve(): boolean { const h = new Date().getHours(); return h >= 18 || h < 6; }
+  private get _dark(): boolean { return getLook() === 'orbit' || (getLook() === 'sports' && this._eve) || (getLook() === 'glass' && this.theme === 'space'); }
   private _windUrl(): string {
     // rounded to a tenth of a degree (about 10 km): enough to centre the map, without sending the address of the house
     const lat = Math.round((this.hass?.config?.latitude ?? -31.95) * 10) / 10, lon = Math.round((this.hass?.config?.longitude ?? 115.86) * 10) / 10;

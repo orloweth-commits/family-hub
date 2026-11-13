@@ -23,7 +23,7 @@ const drawings = looks.slice(looks.indexOf('little drawings the looks add'), loo
 const has = (txt, n) => new RegExp(`(?<![\\w-])${n}(?![\\w-])`).test(txt);
 
 const errors = [];
-for (const [id, tag] of [['GLASS', '@G'], ['FRIDGE', '@F'], ['ORBIT', '@O']]) {
+for (const [id, tag] of [['GLASS', '@G'], ['FRIDGE', '@F'], ['ORBIT', '@O'], ['SPORTS', '@S']]) {
   const css = new RegExp(`const ${id} = \`([\\s\\S]*?)\`;`).exec(looks)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   if (css.includes('@keyframes')) errors.push(`${id}: keep @keyframes in KEYFRAMES, not in the look's rules`);
   for (const m of css.matchAll(/([^{}]+)\{[^{}]*!important[^{}]*\}/g)) errors.push(`${id}: no !important – if the base sets this inline, move it to a class or a token: "${m[1].trim()}"`);
@@ -49,4 +49,4 @@ for (const [tag, list] of Object.entries(partsByTag)) {
   for (const n of list) if (!has(src, n)) errors.push(`part "${n}" no longer exists in ${FILES[tag]} – update HOOKS and the looks that style it`);
 }
 if (errors.length) { console.error(`Looks check failed:\n - ${errors.join('\n - ')}`); process.exit(1); }
-console.log(`Looks check passed: ${roles.size} roles, ${owner.size} parts, 3 looks.`);
+console.log(`Looks check passed: ${roles.size} roles, ${owner.size} parts, 4 looks.`);

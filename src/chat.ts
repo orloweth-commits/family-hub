@@ -115,7 +115,9 @@ export class FhChat extends LitElement {
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
     .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
-    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 8px; justify-content: center; white-space: nowrap; gap: 4px; }
+    /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
+    :host([data-look]) .opts .pill { font-size: 15px; }
+    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
     .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
@@ -124,11 +126,45 @@ export class FhChat extends LitElement {
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: 16px; line-height: 1.35; }
     .rec .small { font-weight: var(--w-semi, 600); }
+    .send .kb { font-size: 15px; }
+    /* opened from the page of a child who cannot read: the talk button and the six pictures sit in the lower half, where he can reach; the conversation is above */
+    :host([low]) { flex-direction: column; gap: 12px; }
+    :host([low]) .conv { flex: 1 1 0; min-height: 0; }
+    :host([low]) .ctl { flex: 0 0 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; align-items: center; }
+    :host([low]) .voice { flex-direction: column; gap: 6px; min-height: 0; text-align: center; max-width: 150px; }
+    :host([low]) .voice b { font-size: 16px; }
+    :host([low]) .ctl > .starters { grid-template-columns: repeat(3, 1fr); overflow: visible; }
+    :host([low]) .ctl > .nomic { max-width: 220px; }
+    :host([low]) .opts { grid-column: 1 / -1; margin-top: 0; }
+    :host([low][data-phone]) .ctl { display: flex; }
+    /* a landscape tablet under 900 px wide: one column of pictures (it scrolls), and the options wrap */
+    :host([data-shape='wide'][data-n3]:not([low])) .starters { grid-template-columns: 1fr; }
+    :host([data-shape='wide'][data-n3]:not([data-phone])) .ctl { overflow-y: auto; scrollbar-width: none; }
+    :host([data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { flex-shrink: 0; overflow: visible; }
+    :host([data-n3]) .opts { flex-wrap: wrap; }
+    :host([data-n3]) .opts .pill { flex: 1 1 auto; }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .conv { flex: 1 1 0; min-height: 0; }
     :host([data-shape='tall']) .ctl { flex: 0 0 auto; }
     :host([data-shape='tall']) .starters { grid-template-columns: repeat(3, 1fr); }
     :host([data-shape='tall']) .opts { margin-top: 0; }
+    /* the on-screen keys are open on a portrait tablet (one column): the pictures step aside, so no key lies under them and the conversation keeps its room; they come back when the keys close */
+    :host([kb][data-shape='tall']) .ctl > .starters { display: none; }
+    :host([kb][data-shape='tall']) .ctl { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 10px 16px; }
+    :host([kb][data-shape='tall']) .voice { flex-direction: row; min-height: 0; max-width: none; gap: 10px; text-align: left; }
+    :host([kb][data-shape='tall']) .talk { width: 60px; height: 60px; }
+    :host([kb][data-shape='tall']) .talk svg { width: 30px; height: 30px; }
+    :host([kb][data-shape='tall']) .opts { flex: 1 1 320px; margin-top: 0; }
+    /* the keys are open in a child's low layout on a wide screen: back to two columns (conversation and keys on the left, talking and pictures on the right), because the keys and the pictures cannot share the lower half */
+    :host([kb][low][data-shape='wide']:not([data-phone])) { flex-direction: row; gap: 18px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .conv { flex: 2 1 0; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl { flex: 1 1 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice { flex-direction: row; gap: 16px; min-height: 100px; max-width: none; text-align: left; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: 20px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr 1fr; overflow-y: auto; }
+    :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
     :host([data-phone]) .thread { flex: none; height: 42vh; min-height: 220px; padding: 12px; border-radius: 18px; }
@@ -179,8 +215,12 @@ export class FhChat extends LitElement {
     this._reset();
   }
   protected updated(c: PropertyValues): void {
+    if (c.has('_keys')) this.toggleAttribute('kb', this._keys);
     if (c.has('_bubbles') || c.has('_busy') || c.has('_keys')) { const t = this.renderRoot.querySelector('.thread'); if (t) t.scrollTop = t.scrollHeight; }
   }
+
+  /** Puts the caret in the question field. The on-screen keys come up on a touch of the field, not on focus, so someone at a real keyboard is not given forty extra stops. */
+  focusField(): void { this.renderRoot.querySelector<HTMLInputElement>('.field')?.focus({ preventScroll: true }); }
 
   /** Three minutes without a touch or an answer: the sheet closes itself and the conversation is gone. */
   private _poke = (): void => { clearTimeout(this._idleT); this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent('close')), IDLE_MS); };
@@ -338,7 +378,7 @@ export class FhChat extends LitElement {
         <div class="sr" aria-live="polite">${last?.text ?? ''}</div>
         <form class="send" @submit=${(e: Event) => { e.preventDefault(); this._ask(this._typed); }}>
           <input class="field" .value=${this._typed} maxlength=${MAX_CHARS} inputmode=${phone ? 'text' : 'none'} enterkeyhint="send" autocomplete="off" autocapitalize="sentences" placeholder="Type a question…" aria-label="Your question"
-            @focus=${() => { this._keys = true; }} @click=${() => { this._keys = true; }}
+            @click=${() => { this._keys = true; }}
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value.slice(0, MAX_CHARS); }} />
           <button type="button" class="pill tap opt kb" style="height:56px;padding:0 16px" aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>
           <button type="submit" class="tap lead" ?disabled=${this._busy || !this._typed.trim()}>Send</button>
