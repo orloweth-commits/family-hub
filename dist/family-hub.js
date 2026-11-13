@@ -274,10 +274,10 @@ const Sp = (a, t) => {
   let o, s = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = Se;
   for (let n = 0; n < e; n++) {
     const p = a[n];
-    let d, c, h = -1, m = 0;
-    for (; m < p.length && (r.lastIndex = m, c = r.exec(p), c !== null); ) m = r.lastIndex, r === Se ? c[1] === "!--" ? r = Vr : c[1] !== void 0 ? r = Nr : c[2] !== void 0 ? (Nl.test(c[2]) && (o = RegExp("</" + c[2], "g")), r = Ca) : c[3] !== void 0 && (r = Ca) : r === Ca ? c[0] === ">" ? (r = o ?? Se, h = -1) : c[1] === void 0 ? h = -2 : (h = r.lastIndex - c[2].length, d = c[1], r = c[3] === void 0 ? Ca : c[3] === '"' ? zr : Tr) : r === zr || r === Tr ? r = Ca : r === Vr || r === Nr ? r = Se : (r = Ca, o = void 0);
-    const f = r === Ca && a[n + 1].startsWith("/>") ? " " : "";
-    s += r === Se ? p + Ap : h >= 0 ? (i.push(d), p.slice(0, h) + Rl + p.slice(h) + Na + f) : p + Na + (h === -2 ? n : f);
+    let d, c, h = -1, f = 0;
+    for (; f < p.length && (r.lastIndex = f, c = r.exec(p), c !== null); ) f = r.lastIndex, r === Se ? c[1] === "!--" ? r = Vr : c[1] !== void 0 ? r = Nr : c[2] !== void 0 ? (Nl.test(c[2]) && (o = RegExp("</" + c[2], "g")), r = Ca) : c[3] !== void 0 && (r = Ca) : r === Ca ? c[0] === ">" ? (r = o ?? Se, h = -1) : c[1] === void 0 ? h = -2 : (h = r.lastIndex - c[2].length, d = c[1], r = c[3] === void 0 ? Ca : c[3] === '"' ? zr : Tr) : r === zr || r === Tr ? r = Ca : r === Vr || r === Nr ? r = Se : (r = Ca, o = void 0);
+    const x = r === Ca && a[n + 1].startsWith("/>") ? " " : "";
+    s += r === Se ? p + Ap : h >= 0 ? (i.push(d), p.slice(0, h) + Rl + p.slice(h) + Na + x) : p + Na + (h === -2 ? n : x);
   }
   return [zl(a, s + (a[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -294,15 +294,15 @@ class li {
     for (; (o = Oa.nextNode()) !== null && p.length < n; ) {
       if (o.nodeType === 1) {
         if (o.hasAttributes()) for (const h of o.getAttributeNames()) if (h.endsWith(Rl)) {
-          const m = c[r++], f = o.getAttribute(h).split(Na), x = /([.?@])?(.*)/.exec(m);
-          p.push({ type: 1, index: s, name: x[2], strings: f, ctor: x[1] === "." ? Rp : x[1] === "?" ? Vp : x[1] === "@" ? Np : yo }), o.removeAttribute(h);
+          const f = c[r++], x = o.getAttribute(h).split(Na), m = /([.?@])?(.*)/.exec(f);
+          p.push({ type: 1, index: s, name: m[2], strings: x, ctor: m[1] === "." ? Rp : m[1] === "?" ? Vp : m[1] === "@" ? Np : yo }), o.removeAttribute(h);
         } else h.startsWith(Na) && (p.push({ type: 6, index: s }), o.removeAttribute(h));
         if (Nl.test(o.tagName)) {
-          const h = o.textContent.split(Na), m = h.length - 1;
-          if (m > 0) {
+          const h = o.textContent.split(Na), f = h.length - 1;
+          if (f > 0) {
             o.textContent = Hi ? Hi.emptyScript : "";
-            for (let f = 0; f < m; f++) o.append(h[f], ri()), Oa.nextNode(), p.push({ type: 2, index: ++s });
-            o.append(h[m], ri());
+            for (let x = 0; x < f; x++) o.append(h[x], ri()), Oa.nextNode(), p.push({ type: 2, index: ++s });
+            o.append(h[f], ri());
           }
         }
       } else if (o.nodeType === 8) if (o.data === Vl) p.push({ type: 2, index: s });
@@ -657,7 +657,7 @@ const Ei = /* @__PURE__ */ new Set(), xt = () => xs, Hp = (a) => {
 let bs = 0;
 const we = () => bs, Ep = (a) => {
   a !== bs && (bs = a, Ei.forEach((t) => t()));
-}, t0 = (a) => (Ei.add(a), () => Ei.delete(a)), a0 = (a, t = 3) => {
+}, td = (a) => (Ei.add(a), () => Ei.delete(a)), ad = (a, t = 3) => {
   const e = a;
   e.removeAttribute("data-fit");
   for (let i = 1; i <= t && (e.scrollHeight > e.clientHeight + 2 || e.scrollWidth > e.clientWidth + 2); i++) e.setAttribute("data-fit", String(i));
@@ -677,7 +677,7 @@ class Wa {
   }
   run() {
     const t = this.host.renderRoot;
-    t?.querySelectorAll && (t.querySelectorAll("[data-fits]").forEach((e) => a0(e)), t.querySelectorAll(".scrolly").forEach(bt));
+    t?.querySelectorAll && (t.querySelectorAll("[data-fits]").forEach((e) => ad(e)), t.querySelectorAll(".scrolly").forEach(bt));
   }
 }
 const bt = (a) => {
@@ -693,9 +693,9 @@ const bt = (a) => {
   return o <= s ? i >= o && i < s : i >= o || i < s;
 };
 let Re = null, Uo = !1, ve = 1;
-const e0 = (a) => {
+const ed = (a) => {
   ve = Math.max(0, Math.min(1, a));
-}, i0 = (a) => {
+}, id = (a) => {
   Uo = a;
 }, cr = (a = !1) => {
   if (Uo && !a) return null;
@@ -715,13 +715,13 @@ const e0 = (a) => {
   p.type = i, p.frequency.setValueAtTime(a, n.currentTime + t), s && p.frequency.exponentialRampToValueAtTime(s, n.currentTime + t + e), d.gain.setValueAtTime(1e-4, n.currentTime + t), d.gain.exponentialRampToValueAtTime(o, n.currentTime + t + 0.015), d.gain.exponentialRampToValueAtTime(1e-4, n.currentTime + t + e), p.connect(d).connect(n.destination), p.start(n.currentTime + t), p.stop(n.currentTime + t + e + 0.05);
 };
 let Cl = "";
-const o0 = (() => {
+const od = (() => {
   try {
     return String(globalThis.__fhScene ?? "");
   } catch {
     return "";
   }
-})(), s0 = (a) => {
+})(), sd = (a) => {
   Cl = a;
 };
 let Ve = null;
@@ -731,8 +731,8 @@ const Qa = (a, t, e, i, o, s = 0.7, r) => {
   if (!n) return;
   if (!Ve || Ve.sampleRate !== n.sampleRate) {
     Ve = n.createBuffer(1, Math.round(n.sampleRate * 0.2), n.sampleRate);
-    const m = Ve.getChannelData(0);
-    for (let f = 0; f < m.length; f++) m[f] = Math.random() * 2 - 1;
+    const f = Ve.getChannelData(0);
+    for (let x = 0; x < f.length; x++) f[x] = Math.random() * 2 - 1;
   }
   const p = n.createBufferSource(), d = n.createBiquadFilter(), c = n.createGain(), h = n.currentTime + a;
   p.buffer = Ve, p.loop = t > 0.19, d.type = i, d.Q.value = s, d.frequency.setValueAtTime(o, h), r && d.frequency.exponentialRampToValueAtTime(r, h + t), c.gain.setValueAtTime(1e-4, h), c.gain.exponentialRampToValueAtTime(e, h + Math.min(3e-3, t / 2)), c.gain.exponentialRampToValueAtTime(1e-4, h + t), p.connect(d).connect(c).connect(n.destination), p.start(h), p.stop(h + t + 0.02);
@@ -743,18 +743,18 @@ const Qa = (a, t, e, i, o, s = 0.7, r) => {
   }
   const n = cr(r.always);
   if (!n) return;
-  const p = n.currentTime + e, d = r.attack ?? 0.01, c = p + d + i, h = n.createGain(), m = n.createOscillator(), f = n.createGain();
-  m.type = "sine", m.frequency.value = s[0], f.gain.value = s[1], m.connect(f), h.gain.setValueAtTime(1e-4, p), h.gain.exponentialRampToValueAtTime(o / 2, p + d), h.gain.setValueAtTime(o / 2, c), h.gain.exponentialRampToValueAtTime(1e-4, c + 0.05);
-  for (const x of [a, t]) {
+  const p = n.currentTime + e, d = r.attack ?? 0.01, c = p + d + i, h = n.createGain(), f = n.createOscillator(), x = n.createGain();
+  f.type = "sine", f.frequency.value = s[0], x.gain.value = s[1], f.connect(x), h.gain.setValueAtTime(1e-4, p), h.gain.exponentialRampToValueAtTime(o / 2, p + d), h.gain.setValueAtTime(o / 2, c), h.gain.exponentialRampToValueAtTime(1e-4, c + 0.05);
+  for (const m of [a, t]) {
     const b = n.createOscillator();
-    b.type = "sine", b.frequency.setValueAtTime(x, p), r.fall && (b.frequency.setValueAtTime(x, c - 0.08), b.frequency.exponentialRampToValueAtTime(x * (1 - r.fall), c + 0.05)), f.connect(b.frequency), b.connect(h), b.start(p), b.stop(c + 0.08);
+    b.type = "sine", b.frequency.setValueAtTime(m, p), r.fall && (b.frequency.setValueAtTime(m, c - 0.08), b.frequency.exponentialRampToValueAtTime(m * (1 - r.fall), c + 0.05)), x.connect(b.frequency), b.connect(h), b.start(p), b.stop(c + 0.08);
   }
   if (r.lp) {
-    const x = n.createBiquadFilter();
-    x.type = "lowpass", x.frequency.value = r.lp, h.connect(x).connect(n.destination);
+    const m = n.createBiquadFilter();
+    m.type = "lowpass", m.frequency.value = r.lp, h.connect(m).connect(n.destination);
   } else h.connect(n.destination);
-  m.start(p), m.stop(c + 0.08);
-}, r0 = (a) => {
+  f.start(p), f.stop(c + 0.08);
+}, rd = (a) => {
   switch (a) {
     /* boot on turf */
     case "tap":
@@ -789,7 +789,7 @@ const Qa = (a, t, e, i, o, s = 0.7, r) => {
       return !1;
   }
 }, $ = (a) => {
-  if (!((o0 || Cl) === "sports" && r0(a)))
+  if (!((od || Cl) === "sports" && rd(a)))
     switch (a) {
       case "tap":
         G(660, 0, 0.06, "triangle", 0.08);
@@ -854,7 +854,7 @@ const tt = (a, t) => {
       speechSynthesis.speak(e);
     } catch {
     }
-}, n0 = () => {
+}, nd = () => {
   Ja?.removeAttribute("data-speaking"), Ja = null;
   try {
     "speechSynthesis" in window && speechSynthesis.cancel();
@@ -876,7 +876,7 @@ const tt = (a, t) => {
   } catch {
     return t;
   }
-}, l0 = (a, t) => {
+}, ld = (a, t) => {
   try {
     localStorage.setItem(ks(a), JSON.stringify({ ...JSON.parse(localStorage.getItem(ks(a)) || "{}"), ...t }));
   } catch {
@@ -890,10 +890,10 @@ function za(a, t, e, i = 160) {
     s.until && (s.last = e, s.until = 0, a.requestUpdate());
   }, i)), [s.last, !0]) : [e, !1];
 }
-const p0 = 12e3, It = "Home Assistant is slow. Try again.";
+const pd = 12e3, It = "Home Assistant is slow. Try again.";
 class ca extends Error {
 }
-const Pt = (a, t = p0) => new Promise((e, i) => {
+const Pt = (a, t = pd) => new Promise((e, i) => {
   const o = window.setTimeout(() => i(new ca("no answer")), t);
   Promise.resolve(a).then((s) => {
     clearTimeout(o), e(s);
@@ -919,7 +919,7 @@ async function Di(a, t) {
 const to = (a, t = "--m-3") => {
   const e = getComputedStyle(a), i = e.getPropertyValue(t).trim(), o = parseFloat(i) || 0;
   return { ms: /ms$/.test(i) ? o : o * 1e3, travel: e.getPropertyValue("--m-d").trim() !== "0" && !matchMedia("(prefers-reduced-motion: reduce)").matches };
-}, d0 = (a, t) => new Map([...a.querySelectorAll(t)].map((e) => [e.dataset.key ?? "", e.getBoundingClientRect()])), c0 = (a, t, e) => {
+}, dd = (a, t) => new Map([...a.querySelectorAll(t)].map((e) => [e.dataset.key ?? "", e.getBoundingClientRect()])), cd = (a, t, e) => {
   for (const i of a.querySelectorAll(t)) {
     const o = e.get(i.dataset.key ?? "");
     if (!o) continue;
@@ -1047,7 +1047,7 @@ const to = (a, t = "--m-3") => {
       "setrow"
     ],
     "fh-kid": ["hero", "name", "rank", "stat", "dots", "g", "t", "nextup", "jobs", "sec", "plus", "play", "later", "side", "rw", "n", "save", "pic", "wk", "job", "ring", "going", "e", "pt", "stars", "small", "cost", "notyet", "readme", "seedone", "studio"],
-    "fh-groceries": ["list", "items", "tag", "who"],
+    "fh-groceries": ["list", "items", "tag", "who", "clear"],
     "fh-music": [
       "stage",
       "deck",
@@ -1123,39 +1123,39 @@ const to = (a, t = "--m-3") => {
     <circle cx="58" cy="58" r="4.5" fill="var(--danger)"></circle>`}</svg>`;
 }, Zr = (a, t, e = 76) => {
   const o = 2 * Math.PI * 43, s = t.getTime(), r = s + 12 * 36e5, n = (h) => {
-    const m = new Date(h);
-    return (m.getHours() % 12 + m.getMinutes() / 60) * 30;
+    const f = new Date(h);
+    return (f.getHours() % 12 + f.getMinutes() / 60) * 30;
   }, p = a.filter((h) => !h.allDay && h.end.getTime() > s && h.start.getTime() < r), d = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, c = t.getMinutes() * 6;
   return l`<svg class="dial" aria-hidden="true" width=${e} height=${e} viewBox="0 0 100 100" fill="none">${g`
     <circle cx="50" cy="50" r=${43} stroke="var(--track)" stroke-width="8"></circle>
     ${p.map((h) => {
-    const m = Math.max(h.start.getTime(), s), f = Math.min(h.end.getTime(), r), x = Math.max(8, (f - m) / 36e5 * 30);
-    return g`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${x / 360 * o} ${o}" transform="rotate(${n(m) - 90} 50 50)"></circle>`;
+    const f = Math.max(h.start.getTime(), s), x = Math.min(h.end.getTime(), r), m = Math.max(8, (x - f) / 36e5 * 30);
+    return g`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${m / 360 * o} ${o}" transform="rotate(${n(f) - 90} 50 50)"></circle>`;
   })}
     ${[0, 3, 6, 9].map((h) => g`<rect x="49" y="13" width="2" height="6" rx="1" fill="var(--ink2)" transform="rotate(${h * 30} 50 50)"></rect>`)}
     <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
     <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${c} 50 50)"></rect>
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
-}, h0 = (a, t, e = 360) => {
-  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, m, f, x) => {
-    const b = Math.max(f, r(h.start)), w = Math.min(x, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
-    if (w <= b && !(r(h.start) >= f && r(h.start) < x)) return u;
-    const k = Math.max(7, (Math.max(w, b) - b) * 30);
-    return g`<circle cx="100" cy="100" r=${m} stroke=${h.colour} stroke-width="15" stroke-dasharray="${k / 360 * i(m)} ${i(m)}" transform="rotate(${b % 12 * 30 - 90} 100 100)"></circle>`;
+}, hd = (a, t, e = 360) => {
+  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, x, m) => {
+    const b = Math.max(x, r(h.start)), k = Math.min(m, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
+    if (k <= b && !(r(h.start) >= x && r(h.start) < m)) return u;
+    const w = Math.max(7, (Math.max(k, b) - b) * 30);
+    return g`<circle cx="100" cy="100" r=${f} stroke=${h.colour} stroke-width="15" stroke-dasharray="${w / 360 * i(f)} ${i(f)}" transform="rotate(${b % 12 * 30 - 90} 100 100)"></circle>`;
   }, p = a.filter((h) => !h.allDay), d = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, c = t ? t.getMinutes() * 6 : 0;
   return l`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${e} height=${e} viewBox="0 0 200 200" fill="none">${g`
     <circle cx="100" cy="100" r=${84} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     <circle cx="100" cy="100" r=${62} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     ${p.map((h) => n(h, 62, 0, 12))}${p.map((h) => n(h, 84, 12, 24))}
-    ${Array.from({ length: 12 }, (h, m) => g`<rect x="99.4" y="6" width="1.2" height=${m % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${m * 30} 100 100)"></rect>`)}
-    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, m, f]) => g`<text class="dh" x=${m} y=${f} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
+    ${Array.from({ length: 12 }, (h, f) => g`<rect x="99.4" y="6" width="1.2" height=${f % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${f * 30} 100 100)"></rect>`)}
+    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, f, x]) => g`<text class="dh" x=${f} y=${x} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
     <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
     <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
     ${t ? g`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
       <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${c} 100 100)"></rect>
       <circle cx="100" cy=${100 - (t.getHours() < 12 ? 62 : 84)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${d} 100 100)"></circle>
       <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : g`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
-}, f0 = (a, t, e = 230) => l`
+}, fd = (a, t, e = 230) => l`
   <svg class="vinyl" aria-hidden="true" width=${e} height=${e} viewBox="0 0 200 200">${g`
     <rect x="4" y="4" width="192" height="192" rx="12" fill="#d9cdb4"></rect>
     <g class=${t ? "spin" : ""}>
@@ -1168,7 +1168,7 @@ const to = (a, t = "--m-3") => {
       <circle cx="94" cy="104" r="3.5" fill="#f4efe3"></circle>
     </g>
     <g transform="rotate(${t ? 24 : 6} 176 30)"><rect x="173" y="26" width="6" height="92" rx="3" fill="#8b8477"></rect><rect x="168" y="112" width="16" height="22" rx="3" fill="#26272b"></rect></g>
-    <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`, m0 = (a, t, e, i = 230) => {
+    <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`, md = (a, t, e, i = 230) => {
   const s = 2 * Math.PI * 92, r = Math.max(0, Math.min(1, t));
   return l`<svg class="pring" aria-hidden="true" width=${i} height=${i} viewBox="0 0 200 200" fill="none">${g`
     <circle cx="100" cy="100" r=${92} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
@@ -1183,7 +1183,7 @@ const to = (a, t = "--m-3") => {
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
     <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${i * e} ${e}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
-}, vt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, _a = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, hr = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], g0 = {
+}, vt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, _a = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, hr = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], gd = {
   soccer: _a('<circle cx="12" cy="12" r="9.7" fill="#fff"/><path d="M12 8.6l3.2 2.3-1.2 3.9h-4l-1.2-3.9z" fill="#14201A"/><path d="M12 8.6V3.5M15.2 10.900l4.5-1.5M14 14.800l2.800 4M10 14.800l-2.800 4M8.800 10.900L4.300 9.400" fill="none"/>'),
   tennis: _a('<circle cx="12" cy="12" r="9.7" fill="#D4E157"/><path d="M4.600 6.500c4.200 2 4.200 9 0 11M19.400 6.500c-4.200 2-4.200 9 0 11" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="9.7" fill="none"/>'),
   hockey: _a('<path d="M17 2.500L10.800 15.800Q9.300 19.200 6 18Q4 17 4.600 14.600" fill="none" stroke="#B7814A" stroke-width="3"/><circle cx="17.500" cy="17.500" r="3.7" fill="#fff"/>'),
@@ -1191,8 +1191,8 @@ const to = (a, t = "--m-3") => {
   rugby: _a('<g transform="rotate(-35 12 12)"><ellipse cx="12" cy="12" rx="10.5" ry="6.800" fill="#fff"/><path d="M5.500 9.200c1.600 1.800 1.600 3.800 0 5.600M18.500 9.200c-1.600 1.800-1.600 3.800 0 5.600" fill="none" stroke="#B7814A" stroke-width="1.6"/><path d="M9 12h6M10.500 10.800v2.400M12 10.800v2.400M13.500 10.800v2.400" fill="none" stroke-width="1.2"/></g>'),
   footy: _a('<g transform="rotate(-35 12 12)"><path d="M1.500 12Q12 3.200 22.500 12 12 20.800 1.500 12z" fill="#C8372D"/><path d="M9 10.300h6M10.200 9.300v2M12 9.300v2M13.800 9.300v2" fill="none" stroke="#fff" stroke-width="1.3"/></g>'),
   whistle: _a('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
-}, ja = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, To = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", ki = (a, t) => vt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), u0 = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', Yr = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', x0 = () => {
-  const a = ":host([data-look='sports']) .fh", t = `${a}[data-tod='eve'], ${a}[data-tod='night']`, e = Object.entries(g0).map(([o, s]) => `--s-${o}:${vt(s)}`);
+}, ja = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, To = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", ki = (a, t) => vt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), ud = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', Yr = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', xd = () => {
+  const a = ":host([data-look='sports']) .fh", t = `${a}[data-tod='eve'], ${a}[data-tod='night']`, e = Object.entries(gd).map(([o, s]) => `--s-${o}:${vt(s)}`);
   e.push(
     "--s-ball:var(--s-soccer)",
     `--s-bib:${vt(`<path d="${To}"/>`)}`,
@@ -1202,7 +1202,7 @@ const to = (a, t = "--m-3") => {
     `--s-flag-ok:${ki("#14201A", "#17703A")}`,
     `--s-away:${vt(`<path d="${To}" fill="none" stroke="#5C6961" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
     `--s-cone:${vt(ja(Yr, "#B42318"))}`,
-    `--s-pea:${vt(ja(u0, "#14201A"))}`,
+    `--s-pea:${vt(ja(ud, "#14201A"))}`,
     `--s-clip:${vt('<rect x="1" y="-8" width="118" height="30" rx="8" fill="#9AA59D" stroke="#14201A" stroke-width="2"/><rect x="1" y="16" width="118" height="5" fill="rgba(0,0,0,.14)"/><circle cx="60" cy="9" r="6" fill="#fff" stroke="#14201A" stroke-width="2"/>', "0 0 120 24")}`,
     `--s-bag:${vt('<g stroke="#14201A" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.500 7h9l3.300 8.500A4.500 4.500 0 0 1 15.600 22H8.400a4.500 4.500 0 0 1-4.200-6.500z" fill="#fff"/><circle cx="9.500" cy="17" r="2.6" fill="#D4E157"/><circle cx="14.800" cy="17.300" r="2.6" fill="#fff"/><circle cx="12" cy="12.300" r="2.4" fill="#C8372D"/><path d="M9 7c0-2.500 1.200-4 3-4s3 1.500 3 4" fill="none" stroke="#B7814A" stroke-width="2"/></g>')}`,
     `--s-goal:${vt(ja('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#14201A"), "0 0 32 24")}`
@@ -1222,19 +1222,19 @@ ${hr.map((o, s) => `${a}[data-dow='${s}'] {--s-ball:var(--s-${o})}`).join(`
 }, Br = (a, t) => {
   const e = String(a.getHours() % 12 || 12), i = String(a.getMinutes()).padStart(2, "0");
   return l`<span class="sboard" role="img" aria-label=${`${e}:${i}`} style=${t ? `--sz:${t}px` : ""}>${[...e].map((o) => l`<b class="dg">${o}</b>`)}<i class="colon"></i>${[...i].map((o) => l`<b class="dg">${o}</b>`)}<i class="dball" data-ball=${hr[a.getDay()]}></i></span>`;
-}, b0 = (a) => l`<i class="dball" data-ball=${hr[a.getDay()]} aria-hidden="true"></i>`, k0 = (a, t = 120) => {
+}, bd = (a) => l`<i class="dball" data-ball=${hr[a.getDay()]} aria-hidden="true"></i>`, kd = (a, t = 120) => {
   const e = Math.max(0, Math.min(1, a)), i = e > 0 ? 1 - e : 0, o = 12 + 216 * i;
   return l`<svg class="tmeter" aria-hidden="true" width=${t * 2} height=${Math.round(t * 2 * 0.117)} viewBox="0 0 240 28" fill="none">${g`
     <rect x="12" y="11.5" width="216" height="5" rx="2.5" fill="var(--track)"></rect>
     <rect x="12" y="11.5" width=${216 * i} height="5" rx="2.5" fill="var(--ink)"></rect>
     <rect x="119" y="4" width="2" height="20" rx="1" fill="var(--ink3)"></rect>
     <g style="transform:translateX(${o}px);transition:transform var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"><circle cx="0" cy="14" r="9.5" fill="#fff" stroke="#14201A" stroke-width="2"></circle><path d="M0 10.6l3.200 2.300-1.200 3.800h-4l-1.200-3.800z" fill="#14201A"></path></g>`}</svg>`;
-}, w0 = (a, t) => {
+}, wd = (a, t) => {
   const e = Math.max(1, Math.min(12, t)), i = Math.max(0, Math.min(e, Math.round(a / Math.max(1, t) * e))), o = e > 8 ? 22 : 28, s = (n) => l`<i style="flex:1;min-width:6px;height:0;border-top:3px ${n ? "solid var(--ok)" : "dashed var(--track)"}"></i>`, r = l`<i style="width:${o}px;height:${o}px;flex-shrink:0;border-radius:50%;background:var(--ok);display:grid;place-items:center"><svg viewBox="0 0 24 24" width=${o - 10} height=${o - 10} fill="none" stroke="var(--on-ok, #fff)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></i>`;
   return l`<div aria-hidden="true" style="display:flex;align-items:center;height:40px;flex-shrink:0;padding:0 2px">
     ${Array.from({ length: e }, (n, p) => l`${p ? s(p <= i) : u}${p < i ? r : p === i ? l`<i style="width:22px;height:26px;margin:0 -2px -6px 0;flex-shrink:0;align-self:flex-start;background:var(--s-flag) center / contain no-repeat"></i><i style="width:34px;height:34px;flex-shrink:0;background:var(--s-ball) center / contain no-repeat"></i>` : l`<i style="width:14px;height:14px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--ink3)"></i>`}`)}
     ${s(i >= e)}<i style="width:44px;height:33px;flex-shrink:0;background:var(--s-goal) center / contain no-repeat"></i></div>`;
-}, v0 = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", y0 = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, _l = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : u}${y0[a]}</span>`, Jr = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, di = [
+}, vd = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", yd = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, _l = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : u}${yd[a]}</span>`, Jr = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, di = [
   {
     id: "glass",
     name: "Glass",
@@ -1253,7 +1253,7 @@ ${hr.map((o, s) => `${a}[data-dow='${s}'] {--s-ball:var(--s-${o})}`).join(`
       clock: (a) => Gr(a.now ?? /* @__PURE__ */ new Date()),
       timer: (a) => Ii(a.frac ?? 0, a.size),
       night: (a) => Gr(a.now ?? /* @__PURE__ */ new Date(), a.size ?? 230),
-      player: (a) => f0(a.img, !!a.playing, a.size)
+      player: (a) => fd(a.img, !!a.playing, a.size)
     },
     preview: () => l`<span class="lp-note"></span><span class="lp-note lp-today"><i></i></span><span class="lp-note"></span>`,
     options: [{ id: "hand", label: "Writing on notes and lists", off: "Print", on: "Handwriting", onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: "Print is easier to read from across the room." }],
@@ -1335,9 +1335,9 @@ ${hr.map((o, s) => `${a}[data-dow='${s}'] {--s-ball:var(--s-${o})}`).join(`
     art: {
       clock: (a) => Zr(a.arcs ?? [], a.now ?? /* @__PURE__ */ new Date()),
       timer: (a) => Ii(a.frac ?? 0, a.size),
-      dayview: (a) => h0(a.arcs ?? [], a.now, a.size),
+      dayview: (a) => hd(a.arcs ?? [], a.now, a.size),
       night: (a) => Zr(a.arcs ?? [], a.now ?? /* @__PURE__ */ new Date(), a.size ?? 250),
-      player: (a) => m0(a.img, a.frac ?? 0, !!a.playing, a.size)
+      player: (a) => md(a.img, a.frac ?? 0, !!a.playing, a.size)
     },
     preview: () => l`<span class="lp-ring"></span><span class="lp-card"><i></i><i></i><i></i></span>`,
     vars: {
@@ -1395,12 +1395,12 @@ ${hr.map((o, s) => `${a}[data-dow='${s}'] {--s-ball:var(--s-${o})}`).join(`
     previewClock: !1,
     art: {
       clock: (a) => Br(a.now ?? /* @__PURE__ */ new Date(), a.size),
-      day: (a) => a.now ? b0(a.now) : l``,
+      day: (a) => a.now ? bd(a.now) : l``,
       night: (a) => Br(a.now ?? /* @__PURE__ */ new Date(), 150),
       // the kitchen timer is a match clock on a touchline; a small timer (a child's practice, bedtime) stays a round stopwatch face
-      timer: (a) => a.size === void 0 || a.size >= 100 ? k0(a.frac ?? 0, a.size) : Ii(a.frac ?? 0, a.size),
-      steps: (a) => a.total ? w0(a.done ?? 0, a.total) : l``,
-      wx: (a) => a.wx ? _l(v0(a.wx.state, a.wx.uv, a.wx.rain, a.wx.max)) : l``
+      timer: (a) => a.size === void 0 || a.size >= 100 ? kd(a.frac ?? 0, a.size) : Ii(a.frac ?? 0, a.size),
+      steps: (a) => a.total ? wd(a.done ?? 0, a.total) : l``,
+      wx: (a) => a.wx ? _l(vd(a.wx.state, a.wx.uv, a.wx.rain, a.wx.max)) : l``
     },
     preview: () => l`<span class="lp-lanes"><i></i><i class="lp-now"><b></b></i><i></i><i></i></span><span class="lp-turf"></span>`,
     vars: {
@@ -1511,9 +1511,9 @@ ${hr.map((o, s) => `${a}[data-dow='${s}'] {--s-ball:var(--s-${o})}`).join(`
 };
 let ue = "glass";
 const ys = /* @__PURE__ */ new Set(), $t = () => ue, zo = (a) => {
-  ue = Vt(a).id, s0(ue), K0(ue), ys.forEach((t) => t());
+  ue = Vt(a).id, sd(ue), Kd(ue), ys.forEach((t) => t());
 };
-function K0(a) {
+function Kd(a) {
   $l(...Vt(a).fonts ?? []);
 }
 class Gt {
@@ -1528,16 +1528,18 @@ class Gt {
     }, t.addController(this);
   }
   hostConnected() {
-    ys.add(this._on), this._off = t0(this._on), this.host.setAttribute("data-look", ue), this._shape();
+    ys.add(this._on), this._off = td(this._on), this.host.setAttribute("data-look", ue), this._shape();
   }
   hostDisconnected() {
     ys.delete(this._on), this._off?.();
   }
 }
-const U0 = `
+const Ud = `
   /* the clock sits on its own pane of glass, so the greeting, the time and the date read over any photo and whatever drifts behind it */
   @G .clock { margin: -8px 0 -8px -14px; padding: 8px 18px 8px 14px; border-radius: 26px; background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 0 0 1px var(--glass-line); }
   @G[data-phone] .clock { margin: 0; padding: 6px 14px 8px; flex: 0 1 auto; }
+  /* phone month: the glass card's padding left each day 43 px wide; the days take 3 px back from the gaps between them, so each is a full 44 px target */
+  @G[data-phone] .cell { margin: 0 -1.5px; }
   /* the chosen look or background: a ring and a tick, never a fill */
   /* what is over is told by its ink, not by fading the whole card: the words stay readable */
   @G .ev.past, @G .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -1553,7 +1555,7 @@ const U0 = `
   @G .tcard { position: relative; }
   @G .tcard[aria-pressed='true'] { background: var(--chip); color: var(--ink); box-shadow: 0 0 0 3px var(--primary); }
   @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: 17px; font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
-`, q0 = `
+`, qd = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
   @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
   @F .fh::before { display: none; }
@@ -1688,6 +1690,8 @@ const U0 = `
   @F .row.big .content { font-size: 30px; }
   @F .row.big { background: var(--note); padding-left: 12px; }
   @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @F .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
   @F .key:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9b2a2; background: #f7f4ec; }
   @F .tab { font-weight: 600; }
@@ -1712,7 +1716,7 @@ const U0 = `
   @F .side { border-radius: 0; overflow: visible; padding: 2px 4px; }
   @F .side > .card { rotate: calc(var(--tilt, 1) * .6deg); }
   @F .tabs { background: transparent; border-radius: 0; padding: 0; }
-  @F .rw { background: var(--chip-soft); border-radius: 8px; }
+  @F .rw { background: var(--chip-soft); color: var(--ink); border-radius: 8px; }
   @F .rw .n { font-weight: 500; font-size: 16px; }
   @F .rw button { font-weight: 600; background: #f5b301; color: #26272b; box-shadow: 0 3px 0 #a87400; }
   @F .rw button.save { background: var(--chip); color: var(--ink2); box-shadow: none; }
@@ -1850,7 +1854,7 @@ const U0 = `
   @F[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--paper) 85%); pointer-events: none; }
   @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
   @F[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 10px; }
-`, A0 = `
+`, Ad = `
   /* a ring always means time or progress · ink-filled = an action · yellow = now · mint = done */
   @O .fh { --ring-halo: #0a0f1e; --pg-from: scale(calc(1 - .01 * var(--m-d, 1))); font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
@@ -1940,6 +1944,8 @@ const U0 = `
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
   @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
   /* outlined controls light their line when pressed; they never shrink. Shift is a ring, and yellow only while it is latched */
   @O .key:active { background: var(--chip-strong); transform: none; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -1966,7 +1972,7 @@ const U0 = `
   @O .sec span { font-weight: 400; }
   @O .plus { background: var(--track); color: var(--ink); box-shadow: none; font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
-  @O .rw { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
+  @O .rw { background: transparent; color: var(--ink); border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); padding-left: 2px; }
   @O .rw .n { font-weight: 400; }
   @O .rw button { font-weight: 600; }
   @O .rw button.save { background: var(--chip); color: var(--ink2); }
@@ -2108,7 +2114,7 @@ const U0 = `
   @O[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, #0a0f1e 85%); pointer-events: none; }
   @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
   @O[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 11px; }
-`, M0 = `
+`, Md = `
   /* Home Ground. Round things can be pressed; square things only tell you something.
      hero = hi-vis fill on a 4 px step · action = chalk pill, 2 px edge and step · choice = flat · selected = inverted with a hi-vis bar · now = pennant and heavy edge · done = green tick */
   @S .fh { font-family: 'Inter', system-ui, sans-serif; font-weight: 500; background: var(--flood), var(--ground); transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
@@ -2152,6 +2158,8 @@ const U0 = `
   @S .check { border-radius: 8px; border: 2px solid var(--ink); background: var(--panel); }
   @S .done .check { background: var(--ok); border-color: var(--ok); color: var(--on-ok); }
   @S .field { background: transparent; box-shadow: none; border-radius: 0; border-bottom: 2.5px solid var(--ink); font-weight: 700; min-width: 0; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
+  @S .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   /* keys: bench-seat tiles that sink when pressed */
   @S .key { background: var(--panel2); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line), inset 0 -3.5px 0 var(--ink3); font-weight: 700; }
   @S .key:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 1.5px var(--line); background: var(--panel); }
@@ -2164,8 +2172,8 @@ const U0 = `
   @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
-  @S .init.sm:not(.avatar) { min-width: 18px; width: 18px; height: 20px; padding: 0 0 3px; font-size: 10px; }
-  @S .init.sm:not(.avatar)::before { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  /* the small bib is the full 22 px one: its initial is never under 12 px */
+  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: 12px; }
   @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
@@ -2315,12 +2323,15 @@ const U0 = `
 
   /* a child's page: his peg in the change room. Only his own progress is ever shown */
   @S .hero::before { display: none; }
-  @S .name { font-size: 44px; font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
+  /* the name is as big as its length allows (--nl, its letters, comes from the page), so a seven-letter name stays on one line beside the rank and is never broken mid-word */
+  @S .name { font-size: clamp(30px, calc(300px / var(--nl, 6)), 44px); font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
   @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
   @S .stat { background: var(--panel2); border-radius: 10px; }
   @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .dots i.g { background: var(--ok); border-color: var(--ok); }
   @S .nextup { background: var(--panel2); border-radius: 10px; }
+  /* room for the ball above and below the bar: at the start of the bar it sat on the label */
+  @S .nextup .meter { margin: 8px 0 6px; }
   @S .jobs .ring { width: auto; height: 36px; padding: 0 10px; border-radius: 8px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); display: flex; align-items: center; }
   @S .jobs .ring svg { display: none; }
   @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
@@ -2332,7 +2343,7 @@ const U0 = `
   @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
-  @S .rw { background: var(--panel2); border-radius: 10px; min-height: 52px; }
+  @S .rw { background: var(--panel2); color: var(--ink); border-radius: 10px; min-height: 52px; }
   @S .side { gap: 10px; border-radius: 14px; }
   @S .rw button { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .rw button.save { background: transparent; color: var(--ink2); box-shadow: none; text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
@@ -2345,9 +2356,13 @@ const U0 = `
   /* the one to do now: picture on the left, its name and the 60 px button on the right, so the button never covers the picture however short the card is */
   @S .pic.big { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; align-items: center; justify-items: start; column-gap: 22px; row-gap: 6px; padding: 12px 100px 16px 26px; text-align: left; }
   @S .pic.big .e { grid-area: 1 / 1 / 4 / 2; font-size: 112px; line-height: 1.05; }
+  /* on a short panel the kid page sets --fit: the Now card tightens (button 48 px, smaller picture) so its name is never pushed out of the card */
+  @S .pic.big { padding-top: calc(12px - 6px * var(--fit, 0)); padding-bottom: calc(16px - 8px * var(--fit, 0)); row-gap: calc(6px - 4px * var(--fit, 0)); }
+  @S .pic.big .e { font-size: calc(112px - 28px * var(--fit, 0)); }
+  @S .pic.big .pt { font-size: calc(32px - 6px * var(--fit, 0)); }
   @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
   @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
-  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: 60px; margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: 60px; text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
   @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
   @S .pic.small .e { font-size: 48px; }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
@@ -2358,7 +2373,9 @@ const U0 = `
   @S .wk { font-size: 15px; }
 
   /* groceries: the canteen docket */
-  @S .list.glass { border-radius: 6px 6px 14px 14px; border-top: 6px solid var(--board); }
+  /* the dark docket bar is painted inside the card, so the card's own corners clip it */
+  @S .list.glass { border-radius: 14px; padding-top: 26px; background: linear-gradient(var(--board), var(--board)) top / 100% 6px no-repeat, radial-gradient(circle at 100% 100%, transparent 0 21px, var(--track) 21.5px 23.5px, transparent 24px) right bottom / 26px 26px no-repeat, var(--panel); }
+  @S .clear { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .items .row { background: transparent; border-radius: 0; border-bottom: 1.5px dashed var(--line); }
   @S .tag { border-radius: 6px; font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .who.glass { border-radius: 12px; background: var(--panel); }
@@ -2384,7 +2401,9 @@ const U0 = `
   @S .ink { box-shadow: inset 0 0 0 2px rgba(20,32,26,.55); }
   @S .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--ink); }
   @S .snap { border-radius: 8px; box-shadow: 0 0 0 1.5px var(--line); }
-  @S .by { border-radius: 6px; background: var(--board); color: var(--board-ink); font-family: 'Caveat', 'Inter', sans-serif; font-size: 17px; font-weight: 700; }
+  /* who drew it: a caption under the tile, so it never covers the drawing or hangs off the corner */
+  @S .snaps { row-gap: 30px; padding-bottom: 32px; }
+  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: 18px; line-height: 1.2; font-weight: 700; }
 
   /* style studio: kit laid out on the bench */
   @S .tile { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
@@ -2404,7 +2423,7 @@ const U0 = `
   @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
   @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .wtip { background: var(--panel2); border-radius: 10px; }
-  @S .wfact { background: var(--panel2); border-radius: 10px; }
+  @S .wfact { background: var(--panel2); border-radius: 10px; padding: 6px 10px; }
   @S .wday { border-radius: 8px; }
   @S .wday.today { background: var(--wash); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .wbar { border-radius: 3px; }
@@ -2422,7 +2441,7 @@ const U0 = `
 
   /* add an event: the time is picked on a scoreboard drum */
   @S .chips button { font-size: 15px; gap: 5px; }
-  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 11px; }
+  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 12px; }
   @S .dialbox { border-radius: 12px; background: var(--panel2); }
   @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
   @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--hi), inset -5px 0 0 var(--hi); }
@@ -2458,6 +2477,7 @@ const U0 = `
   @S .sname { background: var(--board); color: var(--board-ink); border-radius: 6px; box-shadow: 0 0 0 1.5px var(--board-line); font-weight: 700; }
   @S .lamp { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .lamp[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: inset 0 -5px 0 var(--hi); }
+  @S .lamp[data-other] { font-size: 15px; padding: 0 7px; }
   @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
   @S .slot { --rail-w: 5px; }
   @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }
@@ -2498,13 +2518,25 @@ const U0 = `
   @S[data-shape='tall'] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
   @S[data-shape='tall'] .dock .item { min-width: 62px; }
   @S[data-shape='tall'] .dock .sep { margin: 0 4px 22px; }
+  /* small landscape tablets (under 1100 px): the touchline keeps its full width, and the balls stand closer so the first and last are never off the ground */
+  @S[data-n2] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
+  @S[data-n2] .dock .item { min-width: 62px; padding: 0 6px; flex-shrink: 0; }
+  @S[data-n2] .dock .sep { margin: 0 4px 22px; }
+  /* the kitchen timer's quick pills in the narrow rail (under 1240 px): the number over its unit, so “+10 min” keeps clear of the pill's ring at the full 15 px */
+  @S[data-n1] .quick { white-space: normal; word-spacing: 100vw; line-height: 1.05; padding: 0 4px; }
+  /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
+  @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
+  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
+  @S[data-n3] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
+  @S[data-n3] .dock .sep { margin: 0 2px 20px; }
+  @S[data-n3] .dock .kidbtn .avatar { scale: 1.08; }
   /* phone: the scoreboard shrinks; the dock is the touchline along the bottom */
   @S[data-phone] .sboard { --u: 34px; }
   @S[data-phone] .weather .verdict { display: none; }
   @S[data-phone] .night .sboard { --u: 84px; }
   @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
   @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
-  @S[data-phone] .dock .item { min-width: 64px; height: 74px; font-size: 14px; gap: 5px; }
+  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: 14px; gap: 5px; }
   @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
   @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }
@@ -2521,7 +2553,7 @@ const U0 = `
   @S[data-phone] .pic.big::after { grid-area: auto; margin: 6px 86px 0 0; }
   @S[data-phone] .planner { padding: 0; }
   @S[data-phone] .sheet { padding-top: 30px; }
-`, S0 = `
+`, Sd = `
   /* the fridge door gets a bump now and then: every note jiggles on its pin (needs --tilt registered as a number, see ambient.ts) */
   @keyframes fjig { 0%, 93%, 100% { --tilt: 1; } 94.5% { --tilt: 2.3; } 96% { --tilt: -.2; } 97.5% { --tilt: 1.6; } 99% { --tilt: .7; } }
   @keyframes fhSpin { to { transform: rotate(360deg); } }
@@ -2530,7 +2562,7 @@ const U0 = `
   .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
   /* Home Ground: the linesman's flag tips up once as a toast arrives (it stands still in calm mode) */
   @keyframes sFlag { from { transform: rotate(calc(20deg * var(--m-d, 1))); } }
-`, F0 = `
+`, Fd = `
   .lookprev { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; overflow: hidden; padding: 10px; color: var(--ink); }
   .lookprev .lp-clock { position: absolute; top: 8px; right: 10px; line-height: 0; }
   .lookprev .lp-clock svg { width: 30px; height: 30px; }
@@ -2564,8 +2596,8 @@ const wi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
   for (const r of i.split(",")) {
     let n = null;
     for (const h of r.replace(/\[[^\]]*\]/g, "").matchAll(/\.([a-zA-Z][\w-]*)/g)) {
-      const m = Ks.get(h[1]);
-      m && !Ql.roles.includes(h[1]) && (n = n ? n.filter((f) => m.includes(f)) : m);
+      const f = Ks.get(h[1]);
+      f && !Ql.roles.includes(h[1]) && (n = n ? n.filter((x) => f.includes(x)) : f);
     }
     const p = /^@[A-Z](?:<(\d+))?((?:\[[^\]]+\])*)/.exec(r.trim()), d = `:host(${n?.length === 1 ? n[0] : ""}[data-look='${t}']${p?.[2] ?? ""})`, c = p?.[1] ?? "";
     s.set(c, [...s.get(c) ?? [], r.trim().replace(/^@[A-Z](?:<\d+)?(?:\[[^\]]+\])*/, d)]);
@@ -2573,13 +2605,13 @@ const wi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
   return [...s].map(([r, n]) => r ? `@media (max-width: ${Number(r) - 1}px) { ${n.join(", ")} {${o}} }
 ` : `${n.join(", ")} {${o}}
 `).join("");
-}), R0 = (a) => {
+}), Rd = (a) => {
   if (!a.vars) return "";
   const t = (i) => Object.entries(i).map(([o, s]) => `${o}:${s}`).join(";"), e = `:host([data-look='${a.id}']) .fh`;
   return `${e} {${t(a.vars)}}
 ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ` : ""}`;
-}, V0 = wt(S0 + F0 + di.map(R0).join("") + wi(U0, "glass") + wi(q0, "fridge") + wi(A0, "orbit") + x0() + wi(M0, "sports")), Wt = I`
+}, Vd = wt(Sd + Fd + di.map(Rd).join("") + wi(Ud, "glass") + wi(qd, "fridge") + wi(Ad, "orbit") + xd() + wi(Md, "sports")), Wt = I`
   :host { display: block; height: 100%; }
   * { box-sizing: border-box; }
   button { font: inherit; color: inherit; border: 0; background: transparent; cursor: pointer; padding: 0; }
@@ -2661,7 +2693,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--ring-halo, #fff); }
   /* the ring has two tones: ink, with a halo of the opposite tone inside it (--ring-halo), so it shows on any coloured surface.
      Rows and tiles that sit in a box that clips (lists that scroll, grids, the dock) carry the ring inside their own edge instead. */
-  :is(.rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
+  :is(.ev, .dayrow, .rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
   input[type='range']:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 0 4px var(--ring-halo, #fff); }
   /* words waiting in an empty field read as text, in every theme */
   input::placeholder, textarea::placeholder { color: var(--ink2); opacity: 1; }
@@ -2781,7 +2813,6 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   button.ev, button.dayrow { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
   button.ev { align-items: stretch; }
   .ev.tap:active, .dayrow.tap:active { transform: none; opacity: .8; }
-  .ev:focus-visible, .dayrow:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
   .cap.evcap { cursor: pointer; color: inherit; font-family: inherit; }
   /* the details of one event: read-only */
   .evtitle { overflow-wrap: anywhere; }
@@ -2825,7 +2856,11 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .dayview .dayart { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding: 0 6px; line-height: 0; }
   .dayview .daylist { min-width: 0; }
   .dayrow .content, .dayrow .evwho, .ev .w { overflow-wrap: anywhere; }
-  .ev .n[data-hy], .dayrow .content[data-hy] { hyphens: auto; -webkit-hyphens: auto; }
+  /* only a word too long for its column is hyphenated (12 letters or more, where the browser can limit it); shorter words move to the next line whole */
+  .ev .n[data-hy], .dayrow .content[data-hy] { hyphens: auto; -webkit-hyphens: auto; hyphenate-limit-chars: 12 4 4; }
+  /* a title with a word wider than its column is set a step smaller first, so most such words stay whole */
+  .ev .n[data-hy] { font-size: 13px; }
+  .dayrow.next .dwhen { color: var(--ink); }
   .dayrow { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c, transparent) 22%, transparent); border-left: 6px solid var(--c, transparent); }
 
   .month { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px; }
@@ -3062,7 +3097,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .night .nclock { flex-direction: column; align-items: flex-start; gap: 16px; }
   :host([data-phone]) .keys { display: none; }
 
-  ${V0}
+  ${Vd}
 
   @media (forced-colors: active) {
     button, .pill, .cap, .key, input, .field, [role='switch'], [role='tab'], [role='slider'] { border: 1px solid ButtonText; }
@@ -3073,19 +3108,19 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 `, va = (a) => () => (a = a * 16807 % 2147483647, (a - 1) / 2147483646), ao = (a, t, e) => {
   const i = va(t);
   return Array.from({ length: a }, () => `${(i() * 100).toFixed(2)}vw ${(i() * 100).toFixed(2)}vh 0 ${i() < 0.2 ? 1 : 0}px ${e}`).join(",");
-}, Us = (a) => a >= 9 && a <= 11 ? "spring" : a === 12 || a <= 2 ? "summer" : a <= 5 ? "autumn" : "winter", N0 = { spring: ["#6f8236", "#a3ad54", "#c9c77a"], summer: ["#a88a40", "#d2b868", "#ead9a0"], autumn: ["#8f7c40", "#bda65c", "#dccb92"], winter: ["#4f7a30", "#7fa046", "#b4c878"] }, $o = (a, t, e) => {
-  const i = va(a), o = Us(t), s = N0[o], r = [];
+}, Us = (a) => a >= 9 && a <= 11 ? "spring" : a === 12 || a <= 2 ? "summer" : a <= 5 ? "autumn" : "winter", Nd = { spring: ["#6f8236", "#a3ad54", "#c9c77a"], summer: ["#a88a40", "#d2b868", "#ead9a0"], autumn: ["#8f7c40", "#bda65c", "#dccb92"], winter: ["#4f7a30", "#7fa046", "#b4c878"] }, $o = (a, t, e) => {
+  const i = va(a), o = Us(t), s = Nd[o], r = [];
   for (let n = 0; n < (e ? 13 : 19); n++) {
     const p = (e ? 8 : 2) + n * (e ? 13 : 9.4) + i() * 6, d = (n < 7 ? 52 : 28) * (0.5 + i() * 0.6) * (1 - n / 44) * (e ? 1.25 : 1), c = (i() - 0.38) * 18, h = 1.6 + i() * 1.8;
     if (r.push(g`<path d="M${p.toFixed(0)} 90q${(c / 4).toFixed(0)}-${(d * 0.55).toFixed(0)} ${c.toFixed(0)}-${d.toFixed(0)}" stroke=${s[e ? 0 : 1 + n % 2]} stroke-width=${h.toFixed(1)}/>`), e || n % 3 !== 1 || n > 14) continue;
-    const m = (p + c).toFixed(0), f = (90 - d - 2).toFixed(0);
-    o === "spring" && n % 2 ? r.push(g`<g transform="translate(${m} ${f})"><path d="M0 12V3" stroke="#a02a26" stroke-width="2"/><path d="M0 4c-6-2-8-8-6-13M0 4c-2-5-1-11 1-15M0 4c3-4 8-7 11-7M0 4c5-1 9-1 11 2" stroke="#c2332b" stroke-width="2.8"/><path d="M-6-9l-.6-3.400M1-11l.6-3.400M11-3l3-1.200M11 6l3 .8" stroke="#5f8f38" stroke-width="2.4"/><path d="M-5-4c-.6-2-.6-4 0-5M3-1c2-2 4-3 6-3" stroke="#e8685a" stroke-width="1" opacity=".8"/></g>`) : o === "spring" ? r.push(g`<g transform="translate(${m} ${f})" stroke="none"><path d="M0-8l2 4.500l4.5-3.200l-1 5l5.2.700l-4 3l4 3l-5.2.700l1 5l-4.5-3.200l-2 4.500l-2-4.500l-4.5 3.200l1-5l-5.2-.700l4-3l-4-3l5.2-.700l-1-5l4.5 3.200z" fill=${n % 4 ? "#f39cbb" : "#fff8ea"}/><circle r="4.8" fill=${n % 4 ? "#ffd0e0" : "#fff1c4"}/><circle r="2.6" fill="#eaa820"/><circle cx="-.6" cy="-.7" r="1.2" fill="#f8d060"/></g>`) : o === "winter" ? r.push(g`<g transform="translate(${m} ${f})" stroke="none"><circle r="3.6" fill="#e6bd22"/><circle cx="-5" cy="5" r="3.2" fill="#f2d040"/><circle cx="4" cy="7" r="3" fill="#e6bd22"/><circle cx="-1" cy="-1" r="1.6" fill="#fbe98a"/><circle cx="-6" cy="4" r="1.3" fill="#fbe98a"/></g>`) : r.push(g`<path d="M${m} ${f}q2 5 0 11" stroke=${s[2]} stroke-width="4.4" stroke-dasharray="2.2 1.2"/>`);
+    const f = (p + c).toFixed(0), x = (90 - d - 2).toFixed(0);
+    o === "spring" && n % 2 ? r.push(g`<g transform="translate(${f} ${x})"><path d="M0 12V3" stroke="#a02a26" stroke-width="2"/><path d="M0 4c-6-2-8-8-6-13M0 4c-2-5-1-11 1-15M0 4c3-4 8-7 11-7M0 4c5-1 9-1 11 2" stroke="#c2332b" stroke-width="2.8"/><path d="M-6-9l-.6-3.400M1-11l.6-3.400M11-3l3-1.200M11 6l3 .8" stroke="#5f8f38" stroke-width="2.4"/><path d="M-5-4c-.6-2-.6-4 0-5M3-1c2-2 4-3 6-3" stroke="#e8685a" stroke-width="1" opacity=".8"/></g>`) : o === "spring" ? r.push(g`<g transform="translate(${f} ${x})" stroke="none"><path d="M0-8l2 4.500l4.5-3.200l-1 5l5.2.700l-4 3l4 3l-5.2.700l1 5l-4.5-3.200l-2 4.500l-2-4.500l-4.5 3.200l1-5l-5.2-.700l4-3l-4-3l5.2-.700l-1-5l4.5 3.200z" fill=${n % 4 ? "#f39cbb" : "#fff8ea"}/><circle r="4.8" fill=${n % 4 ? "#ffd0e0" : "#fff1c4"}/><circle r="2.6" fill="#eaa820"/><circle cx="-.6" cy="-.7" r="1.2" fill="#f8d060"/></g>`) : o === "winter" ? r.push(g`<g transform="translate(${f} ${x})" stroke="none"><circle r="3.6" fill="#e6bd22"/><circle cx="-5" cy="5" r="3.2" fill="#f2d040"/><circle cx="4" cy="7" r="3" fill="#e6bd22"/><circle cx="-1" cy="-1" r="1.6" fill="#fbe98a"/><circle cx="-6" cy="4" r="1.3" fill="#fbe98a"/></g>`) : r.push(g`<path d="M${f} ${x}q2 5 0 11" stroke=${s[2]} stroke-width="4.4" stroke-dasharray="2.2 1.2"/>`);
   }
   return g`<svg viewBox="0 0 180 90" width="180" height="90" fill="none" stroke-linecap="round">${r}</svg>`;
 }, vi = (a, t, e = 30) => g`<svg viewBox="0 0 46 16" width=${e}><path d="M1 12Q12-2 45 5Q22 18 1 12z" fill=${a}/><path d="M1 12Q22 9 45 5Q22 18 1 12z" fill=${t} opacity=".55"/><path d="M1 12Q20 8 45 5" stroke="#f0e6b8" stroke-width=".8" fill="none" opacity=".7"/></svg>`, Xr = g`<svg viewBox="-10 -10 20 26" width="15"><path d="M0 0v13M0 0l-8-3M0 0l-6-7M0 0l-2-9M0 0l3-9M0 0l7-6M0 0l8-2" stroke="#fffdf2" stroke-width=".8" stroke-linecap="round" opacity=".9"/><ellipse cy="14" rx="1.2" ry="2.2" fill="#7a5c30"/></svg>`, Dr = (a, t) => g`<svg viewBox="0 0 200 50" width=${a} fill=${t}><ellipse cx="70" cy="34" rx="68" ry="9"/><ellipse cx="126" cy="26" rx="70" ry="10"/><ellipse cx="60" cy="22" rx="30" ry="12"/><ellipse cx="104" cy="15" rx="36" ry="14"/><ellipse cx="146" cy="19" rx="24" ry="9"/></svg>`, fr = (a, t, e, i) => {
   const o = va(t);
   return Array.from({ length: a }, () => `${(o() * 100).toFixed(1)}vw ${(o() * i).toFixed(1)}vh 0 ${o() < 0.3 ? 1.5 : 0.7}px ${e}`).join(",");
-}, T0 = fr(26, 11, "rgba(255,250,228,.95)", 13), z0 = fr(20, 23, "rgba(226,236,255,.9)", 15), $0 = fr(22, 37, "rgba(255,246,214,.75)", 100), W0 = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], gt = (a, t, e) => g`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, Mt = (a, t, e, i = "") => g`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, yt = (a, t, e, i = "linear", o = 0) => wt(e.map(([s, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(s + o * t).toFixed(4)}) ${Math.round((r - s) / t)}`).join(",")), aa = [[0, 0.48], [0.82, 1.02]], C0 = [[0, 0.16], [0.36, 1.02]], Q0 = [[0, 1.02]], yi = (a, t, e) => wt(
+}, Td = fr(26, 11, "rgba(255,250,228,.95)", 13), zd = fr(20, 23, "rgba(226,236,255,.9)", 15), $d = fr(22, 37, "rgba(255,246,214,.75)", 100), Wd = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], gt = (a, t, e) => g`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, Mt = (a, t, e, i = "") => g`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, yt = (a, t, e, i = "linear", o = 0) => wt(e.map(([s, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(s + o * t).toFixed(4)}) ${Math.round((r - s) / t)}`).join(",")), aa = [[0, 0.48], [0.82, 1.02]], Cd = [[0, 0.16], [0.36, 1.02]], Qd = [[0, 1.02]], yi = (a, t, e) => wt(
   `.${a} .bush-la{animation:${yt("bush-swa", t, e)}}.${a} .bush-lb{animation:${yt("bush-swb", t, e)}}.${a} .bush-bb{animation:${yt("bush-bob", t / 2, e, "ease-in-out")}}.${a} .bush-ct{animation:${yt("bush-ctr", t, e, "ease-in-out")}}`
 ), oe = (a) => a.tod !== "night", fa = (a) => a.tod === "day", Wo = (a) => a.tod !== "day", Ir = (a) => a.month === 12 || a.month <= 2, Nt = (a, t, e, i = 3.4, o = "") => g`<path class=${a} style=${o} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, ra = (a, t, e = 1.6, i = "#2a1a10") => g`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, Co = g`${Nt("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${Nt("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
   <g class="bush-wag"><path d="M11 19Q3 19 1 28" stroke="#2a211d" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M4 22Q2 25 1 28" stroke="#4a3d36" stroke-width="1.2" stroke-linecap="round" fill="none"/></g>
@@ -3109,7 +3144,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M33 3Q40 0 44 5Q45 9 41 11Q35 11 33 3z" fill="#2a2623"/><path d="M36 2Q38-3.5 42.5-1.500Q40 0 39.5 3z" fill="#1f1c1a"/><ellipse cx="39" cy="7.6" rx="2.3" ry="1.8" fill="#e9e2cf"/><path d="M43 4.500Q47.5 5 46 10.500Q44 9 43 8z" fill="#6a645c"/><circle cx="41.2" cy="5" r=".8" fill="#7a2e22"/>
   <g class="bush-wng" style="--d:-${i}s;--wb:.47s"><path d="M12 7Q16-18 35-23Q32-8 28 6z" fill="#221f1c"/><path d="M17-6Q24-16 33-20M15 0Q22-8 31-12M14 5Q20 0 29-3" stroke="#4f4841" stroke-width=".8" fill="none"/></g></g>`, Hr = (a, t, e) => g`<g transform="translate(${a} ${t})"><g class="bush-und" style="--d:-${e}s"><path d="M2 6L-25 3.500L-27 8L2 9.500z" fill="#2f7f5a"/><path d="M-12 5L-25 3.500L-27 8L-12 8z" fill="#2a5fa8"/><path d="M0 6Q10 0 26 1Q34 2 36 6Q30 11 18 11Q8 11 0 6z" fill="#3f9a4a"/><path d="M4 5Q14 1 28 2.5" stroke="#7fcc7a" stroke-width="1" fill="none" opacity=".8"/><path d="M12 9.500Q22 12.5 31 8Q26 11.5 18 11.500z" fill="#e6d23a"/>
   <path d="M30 1Q37-2 41 3Q42 7 38 8.500Q32 8 30 1z" fill="#1a1a1c"/><path d="M30 1.500Q33.5 5 32.5 9.500L30.5 9Q31 5 29 2.500z" fill="#f0d430"/><ellipse cx="36" cy="5.8" rx="2" ry="1.3" fill="#3a6fd0"/><path d="M39.5 1.300l2.3 1l-1.6 1z" fill="#d2362e"/><path d="M41 3.600Q43.8 4.4 42.4 7.200Q41 6.8 40.6 5.600z" fill="#cfd3d0"/><circle cx="38.3" cy="3.6" r=".7" fill="#6a3a20"/>
-  <g class="bush-pw" style="--d:-${e}s"><path d="M8 5Q10-14 26-17Q26-6 22 5z" fill="#2f8a44"/><path d="M21-15Q26-17 26-8L24 0z" fill="#2a5fa8"/><path d="M11-2Q16-10 23-13" stroke="#7fcc7a" stroke-width=".8" fill="none"/></g></g></g>`, Ki = (a, t, e, i = 1) => g`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill="#7c9460"/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill="#56703f"/></g>`, _0 = I`
+  <g class="bush-pw" style="--d:-${e}s"><path d="M8 5Q10-14 26-17Q26-6 22 5z" fill="#2f8a44"/><path d="M21-15Q26-17 26-8L24 0z" fill="#2a5fa8"/><path d="M11-2Q16-10 23-13" stroke="#7fcc7a" stroke-width=".8" fill="none"/></g></g></g>`, Ki = (a, t, e, i = 1) => g`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill="#7c9460"/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill="#56703f"/></g>`, _d = I`
   .bush-a { position: absolute; pointer-events: none; }
   .bush-p { transform-box: fill-box; }
   /* sky */
@@ -3170,7 +3205,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   @keyframes bush-swb { from, to { transform: rotate(0deg); } 25% { transform: rotate(calc(var(--sw, 26deg) * -1)); } 75% { transform: rotate(var(--sw, 26deg)); } }
   @keyframes bush-bob { from, to { transform: translateY(0); } 50% { transform: translateY(var(--bob, -2.5px)); } }
   @keyframes bush-ctr { from, to { transform: rotate(0deg); } 25% { transform: rotate(var(--ct, 5deg)); } 75% { transform: rotate(calc(var(--ct, 5deg) * -1)); } }
-  ${yi("bush-gF", 0.02, aa)} ${yi("bush-gN", 0.015, C0)} ${yi("bush-gD", 0.025, [[0, 0.3]])} ${yi("bush-gA", 0.02, Q0)}
+  ${yi("bush-gF", 0.02, aa)} ${yi("bush-gN", 0.015, Cd)} ${yi("bush-gD", 0.025, [[0, 0.3]])} ${yi("bush-gA", 0.02, Qd)}
   .bush-eye { transform-box: fill-box; transform-origin: 50% 50%; animation: bush-wink 4.3s linear infinite; }
   @keyframes bush-wink { from, 90%, to { transform: scaleY(1); } 94% { transform: scaleY(.1); } }
 
@@ -3350,39 +3385,39 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   @keyframes bush-und { from, to { transform: translateY(8px); } 50% { transform: translateY(-8px); } }
   .bush-pw { transform-box: fill-box; transform-origin: 50% 100%; animation: bush-pw 1.05s linear infinite; animation-delay: var(--d, 0s); }
   @keyframes bush-pw { from, 10%, 22%, 34%, 46% { transform: scaleY(1); opacity: 1; } 4%, 16%, 28%, 40% { transform: scaleY(-.7); opacity: 1; } 52%, 96% { transform: scaleY(.1); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
-`, j0 = (a) => {
+`, jd = (a) => {
   const t = Math.min(1, Math.max(0, (a.mins - 360) / 720)), e = a.tod === "eve" ? 7 : 88 - 76 * t, i = a.tod === "eve" ? 8 + Math.min(6, (a.mins - 1080) / 30) : 9.5 - 7 * Math.sin(Math.PI * t), o = a.tod === "night" ? "rgba(206,216,236,.16)" : a.tod === "eve" ? "rgba(255,208,170,.42)" : "rgba(255,255,255,.44)";
   return l`
     ${a.tod === "night" ? l`<i class="bush-a bush-moon" style="left:49%;top:5.5%"><svg viewBox="0 0 40 40" width="40" style="margin:100px"><circle cx="20" cy="20" r="17" fill="#f3f1e2"/><path d="M20 3a17 17 0 1 0 0 34a21 21 0 0 1 0-34z" fill="#c9cbc4" opacity=".5"/><circle cx="25" cy="13" r="3.2" fill="#d9d7c8"/><circle cx="29" cy="24" r="2.2" fill="#d9d7c8"/><circle cx="22" cy="28" r="1.6" fill="#dddbcd"/></svg></i>` : l`<i class="bush-a bush-sun ${a.tod === "eve" ? "bush-low" : ""}" style="left:${e.toFixed(1)}%;top:${i.toFixed(1)}%"></i>`}
     <i class="bush-a bush-cloud" style="top:-1%;animation-delay:-58s">${Dr(300, o)}</i>
     <i class="bush-a bush-cloud" style="top:4.5%;animation-duration:251s;animation-delay:-171s;opacity:.75">${Dr(190, o)}</i>`;
-}, L0 = (a, t) => {
+}, Ld = (a, t) => {
   const e = t ? "#4f6248" : "#7c9460", i = t ? "#34452f" : "#56703f", o = (s, r, n, p = 1) => g`<g transform="translate(${s} ${r}) rotate(${n}) scale(${p})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill=${e}/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill=${i}/></g>`;
   return g`<svg class="bush-a bush-bough" viewBox="0 0 96 84" width="92"><path d="M40-2Q38 16 52 26Q66 34 82 32M46 20Q34 30 18 30" stroke="#6b5340" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M40-2Q38 16 52 26" stroke="#8d745c" stroke-width="1" fill="none"/>
     ${o(18, 30, 14)}${o(28, 29, -8, 0.9)}${o(40, 24, 6, 1.1)}${o(54, 27, -14)}${o(66, 31, 4, 1.15)}${o(80, 32, -20, 0.9)}${o(84, 32, 18, 0.8)}
     ${a === 12 || a <= 2 ? g`<g fill="#d8362c"><circle cx="34" cy="34" r="5"/><circle cx="60" cy="36" r="5.5"/><circle cx="46" cy="30" r="4"/></g><g fill="#f4d04a"><circle cx="34" cy="34" r="1.5"/><circle cx="60" cy="36" r="1.7"/><circle cx="46" cy="30" r="1.2"/></g>` : g`<g fill="#7a6048"><path d="M32 30l-3 7h6zM58 31l-3 8h6.500zM47 26l-2 6h5z"/></g><g fill="#4f3c2c"><ellipse cx="32" cy="37" rx="3" ry="1.2"/><ellipse cx="58.2" cy="39" rx="3.2" ry="1.3"/><ellipse cx="47.5" cy="32" rx="2.5" ry="1"/></g>`}</svg>`;
-}, G0 = g`<svg class="bush-a bush-mill" viewBox="0 0 54 92" width="44"><g stroke="#5e4c40" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M27 24L16 91M27 24L38 91M24 44h6M21.5 60h11M19 76h16M24 44l8.5 16M30 44l-8.5 16M21.5 60l13.5 16M32.5 60l-13.5 16"/><path d="M27 22h20" stroke-width="1.2"/></g><path d="M42 16h11l-3 6l3 6h-11z" fill="#6e5a4c"/>
-  <g class="bush-vane"><circle cx="27" cy="22" r="12" fill="none" stroke="#7d6a5c" stroke-width="12" stroke-dasharray="4.4 1.880"/><circle cx="27" cy="22" r="18.5" fill="none" stroke="#5e4c40" stroke-width=".9"/></g><circle cx="27" cy="22" r="2.6" fill="#4a3a30"/></svg>`, Z0 = (a) => g`<svg class="bush-a bush-fire" viewBox="0 0 64 70" width="66"><circle class="bush-glow" cx="32" cy="46" r="30" fill=${a ? "rgba(255,140,60,.2)" : "rgba(255,170,70,.3)"}/>
+}, Gd = g`<svg class="bush-a bush-mill" viewBox="0 0 54 92" width="44"><g stroke="#5e4c40" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M27 24L16 91M27 24L38 91M24 44h6M21.5 60h11M19 76h16M24 44l8.5 16M30 44l-8.5 16M21.5 60l13.5 16M32.5 60l-13.5 16"/><path d="M27 22h20" stroke-width="1.2"/></g><path d="M42 16h11l-3 6l3 6h-11z" fill="#6e5a4c"/>
+  <g class="bush-vane"><circle cx="27" cy="22" r="12" fill="none" stroke="#7d6a5c" stroke-width="12" stroke-dasharray="4.4 1.880"/><circle cx="27" cy="22" r="18.5" fill="none" stroke="#5e4c40" stroke-width=".9"/></g><circle cx="27" cy="22" r="2.6" fill="#4a3a30"/></svg>`, Zd = (a) => g`<svg class="bush-a bush-fire" viewBox="0 0 64 70" width="66"><circle class="bush-glow" cx="32" cy="46" r="30" fill=${a ? "rgba(255,140,60,.2)" : "rgba(255,170,70,.3)"}/>
   <ellipse cx="32" cy="65" rx="26" ry="4" fill="#2e1408" opacity=".3"/><path d="M12 62l36-10" stroke="#4a3122" stroke-width="5.5" stroke-linecap="round"/><path d="M52 62l-36-10" stroke="#3a2619" stroke-width="5.5" stroke-linecap="round"/><path d="M14 61l32-9" stroke="#7a5a40" stroke-width="1.2" stroke-linecap="round"/>
   ${a ? g`<g class="bush-flame"><path d="M32 40Q40 50 36 56Q32 60 28 56Q24 50 32 40z" fill="#f08a2a"/></g><path d="M22 57h20" stroke="#ff9a3a" stroke-width="3" stroke-linecap="round" opacity=".8"/>` : g`<g class="bush-flame"><path d="M32 16Q48 38 40 54Q32 62 24 54Q16 38 32 16z" fill="#f2761c"/><path d="M26 30Q20 42 24 54Q30 58 30 50z" fill="#e2541a" opacity=".7"/></g><g class="bush-flame2"><path d="M33 32Q41 46 37 55Q32 59 28 55Q25 46 33 32z" fill="#ffc94a"/><path d="M32 44Q35 51 33 56Q31 57 30 55z" fill="#fff0b0"/></g><circle class="bush-spark" cx="34" cy="20" r="1.3" fill="#ffd27a"/>`}
-  <g fill="#8d8279"><path d="M6 66q4-8 10 0zM18 68q5-8 11 0zM33 68q5-8 11 0zM46 66q5-7 10 0z"/></g><g fill="#b3a79c" opacity=".7"><path d="M8 63q3-3 5 0zM21 64q3-3 6 0zM36 64q3-3 6 0zM48 63q3-3 5 0z"/></g></svg>`, Y0 = g`<svg class="bush-a bush-owl" viewBox="0 0 46 40" width="44"><path d="M4 38Q0 12 23 9Q46 12 42 38z" fill="#4a392c"/><path d="M8 34Q6 16 23 14Q40 16 38 34z" fill="#6b5442"/><path d="M10 15Q17 17 22 22Q15 14 12 12zM36 15Q29 17 24 22Q31 14 34 12z" fill="#e8dcc4"/><g fill="#d9c9a8" opacity=".8"><circle cx="12" cy="31" r="1.3"/><circle cx="18" cy="35" r="1.3"/><circle cx="28" cy="35" r="1.3"/><circle cx="34" cy="31" r="1.3"/></g>
+  <g fill="#8d8279"><path d="M6 66q4-8 10 0zM18 68q5-8 11 0zM33 68q5-8 11 0zM46 66q5-7 10 0z"/></g><g fill="#b3a79c" opacity=".7"><path d="M8 63q3-3 5 0zM21 64q3-3 6 0zM36 64q3-3 6 0zM48 63q3-3 5 0z"/></g></svg>`, Yd = g`<svg class="bush-a bush-owl" viewBox="0 0 46 40" width="44"><path d="M4 38Q0 12 23 9Q46 12 42 38z" fill="#4a392c"/><path d="M8 34Q6 16 23 14Q40 16 38 34z" fill="#6b5442"/><path d="M10 15Q17 17 22 22Q15 14 12 12zM36 15Q29 17 24 22Q31 14 34 12z" fill="#e8dcc4"/><g fill="#d9c9a8" opacity=".8"><circle cx="12" cy="31" r="1.3"/><circle cx="18" cy="35" r="1.3"/><circle cx="28" cy="35" r="1.3"/><circle cx="34" cy="31" r="1.3"/></g>
   <circle cx="15" cy="23" r="5.6" fill="#d9c436"/><circle cx="31" cy="23" r="5.6" fill="#d9c436"/><circle cx="15" cy="23" r="3" fill="#15100c"/><circle cx="31" cy="23" r="3" fill="#15100c"/><circle cx="16" cy="22" r=".9" fill="#fff"/><circle cx="32" cy="22" r=".9" fill="#fff"/><g class="bush-lid" fill="#6b5442"><rect x="9" y="17" width="12" height="12"/><rect x="25" y="17" width="12" height="12"/></g><path d="M23 25l-2.2 4.500h4.400z" fill="#b9b3a4"/></svg>`, jl = {
-  css: _0,
+  css: _d,
   always: (a) => {
     const t = a.tod === "day", e = a.tod === "night", i = t && a.mins > 630 && a.mins < 930, o = Us(a.month) === "summer" || Us(a.month) === "autumn" ? ["#b08d3e", "#7a5f24"] : ["#8a9a5b", "#5f6f3a"];
     return l`
-      ${j0(a)}
-      ${e ? l`<i class="bush-a bush-stars" style="box-shadow:${T0}"></i><i class="bush-a bush-stars" style="box-shadow:${z0};animation-duration:7.9s"></i>
-        <svg class="bush-a" viewBox="-40 -40 80 80" width="84" style="left:30%;top:.5%;rotate:${(a.mins / 4 % 360).toFixed(0)}deg" fill="#fffbe6"><circle cx="0" cy="-26" r="2.3"/><circle cx="-3" cy="27" r="2.8"/><circle cx="-17" cy="-3" r="2.4"/><circle cx="14" cy="-8" r="2.1"/><circle cx="6" cy="4" r="1.2"/><circle cx="-30" cy="24" r="2.6" fill="#ffe9b0"/><circle cx="-36" cy="6" r="2.4"/></svg>${Y0}` : u}
+      ${jd(a)}
+      ${e ? l`<i class="bush-a bush-stars" style="box-shadow:${Td}"></i><i class="bush-a bush-stars" style="box-shadow:${zd};animation-duration:7.9s"></i>
+        <svg class="bush-a" viewBox="-40 -40 80 80" width="84" style="left:30%;top:.5%;rotate:${(a.mins / 4 % 360).toFixed(0)}deg" fill="#fffbe6"><circle cx="0" cy="-26" r="2.3"/><circle cx="-3" cy="27" r="2.8"/><circle cx="-17" cy="-3" r="2.4"/><circle cx="14" cy="-8" r="2.1"/><circle cx="6" cy="4" r="1.2"/><circle cx="-30" cy="24" r="2.6" fill="#ffe9b0"/><circle cx="-36" cy="6" r="2.4"/></svg>${Yd}` : u}
       ${t ? l`<i class="bush-a bush-dap" style="left:-8%;top:8%"></i><i class="bush-a bush-dap" style="left:42%;top:30%;animation-duration:61s;animation-delay:-19s"></i>
         <i class="bush-a bush-gust" style="--y:5%;--d:-3s">${vi(o[0], o[1])}</i><i class="bush-a bush-gust" style="--y:9%;--d:-1.6s">${vi(o[0], o[1], 22)}</i><i class="bush-a bush-gust" style="--y:91%;--d:-.4s">${vi("#a8854a", "#7a5f24", 26)}</i>
         <i class="bush-a bush-fluff" style="--y:6%;--d:-12s">${Xr}</i><i class="bush-a bush-fluff" style="--y:2%;--d:-41s;animation-duration:89s">${Xr}</i>
-        ${i ? l`<i class="bush-a bush-motes" style="box-shadow:${$0}"></i>` : u}` : l`${a.tod === "eve" ? l`<i class="bush-a bush-warm"></i>` : u}
-        ${W0.slice(0, e ? 4 : 3).map(([s, r, n]) => l`<i class="bush-a bush-fly" style="--x:${s}%;--y:${r}%;--d:-${n}s"></i>`)}`}
-      ${L0(a.month, e)}${G0}
+        ${i ? l`<i class="bush-a bush-motes" style="box-shadow:${$d}"></i>` : u}` : l`${a.tod === "eve" ? l`<i class="bush-a bush-warm"></i>` : u}
+        ${Wd.slice(0, e ? 4 : 3).map(([s, r, n]) => l`<i class="bush-a bush-fly" style="--x:${s}%;--y:${r}%;--d:-${n}s"></i>`)}`}
+      ${Ld(a.month, e)}${Gd}
       <i class="bush-a bush-tus bush-bk" style="left:0">${$o(31, a.month, !0)}</i>
       <i class="bush-a bush-tus" style="left:0">${$o(7, a.month, !1)}</i><i class="bush-a bush-tus bush-r">${$o(19, a.month, !1)}</i>
-      ${t ? u : Z0(e)}`;
+      ${t ? u : Zd(e)}`;
   },
   cast: [
     // --- on the ground --------------------------------------------------------------------------------------------------
@@ -3600,7 +3635,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <g class="fr-gh"><path d="M25 78q-4 10-1 20 3 9 8 10.5 5-1.5 8-10.5 3-10-1-20z" fill="#ab9e8a"/><path d="M27 82q4-3 10 0-5 4-10 0z" fill="#6d6254"/><path d="M26 86q-2 8 1 14" style=${q("#cdc2ad", 1.3)}/><path d="M30 105h.1M34 105h.1" style=${q("#5c5246", 1.2)}/>
     <ellipse cx="25.3" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><ellipse cx="38.7" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><circle cx="26" cy="92.6" r=".9" fill="#fff"/><circle cx="39.4" cy="92.6" r=".9" fill="#fff"/></g></svg>`, on = l`<svg class="fr-sway" viewBox="0 0 60 104" width="54" style="overflow:visible"><path d="M33 104Q28 70 32 52" style=${q("#00000022", 17)} transform="translate(5 2)"/>
   <path d="M30 104Q25 70 29 50" style=${q(tn, 16)}/><path d="M25 100Q21 72 25 52" style=${q("#f0b566", 4)}/><path d="M22 90l15-2M21 76l15-1M22 62l14 1" style=${q(qs, 4.5)}/>
-  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${q(tn, 15)}/><path d="M25 50Q27 32 17 20" style=${q("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${q(qs, 4.5)}/><path d="M21 17l-3-3" style=${q("#f7ead2", 14)}/></g></svg>`, sn = g`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, rn = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", nn = (a = 0, t = 0) => g`<g transform="translate(${a} ${t})"><path d=${rn} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${rn} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, ln = (a, t = u) => g`<g style=${q(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Qo = (a, t, e, i = "") => g`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${q("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${q(dt, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${ga}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${q("#b9c1cc", 3)}/><path d="M29 36V3" style=${q("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ze = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, pn = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), dn = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], cn = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], B0 = [
+  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${q(tn, 15)}/><path d="M25 50Q27 32 17 20" style=${q("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${q(qs, 4.5)}/><path d="M21 17l-3-3" style=${q("#f7ead2", 14)}/></g></svg>`, sn = g`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, rn = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", nn = (a = 0, t = 0) => g`<g transform="translate(${a} ${t})"><path d=${rn} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${rn} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, ln = (a, t = u) => g`<g style=${q(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Qo = (a, t, e, i = "") => g`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${q("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${q(dt, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${ga}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${q("#b9c1cc", 3)}/><path d="M29 36V3" style=${q("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ze = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, pn = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), dn = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], cn = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], Bd = [
   ze("fr-gk", pn([...dn, ...cn])),
   ze("fr-gk2", pn([...dn, [50, -34, 0], [51.5, -29, 0], [53, -34, 0], [60, -34, 0], [62, -33, 0], [64, -34, 0], ...cn])),
   ze("fr-gla", [0, 10, 20, 30, 38, 42, 86, 94, 100].map((a) => [a, "translateY(0)"]).concat([5, 15, 34, 90].map((a) => [a, "translateY(3.5px)"])).sort((a, t) => a[0] - t[0])),
@@ -3609,7 +3644,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ].join(`
 `), Ll = {
   css: I`
-    ${wt(B0)}
+    ${wt(Bd)}
     /* always there */
     .fr-win, .fr-eve, .fr-glow, .fr-dust, .fr-web, .fr-xmas { position: absolute; pointer-events: none; }
     .fr-win { top: -6vh; width: 52vw; height: 112vh; animation: fr-drift 173s ease-in-out infinite alternate; }
@@ -3923,13 +3958,13 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M40 10C36 4 28 1.6 22 2.6C16 3.6 12 7 9.5 9L9.5 11C12 13 16 16.4 22 17.4C28 18.4 36 16 40 10Z" fill="url(#${a})"/>
   ${o.stripe ? g`<path d="M37 9Q24 5.4 10 9.5L10 10.7Q24 8.6 37 10.5Z" fill=${o.stripe}/>` : u}
   <path d="M38 11.6Q28 16.6 12 11.6Q24 19.4 38 11.6Z" fill="#fff" opacity=".3"/><path d="M31.5 5.6Q29.6 10 31.5 14.8" stroke="#000" stroke-opacity=".2" stroke-width=".8" fill="none"/>
-  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${ft(35, 8.4, 1.7)}${o.extra ?? u}`, St = (a, t, e, i) => g`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, J0 = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", qi = (a, t, e, i, o, s, r) => J(t, e, i, g`${W(a, o, s, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${o} opacity=".8"/><path d=${J0} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${ft(17, 9, 1.9, "#e9d28a")}`), Ai = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", Qt = (a, t, e, i = 1) => g`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, _o = (a, t) => g`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, jo = (a, t, e) => g`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, hn = (a, t) => J(a, t, 1, g`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), fn = (a, t) => J(a, t, 1, g`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), mn = (a, t) => J(a, t, 1, g`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), gn = (a) => g`${W(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${ft(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, un = (a, t, e) => g`${W(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${ft(93, 20.5, 1.4, "#3d5263")}`, O0 = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(va(11)), xn = (a, t, e) => {
+  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${ft(35, 8.4, 1.7)}${o.extra ?? u}`, St = (a, t, e, i) => g`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, Jd = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", qi = (a, t, e, i, o, s, r) => J(t, e, i, g`${W(a, o, s, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${o} opacity=".8"/><path d=${Jd} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${ft(17, 9, 1.9, "#e9d28a")}`), Ai = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", Qt = (a, t, e, i = 1) => g`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, _o = (a, t) => g`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, jo = (a, t, e) => g`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, hn = (a, t) => J(a, t, 1, g`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), fn = (a, t) => J(a, t, 1, g`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), mn = (a, t) => J(a, t, 1, g`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), gn = (a) => g`${W(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${ft(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, un = (a, t, e) => g`${W(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${ft(93, 20.5, 1.4, "#3d5263")}`, Od = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(va(11)), xn = (a, t, e) => {
   const i = Math.floor(a / 44);
   return g`<path d="M20 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke=${t} stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M19 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke="#fff" stroke-opacity=".14" stroke-width="1.6" fill="none"/>${Array.from({ length: i }, (o, s) => {
     const r = s % 2 === 0, n = r ? 12 : 28, p = a - 22 - s * 44;
     return g`<g transform="translate(${n} ${p}) rotate(${r ? -38 : 38})"><path d="M0 0Q${r ? -7 : 7}-14 0-27Q${r ? 5 : -5}-13 0 0Z" fill=${e}/><circle r="2.6" fill=${t}/></g>`;
   })}`;
-}, X0 = Array.from({ length: 16 }, (a, t) => {
+}, Xd = Array.from({ length: 16 }, (a, t) => {
   const e = t / 16 * Math.PI * 2 + 0.2, i = Math.cos(e), o = Math.sin(e);
   return `M${(48 + 24 * i).toFixed(1)} ${(38 + 13 * o).toFixed(1)}L${(48 + 29 * i).toFixed(1)} ${(38 + 15.8 * o).toFixed(1)}`;
 }).join("") + "M40 32l-2-3M52 31l1-3M46 40l-1 3M58 37l3 1M36 38l-3 1M56 43l2 2M42 45l-1 3", bn = (a, t, e, i) => g`${ht(a, t, e, 0.42, 0.3)}
@@ -3964,7 +3999,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "puffer", ms: 27e3, move: "reef-go", weight: 2, y: [0, 1], art: l`<svg class="reef-s" viewBox="0 0 190 78" width="170">${W("rpA", "#a48a55", "#f5eed9", 0, 1, "#d3bd88")}
     <path class="reef-wa" style="transform-origin:100% 50%;--r:15deg;--d:.5s" d="M25 38L8 28Q12.5 38 8 48Z" fill="#b8a36d"/>
     <path class="reef-wa" style="transform-origin:100% 100%;--r:12deg;--d:.27s" d="M31 28q-7-7-10 1z" fill="#c4b07a"/><path class="reef-wa" style="transform-origin:100% 0;--r:12deg;--d:.27s;--dl:-.2s" d="M31 48q-7 7-10-1z" fill="#c4b07a"/>
-    <g class="reef-pf"><path class="reef-sp" d=${X0} stroke="#f3ebd0" stroke-width="1.1" stroke-linecap="round"/><ellipse cx="48" cy="38" rx="25" ry="13.5" fill="url(#rpA)"/>
+    <g class="reef-pf"><path class="reef-sp" d=${Xd} stroke="#f3ebd0" stroke-width="1.1" stroke-linecap="round"/><ellipse cx="48" cy="38" rx="25" ry="13.5" fill="url(#rpA)"/>
       <path d="M32 32q5-4 10-1q-4 4-10 1zM49 28q6-3 11 1q-5 4-11-1zM40 37q4-2 8 0q-4 3-8 0zM58 35q4-2 7 1q-4 2-7-1zM28 39q3-2 6 0q-3 2-6 0z" fill="#5c4724" opacity=".55"/>
       <path d="M30 31l-3 .6M37 28l-3 0M45 27l-3-.6M54 28l-2-1.6M62 31l-1.4-2M33 45l-3 .8M44 48l-3 .8M56 47l-2 1.6M64 42l1 2" stroke="#f3ebd0" stroke-width="1" stroke-linecap="round"/><path d="M32 30Q46 23 62 30" stroke="#fff" stroke-width="2" fill="none" opacity=".22" stroke-linecap="round"/></g>
     <path class="reef-wa" style="transform-origin:100% 40%;--r:17deg;--d:.29s" d="M53 40q-9 0-11 7q8 1 12-3z" fill="#cdb983" opacity=".92"/>
@@ -4263,12 +4298,12 @@ const Gl = {
     @media (max-width: 600px) { .reef-go { --p: 99vw; } .reef-sch { left: 40vw; } .reef-jl + .reef-jl { left: 50vw; } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, o = t && (a.month === 3 || a.month === 4), s = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (s - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, p = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, m, f]) => l`<i class="reef-ray" style="left:${s + h - m / 2}%;width:${m}vw;--a:${r.toFixed(1)}deg;--d:${f}s;--c:${n}"></i>`), d = t ? o ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", c = (h) => l`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${ht(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
+    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, o = t && (a.month === 3 || a.month === 4), s = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (s - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, p = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, f, x]) => l`<i class="reef-ray" style="left:${s + h - f / 2}%;width:${f}vw;--a:${r.toFixed(1)}deg;--d:${x}s;--c:${n}"></i>`), d = t ? o ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", c = (h) => l`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${ht(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
     return l`
       ${t ? l`<i class="reef-moon" style="left:${s}%"></i>` : l`<i class="reef-sun" style="left:${s}%;--c:${n}"></i>`}${p}
       <i class="reef-sh"></i>${a.tod === "day" ? l`<i class="reef-sh"></i>` : u}
       <i class="reef-pl" style="box-shadow:${ao(46, 5, t ? "rgba(150,255,230,.4)" : "rgba(255,255,255,.32)")}"></i><i class="reef-pl" style="box-shadow:${ao(24, 9, d)};--o:${t ? 0.35 : 1}"></i>
-      ${t ? u : l`<svg class="reef-s reef-sch" viewBox="0 0 128 56" width="128"><path d=${O0} fill="rgba(226,244,255,.62)"/></svg>`}
+      ${t ? u : l`<svg class="reef-s reef-sch" viewBox="0 0 128 56" width="128"><path d=${Od} fill="rgba(226,244,255,.62)"/></svg>`}
       <svg class="reef-s reef-k" style="left:-4px" viewBox="0 0 40 352" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.4deg;--d:11.7s">${xn(352, "#1d6f5a", "#2f9a76")}</g></svg>
       <svg class="reef-s reef-k" style="right:-6px" viewBox="0 0 40 264" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.8deg;--d:13.9s">${xn(264, "#17604e", "#288a6a")}</g></svg>
       <svg class="reef-s reef-k" style="left:0" viewBox="0 0 190 136" width="190">${ht("rkbA", "#dc8ab4", "#8f4a78", 0.4, 0.2, 0.9)}${W("rkbB", "#3aa883", "#145a48")}${ht("rkbC", "#f6a85a", "#c8642a", 0.4, 0.3)}
@@ -4283,7 +4318,7 @@ const Gl = {
         <path d="M82 136q0-12 18-14t22 14z" fill="#8f4a6a"/>
         <g class="reef-wa" style="transform-origin:50% 100%;--r:5deg;--d:5.1s"><path d="M100 128q-30-8-40-36M100 128q-22-14-24-44M100 128q-11-18-8-48M100 128q1-24 5-52M100 128q14-20 18-48M100 128q24-16 30-42M100 128q30-10 40-34" stroke="#b97a6a" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M100 128q-26-12-34-40M100 128q-17-18-17-46M100 128q-5-22-2-50M100 128q8-22 12-50M100 128q20-18 25-45M100 128q28-12 36-38" stroke="url(#rkcB)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1M60 92h.1M76 84h.1M140 94h.1M92 80h.1M118 80h.1" stroke="#f6e9f3" stroke-width="7" stroke-linecap="round"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1" stroke="#c9a0e0" stroke-width="3" stroke-linecap="round"/></g>
         <path d="M78 136q22-20 44 0z" fill="#a85a7e"/><path d="M84 134q16-12 32 0" stroke="#fff" stroke-opacity=".2" stroke-width="2" fill="none"/></svg>
-      ${[["7px", 23, -4], ["calc(100% - 30px)", 31, -17]].map(([h, m, f]) => l`<svg class="reef-bt" style="--x:${h};--d:${m}s;--dl:${f}s" viewBox="0 0 26 220" width="26" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"><circle cx="13" cy="10" r="5"/><circle cx="8" cy="52" r="3.4"/><circle cx="17" cy="96" r="6"/><circle cx="11" cy="142" r="3"/><circle cx="15" cy="188" r="4.4"/></svg>`)}
+      ${[["7px", 23, -4], ["calc(100% - 30px)", 31, -17]].map(([h, f, x]) => l`<svg class="reef-bt" style="--x:${h};--d:${f}s;--dl:${x}s" viewBox="0 0 26 220" width="26" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"><circle cx="13" cy="10" r="5"/><circle cx="8" cy="52" r="3.4"/><circle cx="17" cy="96" r="6"/><circle cx="11" cy="142" r="3"/><circle cx="15" cy="188" r="4.4"/></svg>`)}
       ${a.tod === "day" ? u : c("rjA")}${t ? c("rjB") : u}`;
   },
   cast: As
@@ -4297,7 +4332,7 @@ const Gl = {
 }, Yt = () => typeof innerWidth != "number" || innerWidth >= 1e3, it = (a) => a.tod !== "night", Pi = (a) => a.tod === "eve" || a.theme === "sunset" && a.tod !== "night", Lo = (a, t) => {
   const e = va(t);
   return Array.from({ length: a }, () => `${(4 + e() * 92).toFixed(1)}vw ${(6 + e() * 96).toFixed(0)}px 0 ${e() < 0.3 ? 1 : 0}px #fff`).join(",");
-}, Bt = (a, t, e = 0) => g`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Go = (a, t, e = 1, i = 0, o = 3.1) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${o}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${o}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, Si = (a, t, e, i) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Zo = (a, t, e, i) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, qa = (a, t, e) => g`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, yn = g`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, Yo = (a, t) => g`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, D0 = [
+}, Bt = (a, t, e = 0) => g`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Go = (a, t, e = 1, i = 0, o = 3.1) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${o}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${o}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, Si = (a, t, e, i) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Zo = (a, t, e, i) => g`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, qa = (a, t, e) => g`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, yn = g`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, Yo = (a, t) => g`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, Dd = [
   // ---------- the sky band ----------
   { id: "gulls", ms: 24e3, move: "across sea-soar", weight: 5, y: [2, 6], when: it, art: g`<svg viewBox="0 0 250 70" width="250" overflow="visible">${Go(204, 30, 1.25, 0, 3.1)}${Go(138, 48, 1.1, -1.3, 3.7)}<g class="sea-lag">${Go(84, 26, 0.9, -0.6, 1.9)}</g></svg>` },
   { id: "pelican", ms: 3e4, move: "across sea-soar", weight: 3, y: [2, 4], flip: !1, when: it, art: g`<svg viewBox="-56 -56 150 80" width="156" overflow="visible"><g class="sea-beat" style="--p:4.3s;animation-delay:-.12s"><path d="M10-7Q2-40-28-50Q-22-28-12-5z" fill="#3a3f47"/></g><path d="M-30-3l-16-1 2 8 15 2z" fill="#262a30"/><path d="M-36 0Q-22-14 4-12Q22-12 30-4Q22 10 0 12Q-24 12-36 0z" fill="#fbfbf8"/><path d="M-33 2Q-6 14 26 0Q18 10 0 12Q-24 12-33 2z" fill="#d3d9df"/><g class="sea-gulp"><path d="M18-10Q22-20 30-19Q36-17 35-11Q32-5 24-4z" fill="#fbfbf8"/><path class="sea-fish" d="M66-3l9-6 0 11zM62-6l6 3-6 4z" fill="#8fa9bd"/><path d="M33-15L80-8 34-9z" fill="#eda58f"/><path d="M34-10L80-8Q62 7 42 3Q35-1 34-10z" fill="#f6c9b6"/><path d="M36-8Q58-3 78-8Q62 3 44 1Q37-2 36-8z" fill="#efb7a2"/><path d="M77-9l4 1-2 3z" fill="#e0902e"/><circle cx="30" cy="-13" r="2.3" fill="#e7c44d"/><circle cx="30" cy="-13" r="1.1" fill="#24201b"/></g><g class="sea-beat" style="--p:4.3s"><path d="M12-8Q0-46-34-58Q-28-32-16-5z" fill="#262a30"/><path d="M11-8Q4-30-12-42Q-12-22-8-6z" fill="#fbfbf8"/><path d="M-12-42Q-22-50-34-58Q-28-44-22-34z" fill="#3a3f47"/></g></svg>` },
@@ -4337,7 +4372,7 @@ const Gl = {
   { id: "dolphins", ms: 11e3, move: "across sea-pod", weight: 3, front: !0, y: [50, 57], when: (a) => a.mins % 4 === 0, art: g`<svg class="sea-leap" style="animation-delay:.45s" viewBox="0 0 60 30" width="27" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#8497a8"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#74889a"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/></svg><svg class="sea-leap" viewBox="0 0 60 30" width="45" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#6b8296"/><path d="M8 15Q22 5 38 6Q46 7 51 11Q36 8 8 16z" fill="#566c80"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#566c80"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/><path d="M30 18l-3 7 7-6z" fill="#566c80"/><circle cx="46.5" cy="11.5" r=".9" fill="#1a2228"/></svg>` },
   { id: "beach-ball", ms: 9e3, move: "across foot sea-bb", weight: 2, front: !0, when: (a) => it(a) && a.mins % 4 === 1, art: g`<svg viewBox="-21 -21 42 42" width="42"><defs><radialGradient id="sea-bl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1a2a3a" stop-opacity=".3"/></radialGradient></defs><g class="sea-spin"><circle r="20" fill="#fbfaf5"/><path d="M0 0L-10-17.3A20 20 0 0 1 10-17.3z" fill="#e2483d"/><path d="M0 0L20 0A20 20 0 0 1 10 17.3z" fill="#2f7fd0"/><path d="M0 0L-10 17.3A20 20 0 0 1-20 0z" fill="#f4c542"/><circle r="3.2" fill="#fbfaf5"/></g><circle r="20" fill="url(#sea-bl)"/></svg>` },
   { id: "feather", ms: 12e3, move: "down", weight: 2, front: !0, flip: !1, when: (a) => a.mins % 4 === 2, art: g`<svg viewBox="0 0 44 16" width="40"><path d="M3 9Q10-1 26 1Q36 2 42 6Q36 14 22 15Q12 15 3 9z" fill="#fbfbf9"/><path d="M3 9Q20 8 42 6Q36 14 22 15Q12 15 3 9z" fill="#dfe4ea"/><path d="M30 2l3 5M36 4l2 3M24 14l3-5M31 13l3-5" stroke="#b9c3cd" stroke-width=".8"/><path d="M0 10Q20 7 42 6" stroke="#9aa6b2" stroke-width="1" fill="none"/></svg>` }
-], I0 = [[360, 9], [540, 3], [720, 1.5], [900, 4], [1020, 12], [1080, 26], [1150, 53]], P0 = [[360, 24], [720, 34], [1080, 52], [1150, 58]], $e = (a, t, e, i, o) => l`<i class="sea-cl" style="--y:${a}%;--w:${t}vw;--o:${e};--t:${i}s;--d:${-o * i}s"></i>`, Fi = (a, t, e) => l`<svg class="sea-grass ${a}" viewBox="0 0 92 70" fill="none" stroke-linecap="round"><path d="M40 70Q30 40 8 30M44 70Q40 34 26 12M48 70Q50 30 44 4M52 70Q58 36 72 16M56 70Q66 46 88 38" stroke=${t} stroke-width="2.6"/><path d="M42 70Q34 46 18 44M50 70Q54 40 60 22M46 70Q46 44 36 28" stroke=${e} stroke-width="2.2"/><path d="M26 12l-3-7M44 4l-1-8M72 16l4-7" stroke=${e} stroke-width="4"/></svg>`, H0 = l`<svg class="sea-flag" viewBox="0 0 46 96"><path d="M6 96V4" stroke="#f4f1e6" stroke-width="3" stroke-linecap="round"/><path d="M7.2 96V4" stroke="#bfb9a8" stroke-width="1"/><g class="sea-fly"><path d="M8 6h34v22H8z" fill="#f4c81f"/><path d="M8 6h34v11H8z" fill="#d93a2b"/><path d="M20 6h6v22h-6z" fill="#000" opacity=".1"/><path d="M30 6h4v22h-4z" fill="#fff" opacity=".16"/></g></svg>`, E0 = l`<svg class="sea-light" viewBox="0 0 120 120"><defs><linearGradient id="sea-bm" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient></defs><path class="sea-beam" d="M78 23L-520-40v126z" fill="url(#sea-bm)"/><path d="M18 120q10-22 34-24q10-12 30-8q22-2 38 14v18z" fill="#3b4658"/><path d="M52 96q10-12 30-8q-16 2-22 10z" fill="#566277"/><path d="M68 92l4-58h12l4 58z" fill="#f1eee4"/><path d="M80 34h4l4 58h-6z" fill="#c9c6bb"/><path d="M69.5 70h17l1 11h-19zM71 47h14l.8 11H70.2z" fill="#c9443b"/><path d="M66 34h24v-4H66zM72 16h12l3 4H69z" fill="#2b3340"/><rect x="71" y="18" width="14" height="12" fill="#ffe27a"/><circle class="sea-lamp" cx="78" cy="23" r="15" fill="#fff6c8" opacity=".5"/></svg>`, Ms = {
+], Id = [[360, 9], [540, 3], [720, 1.5], [900, 4], [1020, 12], [1080, 26], [1150, 53]], Pd = [[360, 24], [720, 34], [1080, 52], [1150, 58]], $e = (a, t, e, i, o) => l`<i class="sea-cl" style="--y:${a}%;--w:${t}vw;--o:${e};--t:${i}s;--d:${-o * i}s"></i>`, Fi = (a, t, e) => l`<svg class="sea-grass ${a}" viewBox="0 0 92 70" fill="none" stroke-linecap="round"><path d="M40 70Q30 40 8 30M44 70Q40 34 26 12M48 70Q50 30 44 4M52 70Q58 36 72 16M56 70Q66 46 88 38" stroke=${t} stroke-width="2.6"/><path d="M42 70Q34 46 18 44M50 70Q54 40 60 22M46 70Q46 44 36 28" stroke=${e} stroke-width="2.2"/><path d="M26 12l-3-7M44 4l-1-8M72 16l4-7" stroke=${e} stroke-width="4"/></svg>`, Hd = l`<svg class="sea-flag" viewBox="0 0 46 96"><path d="M6 96V4" stroke="#f4f1e6" stroke-width="3" stroke-linecap="round"/><path d="M7.2 96V4" stroke="#bfb9a8" stroke-width="1"/><g class="sea-fly"><path d="M8 6h34v22H8z" fill="#f4c81f"/><path d="M8 6h34v11H8z" fill="#d93a2b"/><path d="M20 6h6v22h-6z" fill="#000" opacity=".1"/><path d="M30 6h4v22h-4z" fill="#fff" opacity=".16"/></g></svg>`, Ed = l`<svg class="sea-light" viewBox="0 0 120 120"><defs><linearGradient id="sea-bm" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient></defs><path class="sea-beam" d="M78 23L-520-40v126z" fill="url(#sea-bm)"/><path d="M18 120q10-22 34-24q10-12 30-8q22-2 38 14v18z" fill="#3b4658"/><path d="M52 96q10-12 30-8q-16 2-22 10z" fill="#566277"/><path d="M68 92l4-58h12l4 58z" fill="#f1eee4"/><path d="M80 34h4l4 58h-6z" fill="#c9c6bb"/><path d="M69.5 70h17l1 11h-19zM71 47h14l.8 11H70.2z" fill="#c9443b"/><path d="M66 34h24v-4H66zM72 16h12l3 4H69z" fill="#2b3340"/><rect x="71" y="18" width="14" height="12" fill="#ffe27a"/><circle class="sea-lamp" cx="78" cy="23" r="15" fill="#fff6c8" opacity=".5"/></svg>`, Ms = {
   css: I`
     .sea-w { position: absolute; inset: 0; --sea-c: 255,255,255; }
     .sea-w i, .sea-w svg { position: absolute; display: block; }
@@ -4511,7 +4546,7 @@ const Gl = {
     @keyframes sea-spin { to { rotate: calc(var(--sd, 1) * 360deg); } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.theme === "sunset", i = Pi(a), o = a.month >= 6 && a.month <= 8, s = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : vn(P0, a.mins), r = t ? 5 : e ? 49 : vn(I0, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, d = e ? 58 : 52, c = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", m = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
+    const t = a.tod === "night", e = a.theme === "sunset", i = Pi(a), o = a.month >= 6 && a.month <= 8, s = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : vn(Pd, a.mins), r = t ? 5 : e ? 49 : vn(Id, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, d = e ? 58 : 52, c = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", f = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
     return l`<div class="sea-w" style="--sea-c:${c};--sea-g:${t ? "214,226,255" : i ? "255,224,170" : "255,255,255"};--sx:${s.toFixed(1)}%;--sy:${r.toFixed(1)}%;--rx:${((30 + s) / 1.6).toFixed(2)}%;--ry:${((30 + r) / 1.6).toFixed(2)}%;--ray:${p ? "rgba(255,214,150,.2)" : "rgba(255,255,255,.17)"};--bo:${t ? 0.16 : 0.34}">
       ${n ? l`<i class="sea-rays"></i><i class="sea-sun" style="--sz:${p ? "38vmin" : "150px"};background:${p ? "radial-gradient(circle, #fff3c4 0 13%, rgba(255,214,130,.8) 16%, rgba(255,170,90,.3) 38%, transparent 68%)" : "radial-gradient(circle, #fffbe2 0 21%, rgba(255,243,180,.8) 24%, rgba(255,240,170,.3) 42%, transparent 70%)"}"></i>` : u}
       ${t ? l`<i class="sea-stars" style="box-shadow:${Lo(7, 5)}"></i><i class="sea-stars" style="box-shadow:${Lo(6, 11)};animation-duration:4.3s"></i><i class="sea-stars" style="box-shadow:${Lo(6, 23)};animation-duration:5.9s"></i>
@@ -4522,15 +4557,15 @@ const Gl = {
       <i class="sea-band" style="top:${d}%;height:15%"></i><i class="sea-band b" style="top:${d + 4}%;height:14%"></i>
       <i class="sea-foam" style="top:${d + 18}%"></i>
       ${n && s > 30 || t ? l`<i class="sea-glit" style="top:${d + 1}%;height:15%"></i>` : u}
-      ${Fi("fl", h, h)}${Fi("fr", h, h)}${Fi("l", h, m)}${Fi("r", h, m)}
-      ${t ? E0 : a.month >= 10 || a.month <= 3 ? H0 : u}
+      ${Fi("fl", h, h)}${Fi("fr", h, h)}${Fi("l", h, f)}${Fi("r", h, f)}
+      ${t ? Ed : a.month >= 10 || a.month <= 3 ? Hd : u}
     </div>`;
   },
-  cast: D0
+  cast: Dd
 }, qo = (a, t, e, i) => {
   const o = va(t);
   return Array.from({ length: a }, () => `${(o() * i).toFixed(1)}vw ${(o() * 100).toFixed(1)}vh 0 ${o() < 0.16 ? 1 : 0}px ${e[Math.floor(o() * e.length)]}`).join(",");
-}, td = qo(70, 7, ["#cdd6ff", "#e9edff", "#ffd9c2"], 100), ad = qo(90, 51, ["#e9edff", "#bcd0ff"], 100), ed = qo(42, 91, ["#fff", "#dfe8ff"], 108), id = qo(20, 333, ["#fff3cf", "#fff", "#cfe0ff"], 116), od = (() => {
+}, t0 = qo(70, 7, ["#cdd6ff", "#e9edff", "#ffd9c2"], 100), a0 = qo(90, 51, ["#e9edff", "#bcd0ff"], 100), e0 = qo(42, 91, ["#fff", "#dfe8ff"], 108), i0 = qo(20, 333, ["#fff3cf", "#fff", "#cfe0ff"], 116), o0 = (() => {
   const a = va(19);
   return Array.from({ length: 80 }, () => `${(a() * 130 - 65).toFixed(1)}vw ${((a() + a() + a()) / 3 * 24 - 12).toFixed(1)}vh 0 0 rgba(225,232,255,.75)`).join(",");
 })(), O = g`<defs>
@@ -4544,10 +4579,10 @@ const Gl = {
 <linearGradient id="spfx" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ffe08a"/><stop offset=".7" stop-color="#ff9a3c" stop-opacity=".8"/><stop offset="1" stop-color="#ff5a28" stop-opacity="0"/></linearGradient>
 <radialGradient id="spgr" cx=".4" cy=".3"><stop offset="0" stop-color="#d7e2d2"/><stop offset=".6" stop-color="#93a892"/><stop offset="1" stop-color="#566a5c"/></radialGradient>
 <radialGradient id="sprk" cx=".35" cy=".28" r=".8"><stop offset="0" stop-color="#b9ab9c"/><stop offset=".55" stop-color="#7d7068"/><stop offset="1" stop-color="#3a3340"/></radialGradient>
-</defs>`, Kt = "url(#spm1)", jt = "url(#spm2)", Xa = "#d2453f", Fa = "#ffd166", Ss = g`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, Fs = g`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${Xa}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, Kn = g`${Ss}${Fs}`, Rs = (a, t, e = "") => g`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${Kt}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, Ya = (a, t, e = "") => g`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${jt}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${Kt}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${Kt}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${Kt}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${Rs(7.5, a)}${Rs(26, t, e)}<circle cx="20" cy="11" r="10" fill=${Kt}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, Bo = g`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, Un = (a, t) => g`${[0, 1.1, 2.2].map((e, i) => g`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, sd = g`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, rd = g`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, qn = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${O}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${Kt}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${jt}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => g`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : Fa}/>`)}</g></svg>`, An = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${O}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${Ya(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, Ri = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => g`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((o, s) => {
+</defs>`, Kt = "url(#spm1)", jt = "url(#spm2)", Xa = "#d2453f", Fa = "#ffd166", Ss = g`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, Fs = g`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${Xa}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, Kn = g`${Ss}${Fs}`, Rs = (a, t, e = "") => g`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${Kt}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, Ya = (a, t, e = "") => g`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${jt}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${Kt}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${Kt}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${Kt}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${Rs(7.5, a)}${Rs(26, t, e)}<circle cx="20" cy="11" r="10" fill=${Kt}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, Bo = g`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, Un = (a, t) => g`${[0, 1.1, 2.2].map((e, i) => g`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, s0 = g`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, r0 = g`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, qn = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${O}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${Kt}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${jt}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => g`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : Fa}/>`)}</g></svg>`, An = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${O}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${Ya(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, Ri = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => g`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((o, s) => {
   const [r, n] = o.split(",");
   return g`<circle cx=${r} cy=${n} r=${(i + s) % 3 ? 2.1 : 2.9} fill=${(i + s) % 4 ? "#fff" : "#ffe9c2"}/>`;
-})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, nd = (a) => g`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${Kt}/><path d="M26 28.5q9 5 0 10z" fill=${Xa}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${jt}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${Xa}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${Kt}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, Jo = (a, t, e) => g`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, Vs = {
+})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, n0 = (a) => g`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${Kt}/><path d="M26 28.5q9 5 0 10z" fill=${Xa}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${jt}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${Xa}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${Kt}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, Jo = (a, t, e) => g`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, Vs = {
   css: I`
     .sp-w { position: absolute; inset: 0; }
     .sp-w i { position: absolute; display: block; }
@@ -4689,8 +4724,8 @@ const Gl = {
   always: (a) => {
     const t = a.look === "orbit", e = a.tod !== "day", i = (o, s, r) => l`<svg class="sp-sk sp-c" style="--x:${o}%;--y:${s}%;--t:${r}s" viewBox="-10 -10 20 20"><path d="M0-10Q0 0 10 0Q0 0 0 10Q0 0-10 0Q0 0 0-10z" fill="#fff"/><circle r="1.6" fill="#fff"/></svg>`;
     return l`<div class="sp-w ${t ? "sp-o" : ""}">
-      <i class="sp-neb"><i style="box-shadow:${od}"></i></i>
-      <div style="opacity:${e ? 1 : 0.6}"><i class="sp-s" style="box-shadow:${td}"></i>${a.tod === "night" ? l`<i class="sp-s sp-s1" style="box-shadow:${ad}"></i>` : u}<i class="sp-s sp-s2" style="box-shadow:${ed}"></i><i class="sp-s sp-s3" style="box-shadow:${id}"></i></div>
+      <i class="sp-neb"><i style="box-shadow:${o0}"></i></i>
+      <div style="opacity:${e ? 1 : 0.6}"><i class="sp-s" style="box-shadow:${t0}"></i>${a.tod === "night" ? l`<i class="sp-s sp-s1" style="box-shadow:${a0}"></i>` : u}<i class="sp-s sp-s2" style="box-shadow:${e0}"></i><i class="sp-s sp-s3" style="box-shadow:${i0}"></i></div>
       ${i(30.2, 1.2, 5.3)}${e ? i(0.3, 85, 11.3) : u}<i class="sp-pass"></i>
       ${e ? l`<svg class="sp-cross sp-c" style="--r:${Math.round((a.mins / 4 + a.month * 30) % 360)}deg" viewBox="-56 -6 100 60" fill="#fff"><path d="M20 2L22 46M5 22L36 17M-28 34L-50 42" stroke="rgba(232,236,247,.28)" stroke-width="1"/><circle cx="20" cy="2" r="2.8" fill="#ffc2a0"/><circle cx="22" cy="46" r="3.3" fill="#dfe8ff"/><circle cx="5" cy="22" r="3" fill="#dfe8ff"/><circle cx="36" cy="17" r="2.3"/><circle cx="28" cy="28" r="1.4" fill="#ffd9b0"/><circle cx="-28" cy="34" r="3" fill="#dfe8ff"/><circle cx="-50" cy="42" r="3.3" fill="#fff3cf"/><g fill="#fff" opacity=".7"><circle cx="9" cy="15" r=".8"/><circle cx="11" cy="17.5" r=".6"/><circle cx="7.5" cy="17" r=".6"/></g></svg>` : u}
       ${e ? l`<i class="sp-gal"><svg class="sp-c" viewBox="0 0 60 60" fill="none" stroke-linecap="round"><radialGradient id="spgx"><stop offset="0" stop-color="#fff3cf"/><stop offset=".25" stop-color="#cfd8ff" stop-opacity=".55"/><stop offset="1" stop-color="#9fb0ff" stop-opacity="0"/></radialGradient><circle cx="30" cy="30" r="29" fill="url(#spgx)"/><g stroke="#dfe6ff"><path d="M30 30c-2-9 8-14 16-9s8 18-2 24-24 2-27-10" stroke-width="2.2" opacity=".8"/><path d="M30 30c2 9-8 14-16 9s-8-18 2-24 24-2 27 10" stroke-width="2.2" opacity=".8"/><path d="M38 14q14 6 10 22M22 46Q8 40 12 24" stroke-width="1" opacity=".5" stroke-dasharray=".5 3"/></g><circle cx="30" cy="30" r="4" fill="#fff8e0"/></svg></i>` : u}
@@ -4713,8 +4748,8 @@ const Gl = {
     { id: "rock", ms: 4e4, move: "across", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 110 80" width="100">${O}<g class="sp-tum"><path d="M20 22q10-16 30-14 18-6 30 8 14 10 8 28-4 16-22 18-20 8-34-4Q14 48 14 36q0-8 6-14z" fill="url(#sprk)"/><g class="sp-g"><ellipse cx="74" cy="50" rx="7" ry="5" fill="#3a3340" opacity=".6"/><ellipse cx="30" cy="52" rx="5" ry="3.5" fill="#3a3340" opacity=".6"/><path d="M67 51a7 5 0 0 0 14 0M25 53a5 3.5 0 0 0 10 0" fill="none" stroke="#d9cdbd" stroke-width=".8"/></g><ellipse class="sp-oo sp-d" cx="74" cy="50" rx="7" ry="5"/><g fill="none" stroke="#f1e9d6" stroke-linecap="round"><path class="sp-y" d="M30 34q16-10 34-4" stroke-width="1.8"/><path class="sp-y" d="M36 31l-2 9M42 29l-1 10M48 28v10M54 28l1 9M60 29l2 8" stroke-width="1.1"/><path class="sp-y" d="M36 40l-4 8 5 1M56 38l5 8-4 2" stroke-width="1.4"/><path class="sp-y" d="M30 34l-8 6" stroke-width="1.4"/></g><path class="sp-y" d="M64 30l5-9q8-3 11 3l-1 6-8 3zM72 33l7 1-1 3-8-1z" fill="#f1e9d6"/><circle class="sp-l" cx="73" cy="25.5" r="1.6" fill="#3a3340"/></g><g class="sp-tum2"><path d="M94 60l6-3 5 4-2 6-7 1z" fill="url(#sprk)"/></g><path d="M6 14l4-2 3 3-2 4-5-1z" fill="url(#sprk)"/></svg>` },
     { id: "hauler", ms: 34e3, move: "across sp-slow", weight: 2, y: [2, 6], art: l`<svg class="sp-v" viewBox="-14 0 224 46" width="216">${O}<path class="sp-fh sp-l" d="M8 16Q-8 20-14 23q6 3 22 7z" fill="#9fe0ff" opacity=".85"/><path d="M8 14h14v18H8l-3-4V18z" fill=${jt}/><rect x="22" y="21" width="140" height="4" fill=${jt}/>${[["#b5503c", 26], ["#3f8f8a", 72], ["#c99a3a", 118]].map(([a, t]) => g`<rect x=${t} y="8" width="42" height="30" rx="1.5" fill=${a}/><path class="sp-g" d="M${t} 28h42v8.5q0 1.5-1.5 1.500h-39q-1.5 0-1.5-1.500z" opacity=".3"/><path class="sp-g" d="M${t} 8h42v3H${t}z" fill="#fff" opacity=".25"/><path class="sp-d" d="M${+t + 7} 8v30M${+t + 14} 8v30M${+t + 21} 8v30M${+t + 28} 8v30M${+t + 35} 8v30" fill="none" stroke="#1c2340" stroke-width=".6" opacity=".45"/>`)}<path d="M162 12h18q16 2 22 11-6 9-22 11h-18z" fill="url(#spm1)"/><path class="sp-y" d="M183 15q10 2 14 7h-14z" fill="url(#spvz)"/><path class="sp-d" d="M168 12v22M176 12v22" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M170 12V5M166 5h8" fill="none" stroke="#aeb6cc"/><circle class="sp-l sp-bk" cx="170" cy="4" r="1.7" fill="#ff5a5a"/><circle class="sp-puf sp-l" cx="192" cy="38" r="5" fill="#fff"/></svg>` },
     // ---- saucers ----
-    { id: "saucer", ms: 18e3, move: "sp-stop", weight: 2, y: [0.3, 0.8], art: qn(sd) },
-    { id: "sock", ms: 18e3, move: "sp-stop", weight: 1, y: [0.3, 0.8], art: qn(rd) },
+    { id: "saucer", ms: 18e3, move: "sp-stop", weight: 2, y: [0.3, 0.8], art: qn(s0) },
+    { id: "sock", ms: 18e3, move: "sp-stop", weight: 1, y: [0.3, 0.8], art: qn(r0) },
     { id: "alien", ms: 16e3, move: "sp-stop", weight: 2, y: [1.5, 3], art: l`<svg class="sp-v" viewBox="0 0 80 74" width="92">${O}<ellipse cx="40" cy="40" rx="31" ry="5" fill="#2e3552"/><g class="sp-pilot"><g transform="translate(-1 -12)">${Rs(7, -150, "sp-wv")}</g>${Bo}</g><path class="sp-lid" d="M13 38a27 25 0 0 1 54 0z" fill="#9fd7ee" fill-opacity=".4"/><path d="M8 40h64q-3 22-32 22T8 40z" fill="url(#spm1)"/><path class="sp-g" d="M8 40h64q-1 5-4 9-28 7-56 0-3-4-4-9z" fill="#fff" opacity=".35"/><path class="sp-d" d="M14 51q26 7 52 0M40 40v22" fill="none" stroke="#737c9b" stroke-width=".7"/><path d="M24 60l-6 10h-4M56 60l6 10h4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><g class="sp-run"><circle class="sp-l" cx="22" cy="46" r="1.8" fill=${Fa}/><circle class="sp-l" cx="40" cy="48" r="1.8" fill="#7bdff2"/><circle class="sp-l" cx="58" cy="46" r="1.8" fill=${Fa}/></g></svg>` },
     // ---- astronauts ----
     { id: "tether", ms: 28e3, move: "across sp-drift", weight: 2, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 70" width="236">${O}<path class="sp-y" d="M166 42q-30 26-56 2t-58 6" fill="none" stroke="#e0a93a" stroke-width="1.3"/><g class="sp-sway"><g transform="translate(18 12)">${Ya(150, -75, "sp-wv")}</g></g><g transform="translate(160 12)"><path d="M2 38L10 8q12-9 24 0l8 30z" fill="url(#spcy)"/><path d="M0 38h44l-3 6H3z" fill="#5a4636"/><path class="sp-g" d="M0 38h44l-1 2H1z" fill="#c98f4a"/><rect class="sp-y" x="17" y="16" width="10" height="9" rx="2" fill="url(#spvz)"/><path class="sp-d" d="M8 16h28M5 27h34M22 3v13" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M10 8q12-9 24 0-12-3-24 0z" fill=${jt}/><circle class="sp-puf sp-l" cx="44" cy="22" r="5" fill="#fff"/></g></svg>` },
@@ -4735,7 +4770,7 @@ const Gl = {
     { id: "wink", ms: 11e3, move: "sp-cl", weight: 0.5, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 130 110" width="130" height="110"><radialGradient id="spey"><stop offset="0" stop-color="#3f1508"/><stop offset=".4" stop-color="#8f3a22"/><stop offset=".75" stop-color="#f3e2c0"/><stop offset="1" stop-color="#f3e2c0" stop-opacity="0"/></radialGradient><g class="sp-eyes"><ellipse class="sp-l" cx="42" cy="56" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="42" cy="56" rx="12" ry="8"/><g class="sp-wink"><ellipse class="sp-l" cx="80" cy="60" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="80" cy="60" rx="12" ry="8"/></g><g class="sp-pup"><ellipse class="sp-l" cx="43" cy="56" rx="3.6" ry="4.6" fill="#1c0a06"/><ellipse class="sp-l" cx="81" cy="60" rx="3.6" ry="4.6" fill="#1c0a06"/><circle class="sp-l" cx="42" cy="54.5" r="1" fill="#fff" opacity=".8"/><circle class="sp-l" cx="80" cy="58.5" r="1" fill="#fff" opacity=".8"/></g></g><path class="sp-grin sp-y" d="M44 80q16 12 34 5" fill="none" stroke="#6b3a1f" stroke-width="3.5" stroke-linecap="round" opacity=".75"/></svg>` },
     { id: "rover", ms: 44e3, move: "sp-rov", weight: 2, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 92 44" width="100">${O}<g class="sp-dust"><circle class="sp-l" cx="80" cy="39" r="3.5" fill="#cfd5e6"/><circle class="sp-l" cx="87" cy="37" r="2.2" fill="#cfd5e6"/><circle class="sp-l" cx="73" cy="38" r="2.2" fill="#cfd5e6"/></g><g class="sp-body"><g class="sp-drill"><path d="M76 16h6v16l-3 8-3-8z" fill=${jt}/><path class="sp-d" d="M76 32l6-3M76 28l6-3M76 24l6-3" fill="none" stroke="#dfe3ee" stroke-width=".7"/></g><path d="M56 18h30v6H56z" fill="#b5503c"/><path class="sp-g" d="M56 22h30v2H56z" opacity=".3"/><path d="M4 14h30v14H4z" fill="url(#spm1)"/><path class="sp-d" d="M4 21h30M14 14v14M24 14v14" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-mast"><path d="M30 14V4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><rect x="26" y="0" width="10" height="5" rx="1.5" fill=${jt}/><circle class="sp-l" cx="34" cy="2.5" r="1.2" fill="#7bdff2"/></g><path d="M9 14L4 3h8z" fill=${Kt}/><path class="sp-y" d="M36 8h15l8 11v9H36z" fill="url(#spau)"/><path d="M40 11h9l6 8H40z" fill="url(#spvz)"/><rect x="2" y="27" width="62" height="5" rx="2" fill=${jt}/><path d="M12 32v4M33 32v4M54 32v4" fill="none" stroke="#737c9b" stroke-width="2"/></g>${Jo(12, 36, 7)}${Jo(33, 36, 7)}${Jo(54, 36, 7)}</svg>` },
     // ---- parades, rarities and seasons ----
-    { id: "parade", ms: 24e3, move: "across", weight: 1.5, y: [2, 5], art: l`<svg class="sp-v" viewBox="-12 0 190 50" width="204">${O}${[0, 1, 2, 3].map((a) => g`<g transform="translate(${132 - a * 44} ${a % 2 ? 5 : 0})"><g class="sp-march ${a % 2 ? "b" : ""}">${nd(a === 0)}</g></g>`)}</svg>` },
+    { id: "parade", ms: 24e3, move: "across", weight: 1.5, y: [2, 5], art: l`<svg class="sp-v" viewBox="-12 0 190 50" width="204">${O}${[0, 1, 2, 3].map((a) => g`<g transform="translate(${132 - a * 44} ${a % 2 ? 5 : 0})"><g class="sp-march ${a % 2 ? "b" : ""}">${n0(a === 0)}</g></g>`)}</svg>` },
     { id: "whale", ms: 64e3, move: "across", weight: 0.3, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 90" width="200" opacity=".82"><linearGradient id="spwh" x2="0" y2="1"><stop offset="0" stop-color="#8ea3da"/><stop offset=".55" stop-color="#5f74b4"/><stop offset="1" stop-color="#3a4a86"/></linearGradient><g class="sp-glide"><path class="sp-tail" d="M44 40Q30 34 22 22 10 12 2 16q6 10 16 20-12 8-14 22 12-2 22-12 8-4 18-6z" fill="url(#spwh)"/><path class="sp-fin" d="M124 52q-4 20-26 34-8 4-10-1 16-14 18-36z" fill="#4c5f9e"/><path d="M40 40Q66 16 120 12q34-2 62 10 18 8 24 20-2 12-22 18-30 10-66 8-44-2-78-28z" fill="url(#spwh)"/><path d="M206 42q-2 12-22 18-30 10-66 8-22-1-40-8 60 2 128-18z" fill="#e3e8f6"/><path class="sp-g" d="M96 62q50 2 104-14M104 65q46 0 92-12M116 67q40-1 74-10" fill="none" stroke="#8f9cc4" stroke-width=".7"/><path d="M120 12q6-5 10 0z" fill="#5f74b4"/><path class="sp-g" d="M70 26q40-12 100 0" fill="none" stroke="#c9d6ff" stroke-width="1.2" opacity=".5"/><path class="sp-d" d="M180 44q12 2 24-2" fill="none" stroke="#2c3966" stroke-width=".8"/><circle class="sp-l" cx="176" cy="38" r="1.8" fill="#101a3a"/><g class="sp-g" fill="#c9d6ff" opacity=".7"><circle cx="190" cy="28" r="1"/><circle cx="196" cy="33" r="1"/><circle cx="184" cy="24" r="1"/></g><g class="sp-run"><circle class="sp-l" cx="150" cy="7" r="1.5" fill="#fff"/><circle class="sp-l" cx="158" cy="2" r="1.2" fill="#fff"/><circle class="sp-l" cx="143" cy="1" r="1.2" fill="#fff"/><circle class="sp-l" cx="152" cy="-5" r="1" fill="#fff"/></g></g></svg>` },
     { id: "jelly", ms: 5e4, move: "across", weight: 0.5, y: [2, 6], when: (a) => a.tod !== "day", art: l`<svg class="sp-v" viewBox="-40 -6 110 72" width="118" opacity=".85"><radialGradient id="spjl" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#e9fbff" stop-opacity=".9"/><stop offset=".6" stop-color="#8fd8ff" stop-opacity=".45"/><stop offset="1" stop-color="#b79cff" stop-opacity=".25"/></radialGradient><g transform="rotate(78 30 30)"><g class="sp-surge">${[[14, -4, 0], [24, 2, -0.7], [36, 2, -1.3], [46, -4, -0.4]].map(([a, t, e]) => g`<g class="sp-tent" style="animation-delay:${e}s"><path class="sp-m" d="M${a} 30q${t} 12 0 22t${-t} 20${t} 16" fill="none" stroke="#a9e4ff" stroke-width="1.1" opacity=".7" stroke-linecap="round"/></g>`)}<g class="sp-bell"><path d="M4 30Q4 4 30 4t26 26q-6 5-13 0-6 5-13 0-6 5-13 0-7 5-13 0z" fill="url(#spjl)"/><path class="sp-g" d="M12 22Q16 9 30 8" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7" stroke-linecap="round"/><path class="sp-d sp-m" d="M30 6v22M18 10q-4 8-3 18M42 10q4 8 3 18" fill="none" stroke="#e9fbff" stroke-width=".6" opacity=".6"/><ellipse class="sp-l sp-run" cx="30" cy="18" rx="6" ry="4" fill="#fff6c9" opacity=".8"/></g></g></g></svg>` },
     { id: "xmas", ms: 24e3, move: "across sp-drift", weight: 3, y: [2, 5], when: (a) => a.month === 12, art: l`<svg class="sp-v" viewBox="0 0 170 50" width="180">${O}<path d="M58 34q16 8 34-6" fill="none" stroke="#e0a93a" stroke-width="1"/><g transform="translate(168 12) rotate(90)">${Kn}</g><path d="M8 44q-7 0-7-8M4 44h52M14 44v-6M46 44v-6" fill="none" stroke="#a8322f" stroke-width="2.2" stroke-linecap="round"/><path d="M10 31h44v6q0 2-2 2H12q-2 0-2-2z" fill=${Xa}/><path class="sp-g" d="M10 31h44v2H10z" fill="#fff" opacity=".3"/><rect x="30" y="25" width="4" height="6" fill="#6b4a2b"/><path class="sp-m" d="M32 0L22 12h5L18 21h5l-8 7h34l-8-7h5l-9-9h5z" fill="#2f8f58"/><path class="sp-g" d="M32 0l10 12h-5l9 9h-5l8 7H38q4-14-6-28z" opacity=".25"/><g class="sp-bk"><circle class="sp-l" cx="32" cy="1" r="2.4" fill=${Fa}/><circle class="sp-l" cx="27" cy="13" r="1.7" fill="#ff6b6b"/><circle class="sp-l" cx="39" cy="19" r="1.7" fill="#7bdff2"/><circle class="sp-l" cx="24" cy="24" r="1.7" fill=${Fa}/><circle class="sp-l" cx="36" cy="9" r="1.5" fill="#7bdff2"/><circle class="sp-l" cx="31" cy="22" r="1.7" fill="#ff6b6b"/></g></svg>` },
@@ -4744,20 +4779,20 @@ const Gl = {
     { id: "launch", ms: 12e3, move: "sp-pad", weight: 1, front: !0, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 36 100" width="36">${O}<g fill="#ffe08a" font-family="sans-serif" font-size="19" font-weight="700" text-anchor="middle">${[3, 2, 1].map((a, t) => g`<text class="sp-n" style="animation-delay:${t * 1.6}s" x="18" y="17">${a}</text>`)}</g><g class="sp-puff"><circle cx="9" cy="80" r="6" fill="#dfe3ee"/><circle cx="27" cy="80" r="6" fill="#dfe3ee"/><circle cx="18" cy="83" r="6.5" fill="#f1f3f9"/></g><g transform="translate(2 24)"><g class="sp-ign">${Ss}</g>${Fs}</g></svg>` },
     { id: "scooter", ms: 9500, move: "across foot", weight: 2, front: !0, art: l`<svg class="sp-v" viewBox="0 0 62 62" width="56">${O}<g class="sp-jump"><path class="sp-kick" d="M27 40l-7 8-3 7h-4" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 52h36" fill="none" stroke="#aeb6cc" stroke-width="3" stroke-linecap="round"/><path d="M48 53L42 15M36 13.5l13 2.5" fill="none" stroke="#dfe3ee" stroke-width="2.4" stroke-linecap="round"/><circle cx="9" cy="55.5" r="5" fill="#2c3350"/><circle cx="9" cy="55.5" r="2" fill="#aeb6cc"/><circle cx="48.5" cy="55.5" r="5" fill="#2c3350"/><circle cx="48.5" cy="55.5" r="2" fill="#aeb6cc"/><g class="sp-lean"><path d="M29 40v10h5" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 31l10-14" fill="none" stroke="#8a9e8a" stroke-width="2.8" stroke-linecap="round"/><g transform="translate(27 22) scale(.92)">${Bo}</g><path d="M21 21q-9 1-14 7l8-2q-3 3-2 5 6-3 9-8z" fill=${Xa}/></g></g></svg>` }
   ]
-}, ld = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, Ut = (a, t = {}) => ({ ...t, px: a }), wa = (a) => {
+}, l0 = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, Ut = (a, t = {}) => ({ ...t, px: a }), wa = (a) => {
   const t = {};
   for (const [e, i] of a) for (const o in i) t[o] = (t[o] ?? 0) + e * i[o];
   return t;
-}, z = (a, t) => wa([[1, a], [1, Ut(t)]]), Ta = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (ld[e] ?? 0), 0), T = (a, t = 2) => +a.toFixed(t), qt = (a) => {
+}, z = (a, t) => wa([[1, a], [1, Ut(t)]]), Ta = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (l0[e] ?? 0), 0), T = (a, t = 2) => +a.toFixed(t), qt = (a) => {
   const t = Object.entries(a).filter(([, e]) => Math.abs(e) > 1e-4).map(([e, i]) => e === "px" ? `${T(i, 1)}px` : `var(--${e})*${T(i, 4)}`);
   return t.length > 1 || (t[0] ?? "").includes("*") ? `calc(${t.join(" + ")})` : t[0] ?? "0px";
 }, eo = (a, t) => {
   const e = 1 - t;
   return wa([[e * e * e, a[0]], [3 * e * e * t, a[1]], [3 * e * t * t, a[2]], [t * t * t, a[3]]]);
-}, P = (a, t, e = "") => `transform:translate(${qt(a)},${qt(t)})${e}`, Ra = (a, t) => `@keyframes ${a}{${t.map(([e, i, o]) => `${T(e * 100)}%{${i}${o ? `;animation-timing-function:${o}` : ""}}`).join("")}}`, Ft = (a, t, e) => Ra(a, e.map(([i, o, s]) => [i / t, o, s])), ua = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Mn = "cubic-bezier(.333,.667,.667,1)", pd = "cubic-bezier(.333,0,.667,.333)", Oo = "cubic-bezier(.333,0,.667,1)", dd = "cubic-bezier(.2,.8,.2,1)", cd = "cubic-bezier(.2,1.4,.4,1)", hd = "cubic-bezier(.4,0,1,1)", se = "ease-in-out", da = { aw: 1 }, ei = { ah: 1 }, Da = { at: 1 }, Ba = { dt: 1 }, Ie = { dl: 1 }, ce = z(Ba, -5), Sn = [[wa([[0.5, { dr: 1 }], [0.5, da]]), z(ei, 40)], [z(da, 30), { ah: 0.25 }], [{ aw: 0.77 }, Ut(-150)], [{ cx: 1 }, z(Da, 70)]], Fn = [[z(da, 60), { at: 0.76 }], [{ aw: 0.86 }, Ut(-10)], [{ aw: 0.625 }, Ut(10)], [{ cx: 1 }, z(Da, 120)]], Xo = (a) => {
+}, P = (a, t, e = "") => `transform:translate(${qt(a)},${qt(t)})${e}`, Ra = (a, t) => `@keyframes ${a}{${t.map(([e, i, o]) => `${T(e * 100)}%{${i}${o ? `;animation-timing-function:${o}` : ""}}`).join("")}}`, Ft = (a, t, e) => Ra(a, e.map(([i, o, s]) => [i / t, o, s])), ua = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Mn = "cubic-bezier(.333,.667,.667,1)", p0 = "cubic-bezier(.333,0,.667,.333)", Oo = "cubic-bezier(.333,0,.667,1)", d0 = "cubic-bezier(.2,.8,.2,1)", c0 = "cubic-bezier(.2,1.4,.4,1)", h0 = "cubic-bezier(.4,0,1,1)", se = "ease-in-out", da = { aw: 1 }, ei = { ah: 1 }, Da = { at: 1 }, Ba = { dt: 1 }, Ie = { dl: 1 }, ce = z(Ba, -5), Sn = [[wa([[0.5, { dr: 1 }], [0.5, da]]), z(ei, 40)], [z(da, 30), { ah: 0.25 }], [{ aw: 0.77 }, Ut(-150)], [{ cx: 1 }, z(Da, 70)]], Fn = [[z(da, 60), { at: 0.76 }], [{ aw: 0.86 }, Ut(-10)], [{ aw: 0.625 }, Ut(10)], [{ cx: 1 }, z(Da, 120)]], Xo = (a) => {
   const t = 1 - Math.pow(1 - a, 1.2);
   return [eo(Fn.map((e) => e[0]), t), eo(Fn.map((e) => e[1]), t)];
-}, Zl = [[Ut(-20), z(da, 20), { aw: 0.47 }], [z(da, 20), Ut(-20), { aw: 0.59 }], [Ut(-20), z(da, 20), { aw: 0.37 }]], fd = () => {
+}, Zl = [[Ut(-20), z(da, 20), { aw: 0.47 }], [z(da, 20), Ut(-20), { aw: 0.59 }], [Ut(-20), z(da, 20), { aw: 0.37 }]], f0 = () => {
   const a = [];
   return Zl.forEach(([t, e, i], o) => {
     const s = o * 1200, r = (Ta(i) - Ta(t)) / (Ta(e) - Ta(t)), n = s + 900 * r, p = (d) => wa([[1, ce], [d, { am: 1 }]]);
@@ -4768,19 +4803,19 @@ const Gl = {
       a.push([n + (s + 900 - n) * c, `transform:translateY(${qt(p(-1.15 * (2 * c - c * c)))})`]);
     }
   }), a.sort((t, e) => t[0] - e[0]);
-}, md = z(Ie, -44), gd = z(ei, -24), Rn = (a) => [wa([[1 - a, z(da, 50)], [a, z({ cx: 1 }, -60)]]), wa([[0.5 + 0.9 * a * a, Da], [1, Ut(-30 * Math.sin(Math.PI * a))]])], ud = [
+}, m0 = z(Ie, -44), g0 = z(ei, -24), Rn = (a) => [wa([[1 - a, z(da, 50)], [a, z({ cx: 1 }, -60)]]), wa([[0.5 + 0.9 * a * a, Da], [1, Ut(-30 * Math.sin(Math.PI * a))]])], u0 = [
   Ra("gd-soccer", ua(24).map((a) => {
     const t = 1 - Math.pow(1 - a, 1.5);
     return [a, P(eo(Sn.map((e) => e[0]), t), eo(Sn.map((e) => e[1]), t), ` scale(${T(1.3 - 0.5 * t)})`)];
   })),
   Ra("gd-punt", [[0, P({ cx: 1 }, z(Da, 140))], [1, P({ aw: 0.86 }, z(Da, 140))]]),
-  Ra("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", Mn], [0.5, `transform:translateY(${qt(wa([[-1, Da], [1, Ut(-110)]]))}) scale(1.2)`, pd], [1, "transform:translateY(0) scale(.65)"]]),
+  Ra("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", Mn], [0.5, `transform:translateY(${qt(wa([[-1, Da], [1, Ut(-110)]]))}) scale(1.2)`, p0], [1, "transform:translateY(0) scale(.65)"]]),
   Ra("gd-torpedo", ua(20).map((a) => {
     const [t, e] = Xo(a), [i, o] = Xo(Math.max(0, a - 0.01)), [s, r] = Xo(Math.min(1, a + 0.01));
     return [a, P(t, e, ` rotate(${T(Math.atan2(Ta(r) - Ta(o), Ta(s) - Ta(i)) * 180 / Math.PI - 180, 1)}deg) scale(${T(1.15 - 0.45 * a)})`)];
   })),
   Ft("gd-rally", 3300, Zl.flatMap(([a, t], e) => [[e * 1200, `transform:translateX(${qt(a)})`], [e * 1200 + 900, `transform:translateX(${qt(t)})`]])),
-  Ft("gd-rally-y", 3300, fd()),
+  Ft("gd-rally-y", 3300, f0()),
   Ra("gd-skim", [[0, P(Ut(-20), { sy: 1 }), Mn], [1, P(z(da, 20), { sy: 1 })]]),
   Ra("gd-float", [[0, P({ aw: 0.93 }, Ut(-30), " scale(1)"), Oo], [0.36, P({ gx: 1 }, z(Da, 40), " scale(.9)"), Oo], [0.8, P({ gx: 1 }, z({ ab: 1 }, -6), " scale(1.08)"), Oo], [1, P(z({ gx: 1 }, 108), wa([[0.5, Ba], [0.5, { db: 1 }]]), " scale(.94)")]]),
   /* the corner flag knocked by the last shot of a rally */
@@ -4791,7 +4826,7 @@ const Gl = {
     [2300, P(z(Ie, -20), z(ce, 139))]
   ]),
   Ft("gd-knock-sq", 2300, [[0, "transform:scale(1,1)"], [620, "transform:scale(1,1)"], [650, "transform:scale(1.08,.92)"], [720, "transform:scale(1,1)"], [2300, "transform:scale(1,1)"]]),
-  Ft("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", dd], [1170, "transform:rotate(-16deg)", se], [1420, "transform:rotate(10deg)", se], [1660, "transform:rotate(-6deg)", se], [1900, "transform:rotate(3deg)", se], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
+  Ft("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", d0], [1170, "transform:rotate(-16deg)", se], [1420, "transform:rotate(10deg)", se], [1660, "transform:rotate(-6deg)", se], [1900, "transform:rotate(3deg)", se], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
   /* the gull with a chip, and the ball that chases it */
   Ft("gd-gull", 2300, [...ua(14).map((a) => {
     const [t, e] = Rn(a);
@@ -4802,14 +4837,14 @@ const Gl = {
     return [250 + 2050 * a, P(t, z(e, 8 - 16 * Math.abs(Math.sin(3 * Math.PI * a))), " scale(.6)")];
   })]),
   /* sprinkler, line marker, dog */
-  Ft("gd-head", 2300, [[0, "transform:translateY(18px)", cd], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", hd], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
+  Ft("gd-head", 2300, [[0, "transform:translateY(18px)", c0], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", h0], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
   Ft("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", se], [1070, "transform:rotate(52deg)", se], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
   Ft("gd-spray", 2300, [[0, "opacity:0"], [240, "opacity:0"], [340, "opacity:1"], [1900, "opacity:1"], [2050, "opacity:0"], [2300, "opacity:0"]]),
   Ft("gd-bow", 2300, [[0, "opacity:0"], [600, "opacity:0"], [1050, "opacity:.8"], [1650, "opacity:.8"], [2e3, "opacity:0"], [2300, "opacity:0"]]),
   Ft("gd-chalk", 2300, [[0, "transform:scaleX(0);opacity:1"], [190, "transform:scaleX(0);opacity:1"], [2e3, "transform:scaleX(.97);opacity:1"], [2300, "transform:scaleX(1);opacity:0"]]),
   Ft("gd-cart", 2300, [[0, `${P(Ut(-44), z(Ba, 3))};opacity:1`], [2e3, `${P(z({ aw: 0.4 }, -20), z(Ba, 3))};opacity:1`], [2300, `${P(z({ aw: 0.4 }, 61), z(Ba, 3))};opacity:0`]]),
   Ra("gd-dog", [[0, P(Ut(-60), z(Ba, 4))], [1, P(z(da, 60), z(Ba, 4))]])
-].join(""), kt = "#2b2f36", te = "#f6f3e7", Yl = "#d9e63a", ye = "#f47b20", xd = "#f5c531", bd = "#9aa5b1", st = (a, t, e = 32, i = 32) => `${T(e + a * Math.cos(t * Math.PI / 180), 1)} ${T(i + a * Math.sin(t * Math.PI / 180), 1)}`, Ao = (a) => `<path d="M${st(a, -35)}A${a} ${a} 0 0 1 ${st(a, 145)}A${T(a * 1.35, 1)} ${T(a * 1.35, 1)} 0 0 0 ${st(a, -35)}z" opacity=".13"/>`, Bl = (() => {
+].join(""), kt = "#2b2f36", te = "#f6f3e7", Yl = "#d9e63a", ye = "#f47b20", x0 = "#f5c531", b0 = "#9aa5b1", st = (a, t, e = 32, i = 32) => `${T(e + a * Math.cos(t * Math.PI / 180), 1)} ${T(i + a * Math.sin(t * Math.PI / 180), 1)}`, Ao = (a) => `<path d="M${st(a, -35)}A${a} ${a} 0 0 1 ${st(a, 145)}A${T(a * 1.35, 1)} ${T(a * 1.35, 1)} 0 0 0 ${st(a, -35)}z" opacity=".13"/>`, Bl = (() => {
   const a = [];
   let t = "", e = "";
   for (let i = 0; i < 5; i++) {
@@ -4817,24 +4852,24 @@ const Gl = {
     a.push(st(9.5, o)), t += `M${st(9.5, o)}L${st(15.5, o)}M${st(19.5, o + 19)}L${st(19.5, o + 53)}`, e += `M${st(15.5, o)}L${st(19.5, o - 19)}L${st(24, o - 13)}A24 24 0 0 1 ${st(24, o + 13)}L${st(19.5, o + 19)}z`;
   }
   return `<circle cx="32" cy="32" r="24" fill="#fff"/><g class="gd-m"><path d="M${a.join("L")}z${e}" fill="${kt}"/><path d="${t}" stroke="${kt}" stroke-width="1.6" fill="none"/></g>${Ao(24)}<circle cx="32" cy="32" r="24" fill="none" stroke="${kt}" stroke-width="1.6"/>`;
-})(), kd = `<circle cx="32" cy="32" r="22" fill="${Yl}"/><g class="gd-m"><path d="M${st(22, 217)}Q27 32 ${st(22, 143)}M${st(22, -37)}Q37 32 ${st(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${Ao(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, wd = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${te}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${kt}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${kt}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${kt}" stroke-width="1.500"/>`, Do = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", vd = `<defs><clipPath id="gd-fc"><path d="${Do}"/></clipPath></defs><path d="${Do}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${te}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Do}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, yd = (() => {
+})(), k0 = `<circle cx="32" cy="32" r="22" fill="${Yl}"/><g class="gd-m"><path d="M${st(22, 217)}Q27 32 ${st(22, 143)}M${st(22, -37)}Q37 32 ${st(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${Ao(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, w0 = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${te}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${kt}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${kt}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${kt}" stroke-width="1.500"/>`, Do = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", v0 = `<defs><clipPath id="gd-fc"><path d="${Do}"/></clipPath></defs><path d="${Do}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${te}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Do}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, y0 = (() => {
   let a = "";
   for (let t = -2; t <= 2; t++) for (let e = -3; e <= 3; e++) {
     const i = e * 6 + (t & 1 ? 3 : 0), o = t * 5.2;
     Math.hypot(i, o) < 11.6 && (a += `M${T(32 + i, 1)} ${T(32 + o, 1)}h.01`);
   }
   return `<circle cx="32" cy="32" r="15" fill="#fff"/><g class="gd-m"><path d="${a}" stroke="#a9b1bb" stroke-width="2.400" stroke-linecap="round"/></g>${Ao(15)}<circle cx="32" cy="32" r="15" fill="none" stroke="${kt}" stroke-opacity=".6" stroke-width="1.800"/>`;
-})(), Kd = (() => {
+})(), K0 = (() => {
   let a = '<circle cx="32" cy="32" r="4.300"/>';
   for (let t = 0; t < 6; t++) {
     const e = st(12.3, t * 60), i = st(19.3, t * 60 + 30);
     a += `<ellipse cx="${e.split(" ")[0]}" cy="${e.split(" ")[1]}" rx="3" ry="3.900" transform="rotate(${t * 60} ${e})"/><ellipse cx="${i.split(" ")[0]}" cy="${i.split(" ")[1]}" rx="1.500" ry="3.400" transform="rotate(${t * 60 + 30} ${i})"/>`;
   }
   return `<circle cx="32" cy="32" r="22" fill="#fff"/><g class="gd-m" fill="#56606c">${a}</g>${Ao(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="${kt}" stroke-opacity=".6" stroke-width="1.500"/>`;
-})(), Ud = { soccer: [Bl, 40], rugby: [wd, 43], footy: [vd, 43], tennis: [kd, 20], hockey: [yd, 0], floorball: [Kd, 32] }, Aa = (a, t = "") => {
-  const [e, i] = Ud[a];
+})(), U0 = { soccer: [Bl, 40], rugby: [w0, 43], footy: [v0, 43], tennis: [k0, 20], hockey: [y0, 0], floorball: [K0, 32] }, Aa = (a, t = "") => {
+  const [e, i] = U0[a];
   return `<i class="gd-b gd-${a} ${t}"${i ? ` style="--s:${i}px"` : ""}><i class="gd-k"><i class="gd-spin"><svg viewBox="0 0 64 64">${e}</svg></i></i></i>`;
-}, Ns = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${qt(t)};top:${qt(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, Ot = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, qd = `<path d="M0 0V-64" stroke="${xd}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${ye}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, Ad = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${kt}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, Md = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${kt}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, Sd = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${T(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), Fd = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), Rd = `<path d="M22-12 40-24" stroke="${kt}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${ye}" stroke="${kt}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${te}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${kt}"/><path d="M20-9v8M16-5h8" stroke="${te}" stroke-width="1"/></g>`, Vd = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${kt}"/><circle cx="27" cy="-18.500" r="3.600" fill="${Yl}" stroke="#7f8c18" stroke-width=".8"/>`, nt = (a, t) => [T(960 + 830 * a / t, 1), T(250 + 8300 / t, 1)], Nd = (a) => {
+}, Ns = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${qt(t)};top:${qt(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, Ot = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, q0 = `<path d="M0 0V-64" stroke="${x0}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${ye}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, A0 = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${kt}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, M0 = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${kt}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, S0 = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${T(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), F0 = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), R0 = `<path d="M22-12 40-24" stroke="${kt}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${ye}" stroke="${kt}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${te}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${kt}"/><path d="M20-9v8M16-5h8" stroke="${te}" stroke-width="1"/></g>`, V0 = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${kt}"/><circle cx="27" cy="-18.500" r="3.600" fill="${Yl}" stroke="#7f8c18" stroke-width=".8"/>`, nt = (a, t) => [T(960 + 830 * a / t, 1), T(250 + 8300 / t, 1)], N0 = (a) => {
   const t = a ? { s0: "#131b33", s1: "#3b4673", hill: "#263a52", t1: "#1e3f3d", t2: "#173231", far: "#2a6d47", g1: "#2f7a4b", g2: "#2b7146", chalk: 0.46, wall: "#b9b3a6", roof: "#3a2b2a", court: "#2f6c84", steel: "#55607a", lamp: "#fff3c4", post: "#f6f3e7" } : { s0: "#cbe7f4", s1: "#e6f4f2", hill: "#a8d1b3", t1: "#63a56f", t2: "#4a8d5c", far: "#62b36c", g1: "#58ad63", g2: "#51a55c", chalk: 0.52, wall: "#f1e7d0", roof: "#8a5226", court: "#5fa6c4", steel: "#8b96a3", lamp: "#f6f3e7", post: "#ffffff" }, e = (S, V, j, N, At) => {
     const ya = va(S);
     let Et = "";
@@ -4858,17 +4893,17 @@ const Gl = {
   let c = "";
   for (let S = -90; S <= 90; S += 15) c += (S === -90 ? "M" : "L") + nt(-34 + 9 * Math.cos(S * Math.PI / 180), 43 + 9 * Math.sin(S * Math.PI / 180));
   const h = nt(0, 70)[1];
-  let m = "";
+  let f = "";
   for (const [S, V] of [[48, 5.6], [45, 9.5], [42, 9.5], [39, 5.6]]) {
     const [j, N] = nt(34, S), At = 830 / S;
-    m += `<path d="M${j} ${N}V${T(N - V * At, 1)}" stroke="${t.post}" stroke-width="${T(0.3 * At, 1)}" stroke-linecap="round"/><path d="M${j} ${N}V${T(N - 1.5 * At, 1)}" stroke="${ye}" stroke-width="${T(0.55 * At, 1)}" stroke-linecap="round"/>`;
+    f += `<path d="M${j} ${N}V${T(N - V * At, 1)}" stroke="${t.post}" stroke-width="${T(0.3 * At, 1)}" stroke-linecap="round"/><path d="M${j} ${N}V${T(N - 1.5 * At, 1)}" stroke="${ye}" stroke-width="${T(0.55 * At, 1)}" stroke-linecap="round"/>`;
   }
-  const [f, x] = nt(-34, 41.5), [b, w] = nt(-34, 44.5), k = nt(-37.5, 41.5), v = nt(-37.5, 44.5), U = T(3.4 * 830 / 41.5, 1), M = T(3.4 * 830 / 44.5, 1), R = `<path d="M${f} ${T(x - U, 1)}L${k}L${v}L${b} ${T(w - M, 1)}V${w}L${f} ${x}z" fill="${t.post}" opacity=".3"/><path d="M${f} ${x}V${T(x - U, 1)}L${b} ${T(w - M, 1)}V${w}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, Y = `<rect y="${h - 4}" width="1920" height="${T(1084 - h, 1)}" fill="${t.g1}"/><path d="${d}" fill="${t.g2}"/><g fill="none" stroke="${te}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${nt(-34, 29.4)}L${nt(-34, 70)}L${nt(34, 70)}L${nt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${nt(34, 42)}L${nt(27, 42)}L${nt(27, 45)}L${nt(34, 45)}"/><path d="${c}"/><path d="M0 942H1920" stroke-width="6"/></g>${R}${m}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
+  const [x, m] = nt(-34, 41.5), [b, k] = nt(-34, 44.5), w = nt(-37.5, 41.5), v = nt(-37.5, 44.5), U = T(3.4 * 830 / 41.5, 1), M = T(3.4 * 830 / 44.5, 1), R = `<path d="M${x} ${T(m - U, 1)}L${w}L${v}L${b} ${T(k - M, 1)}V${k}L${x} ${m}z" fill="${t.post}" opacity=".3"/><path d="M${x} ${m}V${T(m - U, 1)}L${b} ${T(k - M, 1)}V${k}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, Y = `<rect y="${h - 4}" width="1920" height="${T(1084 - h, 1)}" fill="${t.g1}"/><path d="${d}" fill="${t.g2}"/><g fill="none" stroke="${te}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${nt(-34, 29.4)}L${nt(-34, 70)}L${nt(34, 70)}L${nt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${nt(34, 42)}L${nt(27, 42)}L${nt(27, 45)}L${nt(34, 45)}"/><path d="${c}"/><path d="M0 942H1920" stroke-width="6"/></g>${R}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
   return `<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="gd-sky" x2="0" y2="1"><stop offset=".35" stop-color="${t.s0}"/><stop offset="1" stop-color="${t.s1}"/></linearGradient>${a ? '<radialGradient id="gd-glow"><stop stop-color="#fff3c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>' : ""}</defs>${r}${p}${Y}</svg>`;
-}, Td = {}, zd = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${ye}"/><path d="M12 31H52" stroke="${bd}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${Bl}</g></svg>`, $d = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${ye}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${ye}"/><path d="M22 26H42L44.300 34H19.700z" fill="${te}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, Wd = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${$d}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, Cd = (a) => {
+}, T0 = {}, z0 = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${ye}"/><path d="M12 31H52" stroke="${b0}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${Bl}</g></svg>`, $0 = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${ye}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${ye}"/><path d="M22 26H42L44.300 34H19.700z" fill="${te}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, W0 = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${$0}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, C0 = (a) => {
   const t = a.tod !== "day", e = t ? "eve" : "day", i = !!a.lay && !a.lay.phone && a.lay.corner >= 110;
-  return l`<div class="gd-world ${t ? "gd-eve" : ""}"><div class="gd-art" .innerHTML=${Td[e] ??= Nd(t)}></div><div class="gd-wash"></div>${i ? l`<i class="gd-gear gd-bag" .innerHTML=${zd}></i><i class="gd-gear gd-cones" .innerHTML=${Wd}></i>` : u}</div>`;
-}, Qd = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], re = (a, t) => (e) => Qd[e.weekday] === a ? 2 * t : t, Vi = (a) => !a.lay?.phone, Io = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, Po = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, Vn = Ot(Ns("gd-bow", z({ dr: 1 }, 46), z(ei, -30), Fd) + `<i class="gd-p gd-spray" style="left:${qt(z({ dr: 1 }, 46))};top:${qt(z(ei, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${Sd}</svg></i></i>` + Ns("gd-head", z({ dr: 1 }, 46), z(ei, -6), Md)), _d = [
+  return l`<div class="gd-world ${t ? "gd-eve" : ""}"><div class="gd-art" .innerHTML=${T0[e] ??= N0(t)}></div><div class="gd-wash"></div>${i ? l`<i class="gd-gear gd-bag" .innerHTML=${z0}></i><i class="gd-gear gd-cones" .innerHTML=${W0}></i>` : u}</div>`;
+}, Q0 = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], re = (a, t) => (e) => Q0[e.weekday] === a ? 2 * t : t, Vi = (a) => !a.lay?.phone, Io = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, Po = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, Vn = Ot(Ns("gd-bow", z({ dr: 1 }, 46), z(ei, -30), F0) + `<i class="gd-p gd-spray" style="left:${qt(z({ dr: 1 }, 46))};top:${qt(z(ei, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${S0}</svg></i></i>` + Ns("gd-head", z({ dr: 1 }, 46), z(ei, -6), M0)), _0 = [
   { id: "soccer", ms: 5600, move: "gd-st", flip: !1, weight: re("soccer", 4), when: Vi, art: Ot(Aa("soccer")) },
   { id: "punt", ms: 5200, move: "gd-st", flip: !1, weight: re("punt", 4), when: Vi, art: Ot(Aa("rugby")) },
   { id: "torpedo", ms: 3600, move: "gd-st", flip: !1, weight: re("torpedo", 4), when: Vi, art: Ot(Aa("footy")) },
@@ -4876,12 +4911,12 @@ const Gl = {
   { id: "skim", ms: 2400, move: "gd-st", flip: !1, front: !0, lane: !0, weight: re("skim", 4), when: (a) => !!a.lay && !a.lay.phone && (a.lay.strip >= 10 || a.lay.gutter >= 10), art: Ot(Aa("hockey")) },
   { id: "floorball", ms: 9e3, move: "gd-st", flip: !1, weight: re("floorball", 3), art: Ot(Aa("floorball")) },
   /* the surprises: each rare on its own, and together at most one in ten minutes, six a day, none after 6.30 pm (see `rare` below) */
-  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: Po, art: Ot(Ns("gd-flag", md, gd, qd) + Aa("tennis", "gd-knock")) },
-  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => Vi(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: Ot(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${Ad}</svg></i>` + Aa("soccer", "gd-chase")) },
+  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: Po, art: Ot(Ns("gd-flag", m0, g0, q0) + Aa("tennis", "gd-knock")) },
+  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => Vi(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: Ot(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${A0}</svg></i>` + Aa("soccer", "gd-chase")) },
   { id: "sprinkler", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Po(a) && !a.rainy && a.mins >= 360 && a.mins < 450, art: Vn },
   { id: "sprinkler-pm", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Po(a) && !a.rainy && a.mins >= 1050, art: Vn },
-  { id: "marker", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Io(a) && (a.weekday === 6 || a.weekday === 1) && a.mins < 540, art: Ot(`<i class="gd-line"></i><i class="gd-b gd-cart"><svg viewBox="0 0 1 1" width="1" height="1">${Rd}</svg></i>`) },
-  { id: "dog", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Io(a) && (a.weekday === 0 || a.weekday === 6) && a.mins >= 780 && a.mins < 1020, art: Ot(`<i class="gd-b gd-dog"><i class="gd-k"><svg viewBox="0 0 1 1" width="1" height="1">${Vd}</svg></i></i>`) }
+  { id: "marker", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Io(a) && (a.weekday === 6 || a.weekday === 1) && a.mins < 540, art: Ot(`<i class="gd-line"></i><i class="gd-b gd-cart"><svg viewBox="0 0 1 1" width="1" height="1">${R0}</svg></i>`) },
+  { id: "dog", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Io(a) && (a.weekday === 0 || a.weekday === 6) && a.mins >= 780 && a.mins < 1020, art: Ot(`<i class="gd-b gd-dog"><i class="gd-k"><svg viewBox="0 0 1 1" width="1" height="1">${V0}</svg></i></i>`) }
 ], Jl = {
   gap: [2e4, 9e4],
   solo: !0,
@@ -4960,16 +4995,16 @@ const Gl = {
     .gd-l1, .gd-l2, .gd-tail { animation: gd-leg 164ms ease-in-out 14 both; }
     .gd-l1 { transform-origin: 0 -10px; --a: 26deg; } .gd-l2 { transform-origin: 4px -10px; --a: -26deg; } .gd-tail { transform-origin: -14px -16px; --a: -16deg; }
     @keyframes gd-leg { 0%, 100% { transform: rotate(var(--a)); } 50% { transform: rotate(calc(var(--a) * -1)); } }
-    ${wt(ud)}
+    ${wt(u0)}
   `,
-  always: Cd,
-  cast: _d
+  always: C0,
+  cast: _0
 };
 try {
   CSS.registerProperty?.({ name: "--tilt", syntax: "<number>", inherits: !0, initialValue: "1" });
 } catch {
 }
-const jd = { sea: Ms, sunset: Ms, reef: Gl, bush: jl, space: Vs, orbit: Vs, fridge: Ll, sports: Jl }, Ld = /* @__PURE__ */ new Set(["fridge", "orbit", "sports"]), Gd = () => {
+const j0 = { sea: Ms, sunset: Ms, reef: Gl, bush: jl, space: Vs, orbit: Vs, fridge: Ll, sports: Jl }, L0 = /* @__PURE__ */ new Set(["fridge", "orbit", "sports"]), G0 = () => {
   try {
     return String(globalThis.__fhScene ?? "");
   } catch {
@@ -4982,7 +5017,7 @@ const jd = { sea: Ms, sunset: Ms, reef: Gl, bush: jl, space: Vs, orbit: Vs, frid
     };
   }
   get _scene() {
-    return jd[Gd() || (Ld.has(this.look) ? this.look : this.theme)];
+    return j0[G0() || (L0.has(this.look) ? this.look : this.theme)];
   }
   get _ctx() {
     const t = /* @__PURE__ */ new Date();
@@ -5015,10 +5050,10 @@ const jd = { sea: Ms, sunset: Ms, reef: Gl, bush: jl, space: Vs, orbit: Vs, frid
   _measure() {
     const t = this.parentElement, e = this.offsetWidth, i = this.offsetHeight;
     if (!t || !e || !i) return;
-    const o = t.querySelector(":scope > .body"), s = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (x, b) => parseFloat(r.getPropertyValue(x)) || b, p = o ? o.offsetTop : n("--top", 110), d = o ? o.offsetTop + o.offsetHeight : i - n("--bot", 122);
+    const o = t.querySelector(":scope > .body"), s = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (m, b) => parseFloat(r.getPropertyValue(m)) || b, p = o ? o.offsetTop : n("--top", 110), d = o ? o.offsetTop + o.offsetHeight : i - n("--bot", 122);
     if (!s || getComputedStyle(s).position === "fixed") return { w: e, h: i, top: p, bottom: d, dl: 0, dr: e, dt: i, db: i, gutter: 0, strip: 0, corner: 0, phone: !0 };
-    const c = s.offsetLeft, h = c + s.offsetWidth, m = s.offsetTop, f = m + s.offsetHeight;
-    return { w: e, h: i, top: p, bottom: d, dl: c, dr: h, dt: m, db: f, gutter: Math.max(0, m - d), strip: Math.max(0, i - f), corner: Math.max(0, Math.min(c, e - h)), phone: !1 };
+    const c = s.offsetLeft, h = c + s.offsetWidth, f = s.offsetTop, x = f + s.offsetHeight;
+    return { w: e, h: i, top: p, bottom: d, dl: c, dr: h, dt: f, db: x, gutter: Math.max(0, f - d), strip: Math.max(0, i - x), corner: Math.max(0, Math.min(c, e - h)), phone: !1 };
   }
   _remeasure() {
     if (!this._scene?.solo) return;
@@ -5138,7 +5173,7 @@ po.styles = [I`
   `, ...Object.values({ sea: Ms, reef: Gl, bush: jl, space: Vs, fridge: Ll, sports: Jl }).map((t) => t.css)], po.properties = { look: { reflect: !0 }, theme: { reflect: !0 }, tod: {}, calm: { type: Boolean }, hold: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: !0 }, _guest: { state: !0 }, _lay: { state: !0 } };
 let Ts = po;
 customElements.get("fh-ambient") || customElements.define("fh-ambient", Ts);
-const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)", lt = "cubic-bezier(.4,0,1,1)", zs = "#f6b90f", Yd = `
+const Z0 = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)", lt = "cubic-bezier(.4,0,1,1)", zs = "#f6b90f", Y0 = `
 .spk-layer{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout style}
 .spk-fx{position:absolute;transform-origin:0 0;pointer-events:none}
 .spk-fx *{pointer-events:none}
@@ -5184,7 +5219,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
 }), Tn = (a, t, e, i) => {
   const o = a.pal[i % a.pal.length], s = L(8, 12), r = a.look === "orbit";
   return Q(a, t, e, 10, 8, `<path d="M0 2Q5-.5 10 2V5Q5 2.500 0 5z" fill="${r ? "none" : o}" stroke="${r ? o : "none"}"/><path d="M0 5Q5 2.500 10 5L8.500 7.500Q5 5.800 1.500 7.500z" fill="${r ? "none" : `color-mix(in srgb,${o} 68%,#000)`}" stroke="${r ? o : "none"}" stroke-width=".8"/>`, `scale:${(s / 10).toFixed(2)}`);
-}, zi = "M10 1l2.7 5.7 6.2.7-4.6 4.2 1.3 6.1L10 14.6l-5.6 3.1 1.3-6.1L1.1 7.4l6.2-.7z", xe = '<defs><linearGradient id="spk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe98a"/><stop offset=".42" stop-color="#f6b90f"/><stop offset=".56" stop-color="#fff4b8"/><stop offset=".7" stop-color="#f2b20a"/><stop offset="1" stop-color="#cf9004"/></linearGradient></defs>', zn = (a) => a.look === "orbit" ? `<path d="${zi}" fill="none" stroke="var(--ac)" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 6.500v6M7 9.500h6" stroke="var(--ac)" stroke-width="1" stroke-linecap="round" opacity=".7"/>` : `${xe}<path d="${zi}" transform="translate(.9 1.500)" fill="#000" opacity=".2" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="${zi}" fill="#fff" stroke="#fff" stroke-width="3.400" stroke-linejoin="round"/><path d="${zi}" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" stroke-linejoin="round"/><path d="M19.800 7.200l-5.200-.5 2.300 3.600z" fill="#000" opacity=".22"/><path d="M18.900 7.400l-4.500-.6 1.800 3.200c1.500-.3 2.500-1.300 2.700-2.600z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/>`, Bd = '<path class="spk-f" d="M12 25.500C8.500 22 4 14 2.500 6c3.500 1.500 5.800 4.500 6.800 7.500C9.800 8.500 10.800 4 12 .5c1.200 3.500 2.200 8 2.700 13 1-3 3.300-6 6.800-7.500C20 14 15.500 22 12 25.500z"/>', Jd = '<path class="spk-f" d="M13 1C6 1 1.500 6 1.500 13c0 8 6.500 16 9.500 18l-1.500 2.500h7L15 31c3-2 9.500-10 9.500-18C24.500 6 20 1 13 1z"/><path class="spk-sh" d="M21 5c3 6 1 17-7 25.500 5-3.500 10.500-10.500 10.500-17.500 0-3-1.300-6-3.500-8z" opacity=".16"/><path d="M6.500 9c.8-2.800 2.800-4.600 5-5" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" opacity=".8"/><circle cx="6" cy="12.500" r="1" fill="#fff" opacity=".6"/>', Od = '<path class="spk-l" style="stroke-width:1.100" d="M2.500 0c-3 4 3 7 0 12"/>', Xd = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.300 9.500C5 4 9 10 11.800 4.800" fill="none" stroke="#fff" stroke-width="1.700" stroke-linecap="round" opacity=".75"/><path class="spk-sh" d="M3.300 11.300C6.500 7.300 9.500 12 12.300 8" fill="none" stroke="#000" stroke-width="1.300" stroke-linecap="round" opacity=".28"/>', Dd = '<defs><radialGradient id="spk-m" cx=".34" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient></defs><circle class="spk-sh" cx="7" cy="7" r="6.300" fill="url(#spk-m)"/><ellipse cx="4.700" cy="4.200" rx="1.600" ry="1" fill="#fff" transform="rotate(-35 4.700 4.200)"/>', Id = '<path class="spk-f" d="M3.500 17L.5 24h3.500zM14.500 17l3 7H14z"/><path class="spk-f" style="--c:#f4f6fb" d="M9 1C4.500 5 3.500 11 3.500 17v5.500h11V17C14.500 11 13.500 5 9 1z"/><path class="spk-f" d="M9 1C7 2.800 5.800 5 5 7.500h8C12.200 5 11 2.800 9 1z"/><circle class="spk-f" style="--c:#7cc4f0" cx="9" cy="12.500" r="2.400"/><path class="spk-sh" d="M12 4.500c1.800 3.500 2.500 8 2.500 12.500v5.500H12z" opacity=".13"/>', Pd = '<path class="spk-f" style="--c:#ff9d2e" d="M1 0h8c0 4.500-2 8-4 10C3 8 1 4.500 1 0z"/><path d="M3.200 0h3.600c0 2.500-.8 4.500-1.800 5.800C4 4.500 3.200 2.500 3.200 0z" fill="#ffe680"/>', Hd = '<path class="spk-f" d="M0 4.500Q8 1 15.500 4.500V21Q8 18 0 21z"/><path class="spk-f" style="--c:#fffdf5" d="M1.500 3Q8 .3 15.500 3.500V19Q8 16 1.500 18.500z"/><path class="spk-l" style="--c:#9aa3b2;stroke-width:1" d="M4 6.500q4-1.300 9 0M4 9.800q4-1.300 9 0M4 13.100q3-1 6-.4"/>', as = '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round" d="M5.500 0l1.500 4L11 5.500 7 7l-1.500 4L4 7 0 5.500 4 4z"/>', Ed = [6.5, 23.5].map((a) => `<ellipse class="spk-f" cx="${a}" cy="7.500" rx="3.300" ry="3.900"/><ellipse cx="${a}" cy="7.900" rx="1.500" ry="2.100" fill="#6b4a38"/>`).join("") + '<path class="spk-f" d="M15 4.500c5.500 0 9 3.300 10.200 7.800 1.500 5.500-1.700 14.200-10.200 14.200S3.300 17.800 4.800 12.300C6 7.800 9.500 4.500 15 4.500z"/><path class="spk-f" style="--c:#e6cdaa;stroke:none" d="M15 14.500c4 0 7.500 2.500 7.500 6s-3.500 5-7.500 5-7.500-1.500-7.500-5 3.500-6 7.500-6z"/><path class="spk-d" d="M12.300 15.600h5.400c.6 0 .9.700.5 1.200L15.800 19.200c-.4.400-1.200.4-1.600 0L11.800 16.800c-.4-.5-.1-1.200.5-1.200z"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M8.800 19.500c1.500 3.300 5 3.500 6.200.3 1.200 3.200 4.700 3 6.200-.3"/><circle class="spk-d" cx="10.300" cy="12.300" r="1.350"/><circle class="spk-d" cx="19.700" cy="12.300" r="1.350"/><path class="spk-f" style="--c:#6aa84f" d="M20 22.500c2.500-3 6.500-3.300 9-1.200-2 3-6.200 3.700-9 1.200z"/>', tc = '<path class="spk-f" style="--c:#c98f52" d="M9 3.200h16.500a1.800 1.800 0 010 3.600H9z"/><path class="spk-f" style="--c:#cfd6e0" d="M5.500 2.500H9.500v5H5.500z"/><path class="spk-f" d="M5.500 2.300C3 2.300.8 3.500 0 6c2 .9 4 1.500 5.500 1.500z"/>', ac = xe + '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" d="M14 1.500A10 10 0 0014 21.500A14 14 0 0114 1.500z"/><path d="M5.400 10.800q1.200 1.300 2.500 0" fill="none" stroke="#8a5a00" stroke-width="1" stroke-linecap="round"/><path d="M6.300 14.800q1.200.8 2.300 0" fill="none" stroke="#8a5a00" stroke-width=".9" stroke-linecap="round"/><path class="spk-sh" d="M4.500 7c1-2 2.500-3.200 4.500-4" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" opacity=".8"/>', ec = xe + '<path class="spk-f" d="M3 0h6l3 13H7z"/><path class="spk-f" style="--c:color-mix(in srgb,var(--c0) 65%,#000)" d="M11 0h6l-4 13H8z"/><circle class="spk-g" cx="10" cy="20.500" r="8" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".8"/><circle cx="10" cy="20.500" r="5.600" fill="none" stroke="#c98a00" stroke-width=".7" opacity=".7"/><path d="M10 16.300l1.300 2.700 2.900.3-2.200 2 .7 2.900-2.700-1.500-2.700 1.500.7-2.900-2.200-2 2.900-.3z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/><path class="spk-sh" d="M4.500 17.500c1-1.800 2.500-3 4.500-3.500" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round" opacity=".85"/>', ic = '<path class="spk-f" style="--c:#f4dfa8" d="M9 6L7 0l5 4zM15 4.500L16.500 0l2.500 4.500z"/><path class="spk-f" d="M3 27V14C3 8 7.500 4 13 4h4c3 0 5 1.500 7 3.200l5 2.300c2.500 1.200 2.500 5 0 6.200L24 17.500c-2 1.200-4 2-6 2.500l-1 7z"/><circle class="spk-w" cx="15" cy="10.500" r="3.200"/><circle class="spk-d" cx="16" cy="10.800" r="1.500"/><circle class="spk-d" cx="27.500" cy="11.200" r=".9"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M21 15.500c2 .8 4 .6 6-.4"/>', oc = '<path class="spk-f" d="M1 12.500h25v5.500H1z"/><path class="spk-f" d="M26 18V5.500h8.500L41 11v7z"/><path class="spk-w" d="M29 7.500h4.700l4 3.500H29z"/><path class="spk-l" d="M41 16.500h2"/>', sc = '<circle cx="5" cy="5" r="4.200" class="spk-f" style="--c:#3a3d45"/><path class="spk-l" style="--c:#fff;stroke-width:1.300" d="M5 2.200v5.600M2.200 5h5.600"/>', rc = '<path class="spk-f" d="M.8.8h9.400v8.400H.8z"/><path class="spk-l" style="stroke-width:1.100" d="M5.500.8v8.400"/>', nc = '<path class="spk-l" style="stroke-width:2.200" d="M1 10h4M10 10v5a2 2 0 002 2h9a2 2 0 002-2v-5"/><path class="spk-f" d="M5 8.600h20c4 0 8-2.600 10.500-7.600v18c-2.500-5-6.500-7.600-10.500-7.600H5z"/>' + [12, 16.5, 21].map((a) => `<path class="spk-f" d="M${a - 1.4} 3.500h2.800v5h-2.800z"/>`).join(""), $n = '<path class="spk-f" style="--c:#2b2d36" d="M5 3.200h29v4.600H5zM34 3l6-2v9l-6-2zM5 3.600L0 5.500l5 1.900z"/><path class="spk-w" d="M8 3.200h1.300v4.600H8zM30.500 3.200h1.300v4.600h-1.300z"/>' + [12, 15.5, 19, 23, 26.5].map((a) => `<circle class="spk-w" cx="${a}" cy="5.500" r="1"/>`).join(""), lc = '<path class="spk-l" style="stroke-width:1.500" d="M6.300 10V1.500l3.200 1.800"/><ellipse class="spk-f" cx="3.800" cy="10.200" rx="2.900" ry="2.200" transform="rotate(-20 3.800 10.200)"/>', Xl = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.600 2.600c2.800 2.400 2.800 6.400 0 8.800M11.400 2.600c-2.800 2.400-2.800 6.400 0 8.800" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round"/>', pc = '<path class="spk-l" style="--c:var(--ink);opacity:.45;stroke-width:1.500" d="M-16 9h9M-20 14.500h11M-14 20h7"/><path class="spk-f" d="M24.500 5.500l-9 1.200 6.500 3.300z"/><path class="spk-l" style="stroke-width:2.600" d="M6 19.500h18.500L28.500 20M27.800 19.500L24 3.500M20.500 3.500h7"/><path class="spk-l" style="stroke-width:1.500" d="M1.500 17.500c1-2.500 4.500-3 6.500-1"/><circle class="spk-f" style="--c:#3a3d45" cx="5" cy="21" r="3.200"/><circle class="spk-f" style="--c:#3a3d45" cx="29" cy="21" r="3.200"/>', dc = '<path class="spk-f" d="M14 4c0-4 6-5 8.500-1.500-3.500 0-4.500 2-5.500 4z"/><path class="spk-f" style="--c:#b9c2cf" d="M4 31v-8c0-3 3-5.500 6-5.500h8c3 0 6 2.500 6 5.500v8z"/><path class="spk-f" style="--c:#cfd6e0" d="M6 18v-5.500a8 8 0 0116 0V18z"/><path class="spk-d" d="M8.500 11.500h11v2.200h-11z"/><path class="spk-f" d="M1 20h9.500v5c0 3-2.700 5.200-4.700 6.200C3.700 30.200 1 28 1 25z"/><path d="M3.500 23.500l2.300 2.300 2.300-2.300" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" stroke-linejoin="round"/>', cc = '<path class="spk-f" style="--c:#b9c2cf" d="M.7 2.500a2 2 0 014 0V11a2 2 0 01-4 0z"/>', Wn = '<path class="spk-l" style="--c:var(--ink);stroke-width:2" d="M7 1C3.500 4 3.500 10 7 13M2.500 3.500c-2 2.500-2 5 0 7"/>', hc = {
+}, zi = "M10 1l2.7 5.7 6.2.7-4.6 4.2 1.3 6.1L10 14.6l-5.6 3.1 1.3-6.1L1.1 7.4l6.2-.7z", xe = '<defs><linearGradient id="spk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe98a"/><stop offset=".42" stop-color="#f6b90f"/><stop offset=".56" stop-color="#fff4b8"/><stop offset=".7" stop-color="#f2b20a"/><stop offset="1" stop-color="#cf9004"/></linearGradient></defs>', zn = (a) => a.look === "orbit" ? `<path d="${zi}" fill="none" stroke="var(--ac)" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 6.500v6M7 9.500h6" stroke="var(--ac)" stroke-width="1" stroke-linecap="round" opacity=".7"/>` : `${xe}<path d="${zi}" transform="translate(.9 1.500)" fill="#000" opacity=".2" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="${zi}" fill="#fff" stroke="#fff" stroke-width="3.400" stroke-linejoin="round"/><path d="${zi}" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" stroke-linejoin="round"/><path d="M19.800 7.200l-5.200-.5 2.300 3.600z" fill="#000" opacity=".22"/><path d="M18.900 7.400l-4.500-.6 1.800 3.200c1.500-.3 2.500-1.300 2.700-2.600z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/>`, B0 = '<path class="spk-f" d="M12 25.500C8.500 22 4 14 2.500 6c3.500 1.500 5.800 4.500 6.800 7.500C9.800 8.500 10.800 4 12 .5c1.200 3.500 2.200 8 2.700 13 1-3 3.300-6 6.800-7.500C20 14 15.500 22 12 25.500z"/>', J0 = '<path class="spk-f" d="M13 1C6 1 1.500 6 1.500 13c0 8 6.500 16 9.500 18l-1.500 2.500h7L15 31c3-2 9.500-10 9.500-18C24.500 6 20 1 13 1z"/><path class="spk-sh" d="M21 5c3 6 1 17-7 25.500 5-3.500 10.500-10.500 10.500-17.500 0-3-1.300-6-3.500-8z" opacity=".16"/><path d="M6.500 9c.8-2.800 2.800-4.600 5-5" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" opacity=".8"/><circle cx="6" cy="12.500" r="1" fill="#fff" opacity=".6"/>', O0 = '<path class="spk-l" style="stroke-width:1.100" d="M2.500 0c-3 4 3 7 0 12"/>', X0 = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.300 9.500C5 4 9 10 11.800 4.800" fill="none" stroke="#fff" stroke-width="1.700" stroke-linecap="round" opacity=".75"/><path class="spk-sh" d="M3.300 11.300C6.500 7.300 9.500 12 12.300 8" fill="none" stroke="#000" stroke-width="1.300" stroke-linecap="round" opacity=".28"/>', D0 = '<defs><radialGradient id="spk-m" cx=".34" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient></defs><circle class="spk-sh" cx="7" cy="7" r="6.300" fill="url(#spk-m)"/><ellipse cx="4.700" cy="4.200" rx="1.600" ry="1" fill="#fff" transform="rotate(-35 4.700 4.200)"/>', I0 = '<path class="spk-f" d="M3.500 17L.5 24h3.500zM14.500 17l3 7H14z"/><path class="spk-f" style="--c:#f4f6fb" d="M9 1C4.500 5 3.500 11 3.500 17v5.500h11V17C14.500 11 13.500 5 9 1z"/><path class="spk-f" d="M9 1C7 2.800 5.800 5 5 7.500h8C12.200 5 11 2.800 9 1z"/><circle class="spk-f" style="--c:#7cc4f0" cx="9" cy="12.500" r="2.400"/><path class="spk-sh" d="M12 4.500c1.800 3.500 2.500 8 2.500 12.500v5.500H12z" opacity=".13"/>', P0 = '<path class="spk-f" style="--c:#ff9d2e" d="M1 0h8c0 4.500-2 8-4 10C3 8 1 4.500 1 0z"/><path d="M3.200 0h3.600c0 2.500-.8 4.500-1.800 5.800C4 4.500 3.200 2.500 3.200 0z" fill="#ffe680"/>', H0 = '<path class="spk-f" d="M0 4.500Q8 1 15.500 4.500V21Q8 18 0 21z"/><path class="spk-f" style="--c:#fffdf5" d="M1.500 3Q8 .3 15.500 3.500V19Q8 16 1.500 18.500z"/><path class="spk-l" style="--c:#9aa3b2;stroke-width:1" d="M4 6.500q4-1.300 9 0M4 9.800q4-1.300 9 0M4 13.100q3-1 6-.4"/>', as = '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round" d="M5.500 0l1.500 4L11 5.500 7 7l-1.500 4L4 7 0 5.500 4 4z"/>', E0 = [6.5, 23.5].map((a) => `<ellipse class="spk-f" cx="${a}" cy="7.500" rx="3.300" ry="3.900"/><ellipse cx="${a}" cy="7.900" rx="1.500" ry="2.100" fill="#6b4a38"/>`).join("") + '<path class="spk-f" d="M15 4.500c5.500 0 9 3.300 10.200 7.800 1.500 5.500-1.700 14.200-10.200 14.200S3.300 17.800 4.800 12.300C6 7.800 9.500 4.500 15 4.500z"/><path class="spk-f" style="--c:#e6cdaa;stroke:none" d="M15 14.500c4 0 7.500 2.500 7.500 6s-3.500 5-7.500 5-7.500-1.500-7.500-5 3.500-6 7.500-6z"/><path class="spk-d" d="M12.300 15.600h5.400c.6 0 .9.700.5 1.200L15.800 19.200c-.4.400-1.200.4-1.600 0L11.800 16.800c-.4-.5-.1-1.200.5-1.200z"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M8.800 19.500c1.500 3.300 5 3.500 6.200.3 1.200 3.200 4.700 3 6.200-.3"/><circle class="spk-d" cx="10.300" cy="12.300" r="1.350"/><circle class="spk-d" cx="19.700" cy="12.300" r="1.350"/><path class="spk-f" style="--c:#6aa84f" d="M20 22.500c2.500-3 6.500-3.300 9-1.200-2 3-6.200 3.700-9 1.200z"/>', tc = '<path class="spk-f" style="--c:#c98f52" d="M9 3.200h16.500a1.800 1.800 0 010 3.600H9z"/><path class="spk-f" style="--c:#cfd6e0" d="M5.500 2.500H9.500v5H5.500z"/><path class="spk-f" d="M5.500 2.300C3 2.300.8 3.500 0 6c2 .9 4 1.500 5.500 1.500z"/>', ac = xe + '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" d="M14 1.500A10 10 0 0014 21.500A14 14 0 0114 1.500z"/><path d="M5.400 10.800q1.200 1.300 2.500 0" fill="none" stroke="#8a5a00" stroke-width="1" stroke-linecap="round"/><path d="M6.300 14.800q1.200.8 2.300 0" fill="none" stroke="#8a5a00" stroke-width=".9" stroke-linecap="round"/><path class="spk-sh" d="M4.500 7c1-2 2.500-3.200 4.500-4" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" opacity=".8"/>', ec = xe + '<path class="spk-f" d="M3 0h6l3 13H7z"/><path class="spk-f" style="--c:color-mix(in srgb,var(--c0) 65%,#000)" d="M11 0h6l-4 13H8z"/><circle class="spk-g" cx="10" cy="20.500" r="8" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".8"/><circle cx="10" cy="20.500" r="5.600" fill="none" stroke="#c98a00" stroke-width=".7" opacity=".7"/><path d="M10 16.300l1.300 2.700 2.900.3-2.200 2 .7 2.900-2.700-1.500-2.700 1.500.7-2.900-2.200-2 2.900-.3z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/><path class="spk-sh" d="M4.500 17.500c1-1.800 2.500-3 4.500-3.500" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round" opacity=".85"/>', ic = '<path class="spk-f" style="--c:#f4dfa8" d="M9 6L7 0l5 4zM15 4.500L16.500 0l2.500 4.500z"/><path class="spk-f" d="M3 27V14C3 8 7.500 4 13 4h4c3 0 5 1.500 7 3.200l5 2.300c2.500 1.200 2.500 5 0 6.200L24 17.500c-2 1.200-4 2-6 2.500l-1 7z"/><circle class="spk-w" cx="15" cy="10.500" r="3.200"/><circle class="spk-d" cx="16" cy="10.800" r="1.500"/><circle class="spk-d" cx="27.500" cy="11.200" r=".9"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M21 15.500c2 .8 4 .6 6-.4"/>', oc = '<path class="spk-f" d="M1 12.500h25v5.500H1z"/><path class="spk-f" d="M26 18V5.500h8.500L41 11v7z"/><path class="spk-w" d="M29 7.500h4.700l4 3.500H29z"/><path class="spk-l" d="M41 16.500h2"/>', sc = '<circle cx="5" cy="5" r="4.200" class="spk-f" style="--c:#3a3d45"/><path class="spk-l" style="--c:#fff;stroke-width:1.300" d="M5 2.200v5.600M2.200 5h5.600"/>', rc = '<path class="spk-f" d="M.8.8h9.400v8.400H.8z"/><path class="spk-l" style="stroke-width:1.100" d="M5.500.8v8.400"/>', nc = '<path class="spk-l" style="stroke-width:2.200" d="M1 10h4M10 10v5a2 2 0 002 2h9a2 2 0 002-2v-5"/><path class="spk-f" d="M5 8.600h20c4 0 8-2.600 10.500-7.600v18c-2.500-5-6.500-7.600-10.500-7.600H5z"/>' + [12, 16.5, 21].map((a) => `<path class="spk-f" d="M${a - 1.4} 3.500h2.800v5h-2.800z"/>`).join(""), $n = '<path class="spk-f" style="--c:#2b2d36" d="M5 3.200h29v4.600H5zM34 3l6-2v9l-6-2zM5 3.600L0 5.500l5 1.900z"/><path class="spk-w" d="M8 3.200h1.300v4.600H8zM30.500 3.200h1.300v4.600h-1.300z"/>' + [12, 15.5, 19, 23, 26.5].map((a) => `<circle class="spk-w" cx="${a}" cy="5.500" r="1"/>`).join(""), lc = '<path class="spk-l" style="stroke-width:1.500" d="M6.300 10V1.500l3.200 1.800"/><ellipse class="spk-f" cx="3.800" cy="10.200" rx="2.900" ry="2.200" transform="rotate(-20 3.800 10.200)"/>', Xl = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.600 2.600c2.800 2.400 2.800 6.400 0 8.800M11.400 2.600c-2.800 2.400-2.800 6.400 0 8.800" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round"/>', pc = '<path class="spk-l" style="--c:var(--ink);opacity:.45;stroke-width:1.500" d="M-16 9h9M-20 14.500h11M-14 20h7"/><path class="spk-f" d="M24.500 5.500l-9 1.200 6.500 3.300z"/><path class="spk-l" style="stroke-width:2.600" d="M6 19.500h18.500L28.500 20M27.800 19.500L24 3.500M20.500 3.500h7"/><path class="spk-l" style="stroke-width:1.500" d="M1.500 17.500c1-2.500 4.500-3 6.500-1"/><circle class="spk-f" style="--c:#3a3d45" cx="5" cy="21" r="3.200"/><circle class="spk-f" style="--c:#3a3d45" cx="29" cy="21" r="3.200"/>', dc = '<path class="spk-f" d="M14 4c0-4 6-5 8.500-1.500-3.500 0-4.500 2-5.500 4z"/><path class="spk-f" style="--c:#b9c2cf" d="M4 31v-8c0-3 3-5.500 6-5.500h8c3 0 6 2.500 6 5.500v8z"/><path class="spk-f" style="--c:#cfd6e0" d="M6 18v-5.500a8 8 0 0116 0V18z"/><path class="spk-d" d="M8.500 11.500h11v2.200h-11z"/><path class="spk-f" d="M1 20h9.500v5c0 3-2.700 5.200-4.700 6.200C3.700 30.200 1 28 1 25z"/><path d="M3.500 23.500l2.300 2.300 2.300-2.300" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" stroke-linejoin="round"/>', cc = '<path class="spk-f" style="--c:#b9c2cf" d="M.7 2.500a2 2 0 014 0V11a2 2 0 01-4 0z"/>', Wn = '<path class="spk-l" style="--c:var(--ink);stroke-width:2" d="M7 1C3.500 4 3.500 10 7 13M2.500 3.500c-2 2.500-2 5 0 7"/>', hc = {
   tick(a) {
     const t = a.W / 2, e = a.H / 2;
     if (a.calm) {
@@ -5218,7 +5253,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     if (i === "fridge") {
       const s = o ? 3 : 5, r = o ? 24 : Tt(e * 0.36, 26, 36);
       for (let n = 0; n < s; n++) {
-        const p = L(-20, 20), d = Q(a, t * (n + 1) / (s + 1) - r / 2 + L(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, zn(a)), c = (h, m) => `rotate(${p + h}deg) scale(${m})`;
+        const p = L(-20, 20), d = Q(a, t * (n + 1) / (s + 1) - r / 2 + L(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, zn(a)), c = (h, f) => `rotate(${p + h}deg) scale(${f})`;
         d.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? y(a, d, F([[c(0, "1"), 0], [c(0, "1"), 1, 0.25], [c(0, "1"), 1, 0.7], [c(0, "1"), 0]]), 800) : y(a, d, F([[c(14, "2.3"), 0], [c(10, "2.1"), 1, 0.07, lt], [c(0, ".86,.9"), 1, 0.17, "ease-out"], [c(-2, "1.06"), 1, 0.25, "ease-in-out"], [c(0, "1"), 1, 0.33], [c(0, "1"), 1, 0.82], [c(0, "1"), 0]]), 1e3 - n * 105, n * 105 + L(0, 20));
       }
     } else if (i === "orbit") {
@@ -5261,8 +5296,8 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     }
   },
   marble(a) {
-    const t = a.kid, e = a.W / 2 - 7, i = Math.min(a.H * 0.3, 16) - 7, o = _(a, `left:${e}px;top:${i}px;width:14px;height:14px;--c:${t}`), s = Q(a, 0, 0, 14, 14, Xd, "transform-origin:50% 50%", o, !1);
-    if (Q(a, 0, 0, 14, 14, Dd, "", o, !1), a.calm) {
+    const t = a.kid, e = a.W / 2 - 7, i = Math.min(a.H * 0.3, 16) - 7, o = _(a, `left:${e}px;top:${i}px;width:14px;height:14px;--c:${t}`), s = Q(a, 0, 0, 14, 14, X0, "transform-origin:50% 50%", o, !1);
+    if (Q(a, 0, 0, 14, 14, D0, "", o, !1), a.calm) {
       y(a, o, Z(), 520);
       return;
     }
@@ -5295,20 +5330,20 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     } else if (i === "fridge")
       Pe(a, [0, -5, 5, -4, 4, 0], 600), [-1, 1].forEach((o) => y(a, Q(a, o < 0 ? -12 : t + 3, -4, 9, 14, Wn, o > 0 ? "scale:-1 1" : ""), F([["translateY(2px)", 0], ["translateY(0)", 1, 0.25], ["translateY(0)", 1, 0.7], ["translateY(-2px)", 0]]), 600));
     else {
-      const s = t + 8, r = e + 8, n = 2 * (s + r), p = s / n, d = (s + r) / n, c = (2 * s + r) / n, h = 0.74, m = (f, x, b, w) => y(a, _(a, f + ";background:var(--ac)"), F([[`scale${x}(0)`, 1], [`scale${x}(0)`, 1, b * h], [`scale${x}(1)`, 1, w * h], [`scale${x}(1)`, 1, 0.84], [`scale${x}(1)`, 0]]), 900);
-      m(`left:-4px;top:-4px;width:${s}px;height:1.5px;transform-origin:0 50%`, "X", 0, p), m(`left:${t + 4 - 1.5}px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 0`, "Y", p, d), m(`left:-4px;top:${e + 4 - 1.5}px;width:${s}px;height:1.5px;transform-origin:100% 50%`, "X", d, c), m(`left:-4px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 100%`, "Y", c, 1), y(a, X(a, -4, -4, 5, "background:#fff"), F([["translate(0,0)", 1], [`translate(${s}px,0)`, 1, p * h], [`translate(${s}px,${r}px)`, 1, d * h], [`translate(0,${r}px)`, 1, c * h], ["translate(0,0)", 1, h], ["translate(0,0)", 0, h + 0.08], ["translate(0,0)", 0]]), 900);
+      const s = t + 8, r = e + 8, n = 2 * (s + r), p = s / n, d = (s + r) / n, c = (2 * s + r) / n, h = 0.74, f = (x, m, b, k) => y(a, _(a, x + ";background:var(--ac)"), F([[`scale${m}(0)`, 1], [`scale${m}(0)`, 1, b * h], [`scale${m}(1)`, 1, k * h], [`scale${m}(1)`, 1, 0.84], [`scale${m}(1)`, 0]]), 900);
+      f(`left:-4px;top:-4px;width:${s}px;height:1.5px;transform-origin:0 50%`, "X", 0, p), f(`left:${t + 4 - 1.5}px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 0`, "Y", p, d), f(`left:-4px;top:${e + 4 - 1.5}px;width:${s}px;height:1.5px;transform-origin:100% 50%`, "X", d, c), f(`left:-4px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 100%`, "Y", c, 1), y(a, X(a, -4, -4, 5, "background:#fff"), F([["translate(0,0)", 1], [`translate(${s}px,0)`, 1, p * h], [`translate(${s}px,${r}px)`, 1, d * h], [`translate(0,${r}px)`, 1, c * h], ["translate(0,0)", 1, h], ["translate(0,0)", 0, h + 0.08], ["translate(0,0)", 0]]), 900);
     }
   },
   party(a) {
     const t = a.W / 2, e = a.kid;
     if (a.o.burst) {
       for (let d = 0; d < 12; d++) {
-        const c = (d * 30 + L(-13, 13)) * Math.PI / 180, h = L(70, 150), m = Tn(a, t - 5, -36, d);
-        a.calm ? (m.style.translate = `${Math.cos(c) * h * 0.25}px ${Math.sin(c) * h * 0.2}px`, y(a, m, Z(), 700)) : y(a, m, Ti(Math.cos(c) * h, Math.sin(c) * h * 0.8 - 70, 560, 0.9, L(-300, 300), L(0.8, 1.6)), 850, L(0, 50));
+        const c = (d * 30 + L(-13, 13)) * Math.PI / 180, h = L(70, 150), f = Tn(a, t - 5, -36, d);
+        a.calm ? (f.style.translate = `${Math.cos(c) * h * 0.25}px ${Math.sin(c) * h * 0.2}px`, y(a, f, Z(), 700)) : y(a, f, Ti(Math.cos(c) * h, Math.sin(c) * h * 0.8 - 70, 560, 0.9, L(-300, 300), L(0.8, 1.6)), 850, L(0, 50));
       }
       return;
     }
-    const i = Tt(a.o.ms ?? 4200, 600, 2e4), o = 700 + i + 500, s = _(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(o / 1370)), n = _(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, oo(26, 34, Jd), s, !1), p = Q(a, 10.5, 33.5, 5, 13, Od, "transform-origin:50% 0", n, !1);
+    const i = Tt(a.o.ms ?? 4200, 600, 2e4), o = 700 + i + 500, s = _(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(o / 1370)), n = _(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, oo(26, 34, J0), s, !1), p = Q(a, 10.5, 33.5, 5, 13, O0, "transform-origin:50% 0", n, !1);
     if (a.calm) {
       y(a, s, [{ opacity: 0 }, { opacity: 1, offset: 300 / o }, { opacity: 1, offset: 1 - 400 / o }, { opacity: 0 }], o);
       return;
@@ -5320,8 +5355,8 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     Ia(a);
     const { W: t, H: e } = a, i = a.o.soft ? 3 : 5, o = t * 0.1, s = t * 0.9, r = e * 0.7, n = e * 0.36, p = Math.atan2(n - r, (s - o) * a.dir) * 180 / Math.PI + 90, d = a.look === "glass" ? `color-mix(in srgb,${a.kid} 70%,transparent)` : a.look === "fridge" ? "#9a6a3a" : "var(--ok)";
     for (let c = 0; c < i; c++) {
-      const h = i > 1 ? c / (i - 1) : 0.5, m = c % 2 ? 1 : -1, f = p + m * 9, x = (a.dir > 0 ? o + (s - o) * h : s - (s - o) * h) - 10, b = r + (n - r) * h - 11 + m * 7, w = Q(a, x - 2, b - 3, 24, 26, Bd, `--c:${d};transform-origin:50% 70%`);
-      a.look === "glass" && w.querySelectorAll(".spk-f").forEach((k) => k.setAttribute("style", "stroke:none")), a.calm ? y(a, w, F([[`rotate(${f}deg)`, 0], [`rotate(${f}deg)`, 0.9, 0.25], [`rotate(${f}deg)`, 0.9, 0.7], [`rotate(${f}deg)`, 0]]), 800) : y(a, w, F([[`rotate(${f}deg) scale(1.7)`, 0], [`rotate(${f}deg) scale(.92)`, 0.95, 0.2, lt], [`rotate(${f}deg) scale(1)`, 0.9, 0.3], [`rotate(${f}deg) scale(1)`, 0.85, 0.7], [`rotate(${f}deg) scale(1)`, 0]]), 700, c * 115);
+      const h = i > 1 ? c / (i - 1) : 0.5, f = c % 2 ? 1 : -1, x = p + f * 9, m = (a.dir > 0 ? o + (s - o) * h : s - (s - o) * h) - 10, b = r + (n - r) * h - 11 + f * 7, k = Q(a, m - 2, b - 3, 24, 26, B0, `--c:${d};transform-origin:50% 70%`);
+      a.look === "glass" && k.querySelectorAll(".spk-f").forEach((w) => w.setAttribute("style", "stroke:none")), a.calm ? y(a, k, F([[`rotate(${x}deg)`, 0], [`rotate(${x}deg)`, 0.9, 0.25], [`rotate(${x}deg)`, 0.9, 0.7], [`rotate(${x}deg)`, 0]]), 800) : y(a, k, F([[`rotate(${x}deg) scale(1.7)`, 0], [`rotate(${x}deg) scale(.92)`, 0.95, 0.2, lt], [`rotate(${x}deg) scale(1)`, 0.9, 0.3], [`rotate(${x}deg) scale(1)`, 0.85, 0.7], [`rotate(${x}deg) scale(1)`, 0]]), 700, c * 115);
     }
   },
   puff(a) {
@@ -5336,32 +5371,32 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
   },
   truck(a) {
     Ia(a);
-    const { W: t, H: e } = a, i = a.dir, o = t / 2 - 14, s = t + 12, r = e - 25, n = 1180, p = (k) => i > 0 ? k : t - 44 - k, d = (k) => `translateX(${i * k}px)`, c = _(a, `left:${p(0)}px;top:${r}px;width:44px;height:24px`), h = _(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", c, !1), m = Q(a, 0, 0, 44, 24, oc, "--c:var(--pr)", h, !1), f = [5, 28].map((k) => Q(a, k, 14, 10, 10, sc, "transform-origin:50% 50%", h, !1)), x = Q(a, 7, 3.5, 11, 10, rc, "--c:var(--ac);transform-origin:50% 50%", h);
+    const { W: t, H: e } = a, i = a.dir, o = t / 2 - 14, s = t + 12, r = e - 25, n = 1180, p = (w) => i > 0 ? w : t - 44 - w, d = (w) => `translateX(${i * w}px)`, c = _(a, `left:${p(0)}px;top:${r}px;width:44px;height:24px`), h = _(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", c, !1), f = Q(a, 0, 0, 44, 24, oc, "--c:var(--pr)", h, !1), x = [5, 28].map((w) => Q(a, w, 14, 10, 10, sc, "transform-origin:50% 50%", h, !1)), m = Q(a, 7, 3.5, 11, 10, rc, "--c:var(--ac);transform-origin:50% 50%", h);
     if (a.calm) {
-      c.style.translate = `${p(o) - p(0)}px 0`, y(a, c, Z(), 800), x.style.opacity = "1", x.removeAttribute("data-p");
+      c.style.translate = `${p(o) - p(0)}px 0`, y(a, c, Z(), 800), m.style.opacity = "1", m.removeAttribute("data-p");
       return;
     }
-    const b = 0.36, w = 0.56;
-    y(a, c, [{ transform: d(-50), opacity: 1, easing: at }, { transform: d(o), opacity: 1, offset: b }, { transform: d(o), opacity: 1, offset: w, easing: lt }, { transform: d(s), opacity: 1 }], n), y(a, x, [
+    const b = 0.36, k = 0.56;
+    y(a, c, [{ transform: d(-50), opacity: 1, easing: at }, { transform: d(o), opacity: 1, offset: b }, { transform: d(o), opacity: 1, offset: k, easing: lt }, { transform: d(s), opacity: 1 }], n), y(a, m, [
       { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
       { transform: "translate(0,0) rotate(0deg)", offset: b, easing: "ease-out" },
-      { transform: "translate(-9px,-8px) rotate(-50deg)", offset: (b + w) / 2, easing: "ease-in" },
-      { transform: "translate(-17px,9px) rotate(-90deg)", offset: w, easing: lt },
+      { transform: "translate(-9px,-8px) rotate(-50deg)", offset: (b + k) / 2, easing: "ease-in" },
+      { transform: "translate(-17px,9px) rotate(-90deg)", offset: k, easing: lt },
       { opacity: 1, offset: 0.86 },
       { transform: `translate(${-17 - (s - o)}px,9px) rotate(-90deg)`, opacity: 0 }
-    ], n), f.forEach((k) => y(a, k, [{ transform: "rotate(0deg)", opacity: 1, easing: at }, { transform: "rotate(500deg)", offset: b }, { transform: "rotate(500deg)", offset: w, easing: lt }, { transform: "rotate(1100deg)", opacity: 1 }], n)), y(a, m, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((k, v) => y(a, X(a, p(o) + (i > 0 ? 0 : 44), e - 5, 7 + v * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), F([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * w + k, at));
+    ], n), x.forEach((w) => y(a, w, [{ transform: "rotate(0deg)", opacity: 1, easing: at }, { transform: "rotate(500deg)", offset: b }, { transform: "rotate(500deg)", offset: k, easing: lt }, { transform: "rotate(1100deg)", opacity: 1 }], n)), y(a, f, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((w, v) => y(a, X(a, p(o) + (i > 0 ? 0 : 44), e - 5, 7 + v * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), F([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * k + w, at));
   },
   tada(a) {
     const t = a.o.variant === "clarinet", e = a.dir, i = t ? 40 : 37, o = t ? 11 : 20, s = e > 0 ? a.W * 0.6 - i / 2 : a.W * 0.4 - i / 2, r = -o / 2 - 2, n = t ? -22 : -14, p = _(a, `left:${s}px;top:${r}px;width:${i}px;height:${o}px;transform-origin:${e > 0 ? 0 : 100}% 50%`);
     Q(a, 0, 0, i, o, t ? a.look === "orbit" ? $n.replace("#2b2d36", "var(--pr)") : $n : nc, `--c:${zs};${e < 0 ? "scale:-1 1" : ""}`, p, !1);
-    const d = (f, x = 1) => `rotate(${e * n * x}deg) scale(${f})`;
+    const d = (x, m = 1) => `rotate(${e * n * m}deg) scale(${x})`;
     if (a.calm) {
       y(a, p, F([[d(1), 0], [d(1), 1, 0.25], [d(1), 1, 0.7], [d(1), 0]]), 900);
       return;
     }
     y(a, p, F([[d(0.3, 2.2), 0], [d(1.1), 1, 0.16], [d(1), 1, 0.24], [d(1.14, 1.3), 1, 0.36], [d(1), 1, 0.48], [d(1.14, 1.3), 1, 0.6], [d(1), 1, 0.72], [d(1), 1, 0.86], [d(0.85, 0.4), 0]]), 1050);
-    const c = e > 0 ? s + i + 1 : s - 12, h = r + o / 2 + Math.sin(n * Math.PI / 180) * i - 8, m = [a.kid, "var(--ac)", "var(--ok)"];
-    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([f, x, b], w) => y(a, Q(a, c, h, 10, 13, lc, `--c:${a.look === "fridge" ? "var(--ink)" : m[w]}`), F([["translate(0,0) scale(.3)", 0], [`translate(${e * f * 0.55}px,${x * 0.6}px) rotate(${b}deg) scale(1)`, 1, 0.35], [`translate(${e * f * 0.85}px,${x * 0.9}px) rotate(${b}deg) scale(1)`, 1, 0.7], [`translate(${e * f}px,${x - 4}px) rotate(${b * 1.4}deg) scale(.9)`, 0]]), 560, 250 + w * 130, at));
+    const c = e > 0 ? s + i + 1 : s - 12, h = r + o / 2 + Math.sin(n * Math.PI / 180) * i - 8, f = [a.kid, "var(--ac)", "var(--ok)"];
+    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([x, m, b], k) => y(a, Q(a, c, h, 10, 13, lc, `--c:${a.look === "fridge" ? "var(--ink)" : f[k]}`), F([["translate(0,0) scale(.3)", 0], [`translate(${e * x * 0.55}px,${m * 0.6}px) rotate(${b}deg) scale(1)`, 1, 0.35], [`translate(${e * x * 0.85}px,${m * 0.9}px) rotate(${b}deg) scale(1)`, 1, 0.7], [`translate(${e * x}px,${m - 4}px) rotate(${b * 1.4}deg) scale(.9)`, 0]]), 560, 250 + k * 130, at));
   },
   bounce(a) {
     const t = a.dir, e = Tt(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), o = _(a, `left:${i}px;top:-12px;width:14px;height:14px`), s = _(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", o, !1), r = Q(a, 0, 0, 14, 14, Xl, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, o, !1);
@@ -5370,7 +5405,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
       return;
     }
     y(a, o, F([["translateX(0)", 0], [`translateX(${t * e * 0.08}px)`, 1, 0.08], [`translateX(${t * e * 0.86}px)`, 1, 0.86], [`translateX(${t * e}px)`, 0]]), 1080);
-    const n = (d, c, h, m) => ({ transform: `translateY(${-d}px) rotate(${t * c}deg)`, offset: h, ...m ? { easing: m } : {} });
+    const n = (d, c, h, f) => ({ transform: `translateY(${-d}px) rotate(${t * c}deg)`, offset: h, ...f ? { easing: f } : {} });
     y(a, r, [n(26, 0, 0, "ease-in"), n(0, 150, 0.2, "ease-out"), n(17, 290, 0.37, "ease-in"), n(0, 420, 0.54, "ease-out"), n(8, 520, 0.66, "ease-in"), n(0, 610, 0.78), n(0, 760, 1)], 1080);
     const p = (d, c, h) => ({ transform: `scaleX(${d})`, opacity: d, offset: c, ...h ? { easing: h } : {} });
     y(a, s, [p(0.3, 0, "ease-in"), p(1, 0.2, "ease-out"), p(0.5, 0.37, "ease-in"), p(1, 0.54, "ease-out"), p(0.75, 0.66, "ease-in"), p(1, 0.78), p(1, 1)], 1080);
@@ -5407,8 +5442,8 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     y(a, i, F([["translateY(32px)", 1], ["translateY(0)", 1, 0.24, "ease-out"], ["translateY(2px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, lt], ["translateY(32px)", 1]]), 1180, 0, na), y(a, o, [{ transform: "rotate(0deg)" }, { transform: "rotate(0deg)", offset: 0.32, easing: na }, { transform: "rotate(-200deg)", offset: 0.46 }, { transform: "rotate(-200deg)", offset: 0.72, easing: "ease-in" }, { transform: "rotate(0deg)", offset: 0.82 }, { transform: "rotate(0deg)" }], 1180, 0, "linear", { fill: "none" });
   },
   rocket(a) {
-    const t = a.W / 2, e = _(a, `left:${t - 9}px;top:-25px;width:18px;height:25px;transform-origin:50% 100%`), i = Q(a, 4, 21.5, 10, 10, Pd, "transform-origin:50% 0", e, !1);
-    if (Q(a, 0, 0, 18, 25, Id, "", e, !1), a.calm) {
+    const t = a.W / 2, e = _(a, `left:${t - 9}px;top:-25px;width:18px;height:25px;transform-origin:50% 100%`), i = Q(a, 4, 21.5, 10, 10, P0, "transform-origin:50% 0", e, !1);
+    if (Q(a, 0, 0, 18, 25, I0, "", e, !1), a.calm) {
       i.style.opacity = "0", y(a, e, Z(), 800);
       return;
     }
@@ -5417,7 +5452,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     [[-1, 9], [1, 11], [-1, 7], [1, 8]].forEach(([s, r], n) => y(a, X(a, t + s * 3, -3, r, o), F([["translate(0,0) scale(.2)", 0, 0, at], [`translate(${s * (8 + n * 2)}px,${-1 - n}px) scale(1)`, 0.95, 0.4], [`translate(${s * (15 + n * 3)}px,${-5 - n * 2}px) scale(1.3)`, 0]]), 520, 230 + n * 85));
   },
   book(a) {
-    const t = a.dir, e = t > 0 ? a.W * 0.62 - 16 : a.W * 0.38 - 16, i = _(a, `left:${e}px;top:-15px;width:32px;height:22px;transform-origin:50% 100%;--c:${a.kid}`), o = [1, -1].map((s) => Q(a, s > 0 ? 16 : 0.5, 0, 15.5, 22, Hd, `transform-origin:${s > 0 ? 0 : 100}% 50%`, i, !1));
+    const t = a.dir, e = t > 0 ? a.W * 0.62 - 16 : a.W * 0.38 - 16, i = _(a, `left:${e}px;top:-15px;width:32px;height:22px;transform-origin:50% 100%;--c:${a.kid}`), o = [1, -1].map((s) => Q(a, s > 0 ? 16 : 0.5, 0, 15.5, 22, H0, `transform-origin:${s > 0 ? 0 : 100}% 50%`, i, !1));
     if (o[1].firstElementChild.style.scale = "-1 1", a.calm) {
       y(a, i, Z(), 900);
       return;
@@ -5425,7 +5460,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
     y(a, i, F([["translateY(8px) scale(.6)", 0, 0, na], ["translateY(0) scale(1)", 1, 0.16], ["translateY(1px) scale(1.05,.95)", 1, 0.3], ["translateY(0) scale(1)", 1, 0.4], ["translateY(0) scale(1)", 1, 0.86], ["translateY(3px) scale(.9)", 0]]), 1100), o.forEach((s, r) => y(a, s, [{ transform: "scaleX(.06)" }, { transform: "scaleX(.06)", offset: 0.2 + r * 0.04, easing: na }, { transform: "scaleX(1)", offset: 0.42 + r * 0.05 }, { transform: "scaleX(1)" }], 1100, 0, "linear", { fill: "both" })), [[-13, -24, 9], [2, -31, 12], [15, -22, 8]].forEach(([s, r, n], p) => y(a, Q(a, e + 16 - n / 2, -8 - n / 2, 11, 11, xe + as, `scale:${n / 11};transform-origin:50% 50%`), F([["translate(0,0) rotate(-40deg) scale(.2)", 0, 0, "ease-out"], [`translate(${s * 0.7}px,${r * 0.75}px) rotate(10deg) scale(1.15)`, 1, 0.4, "ease-in-out"], [`translate(${s * 0.95}px,${r}px) rotate(25deg) scale(.9)`, 1, 0.75], [`translate(${s}px,${r - 3}px) rotate(40deg) scale(.3)`, 0]]), 600, 400 + p * 95));
   },
   quokka(a) {
-    const t = a.dir, e = ts(a, Tt(a.W * (t > 0 ? 0.7 : 0.3) - 19, 0, Math.max(0, a.W - 38)), -27, 38, 27), i = Q(a, 4, 1, 30, 26, Ed, "--c:#9c7c5e;transform-origin:50% 100%", e);
+    const t = a.dir, e = ts(a, Tt(a.W * (t > 0 ? 0.7 : 0.3) - 19, 0, Math.max(0, a.W - 38)), -27, 38, 27), i = Q(a, 4, 1, 30, 26, E0, "--c:#9c7c5e;transform-origin:50% 100%", e);
     if (a.calm) {
       y(a, i, Z(), 1e3);
       return;
@@ -5521,16 +5556,16 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
   /* the last thing off the list: a soccer ball into a net that bulges */
   truck(a) {
     Ia(a);
-    const { W: t, H: e } = a, i = Math.max(2, t - 72), o = e - 4, s = i + 36, r = o - 9, n = Math.min(t * 0.12, i - 20), p = Math.max(10, e * 0.5), d = 2300, c = _(a, `left:${i}px;top:${o - 54}px;width:64px;height:54px`, oo(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = Q(a, 0, 0, 64, 54, xc, "transform-origin:0 50%", c, !1), m = _(a, "left:-7px;top:-7px;width:14px;height:14px"), f = Q(a, 0, 0, 14, 14, mc, "transform-origin:50% 50%", m, !1);
+    const { W: t, H: e } = a, i = Math.max(2, t - 72), o = e - 4, s = i + 36, r = o - 9, n = Math.min(t * 0.12, i - 20), p = Math.max(10, e * 0.5), d = 2300, c = _(a, `left:${i}px;top:${o - 54}px;width:64px;height:54px`, oo(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = Q(a, 0, 0, 64, 54, xc, "transform-origin:0 50%", c, !1), f = _(a, "left:-7px;top:-7px;width:14px;height:14px"), x = Q(a, 0, 0, 14, 14, mc, "transform-origin:50% 50%", f, !1);
     if (a.calm) {
-      m.style.translate = `${s}px ${r}px`, y(a, c, Z(), 1e3), y(a, m, Z(), 1e3);
+      f.style.translate = `${s}px ${r}px`, y(a, c, Z(), 1e3), y(a, f, Z(), 1e3);
       return;
     }
-    const x = [[n, p], [n + (s - n) * 0.45, p - 26], [s - 4, r - 70], [s, r - 21]], b = Array.from({ length: 9 }, (w, k) => {
-      const v = k / 8, U = 1 - v, M = (R) => U * U * U * x[0][R] + 3 * U * U * v * x[1][R] + 3 * U * v * v * x[2][R] + v * v * v * x[3][R];
+    const m = [[n, p], [n + (s - n) * 0.45, p - 26], [s - 4, r - 70], [s, r - 21]], b = Array.from({ length: 9 }, (k, w) => {
+      const v = w / 8, U = 1 - v, M = (R) => U * U * U * m[0][R] + 3 * U * U * v * m[1][R] + 3 * U * v * v * m[2][R] + v * v * v * m[3][R];
       return [B(M(0), M(1)), 1, v * 1e3 / d];
     });
-    y(a, m, F([...b, [B(s + 3, r), 1, 1300 / d, "ease-out"], [B(s + 4, r - 5), 1, 1420 / d, "ease-in"], [B(s + 3, r), 1, 1540 / d], [B(s + 3, r), 1, 0.92], [B(s + 3, r), 0]]), d), y(a, f, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], d, 0, "linear", { fill: "both" }), y(a, c, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], d), y(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / d, easing: at }, { transform: "scaleX(1.16)", offset: 1140 / d, easing: na }, { transform: "scaleX(1)", offset: 1500 / d }, { transform: "scaleX(1)" }], d, 0, "linear", { fill: "both" });
+    y(a, f, F([...b, [B(s + 3, r), 1, 1300 / d, "ease-out"], [B(s + 4, r - 5), 1, 1420 / d, "ease-in"], [B(s + 3, r), 1, 1540 / d], [B(s + 3, r), 1, 0.92], [B(s + 3, r), 0]]), d), y(a, x, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], d, 0, "linear", { fill: "both" }), y(a, c, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], d), y(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / d, easing: at }, { transform: "scaleX(1.16)", offset: 1140 / d, easing: na }, { transform: "scaleX(1)", offset: 1500 / d }, { transform: "scaleX(1)" }], d, 0, "linear", { fill: "both" });
   },
   /* a floorball held up on a puff of air */
   puff(a) {
@@ -5609,7 +5644,7 @@ const Zd = 40, at = "cubic-bezier(.2,.8,.2,1)", na = "cubic-bezier(.2,1.4,.4,1)"
   if (t && t.parentNode === a && t.isConnected) return t;
   t = document.createElement("div"), t.className = "spk-layer", t.setAttribute("aria-hidden", "true");
   const e = document.createElement("style");
-  return e.textContent = Yd, t.appendChild(e), a.appendChild(t), Nn.set(a, t), io.add(t), t;
+  return e.textContent = Y0, t.appendChild(e), a.appendChild(t), Nn.set(a, t), io.add(t), t;
 };
 function zt(a, t, e = {}) {
   try {
@@ -5617,9 +5652,9 @@ function zt(a, t, e = {}) {
     if (!i || !t || typeof document > "u" || !("animate" in Element.prototype)) return null;
     const o = t instanceof Element ? null : t, s = o ? wc(o.x, o.y) ?? document.body : t;
     if (!s.isConnected) return null;
-    const r = getComputedStyle(s), n = (E, K = "") => r.getPropertyValue(E).trim() || K, p = s.getRootNode(), d = p instanceof ShadowRoot ? p : document.body, c = e.look ?? yc(s), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), m = Kc(d), f = m.getBoundingClientRect(), x = s.getBoundingClientRect(), b = parseFloat(n("--z", "1")) || 1, w = s.offsetWidth, k = b !== 1 && w > 8 && Math.abs(x.width / w - 1) < Math.abs(x.width / w - b) ? b : 1, v = n("--ink", "#1b2430"), U = n("--primary", "#0b5fa5"), M = e.colour || n("--kid") || n("--c") || U, R = document.createElement("div");
+    const r = getComputedStyle(s), n = (E, K = "") => r.getPropertyValue(E).trim() || K, p = s.getRootNode(), d = p instanceof ShadowRoot ? p : document.body, c = e.look ?? yc(s), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = Kc(d), x = f.getBoundingClientRect(), m = s.getBoundingClientRect(), b = parseFloat(n("--z", "1")) || 1, k = s.offsetWidth, w = b !== 1 && k > 8 && Math.abs(m.width / k - 1) < Math.abs(m.width / k - b) ? b : 1, v = n("--ink", "#1b2430"), U = n("--primary", "#0b5fa5"), M = e.colour || n("--kid") || n("--c") || U, R = document.createElement("div");
     R.className = `spk-fx spk-${c}`, R.setAttribute("data-kind", a);
-    const Y = o ? o.x - f.left : x.left * k - f.left, S = o ? o.y - f.top : x.top * k - f.top, V = o ? 0 : x.width * k / b, j = o ? 0 : x.height * k / b;
+    const Y = o ? o.x - x.left : m.left * w - x.left, S = o ? o.y - x.top : m.top * w - x.top, V = o ? 0 : m.width * w / b, j = o ? 0 : m.height * w / b;
     R.style.cssText = `left:${Y}px;top:${S}px;width:${V}px;height:${j}px;transform:scale(${b});--ink:${v};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${U};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${M};--c0:${M}`;
     const N = {
       look: c,
@@ -5641,11 +5676,11 @@ function zt(a, t, e = {}) {
     const At = c === "sports" ? kc[a] : void 0;
     At ? At(N) : (c === "sports" && (N.look = "glass"), i(N));
     const ya = () => {
-      m.querySelector(".spk-fx") || (m.remove(), io.delete(m));
+      f.querySelector(".spk-fx") || (f.remove(), io.delete(f));
     };
-    if (!N.plans.length || Ol() + R.querySelectorAll("[data-p]").length > Zd)
+    if (!N.plans.length || Ol() + R.querySelectorAll("[data-p]").length > Z0)
       return ya(), null;
-    m.appendChild(R);
+    f.appendChild(R);
     const Et = [];
     for (const [E, K, C] of N.plans)
       try {
@@ -5787,7 +5822,7 @@ const Uc = {
     super.disconnectedCallback(), this._commitClear(), this._unsub?.(), this._unsub = void 0, this._subFor = "";
   }
   updated(t) {
-    (t.has("hass") || t.has("entity")) && this.hass && this._subFor !== this.entity && this._subscribe(), this.renderRoot.querySelectorAll(".scrolly").forEach(bt), this._places && (this._places.size <= 40 && c0(this.renderRoot, ".row[data-key]", this._places), this._places = null);
+    (t.has("hass") || t.has("entity")) && this.hass && this._subFor !== this.entity && this._subscribe(), this.renderRoot.querySelectorAll(".scrolly").forEach(bt), this._places && (this._places.size <= 40 && cd(this.renderRoot, ".row[data-key]", this._places), this._places = null);
   }
   async _subscribe() {
     this._unsub?.(), this._subFor = this.entity;
@@ -5879,7 +5914,7 @@ const Uc = {
     });
   }
   willUpdate(t) {
-    this._places = this.hasUpdated && (t.has("_tk") || t.has("_items") || t.has("_hidden")) ? d0(this.renderRoot, ".row[data-key]") : null;
+    this._places = this.hasUpdated && (t.has("_tk") || t.has("_items") || t.has("_hidden")) ? dd(this.renderRoot, ".row[data-key]") : null;
   }
   /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
   _shown(t) {
@@ -6335,7 +6370,7 @@ const Vc = {
   helmet: () => g`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
 function la(a, t = {}) {
-  const e = t.size ?? 200, i = t.crop === "head", o = e, s = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", d = n === "kid" ? 44 : 46, c = n === "teen" ? 46 : 44, h = g`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, m = n !== "kid" ? g`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : u;
+  const e = t.size ?? 200, i = t.crop === "head", o = e, s = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "", n = t.age ?? "mid", p = n === "kid" ? "translate(100 104) scale(1.1) translate(-100 -104)" : "", d = n === "kid" ? 44 : 46, c = n === "teen" ? 46 : 44, h = g`<path d=${n === "kid" ? "M99 111 Q97 115 100 116 Q102 116 103 114.5" : "M98.5 108 Q95.5 115 99.5 116.5 Q102.5 117 104 114.5"} fill="none" stroke="rgba(150,80,60,.45)" stroke-width="2" stroke-linecap="round"></path>`, f = n !== "kid" ? g`<g class="av-pop d4" stroke=${a.hairColour} stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".9"><path d=${n === "teen" ? "M76 94.5 Q83 92 91 93.5" : "M77 94 Q84 90 91 93"}></path><path d=${n === "teen" ? "M109 93.5 Q117 92 124 94.5" : "M109 93 Q116 90 123 94"}></path></g>` : u;
   return l`<span class="avwrap ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${i ? "36 28 128 128" : "0 0 200 240"} width=${o} height=${s} role="img" aria-label=${t.label ?? "Avatar"}
       style="display:block;overflow:hidden;border-radius:${i ? "50%" : `${Math.round(e * 0.12)}px`}">
@@ -6353,8 +6388,8 @@ function la(a, t = {}) {
           <circle cx="74" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle><circle cx="126" cy="118" r="6.5" fill="rgba(255,110,110,.22)"></circle>
         </g>
         <g class=${t.still ? "" : "av-blink"}>${(Bn[a.eyes] ?? Bn.normal)(a)}</g>
-        ${m}
-        ${a.freckles === "yes" ? g`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([f, x]) => g`<circle cx=${f} cy=${x} r="1.15"></circle>`)}</g>` : u}
+        ${f}
+        ${a.freckles === "yes" ? g`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([x, m]) => g`<circle cx=${x} cy=${m} r="1.15"></circle>`)}</g>` : u}
         ${h}
         ${a.mole === "yes" ? g`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : u}
         ${(Jn[a.mouth] ?? Jn.smile)(a)}
@@ -6504,8 +6539,8 @@ const Ae = `
   render() {
     const [t, e] = za(this, "msg", this._msg), i = he.find((p) => p.id === this._tab) ?? he[0], o = Pl(this.life, this.kid.favourites, this._goal || void 0), s = Hl(this.life), r = !!this._draft && is(this._draft) !== is(this.look), n = (p) => p > 0 && p <= this.life && p > this.life - 100;
     return l`<div style="display:contents;--kid:${D(this.kid.colour)}">
-      <section class="glass mirror">
-        <div style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
+      <section class="glass mirror ${this._picMode ? "low" : ""}">
+        <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label=${r ? "Back, and keep this look" : "Back"} @click=${() => {
       r ? this._save() : this.dispatchEvent(new CustomEvent("close"));
     }}>${A("left", 18)}</button>
@@ -6518,14 +6553,14 @@ const Ae = `
         ${o && !this._picMode ? l`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === o.id ? "♥ Saving for" : "Next unlock"}: ${o.label} <span class="muted">· ${o.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round((this.life - s) / (o.req - s) * 100)}%"></div></div></div>` : u}
-        <div style="display:flex;gap:10px;width:100%;margin-top:auto;z-index:1">
+        <div class="sfoot">
           <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!r} @click=${() => {
       this._draft = void 0, this._jump++;
     }}>Undo all</button>
           <button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${r ? "Save my look" : "Done"}</button>
         </div>
       </section>
-      <section class="glass shelf">
+      <section class="glass shelf ${this._picMode ? "low" : ""}">
         <div class="tabs ${this._picMode ? "pics" : ""}" role="tablist">${he.map((p) => l`<button class="tap" role="tab" aria-label=${p.label} aria-selected=${String(p.id === this._tab)} style=${this._picMode ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
       this._tab = p.id, $("tap"), this._picMode && tt(p.label);
     }}>${this._picMode ? p.emoji : l`${p.emoji} ${p.label}`}</button>`)}</div>
@@ -6565,6 +6600,13 @@ ho.styles = [Wt, I`
     .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .tabs.pics { display: flex; flex-wrap: wrap; }
     .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
     .pill { font-size: 15px; }
+    .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
+    /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
+    :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .tabs { order: 3; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .sw { order: 2; }
+    :host(:not([data-phone]):not([data-shape='tall'])) .shelf.low > .grid { align-content: safe end; }
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
     .label { font-size: 14px; }
     /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
@@ -6737,7 +6779,7 @@ const _c = [
   }
 }, mo = class mo extends rt {
   constructor() {
-    super(...arguments), this.lookCtl = new Gt(this), this.fitCtl = new Wa(this), this._nowUid = "", this.familyCalendars = [], this.pin = "", this.owed = "todo.rewards_owed", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "";
+    super(...arguments), this.lookCtl = new Gt(this), this.fitCtl = new Wa(this), this._nowUid = "", this.familyCalendars = [], this.pin = "", this.owed = "todo.rewards_owed", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "";
   }
   async _loadOwed() {
     const t = this.owed, e = this.kid.name;
@@ -6753,6 +6795,12 @@ const _c = [
   _needsAdult(t) {
     const e = (this.kid.rewards ?? el).find((i) => i.name === t);
     return !e || (e.approve ?? e.cost >= 60);
+  }
+  _withPending(t) {
+    return this._pending.size ? t.map((e) => {
+      const i = this._pending.get(e.uid);
+      return i && e.status !== i ? { ...e, status: i } : e;
+    }) : t;
   }
   connectedCallback() {
     super.connectedCallback(), this._tick = window.setInterval(() => {
@@ -6798,7 +6846,7 @@ const _c = [
       this._unsub?.(), this._unsub = void 0, this._subFor = e.chores, this._chores = [];
       const i = ++this._subGen, o = e.chores;
       this.hass.connection.subscribeMessage((s) => {
-        i === this._subGen && (this._chores = s.items.map(Wl));
+        i === this._subGen && (this._chores = this._withPending(s.items.map(Wl)));
       }, { type: "todo/item/subscribe", entity_id: o }).then((s) => {
         i === this._subGen ? this._unsub = s : s();
       }).catch(() => {
@@ -6893,8 +6941,8 @@ const _c = [
     const o = () => this.renderRoot.querySelector(`[data-uid="${CSS.escape(t.uid)}"]`), s = window.setTimeout(() => {
       const n = o();
       n?.setAttribute("data-busy", ""), n?.setAttribute("aria-busy", "true");
-    }, 250), r = this._chores;
-    if (this._chores = r.map((n) => n.uid === t.uid ? { ...n, status: e ? "needs_action" : "completed" } : n), !e) {
+    }, 250), r = e ? "needs_action" : "completed";
+    if (this._pending.set(t.uid, r), this._chores = this._chores.map((n) => n.uid === t.uid ? { ...n, status: r } : n), !e) {
       const n = this.renderRoot.querySelector(`[data-uid="${CSS.escape(t.uid)}"]`), p = n?.querySelector(".check") ?? n;
       if (p) {
         zt("tick", p);
@@ -6904,7 +6952,7 @@ const _c = [
     }
     this._sound(e ? "untick" : t.lane === "job" ? "coin" : "tick");
     try {
-      if (await Pt(this.hass.callService("todo", "update_item", { item: t.uid, status: e ? "needs_action" : "completed" }, { entity_id: this._e.chores })), await Pt(this._award(t, e ? -1 : 1)), e) {
+      if (await Pt(this.hass.callService("todo", "update_item", { item: t.uid, status: r }, { entity_id: this._e.chores })), this._pending.delete(t.uid), await Pt(this._award(t, e ? -1 : 1)), e) {
         delete i[t.uid], ia("fh-ticks", i);
         return;
       }
@@ -6914,7 +6962,7 @@ const _c = [
         this._bursts = this._bursts.filter((d) => d.id !== n);
       }, 1300)), this._picMode && tt(`${t.summary}. Done! ${t.pts ? "Here’s a star!" : ""}`), this._maybeAllDone();
     } catch (n) {
-      console.warn("Family Hub: chore update failed", n), this._chores = r, this._say(n instanceof ca ? It : "Couldn’t save that one – try again");
+      console.warn("Family Hub: chore update failed", n), this._pending.delete(t.uid) && (this._chores = this._chores.map((p) => p.uid === t.uid ? { ...p, status: t.status } : p)), this._say(n instanceof ca ? It : "Couldn’t save that one – try again");
     } finally {
       this._busy.delete(t.uid), clearTimeout(s);
       const n = o();
@@ -7044,7 +7092,7 @@ const _c = [
       ${this._hero()}
       ${s ? l`<section class="glass jobs"><div class="empty"><h2 class="t-sub">Set up ${this.kid.name}’s page</h2>
         <span>Create <b>${i.chores}</b> and <b>${i.points}</b> in Home Assistant.</span></div></section>` : this._jobs()}
-      <div class="side scrolly ${this._picMode && !this._wind ? "low" : ""}" @scroll=${bt}>${this._wind ? l`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._jar()}${this._windChat()}` : this._picMode ? l`${this._jar()}${this._feelCard()}${this._tabs()}` : l`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
+      <div class="side scrolly ${this._picMode && !this._wind ? "low" : ""}" ?data-fits=${this._wind} @scroll=${bt}>${this._wind ? l`${this._windCard()}<section class="glass card">${this._weekBody()}</section>${this._windChat()}${this._jar()}` : this._picMode ? l`${this._jar()}${this._feelCard()}${this._tabs()}` : l`${this._tabs()}${this._jar()}${this._feelCard()}`}</div>
       ${this._bursts.map((r) => l`<span class="burst" style="left:150px;top:260px">${r.text}</span>`)}
       ${this._confetti && !this._wind ? hi(this._confetti, mr(this._confetti)) : u}
       ${this._celebrate ? this._celebration() : u}
@@ -7059,13 +7107,13 @@ const _c = [
     </div>`;
   }
   _hero() {
-    const t = this._e, e = this.hass, i = this._life, o = this._look, s = Va(e, t.points), r = zc(i), n = e.states[t.goal]?.state, p = Pl(i, this.kid.favourites, n && n !== "unknown" ? n : void 0), d = Hl(i), c = p ? Math.max(4, Math.round((i - d) / Math.max(1, p.req - d) * 100)) : 100, h = (e.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), m = (this._now.getDay() + 6) % 7, f = this._goodToday(), x = [...h].filter((b, w) => b === "G" || w === m && f).length;
+    const t = this._e, e = this.hass, i = this._life, o = this._look, s = Va(e, t.points), r = zc(i), n = e.states[t.goal]?.state, p = Pl(i, this.kid.favourites, n && n !== "unknown" ? n : void 0), d = Hl(i), c = p ? Math.max(4, Math.round((i - d) / Math.max(1, p.req - d) * 100)) : 100, h = (e.states[t.week]?.state ?? "-------").padEnd(7, "-").slice(0, 7), f = (this._now.getDay() + 6) % 7, x = this._goodToday(), m = [...h].filter((b, k) => b === "G" || k === f && x).length;
     return l`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => {
       this._jump++, this._sound(this.kid.sound ?? "tap"), this._picMode && tt(`Hi ${this.kid.name}! You have ${Math.floor(s / this._star)} stars.`);
     }}>
         ${this._drawn ? la(o, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : l`<span class="avph"></span>`}</button>
-      <div style="display:flex;align-items:center;gap:10px;z-index:1"><h1 class="name">${this.kid.name}</h1>${this._picMode ? u : l`<span class="rank">${r.rank}</span>`}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1>${this._picMode ? u : l`<span class="rank">${r.rank}</span>`}</div>
       ${this._picMode ? l`
         <div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
           <span style="display:flex;flex-direction:column;gap:2px">${(() => {
@@ -7077,9 +7125,9 @@ const _c = [
           <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600);text-align:right">${r.need - r.into} more to ${r.nextRank}</span></div>
         <div class="stats">
           <div class="stat"><b>${s || "✨"}</b><span>${s ? "points to spend" : "Ready to start"}</span></div>
-          <div class="stat" role="group" aria-label="Good days: ${x} this week"><span>Good days</span>
-            <div class="dots" aria-hidden="true">${Array.from({ length: x }, () => l`<i class="g"></i>`)}</div>
-            <span>${x >= 5 ? "Full week ⭐" : x ? `${x} this week` : "A fresh week"}</span></div>
+          <div class="stat" role="group" aria-label="Good days: ${m} this week"><span>Good days</span>
+            <div class="dots" aria-hidden="true">${Array.from({ length: m }, () => l`<i class="g"></i>`)}</div>
+            <span>${m >= 5 ? "Full week ⭐" : m ? `${m} this week` : "A fresh week"}</span></div>
         </div>`}
       ${this._wind ? l`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : p ? l`<div class="nextup">
         <span class="shimmer" style="border-radius:50%;line-height:0;width:46px;height:46px;flex-shrink:0">${this._drawn ? la(fe(o, p.cat, p.id, p.swatch), { size: 46, crop: "head", still: !0, age: this.kid.age }) : u}</span>
@@ -7089,20 +7137,20 @@ const _c = [
       </div>` : l`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">You’ve unlocked the whole collection! New gear drops next term.</span></div>`}
       ${this.kid.special_time && !this._picMode ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : u}
       ${this._wind ? u : (() => {
-      const b = this._block().todo.length, w = this.oneAtATime && b > 0, k = this._picMode && this.ask;
-      return l`${w ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
-          <div class="lowrow" style=${w ? "" : "margin-top:auto"}>${k ? l`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
+      const b = this._block().todo.length, k = this.oneAtATime && b > 0, w = this._picMode && this.ask;
+      return l`${k ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
+          <div class="lowrow" style=${k ? "" : "margin-top:auto"}>${w ? l`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
         this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
       }}>${A("ask", 40)}<span>Ask</span></button>` : u}
-          <button class="pill tap studio" ?data-locked=${w} aria-label=${w ? `${this._picMode ? "My look" : "Style studio"}: ${b} job${b === 1 ? "" : "s"} to go first` : u} style="height:${k ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(v) => {
-        if (w) {
+          <button class="pill tap studio" ?data-locked=${k} aria-label=${k ? `${this._picMode ? "My look" : "Style studio"}: ${b} job${b === 1 ? "" : "s"} to go first` : u} style="height:${w ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(v) => {
+        if (k) {
           this._sound("locked");
           const U = v.currentTarget;
           U.removeAttribute("data-nudge"), U.offsetWidth, U.setAttribute("data-nudge", ""), this._picMode && tt(b === 1 ? "One more job, then your look." : `${b} jobs to go.`);
           return;
         }
         this._studio = !0, this._sound("tap");
-      }}>${w ? l`${A("lock", 20)}${b} job${b === 1 ? "" : "s"} to go` : l`${A("palette", 20)}${this._picMode ? "My look" : "Style studio"}`}</button></div>`;
+      }}>${k ? l`${A("lock", 20)}${b} job${b === 1 ? "" : "s"} to go` : l`${A("palette", 20)}${this._picMode ? "My look" : "Style studio"}`}</button></div>`;
     })()}
     </section>`;
   }
@@ -7118,26 +7166,26 @@ const _c = [
   _jobs() {
     const { bt: t, slot: e, routineNow: i, jobs: o, grow: s, later: r, visible: n, todo: p, done: d, total: c } = this._block();
     this._nowUid = p[0]?.uid ?? "";
-    const h = c - d, m = 2 * Math.PI * 22, f = c ? d / c : 0, x = this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${En(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", b = this.oneAtATime && !this._showAll, w = Math.min(60, mt(t) - pa(this._now));
+    const h = c - d, f = 2 * Math.PI * 22, x = c ? d / c : 0, m = this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${En(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", b = this.oneAtATime && !this._showAll, k = Math.min(60, mt(t) - pa(this._now));
     return l`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._wind ? "Wind down" : this._picMode ? e === "am" ? "My morning" : e === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${x}</span></div>
+          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${m}</span></div>
         ${this.oneAtATime && this._showAll ? l`<button class="pill tap" @click=${() => {
       this._showAll = !1;
     }}>One at a time</button>` : u}
 
-        ${this._wind && w > 0 ? l`<span class="bedclock" role="img" aria-label="${w} minutes until bed">${Lt($t(), "timer", { frac: w / 60, size: 52 })}<b>${w}<span>min</span></b></span>` : u}
+        ${this._wind && k > 0 ? l`<span class="bedclock" role="img" aria-label="${k} minutes until bed">${Lt($t(), "timer", { frac: k / 60, size: 52 })}<b>${k}<span>min</span></b></span>` : u}
         <div class="ring" role="img" aria-label="${d} of ${c} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${m} stroke-dashoffset=${m * (1 - f)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${d}/${c}</b></div>
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${f} stroke-dashoffset=${f * (1 - x)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${d}/${c}</b></div>
       </div>
       ${Lt($t(), "steps", { done: d, total: c })}
       ${b ? this._focusList(p, d, r.length) : l`<div class="list scrolly" data-fits @scroll=${bt}>
-        ${this._picMode ? l`<div class="pics">${i.map((k) => this._pic(k))}</div>${i.length ? l`<div class="readrow">${this._reader()}</div>` : u}` : l`
-            ${i.length ? l`<div class="sec"><h2>${tl[e]} routine</h2><span>just what we do</span></div>${i.map((k) => this._row(k))}` : u}
-            ${o.length ? l`<div class="sec"><h2>Family jobs</h2><span>earn points · fill the jar</span></div>${o.map((k) => this._row(k))}` : u}
-            ${s.length ? l`<div class="sec"><h2>Growing</h2><span>for you – surprises along the way</span></div>${s.map((k) => this._row(k))}` : u}`}
-        ${r.length && !this._wind ? l`<div class="later"><span>Later: ${tl[r[0].slot]} (${r.length})</span><span>${r.map((k) => this._picMode ? ss(k) : "").join(" ")}</span></div>` : u}
+        ${this._picMode ? l`<div class="pics">${i.map((w) => this._pic(w))}</div>${i.length ? l`<div class="readrow">${this._reader()}</div>` : u}` : l`
+            ${i.length ? l`<div class="sec"><h2>${tl[e]} routine</h2><span>just what we do</span></div>${i.map((w) => this._row(w))}` : u}
+            ${o.length ? l`<div class="sec"><h2>Family jobs</h2><span>earn points · fill the jar</span></div>${o.map((w) => this._row(w))}` : u}
+            ${s.length ? l`<div class="sec"><h2>Growing</h2><span>for you – surprises along the way</span></div>${s.map((w) => this._row(w))}` : u}`}
+        ${r.length && !this._wind ? l`<div class="later"><span>Later: ${tl[r[0].slot]} (${r.length})</span><span>${r.map((w) => this._picMode ? ss(w) : "").join(" ")}</span></div>` : u}
         ${n.length ? u : l`<div class="wind"><span style="font-size:44px">🌤️</span><span>Nothing right now. Enjoy!</span></div>`}
       </div>`}
     </section>`;
@@ -7159,7 +7207,7 @@ const _c = [
       this._showAll = !0;
     }}>See what I did</button>` : u}</div></div>`;
     const n = r.length;
-    return l`<div class="focus">
+    return l`<div class="focus" data-fits>
       <span class="label">Now</span>
       ${this._picMode ? l`<div class="picwrap">${this._pic(o, "big")}${this._reader()}</div>` : this._row(o, !0)}
       ${s ? l`<span class="label">Next</span>${this._picMode ? this._pic(s, "small") : this._row(s, !1, !0)}` : u}
@@ -7201,18 +7249,18 @@ const _c = [
   _rewards() {
     const t = Va(this.hass, this._e.points), e = this.kid.rewards ?? el, i = this._star;
     return l`${this._owed.length ? l`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(", ")}</span></div>` : u}${e.map((o, s) => {
-      const r = t >= o.cost, n = o.icon ?? (this._picMode ? il[s % il.length] : "🎁"), p = this._costWords(o), d = Math.max(1, Math.round(o.cost / i)), c = Math.min(d, Math.floor(t / i)), h = this._saving === o.name, m = this._held === o.name || h;
-      return this._spend === o.name && r || m ? l`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${p} on ${o.name}?" ?data-held=${m} aria-busy=${h ? "true" : u}>
+      const r = t >= o.cost, n = o.icon ?? (this._picMode ? il[s % il.length] : "🎁"), p = this._costWords(o), d = Math.max(1, Math.round(o.cost / i)), c = Math.min(d, Math.floor(t / i)), h = this._saving === o.name, f = this._held === o.name || h;
+      return this._spend === o.name && r || f ? l`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${p} on ${o.name}?" ?data-held=${f} aria-busy=${h ? "true" : u}>
           <span class="rpic" aria-hidden="true">${n}</span><span class="q">Spend ${p}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${o.name}</span></span>
-          <button class="tap" ?disabled=${m} @click=${() => {
+          <button class="tap" ?disabled=${f} @click=${() => {
         this._held = o.name, this._heldAt = Date.now(), window.setTimeout(() => {
           this._held === o.name && (this._held = "");
         }, 600), this._redeem(o);
-      }}>${h ? "Saving…" : l`${rs(18)}Yes`}</button><button class="tap save" ?disabled=${m} @click=${() => {
+      }}>${h ? "Saving…" : l`${rs(18)}Yes`}</button><button class="tap save" ?disabled=${f} @click=${() => {
         this._spend = "", this._sound("tap");
       }}>${Zc}Not now</button></div>` : l`<button class="rw tap ${this._picMode ? "picrow" : ""}" aria-label="${o.name}: ${r ? `spend ${p}` : this._picMode ? `${c} of ${d} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
           <span class="rpic" aria-hidden="true">${n}</span>
-          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${ne(r, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${c} / ${d}</b>` : Array.from({ length: d }, (f, x) => ne(x < c, 18))}</span>` : u}</span>
+          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${ne(r, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${c} / ${d}</b>` : Array.from({ length: d }, (x, m) => ne(m < c, 18))}</span>` : u}</span>
           ${this._picMode ? u : l`<span class="cost ${r ? "" : "notyet"}">${r ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
     })}`;
   }
@@ -7226,7 +7274,7 @@ const _c = [
   }
   _windCard() {
     return l`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      <span class="muted" style="font-size:14px">Bedtime ${En(ka(this.kid.bedtime, this._now))}</span></section>`;
+      <span class="muted wbed" style="font-size:14px">Bedtime ${En(ka(this.kid.bedtime, this._now))}</span></section>`;
   }
   _jar() {
     const t = Va(this.hass, "input_number.family_jar"), e = this.jarTarget || 120, i = Math.min(1, t / e);
@@ -7251,7 +7299,7 @@ const _c = [
   }
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   _windChat() {
-    return l`<section class="glass card" aria-label="Ask for a grown-up"><span style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
+    return l`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px" @click=${() => {
       this._feel = "", this._feelReply("chat");
     }}>💬 Ask for a chat</button></section>`;
@@ -7332,7 +7380,11 @@ mo.styles = [Wt, I`
     :host([data-shape='wide'][data-n3]) .list, :host([data-shape='wide'][data-n3]) .focus { overflow: visible; flex: none; }
     :host([data-shape='wide'][data-n3]) .side > .tabcard { overflow: visible; }
     /* portrait and shorter than its canvas: the jobs keep a usable height (the side column scrolls inside itself), and the page scrolls a little if it must */
-    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(400px, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) { grid-template-rows: max-content minmax(auto, 1fr); overflow-y: auto; gap: 12px; scrollbar-width: none; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs { min-height: 400px; }
+    /* one job at a time is never cut off: the card grows to hold Now, Next and "Show all" (a look's Now card may be taller), and the page scrolls */
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .jobs:has(> .focus) { min-height: max-content; }
+    :host([data-shape='tall'][data-n3]:not([data-phone])) .focus { flex: none; overflow: visible; }
     :host([data-shape='tall'][data-n3]:not([data-phone])) .side { max-height: 440px; }
     :host([data-phone]) { display: flex; flex-direction: column; gap: 12px; flex: none; }
     :host([data-phone]) .jobs { order: 1; flex: none; }
@@ -7360,6 +7412,15 @@ mo.styles = [Wt, I`
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
     .focus .label { font-size: 14px; margin-top: 4px; }
+    /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */
+    .focus[data-fit] { gap: 6px; --fit: 1; }
+    .focus[data-fit] .label { margin-top: 0; }
+    .focus[data-fit] .picwrap { min-height: 132px; }
+    .focus[data-fit] .pic.big { flex-direction: row; gap: 18px; padding: 8px 96px 8px 18px; }
+    .focus[data-fit] .pic.big .e { font-size: 88px; line-height: 1.1; }
+    .focus[data-fit] .pic.small { flex-basis: 76px; padding-top: 4px; padding-bottom: 4px; }
+    .focus[data-fit] .pic.small .e { font-size: 52px; line-height: 1.1; }
+    .focus[data-fit='2'] .job.big, .focus[data-fit='3'] .job.big { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
     .label { font-size: 14px; }
     .pill { font-size: 15px; }
     .job.big { min-height: 96px; padding: 16px 18px; }
@@ -7372,7 +7433,7 @@ mo.styles = [Wt, I`
     .readme { position: absolute; right: 14px; bottom: 14px; width: 72px; height: 72px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.500px var(--ink2), 0 4px 10px rgba(0,0,0,.14); display: flex; align-items: center; justify-content: center; z-index: 1; }
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
-    .pic.big .e { font-size: 124px; }
+    .pic.big .e { font-size: 124px; line-height: 1; }
     .pic.big .pt { font-size: 28px; }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
     .pic.small .e { font-size: 72px; }
@@ -7417,6 +7478,13 @@ mo.styles = [Wt, I`
     .side { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; scrollbar-width: none; border-radius: 24px; }
     .side::-webkit-scrollbar { display: none; }
     .side > .card { flex-shrink: 0; }
+    /* wind-down: four cards share the column. It tightens in steps (fitBox) so "Ask for a chat" at the bottom is never cut off; only after the last step does it scroll */
+    .side[data-fit] > .card { gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+    .side[data-fit] .wbed { display: none; }
+    .side[data-fit='2'], .side[data-fit='3'] { gap: 8px; }
+    .side[data-fit='2'] > .card, .side[data-fit='3'] > .card { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
+    .side[data-fit='2'] .wq, .side[data-fit='3'] .wq { display: none; }
+    .side[data-fit='3'] .wk:nth-of-type(n+5) { display: none; }
     /* a small child's controls sit low: the jar card above them takes up the spare height, so there is no empty band between the cards */
     .side.low > .card:first-child { flex: 1 0 auto; justify-content: center; }
     /* the youngest reaches the lower half of a wall panel only: his feelings card sits at the very bottom of the column, and the two tab buttons come down to meet it, under their list */
@@ -7651,18 +7719,18 @@ const Oc = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   }
   render() {
     if (!this.hass) return u;
-    const t = this.hass, e = this._rooms(), i = xt(), o = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), s = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && o(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || o(h.entity_id))), n = e.reduce((h, m) => h + m.ents.filter((f) => f.entity_id.startsWith("light.") && f.state === "on").length, 0), p = e.reduce((h, m) => h + m.ents.filter(le).length, 0), d = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), c = this._columns(e, i === "phone" ? 1 : i === "wide" && we() >= 2 ? 2 : we() >= 1 ? 3 : e.length > 9 ? 4 : 3);
+    const t = this.hass, e = this._rooms(), i = xt(), o = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), s = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && o(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || o(h.entity_id))), n = e.reduce((h, f) => h + f.ents.filter((x) => x.entity_id.startsWith("light.") && x.state === "on").length, 0), p = e.reduce((h, f) => h + f.ents.filter(le).length, 0), d = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), c = this._columns(e, i === "phone" ? 1 : i === "wide" && we() >= 2 ? 2 : we() >= 1 ? 3 : e.length > 9 ? 4 : 3);
     return l`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           ${e.length ? l`<span class="muted" style="font-size:15px">${n ? `${n} light${n > 1 ? "s" : ""} on` : "All lights off"} · ${e.length} room${e.length === 1 ? "" : "s"}${p ? ` · ${p} not responding` : ""}</span>` : u}</div>
           ${d > 0 ? l`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${Rt.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(d / 60)}:${String(d % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : u}</div>
         ${e.length ? l`<div class="rgrid" data-fits>
-          ${c.map((h) => l`<div class="rcol">${h.map((m) => {
-      const f = m.ents.filter((b) => b.entity_id.startsWith("light.") && !le(b)), x = f.some((b) => this._on(b));
-      return l`<div class="room ${x ? "lit" : ""}">
-              <div class="rh"><h2>${m.name}</h2>${f.length > 1 ? l`<button class="sw tap" role="switch" aria-label="${m.name} lights" aria-checked=${String(x)} ?data-busy=${this._busy.includes(`room:${m.id}`)} @click=${() => this._room(m, !x)}><span>Lights</span><span class="toggle"></span></button>` : u}</div>
-              ${m.ents.map((b) => this._dev(b, m.name))}
+          ${c.map((h) => l`<div class="rcol">${h.map((f) => {
+      const x = f.ents.filter((b) => b.entity_id.startsWith("light.") && !le(b)), m = x.some((b) => this._on(b));
+      return l`<div class="room ${m ? "lit" : ""}">
+              <div class="rh"><h2>${f.name}</h2>${x.length > 1 ? l`<button class="sw tap" role="switch" aria-label="${f.name} lights" aria-checked=${String(m)} ?data-busy=${this._busy.includes(`room:${f.id}`)} @click=${() => this._room(f, !m)}><span>Lights</span><span class="toggle"></span></button>` : u}</div>
+              ${f.ents.map((b) => this._dev(b, f.name))}
             </div>`;
     })}</div>`)}
         </div>` : l`<div class="none"><span style="color:var(--accent)">${A("home", 44)}</span><b>No rooms to show yet</b>
@@ -7689,11 +7757,11 @@ const Oc = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     }}>${this._all ? "Hide" : l`${Rt.locked}Grown-ups`}</button></div>
           <div class="alist">
             ${r.length ? r.map((h) => {
-      const m = h.attributes.friendly_name ?? h.entity_id, f = h.state === "on";
-      return l`<button class="auto tap" role="switch" aria-checked=${String(f)} ?data-busy=${this._busy.includes(h.entity_id)}
+      const f = h.attributes.friendly_name ?? h.entity_id, x = h.state === "on";
+      return l`<button class="auto tap" role="switch" aria-checked=${String(x)} ?data-busy=${this._busy.includes(h.entity_id)}
                 @click=${() => this._guard(() => {
-        this._call(h.entity_id, m, () => this.hass.callService("automation", f ? "turn_off" : "turn_on", { entity_id: h.entity_id }), `${m} ${f ? "off" : "on"}`);
-      })}><span>${m}</span><span class="toggle"></span></button>`;
+        this._call(h.entity_id, f, () => this.hass.callService("automation", x ? "turn_off" : "turn_on", { entity_id: h.entity_id }), `${f} ${x ? "off" : "on"}`);
+      })}><span>${f}</span><span class="toggle"></span></button>`;
     }) : l`<span class="muted tipline">Household automations are in the grown-ups section.</span>`}
           </div>
         </section>
@@ -7819,7 +7887,7 @@ const ap = async (a) => {
   if (!i) return;
   const o = await ro(a, "music_assistant", "search", { config_entry_id: i, name: t, media_type: [e], limit: 8 }), s = (o[`${e}s`] ?? o[e] ?? []).map((c) => so(c, e)).filter((c) => c.uri), r = t.toLowerCase().trim(), n = r.split(/\s+/).filter((c) => c.length > 2), p = (c) => {
     const h = c.name.toLowerCase();
-    return n.filter((m) => h.includes(m)).length;
+    return n.filter((f) => h.includes(f)).length;
   }, d = [...s].sort((c, h) => p(h) - p(c))[0];
   return s.find((c) => c.name.toLowerCase().trim() === r) ?? s.find((c) => c.name.toLowerCase().includes(r)) ?? (d && p(d) > 0 ? d : void 0);
 }, ti = (a, t, e, i = "play", o = !1) => a.services?.music_assistant && mi(a, t) === "music_assistant" ? a.callService("music_assistant", "play_media", { media_id: e, enqueue: i, ...o ? { radio_mode: !0 } : {} }, { entity_id: t }) : a.callService("media_player", "play_media", { media_content_id: e, media_content_type: "music", ...i === "play" ? {} : { enqueue: i } }, { entity_id: t }), Pc = async (a, t) => {
@@ -7878,9 +7946,9 @@ const ap = async (a) => {
 }, ah = (a) => (t) => {
   if (!t.isPrimary || t.button > 0) return;
   const e = t.currentTarget, i = e.getBoundingClientRect(), o = t.clientX, s = t.clientY, r = !!t.target.closest(".fcap"), n = 16, p = (b) => (a.vert ? (i.bottom - n - b.clientY) / Math.max(1, i.height - 2 * n) : (b.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, d = r ? a.v - p(t) : 0;
-  let c = !1, h = !1, m = a.v;
-  const f = (b) => {
-    const w = b, k = Math.abs(w.clientX - o), v = Math.abs(w.clientY - s), U = a.vert ? v : k, M = a.vert ? k : v;
+  let c = !1, h = !1, f = a.v;
+  const x = (b) => {
+    const k = b, w = Math.abs(k.clientX - o), v = Math.abs(k.clientY - s), U = a.vert ? v : w, M = a.vert ? w : v;
     if (!h) {
       if (!c) {
         if (M >= no && M > U) {
@@ -7890,16 +7958,16 @@ const ap = async (a) => {
         if (U < no) return;
         c = !0;
       }
-      m = $a(p(w) + d), a.set(m, !1);
+      f = $a(p(k) + d), a.set(f, !1);
     }
-  }, x = (b) => {
-    if (e.removeEventListener("pointermove", f), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), b.type === "pointercancel" || h) {
+  }, m = (b) => {
+    if (e.removeEventListener("pointermove", x), e.removeEventListener("pointerup", m), e.removeEventListener("pointercancel", m), b.type === "pointercancel" || h) {
       c && a.drop?.();
       return;
     }
-    c ? a.set(m, !0) : r || a.set($a(p(b)), !0);
+    c ? a.set(f, !0) : r || a.set($a(p(b)), !0);
   };
-  e.setPointerCapture(t.pointerId), e.addEventListener("pointermove", f), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x);
+  e.setPointerCapture(t.pointerId), e.addEventListener("pointermove", x), e.addEventListener("pointerup", m), e.addEventListener("pointercancel", m);
 }, lo = (a) => l`<div class="vs" ?data-vert=${!!a.vert} ?data-idle=${!a.live} ?data-held=${!!a.held} style="--v:${a.v}">
   ${qe(a.name, a.v, !1, () => a.set($a(a.v - Ue), !0))}
   <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${a.name}" aria-orientation=${a.vert ? "vertical" : "horizontal"} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${a.v} aria-valuetext="${a.v} per cent${a.live ? "" : ", quiet"}"
@@ -7928,94 +7996,94 @@ const ap = async (a) => {
   const [i, o] = Bs(a, t), [s, r] = Bs(a, e);
   return `M${i.toFixed(1)} ${o.toFixed(1)} A${a} ${a} 0 ${e - t > 180 ? 1 : 0} 1 ${s.toFixed(1)} ${r.toFixed(1)}`;
 }, ih = (a) => {
-  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, o = 2 * Math.PI * 106, s = (k, v, U) => (M) => {
+  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, o = 2 * Math.PI * 106, s = (w, v, U) => (M) => {
     const R = M.currentTarget.ownerSVGElement, Y = (S) => {
       const V = R.getBoundingClientRect(), N = ((Math.atan2(S.clientY - (V.top + V.height / 2), S.clientX - (V.left + V.width / 2)) * 180 / Math.PI - v) % 360 + 360) % 360;
       return $a((N > U + (360 - U) / 2 ? 0 : Math.min(N, U)) / U * 100);
     };
-    if (!k.hasVol) {
+    if (!w.hasVol) {
       Ha(M, () => {
       }, (S, V, j) => {
-        !S && !j && a.toggle(k.id);
+        !S && !j && a.toggle(w.id);
       }, Mo);
       return;
     }
-    Ha(M, (S) => a.vol(k.id, Y(S), !1), (S, V, j) => {
-      j ? a.drop(k.id) : S ? a.vol(k.id, Y(V), !0) : a.toggle(k.id);
+    Ha(M, (S) => a.vol(w.id, Y(S), !1), (S, V, j) => {
+      j ? a.drop(w.id) : S ? a.vol(w.id, Y(V), !0) : a.toggle(w.id);
     }, no);
-  }, r = a.dial, n = r.stops.length, p = r.stops.findIndex((k) => k.on), d = (k) => (k + 0.5) / Math.max(1, n) * 100, c = (k) => {
-    const v = k.currentTarget, U = v.querySelector(".tneedle"), M = v.getBoundingClientRect(), R = (S) => Math.max(0, Math.min(1, (S.clientX - M.left) / M.width)), Y = (S) => Math.max(0, Math.min(n - 1, Math.round(R(S) * n - 0.5)));
-    n && Ha(k, (S) => {
+  }, r = a.dial, n = r.stops.length, p = r.stops.findIndex((w) => w.on), d = (w) => (w + 0.5) / Math.max(1, n) * 100, c = (w) => {
+    const v = w.currentTarget, U = v.querySelector(".tneedle"), M = v.getBoundingClientRect(), R = (S) => Math.max(0, Math.min(1, (S.clientX - M.left) / M.width)), Y = (S) => Math.max(0, Math.min(n - 1, Math.round(R(S) * n - 0.5)));
+    n && Ha(w, (S) => {
       U && (U.style.transition = "none", U.style.left = `${R(S) * 100}%`);
     }, (S, V, j) => {
       const N = j ? p : Y(V);
       U && (U.style.transition = "", U.style.left = `${N < 0 ? 2 : d(N)}%`), j || r.tune(N);
     }, 4);
-  }, h = (k) => {
-    const v = k.key === "ArrowRight" || k.key === "ArrowUp" ? 1 : k.key === "ArrowLeft" || k.key === "ArrowDown" ? -1 : 0;
-    v && n && (k.preventDefault(), r.tune(Math.max(0, Math.min(n - 1, (p < 0 ? v > 0 ? -1 : n : p) + v))));
-  }, m = r.sleep.left, f = m === null ? 0 : Math.max(0.02, Math.min(1, m / Math.max(1, r.sleep.mins))), x = f * 2 * Math.PI, b = 20 + 16 * Math.sin(x), w = 20 - 16 * Math.cos(x);
+  }, h = (w) => {
+    const v = w.key === "ArrowRight" || w.key === "ArrowUp" ? 1 : w.key === "ArrowLeft" || w.key === "ArrowDown" ? -1 : 0;
+    v && n && (w.preventDefault(), r.tune(Math.max(0, Math.min(n - 1, (p < 0 ? v > 0 ? -1 : n : p) + v))));
+  }, f = r.sleep.left, x = f === null ? 0 : Math.max(0.02, Math.min(1, f / Math.max(1, r.sleep.mins))), m = x * 2 * Math.PI, b = 20 + 16 * Math.sin(m), k = 20 - 16 * Math.cos(m);
   return l`<div class="dialwrap">
     <section class="dcard dnext" aria-label="Up next"><h3>Up next</h3>
-      ${r.next.length ? r.next.map((k) => l`<div class="dn"><i class="puck onshelf" style="--art:${k.art ? `url(${k.art})` : "linear-gradient(135deg, var(--p-3), var(--p-5))"}"></i><span><b>${k.title}</b><span>${k.sub}</span></span></div>`) : l`<p class="dnone">Nothing queued. Slide the tuner, or let someone choose.</p>`}
+      ${r.next.length ? r.next.map((w) => l`<div class="dn"><i class="puck onshelf" style="--art:${w.art ? `url(${w.art})` : "linear-gradient(135deg, var(--p-3), var(--p-5))"}"></i><span><b>${w.title}</b><span>${w.sub}</span></span></div>`) : l`<p class="dnone">Nothing queued. Slide the tuner, or let someone choose.</p>`}
       ${r.more > 0 ? l`<p class="dnone">+${r.more} more after that</p>` : u}</section>
     <div class="dmid"><div class="bigdial" data-fits>
     <svg viewBox="0 0 400 400">
       <circle class="dplate" cx="200" cy="200" r="184"></circle>
       ${a.now.playing ? g`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : u}
-      ${a.rooms.map((k, v) => {
-    const U = -90 + v * e + i / 2, M = e - i, R = U + M * Math.max(0.03, k.vol / 100), [Y, S] = Bs(152, R);
-    return g`<g class="darc" data-zone=${k.id} ?data-live=${k.live} ?data-playing=${k.playing} ?data-asleep=${k.asleep} ?data-offline=${k.offline} ?data-focus=${k.focus} ?data-hot=${a.over === k.id} ?data-held=${a.held === k.id} style=${ee(k)} role="slider" tabindex="0" aria-label="Volume in ${k.name}"
-          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${k.vol} aria-valuetext="${vr(k)}. Enter ${k.on ? "drops" : "adds"} the room." @pointerdown=${s(k, U, M)} @keydown=${wr(a, k)}>
+      ${a.rooms.map((w, v) => {
+    const U = -90 + v * e + i / 2, M = e - i, R = U + M * Math.max(0.03, w.vol / 100), [Y, S] = Bs(152, R);
+    return g`<g class="darc" data-zone=${w.id} ?data-live=${w.live} ?data-playing=${w.playing} ?data-asleep=${w.asleep} ?data-offline=${w.offline} ?data-focus=${w.focus} ?data-hot=${a.over === w.id} ?data-held=${a.held === w.id} style=${ee(w)} role="slider" tabindex="0" aria-label="Volume in ${w.name}"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${w.vol} aria-valuetext="${vr(w)}. Enter ${w.on ? "drops" : "adds"} the room." @pointerdown=${s(w, U, M)} @keydown=${wr(a, w)}>
           <path class="dhit" d=${ns(152, U, U + M)}></path><path class="dtrack" d=${ns(152, U, U + M)}></path>
-          ${k.hasVol ? g`${k.live ? g`<path class="dfill" d=${ns(152, U, R)}></path>` : u}<circle class="dknob" cx=${Y} cy=${S} r="15"></circle>` : u}</g>`;
+          ${w.hasVol ? g`${w.live ? g`<path class="dfill" d=${ns(152, U, R)}></path>` : u}<circle class="dknob" cx=${Y} cy=${S} r="15"></circle>` : u}</g>`;
   })}
       <circle class="dprogt" cx="200" cy="200" r="106"></circle>
       <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${a.now.frac * o} ${o}" transform="rotate(-90 200 200)"></circle>
     </svg>
     <button class="dcover tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}><span>${et(a.now.playing ? "pause" : "play", 30)}</span></button>
-    <div class="dlabels">${a.rooms.map((k, v) => {
-    const U = -90 + v * e + e / 2, M = Math.cos(U * Math.PI / 180), R = Math.sin(U * Math.PI / 180), [Y, S] = kr(a, k), V = M > 0.3 ? "0" : M < -0.3 ? "-100%" : "-50%", j = Math.abs(M) > 0.3 ? "-50%" : R > 0 ? "0" : "-100%";
-    return l`<div class="dlabel" data-side=${M > 0.3 ? "r" : M < -0.3 ? "l" : "m"} ?data-held=${a.held === k.id} ?data-offline=${k.offline} style="left:${50 + 50.5 * M + (Math.abs(M) > 0.3 && Math.abs(R) > 0.5 ? 7 * Math.sign(M) : 0)}%;top:${50 + 50.5 * R}%;transform:translate(${V},${j})">
-        <button class="dname tap" aria-pressed=${String(k.focus)} aria-label="Show ${k.name} in the player" @click=${() => a.focus(k.id)}><b>${k.asleep ? "☾ " : ""}${k.name}${Fo(k)}</b><span>${So(k)}</span></button>
-        ${k.hasVol && !k.offline ? l`<span class="dstep">${Y}<b class="vnum" aria-hidden="true">${k.vol}</b>${S}</span>` : u}</div>`;
+    <div class="dlabels">${a.rooms.map((w, v) => {
+    const U = -90 + v * e + e / 2, M = Math.cos(U * Math.PI / 180), R = Math.sin(U * Math.PI / 180), [Y, S] = kr(a, w), V = M > 0.3 ? "0" : M < -0.3 ? "-100%" : "-50%", j = Math.abs(M) > 0.3 ? "-50%" : R > 0 ? "0" : "-100%";
+    return l`<div class="dlabel" data-side=${M > 0.3 ? "r" : M < -0.3 ? "l" : "m"} ?data-held=${a.held === w.id} ?data-offline=${w.offline} style="left:${50 + 50.5 * M + (Math.abs(M) > 0.3 && Math.abs(R) > 0.5 ? 7 * Math.sign(M) : 0)}%;top:${50 + 50.5 * R}%;transform:translate(${V},${j})">
+        <button class="dname tap" aria-pressed=${String(w.focus)} aria-label="Show ${w.name} in the player" @click=${() => a.focus(w.id)}><b>${w.asleep ? "☾ " : ""}${w.name}${Fo(w)}</b><span>${So(w)}</span></button>
+        ${w.hasVol && !w.offline ? l`<span class="dstep">${Y}<b class="vnum" aria-hidden="true">${w.vol}</b>${S}</span>` : u}</div>`;
   })}</div>
   </div></div>
     <section class="dcard dturn" aria-label="Whose turn"><h3>Whose turn</h3>
-      <div class="dcoins">${r.turn.map((k) => l`<button class="dcoin tap" style="--c:${k.colour}" ?data-now=${k.now} aria-label="${k.name} chooses a song${k.now ? " (their turn)" : ""}" @click=${() => r.choose(k.name)}>${k.face}</button>`)}</div>
+      <div class="dcoins">${r.turn.map((w) => l`<button class="dcoin tap" style="--c:${w.colour}" ?data-now=${w.now} aria-label="${w.name} chooses a song${w.now ? " (their turn)" : ""}" @click=${() => r.choose(w.name)}>${w.face}</button>`)}</div>
       <p class="dwho">${r.chooser ? l`<b>${r.chooser}</b> chooses next` : "Tap a face to choose a song"}</p>
-      ${r.sleep.can ? l`<button class="dsleep tap" ?data-on=${m !== null} aria-pressed=${String(m !== null)} @click=${() => r.sleepGo()}>
-        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${m !== null ? g`<path class="sww" d="M20 20 L20 4 A16 16 0 ${x > Math.PI ? 1 : 0} 1 ${b.toFixed(2)} ${w.toFixed(2)} Z"></path>` : u}</svg>
-        <span><b>Sleep fade · ${r.sleep.room}</b><span>${m !== null ? `${m} min left · tap to cancel` : `Fade out in ${r.sleep.mins} min`}</span></span></button>` : u}</section>
+      ${r.sleep.can ? l`<button class="dsleep tap" ?data-on=${f !== null} aria-pressed=${String(f !== null)} @click=${() => r.sleepGo()}>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${f !== null ? g`<path class="sww" d="M20 20 L20 4 A16 16 0 ${m > Math.PI ? 1 : 0} 1 ${b.toFixed(2)} ${k.toFixed(2)} Z"></path>` : u}</svg>
+        <span><b>Sleep fade · ${r.sleep.room}</b><span>${f !== null ? `${f} min left · tap to cancel` : `Fade out in ${r.sleep.mins} min`}</span></span></button>` : u}</section>
     <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, n)} aria-valuenow=${p < 0 ? 1 : p + 1} aria-valuetext=${p < 0 ? "Not tuned" : r.stops[p].name} @pointerdown=${c} @keydown=${h}>
       <i class="tticks" aria-hidden="true"></i>
-      ${r.stops.map((k, v) => l`<span class="tstop" ?data-on=${k.on} style="left:${d(v)}%;max-width:${(100 / n - 2).toFixed(1)}%">${k.name}</span>`)}
+      ${r.stops.map((w, v) => l`<span class="tstop" ?data-on=${w.on} style="left:${d(v)}%;max-width:${(100 / n - 2).toFixed(1)}%">${w.name}</span>`)}
       ${n ? l`<i class="tneedle" aria-hidden="true" ?data-on=${p >= 0} style="left:${p < 0 ? 2 : d(p)}%"></i>` : l`<span class="tstop" style="left:50%">Pin music or add stations to fill the tuner</span>`}
     </div></div>`;
 }, oh = (a) => {
   const t = a.rooms.filter((c) => c.live && c.hasVol && !c.offline), e = t.length ? Math.round(t.reduce((c, h) => c + h.vol, 0) / t.length) : 0, i = t.map((c) => [c.id, c.vol]), o = lo({ name: "the whole house", v: e, live: t.length > 0, vert: !0, set: (c, h) => {
-    for (const [m, f] of i) a.vol(m, $a(f + c - e), h);
+    for (const [f, x] of i) a.vol(f, $a(x + c - e), h);
   }, drop: () => {
     for (const [c] of i) a.drop(c);
   } }), s = (c) => {
-    const h = c.live ? Math.max(1, Math.round(c.vol / 10)) : 0, m = c.offline ? "–" : c.on ? "ON" : c.live ? "PLAYING" : c.asleep ? "☾" : "OFF", f = c.offline ? `${c.name} is offline` : c.on ? c.lead ? `ON: ${c.name} plays this music. ${c.playing ? "Pause" : "Play"}` : `ON. Remove ${c.name} from the music` : c.live ? `${c.name} has other music. Swap it for this music` : `OFF. Add ${c.name} to the music`;
+    const h = c.live ? Math.max(1, Math.round(c.vol / 10)) : 0, f = c.offline ? "–" : c.on ? "ON" : c.live ? "PLAYING" : c.asleep ? "☾" : "OFF", x = c.offline ? `${c.name} is offline` : c.on ? c.lead ? `ON: ${c.name} plays this music. ${c.playing ? "Pause" : "Play"}` : `ON. Remove ${c.name} from the music` : c.live ? `${c.name} has other music. Swap it for this music` : `OFF. Add ${c.name} to the music`;
     return l`<div class="strip" data-zone=${c.id} ?data-live=${c.live} ?data-playing=${c.playing} ?data-asleep=${c.asleep} ?data-offline=${c.offline} ?data-focus=${c.focus} ?data-hot=${a.over === c.id} style=${ee(c)}>
       <button class="sname tap" aria-pressed=${String(c.focus)} aria-label="Show ${c.name} in the player" @click=${() => a.focus(c.id)}><span>${c.name}</span>${Fo(c)}</button>
-      <button class="lamp tap" aria-pressed=${String(c.on)} ?data-other=${c.live && !c.on} ?disabled=${c.offline} aria-label=${f} @click=${() => a.toggle(c.id)}>${m}</button>
-      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (x, b) => l`<i ?data-lit=${9 - b < h} ?data-peak=${9 - b >= h - 2 && 9 - b < h}></i>`)}</span>
+      <button class="lamp tap" aria-pressed=${String(c.on)} ?data-other=${c.live && !c.on} ?disabled=${c.offline} aria-label=${x} @click=${() => a.toggle(c.id)}>${f}</button>
+      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (m, b) => l`<i ?data-lit=${9 - b < h} ?data-peak=${9 - b >= h - 2 && 9 - b < h}></i>`)}</span>
         ${c.hasVol && !c.offline ? eh(a, c, !0) : l`<span class="sval">${c.offline ? "Offline" : "–"}</span>`}</div></div>`;
   }, r = (c) => {
-    const h = c.currentTarget.getBoundingClientRect(), m = h.left + h.width / 2, f = h.top + h.height / 2, x = (U) => Math.atan2(U.clientY - f, U.clientX - m) * 180 / Math.PI;
-    let b = x(c), w = 0, k = !1;
+    const h = c.currentTarget.getBoundingClientRect(), f = h.left + h.width / 2, x = h.top + h.height / 2, m = (U) => Math.atan2(U.clientY - x, U.clientX - f) * 180 / Math.PI;
+    let b = m(c), k = 0, w = !1;
     const v = (U) => {
-      const M = x(U);
+      const M = m(U);
       let R = M - b;
-      return R > 180 ? R -= 360 : R < -180 && (R += 360), b = M, w += R, w;
+      return R > 180 ? R -= 360 : R < -180 && (R += 360), b = M, k += R, k;
     };
     Ha(c, (U) => {
-      k = !0, a.jogTo(v(U), !1);
+      w = !0, a.jogTo(v(U), !1);
     }, (U, M, R) => {
-      U && !R ? a.jogTo(v(M), !0) : k && a.jogTo(0, !0);
+      U && !R ? a.jogTo(v(M), !0) : w && a.jogTo(0, !0);
     }, 6);
   }, n = (c) => {
     const h = c.key === "ArrowRight" || c.key === "ArrowUp" ? 10 : c.key === "ArrowLeft" || c.key === "ArrowDown" ? -10 : 0;
@@ -8040,28 +8108,28 @@ const ap = async (a) => {
       <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${A("home", 22)}</button>
       <div class="well">${t.length ? o : l`<span class="sval">–</span>`}</div></div></div></div>`;
 }, pl = 6, sh = (a) => {
-  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), o = Math.max(0, Math.min(i - 2, e - pl)), s = t.items.slice(o, o + pl), r = t.items[i], n = (x) => (x + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, d = (x, b) => {
-    const [w, k] = kr(a, x);
-    return l`<div class="cab" data-zone=${x.id} ?data-live=${x.live} ?data-playing=${x.playing} ?data-asleep=${x.asleep} ?data-offline=${x.offline} ?data-focus=${x.focus} ?data-hot=${a.over === x.id} ?data-held=${a.held === x.id} style="--top:${n(b)}%;--n:${a.rooms.length};${ee(x)}">
-    <button class="chit tap" aria-pressed=${String(x.focus)} aria-label="Show ${x.name} in the player" @click=${() => a.focus(x.id)}><span class="cone" aria-hidden="true"><i></i></span>
-      <span class="ctext"><b>${x.asleep ? "☾ " : ""}${x.name}${Fo(x)}</b><span>${x.hasVol && !x.offline ? l`<b class="vnum">${x.vol}</b> ` : u}${So(x)}</span></span></button>
-    ${x.hasVol && !x.offline ? l`<span class="cvol">${w}<span class="cknob" role="slider" tabindex="0" aria-label="Volume in ${x.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${x.vol} aria-valuetext=${vr(x)} ?data-idle=${!x.live}
-      style="--v:${x.vol}" @pointerdown=${sp(a, x, () => 150)} @keydown=${wr(a, x)}><i></i></span>${k}</span>` : u}
-    <button class="sock tap" data-notrack aria-pressed=${String(x.on)} ?disabled=${x.offline} aria-label="${x.on ? "Remove" : "Add"} ${x.name} ${x.on ? "from" : "to"} the music" @click=${() => a.toggle(x.id)}>${x.on ? "" : "＋"}</button></div>`;
-  }, c = a.rooms.map((x, b) => [x, b]).filter(([x]) => x.on), h = (x) => 39 + (x - (c.length - 1) / 2) * Math.min(9, 60 / Math.max(1, c.length)), m = c.map(([x, b], w) => {
-    const v = h(w), U = 70, M = n(b), R = 9 + Math.abs(M - v) * 0.18;
-    return g`<path class="wire" ?data-playing=${x.playing} style="${ee(x)};animation-delay:${-w * 0.4}s" d="M${64.6} ${v} C${64.6 + 3.4} ${v + R}, ${U - 3.4} ${M + R}, ${U} ${M}"></path>`;
-  }), f = (x, b) => {
-    const w = o + b, k = w === i, v = 0.5 + (b - (s.length - 1) / 2) / Math.max(3, s.length - 1);
-    return l`<button class="sleeve tap" ?data-front=${k} ?data-lifted=${a.liftedItem === x} style="z-index:${10 - Math.abs(w - i)};--x:${v};--tilt:${(-9 + 17 * v).toFixed(1)}deg;--art:${x.img ? `url(${x.img})` : `linear-gradient(135deg, var(--p-${w % 5 + 1}), var(--p-${(w + 2) % 5 + 1}))`}"
-      aria-label="${x.name}. ${k ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
-      @pointerdown=${(U) => a.carryItem(U, x, (M) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(M / 52)))))} @click=${() => t.tap(w)}><span class="sart">${x.img ? "" : x.name[0]}</span></button>`;
+  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), o = Math.max(0, Math.min(i - 2, e - pl)), s = t.items.slice(o, o + pl), r = t.items[i], n = (m) => (m + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, d = (m, b) => {
+    const [k, w] = kr(a, m);
+    return l`<div class="cab" data-zone=${m.id} ?data-live=${m.live} ?data-playing=${m.playing} ?data-asleep=${m.asleep} ?data-offline=${m.offline} ?data-focus=${m.focus} ?data-hot=${a.over === m.id} ?data-held=${a.held === m.id} style="--top:${n(b)}%;--n:${a.rooms.length};${ee(m)}">
+    <button class="chit tap" aria-pressed=${String(m.focus)} aria-label="Show ${m.name} in the player" @click=${() => a.focus(m.id)}><span class="cone" aria-hidden="true"><i></i></span>
+      <span class="ctext"><b>${m.asleep ? "☾ " : ""}${m.name}${Fo(m)}</b><span>${m.hasVol && !m.offline ? l`<b class="vnum">${m.vol}</b> ` : u}${So(m)}</span></span></button>
+    ${m.hasVol && !m.offline ? l`<span class="cvol">${k}<span class="cknob" role="slider" tabindex="0" aria-label="Volume in ${m.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${m.vol} aria-valuetext=${vr(m)} ?data-idle=${!m.live}
+      style="--v:${m.vol}" @pointerdown=${sp(a, m, () => 150)} @keydown=${wr(a, m)}><i></i></span>${w}</span>` : u}
+    <button class="sock tap" data-notrack aria-pressed=${String(m.on)} ?disabled=${m.offline} aria-label="${m.on ? "Remove" : "Add"} ${m.name} ${m.on ? "from" : "to"} the music" @click=${() => a.toggle(m.id)}>${m.on ? "" : "＋"}</button></div>`;
+  }, c = a.rooms.map((m, b) => [m, b]).filter(([m]) => m.on), h = (m) => 39 + (m - (c.length - 1) / 2) * Math.min(9, 60 / Math.max(1, c.length)), f = c.map(([m, b], k) => {
+    const v = h(k), U = 70, M = n(b), R = 9 + Math.abs(M - v) * 0.18;
+    return g`<path class="wire" ?data-playing=${m.playing} style="${ee(m)};animation-delay:${-k * 0.4}s" d="M${64.6} ${v} C${64.6 + 3.4} ${v + R}, ${U - 3.4} ${M + R}, ${U} ${M}"></path>`;
+  }), x = (m, b) => {
+    const k = o + b, w = k === i, v = 0.5 + (b - (s.length - 1) / 2) / Math.max(3, s.length - 1);
+    return l`<button class="sleeve tap" ?data-front=${w} ?data-lifted=${a.liftedItem === m} style="z-index:${10 - Math.abs(k - i)};--x:${v};--tilt:${(-9 + 17 * v).toFixed(1)}deg;--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${k % 5 + 1}), var(--p-${(k + 2) % 5 + 1}))`}"
+      aria-label="${m.name}. ${w ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
+      @pointerdown=${(U) => a.carryItem(U, m, (M) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(M / 52)))))} @click=${() => t.tap(k)}><span class="sart">${m.img ? "" : m.name[0]}</span></button>`;
   };
   return l`<div class="rig" data-fits>
-    <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${m}</svg>
+    <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${f}</svg>
     <div class="cratecol">
-      <div class="ctabs" role="group" aria-label="Whose crate">${t.tabs.map((x) => l`<button class="ctab tap" style="--c:${x.colour}" aria-pressed=${String(x.name === t.who)} @click=${() => t.pick(x.name)}>${x.name}</button>`)}</div>
-      <div class="sleeves">${s.map(f)}</div>
+      <div class="ctabs" role="group" aria-label="Whose crate">${t.tabs.map((m) => l`<button class="ctab tap" style="--c:${m.colour}" aria-pressed=${String(m.name === t.who)} @click=${() => t.pick(m.name)}>${m.name}</button>`)}</div>
+      <div class="sleeves">${s.map(x)}</div>
       <div class="cbox">
         <div class="clabel">${e > 1 ? l`<button class="cnav tap" aria-label="Flick back" ?disabled=${i === 0} @click=${() => t.flick(i - 1)}>${et("prev", 20)}</button>` : u}
           <b>${t.calm ? "🌙 " : ""}${p}</b>${e > 1 ? l`<button class="cnav tap" aria-label="Flick forward" ?disabled=${i === e - 1} @click=${() => t.flick(i + 1)}>${et("next", 20)}</button>` : u}</div>
@@ -8073,7 +8141,7 @@ const ap = async (a) => {
         <div class="tplat"><button class="cdisc tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}></button>
           <i class="tarm" aria-hidden="true" style="--arm:${a.now.lead ? (12 + 18 * a.now.frac).toFixed(1) : 0}deg"><i></i></i><i class="tpivot" aria-hidden="true"></i></div>
         <span class="ttitle"><b>${a.now.title}</b><span>${a.now.artist || (a.now.lead ? "" : "Drop a record here")}</span></span>
-        ${c.map((x, b) => l`<i class="jack" aria-hidden="true" style="top:${h(b) / 78 * 100}%"></i>`)}
+        ${c.map((m, b) => l`<i class="jack" aria-hidden="true" style="top:${h(b) / 78 * 100}%"></i>`)}
       </div>
       <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${et("prev", 28)}</button>
         <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${et(a.now.playing ? "pause" : "play", 30)}</button>
@@ -8139,29 +8207,29 @@ const ap = async (a) => {
 }, nh = (a) => {
   const t = {}, e = a.rooms.filter((d) => d.stream), i = a.rooms.filter((d) => !d.stream);
   if (a.narrow) {
-    const d = [...a.streams.flatMap((m) => e.filter((f) => f.stream === m).sort((f, x) => Number(x.lead) - Number(f.lead))), ...i], c = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(d.length / c));
-    return d.forEach((m, f) => {
-      const x = Math.floor(f / c), b = Math.min(c, d.length - x * c);
-      t[m.id] = [(f % c + 0.5) / b * 100, 27 + (x + 0.5) / h * 55];
+    const d = [...a.streams.flatMap((f) => e.filter((x) => x.stream === f).sort((x, m) => Number(m.lead) - Number(x.lead))), ...i], c = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(d.length / c));
+    return d.forEach((f, x) => {
+      const m = Math.floor(x / c), b = Math.min(c, d.length - m * c);
+      t[f.id] = [(x % c + 0.5) / b * 100, 27 + (m + 0.5) / h * 55];
     }), t;
   }
   const o = 31, s = 67, r = 5, n = Math.min(16, (s - r * Math.max(0, a.streams.length - 1)) / Math.max(1, e.length));
   let p = o;
   for (const d of a.streams) {
-    const c = e.filter((h) => h.stream === d).sort((h, m) => Number(m.lead) - Number(h.lead));
-    c.forEach((h, m) => {
-      t[h.id] = [p + (m + 0.5) * n, (i.length ? 23 : 40) + (n < 13 && m % 2 ? 7 : 0)];
+    const c = e.filter((h) => h.stream === d).sort((h, f) => Number(f.lead) - Number(h.lead));
+    c.forEach((h, f) => {
+      t[h.id] = [p + (f + 0.5) * n, (i.length ? 23 : 40) + (n < 13 && f % 2 ? 7 : 0)];
     }), p += c.length * n + r;
   }
   return i.forEach((d, c) => {
     t[d.id] = [2 + (c + 0.5) / i.length * 96, e.length ? 60 : 45];
   }), t;
 }, dl = { sea: "buoys", reef: "shells", space: "stars", orbit: "stars", bush: "lanterns", sunset: "beach balls", fridge: "photos", sports: "kit bag" }, pp = (a) => rp(a.now.playing, () => a.prev(), () => a.playPause(), () => a.next()), dp = (a, t) => {
-  const e = a.crate, i = e.items.slice(0, 7), o = e.tabs.map((m) => m.name), s = o[(o.indexOf(e.who) + 1) % Math.max(1, o.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), p = (m) => `${(m + 0.5) / n * 100} ${m % 2 ? 62 : 38}`, d = t === "space" || t === "orbit", c = t === "fridge" || t === "bush", h = d ? `M${i.map((m, f) => p(f)).join(" L")}` : "M0 6 Q50 20 100 6";
+  const e = a.crate, i = e.items.slice(0, 7), o = e.tabs.map((f) => f.name), s = o[(o.indexOf(e.who) + 1) % Math.max(1, o.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), p = (f) => `${(f + 0.5) / n * 100} ${f % 2 ? 62 : 38}`, d = t === "space" || t === "orbit", c = t === "fridge" || t === "bush", h = d ? `M${i.map((f, x) => p(x)).join(" L")}` : "M0 6 Q50 20 100 6";
   return l`<div class="sshelf" data-kind=${t}>
     <button class="slabel tap" aria-label="${r} ${dl[t] ?? "shelf"}. Show ${s === "Family" ? "the family" : `${s}’s`} shelf" @click=${() => e.pick(s)}><b>${e.calm ? "🌙 " : ""}${r} ${dl[t] ?? "shelf"}</b><span>${i.length ? "Carry one to a room" : "Pin music from Search"}</span></button>
-    <div class="sitems" style="--n:${n}">${i.length > 1 && (d || c) ? l`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : u}${i.map((m, f) => l`<button class="sitem tap" style="--i:${f};animation-delay:${-f * 0.55}s" ?data-lifted=${a.liftedItem === m} aria-label="${m.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
-      @pointerdown=${(x) => a.carryItem(x, m)} @click=${() => e.play(m)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${f % 5 + 1}), var(--p-${(f + 2) % 5 + 1}))`}"></i></button>`)}</div>
+    <div class="sitems" style="--n:${n}">${i.length > 1 && (d || c) ? l`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : u}${i.map((f, x) => l`<button class="sitem tap" style="--i:${x};animation-delay:${-x * 0.55}s" ?data-lifted=${a.liftedItem === f} aria-label="${f.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
+      @pointerdown=${(m) => a.carryItem(m, f)} @click=${() => e.play(f)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${f.img ? `url(${f.img})` : `linear-gradient(135deg, var(--p-${x % 5 + 1}), var(--p-${(x + 2) % 5 + 1}))`}"></i></button>`)}</div>
   </div>`;
 }, cp = (a) => l`<button class="puck spot" data-drop="deck" ?data-hot=${a.over === "deck"} ?data-playing=${a.now.playing} ?data-lifted=${!!a.lifted && a.lifted === a.now.lead} style=${a.now.art ? `--art:url(${a.now.art})` : ""}
   aria-label="${a.now.title}. Tap to ${a.now.playing ? "pause" : "play"}${a.now.lead ? ", drag onto a room to move the music there" : ""}." @pointerdown=${(t) => {
@@ -8190,7 +8258,7 @@ const ap = async (a) => {
   }, Mo);
 }, ph = (a, t) => {
   const e = np[t], i = nh(a), o = a.sdrag, s = (r) => (n, p) => {
-    const d = (h) => Math.hypot((i[h.id][0] - (n.clientX - p.left) / p.width * 100) / 100 * p.width, (i[h.id][1] - (n.clientY - p.top) / p.height * 100) / 100 * p.height), c = a.rooms.filter((h) => h.id !== r.id).sort((h, m) => d(h) - d(m))[0];
+    const d = (h) => Math.hypot((i[h.id][0] - (n.clientX - p.left) / p.width * 100) / 100 * p.width, (i[h.id][1] - (n.clientY - p.top) / p.height * 100) / 100 * p.height), c = a.rooms.filter((h) => h.id !== r.id).sort((h, f) => d(h) - d(f))[0];
     c && d(c) < 96 ? c.stream && c.stream !== r.stream ? a.join(r.id, c.stream) : !c.stream && r.stream && a.join(c.id, r.stream) : r.stream && !r.lead && !a.rooms.some((h) => h.id !== r.id && h.stream === r.stream && d(h) < 170) && a.leave(r.id);
   };
   return l`<div class="vscene" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
@@ -8209,11 +8277,11 @@ const ap = async (a) => {
   </div>`;
 }, Qi = [36, 58], ls = 82, cl = "0 22 100 92", dh = (a, t) => {
   const e = np[t], i = a.sdrag, o = (d) => Qi[Math.min(Qi.length - 1, a.streams.indexOf(d))], s = (d) => (c, h) => {
-    const m = c.target.closest(".vscene") ?? document.body, f = getComputedStyle(m), x = Number(f.getPropertyValue("--sq")) || 0.42, b = Number(f.getPropertyValue("--k")) || 1, w = Number(f.getPropertyValue("--cy")) || 0.4, k = Number(f.getPropertyValue("--uh")) || 1, v = Math.hypot(c.clientX - (h.left + h.width / 2), (c.clientY - (h.top + h.height * w)) / x) / Math.min(h.height * k, h.width * 0.56) * 100 / b, U = [...a.streams.map((R) => [o(R), R]), [ls, ""]], [, M] = U.sort((R, Y) => Math.abs(R[0] - v) - Math.abs(Y[0] - v))[0];
+    const f = c.target.closest(".vscene") ?? document.body, x = getComputedStyle(f), m = Number(x.getPropertyValue("--sq")) || 0.42, b = Number(x.getPropertyValue("--k")) || 1, k = Number(x.getPropertyValue("--cy")) || 0.4, w = Number(x.getPropertyValue("--uh")) || 1, v = Math.hypot(c.clientX - (h.left + h.width / 2), (c.clientY - (h.top + h.height * k)) / m) / Math.min(h.height * w, h.width * 0.56) * 100 / b, U = [...a.streams.map((R) => [o(R), R]), [ls, ""]], [, M] = U.sort((R, Y) => Math.abs(R[0] - v) - Math.abs(Y[0] - v))[0];
     M && M !== d.stream ? a.join(d.id, M) : !M && d.stream && !d.lead && a.leave(d.id);
   }, r = a.rooms.filter((d) => !d.stream), n = (d) => {
-    const c = d.stream ? a.rooms.filter((x) => x.stream === d.stream) : r, h = c.indexOf(d), m = d.stream ? a.streams.indexOf(d.stream) : 0, f = d.stream ? (m * 137 + h * 360 / c.length) % 360 : (100 + h * 360 / Math.max(1, c.length)) % 360;
-    return l`<div class="arm" ?data-moving=${d.playing} ?data-away=${i?.id === d.id} style="--a:${f};--r:${d.stream ? o(d.stream) : ls};--t:${d.stream ? 70 + m * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
+    const c = d.stream ? a.rooms.filter((m) => m.stream === d.stream) : r, h = c.indexOf(d), f = d.stream ? a.streams.indexOf(d.stream) : 0, x = d.stream ? (f * 137 + h * 360 / c.length) % 360 : (100 + h * 360 / Math.max(1, c.length)) % 360;
+    return l`<div class="arm" ?data-moving=${d.playing} ?data-away=${i?.id === d.id} style="--a:${x};--r:${d.stream ? o(d.stream) : ls};--t:${d.stream ? 70 + f * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
       <div class="actor planet" data-zone=${d.id} ?data-live=${d.live} ?data-playing=${d.playing} ?data-asleep=${d.asleep} ?data-offline=${d.offline} ?data-focus=${d.focus} ?data-vheld=${a.held === d.id} ?data-hot=${a.over === d.id && a.lifted !== d.id} style=${ee(d)} @pointerdown=${hp(a, d, s(d))}>${Js(a, d, e, cl)}</div></div></div></div></div>`;
   }, p = i ? a.rooms.find((d) => d.id === i.id) : void 0;
   return l`<div class="vscene orbits" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
@@ -9063,9 +9131,9 @@ const ap = async (a) => {
         colour: ta && ta.entity_id !== e?.entity_id ? `var(--p-${[3, 5, 4, 2][s.indexOf(ta.entity_id) % 4]})` : "",
         title: String(ta?.attributes.media_title ?? "")
       };
-    }))), n = Number(o.media_duration) || 0, p = o.media_position_updated_at ? new Date(o.media_position_updated_at).getTime() : 0, d = t?.state === "playing", c = n ? Math.min(n, (Number(o.media_position) || 0) + (d && p ? (this._now - p) / 1e3 : 0)) : 0, h = n ? c / n : 0, m = this._pads, f = this._jog, x = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
+    }))), n = Number(o.media_duration) || 0, p = o.media_position_updated_at ? new Date(o.media_position_updated_at).getTime() : 0, d = t?.state === "playing", c = n ? Math.min(n, (Number(o.media_position) || 0) + (d && p ? (this._now - p) / 1e3 : 0)) : 0, h = n ? c / n : 0, f = this._pads, x = this._jog, m = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
-    const b = this.kids.find((K) => K.name === this._shelf), w = !!b && Xe(b.bedtime), k = this._items[this._shelf] ?? [], v = w ? k.filter((K) => K.calm) : k, U = Math.max(0, Math.min(v.length - 1, this._crateAt));
+    const b = this.kids.find((K) => K.name === this._shelf), k = !!b && Xe(b.bedtime), w = this._items[this._shelf] ?? [], v = k ? w.filter((K) => K.calm) : w, U = Math.max(0, Math.min(v.length - 1, this._crateAt));
     this._mode === "dial" && this._loadRadio();
     const M = this._juke, R = (K) => M.picks.filter((C) => C.done && C.who === K).length, Y = M.on ? M.picks.filter((K) => !K.done).sort((K, C) => +(C.who === this._dj) - +(K.who === this._dj) || R(K.who) - R(C.who) || K.t - C.t) : [], S = Y.length ? Y.slice(0, 3).map((K) => ({ title: K.name, sub: `${K.who}’s pick`, art: K.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], V = this._everyone, j = new Set(Y.map((K) => K.who)), N = [...V].sort((K, C) => Number(j.has(K.name)) - Number(j.has(C.name)) || R(K.name) - R(C.name))[0]?.name ?? "", At = (this._items.Family ?? []).slice(0, 4), ya = this._stations.filter((K) => !At.some((C) => C.name.toLowerCase() === K.name.toLowerCase())).slice(0, Math.max(0, 7 - At.length)), Et = t && d ? ji[t.entity_id] : "", Ct = [...At.map((K) => ({ name: K.name, on: d && !Et && this._lastUri === K.uri, go: () => {
       t && this._gentle(t.entity_id, () => {
@@ -9092,11 +9160,11 @@ const ap = async (a) => {
           Ct[K] && !Ct[K].on && Ct[K].go();
         }
       },
-      moments: m.map((K) => ({ name: K.name, icon: K.icon ?? uh.find(([C]) => C.test(K.name))?.[1] ?? "🎵", on: x === K.name, busy: this._momentBusy === K.name })),
+      moments: f.map((K) => ({ name: K.name, icon: K.icon ?? uh.find(([C]) => C.test(K.name))?.[1] ?? "🎵", on: m === K.name, busy: this._momentBusy === K.name })),
       moment: (K) => {
-        !this._momentBusy && m[K] && this._moment(m[K]);
+        !this._momentBusy && f[K] && this._moment(f[K]);
       },
-      jog: { turn: f, at: c, read: f === null ? n ? Li(c) : "" : n ? Li(Math.max(0, Math.min(n, c + f / 360 * 120))) : Math.abs(f) < 60 ? "" : f > 0 ? "Next" : "Back", len: n, says: n ? `${Li(c)} of ${Li(n)}` : "No length" },
+      jog: { turn: x, at: c, read: x === null ? n ? Li(c) : "" : n ? Li(Math.max(0, Math.min(n, c + x / 360 * 120))) : Math.abs(x) < 60 ? "" : x > 0 ? "Next" : "Back", len: n, says: n ? `${Li(c)} of ${Li(n)}` : "No length" },
       jogTo: (K, C) => this._jogTo(K, C, c, n),
       seekBy: (K) => {
         n ? this._svc("media_seek", { seek_position: Math.max(0, Math.min(n - 1, Math.round(c + K))) }) : this._svc(K > 0 ? "media_next_track" : "media_previous_track");
@@ -9111,7 +9179,7 @@ const ap = async (a) => {
         },
         items: v,
         at: U,
-        calm: w,
+        calm: k,
         room: this._name(t),
         play: (K) => {
           Date.now() - this._carried < 400 || !t || this._gentle(t.entity_id, () => this._shelfPlay(K, t));
@@ -9167,33 +9235,33 @@ const ap = async (a) => {
   }
   /** One press for an occasion: find the music, set the rooms and the volume, play. */
   _moment(t) {
-    const e = this._h, i = this._list, o = this._cur, s = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], p = (s ? this._homeList : r.map((f) => xa(e, i, f)).filter((f) => !!f)).filter((f) => this._off(f)).map((f) => this._name(f)), d = r.map((f) => xa(e, i, f) ?? (e.states[f]?.entity_id.startsWith("media_player.") ? e.states[f] : void 0)).filter((f) => !!f), c = this._homeList, h = (s ? [...o && c.includes(o) ? [o] : [], ...c.filter((f) => f.entity_id !== o?.entity_id)] : d.length ? d : o ? [o] : []).filter((f) => !this._off(f));
+    const e = this._h, i = this._list, o = this._cur, s = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], p = (s ? this._homeList : r.map((x) => xa(e, i, x)).filter((x) => !!x)).filter((x) => this._off(x)).map((x) => this._name(x)), d = r.map((x) => xa(e, i, x) ?? (e.states[x]?.entity_id.startsWith("media_player.") ? e.states[x] : void 0)).filter((x) => !!x), c = this._homeList, h = (s ? [...o && c.includes(o) ? [o] : [], ...c.filter((x) => x.entity_id !== o?.entity_id)] : d.length ? d : o ? [o] : []).filter((x) => !this._off(x));
     if (!h.length) {
       this._say(this._offline.length ? "Those speakers are offline" : "No speaker to play on");
       return;
     }
     d.length < r.length && console.warn("Family Hub: a moment names a speaker that was not found", t);
-    const m = async () => {
+    const f = async () => {
       this._momentBusy = t.name;
       try {
-        const f = n ? { name: n.title, uri: n.uri } : t.uri ? { name: t.name, uri: t.uri } : await Ic(e, t.find ?? t.name, t.kind ?? "playlist");
-        if (!f) {
+        const x = n ? { name: n.title, uri: n.uri } : t.uri ? { name: t.name, uri: t.uri } : await Ic(e, t.find ?? t.name, t.kind ?? "playlist");
+        if (!x) {
           this._say(`Couldn’t find “${t.find ?? t.name}” to play`);
           return;
         }
-        const x = h[0], b = h.map((w) => w.entity_id);
-        for (const w of this._mix(x)) b.includes(w) || e.callService("media_player", "unjoin", {}, { entity_id: w });
-        if (typeof t.volume == "number") for (const w of b) this._svc("volume_set", { volume_level: Math.max(0, Math.min(100, t.volume)) / 100 }, w);
-        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, x.entity_id), this._lastUri = f.uri, await ti(e, x.entity_id, f.uri, "play"), b.length > 1 && await e.callService("media_player", "join", { group_members: b.slice(1) }, { entity_id: x.entity_id }).catch((w) => this._oops("Couldn’t add every room", w)), this._focus = x.entity_id, this._momentOn = { name: t.name, lead: x.entity_id }, this._say(`${t.name}: ${f.name === t.name ? "" : `${f.name} `}in ${s ? "the whole house" : h.map((w) => this._name(w)).join(" and ")}${p.length ? ` (${p.join(" and ")} offline)` : ""}`);
-      } catch (f) {
-        this._oops(`${t.name} couldn’t start`, f);
+        const m = h[0], b = h.map((k) => k.entity_id);
+        for (const k of this._mix(m)) b.includes(k) || e.callService("media_player", "unjoin", {}, { entity_id: k });
+        if (typeof t.volume == "number") for (const k of b) this._svc("volume_set", { volume_level: Math.max(0, Math.min(100, t.volume)) / 100 }, k);
+        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, m.entity_id), this._lastUri = x.uri, await ti(e, m.entity_id, x.uri, "play"), b.length > 1 && await e.callService("media_player", "join", { group_members: b.slice(1) }, { entity_id: m.entity_id }).catch((k) => this._oops("Couldn’t add every room", k)), this._focus = m.entity_id, this._momentOn = { name: t.name, lead: m.entity_id }, this._say(`${t.name}: ${x.name === t.name ? "" : `${x.name} `}in ${s ? "the whole house" : h.map((k) => this._name(k)).join(" and ")}${p.length ? ` (${p.join(" and ")} offline)` : ""}`);
+      } catch (x) {
+        this._oops(`${t.name} couldn’t start`, x);
       } finally {
         this._momentBusy = "";
       }
     };
-    h.some((f) => this._asleep(f.entity_id)) ? this._guard(`${t.name} plays in a bedroom after bedtime. Play anyway?`, () => {
-      m();
-    }) : m();
+    h.some((x) => this._asleep(x.entity_id)) ? this._guard(`${t.name} plays in a bedroom after bedtime. Play anyway?`, () => {
+      f();
+    }) : f();
   }
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. */
   /** The jog wheel: a turn moves through the song (a full turn is two minutes); past either end it skips. Music with no length skips a track each way. A tap, or a turn of a few degrees, is not a turn: the song stays where it is. */
@@ -9226,8 +9294,8 @@ const ap = async (a) => {
       const c = xa(t, e, d);
       return c && i.add(c.entity_id), c;
     }, n = this.map.map((d) => ({ name: d.name ?? "", rooms: (d.rooms ?? []).map((c) => {
-      const h = (c.zones ?? (c.player ? [{ player: c.player, name: c.name }] : [])).map((f) => ({ name: f.name ?? "", p: r(f.player) })).filter((f) => !!f.p).map((f) => ({ ...f, name: f.name || String(f.p.attributes.friendly_name ?? "") })), m = (c.kids ?? []).map((f) => this.kids.find((x) => x.name === f)).filter((f) => !!f).map((f) => mt(ka(f.bedtime)));
-      return { name: c.name ?? h[0]?.name ?? "", size: c.size ?? Math.max(1, h.length), stairs: !!c.stairs, asleep: m.length > 0 && (o >= Math.min(...m) || o < s), zones: h };
+      const h = (c.zones ?? (c.player ? [{ player: c.player, name: c.name }] : [])).map((x) => ({ name: x.name ?? "", p: r(x.player) })).filter((x) => !!x.p).map((x) => ({ ...x, name: x.name || String(x.p.attributes.friendly_name ?? "") })), f = (c.kids ?? []).map((x) => this.kids.find((m) => m.name === x)).filter((x) => !!x).map((x) => mt(ka(x.bedtime)));
+      return { name: c.name ?? h[0]?.name ?? "", size: c.size ?? Math.max(1, h.length), stairs: !!c.stairs, asleep: f.length > 0 && (o >= Math.min(...f) || o < s), zones: h };
     }).filter((c) => c.stairs || c.zones.length) })).filter((d) => d.rooms.some((c) => c.zones.length)), p = e.filter((d) => !i.has(d.entity_id)).map((d) => ({ name: String(d.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(d.attributes.friendly_name ?? ""), p: d }] }));
     return p.length && n.push({ name: n.length ? "Other" : "", rooms: p }), n;
   }
@@ -9254,28 +9322,28 @@ const ap = async (a) => {
     const i = t.target, o = this._volOf(e);
     if (!t.isPrimary || i.closest(".zname, .join, .puck, .vstep") || o === null || this._off(e) || pe() === "phone" && !i.closest(".grab")) return;
     const s = t.currentTarget, r = e.entity_id, n = t.clientX, p = t.clientY, d = s.querySelector(".grab"), c = d ? getComputedStyle(d) : null, h = Math.max(40, s.getBoundingClientRect().height - (c ? (parseFloat(c.getPropertyValue("--r0")) || 0) + (parseFloat(c.getPropertyValue("--r1")) || 0) : 72));
-    let m = !1, f = !1, x = o;
-    const b = (k) => {
-      if (!f) {
-        if (!m) {
-          const v = Math.abs(k.clientX - n), U = Math.abs(k.clientY - p);
+    let f = !1, x = !1, m = o;
+    const b = (w) => {
+      if (!x) {
+        if (!f) {
+          const v = Math.abs(w.clientX - n), U = Math.abs(w.clientY - p);
           if (v >= 10 && v > U) {
-            f = !0;
+            x = !0;
             return;
           }
           if (U < 10) return;
-          m = !0;
+          f = !0;
         }
-        x = Math.max(0, Math.min(100, Math.round(o + (p - k.clientY) / h * 100))), this._setVol(r, x, !1);
+        m = Math.max(0, Math.min(100, Math.round(o + (p - w.clientY) / h * 100))), this._setVol(r, m, !1);
       }
-    }, w = (k) => {
-      if (s.removeEventListener("pointermove", b), s.removeEventListener("pointerup", w), s.removeEventListener("pointercancel", w), k.type === "pointercancel" || f) {
-        m && this._volDrop(r);
+    }, k = (w) => {
+      if (s.removeEventListener("pointermove", b), s.removeEventListener("pointerup", k), s.removeEventListener("pointercancel", k), w.type === "pointercancel" || x) {
+        f && this._volDrop(r);
         return;
       }
-      m && this._setVol(r, x, !0);
+      f && this._setVol(r, m, !0);
     };
-    s.setPointerCapture(t.pointerId), s.addEventListener("pointermove", b), s.addEventListener("pointerup", w), s.addEventListener("pointercancel", w);
+    s.setPointerCapture(t.pointerId), s.addEventListener("pointermove", b), s.addEventListener("pointerup", k), s.addEventListener("pointercancel", k);
   }
   /** Pick something up and carry it to a room: the music itself (a tap pauses or plays it), or a record from a shelf. A press that moves less than 16 px is a tap. */
   _carryDown(t, e) {
@@ -9283,27 +9351,27 @@ const ap = async (a) => {
     const i = e.lead, o = e.item;
     let s = !1, r = 0;
     i && t.stopPropagation();
-    const n = t.currentTarget, p = this.renderRoot.querySelector(".panel"), d = t.clientX, c = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, m = String(i?.attributes.entity_picture ?? o?.img ?? ""), f = (w, k) => {
+    const n = t.currentTarget, p = this.renderRoot.querySelector(".panel"), d = t.clientX, c = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, f = String(i?.attributes.entity_picture ?? o?.img ?? ""), x = (k, w) => {
       const v = (M) => {
         const R = M.getBoundingClientRect();
-        return w >= R.left && w <= R.right && k >= R.top && k <= R.bottom;
+        return k >= R.left && k <= R.right && w >= R.top && w <= R.bottom;
       };
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(v)) return "all";
       const U = o ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
       return U && v(U) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(v)?.dataset.zone ?? "";
-    }, x = (w) => {
-      const k = p.getBoundingClientRect();
-      if (r = Math.max(r, Math.hypot(w.clientX - d, w.clientY - c)), !this._carry && !s && r < Mo) return;
-      const v = !!h && (w.clientX < h.left || w.clientX > h.right || w.clientY < h.top || w.clientY > h.bottom);
-      if (s && v && (s = !1, e.flick(0)), !this._carry && !s && !v && r < 60 && e.flick && Math.abs(w.clientX - d) > Math.abs(w.clientY - c) * 1.4 && (s = !0), s) {
-        e.flick(w.clientX - d);
+    }, m = (k) => {
+      const w = p.getBoundingClientRect();
+      if (r = Math.max(r, Math.hypot(k.clientX - d, k.clientY - c)), !this._carry && !s && r < Mo) return;
+      const v = !!h && (k.clientX < h.left || k.clientX > h.right || k.clientY < h.top || k.clientY > h.bottom);
+      if (s && v && (s = !1, e.flick(0)), !this._carry && !s && !v && r < 60 && e.flick && Math.abs(k.clientX - d) > Math.abs(k.clientY - c) * 1.4 && (s = !0), s) {
+        e.flick(k.clientX - d);
         return;
       }
-      this._carry = { from: i?.entity_id, item: o, art: m, x: (w.clientX - k.left) / k.width * 100, y: (w.clientY - k.top) / k.height * 100, over: f(w.clientX, w.clientY) };
-    }, b = (w) => {
-      n.removeEventListener("pointermove", x), n.removeEventListener("pointerup", b), n.removeEventListener("pointercancel", b);
-      let k = this._carry;
-      if (this._carry = null, w.type === "pointercancel") {
+      this._carry = { from: i?.entity_id, item: o, art: f, x: (k.clientX - w.left) / w.width * 100, y: (k.clientY - w.top) / w.height * 100, over: x(k.clientX, k.clientY) };
+    }, b = (k) => {
+      n.removeEventListener("pointermove", m), n.removeEventListener("pointerup", b), n.removeEventListener("pointercancel", b);
+      let w = this._carry;
+      if (this._carry = null, k.type === "pointercancel") {
         s && e.flick(0);
         return;
       }
@@ -9311,28 +9379,28 @@ const ap = async (a) => {
         this._carried = Date.now();
         return;
       }
-      if (k && r < 40 && (!k.over || k.over === i?.entity_id) && (k = null), !k) {
+      if (w && r < 40 && (!w.over || w.over === i?.entity_id) && (w = null), !w) {
         i && (this._focus = i.entity_id, this._svc("media_play_pause", {}, i.entity_id));
         return;
       }
       this._carried = Date.now();
-      const v = k.over && k.over !== "all" ? this._list.find((U) => U.entity_id === k.over) ?? this.hass.states[k.over] : void 0;
-      if (i && k.over === "all") this._wholeHouse(() => {
+      const v = w.over && w.over !== "all" ? this._list.find((U) => U.entity_id === w.over) ?? this.hass.states[w.over] : void 0;
+      if (i && w.over === "all") this._wholeHouse(() => {
         this._focus = i.entity_id, this._everywhere(!0, i);
       });
-      else if (o && k.over === "all") this._wholeHouse(() => {
+      else if (o && w.over === "all") this._wholeHouse(() => {
         const U = this._off(this._cur) ? this._list.find((M) => !this._off(M)) : this._cur;
         U && (this._shelfPlay(o, U), this._everywhere(!0, U));
       });
       else if (i && v && v.entity_id !== i.entity_id) this._gentle(v.entity_id, () => this._move(v, i));
-      else if (o && k.over === "deck") {
+      else if (o && w.over === "deck") {
         const U = this._cur;
         U && this._gentle(U.entity_id, () => this._shelfPlay(o, U));
       } else o && v && this._gentle(v.entity_id, () => {
         this._focus = v.entity_id, this._shelfPlay(o, v);
       });
     };
-    n.setPointerCapture(t.pointerId), n.addEventListener("pointermove", x), n.addEventListener("pointerup", b), n.addEventListener("pointercancel", b);
+    n.setPointerCapture(t.pointerId), n.addEventListener("pointermove", m), n.addEventListener("pointerup", b), n.addEventListener("pointercancel", b);
   }
   /** The house in small: rooms as buttons, for choosing where to call or where a record goes. */
   _mini(t, e, i = !1) {
@@ -9345,20 +9413,20 @@ const ap = async (a) => {
   }
   _house() {
     const t = this._cur, e = t && this._leader(t), i = this._group(e), o = this._floors, s = this._carry, r = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((p) => !!p && p !== e?.entity_id))], n = (p, d) => {
-      const c = p.p, h = c.entity_id, m = this._leader(c), f = m?.state === "playing", x = h === t?.entity_id, b = i.includes(h) && h !== e?.entity_id, w = this._volOf(c), k = this._off(c), v = w !== null && !k, U = !!m && this._group(m).length > 1, M = m && m.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(m.entity_id) % 4]});` : "", R = k ? "Offline" : m ? f ? String(m.attributes.media_title ?? "Music") : "Paused" : d ? "Asleep" : "Quiet", Y = m?.attributes.entity_picture ? `--art:url(${m.attributes.entity_picture})` : "";
-      return l`<div class="mzone" data-zone=${h} ?data-offline=${k} ?data-focus=${x} ?data-live=${!!m} ?data-playing=${f} ?data-asleep=${d} ?data-linked=${U} ?data-held=${this._held === h} ?data-hot=${s?.over === h && s.from !== h} style="${M}--v:${w ?? 0}" @pointerdown=${(S) => this._volDown(S, c)}>
-        ${m && v ? l`<span class="pool"></span>` : u}
-        ${m ? l`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (w ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${x ? l`<b></b>` : u}</span>` : u}
-        ${s && m?.entity_id !== h ? l`<span class="land" aria-hidden="true"></span>` : u}
-        <button class="zname tap" aria-pressed=${String(x)} aria-label="${p.name}: ${R}${w !== null ? `, volume ${w}` : ""}${U ? ", linked with another room" : ""}" @click=${() => {
+      const c = p.p, h = c.entity_id, f = this._leader(c), x = f?.state === "playing", m = h === t?.entity_id, b = i.includes(h) && h !== e?.entity_id, k = this._volOf(c), w = this._off(c), v = k !== null && !w, U = !!f && this._group(f).length > 1, M = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", R = w ? "Offline" : f ? x ? String(f.attributes.media_title ?? "Music") : "Paused" : d ? "Asleep" : "Quiet", Y = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
+      return l`<div class="mzone" data-zone=${h} ?data-offline=${w} ?data-focus=${m} ?data-live=${!!f} ?data-playing=${x} ?data-asleep=${d} ?data-linked=${U} ?data-held=${this._held === h} ?data-hot=${s?.over === h && s.from !== h} style="${M}--v:${k ?? 0}" @pointerdown=${(S) => this._volDown(S, c)}>
+        ${f && v ? l`<span class="pool"></span>` : u}
+        ${f ? l`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (k ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${m ? l`<b></b>` : u}</span>` : u}
+        ${s && f?.entity_id !== h ? l`<span class="land" aria-hidden="true"></span>` : u}
+        <button class="zname tap" aria-pressed=${String(m)} aria-label="${p.name}: ${R}${k !== null ? `, volume ${k}` : ""}${U ? ", linked with another room" : ""}" @click=${() => {
         this._focus = h;
       }}><b>${d ? "☾ " : ""}${p.name}${U ? l`<i class="linkd" aria-hidden="true"></i>` : u}</b><span>${R}</span></button>
-        ${h === e?.entity_id || k ? u : l`<button class="join tap" aria-pressed=${String(b)} aria-label="${b ? "Remove" : "Add"} ${p.name} ${b ? "from" : "to"} the music" @click=${() => this._join(h)}>${b ? "✓" : "＋"}</button>`}
-        ${v ? l`${qe(p.name, w, !0, () => this._volStep(h, 5))}
-          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${p.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${w} aria-valuetext="${w} per cent${m ? "" : ", quiet"}" @keydown=${br(w, (S) => this._setVol(h, S, !0))}><i></i></span>
-          ${qe(p.name, w, !1, () => this._volStep(h, -5))}<b class="zvol" aria-hidden="true">${w}</b>` : u}
-        ${m?.entity_id === h ? l`<span class="puck" role="button" tabindex="0" ?data-lifted=${s?.from === h} style=${Y} aria-label="${m.attributes.media_title ?? "Music"} in ${p.name}. Tap to ${f ? "pause" : "play"}, drag to move it to another room."
-          @pointerdown=${(S) => this._carryDown(S, { lead: m })} @keydown=${(S) => {
+        ${h === e?.entity_id || w ? u : l`<button class="join tap" aria-pressed=${String(b)} aria-label="${b ? "Remove" : "Add"} ${p.name} ${b ? "from" : "to"} the music" @click=${() => this._join(h)}>${b ? "✓" : "＋"}</button>`}
+        ${v ? l`${qe(p.name, k, !0, () => this._volStep(h, 5))}
+          <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${p.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${k} aria-valuetext="${k} per cent${f ? "" : ", quiet"}" @keydown=${br(k, (S) => this._setVol(h, S, !0))}><i></i></span>
+          ${qe(p.name, k, !1, () => this._volStep(h, -5))}<b class="zvol" aria-hidden="true">${k}</b>` : u}
+        ${f?.entity_id === h ? l`<span class="puck" role="button" tabindex="0" ?data-lifted=${s?.from === h} style=${Y} aria-label="${f.attributes.media_title ?? "Music"} in ${p.name}. Tap to ${x ? "pause" : "play"}, drag to move it to another room."
+          @pointerdown=${(S) => this._carryDown(S, { lead: f })} @keydown=${(S) => {
         (S.key === "Enter" || S.key === " ") && (S.preventDefault(), this._focus = h, this._svc("media_play_pause", {}, h));
       }}></span>` : u}
       </div>`;
@@ -9372,17 +9440,17 @@ const ap = async (a) => {
   _sideShelf() {
     const t = Ci(this.hass), e = this._cur, i = this._carry;
     t && !this._shelfAsked && (this._shelfAsked = !0, this._loadShelves());
-    const o = this.kids.find((f) => f.name === this._shelf), s = !!o && Xe(o.bedtime), r = this._items[this._shelf] ?? [], n = s ? r.filter((f) => f.calm) : r, p = 9, d = n.length > p ? n.slice(0, p - 1) : n, c = n.length <= 4 ? 2 : 3, h = (f) => D(this.kids.find((x) => x.name === f)?.colour ?? "family"), m = (f) => {
-      Date.now() - this._carried < 400 || !e || this._gentle(e.entity_id, () => this._shelfPlay(f, e));
+    const o = this.kids.find((x) => x.name === this._shelf), s = !!o && Xe(o.bedtime), r = this._items[this._shelf] ?? [], n = s ? r.filter((x) => x.calm) : r, p = 9, d = n.length > p ? n.slice(0, p - 1) : n, c = n.length <= 4 ? 2 : 3, h = (x) => D(this.kids.find((m) => m.name === x)?.colour ?? "family"), f = (x) => {
+      Date.now() - this._carried < 400 || !e || this._gentle(e.entity_id, () => this._shelfPlay(x, e));
     };
     return l`<div class="mshelf" role="group" aria-label="Shelf">
       ${t ? l`<div class="shead"><b>${s ? "🌙 " : ""}${this._shelf === "Family" ? "Family shelf" : `${this._shelf}’s shelf`}</b>
-          ${this._shelfNames.map((f) => l`<button class="swho tap" style="--c:${h(f)}" aria-pressed=${String(this._shelf === f)} aria-label=${f === "Family" ? "Family shelf" : `${f}’s shelf`} @click=${() => {
-      this._shelf = f;
-    }}><i>${f === "Family" ? A("home", 20) : this._face(f, 36)}</i></button>`)}</div>
-        ${d.length ? l`<div class="srecs" style="--cols:${c};--rows:${Math.ceil(Math.min(n.length, p) / c)}">${d.map((f, x) => l`<button class="srec tap" ?data-lifted=${i?.item === f} aria-label="${f.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
-              @pointerdown=${(b) => this._carryDown(b, { item: f })} @click=${() => m(f)}>
-              <i class="puck onshelf" style="--art:${f.img ? `url(${f.img})` : `linear-gradient(135deg, var(--p-${x % 5 + 1}), var(--p-${(x + 2) % 5 + 1}))`}"></i><span>${f.name}</span></button>`)}
+          ${this._shelfNames.map((x) => l`<button class="swho tap" style="--c:${h(x)}" aria-pressed=${String(this._shelf === x)} aria-label=${x === "Family" ? "Family shelf" : `${x}’s shelf`} @click=${() => {
+      this._shelf = x;
+    }}><i>${x === "Family" ? A("home", 20) : this._face(x, 36)}</i></button>`)}</div>
+        ${d.length ? l`<div class="srecs" style="--cols:${c};--rows:${Math.ceil(Math.min(n.length, p) / c)}">${d.map((x, m) => l`<button class="srec tap" ?data-lifted=${i?.item === x} aria-label="${x.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
+              @pointerdown=${(b) => this._carryDown(b, { item: x })} @click=${() => f(x)}>
+              <i class="puck onshelf" style="--art:${x.img ? `url(${x.img})` : `linear-gradient(135deg, var(--p-${m % 5 + 1}), var(--p-${(m + 2) % 5 + 1}))`}"></i><span>${x.name}</span></button>`)}
             ${n.length > p ? l`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => {
       this._tab = "shelves";
     }}>＋${n.length - d.length}<span>more</span></button>` : u}</div>` : l`<div class="snone">${A("sleeve", 34)}<span>${s ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : l`<span style="flex:1"></span>`}
@@ -9506,54 +9574,54 @@ const ap = async (a) => {
       return;
     }
     this._lastCall = Date.now();
-    const p = this._h, d = this.callLanguage, c = this.callVoice ? { options: { voice: this.callVoice } } : {}, h = Math.max(0, Math.min(100, Math.round(this.callVolume))), m = (v) => Promise.resolve(p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0, ...d ? { language: d } : {}, ...c }, { entity_id: o })).catch(() => p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0 }, { entity_id: o })).then(() => !0, (U) => (console.warn("Family Hub: call failed", v, U), !1)), f = i.filter((v) => !!p.services?.music_assistant?.play_announcement && p.entities?.[v]?.platform === "music_assistant"), x = i.filter((v) => !f.includes(v)).map(m);
-    if (f.length) {
+    const p = this._h, d = this.callLanguage, c = this.callVoice ? { options: { voice: this.callVoice } } : {}, h = Math.max(0, Math.min(100, Math.round(this.callVolume))), f = (v) => Promise.resolve(p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0, ...d ? { language: d } : {}, ...c }, { entity_id: o })).catch(() => p.callService("tts", "speak", { media_player_entity_id: v, message: e, cache: !0 }, { entity_id: o })).then(() => !0, (U) => (console.warn("Family Hub: call failed", v, U), !1)), x = i.filter((v) => !!p.services?.music_assistant?.play_announcement && p.entities?.[v]?.platform === "music_assistant"), m = i.filter((v) => !x.includes(v)).map(f);
+    if (x.length) {
       const v = Promise.resolve(p.callApi("POST", "tts_get_url", { engine_id: o, message: e, cache: !0, ...d ? { language: d } : {}, ...c })).then((U) => U?.url ?? "", () => "");
-      for (const U of f) x.push(v.then((M) => M ? Promise.resolve(p.callService("music_assistant", "play_announcement", { url: M, announce_volume: h }, { entity_id: U })).then(() => !0, () => m(U)) : m(U)));
+      for (const U of x) m.push(v.then((M) => M ? Promise.resolve(p.callService("music_assistant", "play_announcement", { url: M, announce_volume: h }, { entity_id: U })).then(() => !0, () => f(U)) : f(U)));
     }
     this._calling = !0;
-    const b = await Promise.all(x), w = i.filter((v) => b[[...i.filter((U) => !f.includes(U)), ...f].indexOf(v)]);
+    const b = await Promise.all(m), k = i.filter((v) => b[[...i.filter((U) => !x.includes(U)), ...x].indexOf(v)]);
     if (this._calling = !1, !this.isConnected) return;
-    const k = (v) => v.length === 1 ? this._name(p.states[v[0]]) : `${v.length} rooms`;
-    w.length === i.length ? this._say(`Calling ${k(i)}`) : (this._lastCall = 0, this._say(w.length ? `Calling ${k(w)}. ${k(i.filter((v) => !w.includes(v)))} didn’t answer` : "The call didn’t go through. Try again in a moment."));
+    const w = (v) => v.length === 1 ? this._name(p.states[v[0]]) : `${v.length} rooms`;
+    k.length === i.length ? this._say(`Calling ${w(i)}`) : (this._lastCall = 0, this._say(k.length ? `Calling ${w(k)}. ${w(i.filter((v) => !k.includes(v)))} didn’t answer` : "The call didn’t go through. Try again in a moment."));
   }
   /* ---------------- render ---------------- */
   render() {
     if (!this.hass) return u;
-    const [t, e] = za(this, "msg", this._msg ? { m: this._msg, undo: !!this._undo } : null), i = this._cur, o = Ci(this.hass), s = [["rooms", "Rooms", "home"], ...o ? [["shelves", "Shelves", "sleeve"], ["juke", "Jukebox", "jukebox"]] : [], ["radio", "Radio", "radio"], ["call", "Call a room", "megaphone"]], r = (m) => {
-      m === "search" && this._tab !== "search" && (this._prev = this._tab, this._keys = !0), this._tab = m, this._adding = !1, m === "radio" && this._loadRadio(), m === "shelves" && this._loadShelves();
+    const [t, e] = za(this, "msg", this._msg ? { m: this._msg, undo: !!this._undo } : null), i = this._cur, o = Ci(this.hass), s = [["rooms", "Rooms", "home"], ...o ? [["shelves", "Shelves", "sleeve"], ["juke", "Jukebox", "jukebox"]] : [], ["radio", "Radio", "radio"], ["call", "Call a room", "megaphone"]], r = (f) => {
+      f === "search" && this._tab !== "search" && (this._prev = this._tab, this._keys = !0), this._tab = f, this._adding = !1, f === "radio" && this._loadRadio(), f === "shelves" && this._loadShelves();
     }, n = this._tab === "search", p = this._carry, d = this._full, c = this._one && !n;
     this._tab === "rooms" && !this._viewAsk && !fl.has(this._mode) && (fl.add(this._mode), window.setTimeout(() => this._showCoach(), 0));
-    const h = l`<div class="tabs ${d ? "inline" : ""}" role="tablist">${s.map(([m, f, x]) => l`<button class="tap" role="tab" aria-label=${f} aria-selected=${String(this._tab === m)} @click=${() => r(m)}>${A(x, 26)}<span>${f}</span></button>`)}</div>`;
+    const h = l`<div class="tabs ${d ? "inline" : ""}" role="tablist">${s.map(([f, x, m]) => l`<button class="tap" role="tab" aria-label=${x} aria-selected=${String(this._tab === f)} @click=${() => r(f)}>${A(m, 26)}<span>${x}</span></button>`)}</div>`;
     return l`${i ? this._hero(i) : l`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${c} @pointerdown=${(m) => {
-      this._coach && !m.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
+      <section class="glass panel" aria-label="Music" ?data-one=${c} @pointerdown=${(f) => {
+      this._coach && !f.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
     }}>
         <div class="mhead" ?data-one=${c} ?data-hinting=${c && this._coach}><h1 class="t-title">Music</h1>${c ? this._tools() : u}
-          ${n ? this._searchBar() : o ? l`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, albums, stories…"}</span></button>` : l`<span style="flex:1"></span>`}${c ? this._oneNow() : u}${d && !n ? h : u}</div>
+          ${n ? this._searchBar() : o ? l`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : l`<span style="flex:1"></span>`}${c ? this._oneNow() : u}${d && !n ? h : u}</div>
         ${n || d ? u : h}
         ${hi(this._tab, l`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}
         ${p ? l`<span class="puck fly" style="left:${p.x}%;top:${p.y}%;${p.art ? `--art:url(${p.art})` : ""}"></span>` : u}
       </section>
       ${this._pinTo ? this._pinSheet() : u}
       ${this._pinAsk ? l`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => {
-      const m = this._pinAsk.run;
-      this._pinAsk = null, m();
+      const f = this._pinAsk.run;
+      this._pinAsk = null, f();
     }} @cancel=${() => {
       this._pinAsk = null;
     }}></fh-pin>` : u}
       <div class="toast" role="status" ?data-closing=${e}>${t?.m || u}${t?.undo ? l` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => {
-      const m = this._undo;
-      this._msg = "", this._undo = null, m?.();
+      const f = this._undo;
+      this._msg = "", this._undo = null, f?.();
     }}>${this._undoLabel}</button>` : u}</div>`;
   }
   _hero(t) {
-    const e = t.attributes, i = t.state === "playing", o = e.entity_picture ? `url(${e.entity_picture})` : "", s = this._volOf(t), r = this._mix(t).length, n = this._q, p = Number(e.media_duration) || 0, d = e.media_position_updated_at ? new Date(e.media_position_updated_at).getTime() : 0, c = p ? Math.min(p, (Number(e.media_position) || 0) + (i && d ? (this._now - d) / 1e3 : 0)) : 0, h = p ? c / p : 0, m = Lt($t(), "player", { img: e.entity_picture, frac: h, playing: i });
+    const e = t.attributes, i = t.state === "playing", o = e.entity_picture ? `url(${e.entity_picture})` : "", s = this._volOf(t), r = this._mix(t).length, n = this._q, p = Number(e.media_duration) || 0, d = e.media_position_updated_at ? new Date(e.media_position_updated_at).getTime() : 0, c = p ? Math.min(p, (Number(e.media_position) || 0) + (i && d ? (this._now - d) / 1e3 : 0)) : 0, h = p ? c / p : 0, f = Lt($t(), "player", { img: e.entity_picture, frac: h, playing: i });
     return l`<section class="glass stage" style=${o ? `--art:${o}` : ""} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${i ? "" : "animation:none;background:rgba(255,255,255,.5)"}"></span>
         <span style="font-size:13px;font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i ? "Playing in" : "Ready in"} ${this._name(t)}${r ? ` + ${r} more` : ""}</span></div>
-      <div class="deck">${m === u ? l`<div class="cover ${i ? "" : "paused"}"></div>` : m}</div>
+      <div class="deck">${f === u ? l`<div class="cover ${i ? "" : "paused"}"></div>` : f}</div>
       <div class="titles" style="display:flex;flex-direction:column;gap:2px;min-width:0">
         <span class="display" style="font-size:24px;font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_title ?? (t.state === "off" ? "Off" : "Nothing playing")}</span>
         <span style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_artist ?? e.media_album_name ?? "Search, pick from a shelf or tap a station"}</span>
@@ -9566,14 +9634,14 @@ const ap = async (a) => {
         <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${et("next", 28)}</button>
         <button class="tap" aria-label="Save this song to favourites" @click=${() => this._heart()}>♥</button>
       </div>
-      <div class="upnext">${n?.next ? l`<span>Up next</span><b style="overflow:hidden;text-overflow:ellipsis">${n.next.name}</b>${n.items > 2 ? l`<span>+${n.items - 2} more</span>` : u}` : this._juke.on ? l`<span>🎶 Jukebox is on · ${this._juke.picks.filter((f) => !f.done).length} waiting</span>` : u}</div>
+      <div class="upnext">${n?.next ? l`<span>Up next</span><b style="overflow:hidden;text-overflow:ellipsis">${n.next.name}</b>${n.items > 2 ? l`<span>+${n.items - 2} more</span>` : u}` : this._juke.on ? l`<span>🎶 Jukebox is on · ${this._juke.picks.filter((x) => !x.done).length} waiting</span>` : u}</div>
       <div class="mini">
         <button class="tog tap" aria-pressed=${String(this._keep)} title="When the music runs out, carry on with similar songs" @click=${() => {
       this._keep = !this._keep, Gi("fh-keep", this._keep), this._say(this._keep ? "When the music runs out, I’ll keep it going" : "The music will stop at the end");
     }}>∞ Keep going</button>
         ${this._off(t) ? u : l`<button class="tog tap" aria-pressed=${String(this._sleepLeft(t) !== null)} @click=${() => this._sleep()}>🌙 ${this._sleepLeft(t) !== null ? `${this._name(t)}: ${this._sleepLeft(t)} min left · Cancel` : `Sleep ${this.sleepMinutes}`}</button>`}
       </div>
-      ${s !== null && !this._off(t) ? lo({ name: this._name(t), v: s, live: !!this._leader(t), held: this._held === t.entity_id, set: (f, x) => this._setVol(t.entity_id, f, x), drop: () => this._volDrop(t.entity_id) }) : u}
+      ${s !== null && !this._off(t) ? lo({ name: this._name(t), v: s, live: !!this._leader(t), held: this._held === t.entity_id, set: (x, m) => this._setVol(t.entity_id, x, m), drop: () => this._volDrop(t.entity_id) }) : u}
     </section>`;
   }
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
@@ -9617,10 +9685,10 @@ const ap = async (a) => {
     const t = this._cur, e = t && this._leader(t), i = this._group(e), o = Ci(this.hass), s = Object.keys(this.hass.states).find((d) => d.startsWith("media_player.") && this.hass.entities?.[d]?.platform === "sonos"), r = s && this.hass.states[s].attributes.source === "TV" ? s : "", n = (d, c) => {
       const h = r && nl(this.hass, r, d);
       if (!h) return u;
-      const m = this.hass.states[h].state === "on";
-      return l`<button class="pill tap" style="font-size:15px" aria-pressed=${String(m)} @click=${() => {
-        this._h.callService("switch", m ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((f) => this._oops("The TV sound didn’t change", f));
-      }}>${c} ${m ? "on" : "off"}</button>`;
+      const f = this.hass.states[h].state === "on";
+      return l`<button class="pill tap" style="font-size:15px" aria-pressed=${String(f)} @click=${() => {
+        this._h.callService("switch", f ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((x) => this._oops("The TV sound didn’t change", x));
+      }}>${c} ${f ? "on" : "off"}</button>`;
     }, p = this._mode;
     return l`${this._viewAsk ? hh(p, (d) => {
       const c = this._view;
@@ -9636,16 +9704,16 @@ const ap = async (a) => {
         ${r ? l`<span class="soft">TV sound</span>${n(/^switch\..*night_sound$/, "Night")}${n(/^switch\..*speech_enhancement$/, "Clear speech")}` : u}
       </div>`}
       ${p === "house" ? this._house() : p === "dial" ? ih(this._vctx()) : p === "desk" ? oh(this._vctx()) : p === "cables" ? sh(this._vctx()) : p === "scene" ? ch(this._vctx()) : l`<div class="grid scrolly" data-fits @scroll=${bt}>${this._list.map((d) => {
-      const c = d.attributes, h = d.entity_id, m = this._leader(d), f = d.state === "playing", x = h === t?.entity_id, b = i.includes(h) && h !== e?.entity_id, w = this._volOf(d), k = this._name(d), v = this._off(d), U = !!m && this._group(m).length > 1, M = v ? "Offline" : b ? `With ${this._name(e)}` : m ? m.state === "playing" ? String(m.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
-      return l`<div class="spk ${x ? "focus" : b ? "inmix" : ""}" data-zone=${h} ?data-offline=${v}>
-        <div class="top"><button class="rsel tap" aria-pressed=${String(x)} @click=${() => {
+      const c = d.attributes, h = d.entity_id, f = this._leader(d), x = d.state === "playing", m = h === t?.entity_id, b = i.includes(h) && h !== e?.entity_id, k = this._volOf(d), w = this._name(d), v = this._off(d), U = !!f && this._group(f).length > 1, M = v ? "Offline" : b ? `With ${this._name(e)}` : f ? f.state === "playing" ? String(f.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
+      return l`<div class="spk ${m ? "focus" : b ? "inmix" : ""}" data-zone=${h} ?data-offline=${v}>
+        <div class="top"><button class="rsel tap" aria-pressed=${String(m)} @click=${() => {
         this._focus = h;
       }}>
-          <span class="thumb ${f ? "eq" : ""}" style=${c.entity_picture ? `--art:url(${c.entity_picture})` : ""}>${f ? l`<i></i><i></i><i></i>` : A("music", 20)}</span>
-          <span class="rtx"><span class="sn2">${k}${U ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u}</span><span class="rst">${M}</span></span></button>
-          ${h === e?.entity_id || v ? u : l`<button class="join tap" aria-pressed=${String(b)} aria-label="${b ? "Remove" : "Add"} ${k} ${b ? "from" : "to"} the music" @click=${() => this._join(h)}>${b ? "✓" : "＋"}</button>`}</div>
-        ${w !== null && !v ? lo({ name: k, v: w, live: !!m, held: this._held === h, set: (R, Y) => this._setVol(h, R, Y), drop: () => this._volDrop(h) }) : u}
-        ${!x && !b && !v && o && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(d)}>Move the music here</button>` : u}
+          <span class="thumb ${x ? "eq" : ""}" style=${c.entity_picture ? `--art:url(${c.entity_picture})` : ""}>${x ? l`<i></i><i></i><i></i>` : A("music", 20)}</span>
+          <span class="rtx"><span class="sn2">${w}${U ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u}</span><span class="rst">${M}</span></span></button>
+          ${h === e?.entity_id || v ? u : l`<button class="join tap" aria-pressed=${String(b)} aria-label="${b ? "Remove" : "Add"} ${w} ${b ? "from" : "to"} the music" @click=${() => this._join(h)}>${b ? "✓" : "＋"}</button>`}</div>
+        ${k !== null && !v ? lo({ name: w, v: k, live: !!f, held: this._held === h, set: (R, Y) => this._setVol(h, R, Y), drop: () => this._volDrop(h) }) : u}
+        ${!m && !b && !v && o && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(d)}>Move the music here</button>` : u}
       </div>`;
     })}</div>`}`;
   }
@@ -9745,33 +9813,33 @@ const ap = async (a) => {
     }}>${this._edit ? "Done" : "Edit"}</button>` : u}</span></div></div>`;
   }
   _jukeTab() {
-    const t = this._juke, e = (f) => D(this._everyone.find((x) => x.name === f)?.colour ?? "family"), i = this._nextPick(), o = (f) => t.picks.filter((x) => x.done && x.who === f).length;
+    const t = this._juke, e = (m) => D(this._everyone.find((b) => b.name === m)?.colour ?? "family"), i = this._nextPick(), o = (m) => t.picks.filter((b) => b.done && b.who === m).length;
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
-    const s = new Set(t.picks.filter((f) => !f.done).map((f) => f.who)), r = [...this._everyone].sort((f, x) => Number(s.has(f.name)) - Number(s.has(x.name)) || o(f.name) - o(x.name))[0]?.name ?? "", n = () => {
+    const s = new Set(t.picks.filter((m) => !m.done).map((m) => m.who)), r = [...this._everyone].sort((m, b) => Number(s.has(m.name)) - Number(s.has(b.name)) || o(m.name) - o(b.name))[0]?.name ?? "", n = () => {
       this._jpick = !1, this._adding = !0, this._prev = this._prev === "rooms" ? "rooms" : "juke", this._tab = "search", this._keys = !0, this._hits = null, this._text = "", this._caps = !0;
     };
     if (this._jpick && t.who) {
-      const f = /* @__PURE__ */ new Set(), x = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((k) => !f.has(k.uri) && !!f.add(k.uri)), b = this.kids.find((k) => k.name === t.who)?.mode === "picture", w = l`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${n}>${A("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => {
+      const m = /* @__PURE__ */ new Set(), b = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((v) => !m.has(v.uri) && !!m.add(v.uri)), k = this.kids.find((v) => v.name === t.who)?.mode === "picture", w = l`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${n}>${A("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => {
         this._jpick = !1, this._prev === "rooms" && (this._tab = "rooms");
       }}>Back</button></div>`;
-      return l`${b ? u : w}
-        ${x.length ? l`<div class="covers scrolly jcovers ${b ? "low" : ""}" data-fits @scroll=${bt}>${x.map((k) => l`<button class="st tap" aria-label="Add ${k.name}" @click=${() => this._addPick(k)}>
-          <i class="disc"></i><span class="img" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? "" : k.name[0]}</span><span class="lbl">${k.name}</span></button>`)}</div>` : l`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${b ? w : u}`;
+      return l`${k ? u : w}
+        ${b.length ? l`<div class="covers scrolly jcovers ${k ? "low" : ""}" data-fits @scroll=${bt}>${b.map((v) => l`<button class="st tap" aria-label="Add ${v.name}" @click=${() => this._addPick(v)}>
+          <i class="disc"></i><span class="img" style=${v.img ? `--art:url(${v.img})` : ""}>${v.img ? "" : v.name[0]}</span><span class="lbl">${v.name}</span></button>`)}</div>` : l`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${k ? w : u}`;
     }
-    const p = t.picks.filter((f) => !f.done).sort((f, x) => +(x === i) - +(f === i) || f.t - x.t), d = t.picks.filter((f) => f.done).sort((f, x) => x.t - f.t), c = (f) => f.done ? this._q?.next?.name === f.name ? l`<i aria-hidden="true">${et("next", 14)}</i>Up next` : l`<i aria-hidden="true">✓</i>Played` : f === i ? l`<i aria-hidden="true">${et("play", 14)}</i>Next` : l`<i aria-hidden="true">⏳</i>Waiting`, h = (f) => l`<div class="pickrow ${f.done ? "played" : ""}" ?data-next=${f === i}>
-      <span class="pcover"><i class="disc"></i><span class="art" style=${f.img ? `--art:url(${f.img})` : ""}>${f.img ? "" : A("music", 26)}</span>
-        <span class="init avatar" style="--c:${e(f.who)}" role="img" aria-label=${f.who}>${this._face(f.who, 30)}</span></span>
-      <span class="nm">${f.name}${f.sub ? l` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${f.sub}</span>` : u}</span>
-      <span class="when">${c(f)}</span></div>`, m = (f) => p.find((x) => x.who === f);
+    const p = t.picks.filter((m) => !m.done).sort((m, b) => +(b === i) - +(m === i) || m.t - b.t), d = t.picks.filter((m) => m.done).sort((m, b) => b.t - m.t), c = (m) => m.done ? this._q?.next?.name === m.name ? l`<i aria-hidden="true">${et("next", 14)}</i>Up next` : l`<i aria-hidden="true">✓</i>Played` : m === i ? l`<i aria-hidden="true">${et("play", 14)}</i>Next` : l`<i aria-hidden="true">⏳</i>Waiting`, h = (m) => l`<div class="pickrow ${m.done ? "played" : ""}" ?data-next=${m === i}>
+      <span class="pcover"><i class="disc"></i><span class="art" style=${m.img ? `--art:url(${m.img})` : ""}>${m.img ? "" : A("music", 26)}</span>
+        <span class="init avatar" style="--c:${e(m.who)}" role="img" aria-label=${m.who}>${this._face(m.who, 30)}</span></span>
+      <span class="nm">${m.name}${m.sub ? l` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${m.sub}</span>` : u}</span>
+      <span class="when">${c(m)}</span></div>`, f = (m) => p.find((b) => b.who === m), x = this.kids.some((m) => m.mode === "picture") ? "jlow" : "";
     return l`${this._dj ? l`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : u}
-      <div class="coins" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((f) => {
-      const x = m(f.name);
-      return l`<button class="coin tap" style="--c:${D(f.colour)}" aria-pressed=${String(t.who === f.name)} ?data-next=${f.name === r} aria-label="${f.name}${f.name === r ? ", chooses next" : ""}${x ? `, ${x.name} is waiting` : ""}" @click=${() => {
-        this._saveJuke({ who: f.name }), this._prev = "juke", this._jpick = !0;
+      <div class="coins ${x}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((m) => {
+      const b = f(m.name);
+      return l`<button class="coin tap" style="--c:${D(m.colour)}" aria-pressed=${String(t.who === m.name)} ?data-next=${m.name === r} aria-label="${m.name}${m.name === r ? ", chooses next" : ""}${b ? `, ${b.name} is waiting` : ""}" @click=${() => {
+        this._saveJuke({ who: m.name }), this._prev = "juke", this._jpick = !0;
       }}>
-        <span class="face"><span class="fpic">${this._face(f.name, 50)}</span>${x ? l`<i class="has" style=${x.img ? `--art:url(${x.img})` : ""}>${x.img ? u : et("play", 12)}</i>` : u}</span><span class="cname">${f.name}</span><span class="cnext">${f.name === r ? "Next" : ""}</span></button>`;
+        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${b ? l`<i class="has" style=${b.img ? `--art:url(${b.img})` : ""}>${b.img ? u : et("play", 12)}</i>` : u}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r ? "Next" : ""}</span></button>`;
     })}</div>
-      <div class="acts"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!t.who} @click=${() => {
+      <div class="acts ${x}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
     }}>＋ ${t.who ? `${t.who} adds a song` : "Pick who’s choosing"}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(t.on)} style="font-size:15px" @click=${() => {
@@ -9779,8 +9847,8 @@ const ap = async (a) => {
     }}><i></i>${t.on ? "Jukebox is on" : "Jukebox is off"}</button>
         <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
         ${t.picks.length ? l`<button class="pill tap" style="font-size:15px" @click=${() => {
-      const f = t.picks;
-      this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: f }));
+      const m = t.picks;
+      this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: m }));
     }}>Clear</button>` : u}</div>
       ${t.picks.length ? l`<div class="picks scrolly" data-fits @scroll=${bt}>${p.map(h)}${d.map(h)}</div>` : l`<div class="empty"><span style="color:var(--ink2)">${A("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
@@ -10002,6 +10070,8 @@ go.styles = [Wt, fi, I`${wt(Ae)}`, fh, I`
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
+    /* a family with a child who cannot read yet, on a tall wide screen (the wall panel): he reaches the lower half only, so the coins and "adds a song" go under the night's picks */
+    @media (min-height: 900px) { :host(:not([data-phone]):not([data-shape='tall'])) .coins.jlow { order: 5; } :host(:not([data-phone]):not([data-shape='tall'])) .acts.jlow { order: 6; } }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
     .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
@@ -10317,15 +10387,15 @@ const _t = 256, cs = 4, hs = 7, bh = "https://api.rainviewer.com/public/weather-
   render() {
     const t = this._tiles(), e = this._zNow, [i, o] = this._size, s = this._frames, r = s[Math.min(this._i, s.length - 1)], n = kh[this.dark ? "dark" : "light"], p = r ? Math.max(0, Math.round((Date.now() / 1e3 - r.time) / 60)) : 0;
     return l`
-      ${n.map((d, c) => l`<div class="layer ${c ? "names" : "map"}">${t.map((h) => l`<img alt="" draggable="false" @error=${(m) => {
-      m.target.style.visibility = "hidden";
-    }} @load=${(m) => {
-      m.target.style.visibility = "";
+      ${n.map((d, c) => l`<div class="layer ${c ? "names" : "map"}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
+      f.target.style.visibility = "hidden";
+    }} @load=${(f) => {
+      f.target.style.visibility = "";
     }} style="left:${h.left}px;top:${h.top}px" src=${d.replace("{z}", String(e)).replace("{x}", String(h.x)).replace("{y}", String(h.y))}>`)}</div>`)}
-      ${s.map((d, c) => Math.abs(c - this._i) <= 1 || this._i === s.length - 1 && c === 0 || this._play ? l`<div class="layer rain ${d === r ? "on" : ""}">${t.map((h) => l`<img alt="" draggable="false" @error=${(m) => {
-      m.target.style.visibility = "hidden";
-    }} @load=${(m) => {
-      m.target.style.visibility = "";
+      ${s.map((d, c) => Math.abs(c - this._i) <= 1 || this._i === s.length - 1 && c === 0 || this._play ? l`<div class="layer rain ${d === r ? "on" : ""}">${t.map((h) => l`<img alt="" draggable="false" @error=${(f) => {
+      f.target.style.visibility = "hidden";
+    }} @load=${(f) => {
+      f.target.style.visibility = "";
     }} style="left:${h.left}px;top:${h.top}px" src="${this._host}${d.path}/${_t}/${e}/${h.x}/${h.y}/2/1_1.png">`)}</div>` : u)}
       ${i ? l`<span class="home" style="left:${i / 2 + this._pan[0]}px;top:${o / 2 + this._pan[1]}px" aria-hidden="true"></span>` : u}
       ${this._err ? l`<p class="msg">The radar pictures could not be loaded. It will try again in a few minutes.</p>` : u}
@@ -10572,7 +10642,7 @@ const Ds = {
     </svg>`;
   }
   _now() {
-    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), o = oa(this._o("temp")) ?? e.temperature, s = oa(this._o("temp_feels_like")) ?? e.apparent_temperature, r = oa(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = oa(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = Sa(this._o("wind_direction")) ?? e.wind_bearing, d = oa(this._o("humidity")) ?? e.humidity, c = oa(this._o("rain_since_9am")), h = oa(this._f("rain_chance")) ?? i?.precipitation_probability, m = Sa(this._f("rain_amount_range")), f = this._uv(), x = Sa(this._f("fire_danger")), b = Zi(Sa(this._f("astronomical_sunrise_time"))), w = Zi(Sa(this._f("astronomical_sunset_time"))), k = Sa(this._f("extended_text")), v = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((V) => V.phase !== "cancelled" && (!V.expiry_time || new Date(V.expiry_time).getTime() > Date.now())), U = (V, j, N = "") => l`<div class="wfact ${N}"><b>${V}</b><small>${j}</small></div>`, M = this._tips(), R = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, Y = [h !== void 0, c !== void 0, d !== void 0, !!x].filter(Boolean).length, S = Y === 4 || Y === 2 ? "half" : "";
+    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), o = oa(this._o("temp")) ?? e.temperature, s = oa(this._o("temp_feels_like")) ?? e.apparent_temperature, r = oa(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = oa(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = Sa(this._o("wind_direction")) ?? e.wind_bearing, d = oa(this._o("humidity")) ?? e.humidity, c = oa(this._o("rain_since_9am")), h = oa(this._f("rain_chance")) ?? i?.precipitation_probability, f = Sa(this._f("rain_amount_range")), x = this._uv(), m = Sa(this._f("fire_danger")), b = Zi(Sa(this._f("astronomical_sunrise_time"))), k = Zi(Sa(this._f("astronomical_sunset_time"))), w = Sa(this._f("extended_text")), v = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((V) => V.phase !== "cancelled" && (!V.expiry_time || new Date(V.expiry_time).getTime() > Date.now())), U = (V, j, N = "") => l`<div class="wfact ${N}"><b>${V}</b><small>${j}</small></div>`, M = this._tips(), R = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, Y = [h !== void 0, c !== void 0, d !== void 0, !!m].filter(Boolean).length, S = Y === 4 || Y === 2 ? "half" : "";
     return l`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
       ${$t() === "sports" ? _l(this._verdict(M), !0) : u}
@@ -10595,41 +10665,41 @@ const Ds = {
       </div>
       <div class="facts">
         ${r !== void 0 ? l`<div class="wfact wide">${this._compass(p)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(r)} km/h</b><small>Wind${p !== void 0 ? ` from the ${Ah(p)}` : ""}${n !== void 0 ? ` · gusts ${Math.round(n)}` : ""}</small></span></div>` : u}
-        ${h !== void 0 ? U(`${Math.round(h)}%`, m && m !== "0" ? `Rain · ${m} mm` : "Chance of rain", S) : u}
+        ${h !== void 0 ? U(`${Math.round(h)}%`, f && f !== "0" ? `Rain · ${f} mm` : "Chance of rain", S) : u}
         ${c !== void 0 ? U(`${c} mm`, "Since 9 am", `${S} x3`) : u}
         ${d !== void 0 ? U(`${Math.round(d)}%`, "Humidity", `${S} x3`) : u}
-        ${x ? U(x, "Fire danger", S) : u}
-        ${f.max !== void 0 ? U(`UV ${Math.round(f.max)} · ${Mh(f.max)}`, f.max >= 3 ? f.from && f.to ? `Cover up ${f.from} to ${f.to}` : R ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : u}
-        ${b && w ? U(l`${b} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${w}`, "Sunrise to sunset", "wide stack x2") : u}
+        ${m ? U(m, "Fire danger", S) : u}
+        ${x.max !== void 0 ? U(`UV ${Math.round(x.max)} · ${Mh(x.max)}`, x.max >= 3 ? x.from && x.to ? `Cover up ${x.from} to ${x.to}` : R ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : u}
+        ${b && k ? U(l`${b} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${k}`, "Sunrise to sunset", "wide stack x2") : u}
       </div>
-      ${k ? l`<p class="said">${k}</p>` : u}
+      ${w ? l`<p class="said">${w}</p>` : u}
     </section>`;
   }
   _hoursChart() {
-    const t = Date.now() - 18e5, e = this._hours.filter((f) => new Date(f.datetime).getTime() >= t).slice(0, 24);
+    const t = Date.now() - 18e5, e = this._hours.filter((x) => new Date(x.datetime).getTime() >= t).slice(0, 24);
     if (e.length < 2) return l`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:15px;margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
-    const i = this._hw, o = 158, s = e.length, r = e.map((f) => f.temperature ?? 0), n = Math.min(...r), p = Math.max(...r), d = (f) => 98 - (f - n) / Math.max(1, p - n) * 24, c = (f) => f * i + i / 2, h = e.map((f, x) => `${c(x)} ${d(f.temperature ?? n)}`), m = (f) => {
-      const x = this.renderRoot.querySelector(".hscroll");
-      x && x.scrollTo({ left: Math.round((x.scrollLeft + f * x.clientWidth) / this._hw) * this._hw, behavior: to(this).travel ? "smooth" : "auto" });
+    const i = this._hw, o = 158, s = e.length, r = e.map((x) => x.temperature ?? 0), n = Math.min(...r), p = Math.max(...r), d = (x) => 98 - (x - n) / Math.max(1, p - n) * 24, c = (x) => x * i + i / 2, h = e.map((x, m) => `${c(m)} ${d(x.temperature ?? n)}`), f = (x) => {
+      const m = this.renderRoot.querySelector(".hscroll");
+      m && m.scrollTo({ left: Math.round((m.scrollLeft + x * m.clientWidth) / this._hw) * this._hw, behavior: to(this).travel ? "smooth" : "auto" });
     };
     return l`<section class="glass whours">
       <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
-        <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => m(-1)}>${A("left", 20)}</button>
-        <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => m(1)}>${A("right", 20)}</button></div>
-      <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${s} hours: ${e.filter((f, x) => x % 3 === 0).map((f) => `${ml(new Date(f.datetime))} ${Math.round(f.temperature ?? 0)} degrees`).join(", ")}`}>
+        <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => f(-1)}>${A("left", 20)}</button>
+        <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => f(1)}>${A("right", 20)}</button></div>
+      <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${s} hours: ${e.filter((x, m) => m % 3 === 0).map((x) => `${ml(new Date(x.datetime))} ${Math.round(x.temperature ?? 0)} degrees`).join(", ")}`}>
         <svg class="hchart" width=${s * i} height=${o} viewBox="0 0 ${s * i} ${o}">
-          ${g`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${s * i} y1="0" y2="0">${e.map((f, x) => g`<stop offset=${x / (s - 1)} stop-color=${Yi(f.temperature ?? n)}></stop>`)}</linearGradient></defs>
+          ${g`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${s * i} y1="0" y2="0">${e.map((x, m) => g`<stop offset=${m / (s - 1)} stop-color=${Yi(x.temperature ?? n)}></stop>`)}</linearGradient></defs>
           <path class="area" fill="url(#tg)" d="M${c(0)} 122L${h.join("L")}L${c(s - 1)} 122z"></path>
           <path class="line" stroke="url(#tg)" d="M${h.join("L")}"></path>
-          ${e.map((f, x) => {
-      const b = new Date(f.datetime), w = f.precipitation_probability ?? 0, k = x > 0 && b.getHours() === 0;
+          ${e.map((x, m) => {
+      const b = new Date(x.datetime), k = x.precipitation_probability ?? 0, w = m > 0 && b.getHours() === 0;
       return g`
-              ${k ? g`<path class="split" d="M${x * i} 18V${o - 4}"></path><text class="day" x=${x * i + 4} y="12.5" style="text-anchor:start">${b.toLocaleDateString("en-AU", { weekday: "short" })}</text>` : u}
-              <text x=${c(x)} y=${k ? 26 : 13}>${x === 0 ? "Now" : ml(b)}</text>
-              <svg class="sky" x=${c(x) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${fp(f.condition)}</svg>
-              <circle cx=${c(x)} cy=${d(f.temperature ?? n)} r="3.5" fill=${Yi(f.temperature ?? n)}></circle>
-              <text class="tv" x=${c(x)} y=${d(f.temperature ?? n) - 9}>${Math.round(f.temperature ?? 0)}°</text>
-              ${w >= 10 ? g`<rect class="rainbar" x=${c(x) - 13} y=${150 - w / 100 * 14} width="26" height=${w / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${c(x)} y="133">${Math.round(w)}%</text>` : g`<text class="wind" x=${c(x)} y="146">${f.wind_speed !== void 0 ? Math.round(f.wind_speed) : ""}</text>`}`;
+              ${w ? g`<path class="split" d="M${m * i} 18V${o - 4}"></path><text class="day" x=${m * i + 4} y="12.5" style="text-anchor:start">${b.toLocaleDateString("en-AU", { weekday: "short" })}</text>` : u}
+              <text x=${c(m)} y=${w ? 26 : 13}>${m === 0 ? "Now" : ml(b)}</text>
+              <svg class="sky" x=${c(m) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${fp(x.condition)}</svg>
+              <circle cx=${c(m)} cy=${d(x.temperature ?? n)} r="3.5" fill=${Yi(x.temperature ?? n)}></circle>
+              <text class="tv" x=${c(m)} y=${d(x.temperature ?? n) - 9}>${Math.round(x.temperature ?? 0)}°</text>
+              ${k >= 10 ? g`<rect class="rainbar" x=${c(m) - 13} y=${150 - k / 100 * 14} width="26" height=${k / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${c(m)} y="133">${Math.round(k)}%</text>` : g`<text class="wind" x=${c(m)} y="146">${x.wind_speed !== void 0 ? Math.round(x.wind_speed) : ""}</text>`}`;
     })}`}
         </svg>
       </div>
@@ -10642,15 +10712,15 @@ const Ds = {
       ${t.length ? l`
       <div class="days" role="list">
         ${t.map((p, d) => {
-      const c = new Date(p.datetime), h = c.toDateString() === e, m = p.precipitation_probability ?? 0, f = p.templow ?? p.temperature ?? s, x = p.temperature ?? r, b = p.templow === void 0 || p.templow === p.temperature, w = h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "short" });
-      return l`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "long" })}: ${Ds[p.condition ?? ""] ?? ""}, ${b ? "" : `${Math.round(f)} to `}${Math.round(x)} degrees${m >= 30 ? `, ${Math.round(m)} percent chance of rain` : ""}`}>
-            <span class="dn">${w}<small>${c.getDate()} ${c.toLocaleDateString("en-AU", { month: "short" })}</small></span>
+      const c = new Date(p.datetime), h = c.toDateString() === e, f = p.precipitation_probability ?? 0, x = p.templow ?? p.temperature ?? s, m = p.temperature ?? r, b = p.templow === void 0 || p.templow === p.temperature, k = h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "short" });
+      return l`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "long" })}: ${Ds[p.condition ?? ""] ?? ""}, ${b ? "" : `${Math.round(x)} to `}${Math.round(m)} degrees${f >= 30 ? `, ${Math.round(f)} percent chance of rain` : ""}`}>
+            <span class="dn">${k}<small>${c.getDate()} ${c.toLocaleDateString("en-AU", { month: "short" })}</small></span>
             ${gs(d === 0 && p.condition === "clear-night" ? "clear-night" : p.condition, 38)}
             <span class="rng">
-              <span class="lo">${b ? "" : `${Math.round(f)}°`}</span>
-              <span class="track"><span class="wbar" style="left:${b ? (x - s) / n * 100 - 4 : (f - s) / n * 100}%;right:${100 - (x - s) / n * 100}%;background:linear-gradient(90deg, ${Yi(f)}, ${Yi(x)})"></span></span>
-              <span>${Math.round(x)}°</span>
-              ${m >= 30 ? l`<span class="wet">💧 ${Math.round(m)}%${p.precipitation ? ` · ${p.precipitation} mm` : ""}</span>` : u}
+              <span class="lo">${b ? "" : `${Math.round(x)}°`}</span>
+              <span class="track"><span class="wbar" style="left:${b ? (m - s) / n * 100 - 4 : (x - s) / n * 100}%;right:${100 - (m - s) / n * 100}%;background:linear-gradient(90deg, ${Yi(x)}, ${Yi(m)})"></span></span>
+              <span>${Math.round(m)}°</span>
+              ${f >= 30 ? l`<span class="wet">💧 ${Math.round(f)}%${p.precipitation ? ` · ${p.precipitation} mm` : ""}</span>` : u}
             </span>
           </div>`;
     })}
@@ -11142,8 +11212,9 @@ bo.styles = [Wt, I`
     .ink[aria-pressed='true'] { transform: scale(1.18); box-shadow: 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .rainbow { background: conic-gradient(#e63946, #fcbf49, #2a9d8f, #118ab2, #7b2cbf, #e63946); }
     .size { width: 50px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .size[aria-pressed='true'] { background: var(--chip-strong); }
-    .size i { border-radius: 50%; background: var(--ink); display: block; }
+    /* the chosen brush, stamp or eraser wears the look's selected style (a white chip on a white card showed nothing) */
+    .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+    .size i { border-radius: 50%; background: currentColor; display: block; }
     .easel { flex: 1; min-width: 0; border-radius: 28px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
@@ -11293,33 +11364,33 @@ const Zh = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], kl = (a, t) => {
   }
   render() {
     if (!this.hass) return u;
-    const t = pa(this._now), e = this.kids.map((m) => ({ k: m, ...this._leave(m) })), i = e.filter((m) => m.at - t > -5).sort((m, f) => m.at - f.at)[0], o = i ? i.at - t : -99, s = (m) => pt(new Date(new Date(this._now).setHours(Math.floor(m / 60), m % 60, 0, 0))), r = i ? e.filter((m) => m.at === i.at).length === e.length ? "everyone leaves" : `${e.filter((m) => m.at === i.at).map((m) => m.k.name).join(" & ")} leaves` : "", n = this._now, p = this.privateWords.map((m) => m.toLowerCase()), d = this._team(), c = d.total > 0 && d.done === d.total, h = this.events.filter((m) => kl(m, n) && m.colour === "family" && !p.some((f) => m.title.toLowerCase().includes(f)) && !this.kids.some((f) => m.who === f.name || m.title.toLowerCase().includes(f.name.toLowerCase()))).map((m, f) => ({ ev: m, i: f, k: Dt(m, n).sort })).sort((m, f) => m.k - f.k || m.i - f.i).map((m) => m.ev);
+    const t = pa(this._now), e = this.kids.map((f) => ({ k: f, ...this._leave(f) })), i = e.filter((f) => f.at - t > -5).sort((f, x) => f.at - x.at)[0], o = i ? i.at - t : -99, s = (f) => pt(new Date(new Date(this._now).setHours(Math.floor(f / 60), f % 60, 0, 0))), r = i ? e.filter((f) => f.at === i.at).length === e.length ? "everyone leaves" : `${e.filter((f) => f.at === i.at).map((f) => f.k.name).join(" & ")} leaves` : "", n = this._now, p = this.privateWords.map((f) => f.toLowerCase()), d = this._team(), c = d.total > 0 && d.done === d.total, h = this.events.filter((f) => kl(f, n) && f.colour === "family" && !p.some((x) => f.title.toLowerCase().includes(x)) && !this.kids.some((x) => f.who === x.name || f.title.toLowerCase().includes(x.name.toLowerCase()))).map((f, x) => ({ ev: f, i: x, k: Dt(f, n).sort })).sort((f, x) => f.k - x.k || f.i - x.i).map((f) => f.ev);
     return l`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
         ${d.total ? l`<div class="team" role="img" aria-label="Team morning: ${d.done} of ${d.total} done">
-          ${d.total <= 18 ? l`<div class="stars">${Array.from({ length: d.total }, (m, f) => Yh(f < d.done))}</div>` : l`<div class="teambar"><div style="width:${d.done / d.total * 100}%"></div></div>`}
+          ${d.total <= 18 ? l`<div class="stars">${Array.from({ length: d.total }, (f, x) => Yh(x < d.done))}</div>` : l`<div class="teambar"><div style="width:${d.done / d.total * 100}%"></div></div>`}
           <span class="nextstep ${c ? "set" : ""}">${c ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${d.total - d.done} to go between us`}</span></div>` : u}
         <div style="display:flex;align-items:center;gap:14px;justify-content:flex-end;flex:1">
           ${o > 0 ? Lt($t(), "timer", { frac: Math.min(1, o / 60), size: 64 }) : u}
           <div style="text-align:right"><div class="leave ${o <= 0 && o > -5 ? "go" : ""}">${o > 0 ? `${o} min` : o > -5 ? "Time to go!" : "Have a great day"}</div>
             <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${i && o > 0 ? `until ${r} at ${s(i.at)}` : ""}</span></div></div>
       </section>
-      ${h.length ? l`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${h.slice(0, 4).map((m) => l`<span class="fev"><span class="mt">${Dt(m, n).label}</span><span>${m.title}</span></span>`)}</section>` : u}
+      ${h.length ? l`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${h.slice(0, 4).map((f) => l`<span class="fev"><span class="mt">${Dt(f, n).label}</span><span>${f.title}</span></span>`)}</section>` : u}
       <div class="kcols" style="--n:${this.kids.length}">
-        ${this.kids.map((m) => {
-      const f = Ht(m), x = ha(this.hass.states[f.avatar]?.state, m.look ? ha(m.look) : {}), b = this._own(m), w = this._bring(m, b), k = e.find((M) => M.k === m), v = k.at - t, U = v <= 0 && v > -5 ? "now" : v <= 10 && v > 0 ? "soon" : "";
-      return l`<button class="glass kcol tap" style="--kid:${D(m.colour)}" aria-label=${`${m.name}: ${v > 0 ? `leaves at ${s(k.at)}, in ${v} minutes` : v > -5 ? "time to go" : "has left"}${w.length ? `. Bring and wear: ${w.map((M) => wl(M)[1]).join(", ")}` : ""}. Opens ${m.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: m.name }))}>
-            <div class="khead">${la(x, { size: 60, crop: "head", jump: this._cheer, age: m.age, ring: D(m.colour) })}<h2>${m.name}</h2></div>
+        ${this.kids.map((f) => {
+      const x = Ht(f), m = ha(this.hass.states[x.avatar]?.state, f.look ? ha(f.look) : {}), b = this._own(f), k = this._bring(f, b), w = e.find((M) => M.k === f), v = w.at - t, U = v <= 0 && v > -5 ? "now" : v <= 10 && v > 0 ? "soon" : "";
+      return l`<button class="glass kcol tap" style="--kid:${D(f.colour)}" aria-label=${`${f.name}: ${v > 0 ? `leaves at ${s(w.at)}, in ${v} minutes` : v > -5 ? "time to go" : "has left"}${k.length ? `. Bring and wear: ${k.map((M) => wl(M)[1]).join(", ")}` : ""}. Opens ${f.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: f.name }))}>
+            <div class="khead">${la(m, { size: 60, crop: "head", jump: this._cheer, age: f.age, ring: D(f.colour) })}<h2>${f.name}</h2></div>
             <span class="label">Today</span>
             ${b.length ? b.slice(0, 3).map((M) => l`<div class="mev2"><span class="mt">${Dt(M, n).label}</span><span>${M.title}</span></div>`) : l`<span class="muted" style="font-size:15px">Just school today</span>`}
             <div class="klow">
               <div class="kgo ${U}" data-part="countdown">
                 <div class="gobar" style="--f:${Math.round(Math.max(0, Math.min(1, 1 - v / 60)) * 100)}%"><i></i><span aria-hidden="true">${v > -5 ? "🚪" : "✓"}</span></div>
-                <div class="lchip ${U}"><span>Leave ${s(k.at)}${k.why !== "school" ? ` · ${k.why}` : ""}</span><span>${v > 0 ? `${v} min` : v > -5 ? "Go!" : "✓"}</span></div>
+                <div class="lchip ${U}"><span>Leave ${s(w.at)}${w.why !== "school" ? ` · ${w.why}` : ""}</span><span>${v > 0 ? `${v} min` : v > -5 ? "Go!" : "✓"}</span></div>
               </div>
-              ${w.length ? l`<div class="tiles" data-part="bring">${w.map((M) => {
+              ${k.length ? l`<div class="tiles" data-part="bring">${k.map((M) => {
         const [R, Y] = wl(M);
         return l`<span class="tile"><span class="te" aria-hidden="true">${R}</span><span class="tl">${Y}</span></span>`;
       })}</div>` : u}
@@ -11450,7 +11521,7 @@ const Ye = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], Be = [0, 5, 10, 15, 20, 25, 
         if (e !== this._seekGen) return;
         const n = /* @__PURE__ */ new Set();
         this._found = (r?.features ?? []).map(({ properties: p }) => {
-          const d = [p.housenumber, p.street].filter(Boolean).join(" "), c = p.name || d || p.city || "", h = [p.name && d ? d : "", p.district || p.locality || p.city, [Oh[p.state] ?? p.state, p.postcode].filter(Boolean).join(" ")].filter((m) => m && m !== c);
+          const d = [p.housenumber, p.street].filter(Boolean).join(" "), c = p.name || d || p.city || "", h = [p.name && d ? d : "", p.district || p.locality || p.city, [Oh[p.state] ?? p.state, p.postcode].filter(Boolean).join(" ")].filter((f) => f && f !== c);
           return { name: c, detail: [...new Set(h)].join(", ") };
         }).filter((p) => p.name && !n.has(`${p.name}|${p.detail}`) && n.add(`${p.name}|${p.detail}`));
       } catch {
@@ -11597,10 +11668,10 @@ const Ye = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], Be = [0, 5, 10, 15, 20, 25, 
     }}>${A("calendar", 22)}<span>Other date</span></button></div>
           <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (c, h) => {
-      const m = H(t, h);
-      return l`<button class="tap" aria-pressed=${String(Ji(m, this._date))} @click=${() => {
-        this._date = m;
-      }}>${h === 0 ? "Today" : h === 1 ? "Tomorrow" : `${si(m)} ${m.getDate()}`}</button>`;
+      const f = H(t, h);
+      return l`<button class="tap" aria-pressed=${String(Ji(f, this._date))} @click=${() => {
+        this._date = f;
+      }}>${h === 0 ? "Today" : h === 1 ? "Tomorrow" : `${si(f)} ${f.getDate()}`}</button>`;
     })}
           </div>
           <div class="chips cals" role="group" aria-label="Whose calendar" style="--n:${this.calendars.length}">${this.calendars.map((c) => l`<button class="tap" aria-pressed=${String(e === c.entity)} @click=${() => {
@@ -11662,6 +11733,8 @@ ge.styles = [Wt, fi, I`
     .box .keys .key.wide, .box .keys.compact .key.wide { flex: 1.5 1 0; width: auto; }
     .box .keys .key.space, .box .keys.compact .key.space { flex: 0 1 62%; width: auto; }
     .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+    .field { text-overflow: ellipsis; }
+    .box .xbtn { margin-left: auto; }
     .field.on { box-shadow: inset 0 0 0 3px var(--primary); }
     .box .field:focus-visible { outline: none; }
     .field.where { height: 48px; font-size: 19px; }
@@ -11832,7 +11905,7 @@ const Xh = [
     super.disconnectedCallback(), this.removeEventListener("pointerdown", this._poke, { capture: !0 }), this.removeEventListener("keydown", this._poke, { capture: !0 }), clearTimeout(this._idleT), this._reset();
   }
   updated(t) {
-    if (t.has("_bubbles") || t.has("_busy") || t.has("_keys")) {
+    if (t.has("_keys") && this.toggleAttribute("kb", this._keys), t.has("_bubbles") || t.has("_busy") || t.has("_keys")) {
       const e = this.renderRoot.querySelector(".thread");
       e && (e.scrollTop = e.scrollHeight);
     }
@@ -11845,7 +11918,7 @@ const Xh = [
     this._bubbles = [...this._bubbles, { id: ++this._n, from: t, text: e, calm: i }], this._poke();
   }
   _quiet() {
-    n0();
+    nd();
     try {
       this._audio?.pause();
     } catch {
@@ -12105,7 +12178,9 @@ wo.styles = [Wt, fi, I`
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
     .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
-    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 8px; justify-content: center; white-space: nowrap; gap: 4px; }
+    /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
+    :host([data-look]) .opts .pill { font-size: 15px; }
+    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
     .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
@@ -12136,6 +12211,23 @@ wo.styles = [Wt, fi, I`
     :host([data-shape='tall']) .ctl { flex: 0 0 auto; }
     :host([data-shape='tall']) .starters { grid-template-columns: repeat(3, 1fr); }
     :host([data-shape='tall']) .opts { margin-top: 0; }
+    /* the on-screen keys are open on a portrait tablet (one column): the pictures step aside, so no key lies under them and the conversation keeps its room; they come back when the keys close */
+    :host([kb][data-shape='tall']) .ctl > .starters { display: none; }
+    :host([kb][data-shape='tall']) .ctl { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 10px 16px; }
+    :host([kb][data-shape='tall']) .voice { flex-direction: row; min-height: 0; max-width: none; gap: 10px; text-align: left; }
+    :host([kb][data-shape='tall']) .talk { width: 60px; height: 60px; }
+    :host([kb][data-shape='tall']) .talk svg { width: 30px; height: 30px; }
+    :host([kb][data-shape='tall']) .opts { flex: 1 1 320px; margin-top: 0; }
+    /* the keys are open in a child's low layout on a wide screen: back to two columns (conversation and keys on the left, talking and pictures on the right), because the keys and the pictures cannot share the lower half */
+    :host([kb][low][data-shape='wide']:not([data-phone])) { flex-direction: row; gap: 18px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .conv { flex: 2 1 0; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl { flex: 1 1 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice { flex-direction: row; gap: 16px; min-height: 100px; max-width: none; text-align: left; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: 20px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr 1fr; overflow-y: auto; }
+    :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
     :host([data-phone]) .thread { flex: none; height: 42vh; min-height: 220px; padding: 12px; border-radius: 18px; }
@@ -12230,7 +12322,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
   }
   _setKidPref(t) {
     const e = this._kidOn;
-    e && (l0(e.name, t), this._prefTick++, $("tap"));
+    e && (ld(e.name, t), this._prefTick++, $("tap"));
   }
   /** Looks and settings are for grown-ups when a PIN is set. */
   _openLooks() {
@@ -12244,7 +12336,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
       const e = this._focused(), i = !!e && e.getRootNode().host?.localName === "fh-pin";
       this._opener = e && !i ? e : this._pinFrom;
     }
-    this._sheet !== "meds" && (this._medOpen = !1), this._config && (this._lk !== $t() && zo(this._lk), e0(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1));
+    this._sheet !== "meds" && (this._medOpen = !1), this._config && (this._lk !== $t() && zo(this._lk), ed(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1));
   }
   setConfig(t) {
     if (!t) throw new Error("Family Hub: missing configuration");
@@ -12293,7 +12385,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
   _onTick() {
     const t = /* @__PURE__ */ new Date();
     if ((this._timerLeft() !== null || this._dinner || t.getSeconds() % 15 === 0) && (this._now = t), t.getSeconds() % 15) return;
-    i0(De(t, this._config?.quiet?.start ?? "20:00", this._config?.quiet?.end ?? "06:30"));
+    id(De(t, this._config?.quiet?.start ?? "20:00", this._config?.quiet?.end ?? "06:30"));
     const i = Date.now() - this._lastTouch;
     !this._idle && i > 6e4 && (this._idle = !0);
     const o = (this._config?.idle_seconds ?? 180) * 1e3, s = this._morningWindow() ? "morning" : "planner";
@@ -12400,17 +12492,17 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
     const e = t.querySelector(".capsule");
     if (!e) return;
     const i = [...e.querySelectorAll(".cap")], o = i.find((d) => d.dataset.kind === "med"), s = xt() === "wide", r = xt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, p = (d) => {
-      for (const f of i) f.hidden = !1;
+      for (const x of i) x.hidden = !1;
       if (e.removeAttribute("data-one"), t.removeAttribute("data-fit"), t.toggleAttribute("data-medchip", d), r) return;
-      const c = [], h = (f) => {
-        n() && (c.push(f), t.setAttribute("data-fit", c.join(" ")));
-      }, m = (f, x) => {
-        for (let b = i.length - 1; b >= 0 && n(); b--) Number(i[b].dataset.p) >= f && i.filter((w) => !w.hidden).length > x && (i[b].hidden = !0);
+      const c = [], h = (x) => {
+        n() && (c.push(x), t.setAttribute("data-fit", c.join(" ")));
+      }, f = (x, m) => {
+        for (let b = i.length - 1; b >= 0 && n(); b--) Number(i[b].dataset.p) >= x && i.filter((k) => !k.hidden).length > m && (i[b].hidden = !0);
       };
-      for (s && (h("nobadge"), h("slim")), m(3, 0), s && (h("nowho"), h("nowx")), m(0, 1), n() && e.setAttribute("data-one", ""); c.length; ) {
-        const f = c.pop();
+      for (s && (h("nobadge"), h("slim")), f(3, 0), s && (h("nowho"), h("nowx")), f(0, 1), n() && e.setAttribute("data-one", ""); c.length; ) {
+        const x = c.pop();
         if (t.setAttribute("data-fit", c.join(" ")), n()) {
-          c.push(f);
+          c.push(x);
           break;
         }
       }
@@ -12441,35 +12533,36 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
       e.removeAttribute("data-tight"), e.removeAttribute("data-wrap");
       const s = Xt._pen ??= document.createElement("canvas").getContext("2d");
       if (s) for (const b of i.querySelectorAll(".ev .n")) {
-        const w = getComputedStyle(b);
-        s.font = `${w.fontWeight} ${w.fontSize} ${w.fontFamily}`, b.toggleAttribute("data-hy", Math.max(0, ...(b.textContent ?? "").split(/[\s\u2011-]+/).map((k) => s.measureText(k).width)) > b.clientWidth);
+        b.removeAttribute("data-hy");
+        const k = getComputedStyle(b);
+        s.font = `${k.fontWeight} ${k.fontSize} ${k.fontFamily}`, b.toggleAttribute("data-hy", Math.max(0, ...(b.textContent ?? "").split(/[\s\u2011-]+/).map((w) => s.measureText(w).width)) > b.clientWidth);
       }
       const r = getComputedStyle(e), n = parseFloat(r.rowGap) || 0, p = parseFloat(getComputedStyle(i).rowGap) || 0, d = e.querySelector(".dayhead"), c = e.clientHeight - parseFloat(r.paddingTop) - parseFloat(r.paddingBottom) - (d ? d.offsetHeight + n : 0);
       let h = o.map((b) => b.offsetHeight);
-      const m = o.map(() => !0), f = () => {
-        let b = 0, w = 0;
-        return m.forEach((k, v) => {
-          k && (b += h[v], w++);
-        }), b + Math.max(0, w - 1) * p;
+      const f = o.map(() => !0), x = () => {
+        let b = 0, k = 0;
+        return f.forEach((w, v) => {
+          w && (b += h[v], k++);
+        }), b + Math.max(0, k - 1) * p;
       };
-      if (f() > c + 1)
+      if (x() > c + 1)
         e.setAttribute("data-tight", ""), h = o.map((b) => b.offsetHeight);
       else if (i.querySelector(".loc")) {
         e.setAttribute("data-wrap", "");
         const b = h;
-        h = o.map((w) => w.offsetHeight), f() > c + 1 && (e.removeAttribute("data-wrap"), h = b);
+        h = o.map((k) => k.offsetHeight), x() > c + 1 && (e.removeAttribute("data-wrap"), h = b);
       }
-      if (f() > c + 1) {
+      if (x() > c + 1) {
         const b = c - 30 - n;
-        for (let w = 0; w < o.length && f() > b + 1; w++) o[w].classList.contains("past") && (m[w] = !1);
-        for (let w = o.length - 1; w >= 0 && f() > b + 1; w--) m[w] = !1;
-        for (let w = o.length - 1; w >= 0; w--) m[w] || (m[w] = !0, f() > b + 1 && (m[w] = !1));
+        for (let k = 0; k < o.length && x() > b + 1; k++) o[k].classList.contains("past") && (f[k] = !1);
+        for (let k = o.length - 1; k >= 0 && x() > b + 1; k--) f[k] = !1;
+        for (let k = o.length - 1; k >= 0; k--) f[k] || (f[k] = !0, x() > b + 1 && (f[k] = !1));
       }
-      o.forEach((b, w) => {
-        b.style.display = m[w] ? "" : "none";
+      o.forEach((b, k) => {
+        b.style.display = f[k] ? "" : "none";
       });
-      const x = m.filter((b) => !b).length;
-      x && (t[i.dataset.day] = x);
+      const m = f.filter((b) => !b).length;
+      m && (t[i.dataset.day] = m);
     }), JSON.stringify(t) !== JSON.stringify(this._clip) && (this._clip = t, this.requestUpdate());
   }
   // ---------- data ----------
@@ -12538,11 +12631,11 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
       try {
         const d = await this.hass.callApi("GET", `calendars/${p.entity}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(e.toISOString())}`), c = p.name ?? this.hass.states[p.entity]?.attributes.friendly_name ?? p.entity;
         for (const h of d ?? []) {
-          const m = !!h?.start?.date, f = m ? `${h.start.date}T00:00:00` : h?.start?.dateTime, x = new Date(f);
-          if (!f || isNaN(x.getTime())) continue;
-          const b = m ? h.end?.date ? `${h.end.date}T00:00:00` : "" : h.end?.dateTime;
-          let w = new Date(b);
-          (!b || isNaN(w.getTime())) && (w = new Date(x.getTime() + (m ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: x, end: w, allDay: m, colour: p.colour, who: c, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0 });
+          const f = !!h?.start?.date, x = f ? `${h.start.date}T00:00:00` : h?.start?.dateTime, m = new Date(x);
+          if (!x || isNaN(m.getTime())) continue;
+          const b = f ? h.end?.date ? `${h.end.date}T00:00:00` : "" : h.end?.dateTime;
+          let k = new Date(b);
+          (!b || isNaN(k.getTime())) && (k = new Date(m.getTime() + (f ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: m, end: k, allDay: f, colour: p.colour, who: c, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0 });
         }
       } catch (d) {
         n++, console.warn("Family Hub: calendar fetch failed", p.entity, d);
@@ -13003,20 +13096,20 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
   // ---------- render ----------
   render() {
     if (!this._config) return u;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ui(t?.theme ?? this._theme), i = this._isNight(), s = Vt(this._lk).themed ? `${xi(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, d = this._config.calm === !1 ? !1 : p ? p.calm : this._config.calm === !0, c = this._now.getHours(), h = c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [f, x] = za(this, "sheet", this._sheet), [b, w] = za(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, k] = za(this, "night", i, 400);
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ui(t?.theme ?? this._theme), i = this._isNight(), s = Vt(this._lk).themed ? `${xi(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, d = this._config.calm === !1 ? !1 : p ? p.calm : this._config.calm === !0, c = this._now.getHours(), h = c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", f = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [x, m] = za(this, "sheet", this._sheet), [b, k] = za(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, w] = za(this, "night", i, 400);
     return i ? l`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${d} style=${`${s}--z:${this._z}`}>${this._night()}</div>` : l`
-      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${m ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${d} ?data-compact=${this._compact} style=${`${s}--tod:${h};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === !1 || this._photo ? u : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || k || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || k || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
+      <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${f ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${d} ?data-compact=${this._compact} style=${`${s}--tod:${h};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
+        ${this._config.ambient === !1 || this._photo ? u : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(x || w || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(x || w || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
-        ${this._sheetView(f, x)}
+        ${this._sheetView(x, m)}
         ${this._dinner ? this._dinnerView() : u}
-        <div class="toasts" role="status" aria-live="polite">${b ? l`<div class="toast" ?data-closing=${w}><span>${b.msg}</span>${b.act ? l`<button class="tap" @click=${() => {
+        <div class="toasts" role="status" aria-live="polite">${b ? l`<div class="toast" ?data-closing=${k}><span>${b.msg}</span>${b.act ? l`<button class="tap" @click=${() => {
       const v = this._toastAct;
       this._toast = "", this._toastAct = null, clearTimeout(this._toastTimer), v?.run();
     }}>${b.act.label}</button>` : u}</div>` : u}</div>
-        ${k ? this._night(!0) : u}
+        ${w ? this._night(!0) : u}
         ${this._alarm ? this._alarmView() : u}
         ${this._pinAsk ? l`<fh-pin .pin=${String(this._config.parent_pin ?? "")} reason=${this._pinAsk.reason} @ok=${() => {
       const v = this._pinAsk.run;
@@ -13074,18 +13167,18 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
     o && !o.alarm && e.push([4, l`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${o.t}</span></span>`]);
     {
       const d = (b) => {
-        const [w, k] = b.split(":").map(Number);
-        return `${w % 12 || 12}:${String(k).padStart(2, "0")} ${w < 12 ? "am" : "pm"}`;
-      }, c = (t.meds ?? []).map((b) => ({ m: b, s: this._medStatus(b.id, b.time) })), h = c.filter((b) => b.s.due), m = h.some((b) => b.s.late), f = c.filter((b) => b.s.given), x = () => {
+        const [k, w] = b.split(":").map(Number);
+        return `${k % 12 || 12}:${String(w).padStart(2, "0")} ${k < 12 ? "am" : "pm"}`;
+      }, c = (t.meds ?? []).map((b) => ({ m: b, s: this._medStatus(b.id, b.time) })), h = c.filter((b) => b.s.due), f = h.some((b) => b.s.late), x = c.filter((b) => b.s.given), m = () => {
         this._sheet = "meds", this._loadMedLog();
       };
       if (h.length === 1) {
-        const { m: b, s: w } = h[0], k = w.late ? 0 : 2;
-        e.push([k, l`<button class="cap tap ${w.late ? "hot" : ""}" data-kind="med" data-p=${k} aria-label=${`Medication${b.who ? ` for ${b.who}` : ""}: ${w.late ? "overdue" : "due"} ${d(b.time)}`} @click=${x}>${A("pill", 20)}<span style="white-space:nowrap">${w.late ? "Overdue" : "Due"} ${d(b.time)}${b.who ? " ·" : ""}</span>${b.who ? l`<span class="ell mwho">${b.who}</span>` : u}</button>`]);
+        const { m: b, s: k } = h[0], w = k.late ? 0 : 2;
+        e.push([w, l`<button class="cap tap ${k.late ? "hot" : ""}" data-kind="med" data-p=${w} aria-label=${`Medication${b.who ? ` for ${b.who}` : ""}: ${k.late ? "overdue" : "due"} ${d(b.time)}`} @click=${m}>${A("pill", 20)}<span style="white-space:nowrap">${k.late ? "Overdue" : "Due"} ${d(b.time)}${b.who ? " ·" : ""}</span>${b.who ? l`<span class="ell mwho">${b.who}</span>` : u}</button>`]);
       } else if (h.length > 1) {
-        const b = h.map((k) => k.m.who).filter(Boolean).join(", "), w = m ? 0 : 2;
-        e.push([w, l`<button class="cap tap ${m ? "hot" : ""}" data-kind="med" data-p=${w} aria-label=${`Medication: ${h.length} ${m ? "overdue" : "due"}${b ? `: ${b}` : ""}`} @click=${x}>${A("pill", 20)}<span style="white-space:nowrap">${h.length} ${m ? "overdue" : "due"}${b ? ":" : ""}</span>${b ? l`<span class="ell mwho">${b}</span>` : u}</button>`]);
-      } else f.length && this._now.getHours() < 12 && e.push([5, l`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${f.length === 1 ? ` at ${pt(f[0].s.given)}` : `: ${f.length}`}`} @click=${x}>${A("pill", 20)}${A("check", 18)}<span>${f.length === 1 ? pt(f[0].s.given) : `${f.length} given`}</span></button>`]);
+        const b = h.map((w) => w.m.who).filter(Boolean).join(", "), k = f ? 0 : 2;
+        e.push([k, l`<button class="cap tap ${f ? "hot" : ""}" data-kind="med" data-p=${k} aria-label=${`Medication: ${h.length} ${f ? "overdue" : "due"}${b ? `: ${b}` : ""}`} @click=${m}>${A("pill", 20)}<span style="white-space:nowrap">${h.length} ${f ? "overdue" : "due"}${b ? ":" : ""}</span>${b ? l`<span class="ell mwho">${b}</span>` : u}</button>`]);
+      } else x.length && this._now.getHours() < 12 && e.push([5, l`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${x.length === 1 ? ` at ${pt(x[0].s.given)}` : `: ${x.length}`}`} @click=${m}>${A("pill", 20)}${A("check", 18)}<span>${x.length === 1 ? pt(x[0].s.given) : `${x.length} given`}</span></button>`]);
     }
     if (this._page !== "kid") for (const d of this._wantsChat) e.push([0.5, l`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${d} would like a chat. Tap to dismiss`} @click=${() => {
       this._wantsChat = this._wantsChat.filter((c) => c !== d);
@@ -13220,13 +13313,13 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
     const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (r, n) => H(t, n)), o = i.map((r) => ut(r, e) ? "1.4fr" : "1fr").join(" "), s = this._evKey === this._fetchedKey && !this._events.length;
     return l`<div class="weekwrap"><div class="week" style="grid-template-columns:${o}">
       ${i.map((r) => {
-      const n = this._eventsOn(r), p = ut(r, e), d = n.filter((f) => !this._private(f.title)), c = n.filter((f) => this._private(f.title)), h = Xi(r), m = this._clip[h] ?? 0;
+      const n = this._eventsOn(r), p = ut(r, e), d = n.filter((x) => !this._private(x.title)), c = n.filter((x) => this._private(x.title)), h = Xi(r), f = this._clip[h] ?? 0;
       return l`<div class="col ${p ? "today" : ""}">
           <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700)">${si(r)}</span><span class="num">${r.getDate()}</span>${Lt(this._lk, "day", { now: r, arcs: this._arcs(d) })}${c.length ? l`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${A("lock", 15)}</span>` : u}</div>
-          <div class="evs" data-day=${h}>${d.map((f) => this._evCard(f, r))}</div>
-          ${m ? l`<button class="more tap" aria-label="${m} more on ${Qe(r)}" @click=${() => {
+          <div class="evs" data-day=${h}>${d.map((x) => this._evCard(x, r))}</div>
+          ${f ? l`<button class="more tap" aria-label="${f} more on ${Qe(r)}" @click=${() => {
         this._anchor = r, this._view = "day";
-      }}><span class="mpill">+${m} more</span></button>` : u}
+      }}><span class="mpill">+${f} more</span></button>` : u}
         </div>`;
     })}
     </div>${s ? l`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : u}</div>`;
@@ -13269,7 +13362,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
           <div class="art" style=${e.attributes.entity_picture ? `--pic:url(${e.attributes.entity_picture})` : ""}></div>
           <div class="np-row" style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
             <span style="font-size:15px;font-weight:var(--w-bold, 700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.attributes.media_title ?? (e.state === "off" ? "Off" : "Nothing playing")}</span>
-            <span class="muted" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
+            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
         <div class="ctl">
@@ -13465,46 +13558,46 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
         <div class="seg" role="group" aria-label="Sounds">${["full", "soft", "off"].map((r) => l`<button class="tap" aria-pressed=${String(e.sound === r)} @click=${() => this._setKidPref({ sound: r })}>${r[0].toUpperCase() + r.slice(1)}</button>`)}</div></div>`;
   }
   _medsBody() {
-    const t = this._config, e = t.parents ?? (t.people ?? []).map((x) => x.name), i = (t.kids ?? []).map((x) => x.name), o = this._mx, s = t.med_extras ?? ["Paracetamol", "Ibuprofen"], r = this._now, n = (x) => {
-      this._mx = { ...o, ...x };
-    }, p = new Date(r.getTime() - o.ago * 6e4), d = this._medLog.filter((x) => r.getTime() - x.at.getTime() < 48 * 36e5), c = (x) => {
-      const b = Math.max(0, Math.round((r.getTime() - x.getTime()) / 6e4));
+    const t = this._config, e = t.parents ?? (t.people ?? []).map((m) => m.name), i = (t.kids ?? []).map((m) => m.name), o = this._mx, s = t.med_extras ?? ["Paracetamol", "Ibuprofen"], r = this._now, n = (m) => {
+      this._mx = { ...o, ...m };
+    }, p = new Date(r.getTime() - o.ago * 6e4), d = this._medLog.filter((m) => r.getTime() - m.at.getTime() < 48 * 36e5), c = (m) => {
+      const b = Math.max(0, Math.round((r.getTime() - m.getTime()) / 6e4));
       return b < 60 ? `${b} min ago` : b < 2880 ? `${Math.floor(b / 60)} h ${b % 60} min ago` : "";
-    }, h = (x) => {
-      const [b, w] = x.split(":").map(Number);
-      return `${b % 12 || 12}:${String(w).padStart(2, "0")} ${b < 12 ? "am" : "pm"}`;
-    }, m = (x, b, w) => l`<button class="tap mchip" aria-pressed=${String(x)} @click=${w}>${b}</button>`, f = !(t.med_log && this.hass?.states[t.med_log]);
+    }, h = (m) => {
+      const [b, k] = m.split(":").map(Number);
+      return `${b % 12 || 12}:${String(k).padStart(2, "0")} ${b < 12 ? "am" : "pm"}`;
+    }, f = (m, b, k) => l`<button class="tap mchip" aria-pressed=${String(m)} @click=${k}>${b}</button>`, x = !(t.med_log && this.hass?.states[t.med_log]);
     return l`${this._sheetHead("Medication", "Kept off the kids’ pages and the night screen.", "pill")}
       <div class="med2">
         <div class="icol">
           <span class="label">Every day</span>
-          ${(t.meds ?? []).map((x) => {
-      const b = this._medStatus(x.id, x.time);
+          ${(t.meds ?? []).map((m) => {
+      const b = this._medStatus(m.id, m.time);
       return l`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
               <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${A("pill", 24)}</span>
-                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${x.who ? `${x.who} – ` : ""}${x.label}</b><span class="muted">Due ${h(x.time)}</span></span>
-                ${this._medBusy === x.id ? l`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:15px;color:${b.given ? "var(--ok)" : b.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${b.given ? `✓ ${pt(b.given)}${b.by ? ` · ${b.by}` : ""}` : b.missing ? "Not set up" : b.late ? "Overdue" : "Not yet"}</b>`}</div>
-              ${b.missing ? l`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${x.id}</b>, so this cannot be recorded here.</span>` : b.given && this._medBusy !== x.id ? u : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((w) => l`<button class="pill tap ${b.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:15px" ?disabled=${this._medBusy === x.id} @click=${() => this._medGuard("Record this medicine?", () => {
-        this._giveMed(x.id, w);
-      })}>Given by ${w}</button>`)}</div>`}
+                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${m.who ? `${m.who} – ` : ""}${m.label}</b><span class="muted">Due ${h(m.time)}</span></span>
+                ${this._medBusy === m.id ? l`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:15px;color:${b.given ? "var(--ok)" : b.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${b.given ? `✓ ${pt(b.given)}${b.by ? ` · ${b.by}` : ""}` : b.missing ? "Not set up" : b.late ? "Overdue" : "Not yet"}</b>`}</div>
+              ${b.missing ? l`<span class="muted" role="note">Not set up yet: Home Assistant has no helper called <b>input_datetime.fh_med_${m.id}</b>, so this cannot be recorded here.</span>` : b.given && this._medBusy !== m.id ? u : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((k) => l`<button class="pill tap ${b.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:15px" ?disabled=${this._medBusy === m.id} @click=${() => this._medGuard("Record this medicine?", () => {
+        this._giveMed(m.id, k);
+      })}>Given by ${k}</button>`)}</div>`}
             </div>`;
     })}
-          <span class="label">${f ? "Kept on this screen only" : "Given in the last two days"}</span>
-          ${d.length ? d.map((x) => l`<div class="irow" data-at=${x.at.toISOString()}><span style="min-width:0"><b>${x.who}</b> · ${x.what}<br><small class="muted">${x.at.toLocaleDateString("en-AU", { weekday: "short" })} ${pt(x.at)}${x.by ? ` · ${x.by}` : ""} · ${c(x.at)}</small></span>
-            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${x.what} for ${x.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
-      this._unlogMed(x);
+          <span class="label">${x ? "Kept on this screen only" : "Given in the last two days"}</span>
+          ${d.length ? d.map((m) => l`<div class="irow" data-at=${m.at.toISOString()}><span style="min-width:0"><b>${m.who}</b> · ${m.what}<br><small class="muted">${m.at.toLocaleDateString("en-AU", { weekday: "short" })} ${pt(m.at)}${m.by ? ` · ${m.by}` : ""} · ${c(m.at)}</small></span>
+            <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${m.what} for ${m.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
+      this._unlogMed(m);
     })}>${A("close", 16)}</button></div>`) : l`<span class="iline muted">Nothing else has been given.</span>`}
         </div>
         <div class="icol">
           <span class="label">Something else given</span>
-          <div class="mrow">${s.map((x) => m(o.what === x, x, () => n({ what: x })))}${m(o.what === "other", "Other…", () => n({ what: "other" }))}</div>
-          ${o.what === "other" ? l`<input class="field" style="height:48px;font-size:18px" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${o.other} @input=${(x) => n({ other: x.target.value })}>
-            ${Ke((x) => {
-      const [b, w] = ae(o.other, x, o.caps);
-      n({ other: b, caps: w });
+          <div class="mrow">${s.map((m) => f(o.what === m, m, () => n({ what: m })))}${f(o.what === "other", "Other…", () => n({ what: "other" }))}</div>
+          ${o.what === "other" ? l`<input class="field" style="height:48px;font-size:18px" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${o.other} @input=${(m) => n({ other: m.target.value })}>
+            ${Ke((m) => {
+      const [b, k] = ae(o.other, m, o.caps);
+      n({ other: b, caps: k });
     }, o.caps, () => n({ caps: !o.caps }), !0)}` : u}
           <span class="label">For</span>
-          <div class="mrow">${i.map((x) => m(o.who === x, x, () => n({ who: x })))}</div>
+          <div class="mrow">${i.map((m) => f(o.who === m, m, () => n({ who: m })))}</div>
           <span class="label">When</span>
           <div class="mrow" style="align-items:center">
             <button class="tap mchip" aria-label="Five minutes earlier" @click=${() => n({ ago: Math.min(1440, o.ago + 5) })}>− 5 min</button>
@@ -13512,11 +13605,11 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
             <button class="tap mchip" aria-label="Five minutes later" ?disabled=${o.ago === 0} @click=${() => n({ ago: Math.max(0, o.ago - 5) })}>+ 5 min</button>
             ${o.ago ? l`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${o.ago} min ago</span>` : u}
           </div>
-          ${e.length ? l`<span class="label">Given by</span><div class="mrow">${e.map((x) => m(o.by === x, x, () => n({ by: x })))}</div>` : u}
+          ${e.length ? l`<span class="label">Given by</span><div class="mrow">${e.map((m) => f(o.by === m, m, () => n({ by: m })))}</div>` : u}
         </div>
       </div>
       <div class="sfoot">
-        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${f ? l` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it. Grown-ups: set <b>med_log</b> in the card settings to share it.</span>` : u}</span>
+        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${x ? l` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it. Grown-ups: set <b>med_log</b> in the card settings to share it.</span>` : u}</span>
         <button class="tap ${(o.what === "other" ? o.other.trim() : o.what) ? "lead" : "ghost"}" data-act="log" style="height:60px;padding:0 26px;font-size:17px;border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard("Add to the medicine record?", () => {
       this._logMed();
     })}>Add to the record</button>
@@ -13527,7 +13620,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
     return this.hass?.states["timer.kitchen"] ? l`${this._sheetHead("Kitchen timer", t ? "Beeps everywhere when it finishes." : "Tap +1, +5 or +10 to start", "timer")}
       <div ?data-bump=${!!this._bump} style="display:flex;align-items:center;justify-content:center;gap:24px"><span style="line-height:0">${Lt(this._lk, "timer", { frac: this._timerFrac(this._timerLeft()), size: 130 })}</span>
       <span class="display" role="timer" aria-label=${`${i} minutes ${o} seconds left`} style="font-size:88px;line-height:1;font-weight:var(--w-bold, 700);text-align:center;font-variant-numeric:tabular-nums">${this._roll(`${i}:${String(o).padStart(2, "0")}`)}</span></div>
-      <div class="grid3" style="gap:12px">${[1, 5, 10].map((s) => l`<button class="tap ${s === 5 ? "lead" : ""}" data-act="plus" style="height:60px;font-size:18px;white-space:nowrap;${s === 5 ? "" : "border-radius:999px;font-weight:var(--w-bold, 700)"}" aria-label=${`Add ${s} minute${s > 1 ? "s" : ""}`} @click=${() => this._addTimer(s)}>+${s} min</button>`)}</div>
+      <div class="grid3" style="gap:12px">${[1, 5, 10].map((s) => l`<button class="tap ${s === 5 ? "lead" : "quick"}" data-act="plus" style="height:60px;font-size:18px;white-space:nowrap;${s === 5 ? "" : "border-radius:999px;font-weight:var(--w-bold, 700)"}" aria-label=${`Add ${s} minute${s > 1 ? "s" : ""}`} @click=${() => this._addTimer(s)}>+${s} min</button>`)}</div>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:16px;background:transparent" aria-label="Cancel the kitchen timer" ?disabled=${!t} @click=${() => {
       this._cancelTimer();
     }}>Cancel</button>` : l`${this._sheetHead("Kitchen timer", "", "timer")}<span class="muted" style="font-size:17px;font-weight:var(--w-semi, 600)">Kitchen timer is not set up</span>
@@ -13561,10 +13654,10 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
   }
   _sitterBody() {
     const t = this._config, e = t.babysitter ?? {}, i = t.emergency, o = this._now, s = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/, r = [...e.contacts ?? [], ...(e.lines ?? []).map((b) => s.exec(b)).filter((b) => !!b).map((b) => ({ name: b[1], phone: b[2].trim() }))], n = [...(e.lines ?? []).filter((b) => !s.test(b)), ...e.notes ?? []], p = (t.kids ?? []).filter((b) => b.bedtime).map((b) => ({ name: b.name, at: ka(b.bedtime, o) })), d = this._eventsOn(o, this._soon).filter((b) => !b.allDay && b.end > o && !this._private(b.title)).slice(0, 4), c = (b) => {
-      const [w, k] = b.split(":").map(Number);
-      return `${w % 12 || 12}:${String(k).padStart(2, "0")} ${w < 12 ? "am" : "pm"}`;
-    }, h = (b) => l`<span class="label">${b}</span>`, m = this._bins(o), f = (t.people ?? []).some((b) => b.entity), x = [];
-    return r.length && x.push(l`${h("Who to ring")}${r.map((b) => l`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), p.length && x.push(l`${h("Bedtimes tonight")}${p.map((b) => l`<div class="irow"><b>${b.name}</b><span>${c(b.at)}</span></div>`)}`), d.length && x.push(l`${h("Still on today")}${d.map((b) => l`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Dt(b, o).label}</span></div>`)}`), m && x.push(l`${h("Bin night")}<div class="irow"><b>${ut(m.night, o) ? "Tonight" : m.night.toLocaleDateString("en-AU", { weekday: "long" })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(m.bins)}${m.bins.join(" + ")}</span></div>`), e.wifi && x.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow"><span>Password</span><b>${e.wifi.password}</b></div>` : u}`), f && x.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && x.push(l`${h("Good to know")}${n.map((b) => l`<div class="iline">${b}</div>`)}`), l`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info")}
+      const [k, w] = b.split(":").map(Number);
+      return `${k % 12 || 12}:${String(w).padStart(2, "0")} ${k < 12 ? "am" : "pm"}`;
+    }, h = (b) => l`<span class="label">${b}</span>`, f = this._bins(o), x = (t.people ?? []).some((b) => b.entity), m = [];
+    return r.length && m.push(l`${h("Who to ring")}${r.map((b) => l`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), p.length && m.push(l`${h("Bedtimes tonight")}${p.map((b) => l`<div class="irow"><b>${b.name}</b><span>${c(b.at)}</span></div>`)}`), d.length && m.push(l`${h("Still on today")}${d.map((b) => l`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Dt(b, o).label}</span></div>`)}`), f && m.push(l`${h("Bin night")}<div class="irow"><b>${ut(f.night, o) ? "Tonight" : f.night.toLocaleDateString("en-AU", { weekday: "long" })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow"><span>Password</span><b>${e.wifi.password}</b></div>` : u}`), x && m.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(l`${h("Good to know")}${n.map((b) => l`<div class="iline">${b}</div>`)}`), l`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info")}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
           ${e.address ? l`<span class="sosaddr">You are at <b>${e.address}</b></span>` : u}</div>
@@ -13577,11 +13670,11 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
           <span><b>${this._sos === "sending" ? "Sending…" : this._sos === "sent" ? "Alert sent" : `Alert ${i.who ?? "the parents"}`}</b><small>${this._sos === "sent" ? "Hold again to send another" : "Press and hold"}</small></span></button>` : u}
       </div>
       <span id="sosnote" role="status" class="sosnote">${this._sosNote}</span>
-      <div class="info2">${x.map((b) => l`<div class="icol">${b}</div>`)}</div>`;
+      <div class="info2">${m.map((b) => l`<div class="icol">${b}</div>`)}</div>`;
   }
   /** The night screen. Waking it (out) fades the black layer away over the panel and starts nothing else. */
   _night(t = !1) {
-    const e = this._now, i = Pn(e), o = e.getHours() < 6, s = o ? e : H(e, 1), r = this._eventsOn(s, this._soon).filter((m) => !this._private(m.title)).slice(0, 3), n = e.getHours() * 60 + e.getMinutes(), p = Math.round(Math.sin(n / 7) * 38), d = Math.round(Math.cos(n / 11) * 24), c = this._arcs(this._eventsOn(e, this._soon)).map((m) => ({ ...m, colour: "rgba(255,178,107,.7)" })), h = Lt(this._lk, "night", { now: e, arcs: c, size: 230 });
+    const e = this._now, i = Pn(e), o = e.getHours() < 6, s = o ? e : H(e, 1), r = this._eventsOn(s, this._soon).filter((f) => !this._private(f.title)).slice(0, 3), n = e.getHours() * 60 + e.getMinutes(), p = Math.round(Math.sin(n / 7) * 38), d = Math.round(Math.cos(n / 11) * 24), c = this._arcs(this._eventsOn(e, this._soon)).map((f) => ({ ...f, colour: "rgba(255,178,107,.7)" })), h = Lt(this._lk, "night", { now: e, arcs: c, size: 230 });
     return l`<button class="night" ?data-closing=${t} ?inert=${t} aria-label="Wake the panel" @click=${() => {
       this._nightManual = !1, this._awakeUntil = Date.now() + 10 * 6e4, this._lastTouch = Date.now();
     }}>
@@ -13590,7 +13683,7 @@ const s1 = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" str
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${r.length ? l`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
           <span style="font-size:13px;font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${o ? "Today" : "Tomorrow"}</span>
-          ${r.map((m) => l`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${Dt(m, s).label}</span>${m.title}</div>`)}
+          ${r.map((f) => l`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${Dt(f, s).label}</span>${f.title}</div>`)}
         </div>` : l`<span></span>`}
         <span class="breathe" style="font-size:16px;opacity:.7">Tap anywhere to wake</span>
       </div>
