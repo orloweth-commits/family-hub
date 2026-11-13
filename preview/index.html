@@ -143,7 +143,7 @@ const hass = {
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
   },
-  callApi: async (_m, path, body) => { if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
+  callApi: async (_m, path, body) => { if (_m === 'POST' && String(path).startsWith('config/')) { (window.__calls ||= []).push('api.POST ' + path); window.__apiBody = body; if (path.includes('automation/config/')) { hass.states['automation.family_hub_nightly_art'] = { entity_id: 'automation.family_hub_nightly_art', state: 'on', attributes: { friendly_name: body.alias } }; el.hass = { ...hass }; } return { flow_id: 'flow1', result: 'ok' }; } if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
     // Settings: the pretend dashboard (kept in memory) that hosts this card, and the helpers a new medicine needs

@@ -2,11 +2,11 @@ import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type Te
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
-import { avatarCss, applyItem, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
+import { avatarCss, applyItem, decodeLook, encodeLook, isUnlocked, isWorn, nextUnlock, prevThreshold, renderAvatar, type Category, type Item, type Look } from './avatar';
 import { FitController, linger, say, scrollCue, sfx } from './util';
 import { confetti, fxCss } from './fx';
 import { kidEntities, num, slotVar, type Hass, type KidConfig } from './types';
-import { catalogueOf, itemEmoji, lookFile, lookPrompt, wardrobeLook } from './wardrobe';
+import { catalogueOf, itemEmoji, lookFile, lookKey, lookPrompt, wardrobeLook } from './wardrobe';
 import { cropJpeg, keepMedia, localFiles, painter, paint } from './media';
 import { ART_DEFAULTS, loadArt, logArt, looksToday, monthSpend, type ArtConfig, type ArtItem } from './artlib';
 
@@ -139,7 +139,9 @@ export class FhStudio extends LitElement {
   private get _painted(): boolean { return !!this.kid?.sheet; }
   private get _cats(): Category[] { return catalogueOf(this._painted); }
   private get d(): Look { const l = this._draft ?? this.look; return this._painted ? wardrobeLook(l) : l; }
-  private get _file(): string { return lookFile(kidEntities(this.kid).slug, this.d); }
+  /** the picture he starts with (the card's `look` for him): it is his plain look, whatever its file is called */
+  private get _base(): Look { return decodeLook('', this.kid.look ? decodeLook(this.kid.look) : {}); }
+  private get _file(): string { const b = this._base; return b.img && lookKey(this.d) === lookKey(wardrobeLook(b)) ? b.img : lookFile(kidEntities(this.kid).slug, this.d); }
   private get _list(): string { return this.art.list || 'todo.family_hub_art'; }
   private async _loadPainted(fresh = false): Promise<void> {
     if (!this._painted || !this.hass) return;
@@ -161,7 +163,7 @@ export class FhStudio extends LitElement {
     if (!hass || this._wet) return;
     if (!hass.states[id]) { this._say(`Create ${id} in Home Assistant to save looks`); return; }
     const put = async (): Promise<boolean> => { try { await hass.callService('input_text', 'set_value', { entity_id: id, value: encodeLook({ ...look, img: file }) }); return true; } catch { this._say('Couldn’t save – try again'); return false; } };
-    if (!this._files?.has(file)) {
+    if (!this._files?.has(file) && file !== this._base.img) {
       if (this._cannot) { sfx('locked'); this._say(this._cannot); return; }
       this._wet = file; this._tickN = 0; sfx('tap');
       if (this._picMode) say('Painting your new look. It takes a little while.');
@@ -248,8 +250,8 @@ export class FhStudio extends LitElement {
     const cats = this._cats, cat = cats.find((c) => c.id === this._tab) ?? cats[0], painted = this._painted;
     const nx = nextUnlock(this.life, this.kid.favourites, this._goal || undefined, cats), from = prevThreshold(this.life, cats);
     // a painted look is "new" when its picture is not the one he is wearing
-    const dirty = painted ? this._file !== this.look.img : !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
-    const have = painted && !!this._files?.has(this._file), wet = !!this._wet, cannot = painted && dirty && !have ? this._cannot.trim() : '';
+    const dirty = painted ? lookKey(this.d) !== lookKey(wardrobeLook(this.look)) : !!this._draft && encodeLook(this._draft) !== encodeLook(this.look);
+    const have = painted && (!!this._files?.has(this._file) || this._file === this._base.img), wet = !!this._wet, cannot = painted && dirty && !have ? this._cannot.trim() : '';
     const leave = (): void => { if (painted || !dirty) this.dispatchEvent(new CustomEvent('close')); else void this._save(); };
     const recent = (req: number) => req > 0 && req <= this.life && req > this.life - 100;
     return html`<div style="display:contents;--kid:${slotVar(this.kid.colour)}">

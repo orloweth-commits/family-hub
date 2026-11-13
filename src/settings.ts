@@ -8,7 +8,8 @@ import { kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type 
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
 import { ART_DEFAULTS, artListOf, deleteArt, loadArt, markArt, monthSpend, type ArtConfig, type ArtItem } from './artlib';
-import { painter } from './media';
+import { mediaHass, painter } from './media';
+import { nightlyAutomation, nightlyMissing, NIGHTLY_ID, syncNightly, type NightStatus } from './nightly';
 import { CameraWatch, cameraFault, threshold, type CamFault } from './presence';
 import { decodeLook } from './avatar';
 import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNote, history, medId, noPin, onePic, paneWanted, pinMark, resumeSoon, same, saveCard, setNote, StaleError, wantPane,
@@ -147,6 +148,7 @@ export class FhSettings extends LitElement {
     /* Pictures: a child's character, the camera's test picture, and the grid of every picture */
     .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 26px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .spic fh-pic { width: 100%; height: 100%; }
+    .sitem .sin.sgrow { width: 100%; box-sizing: border-box; }
     .scam { position: relative; width: min(100%, 320px); aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: #111; }
     .scam video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
     .scam .sarea { position: absolute; inset: var(--m, 10%); border: 2px dashed #fff; border-radius: 6px; box-shadow: 0 0 0 999px rgba(0,0,0,.45); pointer-events: none; }
@@ -232,7 +234,7 @@ export class FhSettings extends LitElement {
     :host([data-n2]) .sitem > .sin.sfull2, :host([data-shape='tall']) .sitem > .sin.sfull2, :host([data-phone]) .sitem > .sin.sfull2 { flex-basis: calc(100% - 68px); }
   `];
   static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
-    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true } };
+    _kid: { state: true }, _ktab: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true }, _night: { state: true } };
   hass?: Hass;
   config!: Cfg;
   /** show the on-screen keyboard whatever the pointer is (the preview and the tests) */
@@ -773,7 +775,18 @@ export class FhSettings extends LitElement {
   private _lib: ArtItem[] | null | undefined;
   private _libBusy = ''; private _zap = ''; private _libShow: 'art' | 'look' = 'art';
   private _cam: CameraWatch | null = null; private _camTick = 0; private _camT?: number; private _camSeen = 0;
-  private async _loadLib(): Promise<void> { this._lib = await loadArt(this.hass, artListOf(this._draft)); }
+  private _night: NightStatus | null = null;
+  private async _loadLib(): Promise<void> { this._lib = await loadArt(this.hass, artListOf(this._draft)); this._night = await syncNightly(this.hass, this.config, this._draft.look ?? 'glass'); }
+  /** Write (or rewrite) the nightly automation in Home Assistant from the saved configuration. A new one is left switched off. */
+  private async _setUpNightly(existing?: string): Promise<void> {
+    if (!this.hass || this._libBusy) return; this._libBusy = 'night';
+    try {
+      await this.hass.callApi('POST', `config/automation/config/${NIGHTLY_ID}`, nightlyAutomation(this.hass, this.config));
+      if (!existing) { await new Promise((r) => window.setTimeout(r, 1500)); const now = mediaHass() ?? this.hass, id = Object.keys(now.states).find((e) => e.startsWith('automation.') && /family hub.*art/i.test(String(now.states[e].attributes.friendly_name ?? ''))); if (id) await this.hass.callService('automation', 'turn_off', { stop_actions: false }, { entity_id: id }); }
+      this._say(existing ? 'The nightly artwork has been updated.' : 'Set up. Switch it on when you are ready.');
+    } catch { this._say('Home Assistant would not save the automation. Try again.'); }
+    finally { this._libBusy = ''; }
+  }
   private _camStop(): void { clearInterval(this._camT); this._cam?.stop(); this._cam = null; }
   private async _camTest(): Promise<void> {
     if (this._cam) { this._camStop(); return; }
@@ -796,7 +809,8 @@ export class FhSettings extends LitElement {
     finally { this._libBusy = ''; }
   }
   private _pictures(): TemplateResult {
-    const d = this._draft, a: ArtConfig = d.art ?? {}, S = this.hass?.states ?? {};
+    // the newest states (this pane shows a sensor and an automation as they are now)
+    const d = this._draft, a: ArtConfig = d.art ?? {}, S = (mediaHass() ?? this.hass)?.states ?? {};
     const set = (fn: (x: ArtConfig) => void): void => this._edit((c) => { const n = { ...(c.art ?? {}) }; fn(n); if (Object.keys(n).length) c.art = n; else delete c.art; });
     const idle = a.idle_minutes ?? ART_DEFAULTS.idle, every = a.interval_minutes ?? ART_DEFAULTS.interval, src = a.presence ?? 'none';
     const list = artListOf(d), hasList = !!S[list], paint = painter(this.hass, a.painter);
@@ -851,8 +865,9 @@ export class FhSettings extends LitElement {
         ${this._row('Stop at', `This month: ${spend.n} picture${spend.n === 1 ? '' : 's'}, about US$${spend.usd.toFixed(2)}.`, this._step('Monthly limit', cap, (v) => set((x) => { x.cap = v; }), { min: 0, max: 200, step: 5, say: (v) => `US$${v} a month` }))}
         ${this._row('A picture is reckoned at', 'An estimate: check it against your OpenAI bill.', this._step('Cost of one picture', Math.round((a.cost ?? ART_DEFAULTS.cost) * 100), (v) => set((x) => { x.cost = v / 100; }), { min: 1, max: 200, step: 1, say: (v) => `US$${(v / 100).toFixed(2)}` }))}
         ${this._row('New looks a day, each child', 'In the style studio. Looks made before are free.', this._step('New looks a day', a.looks_per_day ?? ART_DEFAULTS.looks, (v) => set((x) => { x.looks_per_day = v; }), { min: 0, max: 10 }))}
-        ${nightly ? this._row('Three new artworks every night', S[nightly].attributes.last_triggered ? `Last ran ${new Date(String(S[nightly].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Has not run yet.', this._sw('Nightly artwork', S[nightly].state === 'on', () => { void this.hass?.callService('automation', S[nightly].state === 'on' ? 'turn_off' : 'turn_on', {}, { entity_id: nightly }); }))
-          : html`<span class="shint">The nightly artwork is not set up in Home Assistant yet.</span>`}
+        ${nightly ? html`${this._row('Three new artworks every night', `At 2 am, about US$${(3 * (a.cost ?? ART_DEFAULTS.cost)).toFixed(2)} a night. ${S[nightly].attributes.last_triggered ? `Last ran ${new Date(String(S[nightly].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Has not run yet.'}${this._night?.d ? ` ${this._night.made ?? 0} painted on ${this._night.d}. ${this._night.note ?? ''}` : ''}`, this._sw('Nightly artwork', S[nightly].state === 'on', () => { void Promise.resolve(this.hass?.callService('automation', S[nightly].state === 'on' ? 'turn_off' : 'turn_on', {}, { entity_id: nightly })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }))}
+          ${this._row('After changing the children, their sheets or their calendars', 'Save first, then rewrite the nightly automation from what is saved.', html`<button class="pill tap" data-act="night-update" ?disabled=${!!this._libBusy || !!nightlyMissing(this.hass, this.config)} @click=${() => void this._setUpNightly(nightly)}>Update it</button>`)}`
+          : this._row('Three new artworks every night', nightlyMissing(this.hass, this.config) || `Painted in Home Assistant at 2 am from the saved character sheets, about US$${(3 * (a.cost ?? ART_DEFAULTS.cost)).toFixed(2)} a night. It is set up switched off.`, html`<button class="pill tap" data-act="night-setup" ?disabled=${!!this._libBusy || !!nightlyMissing(this.hass, this.config)} @click=${() => void this._setUpNightly()}>Set it up</button>`)}
         ${nightly ? this._row('The artwork is painted', '', this._seg('Artwork style', a.style ?? 'look', [['look', 'In the panel’s look'], ['house', 'In the house style']], (v) => set((x) => { if (v === 'look') delete x.style; else x.style = v; }))) : nothing}
       </div>
       <div class="scard"><h3>${paneIcon('kid', 20)}The children’s characters</h3>
@@ -861,7 +876,8 @@ export class FhSettings extends LitElement {
           <span class="spic">${decodeLook(S[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {}).img ? html`<fh-pic .media=${decodeLook(S[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {}).img}></fh-pic>` : k.name[0]}</span>
           <span style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px"><b>${k.name}</b>
             ${this._txt(`sheet.${i}`, `${k.name}’s character sheet, a file in Home Assistant’s media`, k.sheet ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v.trim()) x.sheet = v.trim(); else delete x.sheet; }), { ph: 'Character sheet file, e.g. sheet.png', cls: 'sgrow', pic: true })}
-            ${this._txt(`about.${i}`, `A few words about ${k.name} for the painter`, k.about ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v) x.about = v; else delete x.about; }), { ph: 'A few words for the painter: age, hair, eyes, build', cls: 'sgrow', max: 400 })}</span></div>`)}
+            ${this._txt(`about.${i}`, `A few words about ${k.name} for the painter`, k.about ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v) x.about = v; else delete x.about; }), { ph: 'A few words for the painter: age, hair, eyes, build', cls: 'sgrow', max: 400 })}
+            ${this._txt(`likes.${i}`, `What ${k.name} likes, for the nightly artwork`, k.likes ?? '', (v) => this._edit((c) => { const x = c.kids![i]; if (v) x.likes = v; else delete x.likes; }), { ph: 'What he likes: swimming, dragons, trucks…', cls: 'sgrow', max: 200 })}</span></div>`)}
       </div>
       <div class="scard"><h3>Every picture <span class="muted">${lib.length}</span></h3>
         ${this._seg('Which pictures', this._libShow, [['art', `Artwork (${lib.filter((i) => i.kind === 'art').length})`], ['look', `Looks (${lib.filter((i) => i.kind === 'look').length})`]], (v) => { this._libShow = v; this._zap = ''; })}

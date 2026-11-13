@@ -19,6 +19,8 @@ import './settings';
 import { configError } from './validate';
 import { setMediaHass } from './media';
 import { ArtMode, artCss, artNight, artView } from './artmode';
+import { artListOf } from './artlib';
+import { syncNightly } from './nightly';
 import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
 import { loadFonts } from './fonts';
@@ -260,6 +262,7 @@ export class FamilyHubCard extends LitElement {
   };
   /** The screensaver (artmode.ts). Presence counts as a touch. */
   private _art = new ArtMode(this, () => this._config, () => { this._lastTouch = Date.now(); if (this._idle) this._idle = false; });
+  private _nightKey = '';
   private _musicAt = 0; private _wakeDown = false; private _swallowUntil = 0;
   private _wakeUp = (): void => { if (this._wakeDown) { this._wakeDown = false; this._swallowUntil = Date.now() + 120; } };
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
@@ -328,6 +331,8 @@ export class FamilyHubCard extends LitElement {
 
   protected updated(ch: PropertyValues): void {
     if (ch.has('hass')) this._watchJar();
+    // the nightly artwork reads its limit and its style from the record: keep that line in step with this screen
+    if (this.hass && this._config) { const key = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[artListOf(this._config)]}`; if (key !== this._nightKey) { this._nightKey = key; void syncNightly(this.hass, this._config, this._lk); } }
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor') || this._span !== this._spanWas) { this._spanWas = this._span; this._refresh(); }
     if (ch.has('hass')) this._checkAlarm();
     const root = this.renderRoot.querySelector('.fh');

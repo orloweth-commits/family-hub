@@ -52,6 +52,8 @@ export interface KidConfig {
   look?: string;
   /** a painted character: his character sheet (a file in Home Assistant's media) and a few words about him for the painter. With a sheet, his studio paints his looks instead of drawing them. Keep both out of any public repository. */
   sheet?: string; about?: string;
+  /** what he likes, for the nightly artwork, e.g. "swimming, clarinet, painting miniatures" */
+  likes?: string;
   /** catalogue item ids this kid loves – shown first as the next unlock */
   favourites?: string[];
   /** school-night bedtime, e.g. "19:00" (later on Fri/Sat by `bedtime_weekend_extra`, 30 min unless set) */

@@ -1,5 +1,5 @@
 import type { FamilyHubConfig, Hass } from './types';
-import { dropMedia } from './media';
+import { cropJpeg, dropMedia, keepMedia, mediaUrl } from './media';
 
 /* ------------------------------------------------------------------ *
  * The record of every picture the panel has had painted: the nightly
@@ -101,4 +101,24 @@ export const orderArt = (items: ArtItem[], now = new Date(), todays: string[] = 
   const seed = Number(ymdOf(now).replace(/-/g, '')), rank = (s: string): number => { let h = seed; for (let k = 0; k < s.length; k++) h = Math.imul(h ^ s.charCodeAt(k), 0x45d9f3b); return (h >>> 0) / 4294967296; };
   const tier = (i: ArtItem): number => (i.d === newest ? 0 : suits(i) ? 1 : i.fav ? 2 : 3);
   return [...art].sort((a, b) => tier(a) - tier(b) || rank(a.file) - rank(b.file));
+};
+
+let adopting = false;
+/**
+ * The nightly pictures arrive in Home Assistant's AI Task folder at the painter's own size. A screen that is on brings each one
+ * into local media as a 1920 x 1080 JPEG and points the record at it. Until then (or if this cannot be done) the original is shown.
+ */
+export const adoptArt = async (hass: Hass | undefined, list: string, items: ArtItem[]): Promise<number> => {
+  if (!hass?.user?.is_admin || adopting) return 0;
+  adopting = true; let n = 0;
+  try {
+    for (const it of items.filter((i) => i.kind === 'art' && i.file.startsWith('media-source://ai_task/')).slice(0, 6)) {
+      const url = await mediaUrl(it.file, hass); if (!url) continue;
+      const jpg = await cropJpeg(await (await fetch(url)).blob(), 1920, 16 / 9, 0.45);
+      const name = `fhart-${it.d.replace(/-/g, '')}-${it.uid.replace(/[^a-z0-9]/gi, '').slice(-6).toLowerCase() || n}.jpg`;
+      if (!await keepMedia(hass, name, jpg)) break;
+      await hass.callService('todo', 'update_item', { item: it.uid, rename: name }, { entity_id: list }); n++;
+    }
+  } catch { /* best effort: the originals still show */ } finally { adopting = false; }
+  return n;
 };

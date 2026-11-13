@@ -1,7 +1,7 @@
 import { html, nothing, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import type { FamilyHubConfig, Hass } from './types';
-import { ART_DEFAULTS, artListOf, artOf, loadArt, orderArt, type ArtItem } from './artlib';
+import { ART_DEFAULTS, adoptArt, artListOf, artOf, loadArt, orderArt, type ArtItem } from './artlib';
 import { mediaUrl } from './media';
 import { CameraWatch, type CamFault } from './presence';
 import { hm, minsNow, bedtimeFor } from './util';
@@ -43,7 +43,7 @@ export class ArtMode {
   /** why the camera cannot watch, if it cannot */
   camFault: CamFault = '';
   private _order: ArtItem[] = []; private _i = 0; private _n = 0; private _shownAt = 0; private _loadedAt = 0; private _loading = false;
-  private _cam: CameraWatch | null = null; private _level = -1; private _sensorWas = '';
+  private _cam: CameraWatch | null = null; private _level = -1;
   constructor(private host: ArtHost, private cfg: () => FamilyHubConfig | undefined, private touched: () => void) {}
 
   private get a() { return artOf(this.cfg()); }
@@ -55,7 +55,7 @@ export class ArtMode {
    * (a timer, an alarm, a call, a sheet, a keyboard, a music session); `todays` are today's event titles, for choosing pictures.
    */
   tick(idleFor: number, blocked: boolean, todays: string[] = []): void {
-    this._presence();
+    if (this._presence()) return;
     if (this.on && blocked) { this.wake(); return; }
     if (!this.on && this.idleMs && idleFor >= this.idleMs && !blocked && !document.hidden) this.enter(todays);
     if (this.on && Date.now() - this._shownAt >= this.intervalMs) void this._next();
@@ -74,12 +74,11 @@ export class ArtMode {
   }
 
   /** Someone is there: a sensor says so, or the camera saw movement. Either counts as a touch, and wakes the panel. */
-  private _presence(): void {
-    const a = this.a, src = a.presence ?? 'none';
+  private _presence(): boolean {
+    const a = this.a, src = a.presence ?? 'none'; let here = false;
     if (src === 'sensor' && a.presence_entity) {
       const st = this.host.hass?.states[a.presence_entity]?.state ?? '';
-      if (st === 'on') { this.touched(); if (this.on) this.wake(); }
-      this._sensorWas = st;
+      if (st === 'on') { here = true; this.touched(); if (this.on) this.wake(); }
     }
     if (src === 'camera') {
       if (!this._cam) {
@@ -87,6 +86,7 @@ export class ArtMode {
         void this._cam.start();
       }
     } else if (this._cam) { this._cam.stop(); this._cam = null; this.camFault = ''; }
+    return here;
   }
 
   private async _load(todays: string[]): Promise<void> {
@@ -94,6 +94,7 @@ export class ArtMode {
     try {
       const items = await loadArt(this.host.hass, artListOf(this.cfg()));
       this._loadedAt = Date.now();
+      if (items) void adoptArt(this.host.hass, artListOf(this.cfg()), items).then((n) => { if (n) this._loadedAt = 0; });
       if (items) { this.items = items; const was = this._order[this._i]?.file; this._order = orderArt(items, new Date(), todays); const at = this._order.findIndex((x) => x.file === was); this._i = at >= 0 ? at : -1; }
     } finally { this._loading = false; }
   }
