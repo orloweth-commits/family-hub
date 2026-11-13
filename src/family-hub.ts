@@ -15,6 +15,10 @@ import './morning';
 import './addevent';
 import './pin';
 import './chat';
+import './settings';
+import { configError } from './validate';
+import { pinFresh, resumeNow } from './settings-store';
+import { setWeekendExtra } from './util';
 import { loadFonts } from './fonts';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -34,7 +38,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event';
+type Sheet = '' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
 const VERSION = '0.26.1';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
@@ -162,14 +166,10 @@ export class FamilyHubCard extends LitElement {
   private _toastTimer?: number;
 
   setConfig(config: FamilyHubConfig): void {
-    if (!config) throw new Error('Family Hub: missing configuration');
-    for (const k of config.kids ?? []) if (!k.name) throw new Error('Family Hub: every kid needs a name');
-    for (const m of config.meds ?? []) if (!m?.id || !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(m.time ?? ''))) throw new Error('Family Hub: every medicine in "meds" needs an id and a time like "06:30"');
-    for (const t of [config.night?.start, config.night?.end]) if (t !== undefined && !/^\d{1,2}:\d{2}(:\d{2})?$/.test(String(t))) throw new Error('Family Hub: night start and end need times like "21:00"');
+    // the rules live in validate.ts, where Settings applies the same ones before it saves
+    const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
-    for (const c of config.calendars ?? []) if (!c.entity?.startsWith('calendar.')) throw new Error(`Family Hub: "${c.entity}" isn't a calendar entity`);
-    if (config.parent_pin !== undefined && !/^\d{4,8}$/.test(String(config.parent_pin))) throw new Error('Family Hub: parent_pin should be 4–8 digits (put it in quotes)');
-    if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') throw new Error('Family Hub: sounds should be true, false or quiet');
+    setWeekendExtra(config.bedtime_weekend_extra);
     this._config = config;
     let snd: string | null = null;
     try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
@@ -194,6 +194,8 @@ export class FamilyHubCard extends LitElement {
     this.addEventListener('click', this._tapMark, true); this.addEventListener('click', this._tapSfx);
     loadFonts('Inter', 'Bricolage Grotesque');
     this._tick = window.setInterval(() => this._onTick(), 1000);
+    // Settings was open when the dashboard drew the card again (it does after a save): it comes back open, on the same pane
+    if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
     window.addEventListener('keydown', this._keys);
@@ -1054,7 +1056,7 @@ export class FamilyHubCard extends LitElement {
           ${c.chat?.agent ? html`<button class="glass tap round" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${icon('ask', 24)}</button>` : nothing}
           <button class="glass tap round" data-act="looks" aria-label=${kid ? `${kid.name}’s settings` : 'Looks and themes'} @click=${() => this._openLooks()}>${icon(kid ? 'cog' : 'palette')}</button>
           ${(c.meds?.length || c.med_log) && !kid ? html`<button class="glass tap round" data-act="meds" aria-label="Medication" @click=${() => { this._sheet = 'meds'; void this._loadMedLog(); }}>${icon('pill')}</button>` : nothing}
-          ${(c.babysitter || c.emergency) && !kid ? html`<button class="glass tap round" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}</button>` : nothing}
+          ${!kid ? html`<button class="glass tap round" data-act="info" aria-label="House info" @click=${() => { this._sheet = 'sitter'; }}>${icon('info')}</button>` : nothing}
           <button class="glass tap round" data-act="night" aria-label="Night mode" @click=${() => { this._nightManual = true; }}>${icon('moon')}</button>
         </div>
       </header>`;
@@ -1256,9 +1258,15 @@ export class FamilyHubCard extends LitElement {
       <span style="line-height:0">${icon('timer', 96)}</span><span class="display" style="font-size:64px;font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${panelMsg(this.hass)?.t || 'Timer’s done!'}</span><span style="font-size:20px;font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
   }
 
+  /** Settings is for grown-ups: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
+  private _openSettings(): void {
+    const open = (): void => { this._sheet = 'settings'; };
+    if (this._config.parent_pin && !pinFresh()) this._pinAsk = { reason: 'Open Settings?', sheet: 'sitter', run: open }; else open();
+  }
   private _sheetView(s: Sheet, out: boolean): TemplateResult | typeof nothing {
     if (!s) return nothing;
     const close = () => { this._sheet = ''; };
+    if (s === 'settings') return html`<fh-settings .hass=${this.hass} .config=${this._config} ?data-closing=${out} @close=${close} @fh-config=${(e: CustomEvent<FamilyHubConfig>) => this.setConfig(e.detail)}></fh-settings>`;
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { if (this._sheet === 'add') close(); this._say(`Added: ${e.detail}`); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not added: Home Assistant did not answer`, 8000)}></fh-add-event>`;
@@ -1273,9 +1281,10 @@ export class FamilyHubCard extends LitElement {
       <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
-  private _sheetHead(title: string, sub = '', ic = ''): TemplateResult {
+  private _sheetHead(title: string, sub = '', ic = '', extra: TemplateResult | typeof nothing = nothing): TemplateResult {
     return html`<div class="shead">
       <div style="flex:1;min-width:0"><h2 class="t-head">${ic ? html`<span style="color:var(--accent);line-height:0">${icon(ic, 26)}</span>` : nothing}${title}</h2>${sub ? html`<span class="muted">${sub}</span>` : nothing}</div>
+      ${extra}
       <button class="round tap xbtn" aria-label="Close" @click=${() => { this._sheet = ''; }}>${icon('close', 20)}</button></div>`;
   }
   private _themeBody(): TemplateResult {
@@ -1456,7 +1465,8 @@ export class FamilyHubCard extends LitElement {
     if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow"><span>Password</span><b>${b.wifi.password}</b></div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);
-    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors', 'info')}
+    const cog = html`<button class="round tap xbtn" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${icon('cog', 22)}</button>`;
+    return html`${this._sheetHead(b.title ?? 'House info', 'For babysitters, grandparents and visitors', 'info', cog)}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
           ${b.address ? html`<span class="sosaddr">You are at <b>${b.address}</b></span>` : nothing}</div>

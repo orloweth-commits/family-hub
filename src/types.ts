@@ -10,6 +10,8 @@ export interface HassEntity {
 export interface Hass {
   states: Record<string, HassEntity>;
   user?: { name: string; is_admin: boolean };
+  /** the dashboard being shown, and what Home Assistant knows about each dashboard (Settings uses both to find where the card is saved) */
+  panelUrl?: string; panels?: Record<string, { config?: { mode?: string } | null; title?: string | null }>;
   config?: { latitude?: number; longitude?: number };
   callService(domain: string, service: string, data?: Record<string, unknown>, target?: Record<string, unknown>): Promise<unknown>;
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
@@ -36,6 +38,8 @@ export interface MapRoomConfig { name?: string; player?: string; zones?: MapZone
 export interface MapFloorConfig { name?: string; rooms: MapRoomConfig[] }
 export interface KidConfig {
   name: string; colour: ColourSlot;
+  /** the name this child's helpers were made under, when it is not his name now (Settings writes it when a child is renamed, so todo.<id>_chores, input_number.<id>_points and the rest stay his) */
+  id?: string;
   /** this child's own speaker (default: the room whose name contains theirs) and the song for timed jobs tagged @song */
   speaker?: string; tidy_song?: string;
   /** to-do list of chores; each item's description holds its points, e.g. "+10" */
@@ -48,7 +52,7 @@ export interface KidConfig {
   look?: string;
   /** catalogue item ids this kid loves – shown first as the next unlock */
   favourites?: string[];
-  /** school-night bedtime, e.g. "19:00" (+30 min on Fri/Sat) */
+  /** school-night bedtime, e.g. "19:00" (later on Fri/Sat by `bedtime_weekend_extra`, 30 min unless set) */
   bedtime?: string;
   /** signature sound: clarinet | trumpet | roar */
   sound?: string;
@@ -80,6 +84,11 @@ export interface StationConfig { name: string; match?: string; id?: string }
 export interface GroceryRecipient { name: string; colour: ColourSlot; notify?: string }
 export interface CalendarConfig { entity: string; colour: ColourSlot; name?: string }
 
+/**
+ * The card's configuration. Most of it can be changed on the panel, in Settings (the "i" button, then the cog; parents only): children,
+ * rewards, mornings, medicines, the PIN, the house, music moments, and people and safety. The wiring (which calendars, lists, speakers
+ * and scripts) is changed here in YAML and is shown read-only under Settings, Advanced.
+ */
 export interface FamilyHubConfig {
   /** UI scale. Omit for automatic (1280×800 design, scaled up on bigger screens). */
   scale?: number;
@@ -103,7 +112,10 @@ export interface FamilyHubConfig {
   grocery_usuals?: string[];
   grocery_recipients?: GroceryRecipient[];
   night?: { start: string; end: string };
+  /** the grown-ups' PIN, 4–8 digits in quotes. It opens Settings (the cog on the house-info sheet), where it can also be changed. */
   parent_pin?: string;
+  /** how many minutes later every child's bedtime is on Friday and Saturday nights (default 30; 0 keeps the same time all week) */
+  bedtime_weekend_extra?: number;
   music_players?: string[];
   /** the house as the Music page draws it: floors from the top down, rooms left to right (without it, one room per speaker) */
   music_map?: MapFloorConfig[];
@@ -180,7 +192,7 @@ export const slotVar = (c: ColourSlot | undefined): string => (c === 'family' ||
 const slug = (n: string): string => n.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 /** Kid entity ids, defaulting to <name>_points etc. */
 export const kidEntities = (k: KidConfig) => {
-  const s = slug(k.name);
+  const s = slug(k.id ?? k.name);
   return {
     chores: k.chores ?? `todo.${s}_chores`, points: k.points ?? `input_number.${s}_points`,
     lifetime: k.lifetime ?? `input_number.${s}_lifetime_points`, streak: k.streak ?? `input_number.${s}_streak`,

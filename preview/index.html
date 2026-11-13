@@ -2,7 +2,7 @@
 <html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Family Hub preview (sample data)</title>
 <style>html,body{margin:0;height:100%;background:#222}</style></head>
 <body>
-<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit|sports&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs|chat, &chat=off, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing, &scene=sports, &guest=<visitor id>). -->
+<!-- Sample data only: an invented family and house. Open with ?look=glass|fridge|orbit|sports&page=planner|kid|groceries|doodle|music|home (&kid=0..2, &view=day|month, &sheet=themes|timer|add|kidprefs|chat|settings (&pane=…, &admin=0, &yaml=1, &rebuild=1), &chat=off, &mtab=search|shelves|juke|radio|call, &mview=house|scene|dial|desk|cables|list, &moments=1, &moff=<speakers>, &mextra=1, &long=1, &night=1, &studio=1, &events=many|none|long, &empty=1, &slow=<ms>, &fail=1, &meds=new|missing, &scene=sports, &guest=<visitor id>). -->
 <script type="module">
 const q = new URLSearchParams(location.search);
 const look = q.get('look') || 'glass', page = q.get('page') || 'planner';
@@ -52,13 +52,15 @@ const items = (id) => (TODOS[id] ?? []).map(([summary, status = 'needs_action', 
 const store = Object.fromEntries(Object.keys(TODOS).map((k) => [k, items(k)]));
 const subs = {};
 const st = (entity_id, state, attributes = {}) => [entity_id, { entity_id, state: String(state), attributes }];
-const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3), st(`input_number.${s}_points`, pts), st(`input_number.${s}_lifetime_points`, life), st(`input_number.${s}_streak`, 3),
+const kidStates = (s, pts, life, week) => [st(`todo.${s}_chores`, 3, { supported_features: 127 }), st(`input_number.${s}_points`, pts), st(`input_number.${s}_lifetime_points`, life), st(`input_number.${s}_streak`, 3),
   st(`input_text.${s}_avatar`, ''), st(`input_text.${s}_week`, week), st(`input_text.${s}_goal`, ''), st(`input_number.${s}_grow`, 4), st(`calendar.${s}`, 'off', { friendly_name: s })];
 // the radar's list of pictures, so the page can be seen without the internet
 const realFetch = window.fetch.bind(window);
 window.fetch = async (u, o) => String(u).includes('photon.komoot.io') ? new Response(JSON.stringify({ features: [{ properties: { name: 'Beatty Park Leisure Centre', street: 'Vincent Street', housenumber: '220', city: 'North Perth', state: 'Western Australia', postcode: '6006', countrycode: 'AU' } }, { properties: { name: 'Beatty Park', city: 'North Perth', state: 'Western Australia', countrycode: 'AU' } }] })) : String(u).includes('rainviewer.com') ? new Response(JSON.stringify({ host: '/none', radar: { past: Array.from({ length: 12 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) - (11 - i) * 600, path: '/f' + i })) } })) : realFetch(u, o);
 const hass = {
-  user: { name: 'Panel', is_admin: false },
+  // Settings saves into the dashboard, which only an administrator may do: &admin=0 signs the preview in as someone who is not one, &yaml=1 pretends the dashboard is a YAML file
+  user: { name: q.get('admin') === '0' ? 'Panel' : 'Alex', is_admin: q.get('admin') !== '0' },
+  panels: { lovelace: { title: 'Home', config: { mode: q.get('yaml') ? 'yaml' : 'storage' } } },
   config: { latitude: -31.95, longitude: 115.86 },
   states: Object.fromEntries([
     st('weather.home', q.get('wx') === 'rain' ? 'rainy' : 'sunny', { temperature: 24, humidity: 58, wind_speed: 14, wind_bearing: 'SW', friendly_name: 'Home' }),
@@ -115,7 +117,7 @@ const hass = {
     if ((domain === 'light' && /^turn_(on|off)$/.test(service)) || (domain === 'homeassistant' && service === 'toggle')) { for (const x of [].concat(data?.entity_id ?? id ?? []).flatMap((e) => e === 'all' ? Object.keys(S).filter((k) => k.startsWith('light.')) : [e])) if (S[x] && /^(light|switch|fan)\./.test(x)) { upd(x, {}, service === 'toggle' ? (S[x].state === 'on' ? 'off' : 'on') : service === 'turn_on' ? 'on' : 'off'); el.hass = { ...el.hass, states: { ...el.hass.states, [x]: S[x] } }; } }
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
-      if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) i.status = data.status; }
+      if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item); if (i) { if (data.status) i.status = data.status; if (data.rename) i.summary = data.rename; if (data.description !== undefined) i.description = data.description ?? ''; } }
       if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
       if (service === 'remove_item') store[id] = store[id].filter((x) => ![].concat(data.item).includes(x.uid));
@@ -126,6 +128,16 @@ const hass = {
   callApi: async (_m, path, body) => { if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
+    // Settings: the pretend dashboard (kept in memory) that hosts this card, and the helpers a new medicine needs
+    if (msg.type === 'lovelace/config') { if (q.get('nodash')) throw new Error('config_not_found'); return JSON.parse(JSON.stringify(dash())); }
+    if (msg.type === 'lovelace/config/save') { (window.__calls ||= []).push('ws.lovelace/config/save'); if (!hass.user.is_admin) throw new Error('unauthorized'); if (q.get('yaml')) throw new Error('not_supported');
+      window.__dash = JSON.parse(JSON.stringify(msg.config)); window.__saves = (window.__saves || 0) + 1;
+      // &rebuild=1: the dashboard draws the card again after a save, as Home Assistant does when it is refreshed
+      if (q.get('rebuild')) setTimeout(() => { const cfg = dash().views[0].sections[0].cards[1].cards[0]; const old = el; el = document.createElement('family-hub-card'); el.setConfig(cfg); el.hass = hass; old.replaceWith(el); }, 150);
+      return null; }
+    if (msg.type === 'todo/item/move') { const l = store[msg.entity_id] ?? [], i = l.findIndex((x) => x.uid === msg.uid); if (i < 0) throw new Error('not found'); const [it] = l.splice(i, 1); l.splice(msg.previous_uid ? l.findIndex((x) => x.uid === msg.previous_uid) + 1 : 0, 0, it); (subs[msg.entity_id] ?? []).forEach((cb) => cb({ items: l.map((x) => ({ ...x })) })); return null; }
+    if (msg.type === 'input_datetime/create' || msg.type === 'input_text/create') { (window.__calls ||= []).push('ws.' + msg.type + ' ' + msg.name); const dom = msg.type.split('/')[0], id = `${dom}.${msg.name}`; const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      hass.states[id] = { entity_id: id, state: dom === 'input_text' ? 'unknown' : 'x', attributes: dom === 'input_text' ? {} : { timestamp: d0.getTime() / 1000 } }; el.hass = { ...hass }; return { id: msg.name, name: msg.name }; }
     // Ask: a pretend helper that answers after a moment and echoes the topic (&slow=<ms> and &fail=1 apply here too)
     if (msg.type === 'conversation/process') { (window.__calls ||= []).push('ws.conversation/process ' + JSON.stringify(msg)); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 600))); if (q.get('fail')) throw new Error('Home Assistant did not answer');
       const t = String(msg.text).replace(/[?.!]+$/, ''), topic = t.replace(/^(tell me (about )?|play |why (is|are|do|does) )/i, '');
@@ -155,7 +167,8 @@ const hass = {
       if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
       (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
 };
-const el = document.createElement('family-hub-card');
+let el = document.createElement('family-hub-card');
+const dash = () => (window.__dash ??= { title: 'Home', views: [{ title: 'Family', type: 'sections', sections: [{ cards: [{ type: 'markdown', content: 'Sample' }, { type: 'vertical-stack', cards: [JSON.parse(JSON.stringify(el._config))] }] }] }] });
 el.setConfig({
   type: 'custom:family-hub-card', family_name: 'everyone',
   music_map: [{ name: 'Upstairs', rooms: [{ name: 'Alex’s room', player: 'media_player.alexs_homepod', size: 2 }, { name: 'Riley’s room', player: 'media_player.rileys_homepod', kids: ['Riley'] }, { name: 'Charlie’s room', player: 'media_player.charlies_homepod', kids: ['Charlie', 'Max'] }] },
@@ -182,14 +195,16 @@ if (q.get('juke')) try { localStorage.setItem('fh-juke', JSON.stringify({ day: n
 for (const n of (q.get('moff') || '').split(',').filter(Boolean)) { const id = 'media_player.' + n; if (hass.states[id]) hass.states[id] = { ...hass.states[id], state: 'unavailable', attributes: { friendly_name: hass.states[id].attributes.friendly_name } }; }
 if (q.get('mextra')) { hass.states['media_player.boardroom'] = { entity_id: 'media_player.boardroom', state: 'idle', attributes: { friendly_name: 'Boardroom', volume_level: 0.5, group_members: [] } }; hass.entities['media_player.boardroom'] = { entity_id: 'media_player.boardroom', platform: 'music_assistant', device_id: 'ma_boardroom' }; }
 // &slow=<ms> makes every call to Home Assistant take that long; &fail=1 makes every call fail
-if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) { const real = hass[fn]; hass[fn] = async (...a) => { if (fn === 'callWS' && a[0] && a[0].type !== 'call_service') return real(...a); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 300))); if (q.get('fail')) throw new Error('Home Assistant did not answer'); return real(...a); }; }
+if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) { const real = hass[fn]; hass[fn] = async (...a) => { if (fn === 'callWS' && a[0] && a[0].type !== 'call_service' && !/^lovelace\/config\/save$|\/create$|^todo\/item\/move$/.test(a[0].type)) return real(...a); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 300))); if (q.get('fail')) throw new Error('Home Assistant did not answer'); return real(...a); }; }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;
 if (page === 'kid') { el._kid = Number(q.get('kid') || 0); el._page = 'kid'; }
 else if (page !== 'planner') el._page = page;
 if (q.get('view')) el._view = q.get('view');
-if (q.get('sheet')) el._sheet = q.get('sheet');
+// &sheet=settings opens Settings (&pane=children|rewards|morning|medicines|pin|house|music|people|advanced, &skid=<n> and &stab=jobs pick a child and his job list, &keys=1 shows the on-screen keyboard, &nopin=1 starts without a PIN)
+if (q.get('nopin')) { const { parent_pin, ...rest } = el._config; el.setConfig(rest); }
+if (q.get('sheet') && q.get('sheet') !== 'settings') el._sheet = q.get('sheet');
 if (q.get('night')) el._nightManual = true;
 if (q.get('mhide')) { el.setConfig({ ...el._config, music_hide: q.get('mhide').split(',') }); }
 // &guest=<id> shows that ambient visitor straight away (ids are in src/scenes/*.ts, e.g. gulls, turtle, roo, saucer, ants); &ambient=0 turns the ambient layer off; &calm=1 is calm mode everywhere
@@ -197,6 +212,7 @@ if (q.get('guest') || q.get('ambient') === '0' || q.get('calm')) { el.setConfig(
 if (q.get('mview')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) m._view = q.get('mview'); }
 if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
+if (q.get('sheet') === 'settings') { el._sheet = 'settings'; await el.updateComplete; const sv = el.shadowRoot.querySelector('fh-settings'); if (sv) { if (q.get('pane')) sv._pane = q.get('pane'); if (q.get('skid')) sv._kid = Number(q.get('skid')); if (q.get('stab')) sv._ktab = q.get('stab'); if (q.get('keys')) sv.forceKeys = true; } }
 window.__ready = true;
 </script>
 </body></html>
