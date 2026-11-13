@@ -83,6 +83,7 @@ export const nightlyAutomation = (hass: Hass | undefined, c: FamilyHubConfig): R
     'Rules: picture 1 is about something real from today’s calendar or the boys’ interests, the weather or the season (if the calendar is empty, use an interest). Picture 2 is one of tonight’s adventures. Picture 3 is your choice of either.',
     'Across the three pictures use one boy, two boys and all three boys at least once where you can, and give each boy a fair turn.',
     'Everything must be gentle, funny and safe for a four-year-old: nothing frightening, no danger that looks real, no weapons, no injuries, nothing rude. If a calendar entry is about anything medical, private, sad or adult, ignore it and use an interest instead.',
+    'Give each boy only his own interests: never hand one boy another boy’s instrument, sport or toy.',
     'Describe each scene in your own words. Never copy a calendar entry as it is written, and never include a surname, an address, a school name, a brand or a licensed character.'
   ].join('\n');
   const paintWords = [
@@ -92,7 +93,7 @@ export const nightlyAutomation = (hass: Hass | undefined, c: FamilyHubConfig): R
     'Style: {{ style }}. The boys stay recognisable in that style.',
     'Composition: a wide landscape picture with the boys in the middle of it, whole heads inside the picture, and calm, uncluttered space towards the edges.',
     'Bright, warm, kind and funny. Nothing frightening. No other people in the foreground.',
-    'No text, letters, numbers, logos, brand names, flags or licensed characters anywhere in the picture.'
+    'No text, letters, numbers, logos, brand names, flags or licensed characters anywhere in the picture. Books, signs, clothes and packets show pictures or plain colour only, never words.'
   ].join('\n');
   return {
     alias: 'Family Hub: nightly art',

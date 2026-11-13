@@ -115,7 +115,9 @@ export const adoptArt = async (hass: Hass | undefined, list: string, items: ArtI
     for (const it of items.filter((i) => i.kind === 'art' && i.file.startsWith('media-source://ai_task/')).slice(0, 6)) {
       const url = await mediaUrl(it.file, hass); if (!url) continue;
       const jpg = await cropJpeg(await (await fetch(url)).blob(), 1920, 16 / 9, 0.45);
-      const name = `fhart-${it.d.replace(/-/g, '')}-${it.uid.replace(/[^a-z0-9]/gi, '').slice(-6).toLowerCase() || n}.jpg`;
+      // named from the original's own name, which is different for every picture (the record's ids can end alike)
+      let hsh = 0x811c9dc5; for (let k = 0; k < it.file.length; k++) hsh = Math.imul(hsh ^ it.file.charCodeAt(k), 0x01000193);
+      const name = `fhart-${it.d.replace(/-/g, '')}-${(hsh >>> 0).toString(36)}.jpg`;
       if (!await keepMedia(hass, name, jpg)) break;
       await hass.callService('todo', 'update_item', { item: it.uid, rename: name }, { entity_id: list }); n++;
     }
