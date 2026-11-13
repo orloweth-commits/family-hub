@@ -1,4 +1,5 @@
 import { html, css, nothing, type TemplateResult } from 'lit';
+import { sfx } from './sound';
 
 /* ------------------------------------------------------------------ *
  * The one on-screen keyboard. Every text box on the panel uses it, so the
@@ -16,16 +17,16 @@ export const typeKey = (text: string, k: string, caps: boolean): [string, boolea
   return [text + (caps ? k.toUpperCase() : k), false];
 };
 
-export const keyboard = (press: (k: string) => void, caps: boolean, flipCaps: () => void, compact = false, digits = false, punct = false): TemplateResult => html`
+export const keyboard = (type: (k: string) => void, caps: boolean, flipCaps: () => void, compact = false, digits = false, punct = false): TemplateResult => { const press = (k: string): void => { sfx(k === 'del' ? 'del' : k === ' ' ? 'space' : 'key'); type(k); }; return html`
   <div class="keys ${compact ? 'compact' : ''}" role="group" aria-label="Keyboard">
     ${digits ? html`<div class="krow">${[...'1234567890'].map((k) => html`<button class="key" @click=${() => press(k)}>${k}</button>`)}</div>` : nothing}
     ${ROWS.map((r, i) => html`<div class="krow">
-      ${i === 2 ? html`<button class="key wide" aria-label="Capital letter" aria-pressed=${String(caps)} @click=${flipCaps}>⇧</button>` : nothing}
+      ${i === 2 ? html`<button class="key wide" aria-label="Capital letter" aria-pressed=${String(caps)} @click=${() => { sfx('key'); flipCaps(); }}>⇧</button>` : nothing}
       ${[...r].map((k) => html`<button class="key" @click=${() => press(k)}>${caps ? k.toUpperCase() : k}</button>`)}
       ${i === 2 ? html`<button class="key wide" aria-label="Delete" @click=${() => press('del')}>⌫</button>` : nothing}
     </div>`)}
     <div class="krow ${punct ? 'pk' : ''}">${punct ? [['?', 'Question mark'], ['!', 'Exclamation mark'], ['’', 'Apostrophe']].map(([k, n]) => html`<button class="key" aria-label=${n} @click=${() => press(k === '’' ? "'" : k)}>${k}</button>`) : nothing}<button class="key space" aria-label="Space" @click=${() => press(' ')}>space</button>${punct ? [[',', 'Comma'], ['.', 'Full stop']].map(([k, n]) => html`<button class="key" aria-label=${n} @click=${() => press(k)}>${k}</button>`) : nothing}</div>
-  </div>`;
+  </div>`; };
 
 export const keysCss = css`
   .keys { display: flex; flex-direction: column; gap: 8px; }

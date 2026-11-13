@@ -364,6 +364,8 @@ export class FhKid extends LitElement {
 
   protected updated(ch: PropertyValues): void {
     if (!this.hass || !this.kid) return;
+    // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
+    this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
     const e = this._e;
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];

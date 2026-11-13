@@ -224,7 +224,7 @@ export class FhChat extends LitElement {
 
   /** Three minutes without a touch or an answer: the sheet closes itself and the conversation is gone. */
   private _poke = (): void => { clearTimeout(this._idleT); this._idleT = window.setTimeout(() => this.dispatchEvent(new CustomEvent('close')), IDLE_MS); };
-  private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); }
+  private _add(from: Bubble['from'], text: string, calm = false): void { this._bubbles = [...this._bubbles, { id: ++this._n, from, text, calm }]; this._poke(); if (from === 'helper') sfx(calm ? 'error' : 'answer'); }
   private _quiet(): void { hush(); try { this._audio?.pause(); } catch { /* not playing */ } this._audio = null; }
   /** Forgets the conversation: the bubbles, the thread with the helper, anything being said or heard. */
   private _reset(): void {
@@ -238,7 +238,7 @@ export class FhChat extends LitElement {
     if (!text || this._busy || !this.hass || !this.agent) return;
     const gen = this._gen;
     this._busy = true; this._grown = false; this._typed = ''; this._caps = true;
-    this._quiet(); sfx('tap');
+    this._quiet(); sfx('send');
     this._add('child', text);
     let reply = '';
     try {
@@ -265,7 +265,7 @@ export class FhChat extends LitElement {
     if (this._busy || !this.hass?.connection || !this.pipeline) return;
     const gen = this._gen, v: NonNullable<FhChat['_voice']> = { held: [] };
     this._busy = true; this._listening = true; this._grown = false; this._voice = v;
-    this._quiet();
+    this._quiet(); sfx('listen'); // before the microphone opens, so it is not recorded
     let stream: MediaStream | null = null;
     try {
       stream = await openMic();
@@ -293,7 +293,7 @@ export class FhChat extends LitElement {
     if (!v || !this._listening) return;
     this._listening = false;
     clearTimeout(v.listenT);
-    try { v.stop?.(); } catch { /* already stopped */ } v.stop = undefined;
+    try { v.stop?.(); } catch { /* already stopped */ } v.stop = undefined; sfx('heard');
     if (v.handler !== undefined) { try { this.hass?.connection?.socket?.send(audioFrame(v.handler)); } catch { /* the socket is reconnecting */ } }
     // the answer still has to come: give it the same 20 seconds a typed question gets
     v.waitT = window.setTimeout(() => { if (this._voice === v) { this._endVoice(); this._add('helper', SORRY, true); } }, ANSWER_MS);

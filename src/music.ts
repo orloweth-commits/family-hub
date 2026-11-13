@@ -539,7 +539,7 @@ export class FhMusic extends LitElement {
   private _undoLabel = 'Undo';
   private _say(m: string, undo?: () => void, label = 'Undo'): void { this._msg = m; this._undo = undo ?? null; this._undoLabel = label; clearTimeout(this._t); this._t = window.setTimeout(() => { this._msg = ''; this._undo = null; }, undo ? 7000 : Math.max(4000, m.split(/\s+/).length * 450)); }
   /** Something did not work: say so plainly and calmly, and keep the detail for the console. */
-  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); this._say(e instanceof SlowError ? SLOW_SAY : `${what}. Try again in a moment.`); }
+  private _oops(what: string, e?: unknown): void { if (e) console.warn('Family Hub:', what, e); sfx('error'); this._say(e instanceof SlowError ? SLOW_SAY : `${what}. Try again in a moment.`); }
   private _undo: (() => void) | null = null;
 
   private get _list(): HassEntity[] {
@@ -642,6 +642,7 @@ export class FhMusic extends LitElement {
     const p = this._cur, id = this._resolved[st.name];
     if (!p) return;
     if (!id) { this._say(`Couldn’t find ${st.name} – check the station list`); return; }
+    sfx('static'); // between two stations
     this._gentle(p.entity_id, () => { this._h.callService('media_player', 'play_media', { entity_id: p.entity_id, media_content_id: id, media_content_type: 'music' })
       .then(() => { LAST[p.entity_id] = st.name; this.requestUpdate(); this._say(`${st.name} in ${this._name(p)}`); })
       .catch((e: unknown) => this._oops(`${this._name(p)} couldn’t play that`, e)); });
@@ -758,8 +759,11 @@ export class FhMusic extends LitElement {
     const p = this._list.find((x) => x.entity_id === id), real = typeof p?.attributes.volume_level === 'number' ? Math.round(p.attributes.volume_level * 100) : null;
     // where a drag started, so a slip of more than 30 points can be taken back
     if (!commit && !(id in this._volFrom) && real !== null) this._volFrom[id] = real;
+    // a soft detent every ten points while it slides, and one small note when it is let go
+    const shown = this._dv[id] ?? real; if (!commit && shown !== null && shown !== undefined && Math.floor(shown / 10) !== Math.floor(v / 10)) sfx('slide');
     this._dv = { ...this._dv, [id]: v }; this._held = commit ? '' : id;
     if (!commit) return;
+    if (!back) sfx('set');
     const from = this._volFrom[id]; delete this._volFrom[id];
     if (!back && from !== undefined && Math.abs(v - from) > 30) this._say(`${this._name(p)}: volume ${from} to ${v}`, () => this._setVol(id, from, true, true), `Back to ${from}`);
     const clear = (): void => { if (this._dv[id] === v) { const { [id]: _gone, ...rest } = this._dv; this._dv = rest; } };
@@ -805,19 +809,19 @@ export class FhMusic extends LitElement {
         choose: (name) => { this._saveJuke({ who: name }); this._prev = 'rooms'; this._tab = 'juke'; this._jpick = true; },
         sleep: { mins: this.sleepMinutes, left: this._sleepLeft(cur), room: this._name(cur), can: !!cur && !this._off(cur) }, sleepGo: () => this._sleep(), stops: stops.map((x) => ({ name: x.name, on: x.on })),
         // the station or favourite already playing is left alone: tuning to it again would start it from the top
-        tune: (i) => { if (stops[i] && !stops[i].on) stops[i].go(); } },
-      moments: pads.map((m) => ({ name: m.name, icon: m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵', on: lit === m.name, busy: this._momentBusy === m.name })), moment: (i) => { if (!this._momentBusy && pads[i]) this._moment(pads[i]); },
+        tune: (i) => { if (stops[i] && !stops[i].on) { sfx('tune'); stops[i].go(); } } },
+      moments: pads.map((m) => ({ name: m.name, icon: m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵', on: lit === m.name, busy: this._momentBusy === m.name })), moment: (i) => { if (!this._momentBusy && pads[i]) { sfx('pad'); this._moment(pads[i]); } },
       jog: { turn: jog, at: pos, read: jog === null ? (dur ? clock(pos) : '') : dur ? clock(Math.max(0, Math.min(dur, pos + (jog / 360) * 120))) : Math.abs(jog) < 60 ? '' : jog > 0 ? 'Next' : 'Back', len: dur, says: dur ? `${clock(pos)} of ${clock(dur)}` : 'No length' },
       jogTo: (turn, commit) => this._jogTo(turn, commit, pos, dur), seekBy: (sec) => { if (dur) this._svc('media_seek', { seek_position: Math.max(0, Math.min(dur - 1, Math.round(pos + sec))) }); else this._svc(sec > 0 ? 'media_next_track' : 'media_previous_track'); },
       prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
-      crate: { tabs: this._shelfNames.map((n) => ({ name: n, colour: slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family') })), who: this._shelf, pick: (n) => { this._shelf = n; this._crateAt = 0; }, items: crate, at: front, calm: wind, room: this._name(cur),
-        play: (m) => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); }, flick: (i) => { this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) this._crateAt = i; else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
+      crate: { tabs: this._shelfNames.map((n) => ({ name: n, colour: slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family') })), who: this._shelf, pick: (n) => { if (n !== this._shelf) sfx('sleeve'); this._shelf = n; this._crateAt = 0; }, items: crate, at: front, calm: wind, room: this._name(cur),
+        play: (m) => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); }, flick: (i) => { if (i !== this._crateAt) sfx('sleeve'); this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) { sfx('sleeve'); this._crateAt = i; } else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this._h.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: unknown) => this._oops('Couldn’t add that room', e)); }); },
       leave: (id) => { this._h.callService('media_player', 'unjoin', {}, { entity_id: id }).catch((e: unknown) => this._oops('Couldn’t take that room out', e)); },
       look: getLook(), theme: this.theme, phone: shape === 'phone', narrow: shape === 'phone' || shape === 'tall', over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', liftedItem: this._carry?.item ?? null, shelf: this._items.Family ?? [],
       now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), artist: String(a.media_artist ?? a.media_album_name ?? ''), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit), step: (id, by) => this._volStep(id, by), drop: (id) => this._volDrop(id), held: this._held,
-      toggle: (id) => this._join(id),
+      toggle: (id) => { if (this._mode === 'scene') sfx('poke'); this._join(id); },
       focus: (id) => { this._focus = id; }, playPause: () => this._svc('media_play_pause'), all: () => this._spread(),
       carry: (e, id) => { const p = this.hass!.states[id]; if (p) this._carryDown(e, { lead: p }); },
       carryItem: (e, m, flick) => this._carryDown(e, { item: m, flick }), playItem: (m) => { if (Date.now() - this._carried > 400) this._start(m); } };
@@ -1038,7 +1042,7 @@ export class FhMusic extends LitElement {
     const room = to ?? this._shelfRoom(kid);
     if (!room) { this._start(m, 'play', false, room); return; }
     this._gentle(room.entity_id, () => {
-      this._start(m, 'play', false, room);
+      sfx('needle'); this._start(m, 'play', false, room);
       // at wind-down a child's shelf plays quietly towards sleep (the fade can be called off from the player)
       if (kid && windDown(kid.bedtime)) { if (sleepIn(this._h, room.entity_id, this.sleepMinutes)) { this._sleepAt = { id: room.entity_id, until: Date.now() + this.sleepMinutes * 60_000 }; window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); } }
     });
@@ -1084,7 +1088,7 @@ export class FhMusic extends LitElement {
   }
   private _addPick(m: MediaHit): void {
     const who = this._juke.who || this._everyone[0]?.name || 'Someone';
-    this._saveJuke({ on: true, picks: [...this._juke.picks, { ...m, who, t: Date.now() }] });
+    this._saveJuke({ on: true, picks: [...this._juke.picks, { ...m, who, t: Date.now() }] }); sfx('slot');
     this._say(`${who} added ${m.name}`); this._adding = false; this._jpick = false; this._tab = this._prev === 'rooms' ? 'rooms' : 'juke'; this._feed();
   }
 
@@ -1148,7 +1152,7 @@ export class FhMusic extends LitElement {
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
-      <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; u?.(); }}>${this._undoLabel}</button>` : nothing}</div>`;
+      <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; sfx('undo'); u?.(); }}>${this._undoLabel}</button>` : nothing}</div>`;
   }
 
   private _hero(p: HassEntity): TemplateResult {
