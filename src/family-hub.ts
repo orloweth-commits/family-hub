@@ -1502,8 +1502,8 @@ export class FamilyHubCard extends LitElement {
     const local = !(c.med_log && this.hass?.states[c.med_log]);
     // "Later" puts the reminder chip at the top of the screen away for half an hour (a grown-up's call, like recording a dose)
     const due = (c.meds ?? []).some((d) => { const s = this._medStatus(d.id, d.time); return s.due && !s.missing; }), away = Date.now() < this._medLater;
-    const later = !due ? nothing : away ? html`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${fmtTime(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span class="lt30">Back at ${fmtTime(new Date(this._medLater))} · </span>show now</button>`
-      : html`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard('Remind us about the medicine later?', () => this._medSnooze(30))}>Later<span class="lt30">&nbsp;(30 min)</span></button>`;
+    const later = !due ? nothing : away ? html`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${fmtTime(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${fmtTime(new Date(this._medLater))} · </span>show now</span></button>`
+      : html`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard('Remind us about the medicine later?', () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>`;
     return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.', 'pill', later)}
       <div class="med2">
         <div class="icol">
