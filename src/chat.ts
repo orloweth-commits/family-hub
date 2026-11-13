@@ -115,7 +115,9 @@ export class FhChat extends LitElement {
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
     .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
-    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 8px; justify-content: center; white-space: nowrap; gap: 4px; }
+    /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
+    :host([data-look]) .opts .pill { font-size: 15px; }
+    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
     .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
