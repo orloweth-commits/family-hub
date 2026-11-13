@@ -103,6 +103,14 @@ jar: { target: 120, reward: pizza night }   # input_number.family_jar
 all_on: [light.lounge]
 keep_on: [light.hallway_night, light.fish_tank]   # "All off" leaves these on (and everything in a group named here), and says how many it kept on
 quiet: { start: "20:00", end: "06:30" }
+art:                                # the screensaver, the artwork and painted characters (Settings, Pictures, changes all of it)
+  idle_minutes: 3                   # minutes with no touch (and nobody near) before the artwork comes up; 0 = never
+  interval_minutes: 5               # how long each picture stays
+  presence: sensor                  # none (touch only), sensor (any binary_sensor) or camera (this screen's camera, watched in the browser)
+  presence_entity: binary_sensor.kitchen_presence
+  backlight: light.panel_backlight  # optional: a light or number that sets the screen's brightness (70 % with the artwork, 12 % at night)
+  cap: 40                           # stop painting when the month's reckoned spend reaches this many US dollars
+  looks_per_day: 3                  # new looks each child may have painted in a day
 sounds: true                        # touch sounds from the panel's own speaker: true, "quiet" (softer) or false; the kitchen timer always sounds
 add_calendar: calendar.family
 babysitter: { title: House info, lines: ["Bedtime 7:30"] }
@@ -202,6 +210,15 @@ Put tags in each to-do item's description:
 Points are added by a queued Home Assistant script (`script.fh_add_points`), so quick taps and several devices never lose points.
 
 All personal details live in your Home Assistant configuration, never in this repo.
+
+## Pictures: the screensaver, painted characters and the nightly artwork
+
+- **Screensaver.** After `art.idle_minutes` the page fades (2.5 s) into the artwork with a clock dressed for the look, a line or two of news (leaving time, the next event, the bins, the weather) and slow movement; the clock wanders so no pixel rests. A touch brings the hub back in a quarter of a second, and that touch presses nothing else. After the earliest bedtime among the children, until the end of quiet hours, it is a dim clock only. It never covers a running timer, an alarm, a call, an open sheet, the keyboard or a music session. The screen is never switched off; an optional `art.backlight` entity is dimmed instead, and nothing happens if that entity does not exist.
+- **Presence.** `sensor`: pair any occupancy, motion or presence `binary_sensor` in Home Assistant and choose it in Settings, Pictures; no YAML. `camera`: the browser looks at a 48 x 36 copy of the camera picture twice a second for movement; nothing is stored or sent, only "something moved". A camera needs a secure page: either open Home Assistant over https, or (Edge in kiosk mode) set the policies `OverrideSecurityRestrictionsOnInsecureOrigin` and `VideoCaptureAllowedUrls` to the panel's address. Settings says so when the camera cannot be reached.
+- **Painted characters.** Give a child a `sheet` (a character sheet image in Home Assistant's local media), a few words `about` him, and `look: "img=<file>"` for his starting picture: the picture then stands in for the drawn avatar everywhere, and his style studio paints his looks from the sheet through Home Assistant's `ai_task.generate_image` (hats, faces, clothes, gear, buddies, places, hair and moods; every word sent to the painter is in `src/wardrobe.ts`, a child never types one). Each combination is painted once and kept; `art.looks_per_day` limits new ones.
+- **The record.** Every painted picture is a line in a to-do list (`todo.family_hub_art`, a "Local to-do" list; Settings can make it): the file, the date, who is in it. Parents favourite, hide or delete any of them in Settings, Pictures, and the month's spend is reckoned from it.
+- **Nightly artwork.** Settings, Pictures, "Set it up" writes an ordinary Home Assistant automation from the saved configuration (it is left switched off until you turn it on). At 2 am, and at start-up if a night was missed, it reads the day's calendar and the weather, has the AI Task write three scenes (this is also the safety step: only its wording reaches the painter), paints them from the character sheets and notes them in the record. It stops at the month's limit.
+- Keep photos, sheets, pictures and descriptions of children in Home Assistant, never in a repository.
 
 ## Develop
 
