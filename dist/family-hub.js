@@ -1298,6 +1298,7 @@ const Ts = (a, t = "--m-3") => {
   parts: {
     "family-hub-card": [
       "clock",
+      "wide",
       "hm",
       "cap",
       "weather",
@@ -1875,6 +1876,28 @@ const $0 = `
   /* the clock sits on its own pane of glass, so the greeting, the time and the date read over any photo and whatever drifts behind it */
   @G .clock { margin: -8px 0 -8px -14px; padding: 8px 18px 8px 14px; border-radius: 26px; background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 0 0 1px var(--glass-line); }
   @G[data-phone] .clock { margin: 0; padding: 6px 14px 8px; flex: 0 1 auto; }
+  /* Glass on a wide screen: one frame. The header is a bar across the top and the dock a bar across the bottom, of one material, their edges
+     in line with the page between them and close to it, so the three read as one piece: a top rail, the screen, a bottom rail. Nothing on the
+     rails is its own island any more: the clock, the chips and the buttons sit in the bar, parted by hairlines, and the place you are on is a
+     tab cut into the bottom rail under its page. */
+  @G[data-shape='wide'] .fh > header { margin-bottom: calc(10px - var(--gap)); padding: 6px 12px 6px 6px; gap: 14px; border-radius: 28px 28px 12px 12px; background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-line), var(--shadow); }
+  @G[data-shape='wide'] .fh[data-compact] > header { height: 64px; min-height: 64px; padding: 5px 10px 5px 4px; }
+  @G[data-shape='wide'] .clock { position: relative; margin: 0; padding: 2px 22px 2px 16px; border-radius: 22px; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+  @G[data-shape='wide'] .clock::after { content: ''; position: absolute; right: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
+  @G[data-shape='wide'] .capsule { justify-content: flex-start; }
+  @G[data-shape='wide'] .cap:not(.hot):not(.ok):not([data-warm]) { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
+  @G[data-shape='wide'] .right { position: relative; padding-left: 14px; gap: 8px; }
+  @G[data-shape='wide'] .right::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
+  @G[data-shape='wide'] .right > .glass { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
+  @G[data-shape='wide'] .right > .weather { background: transparent; padding: 0 12px 0 4px; }
+  @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(10px - var(--gap)); padding: 8px 16px; border-radius: 12px 12px 28px 28px; justify-content: center; }
+  @G[data-shape='wide'] .dock .sep { margin: 0 auto 0 12px; height: 40px; width: 1.5px; }
+  @G[data-shape='wide'] .dock .sep.wide { margin: 0 12px 0 auto; }
+  @G[data-shape='wide'] .dock[data-kid] .sep { margin: 0 12px; }
+  @G[data-shape='wide'] .dock .item { border-radius: 16px; }
+  @G[data-shape='wide'] .dock .item[aria-current='page'] { position: relative; margin-top: -9px; height: 77px; padding-top: 9px; border-radius: 0 0 18px 18px; background: var(--chip-strong); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
+  @G[data-shape='wide'] .dock .item[aria-current='page']::before { content: ''; position: absolute; left: 0; right: 0; top: -11px; height: 12px; border-radius: 12px 12px 0 0; background: var(--chip-strong); box-shadow: inset 0 4px 0 var(--bl, var(--kidc, var(--primary))); pointer-events: none; }
+
   /* phone month: the glass card's padding left each day 43 px wide; the days take 3 px back from the gaps between them, so each is a full 44 px target */
   @G[data-phone] .cell { margin: 0 -1.5px; }
   /* the chosen look or background: a ring and a tick, never a fill */
