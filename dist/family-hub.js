@@ -1883,7 +1883,8 @@ const G0 = `
      tab cut into the bottom rail under its page. */
   @G[data-shape='wide'] .fh > header { margin-bottom: calc(0px - var(--gap)); padding: 1px 12px 1px 6px; gap: 14px; border-radius: 28px 28px 0 0; background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-line), var(--shadow); }
   @G[data-shape='wide'] .fh[data-compact] > header { height: 58px; min-height: 58px; padding: 2px 10px 2px 4px; }
-  @G[data-shape='wide'] .clock { position: relative; margin: 0; padding: 2px 22px 2px 16px; border-radius: 22px; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+  @G[data-shape='wide'] .clock { position: relative; margin: 0; padding: 3px 22px 4px 16px; border-radius: 22px; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+  @G[data-shape='wide'] .fh[data-compact] .clock { padding-top: 4px; padding-bottom: 2px; }
   @G[data-shape='wide'] .clock::after { content: ''; position: absolute; right: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
   @G[data-shape='wide'] .capsule { justify-content: flex-start; }
   @G[data-shape='wide'] .cap:not(.hot):not(.ok):not([data-warm]) { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
@@ -16339,8 +16340,8 @@ const Xu = (a, t) => {
     const t = this.renderRoot, e = t.querySelector(".fh"), i = t.querySelector("header");
     if (!e || !i) return;
     if (this._fitHeader(i), wt() !== "phone") {
-      const r = t.querySelector("nav.dock"), n = parseFloat(getComputedStyle(e).rowGap) || 16, p = Math.round(i.offsetTop + i.offsetHeight + n), d = r ? Math.round(e.clientHeight - r.offsetTop + n) : this._bot;
-      Math.abs(p - this._top) > 1 && (this._top = p), Math.abs(d - this._bot) > 1 && (this._bot = d);
+      const r = t.querySelector("nav.dock"), n = t.querySelector(".fh > .body"), p = parseFloat(getComputedStyle(e).rowGap) || 16, d = n && n.offsetTop - (i.offsetTop + i.offsetHeight) < 2 ? 8 : p, c = Math.round(i.offsetTop + i.offsetHeight + d), h = r ? Math.round(e.clientHeight - r.offsetTop + d) : this._bot;
+      Math.abs(c - this._top) > 1 && (this._top = c), Math.abs(h - this._bot) > 1 && (this._bot = h);
     }
     const s = t.querySelector(".remlist");
     if (s) {

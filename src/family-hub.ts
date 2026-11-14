@@ -411,7 +411,9 @@ export class FamilyHubCard extends LitElement {
     if (!fh || !hd) return;
     this._fitHeader(hd);
     if (getShape() !== 'phone') {
-      const dock = root.querySelector<HTMLElement>('nav.dock'), gap = parseFloat(getComputedStyle(fh).rowGap) || 16;
+      const dock = root.querySelector<HTMLElement>('nav.dock'), body = root.querySelector<HTMLElement>('.fh > .body'), row = parseFloat(getComputedStyle(fh).rowGap) || 16;
+      // where the bars are joined to the page (the Glass frame) a sheet needs only a small step in from them, not a whole row gap
+      const gap = body && body.offsetTop - (hd.offsetTop + hd.offsetHeight) < 2 ? 8 : row;
       const top = Math.round(hd.offsetTop + hd.offsetHeight + gap), bot = dock ? Math.round(fh.clientHeight - dock.offsetTop + gap) : this._bot;
       if (Math.abs(top - this._top) > 1) this._top = top;
       if (Math.abs(bot - this._bot) > 1) this._bot = bot;
