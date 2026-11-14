@@ -51,7 +51,7 @@ export const askParse = (description: string | null | undefined): { ask: Ask; ve
 export const sendAsk = async (hass: Hass, a: { notify?: string[]; list?: string }, ask: Ask, have: number): Promise<number> => {
   await hass.callService('todo', 'add_item', { item: `${ask.who}: ${ask.name}`, description: askText(ask) }, { entity_id: a.list ?? ASK_LIST });
   const res = await Promise.allSettled((a.notify ?? []).filter((n) => NOTIFY.test(n)).map((svc) => hass.callService('notify', svc.slice(7), {
-    title: `${ask.who} would like a reward`, message: `${ask.name}, for ${ask.cost} points. ${ask.who} has ${Math.round(have)}.`,
+    title: `${ask.who} would like a reward`, message: `${ask.name}, for ${ask.cost} points. ${ask.who} has ${Math.round(have)}. Press and hold for Approve or Not yet.`, // (an iPhone hides a notice's buttons until it is held)
     data: { tag: `fh-ask-${ask.id}`, group: 'family-hub', actions: [{ action: `FH_OK_${ask.id}`, title: 'Approve' }, { action: `FH_NO_${ask.id}`, title: 'Not yet' }] } })));
   return res.filter((r) => r.status === 'fulfilled').length;
 };
