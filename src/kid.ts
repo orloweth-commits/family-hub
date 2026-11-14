@@ -396,7 +396,7 @@ export class FhKid extends LitElement {
         if (i.uid) this.hass!.callService('todo', 'remove_item', { item: i.uid }, { entity_id: id }).catch(() => undefined);
       }
       this._asked = open;
-    } catch { /* left as it was */ }
+    } catch (e) { console.warn('Family Hub: asks not read', e); }
   }
   private _told(a: Ask, v: 'ok' | 'no' | 'short'): void {
     if (v === 'ok') {
@@ -469,7 +469,7 @@ export class FhKid extends LitElement {
   protected shouldUpdate(ch: PropertyValues): boolean {
     if (ch.size === 1 && ch.has('hass') && this.kid) {
       const e = this._e;
-      return changed(ch.get('hass') as Hass | undefined, this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, 'input_number.family_jar']);
+      return changed(ch.get('hass') as Hass | undefined, this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, 'input_number.family_jar', this.owed, this.asks?.list ?? 'todo.family_hub_asks']); // (the two lists: an answer from a phone, or a reward written by Home Assistant, shows at once)
     }
     if (ch.size === 1 && ch.has('_now')) return this._now.getSeconds() === 0 || !!this._practice;
     return true;

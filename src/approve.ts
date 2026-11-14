@@ -75,7 +75,8 @@ export const haApprove = (cfg: FamilyHubConfig | undefined, owedEntity = 'todo.r
       // (the line is found by its id; one already answered, by the other parent or twice by the same thumb, is not on the open list any more)
       { variables: { hit: `{{ (asks[${j(list)}]['items'] | selectattr('description', 'string') | selectattr('description', 'search', '^ask .*"id":"' ~ aid ~ '"') | list) if (asks is defined and asks is mapping and ${j(list)} in asks) else [] }}` } },
       { if: [{ condition: 'template', value_template: '{{ hit | count == 0 }}' }], then: [{ stop: 'That one has already been answered.' }] },
-      { variables: { uid: '{{ hit[0].uid }}', line: '{{ hit[0].summary }}', body: `{{ hit[0].description[${ASK_PREFIX.length}:] }}`, rec: `{{ hit[0].description[${ASK_PREFIX.length}:] | from_json }}` } },
+      // (the ask's own text is never kept in a variable: Home Assistant would turn it into a map, and it must go back on the list as text)
+      { variables: { uid: '{{ hit[0].uid }}', line: '{{ hit[0].summary }}', rec: `{{ hit[0].description[${ASK_PREFIX.length}:] | from_json }}` } },
       { variables: { pe: `{{ ${j(kids)}.get(rec.kid, '') if rec is mapping else '' }}` } },
       { variables: { can: "{{ yes and rec is mapping and rec.k == 'reward' and pe != '' and (rec.cost | float(-1)) >= 0 and (states(pe) | float(0)) >= (rec.cost | float(0)) }}" } },
       { variables: { verdict: "{{ 'ok' if can else ('short' if yes else 'no') }}" } },
@@ -83,7 +84,7 @@ export const haApprove = (cfg: FamilyHubConfig | undefined, owedEntity = 'todo.r
         { action: 'script.fh_add_points', data: { kid: '{{ rec.kid }}', points: '{{ 0 - (rec.cost | int) }}', lifetime: false, reason: 'reward: {{ rec.name }}' } },
         { action: 'todo.add_item', target: { entity_id: owedEntity }, data: { item: '{{ line }}', description: "{{ now().strftime('%d/%m/%Y') }} · {{ rec.cost | int }} pts · approved from a phone" }, continue_on_error: true }
       ] },
-      { action: 'todo.update_item', target: { entity_id: list }, data: { item: '{{ uid }}', status: 'completed', description: '{{ verdict }} {{ body }}' } },
+      { action: 'todo.update_item', target: { entity_id: list }, data: { item: '{{ uid }}', status: 'completed', description: `{{ verdict }} {{ hit[0].description[${ASK_PREFIX.length}:] }}` } },
       ...to.map((svc) => ({ action: svc, data: { title: "{{ {'ok': 'Approved', 'no': 'Not yet', 'short': 'Not enough points now'}[verdict] }}", message: "{{ line }}. {{ (rec.cost | int) ~ ' points were spent.' if verdict == 'ok' else 'No points were spent.' }}", data: { tag: 'fh-ask-{{ aid }}', group: 'family-hub' } }, continue_on_error: true }))
     ]
   };

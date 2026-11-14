@@ -8059,7 +8059,8 @@ const mo = "family_hub_approve", Yo = "todo.family_hub_asks", Tn = "ask ", Yh = 
       // (the line is found by its id; one already answered, by the other parent or twice by the same thumb, is not on the open list any more)
       { variables: { hit: `{{ (asks[${Sr(e)}]['items'] | selectattr('description', 'string') | selectattr('description', 'search', '^ask .*"id":"' ~ aid ~ '"') | list) if (asks is defined and asks is mapping and ${Sr(e)} in asks) else [] }}` } },
       { if: [{ condition: "template", value_template: "{{ hit | count == 0 }}" }], then: [{ stop: "That one has already been answered." }] },
-      { variables: { uid: "{{ hit[0].uid }}", line: "{{ hit[0].summary }}", body: `{{ hit[0].description[${Tn.length}:] }}`, rec: `{{ hit[0].description[${Tn.length}:] | from_json }}` } },
+      // (the ask's own text is never kept in a variable: Home Assistant would turn it into a map, and it must go back on the list as text)
+      { variables: { uid: "{{ hit[0].uid }}", line: "{{ hit[0].summary }}", rec: `{{ hit[0].description[${Tn.length}:] | from_json }}` } },
       { variables: { pe: `{{ ${Sr(s)}.get(rec.kid, '') if rec is mapping else '' }}` } },
       { variables: { can: "{{ yes and rec is mapping and rec.k == 'reward' and pe != '' and (rec.cost | float(-1)) >= 0 and (states(pe) | float(0)) >= (rec.cost | float(0)) }}" } },
       { variables: { verdict: "{{ 'ok' if can else ('short' if yes else 'no') }}" } },
@@ -8067,7 +8068,7 @@ const mo = "family_hub_approve", Yo = "todo.family_hub_asks", Tn = "ask ", Yh = 
         { action: "script.fh_add_points", data: { kid: "{{ rec.kid }}", points: "{{ 0 - (rec.cost | int) }}", lifetime: !1, reason: "reward: {{ rec.name }}" } },
         { action: "todo.add_item", target: { entity_id: t }, data: { item: "{{ line }}", description: "{{ now().strftime('%d/%m/%Y') }} · {{ rec.cost | int }} pts · approved from a phone" }, continue_on_error: !0 }
       ] },
-      { action: "todo.update_item", target: { entity_id: e }, data: { item: "{{ uid }}", status: "completed", description: "{{ verdict }} {{ body }}" } },
+      { action: "todo.update_item", target: { entity_id: e }, data: { item: "{{ uid }}", status: "completed", description: `{{ verdict }} {{ hit[0].description[${Tn.length}:] }}` } },
       ...i.map((o) => ({ action: o, data: { title: "{{ {'ok': 'Approved', 'no': 'Not yet', 'short': 'Not enough points now'}[verdict] }}", message: "{{ line }}. {{ (rec.cost | int) ~ ' points were spent.' if verdict == 'ok' else 'No points were spent.' }}", data: { tag: "fh-ask-{{ aid }}", group: "family-hub" } }, continue_on_error: !0 }))
     ]
   };
@@ -8197,7 +8198,8 @@ const mo = "family_hub_approve", Yo = "todo.family_hub_asks", Tn = "ask ", Yh = 
         }
       }
       this._asked = o;
-    } catch {
+    } catch (s) {
+      console.warn("Family Hub: asks not read", s);
     }
   }
   _told(t, e) {
@@ -8277,7 +8279,7 @@ const mo = "family_hub_approve", Yo = "todo.family_hub_asks", Tn = "ask ", Yh = 
   shouldUpdate(t) {
     if (t.size === 1 && t.has("hass") && this.kid) {
       const e = this._e;
-      return jo(t.get("hass"), this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, "input_number.family_jar"]);
+      return jo(t.get("hass"), this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, "input_number.family_jar", this.owed, this.asks?.list ?? "todo.family_hub_asks"]);
     }
     return t.size === 1 && t.has("_now") ? this._now.getSeconds() === 0 || !!this._practice : !0;
   }
