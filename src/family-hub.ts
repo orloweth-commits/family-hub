@@ -92,7 +92,9 @@ export class FamilyHubCard extends LitElement {
   private get _kidOn(): KidConfig | undefined { return this._page === 'kid' ? this._config?.kids?.[this._kid] : undefined; }
   private get _kp(): KidPrefs | undefined { const k = this._kidOn; return k ? kidPrefs(k) : undefined; }
   /** The look on screen right now: a child's own look on his page, otherwise the panel's. */
-  private get _lk(): LookId { const p = this._kp; return p && p.look !== 'panel' ? lookById(p.look).id : this._look; }
+  // A child's page wears his own look, unless the panel is in a parents' look (Obsidian, switched on by hand for an evening): then every page wears it.
+  // A parents' look is never a child's own, whatever his saved settings say.
+  private get _lk(): LookId { const p = this._kp, own = p && p.look !== 'panel' ? lookById(p.look) : null; return own && !own.parentsOnly && !lookById(this._look).parentsOnly ? own.id : this._look; }
   private _optOn(o: LookOption): boolean { return this._kp && o.id === 'hand' ? this._kp.font === 'hand' : !!this._opts[o.id]; }
   private _setKidPref(patch: Partial<KidPrefs>): void {
     const k = this._kidOn; if (!k) return;
@@ -1636,7 +1638,7 @@ export class FamilyHubCard extends LitElement {
     if (!k || !p) return html``;
     void this._prefTick;
     const eff = lookById(this._lk), hand = eff.options?.find((o) => o.id === 'hand');
-    const looks: [string, string, string][] = [['panel', 'Same as the panel', `Follows the family’s choice (${lookById(this._look).name})`], ...LOOKS.map((l): [string, string, string] => [l.id, l.name, l.tagline])];
+    const looks: [string, string, string][] = [['panel', 'Same as the panel', `Follows the family’s choice (${lookById(this._look).name})`], ...LOOKS.filter((l) => !l.parentsOnly).map((l): [string, string, string] => [l.id, l.name, l.tagline])];
     return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`)}
       <div class="themes kidlooks">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>

@@ -31,7 +31,8 @@
     "test:screensaver": "node scripts/tests/screensaver.mjs",
     "test:music-f2": "node scripts/tests/music-f2.mjs",
     "test:digest": "node scripts/tests/digest.mjs",
-    "test:approve": "node scripts/tests/approve.mjs"
+    "test:approve": "node scripts/tests/approve.mjs",
+    "test:obsidian": "node scripts/tests/obsidian.mjs"
   },
   "dependencies": {
     "lit": "^3.2.0"
