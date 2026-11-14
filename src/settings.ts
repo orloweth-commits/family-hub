@@ -4,7 +4,8 @@ import { LOOKS, LOOK_KEY, LookController } from './looks';
 import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
-import { askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
+import { isWall, setWall } from './trust';
+import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
 import { ART_DEFAULTS, artListOf, deleteArt, loadArt, markArt, monthSpend, type ArtConfig, type ArtItem } from './artlib';
@@ -40,7 +41,6 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
 const KID_IC = svg`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`;
 const paneIcon = (ic: string, size = 22): TemplateResult => ic === 'kid' ? html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${KID_IC}</svg>` : icon(ic, size);
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], WEEK = [['mon', 'Mon'], ['tue', 'Tue'], ['wed', 'Wed'], ['thu', 'Thu'], ['fri', 'Fri']] as const;
-const BIN_COL: Record<string, string> = { green: '#2e9e4f', yellow: '#f2c230', red: '#d93a3a', blue: '#2f7fd6', purple: '#8b5cf6' };
 const ROW = 44, HOURS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const pad = (n: number): string => String(n).padStart(2, '0');
 /** "19:30" as a family says it: 7:30 pm. */
@@ -342,7 +342,10 @@ export class FhSettings extends LitElement {
   private _discard(): void { this._draft = clone(this.config); this._pin = { cur: '', next: '', again: '' }; this._err = ''; }
   /** The draft with the PIN fields applied, or a sentence saying what is wrong with them. */
   private _next(): Cfg | string {
-    const next = clone(this._draft), p = this._pin, has = this.config.parent_pin !== undefined && this.config.parent_pin !== null && String(this.config.parent_pin) !== '';
+    const next = clone(this._draft), p = this._pin;
+    // a colour that is not a bin here (blue or purple, from the older list of five) goes with the save
+    if (next.bins) for (const k of ['always', 'alternate'] as const) if (next.bins[k]) next.bins[k] = next.bins[k]!.filter(isBin);
+    const  has = this.config.parent_pin !== undefined && this.config.parent_pin !== null && String(this.config.parent_pin) !== '';
     if (this._pinDirty) {
       if (has && p.cur !== String(this.config.parent_pin)) return 'That is not the current PIN.';
       if (!isPin(p.next)) return 'A PIN is 4 to 8 digits.';
@@ -645,7 +648,7 @@ export class FhSettings extends LitElement {
         <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. “Once a week” is a limit: after it is had, the row says “Back Monday”. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
       </div>` : nothing}
       <div class="scard"><h3>${icon('jar', 20)}Family jar <span class="muted">shared by everyone</span></h3>
-        ${this._row('Points to fill the jar', '', this._step('Points to fill the jar', jar.target ?? 200, (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), target: v }; }), { min: 10, max: 5000, step: 10, unit: 'pts' }))}
+        ${this._row('Marbles to fill the jar', 'Every family job a child ticks adds one marble.', this._step('Marbles to fill the jar', jar.target ?? 200, (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), target: v }; }), { min: 10, max: 5000, step: 10, unit: 'marbles' }))}
         ${this._row('What a full jar earns', '', this._txt('jar.reward', 'What a full jar earns', jar.reward ?? '', (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), reward: v }; if (!v) delete x.jar!.reward; }), { ph: 'e.g. Family movie night' }), true)}
       </div>`;
   }
@@ -756,8 +759,9 @@ export class FhSettings extends LitElement {
   private _house(): TemplateResult {
     const d = this._draft, night = d.night, q = d.quiet ?? {}, bins = d.bins, look = d.look ?? 'glass';
     const setBins = (fn: (b: NonNullable<Cfg['bins']>) => void): void => this._edit((x) => { x.bins = x.bins ?? { day: 1 }; fn(x.bins); });
-    const names = [...new Set([...Object.keys(BIN_COL), ...(bins?.always ?? []), ...(bins?.alternate ?? [])].map((s) => s.toLowerCase()))];
-    const binChips = (label: string, list: string[], set: (l: string[]) => void): TemplateResult => html`<div class="schips" role="group" aria-label=${label}>${names.map((n) => html`<button class="tap" aria-pressed=${String(list.map((s) => s.toLowerCase()).includes(n))} @click=${() => set(list.map((s) => s.toLowerCase()).includes(n) ? list.filter((s) => s.toLowerCase() !== n) : [...list, n])}><i class="sw6" style="background:${BIN_COL[n] ?? 'var(--ink2)'}" aria-hidden="true"></i>${n[0].toUpperCase() + n.slice(1)}</button>`)}</div>`;
+    const names = Object.keys(BINS), notBins = [...new Set([...(bins?.always ?? []), ...(bins?.alternate ?? [])].map((s) => s.toLowerCase()).filter((s) => !isBin(s)))];
+    const hc = d.health, cap = (s: string): string => s[0].toUpperCase() + s.slice(1);
+    const binChips = (label: string, list: string[], set: (l: string[]) => void): TemplateResult => html`<div class="schips" role="group" aria-label=${label}>${names.map((n) => html`<button class="tap" aria-pressed=${String(list.map((s) => s.toLowerCase()).includes(n))} @click=${() => set(list.map((s) => s.toLowerCase()).includes(n) ? list.filter((s) => s.toLowerCase() !== n) : [...list, n])}><i class="sw6" style="background:${BINS[n].col}" aria-hidden="true"></i>${cap(n)}<span class="muted" style="font-weight:500">${BINS[n].what}</span></button>`)}</div>`;
     return html`
       <div class="scard"><h3>${icon('moon', 20)}Night</h3>
         ${this._row('Night screen', 'The panel goes dark between these times, and wakes for ten minutes when touched.', html`${this._sw('Night screen', !!night, () => this._edit((x) => { if (x.night) delete x.night; else x.night = { start: '21:00', end: '06:00' }; }))}
@@ -766,13 +770,17 @@ export class FhSettings extends LitElement {
         <span class="shint">${q.start || q.end ? '' : 'Quiet hours are 8:00 pm to 6:30 am until you change them.'}</span>
         ${this._row('Silent in quiet hours', 'Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.', this._sw('Silent in quiet hours', q.mute === true, () => this._edit((x) => { const m = x.quiet?.mute === true; x.quiet = { ...(x.quiet ?? {}) }; if (m) delete x.quiet.mute; else x.quiet.mute = true; if (!Object.keys(x.quiet).length) delete x.quiet; })))}
       </div>
+      ${hc?.heartbeat ? html`<div class="scard"><h3>${icon('home', 20)}This screen</h3>
+        ${this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
+      </div>` : nothing}
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>
         ${this._row('Bins go out', 'Shown on the planner the evening before collection.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}
         ${bins ? html`
           ${this._row('Collection day', '', html`<div class="schips" role="group" aria-label="Collection day">${DAYS.map((n, i) => html`<button class="tap" aria-pressed=${String(bins.day === i)} @click=${() => setBins((b) => { b.day = i; })}>${n.slice(0, 3)}</button>`)}</div>`)}
           ${this._row('Every week', '', binChips('Bins every week', bins.always ?? [], (l) => setBins((b) => { b.always = l; })))}
-          ${this._row('Taking turns', (bins.alternate ?? []).length > 1 ? `In this order: ${(bins.alternate ?? []).join(', then ')}.` : 'Bins that go out week about.', binChips('Bins taking turns', bins.alternate ?? [], (l) => setBins((b) => { b.alternate = l; })))}
-          ${(bins.alternate ?? []).length > 1 ? this._row(`A week the ${bins.alternate![0]} bin went out`, 'Any collection day it went out on: the turns are counted from there.', html`<input class="sin" type="date" aria-label="A collection day the first bin went out" .value=${bins.anchor ?? ''} @input=${(e: Event) => setBins((b) => { b.anchor = (e.target as HTMLInputElement).value; })}>`) : nothing}` : nothing}
+          ${this._row('Taking turns', (bins.alternate ?? []).filter(isBin).length > 1 ? `In this order: ${(bins.alternate ?? []).filter(isBin).join(', then ')}.` : 'Bins that go out week about.', binChips('Bins taking turns', bins.alternate ?? [], (l) => setBins((b) => { b.alternate = l; })))}
+          ${(bins.alternate ?? []).length > 1 ? this._row(`A week the ${bins.alternate![0]} bin went out`, 'Any collection day it went out on: the turns are counted from there.', html`<input class="sin" type="date" aria-label="A collection day the first bin went out" .value=${bins.anchor ?? ''} @input=${(e: Event) => setBins((b) => { b.anchor = (e.target as HTMLInputElement).value; })}>`) : nothing}
+          ${notBins.length ? html`<span class="shint" data-act="bin-extra">${notBins.map(cap).join(' and ')}: not a bin here. ${notBins.length > 1 ? 'They go' : 'It goes'} when you save.</span>` : nothing}` : nothing}
       </div>
       <div class="scard"><h3>${icon('bulbOff', 20)}All off leaves these on</h3>
         <span class="shint">A night light or a fish tank that “All off” on the dock should never switch off.</span>
@@ -988,7 +996,7 @@ export class FhSettings extends LitElement {
         <div><button class="pill tap" @click=${() => { this._setSitter((x) => { x.contacts.push({ name: '', phone: '' }); }); this._focusSoon(`sit.c.${s.contacts.length}.name`); }}>${icon('plus', 18)}Add a contact</button></div>
         <span class="label">Wi-Fi for visitors</span>
         ${this._row('Network', '', this._txt('sit.wifi', 'Wi-Fi network', b.wifi?.name ?? '', (v) => setB((x) => { if (v) x.wifi = { ...(x.wifi ?? {}), name: v }; else delete x.wifi; })), true)}
-        ${b.wifi ? this._row('Password', 'Shown in plain words on the house-info page.', this._txt('sit.wifipw', 'Wi-Fi password', b.wifi.password ?? '', (v) => setB((x) => { if (v) x.wifi!.password = v; else delete x.wifi!.password; })), true) : nothing}
+        ${b.wifi ? this._row('Password', 'On the house-info page it sits behind the grown-ups’ PIN: “Show”, then the PIN.', this._txt('sit.wifipw', 'Wi-Fi password', b.wifi.password ?? '', (v) => setB((x) => { if (v) x.wifi!.password = v; else delete x.wifi!.password; })), true) : nothing}
         <span class="label">Good to know</span>
         ${this._strs('sit.note', 'note', s.notes, (l) => this._setSitter((x) => { x.notes = l; }))}
       </div>

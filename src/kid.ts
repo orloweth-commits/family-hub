@@ -9,7 +9,7 @@ import { addDays, fmtDow, fmtTime, sameDay, startOfDay } from './dates';
 import { spentThisWeek, noteSpend, backDay } from './rewards';
 import { calShows, kidEntities, num, slotVar, type CalendarConfig, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
-import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, motion, ymd, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import './studio';
 import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
 import type { ArtConfig } from './artlib';
@@ -58,6 +58,7 @@ const listSvg = html`<svg viewBox="0 0 48 48" width="56" height="56" fill="none"
 const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
 /** What the feelings card asks next, shown and (for a child who cannot read) spoken. */
 const FEEL_ASK: Record<'up' | 'mid' | 'down', string> = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' };
+const JAR = 'input_number.family_jar';
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 export class FhKid extends LitElement {
@@ -253,6 +254,12 @@ export class FhKid extends LitElement {
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
+    .jarwhy { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
+    /* a marble: the same small glass ball on a family-job row, in flight and in the jar */
+    .marble { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, transparent 42%), var(--accent); box-shadow: inset 0 -2px 3px rgba(0,0,0,.22); }
+    .marble.fly { position: fixed; left: 0; top: 0; width: 16px; height: 16px; z-index: 60; pointer-events: none; }
+    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: var(--w-heavy, 800); white-space: nowrap; }
     .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; min-width: 0; }
     .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
     .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
@@ -300,7 +307,7 @@ export class FhKid extends LitElement {
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
-    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }
+    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }, _jarBase: { state: true }, _jarTold: { state: true }
   };
 
   hass?: Hass;
@@ -326,6 +333,10 @@ export class FhKid extends LitElement {
   private _events: KEvent[] = [];
   private _jump = 0;
   private _bursts: { id: number; text: string }[] = [];
+  /** the jar as it stood at midnight (from Home Assistant's history), so the card can say how many marbles the family has added today: one family total, never whose */
+  private _jarBase: { day: string; v: number } | null = null; private _jarAsked = '';
+  /** this screen has seen a marble go in: the line that says what adds none is no longer needed */
+  private _jarTold = lsGet<boolean>('fh-jar-told', false);
   private _confetti = 0;
   private _studio = false;
   private _lookSaid = false;
@@ -408,6 +419,7 @@ export class FhKid extends LitElement {
     if (!this.hass || !this.kid) return;
     // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
     this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
+    void this._loadJarBase();
     const e = this._e;
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
@@ -475,6 +487,36 @@ export class FhKid extends LitElement {
     this._events = out;
   }
 
+  /* ---------------- the jar ---------------- */
+  private async _loadJarBase(): Promise<void> {
+    const day = ymd(new Date());
+    if (this._jarAsked === day || !this.hass?.states[JAR]) return;
+    this._jarAsked = day;
+    try {
+      const a = new Date(); a.setHours(0, 0, 0, 0);
+      const r = await this.hass.callWS<Record<string, { s?: string; state?: string }[]>>({ type: 'history/history_during_period', start_time: a.toISOString(), entity_ids: [JAR], minimal_response: true, no_attributes: true, significant_changes_only: false });
+      const first = r?.[JAR]?.[0], v = Number(first?.s ?? first?.state);
+      this._jarBase = Number.isFinite(v) ? { day, v } : null;
+    } catch { this._jarBase = null; /* no history: the card simply does not say how many today */ }
+  }
+  /** A marble leaves the ticked family job and lands in the jar. In calm mode nothing travels: the jar just takes its marble. */
+  private _flyMarble(row: Element | null): void {
+    if (!this._jarTold) { this._jarTold = true; lsSet('fh-jar-told', true); }
+    const jar = this.renderRoot.querySelector('.jar svg'), from = row?.querySelector('.mb i') ?? row;
+    if (!jar || !from) return;
+    const m = motion(this, '--m-5');
+    if (!m.travel || !m.ms) { spark('marble', jar); return; }
+    const a = from.getBoundingClientRect(), b = jar.getBoundingClientRect(), dot = document.createElement('i');
+    dot.className = 'marble fly'; dot.setAttribute('aria-hidden', 'true');
+    (this.renderRoot as ShadowRoot).appendChild(dot);
+    // wherever "fixed" is measured from here (a glass panel above can move it), the marble starts on the row and ends on the jar
+    const o = dot.getBoundingClientRect(), x0 = a.left + a.width / 2 - o.left - 8, y0 = a.top + a.height / 2 - o.top - 8, x1 = b.left + b.width / 2 - o.left - 8, y1 = b.top + 6 - o.top - 8;
+    const lift = Math.min(y0, y1) - 46;
+    const fly = dot.animate([{ transform: `translate(${x0}px, ${y0}px) scale(1)`, opacity: 1 }, { transform: `translate(${(x0 + x1) / 2}px, ${lift}px) scale(1.25)`, opacity: 1, offset: 0.5 }, { transform: `translate(${x1}px, ${y1}px) scale(.9)`, opacity: 1 }], { duration: m.ms * 0.8, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+    const land = (): void => { dot.remove(); if (jar.isConnected) spark('marble', jar); };
+    fly.onfinish = land; fly.oncancel = land;
+  }
+
   /* ---------------- ticking ---------------- */
   private _sound(s: Sfx): void { if (!this.quiet && !this._wind) sfx(s); else if (s === 'tick') sfx('tap'); }
   private _award(c: ParsedChore, sign: 1 | -1): Promise<unknown> {
@@ -509,7 +551,8 @@ export class FhKid extends LitElement {
       if (at) { spark('tick', at); const words = c.summary.toLowerCase();
         if (c.pts && !this._picMode && !this._wind) spark('points', at, { text: `+${c.pts}` });
         if (row && /trumpet|clarinet|piano|practice|music/.test(words)) spark('tada', row, { variant: /clarinet/.test(words) ? 'clarinet' : undefined });
-        else if (row && /read|book|library/.test(words)) spark('book', row); } }
+        else if (row && /read|book|library/.test(words)) spark('book', row); }
+      if (c.lane === 'job') this._flyMarble(row); }
     this._sound(done ? 'untick' : c.lane === 'job' ? 'coin' : 'tick');
     try {
       await inTime(this.hass!.callService('todo', 'update_item', { item: c.uid, status: to }, { entity_id: this._e.chores }));
@@ -760,7 +803,7 @@ export class FhKid extends LitElement {
         ${this._picMode ? html`<div class="pics">${routineNow.map((c) => this._pic(c))}</div>${routineNow.length ? html`<div class="readrow">${this._reader()}</div>` : nothing}`
           : html`
             ${routineNow.length ? html`<div class="sec"><h2>${SLOT_NAME[slot]} routine</h2>${plain ? nothing : html`<span>just what we do</span>`}</div>${routineNow.map((c) => this._row(c))}` : nothing}
-            ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2>${plain ? nothing : html`<span>earn points · fill the jar</span>`}</div>${jobs.map((c) => this._row(c))}` : nothing}
+            ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2><span data-act="jar-rule">each one adds a marble to the jar</span></div>${jobs.map((c) => this._row(c))}` : nothing}
             ${grow.length ? html`<div class="sec"><h2>${plain ? 'Practice and reading' : 'Growing'}</h2>${plain ? nothing : html`<span>for you – surprises along the way</span>`}</div>${grow.map((c) => this._row(c))}` : nothing}`}
         ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._picMode ? picFor(c) : '').join(' ')}</span></div>` : nothing}
         ${!visible.length ? html`<div class="wind"><span style="font-size:44px">${this._night ? '🌙' : '🌤️'}</span><span>${this._night ? 'Sleep time. See you in the morning.' : 'Nothing right now. Enjoy!'}</span></div>` : nothing}
@@ -802,7 +845,7 @@ export class FhKid extends LitElement {
         <span class="t content">${c.summary}</span></button>
       ${(c.lane === 'grow' || c.song) && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
         : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
-      ${c.lane === 'job' ? html`<span class="plus">+${c.pts}</span>` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
+      ${c.lane === 'job' ? html`<span class="mb" role="img" aria-label="Adds one marble to the family jar"><i class="marble" aria-hidden="true"></i>+1</span>${c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing}` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;
   }
 
@@ -857,13 +900,18 @@ export class FhKid extends LitElement {
   private _jar(): TemplateResult {
     const n = num(this.hass, 'input_number.family_jar'), t = this.jarTarget || 120, f = Math.min(1, n / t);
     if (!this.hass?.states['input_number.family_jar']) return html``;
+    // one family total since midnight: never whose marbles they were
+    const added = this._jarBase && this._jarBase.day === ymd(this._now) ? Math.max(0, Math.round(n - this._jarBase.v)) : 0;
     return html`<section class="glass card" aria-label="Family jar"><div class="jar">
       <svg width="34" height="42" viewBox="0 0 48 60" aria-hidden="true"><rect x="8" y="2" width="32" height="7" rx="3" fill="var(--ink3)"></rect>
         <path d="M6 12 H42 V52 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="var(--chip-strong)" stroke="var(--ink3)" stroke-width="2"></path>
         <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
         <rect clip-path="url(#jc)" x="6" y=${58 - 44 * f} width="36" height=${44 * f} fill="var(--accent)" style="transition:y var(--mt-5, 900ms) var(--e-out, ease), height var(--mt-5, 900ms) var(--e-out, ease)"></rect></svg>
       <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="label">Family jar</span>
-        <span style="font-size:15px;font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marbles to ${this.jarReward}`}</span>
+        <span style="font-size:15px;font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
+        <span class="jarwhy" data-act="jar-why">Every family job adds a marble.</span>
+        ${added > 0 ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}
+        ${this._jarTold ? nothing : html`<span class="jarwhy" data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}
       </span></div></section>`;
   }
 

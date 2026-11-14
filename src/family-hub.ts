@@ -30,7 +30,8 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
-import { askByChild, askFor, calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
+import { BEAT_MS, USE_FLUSH_MS, UseLog, agoWords, calHealth, calWarning, haTrust, isWall, restoreCalls, snapParse, snapText, snapshotOf, useTotals, type HaTrust } from './trust';
+import { BINS, isBin, askByChild, askFor, calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
@@ -45,7 +46,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.33.1';
+const VERSION = '0.33.2';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -64,7 +65,7 @@ export class FamilyHubCard extends LitElement {
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
-    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true },
+    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true }, _wifiUntil: { state: true }, _calTick: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
   };
 
@@ -165,6 +166,15 @@ export class FamilyHubCard extends LitElement {
   private _lastTouch = Date.now();
   private _idle = false;
   private _calError = false;
+  /** trust guards (trust.ts): when each calendar last answered, when this screen last stamped the heartbeat, and today's opens and taps */
+  private _calSeen: Record<string, number> = {}; private _calSince = Date.now(); private _calTick = 0;
+  private _beatAt = 0; private _use = new UseLog(); private _useAt = Date.now() - USE_FLUSH_MS + 60_000;
+  private _wifiUntil = 0;
+  private _vis = (): void => { if (document.visibilityState === 'hidden') void this._use.flush(this.hass, this._config?.health?.use_log); };
+  /** What Home Assistant needs for the trust guards (the snapshot automation, the restore script, the panel watch), built from this configuration. Used when the card is set up; nothing on screen calls it. */
+  trustSetup(): HaTrust { return haTrust(this._config); }
+  /** The snapshot record and the use counts in TypeScript, for the tests and the restore drill: `customElements.get('family-hub-card').trust`. */
+  static trust = { snapshotOf, snapText, snapParse, restoreCalls, useTotals, haTrust };
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
   private _alarm = 0;
@@ -214,6 +224,7 @@ export class FamilyHubCard extends LitElement {
     if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
+    document.addEventListener('visibilitychange', this._vis);
     window.addEventListener('keydown', this._keys);
     (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready.then(() => { if (this.isConnected) this._fitFrame(); });
     window.addEventListener('resize', this._onResize); this._onResize();
@@ -260,9 +271,11 @@ export class FamilyHubCard extends LitElement {
     clearTimeout(this._toastTimer); clearTimeout(this._dinner?.timer); clearTimeout(this._off?.timer);
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
+    document.removeEventListener('visibilitychange', this._vis);
   }
   private _touched = (): void => {
     this._lastTouch = Date.now(); if (this._idle) this._idle = false;
+    this._use.tap(this._sheet ? `s-${this._sheet}` : this._page);
     if (this._page === 'music') this._musicAt = Date.now();
     // the touch that wakes the panel from its artwork does only that: whatever lies under the finger is not pressed
     if (this._art.on) { this._wakeDown = true; this._art.wake(); }
@@ -309,6 +322,11 @@ export class FamilyHubCard extends LitElement {
     // second-by-second only while something is counting down; otherwise every 15 s
     if (timerOn || this._dinner || this._off || now.getSeconds() % 15 === 0) this._now = now;
     if (now.getSeconds() % 15) return;
+    { const hc = this._config?.health, t = Date.now();
+      // the wall panel tells Home Assistant it is alive; other screens stay quiet, so a phone can't make a dead panel look well
+      if (hc?.heartbeat && this.hass?.states[hc.heartbeat] && isWall() && t - this._beatAt >= BEAT_MS) { this._beatAt = t; Promise.resolve(this.hass.callService('input_datetime', 'set_datetime', { timestamp: Math.floor(t / 1000) }, { entity_id: hc.heartbeat })).catch(() => { this._beatAt = t - BEAT_MS + 60_000; }); }
+      if (hc?.use_log && t - this._useAt >= USE_FLUSH_MS) { this._useAt = t; void this._use.flush(this.hass, hc.use_log); }
+      if (now.getSeconds() === 0) this._calTick++; }
     setMuted(this._config?.quiet?.mute === true && isQuiet(now, this._config?.quiet?.start ?? '20:00', this._config?.quiet?.end ?? '06:30'));
     const idleFor = Date.now() - this._lastTouch;
     if (!this._idle && idleFor > 60_000) this._idle = true;
@@ -351,6 +369,8 @@ export class FamilyHubCard extends LitElement {
   protected updated(ch: PropertyValues): void {
     if (ch.has('_page') && ch.get('_page') !== undefined && this._page !== 'kid') this._move(this.renderRoot.querySelector('.dock .item[aria-current="page"]:not(.kidbtn)'), 'data-arrive', 900);
     if (ch.has('hass')) this._watchJar();
+    if (ch.has('_page')) this._use.open(this._page);
+    if (ch.has('_sheet')) { if (this._sheet) this._use.open(`s-${this._sheet}`); if (this._sheet !== 'sitter' && this._wifiUntil) this._wifiUntil = 0; }
     // the nightly artwork reads its limit and its style from the record: keep that line in step with this screen
     if (this.hass && this._config) { const key = `${JSON.stringify(this._config.art ?? {})}|${this._lk}|${!!this.hass.states[artListOf(this._config)]}`; if (key !== this._nightKey) { this._nightKey = key; void syncNightly(this.hass, this._config, this._lk); } }
     if (ch.has('hass') || ch.has('_view') || ch.has('_anchor') || this._span !== this._spanWas) { this._spanWas = this._span; this._refresh(); }
@@ -572,6 +592,7 @@ export class FamilyHubCard extends LitElement {
     await Promise.all(cals.map(async (c) => {
       try {
         const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
+        this._calSeen[c.entity] = Date.now();
         const who = c.name ?? this.hass!.states[c.entity]?.attributes.friendly_name ?? c.entity;
         for (const r of rows ?? []) {
           if (!calShows(c, String(r?.summary ?? ''))) continue;
@@ -584,7 +605,7 @@ export class FamilyHubCard extends LitElement {
         }
       } catch (e) { failed++; console.warn('Family Hub: calendar fetch failed', c.entity, e); }
     }));
-    this._calError = failed === cals.length;
+    this._calError = failed === cals.length; this._calTick++;
     if (!soon && gen !== this._fetchGen) return null; // a newer request won
     out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.start.getTime() - y.start.getTime());
     return out;
@@ -902,18 +923,18 @@ export class FamilyHubCard extends LitElement {
   private _bins(d: Date): { night: Date; bins: string[] } | null {
     const b = this._config.bins;
     if (!b) return null;
-    const night = addDays(d, (b.day - d.getDay() + 7) % 7), alt = b.alternate ?? [];
+    // only the bins this household has: a colour saved from an older list (blue, purple) is not read out
+    const night = addDays(d, (b.day - d.getDay() + 7) % 7), alt = (b.alternate ?? []).filter(isBin);
     let turn: string[] = [];
     if (alt.length) {
       const a0 = b.anchor ? new Date(`${b.anchor}T00:00:00`) : new Date(2026, 0, 5);
       const weeks = Math.round((new Date(night.getFullYear(), night.getMonth(), night.getDate()).getTime() - a0.getTime()) / (7 * 86400000));
       turn = [alt[((weeks % alt.length) + alt.length) % alt.length]];
     }
-    return { night, bins: [...(b.always ?? []), ...turn] };
+    return { night, bins: [...(b.always ?? []).filter(isBin), ...turn] };
   }
   private _binDots(bins: string[]): TemplateResult {
-    const col: Record<string, string> = { green: '#2e9e4f', yellow: '#f2c230', red: '#d93a3a', blue: '#2f7fd6', purple: '#8b5cf6' };
-    return html`${bins.map((n) => html`<i class="bin" style="background:${col[n.toLowerCase()] ?? 'var(--ink2)'}" aria-hidden="true"></i>`)}`;
+    return html`${bins.map((n) => html`<i class="bin" style="background:${BINS[n.toLowerCase()]?.col ?? 'var(--ink2)'}" aria-hidden="true"></i>`)}`;
   }
 
   // ---------- actions ----------
@@ -1243,13 +1264,25 @@ export class FamilyHubCard extends LitElement {
             ${(['day', 'week', 'month'] as View[]).map((x) => html`<button class="tap" aria-pressed=${String(v === x)} @click=${() => { this._view = x; }}>${x[0].toUpperCase() + x.slice(1)}</button>`)}
           </div>
         </div>
-        ${cals.length ? html`<div class="legend">${cals.map((c) => { const n = c.name ?? this.hass?.states[c.entity]?.attributes.friendly_name ?? c.entity; return html`<span style="display:flex;align-items:center;gap:6px">${this._chip(n, c.colour)}${n}</span>`; })}</div>` : nothing}
+        ${cals.length ? html`<div class="legend">${cals.map((c) => { const n = c.name ?? this.hass?.states[c.entity]?.attributes.friendly_name ?? c.entity; return html`<span style="display:flex;align-items:center;gap:6px">${this._chip(n, c.colour)}${n}</span>`; })}${this._calNote()}</div>` : nothing}
         ${!cals.length ? html`<div class="empty"><span style="color:var(--accent)">${icon('calendar', 40)}</span><h2 class="t-sub">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`
           // a load that failed is not an empty week: say so, and offer to try again
           : this._calError ? html`<div class="empty calfail" role="alert"><span class="pic">${icon('calendar', 44)}</span><h2 class="t-sub">Can’t reach the calendars.</h2>
             <button class="pill tap" style="height:52px;padding:0 24px;font-size:16px" @click=${() => { this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}>Try again</button></div>`
           : v === 'week' ? this._week(a) : v === 'day' ? this._day(a) : this._month()}
       </section>`;
+  }
+
+  /** The planner's quiet word on how fresh the calendars are, or the plain warning when one has stopped answering. No warning at night: nobody can act on it then. */
+  private _calNote(): TemplateResult | typeof nothing {
+    const cals = this._config.calendars ?? [];
+    if (!cals.length || this._calError) return nothing;
+    const h = calHealth(this.hass, cals, this._calSeen, this._calSince, Date.now(), this._config.health?.calendar_minutes ?? 30), warn = this._isNight() ? '' : calWarning(h);
+    if (warn) return html`<span class="calnote" data-warn role="status">${icon('alert', 18)}<span>${warn}</span><button class="pill tap" data-act="cal-retry" @click=${() => { this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}>Try again</button></span>`;
+    return h.age === null ? nothing : html`<span class="calnote" data-act="cal-age">Updated ${agoWords(h.age)}</span>`;
+  }
+  private _wifiAsk(): void {
+    this._pinAsk = { reason: 'Show the Wi-Fi password?', sheet: 'sitter', run: () => { this._wifiUntil = Date.now() + 120_000; window.setTimeout(() => { if (this._wifiUntil && Date.now() >= this._wifiUntil) this._wifiUntil = 0; }, 120_200); } };
   }
 
   private _arcs(evs: CalEvent[]): DialArc[] {
@@ -1691,7 +1724,7 @@ export class FamilyHubCard extends LitElement {
     if (beds.length) secs.push(html`${h3('Bedtimes tonight')}${beds.map((k) => html`<div class="irow"><b>${k.name}</b><span>${t12(k.at)}</span></div>`)}`);
     if (tonight.length) secs.push(html`${h3('Still on today')}${tonight.map((x) => html`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${whenOn(x, now).label}</span></div>`)}`);
     if (bins) secs.push(html`${h3('Bin night')}<div class="irow"><b>${sameDay(bins.night, now) ? 'Tonight' : bins.night.toLocaleDateString('en-AU', { weekday: 'long' })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(bins.bins)}${bins.bins.join(' + ')}</span></div>`);
-    if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow"><span>Password</span><b>${b.wifi.password}</b></div>` : nothing}`);
+    if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!c.parent_pin || Date.now() < this._wifiUntil ? html`<b>${b.wifi.password}</b>` : html`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the grown-ups’ PIN" @click=${() => this._wifiAsk()}>${icon('lock', 16)}Show</button>`}</div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);
     const cog = html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${icon('cog', 22)}</button>`;
