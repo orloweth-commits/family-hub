@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { icon, hasIcon, weatherIcon } from './icons';
-import { getLook } from './looks';
+import { plainLook } from './looks';
 
 /**
  * The header's and the dock's buttons as small filled illustrations on a 40 x 40 grid, lit from the top left. A drawing shows
@@ -128,7 +128,7 @@ export const moonAge = (d = new Date()): number => { const days = d.getTime() / 
 /** a drawing's name back to the line icon it replaced (Obsidian, the parents' look, uses line icons instead of drawings) */
 const LINE = Object.fromEntries(Object.entries(FOR).map(([k, v]) => [v, k]));
 export const art = (name: string, size = 22, data: ArtData = {}): TemplateResult => { const n = FOR[name] ?? name;
-  if (getLook() === 'obsidian') {
+  if (plainLook()) {
     // the weather keeps telling the sky: sun, moon, cloud or rain from the live condition
     const l = n === 'weather' && data.cond ? weatherIcon(data.dark && !/rain|pour|storm|lightning|cloud|fog/.test(data.cond) ? 'night' : data.cond) : hasIcon(name) ? name : LINE[n];
     if (l && hasIcon(l)) return icon(l, size);

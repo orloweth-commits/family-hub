@@ -1,5 +1,6 @@
 import { html, svg, css, nothing, type TemplateResult } from 'lit';
 import { icon, solid } from './icons';
+import { plainLook } from './looks';
 import type { ShelfItem } from './ma';
 
 /* ------------------------------------------------------------------ *
@@ -11,6 +12,8 @@ import type { ShelfItem } from './ma';
  * ------------------------------------------------------------------ */
 
 export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
+/** The sleeve of a record with no cover: two of the people's colours; smoked glass in a look with no cartoons (Obsidian). */
+export const blank = (i: number): string => plainLook() ? 'linear-gradient(160deg, #23272e, #0b0e13)' : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`;
 export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
   { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Carry the music to a room. Slide for volume.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
@@ -162,7 +165,7 @@ export const dialView = (c: Ctx): TemplateResult => {
   const left = d.sleep.left, wedge = left === null ? 0 : Math.max(0.02, Math.min(1, left / Math.max(1, d.sleep.mins))), wa = wedge * 2 * Math.PI, wx = 20 + 16 * Math.sin(wa), wy = 20 - 16 * Math.cos(wa);
   return html`<div class="dialwrap">
     <section class="dcard dnext" aria-label="Up next"><h3>Up next</h3>
-      ${d.next.length ? d.next.map((n) => html`<div class="dn"><i class="puck onshelf" style="--art:${n.art ? `url(${n.art})` : 'linear-gradient(135deg, var(--p-3), var(--p-5))'}"></i><span><b>${n.title}</b><span>${n.sub}</span></span></div>`)
+      ${d.next.length ? d.next.map((n) => html`<div class="dn"><i class="puck onshelf" style="--art:${n.art ? `url(${n.art})` : blank(2)}"></i><span><b>${n.title}</b><span>${n.sub}</span></span></div>`)
         : html`<p class="dnone">Nothing queued. Slide the tuner, or let someone choose.</p>`}
       ${d.more > 0 ? html`<p class="dnone">+${d.more} more after that</p>` : nothing}</section>
     <div class="dmid"><div class="bigdial" data-fits>
@@ -265,7 +268,7 @@ export const crateView = (c: Ctx): TemplateResult => {
   const wires = on.map(([r, j], i) => { const x0 = 64.6, y0 = jackY(i), x1 = 70, y1 = y(j), sag = 9 + Math.abs(y1 - y0) * 0.18;
     return svg`<path class="wire" ?data-playing=${r.playing} style="${col(r)};animation-delay:${-i * 0.4}s" d="M${x0} ${y0} C${x0 + 3.4} ${y0 + sag}, ${x1 - 3.4} ${y1 + sag}, ${x1} ${y1}"></path>`; });
   const sleeve = (m: ShelfItem, w: number): TemplateResult => { const i = start + w, front = i === at, spread = 0.5 + (w - (win.length - 1) / 2) / Math.max(3, win.length - 1);
-    return html`<button class="sleeve tap" ?data-front=${front} ?data-lifted=${c.liftedItem === m} style="z-index:${10 - Math.abs(i - at)};--x:${spread};--tilt:${(-9 + 17 * spread).toFixed(1)}deg;--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"
+    return html`<button class="sleeve tap" ?data-front=${front} ?data-lifted=${c.liftedItem === m} style="z-index:${10 - Math.abs(i - at)};--x:${spread};--tilt:${(-9 + 17 * spread).toFixed(1)}deg;--art:${m.img ? `url(${m.img})` : blank(i)}"
       aria-label="${m.name}. ${front ? `Tap to play in ${k.room}` : 'Tap to bring it to the front'}, or drag it to the turntable or a speaker."
       @pointerdown=${(e: PointerEvent) => c.carryItem(e, m, (dx) => k.flick(Math.max(0, Math.min(n - 1, at - Math.round(dx / 52)))))} @click=${() => k.tap(i)}><span class="sart">${m.img ? '' : m.name[0]}</span></button>`; };
   return html`<div class="rig" data-fits>
@@ -360,7 +363,7 @@ const sceneShelf = (c: Ctx, kind: string): TemplateResult => {
   return html`<div class="sshelf" data-kind=${kind}>
     <button class="slabel tap" aria-label="${whose} ${SHELF_NAME[kind] ?? 'shelf'}. Show ${next === 'Family' ? 'the family' : `${next}’s`} shelf" @click=${() => k.pick(next)}><b>${k.calm ? '🌙 ' : ''}${whose} ${SHELF_NAME[kind] ?? 'shelf'}</b><span>${items.length ? 'Carry one to a room' : 'Pin music from Search'}</span></button>
     <div class="sitems" style="--n:${n}">${items.length > 1 && (stars || strung) ? html`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${line}></path></svg>` : nothing}${items.map((m, i) => html`<button class="sitem tap" style="--i:${i};animation-delay:${-i * 0.55}s" ?data-lifted=${c.liftedItem === m} aria-label="${m.name}. Tap to play in ${k.room}, or drag it to a room or to the music."
-      @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => k.play(m)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i></button>`)}</div>
+      @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => k.play(m)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : blank(i)}"></i></button>`)}</div>
   </div>`;
 };
 const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" data-drop="deck" ?data-hot=${c.over === 'deck'} ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}

@@ -299,7 +299,7 @@ export class FhStudio extends LitElement {
           </div>
           ${dirty && !have ? html`<div class="parts" aria-label="What you have picked">${cats.filter((c) => !['none', 'own', 'plain', 'smile'].includes(String(this.d[c.key])) || c.id === 'tops').map((c) => html`<span title=${c.label}>${itemEmoji(c, String(this.d[c.key]))}</span>`)}</div>` : nothing}
           <span class="pnote" role="status">${wet ? 'You can keep watching, or go back: it will be ready soon.' : cannot ? cannot : dirty && !have ? `Tap Paint it to see your new look. ${this._paints}` : dirty ? 'You’ve had this look before.' : this._paints}</span>`
-        : html`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
+        : html`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age, real: true })}</button>`}
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
           <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}

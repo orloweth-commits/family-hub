@@ -292,7 +292,7 @@ export class FhMorning extends LitElement {
     const priv = this.privateWords.map((w) => w.toLowerCase());
     const team = this._team(), ready = team.total > 0 && team.done === team.total;
     const lookOf = (k: KidConfig) => decodeLook(this.hass!.states[kidEntities(k).avatar]?.state, k.look ? decodeLook(k.look) : {});
-    const face = (k: KidConfig): TemplateResult => renderAvatar(lookOf(k), { size: 36, crop: 'head', still: true, age: k.age, ring: slotVar(k.colour) });
+    const face = (k: KidConfig): TemplateResult => renderAvatar(lookOf(k), { size: 36, crop: 'head', still: true, age: k.age, ring: slotVar(k.colour), name: k.name });
     // whose the jobs to go are: a face for each one, in the children's own order
     const togo = this.kids.map((k) => ({ k, n: this._list(k).filter((c) => isAm(c) && c.status !== 'completed').length })).filter((g) => g.n > 0);
     // what the whole family has on (the family calendar, not naming one child) is said once across the top
@@ -322,7 +322,7 @@ export class FhMorning extends LitElement {
           const job = this._job(k), c = job.c, done = c?.status === 'completed', msg = this._msg[k.name];
           return html`<section class="glass kcol" data-fits data-kid=${k.name} style="--kid:${slotVar(k.colour)}" aria-label=${k.name}>
             <button class="khead tap" data-act="open" aria-label=${`${k.name}: ${gone ? 'has left' : `leaves at ${t12(lv.at)}`}${bring.length ? `. Bring and wear: ${bring.map((x) => tileOf(x)[1]).join(', ')}` : ''}. Opens ${k.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent('open-kid', { detail: k.name }))}>
-              ${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour) })}<h2>${k.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
+              ${renderAvatar(look, { size: 60, crop: 'head', jump: this._cheer, age: k.age, ring: slotVar(k.colour), name: k.name })}<h2>${k.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
             ${c ? html`<button class="jobbtn big tap ${done ? 'done' : ''}" data-part="job" data-uid=${c.uid} aria-pressed=${done ? 'true' : 'false'} aria-label=${done ? `${k.name}: ${c.summary}, done. Tap to undo` : `${k.name}, now: ${c.summary}. Tap when it is done`} @click=${(ev: Event) => { void this._tick(k, c, ev); }}>
                 ${k.older ? nothing : html`<span class="jpic" aria-hidden="true">${picFor(c)}</span>`}
                 <span class="jtx"><span class="label">${done ? 'Done' : 'Now'}</span><span class="jname">${c.summary}</span>${done ? html`<span class="jundo">Tap to undo</span>` : nothing}</span>

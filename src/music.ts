@@ -1,14 +1,14 @@
 import { LitElement, html, css, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
-import { LookController, getLook, lookArt } from './looks';
+import { LookController, getLook, lookArt, plainLook } from './looks';
 import { icon, solid } from './icons';
 import { kidEntities, slotVar, type ColourSlot, type Hass, type HassEntity, type KidConfig, type MapFloorConfig, type MomentConfig, type StationConfig } from './types';
 import { afterBedtime, bedtimeFor, getNarrow, getShape, FitController, hm, isQuiet, minsNow, scrollCue, linger, motion, sfx, shortNames, windDown, inTime, SlowError, SLOW_SAY } from './util';
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
-import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, viewHint, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Room, type ViewId } from './musicviews';
+import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, blank, viewHint, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Room, type ViewId } from './musicviews';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { LINES, houseVoice, lineReady, voiceReady } from './voice';
 import './pin';
@@ -347,6 +347,17 @@ export class FhMusic extends LitElement {
     :host([data-look='orbit']) .jsw[aria-checked='true'] i { background: var(--accent); }
     :host([data-look='obsidian']) .mzone[data-live]:not([data-playing]) .grab i { box-shadow: inset 0 0 0 1.5px var(--ink2), 0 2px 8px rgba(0,0,0,.6); }
     :host([data-look='obsidian']) .jsw[aria-checked='true'] i { background: var(--live); box-shadow: 0 0 12px -2px var(--live); }
+    /* Obsidian has no faces and no cartoons: a shelf is its owner's name over a line of their colour, the chosen one in amber; a record with
+       no cover is smoked glass; the Switcheroo's wheel is one hairline ring turning from amber into blue */
+    :host([data-look='obsidian']) .pchip .avatar { display: none; } :host([data-look='obsidian']) .pchip { padding: 0 16px; letter-spacing: .04em; }
+    :host([data-look='obsidian']) .dividers .pchip[aria-pressed='true'], :host([data-look='obsidian']) .pchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring), inset 0 -4px 0 var(--c); }
+    :host([data-look='obsidian']) .swho[aria-pressed='true'] i { box-shadow: 0 0 0 2px #000, 0 0 0 3px var(--accent), 0 0 14px -2px var(--accent); }
+    :host([data-look='obsidian']) .st .img { background: var(--art, linear-gradient(160deg, #23272e, #0b0e13)) center / cover no-repeat, #0b0e13; box-shadow: inset 0 0 0 1px var(--glass-line); color: var(--ink2); }
+    :host([data-look='obsidian']) .coin .has, :host([data-look='obsidian']) .pickrow .pcover .art { background: var(--art, linear-gradient(160deg, #23272e, #0b0e13)) center / cover; color: var(--ink2); }
+    :host([data-look='obsidian']) .pinw { background: conic-gradient(var(--accent), var(--live), var(--accent)); box-shadow: none; -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 61%); mask: radial-gradient(circle, transparent 0 58%, #000 61%); }
+    :host([data-look='obsidian']) .pinw::after { display: none; }
+    :host([data-look='obsidian']) .pinstrip { background: #0c0d10; border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,170,40,.35), 0 18px 50px -14px rgba(0,0,0,.9); font-weight: 400; }
+    :host([data-look='obsidian']) .pinto { background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px var(--ctl-line); } :host([data-look='obsidian']) .pinto[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring), 0 0 22px -6px var(--accent); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
     .puck { position: absolute; left: 50%; bottom: 12px; width: 68px; height: 68px; margin-left: -40px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; touch-action: none; cursor: grab;
       background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }
@@ -1061,7 +1072,7 @@ export class FhMusic extends LitElement {
           ${this._shelfNames.map((n) => html`<button class="swho tap" data-pin=${n} ?data-hot=${drag?.over === `pin:${n}`} style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} aria-label=${n === 'Family' ? 'Family shelf' : `${n}’s shelf`} @click=${() => { this._shelf = n; }}><i>${n === 'Family' ? icon('home', 20) : this._face(n, 36)}</i></button>`)}</div>
         ${show.length ? html`<div class="srecs" style="--cols:${cols};--rows:${Math.ceil(Math.min(list.length, MAX) / cols)}">${show.map((m, i) => html`<button class="srec tap" ?data-lifted=${drag?.item === m} aria-label="${m.name}. Tap to play in ${this._name(cur)}, or drag it onto a room."
               @pointerdown=${(e: PointerEvent) => this._carryDown(e, { item: m })} @click=${() => tap(m)}>
-              <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i><span>${m.name}</span></button>`)}
+              <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : blank(i)}"></i><span>${m.name}</span></button>`)}
             ${list.length > MAX ? html`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => { this._tab = 'shelves'; }}>＋${list.length - show.length}<span>more</span></button>` : nothing}</div>`
           : html`<div class="snone">${icon('sleeve', 34)}<span>${wind ? 'Nothing calm pinned yet.' : 'Nothing pinned yet.'}<br>Search for music, then tap Pin.</span></div>`}` : html`<span style="flex:1"></span>`}
       <button class="wholeh tap" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-joined=${this._allJoined} ?data-open=${!!drag} ?data-hot=${drag?.over === 'all'} @click=${() => this._spread()}>
@@ -1445,7 +1456,7 @@ export class FhMusic extends LitElement {
       <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr));padding:6px;margin:-6px">${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
-          <span class="img" style=${th ? `--art:url(${th})` : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
+          <span class="img" style=${th ? `--art:url(${th})` : plainLook() ? 'background:linear-gradient(160deg, #23272e, #0b0e13);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--glass-line)' : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
       })}</div>`;
   }
 

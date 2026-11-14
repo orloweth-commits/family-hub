@@ -52,6 +52,11 @@ export interface LookDef {
   preview?: () => TemplateResult;
   /** false = the picker card does not repeat the look's clock drawing (it is not a self-contained picture) */
   previewClock?: boolean;
+  /** true = a look with no faces and no cartoons (Obsidian, for adult evenings): the base draws a person as the first letter of the name,
+   *  a drawing as its line icon, and a blank record sleeve as smoked glass. The base asks plainLook(); it never asks which look is on. */
+  plain?: boolean;
+  /** true = for parents to choose on the panel only: left out of a child's own look picker, and never chosen for a child's page by its settings */
+  parentsOnly?: boolean;
 }
 
 /** The contract between the base interface and the looks (see the note at the top). */
@@ -433,8 +438,8 @@ export const LOOKS: LookDef[] = [
     }
   },
   {
-    id: 'obsidian', name: 'Obsidian', tagline: 'Black glass lit in amber and blue', swatch: 'linear-gradient(160deg,#05070a 50%,#3a2200 80%,#0a2a44)',
-    fonts: ['Jost', 'Cormorant Garamond', 'Outfit'],
+    id: 'obsidian', name: 'Obsidian', tagline: 'Black glass lit in amber and blue', swatch: 'linear-gradient(160deg,#05070a 50%,#3a2200 80%,#0a2a44)', plain: true, parentsOnly: true,
+    fonts: ['Jost', 'Cormorant Garamond', 'Outfit', 'Noto Emoji'],
     art: { clock: (c) => chrono(c.arcs ?? [], c.now ?? new Date()), timer: (c) => arcTimer(c.frac ?? 0, c.size),
       dayview: (c) => obsDayDial(c.arcs ?? [], c.now, c.size), night: (c) => chrono(c.arcs ?? [], c.now ?? new Date(), c.size ?? 250),
       player: (c) => haloPlayer(c.img, c.frac ?? 0, !!c.playing, c.size) },
@@ -453,7 +458,7 @@ export const LOOKS: LookDef[] = [
       '--timer': '#ffaa28', '--timer-face': 'transparent', '--timer-rim': 'var(--ctl-line)', '--ring-halo': '#000000', '--scrim': 'rgba(0,0,0,.74)', '--bg': 'none',
       '--blade': 'linear-gradient(90deg, transparent, #ffaa28 18%, #fff0c8 50%, #ffaa28 82%, transparent)',
       '--w-title': '300', '--w-sub': '400', '--w-heavy': '500', '--w-bold': '500', '--w-semi': '400',
-      '--font-content': "'Jost', 'Outfit', sans-serif", '--content-weight': '300'
+      '--font-content': "'Jost', 'Noto Emoji', 'Outfit', sans-serif", '--content-weight': '300'
     },
     // after dark the cabin dims: the same marks a step quieter, the light a little warmer
     evening: {
@@ -482,6 +487,8 @@ export const lookPreview = (l: LookDef, height = 120, theme = ''): TemplateResul
 let current: LookId = 'glass';
 const subs = new Set<() => void>();
 export const getLook = (): LookId => current;
+/** Is the look one with no faces and no cartoons? (see LookDef.plain) */
+export const plainLook = (): boolean => !!lookById(current).plain;
 export const setLook = (id: LookId): void => {
   current = lookById(id).id;
   setSoundLook(current);
@@ -1592,12 +1599,12 @@ const OBSIDIAN = `
      catches light along the top, wide extended capitals for time and labels, light weights for words.
      Champagne = now, current, chosen, and the one filled action · a cool light = live, on, playing · jade = done.
      A touch lights the hairline instead of shrinking the control. Nothing bounces. */
-  @B .fh { --pg-from: translateY(calc(6px * var(--m-d, 1))); font-family: 'Jost', 'Outfit', 'Avenir Next', sans-serif; font-weight: 300; letter-spacing: .01em;
+  @B .fh { --pg-from: translateY(calc(6px * var(--m-d, 1))); font-family: 'Jost', 'Noto Emoji', 'Outfit', 'Avenir Next', sans-serif; font-weight: 300; letter-spacing: .01em;
     background: radial-gradient(1400px 420px at 50% -180px, rgba(255,170,40,.09), transparent 72%), radial-gradient(1100px 300px at 50% calc(100% + 140px), rgba(56,182,255,.09), transparent 70%), linear-gradient(180deg, #07090d, #040507 60%, #020304); }
   @B .fh::before { display: none; }
-  @B h1, @B h2 { font-family: 'Cormorant Garamond', 'Jost', serif; font-weight: 400; letter-spacing: .01em; }
-  @B .display { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
-  @B .label { font-family: 'Jost', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .28em; text-transform: uppercase; color: var(--ink2); }
+  @B h1, @B h2 { font-family: 'Cormorant Garamond', 'Jost', 'Noto Emoji', serif; font-weight: 400; letter-spacing: .01em; }
+  @B .display { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 200; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+  @B .label { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .28em; text-transform: uppercase; color: var(--ink2); }
   @B .muted { color: var(--ink2); }
   /* the material: smoked glass on black, a hairline round it and a brighter one along the top edge, as if lit from the headliner */
   /* panels: smoked glass with a slow glint of light that passes across every panel together, like a lamp moving past a car's paint */
@@ -1617,7 +1624,7 @@ const OBSIDIAN = `
   @B .fh > header::after { content: ''; position: absolute; left: 4%; right: 4%; bottom: -4px; height: 1px; background: linear-gradient(90deg, transparent, rgba(56,182,255,.35), rgba(255,170,40,.8), rgba(56,182,255,.35), transparent) 0 0 / 50% 100% no-repeat, linear-gradient(90deg, transparent, rgba(255,255,255,.12) 20%, rgba(255,170,40,.3) 50%, rgba(255,255,255,.12) 80%, transparent); box-shadow: 0 0 10px rgba(255,170,40,.25); pointer-events: none; animation: obFlow 9s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: center; background: transparent; box-shadow: none; }
   @B .clock .chrono { grid-row: 1 / span 2; }
-  @B .clock .hm { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-d2); letter-spacing: .06em; color: #fff4e2; text-shadow: 0 0 10px rgba(255,170,40,.45), 0 0 28px rgba(255,140,0,.25); }
+  @B .clock .hm { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-d2); letter-spacing: .06em; color: #fff4e2; text-shadow: 0 0 10px rgba(255,170,40,.45), 0 0 28px rgba(255,140,0,.25); }
   @B .cap { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); font-weight: 400; max-width: 100%; }
   @B .cap.hot { background: rgba(255,138,125,.12); color: var(--ink); border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); animation: fhHot 1.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .cap[data-warm] { background: rgba(255,170,40,.12); color: var(--ink); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
@@ -1637,10 +1644,10 @@ const OBSIDIAN = `
   @B .col { background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 50%), var(--glass); border: 1px solid var(--glass-line); border-radius: 22px; padding: 10px 8px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
   @B .col.today { border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,170,40,.11), rgba(255,170,40,.015) 45%, transparent) padding-box, linear-gradient(var(--glass), var(--glass)) padding-box, conic-gradient(from var(--ob-a, 0deg), rgba(255,170,40,.95), rgba(255,170,40,.15) 22%, rgba(56,182,255,.85) 50%, rgba(56,182,255,.12) 72%, rgba(255,170,40,.95)) border-box; box-shadow: 0 0 44px -14px rgba(255,170,40,.55), 0 0 60px -30px rgba(56,182,255,.6); animation: obEdge 12s linear infinite, obBloomA calc(var(--m-5) * 1.6) var(--e-out) 1; animation-iteration-count: var(--loops, infinite), 1; }
   @B .dayhead { padding: 2px 4px 8px 6px; }
-  @B .num { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-4); letter-spacing: .04em; }
+  @B .num { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-4); letter-spacing: .04em; }
   @B .today .num { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent), 0 0 14px -4px var(--accent); border-radius: 999px; font-size: var(--fs-2); width: auto; height: auto; padding: 3px 10px; }
   @B .ev { background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, transparent), color-mix(in srgb, var(--c) 5%, transparent)); border-left: 2px solid var(--c); border-radius: 4px 10px 10px 4px; padding: 8px 9px 8px 10px; box-shadow: -6px 0 16px -10px var(--c); }
-  @B .ev .t { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-1); letter-spacing: .1em; }
+  @B .ev .t { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-1); letter-spacing: .1em; }
   @B .ev .content { font-weight: 400; }
   @B .ev .w { font-weight: 300; font-size: var(--fs-2); }
   @B .ev.next { box-shadow: -6px 0 16px -10px var(--c), inset 0 0 0 1px rgba(255,170,40,.7); }
@@ -1661,11 +1668,11 @@ const OBSIDIAN = `
   @B .rem { font-weight: 300; }
   @B .meter { height: 3px; background: var(--track); }
   @B .meter > div { background: linear-gradient(90deg, var(--primary-edge), var(--accent), #fff0c8); box-shadow: 0 0 12px rgba(255,170,40,.6); }
-  @B .tread { font-family: 'Jost', 'Outfit', sans-serif; letter-spacing: .06em; }
+  @B .tread { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; letter-spacing: .06em; }
 
   /* dock: the instrument strip. The drawings sit back in monochrome; the page you are on comes up in full colour over a blade of light */
   @B .dock { background: transparent; border-color: transparent; box-shadow: none; gap: 4px; padding: 0 8px; }
-  @B .dock .item { position: relative; font-size: var(--fs-1); font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); height: 82px; gap: 7px; border-radius: 14px; background: transparent; }
+  @B .dock .item { position: relative; font-size: var(--fs-1); font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); height: 82px; gap: 7px; border-radius: 14px; background: transparent; }
   /* the dock: line icons lit in electric blue, the page you are on in electric amber with bloom, its name under it; no faces (a child is his name) */
   @B .dock .item { height: 80px; padding: 0 10px; font-size: var(--fs-1); letter-spacing: .22em; gap: 9px; justify-content: center; white-space: nowrap; min-width: 0; }
   @B .dock .item svg.i { width: 30px; height: 30px; color: var(--live); stroke-width: 1.4; opacity: .8; filter: drop-shadow(0 0 3px rgba(56,182,255,.7)) drop-shadow(0 0 10px rgba(56,182,255,.25)); transition: color var(--m-3) ease, filter var(--m-3) ease, opacity var(--m-3) ease, transform var(--mt-3) var(--e-out); }
@@ -1673,7 +1680,7 @@ const OBSIDIAN = `
   @B .dock .item[aria-current='page'] svg.i { color: var(--accent); opacity: 1; transform: translateY(calc(-2px * var(--m-d, 1))); filter: drop-shadow(0 0 3px rgba(255,170,40,.95)) drop-shadow(0 0 12px rgba(255,130,0,.6)); }
   @B .dock .item.tap:active svg.i { opacity: 1; }
   @B .dock .kidbtn .avatar { display: none; }
-  @B .dock .kidbtn { color: var(--ink2); font-family: 'Cormorant Garamond', 'Jost', serif; font-size: var(--fs-3); font-weight: 500; letter-spacing: .2em; }
+  @B .dock .kidbtn { color: var(--ink2); font-family: 'Cormorant Garamond', 'Jost', 'Noto Emoji', serif; font-size: var(--fs-3); font-weight: 500; letter-spacing: .2em; }
   @B .dock .item[aria-current='page']::after { content: ''; position: absolute; left: 14%; right: 14%; bottom: 2px; height: 1.5px; border-radius: 1px; background: var(--blade); box-shadow: 0 0 12px 1px rgba(255,170,40,.7), 0 0 26px rgba(255,140,0,.35); pointer-events: none; animation: obPulse 3.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @B .dock .sep { background: linear-gradient(transparent, rgba(255,255,255,.2), transparent); width: 1px; }
@@ -1704,10 +1711,10 @@ const OBSIDIAN = `
   /* no cartoon: the name alone, set wide in the display face over a hairline of his colour */
   @B .avbtn { display: none; }
   @B .hero { justify-content: center; }
-  @B .name { font-family: 'Cormorant Garamond', 'Jost', serif; font-weight: 400; font-size: var(--fs-d1); letter-spacing: .22em; text-transform: uppercase; padding-bottom: 14px; background: linear-gradient(90deg, transparent, var(--kid), transparent) 50% 100% / 70% 1px no-repeat; }
+  @B .name { font-family: 'Cormorant Garamond', 'Jost', 'Noto Emoji', serif; font-weight: 400; font-size: var(--fs-d1); letter-spacing: .22em; text-transform: uppercase; padding-bottom: 14px; background: linear-gradient(90deg, transparent, var(--kid), transparent) 50% 100% / 70% 1px no-repeat; }
   @B .rank { background: transparent; color: var(--kid); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 70%, transparent); font-weight: 400; }
   @B .stat { background: var(--chip-soft); border: 1px solid var(--glass-line); }
-  @B .stat b { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-5); letter-spacing: .04em; }
+  @B .stat b { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-5); letter-spacing: .04em; }
   @B .stat span { font-weight: 300; }
   @B .dots i.t { box-shadow: 0 0 0 2px #000, 0 0 0 3px var(--kid); }
   @B .nextup { background: var(--chip-soft); border: 1px solid var(--glass-line); }
@@ -1716,7 +1723,7 @@ const OBSIDIAN = `
   @B .pic.now { box-shadow: inset 0 0 0 1px var(--accent), 0 0 30px -12px var(--accent); }
   @B .pic.done { background: color-mix(in srgb, var(--ok) 14%, transparent); border-color: var(--ok); }
   @B .sec { margin-top: 12px; }
-  @B .sec h2 { font-family: 'Jost', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+  @B .sec h2 { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
   @B .sec span { font-weight: 300; }
   @B .plus { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 500; }
   @B .later { background: var(--chip-soft); font-weight: 300; }
@@ -1761,7 +1768,7 @@ const OBSIDIAN = `
   @B .nextstep { background: linear-gradient(90deg, rgba(255,170,40,.12), transparent); box-shadow: inset 2px 0 0 var(--accent); font-weight: 400; }
   @B .nextstep.set { background: linear-gradient(90deg, color-mix(in srgb, var(--ok) 14%, transparent), transparent); box-shadow: inset 2px 0 0 var(--ok); }
   @B .lchip { background: transparent; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--glass-line); padding-left: 14px; padding-right: 14px; font-weight: 400; }
-  @B .leave { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
+  @B .leave { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
 
   /* music: rooms are dark cells; the room you control is edged in champagne, a room that plays is lit by its stream */
   @B .spk { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
@@ -1823,10 +1830,10 @@ const OBSIDIAN = `
   @B .artm[data-night] { --live: var(--ink); }
   /* the screensaver: the picture is framed like art in a dark room; the time sits on a smoked plate */
   @B .artm .aplate { border-radius: 18px; background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,170,40,.3); }
-  @B .artm .atime .big { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
+  @B .artm .atime .big { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
   @B .artm .adate { letter-spacing: .12em; text-transform: uppercase; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
-  @B .wtemp { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-d3); letter-spacing: .02em; }
+  @B .wtemp { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-d3); letter-spacing: .02em; }
   @B .wtip { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 400; }
   @B .wfact { background: transparent; }
   @B .wday.today { background: linear-gradient(180deg, rgba(255,170,40,.1), transparent); box-shadow: inset 0 0 0 1px var(--accent); }
