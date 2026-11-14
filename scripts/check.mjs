@@ -104,7 +104,8 @@ function judge(p, out, code) {
   for (const l of lines) if (/\bFAIL\b/.test(l)) bad.push(l.trim().slice(0, 220));
   // page errors are printed as a block after "errors:". A 404 there is the preview having no such picture (radar tiles, a sound made to fail on purpose): not an error
   const at = lines.findIndex((l) => /^(errors|page errors):/.test(l));
-  if (at >= 0) for (const l of [lines[at].replace(/^(errors|page errors):\s*/, ''), ...lines.slice(at + 1, lines.findIndex((l, i) => i > at && !l.trim()) < 0 ? undefined : lines.findIndex((l, i) => i > at && !l.trim()))]) { const t = l.replace(/^ - /, '').trim(); if (t && t !== 'none' && !/^404 |status of 404/.test(t)) bad.push(`page error: ${t.slice(0, 200)}`); }
+  // (a suite that prints "errors: none" and then carries on has no block to read: the lines after it are its next results)
+  if (at >= 0 && !/:\s*none\s*$/.test(lines[at])) for (const l of [lines[at].replace(/^(errors|page errors):\s*/, ''), ...lines.slice(at + 1, lines.findIndex((l, i) => i > at && !l.trim()) < 0 ? undefined : lines.findIndex((l, i) => i > at && !l.trim()))]) { const t = l.replace(/^ - /, '').trim(); if (t && t !== 'none' && !/^404 |status of 404/.test(t)) bad.push(`page error: ${t.slice(0, 200)}`); }
   if (p.fit && !/nothing found/.test(out)) bad.push(...lines.filter((l) => /^(Ordinary|Long) words:/.test(l)));
   const isKnown = (l) => known.find((k) => (!k.suite || k.suite === p.file) && k.re.test(l));
   const real = bad.filter((l) => !isKnown(l)), set = bad.filter(isKnown);
