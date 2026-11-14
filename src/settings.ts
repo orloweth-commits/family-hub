@@ -1,3 +1,4 @@
+import { voiceInUse, voiceList } from './voice';
 import { LitElement, html, css, nothing, svg, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LOOKS, LOOK_KEY, LookController } from './looks';
@@ -51,7 +52,7 @@ const cut = (s: string, n = 80): string => (s.length > n ? `${s.slice(0, n - 1)}
 const WIRING: [string, string][] = [['weather', 'Weather'], ['weather_page', 'Weather page'], ['calendars', 'Calendars'], ['add_calendar', 'Calendar for new events'], ['people', 'People and who is home'], ['reminders', 'Reminders list'], ['groceries', 'Shopping list'],
   ['grocery_recipients', 'Who the shopping list is sent to'], ['music_player', 'Main speaker'], ['music_players', 'Speakers'], ['music_map', 'Music house map'], ['music_hide', 'Speakers left out'], ['music_lock', 'Only speakers on the map'], ['music_views', 'Music views'], ['radio', 'Radio stations'],
   ['radio_source', 'Radio source'], ['announce_script', 'Dinner announcement script'], ['med_log', 'Record of other medicines'], ['photos', 'Photo frame'], ['photo_minutes', 'Minutes per photo'], ['idle_seconds', 'Seconds until the panel goes home'],
-  ['chat', 'Ask: helper and voice'], ['bring_rules', 'What to bring, by calendar'], ['home_hide', 'Hidden on the Home page'], ['call_language', 'Call language'], ['call_voice', 'Call voice'], ['scale', 'Screen scale']];
+  ['chat', 'Ask: helper and voice'], ['voice', 'The house voice'], ['bring_rules', 'What to bring, by calendar'], ['home_hide', 'Hidden on the Home page'], ['call_language', 'Call language'], ['call_voice', 'Call voice'], ['scale', 'Screen scale']];
 const BLOCKED: Record<Blocked, [string, string]> = {
   admin: ['You can look, but not change anything here', 'Changing settings needs a Home Assistant administrator. This screen is signed in as someone who is not one. Open the panel on a phone or computer signed in as an administrator, or change the card in the dashboard editor.'],
   yaml: ['This dashboard is kept in a YAML file', 'Home Assistant will not let a card save into a YAML dashboard, so these settings can only be read here. Change them in the YAML file, under the Family Hub card.'],
@@ -764,7 +765,12 @@ export class FhSettings extends LitElement {
     // the setting says what it means: the night the bins go out, with the morning they are collected spelt out beside it
     const binSay = (day: number): string => `Out on ${DAYS[day]} night, collected ${DAYS[(day + 1) % 7]} morning.`;
     const binChips = (label: string, list: string[], set: (l: string[]) => void): TemplateResult => html`<div class="schips" role="group" aria-label=${label}>${names.map((n) => html`<button class="tap" aria-pressed=${String(list.map((s) => s.toLowerCase()).includes(n))} @click=${() => set(list.map((s) => s.toLowerCase()).includes(n) ? list.filter((s) => s.toLowerCase() !== n) : [...list, n])}><i class="sw6" style="background:${BINS[n].col}" aria-hidden="true"></i>${cap(n)}<span class="muted" style="font-weight:500">${BINS[n].what}</span></button>`)}</div>`;
+    const vc = d.voice, voices = voiceList(vc), using = voiceInUse(vc);
     return html`
+      ${voices.length ? html`<div class="scard" data-voice><h3>${icon('megaphone', 20)}The house voice</h3>
+        ${this._row('Voice', 'Everything the house says aloud: read-aloud on the children’s pages, Ask, Call a room, the dinner call and the kitchen timer.', this._seg<string>('The house voice', using?.name, voices.map((v) => [v.name, v.name] as [string, string]), (v) => this._edit((x) => { if (x.voice) x.voice.use = v; })))}
+        <span class="shint">${using?.files ? `${using.name} has recordings of the ready messages and the dinner call, and they are used.` : `${using?.name ?? 'This voice'} has no recordings, so the ready messages and the dinner call are spoken fresh each time (the first time each day counts towards the daily allowance).`} The other voices’ recordings are kept. A new voice is added to the list under Advanced.</span>
+      </div>` : nothing}
       <div class="scard"><h3>${icon('moon', 20)}Night</h3>
         ${this._row('Night screen', 'Between these times the screensaver’s pictures are dimmer and warmer, and the screen is at its lowest. A touch wakes it as usual.', html`${this._sw('Night screen', !!night, () => this._edit((x) => { if (x.night) delete x.night; else x.night = { start: '21:00', end: '06:00' }; }))}
           ${night ? html`${this._tm('Night screen starts', () => this._draft.night?.start, (v) => this._edit((x) => { x.night!.start = v; }))}<span class="muted">to</span>${this._tm('Night screen ends', () => this._draft.night?.end, (v) => this._edit((x) => { x.night!.end = v; }))}` : nothing}`)}

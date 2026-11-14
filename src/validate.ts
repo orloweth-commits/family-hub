@@ -47,6 +47,14 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
     if (!voice || typeof voice !== 'object' || Array.isArray(voice) || !/^tts\.[a-z0-9_]+$/.test(String(voice.tts ?? ''))) return 'Family Hub: voice needs a text-to-speech entity, e.g. voice: { tts: tts.home_assistant_cloud }';
     if (voice.daily_chars !== undefined && !(typeof voice.daily_chars === 'number' && Number.isFinite(voice.daily_chars) && voice.daily_chars >= 0)) return 'Family Hub: voice.daily_chars should be a number of characters a day, 0 or more';
     if (voice.count !== undefined && !/^input_number\.[a-z0-9_]+$/.test(String(voice.count))) return 'Family Hub: voice.count should be an input_number, e.g. input_number.fh_voice_chars';
+    if (voice.voices !== undefined) {
+      const l = voice.voices as unknown;
+      if (!Array.isArray(l) || !l.length || l.some((v) => !v || typeof v !== 'object' || !String((v as { name?: unknown }).name ?? '').trim() || !String((v as { voice?: unknown }).voice ?? '').trim())) return 'Family Hub: voice.voices should be a list of voices, each with a name and the engine’s id for it, e.g. voices: [{ name: Emma, voice: abc123 }]';
+      if (new Set(l.map((v) => String((v as { name: string }).name).trim().toLowerCase())).size !== l.length) return 'Family Hub: two voices in voice.voices share a name';
+      if (l.some((v) => (v as { files?: unknown }).files !== undefined && !String((v as { files?: unknown }).files).includes('{line}'))) return 'Family Hub: a voice’s files should be a media id with {line} in it';
+      if (voice.use !== undefined && !l.some((v) => (v as { name: string }).name === voice.use)) return `Family Hub: voice.use names “${String(voice.use)}”, which is not in voice.voices`;
+    }
+    if (voice.sync !== undefined) { const s = voice.sync as Record<string, unknown> | null; if (!s || typeof s !== 'object' || [s.voice, s.files].some((x) => x !== undefined && !/^input_text\.[a-z0-9_]+$/.test(String(x)))) return 'Family Hub: voice.sync should name text helpers, e.g. sync: { voice: input_text.fh_voice_id, files: input_text.fh_voice_files }'; }
     if (voice.files !== undefined && !String(voice.files).includes('{line}')) return 'Family Hub: voice.files should be a media id with {line} in it, e.g. media-source://media_source/local/line-{line}.mp3';
   }
   return null;

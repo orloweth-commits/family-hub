@@ -8,11 +8,38 @@ import type { Hass } from './types';
  *   voice.daily_chars                 how many NEW characters a day may be sent to the engine (default 1500)
  *   voice.count                       an input_number that holds today's count, so every screen shares one allowance
  *
+ * Changing the voice: name every voice the house may use under `voice.voices` and the one in use under `voice.use`
+ * (Settings, House, "The house voice" writes it). Everything below then speaks in it:
+ *
+ *   voice.voices   [{ name, voice, files? }]   `voice` is the engine's own id for it; `files` is where THAT voice's recorded lines live
+ *   voice.use      the name of the one in use (the first, when none is named)
+ *   voice.sync     { voice: input_text.…, files: input_text.…, pipeline: true }   the same choice, kept for Home Assistant's own
+ *                  scripts and automations to read, and (pipeline) written to Ask's Assist pipeline for spoken conversations
+ *
+ * EVERY PLACE THE APP SPEAKS (keep this list true; a new one must go through say(), voiceUrl() or voiceReady()):
+ *   1. Read-aloud on a screen: say() in util.ts. The youngest's page (jobs, stars, rewards, feelings), the morning board's "Done!",
+ *      the Style Studio, the weather's "what to wear", Settings' "hear it".                         -> the house voice, then the screen's own
+ *   2. Ask, typed and tapped answers: FhChat._speak.                                                -> `chat.tts` if set, otherwise the house voice
+ *   3. Ask, spoken conversations (microphone): Home Assistant's Assist pipeline makes the speech.   -> the pipeline's own voice (voice.sync.pipeline)
+ *   4. Call a room, a ready message: FhMusic._call plays the voice's recording (lineReady) when that voice has one.
+ *   5. Call a room, a typed message or a ready one with no recording: voiceReady().                 -> the house voice, then the built-in voice
+ *   6. The dinner call: the Dinner button runs `announce_script` with fh_line, fh_file and fh_voice. -> the recording, else the script speaks
+ *   7. Anything Home Assistant says by itself through the announce script (the kitchen timer).      -> the script reads voice.sync's helpers
+ *   Fallbacks, which are not the house voice and do not change with it: the screen's own voice (the browser's, Australian when it
+ *   has one) and Home Assistant's built-in voice on a speaker (`call_language`, `call_voice`).
+ *
  * Every paid voice call has a cap and a fallback. A phrase this screen has heard before costs nothing (Home Assistant
  * keeps the sound), so it is always allowed; a new phrase is allowed while the day's allowance lasts. Past that, or
  * when the engine does not answer, the caller falls back: the screen's own voice on the panel, the built-in voice on a speaker.
  * ------------------------------------------------------------------ */
-export interface VoiceConfig { tts: string; voice?: string; language?: string; daily_chars?: number; count?: string; files?: string }
+export interface NamedVoice { name: string; voice: string; files?: string }
+export interface VoiceSync { voice?: string; files?: string; pipeline?: boolean }
+export interface VoiceConfig { tts: string; voice?: string; language?: string; daily_chars?: number; count?: string; files?: string; use?: string; voices?: NamedVoice[]; sync?: VoiceSync }
+/** The voices a house has named, and the one in use: the one `use` names, else the first. None when no list is given. */
+export const voiceList = (c: VoiceConfig | null | undefined): NamedVoice[] => (Array.isArray(c?.voices) ? c!.voices!.filter((v) => v && typeof v.name === 'string' && v.name.trim() && typeof v.voice === 'string' && v.voice) : []);
+export const voiceInUse = (c: VoiceConfig | null | undefined): NamedVoice | undefined => { const l = voiceList(c); return l.find((v) => v.name === c?.use) ?? l[0]; };
+/** The configuration as everything else reads it: with a list of voices, the one in use supplies `voice` and `files` (a voice with no recordings has none: its lines are spoken live). */
+export const resolveVoice = (c: VoiceConfig): VoiceConfig => { const v = voiceInUse(c); if (!v) return c; const { files: _f, ...rest } = c; return { ...rest, voice: v.voice, ...(v.files ? { files: v.files } : {}) }; };
 /** One engine and voice to speak in: the house voice, or Ask's own when it is set differently. */
 export interface Engine { tts: string; voice?: string; language?: string }
 
@@ -23,7 +50,7 @@ export const DAILY_CHARS = 1500;
 
 let cfg: VoiceConfig | null = null;
 let hassOf: () => Hass | undefined = () => undefined;
-export const setVoice = (c: VoiceConfig | null | undefined, h: () => Hass | undefined): void => { cfg = c && typeof c.tts === 'string' && c.tts.startsWith('tts.') ? c : null; hassOf = h; };
+export const setVoice = (c: VoiceConfig | null | undefined, h: () => Hass | undefined): void => { cfg = c && typeof c.tts === 'string' && c.tts.startsWith('tts.') ? resolveVoice(c) : null; hassOf = h; };
 export const houseVoice = (): VoiceConfig | null => cfg;
 
 /* ---------------- the daily allowance ---------------- */
@@ -112,3 +139,27 @@ export async function lineReady(line: Line): Promise<string> {
 }
 /** Forget what is known about the recordings (after a settings change, and in tests). */
 export const forgetLines = (): void => fileSeen.clear();
+
+/* ---------------- keeping Home Assistant's side in step ---------------- */
+/**
+ * Home Assistant speaks by itself too (the announce script, Ask's spoken conversations), and cannot read the card. So the choice is
+ * copied to where it can: two text helpers, and Ask's Assist pipeline. Called when the card has its settings and Home Assistant;
+ * it writes only what differs, so it is safe to call often. Returns what it changed (for the tests).
+ */
+export async function voiceSync(h: Hass | undefined, pipeline?: string): Promise<string[]> {
+  const c = cfg, s = c?.sync, did: string[] = [];
+  if (!h || !c || !s) return did;
+  const put = async (id: string | undefined, value: string): Promise<void> => {
+    if (!id || !h.states[id] || h.states[id].state === value) return;
+    try { await h.callService('input_text', 'set_value', { value }, { entity_id: id }); did.push(id); } catch { /* tried again next time */ }
+  };
+  await put(s.voice, c.voice ?? ''); await put(s.files, c.files ?? '');
+  if (s.pipeline && pipeline && c.voice && h.user?.is_admin && h.callWS) {
+    try {
+      const all = await h.callWS<{ pipelines: (Record<string, unknown> & { id: string; tts_engine?: string; tts_voice?: string })[] }>({ type: 'assist_pipeline/pipeline/list' });
+      const p = all.pipelines.find((x) => x.id === pipeline);
+      if (p && p.tts_engine === c.tts && p.tts_voice !== c.voice) { const { id, ...rest } = p; await h.callWS({ type: 'assist_pipeline/pipeline/update', pipeline_id: id, ...rest, tts_voice: c.voice }); did.push('pipeline'); }
+    } catch { /* Ask's typed answers still use the house voice */ }
+  }
+  return did;
+}

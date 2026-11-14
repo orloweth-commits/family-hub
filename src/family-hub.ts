@@ -25,7 +25,7 @@ import { artListOf } from './artlib';
 import { syncNightly } from './nightly';
 import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
-import { forgetLines, lineReady, setVoice } from './voice';
+import { forgetLines, houseVoice, lineReady, setVoice, voiceSync } from './voice';
 import { loadFonts } from './fonts';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -47,7 +47,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.34.0';
+const VERSION = '0.34.1';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -196,7 +196,7 @@ export class FamilyHubCard extends LitElement {
     const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     setWeekendExtra(config.bedtime_weekend_extra);
-    setVoice(config.voice, () => this.hass); forgetLines();
+    setVoice(config.voice, () => this.hass); forgetLines(); this._voiceSynced = false;
     setPinShuffle(config.pin_shuffle !== false);
     this._config = config;
     let snd: string | null = null;
@@ -373,7 +373,10 @@ export class FamilyHubCard extends LitElement {
     if (b.hasAttribute('data-arrive') || (b.matches('.dock .item[aria-current]') && b.getAttribute('aria-current') !== 'page')) return; // it has just become the page (the page is drawn before this runs), or is about to: its arrival plays
     this._move(b, 'data-just', 700);
   };
+  /** the voice in use has been copied to Home Assistant's side since the settings last changed (voice.ts, voiceSync) */
+  private _voiceSynced = false;
   protected updated(ch: PropertyValues): void {
+    if (!this._voiceSynced && this.hass?.states && this._config?.voice?.sync) { this._voiceSynced = true; void voiceSync(this.hass, this._config.chat?.pipeline); }
     if (ch.has('_page') && ch.get('_page') !== undefined && this._page !== 'kid') this._move(this.renderRoot.querySelector('.dock .item[aria-current="page"]:not(.kidbtn)'), 'data-arrive', 900);
     if (ch.has('hass')) this._watchJar();
     if (ch.has('_page')) this._use.open(this._page);
@@ -1062,7 +1065,7 @@ export class FamilyHubCard extends LitElement {
     if (!s || !this.hass) { this._say('Set announce_script in the card settings'); return; }
     // With a house voice the script is told which recording to play (fh_file), or '' when the file is not there, so that it speaks the line instead.
     // A script that does not know these variables ignores them.
-    const variables = this._config.voice ? { variables: { fh_line: 'dinner', fh_file: await lineReady('dinner') } } : {};
+    const variables = this._config.voice ? { variables: { fh_line: 'dinner', fh_file: await lineReady('dinner'), fh_voice: houseVoice()?.voice ?? '' } } : {};
     if (!(await this._call('script', 'turn_on', { entity_id: s, ...variables }, undefined, this.renderRoot.querySelector('nav [data-nav="dinner"]')))) return;
     this._dinnerCooldown = Date.now() + 60_000;
     sfx('done');
