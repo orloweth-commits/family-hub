@@ -198,6 +198,8 @@ export interface FamilyHubConfig {
   chat?: { agent: string; pipeline?: string; name?: string; pin_after_bedtime?: boolean; /** a text-to-speech entity (say tts.openai_tts): Ask speaks its typed and tapped answers in that voice, falling back to the screen's own voice if it cannot */ tts?: string; /** one of that engine's voices */ tts_voice?: string; /** the language and accent it speaks, such as en-AU */ tts_language?: string };
   /** the screensaver, the nightly artwork and the painted characters (Settings, Pictures) */
   art?: import('./artlib').ArtConfig;
+  /** trust guards: calendar freshness, the wall panel's heartbeat, the nightly snapshot and the private use counts (trust.ts) */
+  health?: import('./trust').HealthConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */
@@ -249,3 +251,7 @@ export const num = (hass: Hass | undefined, id: string): number => {
 
 /** A moment pad: one press plays something for an occasion. `find` is searched for (a playlist unless `kind` says otherwise) or `uri` is played as it is; `rooms` are speakers (the first leads, the rest join it) or `all` for every room, and without them it plays in the room in focus. */
 export interface MomentConfig { name: string; icon?: string; find?: string; uri?: string; kind?: string; rooms?: string[] | 'all'; volume?: number; shuffle?: boolean }
+
+/** The bins a household has here: red (general waste), yellow (recycling) and green (garden). Anything else saved is not a bin. */
+export const BINS: Record<string, { col: string; what: string }> = { red: { col: '#d93a3a', what: 'general waste' }, yellow: { col: '#f2c230', what: 'recycling' }, green: { col: '#2e9e4f', what: 'garden' } };
+export const isBin = (n: string): boolean => Object.prototype.hasOwnProperty.call(BINS, String(n).toLowerCase());

@@ -199,6 +199,11 @@ export const styles = css`
   .seg button { height: 44px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: 15px; font-weight: 500; color: var(--ink2); }
   .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+  /* how fresh the calendars are: a quiet word at the end of the legend, or a plain warning on a line of its own */
+  .calnote { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .calnote[data-warn] { flex: 1 1 100%; margin-left: 0; white-space: normal; color: var(--ink); background: var(--chip-strong); border-radius: 12px; padding: 6px 6px 6px 12px; }
+  .calnote[data-warn] > span { flex: 1; min-width: 0; }
+  .calnote[data-warn] > svg { flex-shrink: 0; color: var(--warn, var(--accent)); }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   /* a person's colour never stands alone: the chip carries their initial too */
   .init { min-width: 19px; height: 19px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 12px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;

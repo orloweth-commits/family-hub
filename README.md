@@ -137,14 +137,19 @@ babysitter:                   # the "i" button: house info for sitters, grandpar
   lines:                      # "Name: number" becomes a contact; anything else is a note
     - "Mum: 0400 000 001"
     - "Torch and first-aid kit are in the laundry cupboard"
-  wifi: { name: Example-Guest, password: welcome-in }
+  wifi: { name: Example-Guest, password: welcome-in }   # the password shows after "Show" and the parent PIN
 emergency:                    # a red hold-to-send button on that sheet
   notify: [notify.mobile_app_mums_phone, notify.mobile_app_dads_phone]
   who: Mum and Dad
 meds:                         # the pill button: daily medication, ticked off by a grown-up
   - { id: riley_am, who: Riley, label: Morning dose, time: "06:30" }
 med_log: todo.medicine_record # where "something else given" (paracetamol and the like) is kept; without it, on this screen only
-bins: { day: 1, always: [green], alternate: [yellow, red], anchor: "2026-11-09" }   # Monday; yellow went out on the anchor date
+bins: { day: 1, always: [green], alternate: [yellow, red], anchor: "2026-11-09" }   # Monday; yellow went out on the anchor date. Bins are red (general waste), yellow (recycling) and green (garden)
+health:                       # trust guards; every line is optional
+  calendar_minutes: 30        # the planner warns when a calendar has not answered for this long (it always says "Updated N min ago")
+  heartbeat: input_datetime.fh_panel_seen   # the screen marked "This is the wall panel" (Settings, House) stamps this every five minutes
+  use_log: todo.family_hub_use              # opens and taps per page, one line per screen per day: numbers only
+  backup: todo.family_hub_backup            # where Home Assistant keeps the nightly snapshot of points, the jar and the reward ledger
 address_search: true          # look places up while adding an event (Photon, OpenStreetMap data, Australia only)
 ```
 
@@ -237,6 +242,12 @@ All personal details live in your Home Assistant configuration, never in this re
 - **Nightly artwork.** Settings, Pictures, "Set it up" writes an ordinary Home Assistant automation from the saved configuration (it is left switched off until you turn it on). At 2 am, and at start-up if a night was missed, it reads the day's calendar and the weather, has the AI Task write three scenes (this is also the safety step: only its wording reaches the painter), paints them from the character sheets and notes them in the record. It stops at the month's limit.
 - Keep photos, sheets, pictures and descriptions of children in Home Assistant, never in a repository.
 
+## Trust guards
+
+- **Calendars.** The planner's legend says when the calendars were last fetched, and warns in plain words when one stops answering or is unavailable. Not at night.
+- **The jar.** Every ticked family job adds one marble; routines and "growing" add none. The child's page says so on each family job ("+1") and on the jar card, with one family total for today.
+- **Snapshots, the panel watch and use counts** live in Home Assistant, so they do not depend on a screen being on. With `health` set, `document.querySelector(…'family-hub-card').trustSetup()` returns the helpers to create, the nightly snapshot automation (2:15 am; old snapshots and counts are cleared by it), the script `fh_restore_points` (optional `date`) and the panel-watch automation, all built from your own configuration. Restore drill: run the snapshot automation, change a number, run the script, check the number is back.
+
 ## Develop
 
 ```bash
@@ -251,5 +262,6 @@ export PLAYWRIGHT=/path/to/playwright/index.mjs CHROME=/path/to/chrome   # CHROM
 npm run test:fit     # every page at wall, laptop, tablet and portrait sizes: reports scrolling, clipping, off-screen controls
 npm run test:click   # base panel and Music page click tests; each action asserts the service call it makes
 npm run test:phone   # phone arrangement at 390x844
+npm run test:trust   # calendar health, the heartbeat, the snapshot round trip, use counts, marbles, bins, the Wi-Fi password
 npm run shots        # screenshots of every look on every screen → preview/shots/
 ```
