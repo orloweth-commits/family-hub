@@ -18,5 +18,10 @@
     "name": "click-base NIGHT-WAKE: Night does not start the screensaver in this test (the sample kitchen timer holds it back; line edited in 0.33.5, first run 15 Nov)",
     "suite": "click-base",
     "match": "NIGHT-WAKE"
+  },
+  {
+    "name": "click-base: the wind map (embed.windy.com) cannot load where the tests have no internet",
+    "suite": "click-base",
+    "match": "embed\\.windy\\.com"
   }
 ]
