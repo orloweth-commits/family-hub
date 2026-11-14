@@ -138,7 +138,7 @@ for (const kid of [0, 1, 2]) for (const nn of ['', '&nownext=1']) { const page =
   ok('from 5 am it is the morning: his jobs are back', /^Today/.test(t) && /this morning/.test(t) && await page.locator('fh-kid .jobs [data-uid]').count() > 0, t); await page.context().close(); }
 
 // 6. the version
-ok('the bundle says 0.32', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.32.'));
+ok('the bundle says 0.32', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.3'));
 
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);

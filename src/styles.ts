@@ -406,6 +406,20 @@ export const styles = css`
   .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 1.5px var(--chip-strong), 0 0 0 4px var(--kidc); }
   .dock .called { color: var(--ok); }
   .dock .sep { width: 1px; height: 36px; background: var(--track); margin: 0 6px; }
+  /* places to go and things done to the whole house are two groups: a wider gap stands between them */
+  .dock .sep.wide { margin: 0 18px; }
+  :host([data-n1]) .dock .sep.wide { margin: 0 8px; } :host([data-phone]) .dock .sep.wide { margin: 0 10px; }
+  .hb[data-act='more'] svg.i { stroke-width: 3.4; }
+  /* the More sheet: what left the header, as big named buttons */
+  .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
+  .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: 18px; font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: 14px; font-weight: var(--w-semi, 600); }
+  .morebtn svg.i { flex-shrink: 0; }
+  :host([data-phone]) .moregrid { grid-template-columns: 1fr; }
+  /* the planner at rest: today is larger (its column is widened where the week is drawn) and the other days step back */
+  .week { transition: grid-template-columns var(--mt-4) var(--e-out); }
+  .week .col { transition: opacity var(--m-4) ease; }
+  .week[data-rest] .col:not(.today) { opacity: .5; }
   .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
 
   /* sheets, toasts, night */
@@ -511,7 +525,7 @@ export const styles = css`
   /* tablets narrower than the canvas (data-n1 under 1240 px, data-n2 under 1100 px, data-n3 under 900 px): nothing is scaled down;
      the rail narrows, the dock closes up, toolbars wrap and the week shows fewer days (the card decides how many) */
   /* under 1240 px a child's name in the dock gets less room: with the morning's extra place and three long names the dock used to be a few pixels wider than the screen */
-  :host([data-n1]) .dock .item .kn { max-width: 96px; }
+  :host([data-n1]) .dock .item .kn { max-width: 84px; }
   :host([data-n2]) .fh { --rail: 224px; }
   :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
   :host([data-n2]) .dock .item { min-width: 62px; } :host([data-n2]) .dock .item .kn { max-width: 80px; }

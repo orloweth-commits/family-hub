@@ -30,21 +30,23 @@ const C = (page) => page.locator('family-hub-card');
 // 1. drawings and hues, in every look
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner`, '07:10'); const b = await read(page);
   ok(`${look}: every dock button is a drawing of its own`, b.dock.length === 10 && new Set(b.dock.map((x) => x.ic)).size === 10 && b.dock.map((x) => x.ic).join(',') === 'morning,planner,groceries,doodle,music,weather,home,allon,alloff,dinner', b.dock.map((x) => x.ic));
-  ok(`${look}: every header button is a drawing of its own`, b.head.map((x) => x.ic).join(',') === 'ask,looks,medicine,info,night', b.head.map((x) => x.ic));
+  ok(`${look}: Ask in the header is a drawing; More is three dots (since 0.33.0 the other drawings are in the More sheet)`, b.head.map((x) => x.id).join(',') === 'ask,more' && b.head[0].ic === 'ask', b.head.map((x) => x.id));
+  { const mp = await open(`look=${look}&page=planner&sheet=more`, '07:10'); ok(`${look}: More's buttons are drawings of their own`, (await mp.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.sheet[data-sheet="more"] .morebtn svg.pic2')].map((x) => x.dataset.ic))).join(',') === 'looks,medicine,info,night'); await mp.context().close(); }
   ok(`${look}: every button is still 44 px or more, and the header is no taller`, [...b.dock, ...b.head].filter((x) => x.w > 0).every((x) => x.w >= 44 && x.h >= 44) && b.head.every((x) => x.h <= 52), [...b.dock, ...b.head].map((x) => `${x.id} ${x.w}x${x.h}`));
   ok(`${look}: the dock is inside the screen and its labels rest on one line`, b.dockIn && b.labels.length === 1, b.labels);
   ok(`${look}: nothing moves at rest`, [...b.dock, ...b.head].every((x) => x.moving === 0), [...b.dock, ...b.head].filter((x) => x.moving).map((x) => x.id));
   await page.context().close(); }
-{ const page = await open('look=glass&page=kid&kid=0', '07:10'); const b = await read(page), d = (id) => by(b.dock, id);
+{ const page = await open('look=glass&page=settingsless', '07:10'); await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._page = 'none'; await c.updateComplete; }); await page.waitForTimeout(300); const b = await read(page), d = (id) => by(b.dock, id);
   ok('Glass: four hue families across the seven places (warm, blue, green, violet)', d('sun').bg === d('home').bg && d('calendar').bg === d('cloud').bg && d('cart').bg === d('music').bg && new Set(['sun', 'calendar', 'cart', 'pencil', 'music', 'cloud', 'home'].map((i) => d(i).bg)).size === 4, b.dock.map((x) => x.bg));
   ok('Glass: neighbours in the dock never share a hue', b.dock.every((x, i) => i === 0 || x.bg !== b.dock[i - 1].bg));
   ok('Glass: a place is a rounded square, a house action a circle', ['sun', 'calendar', 'cart', 'pencil', 'music', 'cloud', 'home'].every((id) => d(id).radius === '12px') && ['lights-on', 'lights-off', 'dinner'].every((id) => d(id).radius === '50%'), b.dock.map((x) => x.radius));
   ok('Glass: the line on every tile is 4.5:1 or better', b.dock.every((x) => x.contrast >= 4.5), b.dock.map((x) => `${x.id} ${x.contrast}`));
-  ok('Glass: the page you are on fills its tile', (await read(await open('look=glass&page=groceries'))).dock.find((x) => x.id === 'cart').bg === 'rgb(20, 89, 44)');
+  ok('Glass: the page you are on fills its tile', await (async () => { const gp = await open('look=glass&page=groceries'); await gp.clock.runFor(1500); await gp.waitForTimeout(200); await gp.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelectorAll('nav.dock svg').forEach((x) => x.getAnimations().forEach((a) => { try { a.finish(); } catch { /* endless */ } }))); return (await read(gp)).dock.find((x) => x.id === 'cart').bg; })() === 'rgb(20, 89, 44)');
   ok('Glass: red appears once in the dock, on Dinner', b.dock.filter((x) => /rgb\(198, 40, 40\)/.test(x.bg)).map((x) => x.id).join() === 'dinner');
   const hp = await open('look=glass&page=planner', '07:10'), hb = await read(hp), h = (id) => by(hb.head, id);
-  ok('Glass: in the header only Ask and Night carry a hue', h('ask').contrast >= 4.5 && h('night').contrast >= 4.5 && ['looks', 'meds', 'info'].every((id) => h(id).contrast === 0), hb.head.map((x) => `${x.id} ${x.bg}`));
-  ok('Medicine is plain: no tile, no hue, the same line colour as Looks', h('meds').bg === h('looks').bg && h('meds').line === h('looks').line && await hp.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.hb[data-act="meds"] svg [class*="p-"]').length) === 0);
+  ok('Glass: in the header Ask carries a hue and More does not', h('ask').contrast >= 4.5 && h('more').contrast === 0, hb.head.map((x) => `${x.id} ${x.bg}`));
+  await hp.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'more'; }); await hp.waitForTimeout(400);
+  ok('Medicine is plain: no tile, no hue, the same colours as Looks beside it, and no moving part', await hp.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, m = getComputedStyle(r.querySelector('.morebtn[data-act="meds"] svg')), l = getComputedStyle(r.querySelector('.morebtn[data-act="looks"] svg')); return m.backgroundColor === l.backgroundColor && m.color === l.color && r.querySelectorAll('.morebtn[data-act="meds"] svg [class*="p-"]').length === 0; }));
   await page.context().close(); }
 
 // 2. movement: one button, once
@@ -57,8 +59,8 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('a press on the page you are on answers the finger', by(b.dock, 'cart').just && by(b.dock, 'cart').moving >= 1);
   await card.locator('nav.dock .item[data-nav="calendar"]').click(); await page.waitForTimeout(120); b = await read(page);
   ok('a second button takes the movement from the first: never two at once', [...b.dock, ...b.head].filter((x) => x.just || x.arrive).map((x) => x.id).join() === 'calendar');
-  await page.clock.runFor(1000); await card.locator('.right .hb[data-act="info"]').click(); await page.waitForTimeout(120); b = await read(page);
-  ok('a header button answers the finger too', by(b.head, 'info').just);
+  await page.clock.runFor(1000); await card.locator('.right .hb[data-act="more"]').click(); await page.waitForTimeout(120); b = await read(page);
+  ok('a header button answers the finger too', by(b.head, 'more').just);
   await page.context().close(); }
 { // Music sways only while music plays, and never in calm mode
   let page = await open('look=glass&page=planner'); let b = await read(page);
@@ -72,7 +74,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
 // 3. small screens: the dock still fits with the morning's place and long names
 for (const look of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1180, 820], [1024, 768]]) { const page = await open(`look=${look}&page=morning&stress=1`, '07:10', { w, h }); const b = await read(page);
   ok(`${look} at ${w} x ${h}, long names, morning: the dock is inside the screen, labels on one line`, b.dockIn && b.labels.length === 1 && b.dock.every((x) => x.w >= 44), b.labels); await page.context().close(); }
-ok('the bundle says 0.32', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.32.'));
+ok('the bundle carries its version', /0\.3\d\.\d/.test(fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8')));
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

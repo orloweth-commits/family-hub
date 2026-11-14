@@ -80,14 +80,14 @@ for (const kid of [0, 1, 2]) { const page = await open(`look=glass&page=kid&kid=
   const note = await calls(page, 'persistent_notification.create');
   ok('older: asking for a chat leaves a note in Home Assistant', note.length === 1 && /Riley would like a chat/.test(note[0]), note);
   ok('older: it says so, plainly', /Nothing shows on the wall/.test((await K(page).locator('.toast').innerText()).trim()));
-  await C(page).locator('nav.dock [data-nav="calendar"]').click(); await page.waitForTimeout(500);
+  await C(page).locator('nav.dock [data-nav="home"]').click(); await page.waitForTimeout(500);
   ok('older: nothing about it appears on the shared pages', (await C(page).locator('.cap[data-kind="chat"]').count()) === 0);
   await page.context().close();
   // the younger two keep the faces, and their note still shows as a chip for the parents
   page = await open('look=glass&page=kid&kid=1');
   ok('not older: the feelings faces stay', (await K(page).locator('.feel button').count()) === 5 && (await K(page).locator('.feelcard[data-private]').count()) === 0);
   await K(page).getByRole('button', { name: 'sad' }).click(); await page.waitForTimeout(250); await K(page).getByRole('button', { name: /Chat later/ }).click(); await page.waitForTimeout(300);
-  await C(page).locator('nav.dock [data-nav="calendar"]').click(); await page.waitForTimeout(500);
+  await C(page).locator('nav.dock [data-nav="home"]').click(); await page.waitForTimeout(500);
   ok('not older: the parents’ chip still appears', (await C(page).locator('.cap[data-kind="chat"]').count()) === 1);
   await page.context().close();
   // Settings can switch it
@@ -145,7 +145,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   // off: no way in from his page, and he is not offered on a shared page
   page = await open('look=glass&page=kid&kid=2&ask=off');
   ok('Ask off for a child: no Ask button on his page, in the card or the header', (await K(page).locator('[data-act="ask"]').count()) === 0 && (await C(page).locator('header [data-act="ask"]').count()) === 0);
-  await C(page).locator('nav.dock [data-nav="calendar"]').click(); await page.waitForTimeout(400); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
+  await C(page).locator('nav.dock [data-nav="home"]').click(); await page.waitForTimeout(400); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
   who = await C(page).locator('.askwho .whobtn').evaluateAll((l) => l.map((b) => b.innerText.trim()));
   ok('Ask off for a child: he is not among the faces', JSON.stringify(who) === JSON.stringify(['Riley', 'Charlie', 'A grown-up']), who);
   await page.context().close();
@@ -163,7 +163,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
   ok('opened again the same day: still out', /No Ask time left today/.test(await C(page).locator('fh-chat .left').innerText()));
   await C(page).locator('.chatsheet').getByRole('button', { name: 'Close' }).click(); await page.waitForTimeout(400);
-  await C(page).locator('nav.dock .kidbtn').nth(1).click(); await page.waitForTimeout(500); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
+  if (await C(page).locator('nav.dock[data-kid]').count()) { await C(page).locator('nav.dock [data-nav="home"]').click(); await page.waitForTimeout(400); } await C(page).locator('nav.dock .kidbtn').nth(1).click(); await page.waitForTimeout(500); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
   ok('his brother’s time is his own', /15 min of Ask left today/.test(await C(page).locator('fh-chat .left').innerText()));
   await page.context().close();
   // a wrong setting is refused with words
