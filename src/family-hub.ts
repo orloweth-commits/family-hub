@@ -1148,9 +1148,9 @@ export class FamilyHubCard extends LitElement {
       // a shared wall: the chip says how many, never who (names are inside the sheet). "Later" in the sheet puts it away for half an hour.
       if (due.length && Date.now() >= this._medLater) {
         const red = due.some((x) => x.s.late && !x.s.stale), word = late ? 'overdue' : 'due', p = red ? 0 : late ? 1.5 : 2;
-        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${icon('pill', 20)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
+        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
       }
-      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${icon('pill', 20)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
+      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${art('pill', 22)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
     }
     // a child tapped "Chat with a grown-up": shown to the grown-ups on the shared pages (never on a child's page), until one of them taps it away
     if (this._page !== 'kid') for (const n of this._wantsChat) chips.push([0.5, html`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${n} would like a chat. Tap to dismiss`} @click=${() => { this._wantsChat = this._wantsChat.filter((x) => x !== n); }}>${icon('ask', 20)}<span>${n} would like a chat</span></button>`]);
@@ -1203,7 +1203,7 @@ export class FamilyHubCard extends LitElement {
         <div class="right" @click=${this._btnJust}>
           ${w && !kid ? html`
             <button class="glass weather tap" aria-label="Weather" @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
-              <span style="color:var(--accent)">${icon(weatherIcon(w.state), 28)}</span>
+              ${art('cloud', 34, this._artData(false))}
               <span style="display:flex;flex-direction:column;line-height:1.15">
                 <span style="font-weight:var(--w-bold, 700);font-size:20px">${temp !== undefined ? `${Math.round(temp)}°` : '–'}${wx.max !== undefined ? html`<span class="muted wtop" style="font-size:13px;font-weight:var(--w-semi, 600)"> · top ${Math.round(wx.max)}°</span>` : nothing}</span>
                 <span class="muted wsub" style="font-size:13px;font-weight:var(--w-semi, 600)">${COND[w.state] ?? (['unavailable', 'unknown', ''].includes(w.state) ? 'No weather' : w.state)}${wx.rain ? ` · ${wx.rain} mm` : ''}</span>

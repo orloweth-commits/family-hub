@@ -60,7 +60,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i', 'seg', 'init', 'sm', 'verdict'],
   // named regions, by the component that owns them
   parts: {
-    'family-hub-card': ['clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
+    'family-hub-card': ['body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
       'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
@@ -398,7 +398,7 @@ const GLASS = `
      in line with the page between them and close to it, so the three read as one piece: a top rail, the screen, a bottom rail. Nothing on the
      rails is its own island any more: the clock, the chips and the buttons sit in the bar, parted by hairlines, and the place you are on is a
      tab cut into the bottom rail under its page. */
-  @G[data-shape='wide'] .fh > header { margin-bottom: calc(10px - var(--gap)); padding: 6px 12px 6px 6px; gap: 14px; border-radius: 28px 28px 12px 12px; background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-line), var(--shadow); }
+  @G[data-shape='wide'] .fh > header { margin-bottom: calc(0px - var(--gap)); padding: 6px 12px 6px 6px; gap: 14px; border-radius: 28px 28px 0 0; background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 var(--glass-line), var(--shadow); }
   @G[data-shape='wide'] .fh[data-compact] > header { height: 64px; min-height: 64px; padding: 5px 10px 5px 4px; }
   @G[data-shape='wide'] .clock { position: relative; margin: 0; padding: 2px 22px 2px 16px; border-radius: 22px; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
   @G[data-shape='wide'] .clock::after { content: ''; position: absolute; right: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
@@ -408,13 +408,18 @@ const GLASS = `
   @G[data-shape='wide'] .right::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
   @G[data-shape='wide'] .right > .glass { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
   @G[data-shape='wide'] .right > .weather { background: transparent; padding: 0 12px 0 4px; }
-  @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(10px - var(--gap)); padding: 8px 16px; border-radius: 12px 12px 28px 28px; justify-content: center; }
+  /* the page sits inside the frame: one panel of the bars' own material runs from the top bar to the bottom bar, and the page's cards are set into it */
+  @G[data-shape='wide'] .fh > .body { padding: 12px; background: color-mix(in srgb, var(--glass) 62%, transparent); border-left: 1px solid var(--glass-line); border-right: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+  @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(0px - var(--gap)); padding: 8px 16px; border-radius: 0 0 28px 28px; justify-content: center; }
+  @G[data-shape='wide'] .dock .item { height: 74px; }
+  @G[data-shape='wide'] .dock .item svg.i { width: 46px; height: 46px; }
+  @G[data-shape='wide'] .dock[data-kid] { justify-content: flex-start; }
   @G[data-shape='wide'] .dock .sep { margin: 0 auto 0 12px; height: 40px; width: 1.5px; }
   @G[data-shape='wide'] .dock .sep.wide { margin: 0 12px 0 auto; }
   @G[data-shape='wide'] .dock[data-kid] .sep { margin: 0 12px; }
   @G[data-shape='wide'] .dock .item { border-radius: 16px; }
-  @G[data-shape='wide'] .dock .item[aria-current='page'] { position: relative; margin-top: -9px; height: 77px; padding-top: 9px; border-radius: 0 0 18px 18px; background: var(--chip-strong); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
-  @G[data-shape='wide'] .dock .item[aria-current='page']::before { content: ''; position: absolute; left: 0; right: 0; top: -11px; height: 12px; border-radius: 12px 12px 0 0; background: var(--chip-strong); box-shadow: inset 0 4px 0 var(--bl, var(--kidc, var(--primary))); pointer-events: none; }
+  @G[data-shape='wide'] .dock .item[aria-current='page'] { position: relative; margin-top: -9px; height: 83px; padding-top: 9px; border-radius: 0 0 18px 18px; background: var(--chip-strong); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
+  @G[data-shape='wide'] .dock .item[aria-current='page']::before { content: ''; position: absolute; left: 0; right: 0; top: -13px; height: 14px; border-radius: 12px 12px 0 0; background: var(--chip-strong); box-shadow: inset 0 4px 0 var(--primary); pointer-events: none; }
 
   /* phone month: the glass card's padding left each day 43 px wide; the days take 3 px back from the gaps between them, so each is a full 44 px target */
   @G[data-phone] .cell { margin: 0 -1.5px; }
