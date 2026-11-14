@@ -14,11 +14,11 @@ const errs = []; let pass = 0; const fails = [];
 const ok = (name, cond, got = '') => { if (cond) pass++; else fails.push(name); console.log(`${cond ? 'ok  ' : 'FAIL'} ${name}${got !== '' ? `  [${typeof got === 'string' ? got : JSON.stringify(got)}]` : ''}`); };
 // the screen's own voice is recorded, not heard
 const SPY = () => { window.__said = []; try { speechSynthesis.speak = (u) => { window.__said.push(u.text); }; speechSynthesis.cancel = () => {}; } catch { /* no speech */ } };
-const open = async (qs, { time = '2026-11-10T16:20', w = 1920, h = 1080, before = null } = {}) => { const ctx = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true }); const page = await ctx.newPage();
+const open = async (qs, { time = '2026-11-10T16:20', w = 1920, h = 1080, before = null, keep = false } = {}) => { const ctx = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true }); const page = await ctx.newPage();
   page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404|no-such/.test(m.text())) errs.push(m.text()); });
   await page.addInitScript(SPY); if (before) await page.addInitScript(before);
   await page.clock.install({ time: new Date(`${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700);
-  await page.evaluate(() => { window.__calls = []; window.__said = []; }); return page; };
+  if (!keep) await page.evaluate(() => { window.__calls = []; window.__said = []; }); return page; };
 const C = (page) => page.locator('family-hub-card'), K = (page) => page.locator('family-hub-card fh-kid'), M = (page) => page.locator('family-hub-card fh-music');
 const calls = (page, re) => page.evaluate((src) => (window.__calls ?? []).filter((c) => new RegExp(src).test(c)), re.source);
 const said = (page) => page.evaluate(() => window.__said);
@@ -174,6 +174,42 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   const tue = await open('look=glass&page=planner', { time: '2026-11-10T07:00' });
   ok('on Tuesday morning, collection day, nothing says the bins go out today', await C(tue).evaluate((c) => !c.shadowRoot.querySelector('.cap[data-kind="bin"]') && !c._artLines().some((l) => /Bins out to(night|morrow)/.test(l)) && c._bins(new Date()).night.getDay() === 1));
   await tue.context().close(); }
+
+// 8. a list of voices, one in use (0.34.1): everything follows the choice, and Home Assistant's side is kept in step
+{ const page = await open('look=glass&page=kid&kid=2&voice=1&voices=Robin', { keep: true }); await page.waitForTimeout(400);
+  const sync = await calls(page, /input_text\.set_value|pipeline\/update/);
+  ok('on loading, the voice in use is copied to Home Assistant’s helper', sync.some((c) => /input_text\.fh_voice_id/.test(c) && /demo-robin/.test(c)), sync);
+  ok('and its recordings: this voice has none, so that helper is emptied', sync.some((c) => /input_text\.fh_voice_files/.test(c) && /"value":""/.test(c)), sync);
+  ok('and Ask’s pipeline is given the same voice', sync.some((c) => /pipeline\/update/.test(c) && /"tts_voice":"demo-robin"/.test(c) && /"pipeline_id":"demo"/.test(c) && /"conversation_engine"/.test(c)), sync.filter((c) => /pipeline/.test(c)));
+  await page.locator(JOBS).click(); await page.waitForTimeout(600);
+  const c = await calls(page, /tts_get_url/);
+  ok('read-aloud speaks in the voice in use', c.length >= 1 && c.every((x) => /"voice":"demo-robin"/.test(x)), c.slice(0, 1));
+  await page.evaluate(() => { (window.__calls ??= []).length = 0; document.querySelector('family-hub-card').requestUpdate(); }); await page.waitForTimeout(400);
+  ok('once in step, nothing is written again', (await calls(page, /input_text\.set_value|pipeline\/update/)).length === 0);
+  await page.context().close(); }
+{ let c = await dinner('look=glass&page=planner&voice=1&voices=Robin');
+  ok('the dinner call in a voice with no recording sends no file and names the voice, so the script speaks it', c.length === 1 && /"fh_file":""/.test(c[0]) && /"fh_voice":"demo-robin"/.test(c[0]), c);
+  c = await dinner('look=glass&page=planner&voice=1&voices=Wren');
+  ok('and in a voice that has recordings it sends that voice’s recording', c.length === 1 && /line-dinner\.mp3/.test(c[0]), c); }
+{ const page = await open('look=glass&page=music&voice=1&voices=Robin'); await room(page, 'Time to leave – shoes on!');
+  const sp = await calls(page, /tts_get_url/), pl = await calls(page, /play_media|play_announcement/);
+  ok('Call a room: a ready message in a voice with no recording is spoken live in that voice', sp.some((x) => /demo-robin/.test(x)) && !pl.some((x) => /line-leave/.test(x)), [sp.slice(0, 1), pl.slice(0, 1)]);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1&voices=Wren&sheet=settings&pane=house'); await page.waitForTimeout(500);
+  const S = page.locator('fh-settings'), box = S.locator('[data-voice]');
+  ok('Settings, House has "The house voice" with every named voice', await box.count() === 1 && (await box.getByRole('button').allInnerTexts()).join(',') === 'Wren,Robin', await box.getByRole('button').allInnerTexts().catch(() => []));
+  ok('the one in use is marked, and its recordings are mentioned', await box.getByRole('button', { name: 'Wren' }).getAttribute('aria-pressed') === 'true' && /Wren has recordings/.test(await box.innerText()));
+  await box.getByRole('button', { name: 'Robin' }).click(); await page.waitForTimeout(250);
+  const d = await page.evaluate(() => { const v = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings')._draft.voice; return [v.use, v.voices.length, v.voices[0].files]; });
+  ok('choosing another changes only which is in use: both voices and the first one’s recordings stay', d[0] === 'Robin' && d[1] === 2 && /line-\{line\}/.test(d[2]), d);
+  ok('and the words say this one is spoken fresh', /Robin has no recordings/.test(await box.innerText()));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1');
+  ok('with no list of voices Settings shows no choice', await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._sheet = 'settings'; await c.updateComplete; await new Promise((r) => setTimeout(r, 500)); return !c.shadowRoot.querySelector('fh-settings')?.shadowRoot?.querySelector('[data-voice]') && !c.shadowRoot.querySelector('fh-settings')?.querySelector?.('[data-voice]'); }));
+  const bad = await page.evaluate(() => { const el = document.createElement('family-hub-card'), c = document.querySelector('family-hub-card')._config; const t = (v) => { try { el.setConfig({ ...c, voice: { tts: 'tts.x', ...v } }); return ''; } catch (e) { return String(e.message); } };
+    return [t({ voices: [] }), t({ voices: [{ name: 'A' }] }), t({ voices: [{ name: 'A', voice: '1' }, { name: 'a', voice: '2' }] }), t({ voices: [{ name: 'A', voice: '1' }], use: 'B' }), t({ sync: { voice: 'sensor.x' } }), t({ voices: [{ name: 'A', voice: '1', files: 'm-{line}.mp3' }, { name: 'B', voice: '2' }], use: 'B', sync: { voice: 'input_text.a', files: 'input_text.b', pipeline: true } })]; });
+  ok('a list of voices that cannot work is refused in words; a good one is accepted', bad.slice(0, 5).every((m) => /^Family Hub: /.test(m)) && bad[5] === '', bad);
+  await page.context().close(); }
 
 console.log(`\n${pass} passed, ${fails.length} failed${errs.length ? `, ${errs.length} page errors` : ''}`);
 if (errs.length) console.log('page errors:\n - ' + [...new Set(errs)].slice(0, 8).join('\n - '));
