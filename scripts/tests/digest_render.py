@@ -60,12 +60,12 @@ def run(auto, sc):
             elif 'stop' in a:
                 raise Stop(a['stop'])
             elif 'response_variable' in a:
-                asked.append({'action': a['action'], 'target': a.get('target'), 'data': deep(a.get('data', {}), v)})
+                asked.append({'action': a['action'], 'target': deep(a.get('target') or {}, v), 'data': deep(a.get('data', {}), v)})
                 r = (sc.get('responses') or {}).get(a['response_variable'])
                 if r is not None: v[a['response_variable']] = r
                 elif not a.get('continue_on_error'): raise RuntimeError('a failed call would stop the automation: ' + a['action'])
             else:
-                sent.append({'to': a['action'], 'target': a.get('target'), **deep(a.get('data', {}), v)})
+                sent.append({'to': a['action'], 'target': deep(a.get('target') or {}, v), **deep(a.get('data', {}), v)})
     stopped = None
     if not truth(auto.get('conditions') or []): return {'name': sc['name'], 'skipped': True, 'sent': [], 'asked': []}
     try: go(auto['actions'])
