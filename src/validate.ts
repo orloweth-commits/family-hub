@@ -63,5 +63,11 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
     if (dg.notify !== undefined && !(Array.isArray(dg.notify) && dg.notify.every((x) => /^notify\.[a-z0-9_]+$/.test(String(x))))) return 'Family Hub: digest.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]';
     if (dg.time !== undefined && !isTime(dg.time)) return 'Family Hub: digest.time should be a time like "19:30"';
   }
+  const ap = (config as { approve?: Record<string, unknown> }).approve;
+  if (ap !== undefined) {
+    if (!ap || typeof ap !== 'object' || Array.isArray(ap)) return 'Family Hub: approve should be a group of options, e.g. approve: { notify: [notify.mobile_app_my_phone] }';
+    if (ap.notify !== undefined && !(Array.isArray(ap.notify) && ap.notify.every((x) => /^notify\.[a-z0-9_]+$/.test(String(x))))) return 'Family Hub: approve.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]';
+    if (ap.list !== undefined && !/^todo\.[a-z0-9_]+$/.test(String(ap.list))) return 'Family Hub: approve.list should be a to-do list, e.g. todo.family_hub_asks';
+  }
   return null;
 };

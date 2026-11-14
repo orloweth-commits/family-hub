@@ -1,6 +1,7 @@
 import type { FamilyHubConfig, Hass } from './types';
 import { isBin, kidEntities } from './types';
 import { JAR, SNAP_PREFIX } from './trust';
+import { approveOn, askList } from './approve';
 
 /* ------------------------------------------------------------------ *
  * The evening digest (F3, the parents' loop). One message a night to a
@@ -10,7 +11,7 @@ import { JAR, SNAP_PREFIX } from './trust';
  *   tomorrow                          the events (never a private one), and on a school day when each child leaves
  *   bins                              when tonight or tomorrow is bin night
  *   medicine                          a daily medicine with no record today
- *   rewards                           what is waiting on the reward ledger
+ *   rewards                           what is waiting on the reward ledger, and what a child has asked for that nobody has answered
  *   marbles                           how many the jar gained today
  *
  * Home Assistant sends it, so it does not depend on a screen being on.
@@ -124,6 +125,11 @@ const messageTemplate = (cfg: FamilyHubConfig, owedEntity: string): string => {
     `{%- set ow = (owed[${j(owedEntity)}]['items'] | map(attribute='summary') | list) if (owed is defined and owed is mapping and ${j(owedEntity)} in owed) else [] -%}`,
     `{%- if ow -%}${say(`'Rewards waiting: ' ~ (ow[:${MAX_OWED}] | join('; ')) ~ ((' (+' ~ ((ow | count) - ${MAX_OWED}) ~ ' more)') if (ow | count) > ${MAX_OWED} else '') ~ '.'`)}{%- endif -%}`
   );
+  // what a child has asked a phone for and nobody has answered (approve.ts): the notice may have been missed
+  if (approveOn(cfg)) T.push(
+    `{%- set aw = (waiting[${j(askList(cfg))}]['items'] | selectattr('description', 'string') | selectattr('description', 'match', 'ask ') | map(attribute='summary') | list) if (waiting is defined and waiting is mapping and ${j(askList(cfg))} in waiting) else [] -%}`,
+    `{%- if aw -%}${say(`'Waiting for your answer: ' ~ (aw[:${MAX_OWED}] | join('; ')) ~ ((' (+' ~ ((aw | count) - ${MAX_OWED}) ~ ' more)') if (aw | count) > ${MAX_OWED} else '') ~ '.'`)}{%- endif -%}`
+  );
   // marbles added today: the jar now, less the jar in this morning's snapshot
   if (h.backup) T.push(
     `{%- set sn = (had[${j(h.backup)}]['items'] | selectattr('summary', 'eq', today) | map(attribute='description') | select('string') | list) if (had is defined and had is mapping and ${j(h.backup)} in had) else [] -%}`,
@@ -151,6 +157,7 @@ export const haDigest = (cfg: FamilyHubConfig | undefined, owedEntity = 'todo.re
       ...(cals.length ? [{ action: 'calendar.get_events', target: { entity_id: cals }, data: { start_date_time: "{{ (today_at('00:00') + timedelta(days=1)).isoformat() }}", end_date_time: "{{ (today_at('00:00') + timedelta(days=2)).isoformat() }}" }, response_variable: 'cal', continue_on_error: true }] : []),
       { action: 'todo.get_items', target: { entity_id: owedEntity }, data: { status: ['needs_action'] }, response_variable: 'owed', continue_on_error: true },
       ...(backup ? [{ action: 'todo.get_items', target: { entity_id: backup }, response_variable: 'had', continue_on_error: true }] : []),
+      ...(approveOn(cfg) ? [{ action: 'todo.get_items', target: { entity_id: askList(cfg) }, data: { status: ['needs_action'] }, response_variable: 'waiting', continue_on_error: true }] : []),
       { variables: { title: "Tomorrow, {{ (today_at('00:00') + timedelta(days=1)).strftime('%A %-d %B') }}", message: messageTemplate(cfg, owedEntity) } },
       ...to.map((svc) => ({ action: svc, data: { title: '{{ title }}', message: "{{ message if message is string and message | trim else 'Nothing to report for tomorrow.' }}", data: { tag: 'family-hub-digest', group: 'family-hub' } }, continue_on_error: true }))
     ]
