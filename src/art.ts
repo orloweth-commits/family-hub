@@ -1,5 +1,7 @@
 import { html, type TemplateResult } from 'lit';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { icon, hasIcon, weatherIcon } from './icons';
+import { getLook } from './looks';
 
 /**
  * The header's and the dock's buttons as small filled illustrations on a 40 x 40 grid, lit from the top left. A drawing shows
@@ -123,5 +125,12 @@ export const drawing = (name: string, data: ArtData = {}): string => (DRAW[FOR[n
 export const hasArt = (name: string): boolean => !!DRAW[FOR[name] ?? name];
 /** The moon's age tonight as a fraction of its month: 0 new, 0.25 first quarter, 0.5 full. */
 export const moonAge = (d = new Date()): number => { const days = d.getTime() / 86_400_000 - 10_962.76; return (((days / 29.530_588_853) % 1) + 1) % 1; };
+/** a drawing's name back to the line icon it replaced (Obsidian, the grown-ups' look, uses line icons instead of drawings) */
+const LINE = Object.fromEntries(Object.entries(FOR).map(([k, v]) => [v, k]));
 export const art = (name: string, size = 22, data: ArtData = {}): TemplateResult => { const n = FOR[name] ?? name;
+  if (getLook() === 'obsidian') {
+    // the weather keeps telling the sky: sun, moon, cloud or rain from the live condition
+    const l = n === 'weather' && data.cond ? weatherIcon(data.dark && !/rain|pour|storm|lightning|cloud|fog/.test(data.cond) ? 'night' : data.cond) : hasIcon(name) ? name : LINE[n];
+    if (l && hasIcon(l)) return icon(l, size);
+  }
   return html`<svg class="i pic2" data-ic=${n} aria-hidden="true" viewBox="0 0 40 40" style="--s:${size}px">${unsafeSVG((DRAW[n] ?? (() => ''))(data))}</svg>`; };

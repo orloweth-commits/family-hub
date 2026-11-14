@@ -22,6 +22,7 @@ import { getNarrow, getShape, onShape, setSoundLook } from './util';
  *     if a hook no longer exists in the base.
  *  5. Glass has a few hook rules of its own too (GLASS): the pane behind the clock, the chosen-card ring and tick,
  *     past events told by ink instead of fading. They are checked like the other two.
+ *  5b. Obsidian (@B) is the grown-ups' look: black glass, hairlines and light. It has no hook rules beyond the contract.
  *  6. A rule's tag may carry host state or a width limit: `@O[data-phone] .dock` (phones), `@O<700 .dayview` (under 700 px).
  *
  * State the base exposes on the root `.fh` for looks to react to:
@@ -31,7 +32,7 @@ import { getNarrow, getShape, onShape, setSoundLook } from './util';
  *   data-dow="0…6"             the day of the week, Sunday first (Home Ground shows a different ball each day)
  * ------------------------------------------------------------------ */
 
-export type LookId = 'glass' | 'fridge' | 'orbit' | 'sports';
+export type LookId = 'glass' | 'fridge' | 'orbit' | 'sports' | 'obsidian';
 export interface DialArc { start: Date; end: Date; allDay: boolean; colour: string }
 /** Places in the base where a look may add a drawing of its own. */
 export type ArtSlot = 'clock' | 'day' | 'timer' | 'dayview' | 'night' | 'player' | 'wx' | 'steps';
@@ -63,12 +64,12 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'family-hub-card': ['body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
-      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
+      'aclock', 'chrono', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
       // more of the base that Home Ground dresses
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
       'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
-    'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
+    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
@@ -83,6 +84,10 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-weather': ['wnow', 'wtemp', 'wtip', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
   }
 };
+
+try { (CSS as unknown as { registerProperty?: (d: object) => void }).registerProperty?.({ name: '--ob-a', syntax: '<angle>', inherits: false, initialValue: '0deg' }); } catch { /* already registered */ }
+/* Obsidian's glint: where the band of light is across the screen, one clock for every panel (inherited, so it reaches into every page) */
+try { (CSS as unknown as { registerProperty?: (d: object) => void }).registerProperty?.({ name: '--ob-x', syntax: '<length>', inherits: true, initialValue: '-170vw' }); } catch { /* already registered */ }
 
 export const LOOK_KEY = 'family-hub-look';
 export const LOOK_OPTS_KEY = 'family-hub-look-options';
@@ -262,6 +267,85 @@ export const VERDICT: Record<Verdict, string> = { on: 'Play is on', hat: 'Take a
 /** The verdict as a square status tile (it tells; it is not pressed). */
 export const verdictTile = (v: Verdict, big = false): TemplateResult => html`<span class="verdict" ?data-big=${big} data-v=${v}>${v === 'on' ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}${VERDICT[v]}</span>`;
 
+/* ---- Obsidian: instruments from a car's OLED cluster. Fine hairlines on black, champagne for now, a cool light for what is live. ---- */
+/**
+ * The header clock as a chronograph: sixty hairline ticks, the hour quarters in champagne, the minute's progress
+ * as a thin line of light around the rim, and anything on in the next 12 hours as a short arc in its person's colour.
+ */
+export const chrono = (arcs: DialArc[], now: Date, size = 76): TemplateResult => {
+  const r = 37, C = 2 * Math.PI * r, R = 44, CR = 2 * Math.PI * R, t0 = now.getTime(), horizon = t0 + 12 * 3_600_000;
+  const deg = (ms: number): number => { const d = new Date(ms); return ((d.getHours() % 12) + d.getMinutes() / 60) * 30; };
+  const soon = arcs.filter((a) => !a.allDay && a.end.getTime() > t0 && a.start.getTime() < horizon);
+  const hh = (now.getHours() % 12) * 30 + now.getMinutes() * 0.5, mm = now.getMinutes() * 6, mf = (now.getMinutes() + now.getSeconds() / 60) / 60;
+  return html`<svg class="chrono" aria-hidden="true" width=${size} height=${size} viewBox="0 0 100 100" fill="none">${svg`
+    <circle cx="50" cy="50" r="48.5" stroke="var(--glass-line)" stroke-width=".6"></circle>
+    ${Array.from({ length: 60 }, (_, i) => svg`<rect x=${i % 5 ? 49.8 : 49.5} y="2.5" width=${i % 5 ? 0.4 : 1} height=${i % 15 ? (i % 5 ? 2.2 : 4.5) : 6} fill=${i % 15 ? 'var(--ink3)' : 'var(--accent)'} opacity=${i % 5 ? 0.55 : 1} transform="rotate(${i * 6} 50 50)"></rect>`)}
+    <circle cx="50" cy="50" r=${R} stroke="var(--track)" stroke-width=".6"></circle>
+    <g class="cspark" style="rotate:${now.getSeconds() * 6}deg"><circle cx="50" cy=${50 - R} r="1.6" fill="#fff" style="filter:drop-shadow(0 0 2px var(--live)) drop-shadow(0 0 5px var(--live))"></circle></g>
+    <circle class="cglow" cx="50" cy="50" r=${R} stroke="var(--live)" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="${mf * CR} ${CR}" transform="rotate(-90 50 50)"></circle>
+    ${soon.map((a) => {
+      const s = Math.max(a.start.getTime(), t0), e = Math.min(a.end.getTime(), horizon);
+      const span = Math.max(6, ((e - s) / 3_600_000) * 30);
+      return svg`<circle cx="50" cy="50" r=${r} stroke=${a.colour} stroke-width="2.6" stroke-linecap="round" opacity=".9" stroke-dasharray="${(span / 360) * C} ${C}" transform="rotate(${deg(s) - 90} 50 50)"></circle>`;
+    })}
+    <rect x="48.9" y="25" width="2.2" height="27" rx="1.1" fill="var(--accent)" transform="rotate(${hh} 50 50)"></rect>
+    <rect x="49.4" y="13" width="1.2" height="39" rx=".6" fill="var(--ink)" transform="rotate(${mm} 50 50)"></rect>
+    <circle cx="50" cy="50" r="3.2" fill="var(--accent)"></circle><circle cx="50" cy="50" r="1.2" fill="var(--ground, #000)"></circle>`}</svg>`;
+};
+
+/** Obsidian's player: the cover as a disc inside a fine ring that fills as the track plays, lit from behind by a soft halo while it plays. */
+export const haloPlayer = (img: string | undefined, frac: number, playing: boolean, size = 230): TemplateResult => {
+  const r = 92, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
+  return html`<svg class="halo" data-on=${playing ? '1' : '0'} aria-hidden="true" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
+    <defs><radialGradient id="fhhalo"><stop offset=".62" stop-color="var(--live, #38b6ff)" stop-opacity=".0"></stop><stop offset=".8" stop-color="var(--live, #38b6ff)" stop-opacity=".22"></stop><stop offset="1" stop-color="var(--live, #38b6ff)" stop-opacity="0"></stop></radialGradient>
+      <clipPath id="fhhdisc"><circle cx="100" cy="100" r="80"></circle></clipPath></defs>
+    <circle class="hglow" cx="100" cy="100" r="100" fill="url(#fhhalo)"></circle>
+    <circle cx="100" cy="100" r=${r} stroke="rgba(255,255,255,.12)" stroke-width="1"></circle>
+    <circle cx="100" cy="100" r=${r} stroke="var(--accent, #ffaa28)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="${f * C} ${C}" transform="rotate(-90 100 100)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
+    <circle cx="100" cy="100" r="80" fill="#050608"></circle>
+    ${img ? svg`<image href=${img} x="20" y="20" width="160" height="160" preserveAspectRatio="xMidYMid slice" clip-path="url(#fhhdisc)" opacity=${playing ? 1 : 0.5}></image>`
+      : svg`${[30, 46, 62].map((x) => svg`<circle cx="100" cy="100" r=${x} stroke="rgba(255,255,255,.1)" stroke-width=".8"></circle>`)}`}
+    <circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,.18)" stroke-width=".8"></circle>
+    <circle cx="100" cy="100" r="4" fill="#000" stroke="var(--accent, #ffaa28)" stroke-width="1"></circle>`}</svg>`;
+};
+
+/** Obsidian's timer: a hairline ring, and the time left as a champagne arc that closes as it runs. */
+export const arcTimer = (frac: number, size = 56): TemplateResult => {
+  const r = 40, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
+  return html`<svg class="tface" aria-hidden="true" width=${size} height=${size} viewBox="0 0 100 100" fill="none">${svg`
+    <circle cx="50" cy="50" r="47" stroke="var(--glass-line)" stroke-width="1"></circle>
+    <circle cx="50" cy="50" r=${r} stroke="var(--track)" stroke-width="5"></circle>
+    <circle cx="50" cy="50" r=${r} stroke="var(--timer, var(--accent))" stroke-width="5" stroke-linecap=${f > 0 ? 'round' : 'butt'} stroke-dasharray="${f * C} ${C}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
+    <circle cx="50" cy="50" r="2.5" fill="var(--accent)"></circle>`}</svg>`;
+};
+
+/** Obsidian's day view: the same day as a clock (mornings inside, afternoons and evenings outside), drawn as fine instrument rings. */
+export const obsDayDial = (arcs: DialArc[], now: Date | undefined, size = 360): TemplateResult => {
+  const ring = (r: number): number => 2 * Math.PI * r, AM = 64, PM = 84;
+  const hours = (d: Date): number => d.getHours() + d.getMinutes() / 60;
+  const seg = (a: DialArc, r: number, from: number, to: number) => {
+    const s = Math.max(from, hours(a.start)), e = Math.min(to, a.end.getDate() !== a.start.getDate() ? 24 : hours(a.end));
+    if (e <= s && !(hours(a.start) >= from && hours(a.start) < to)) return nothing;
+    const span = Math.max(7, (Math.max(e, s) - s) * 30);
+    return svg`<circle cx="100" cy="100" r=${r} stroke=${a.colour} stroke-width="5" stroke-linecap="round" stroke-dasharray="${(span / 360) * ring(r)} ${ring(r)}" transform="rotate(${(s % 12) * 30 - 90} 100 100)"></circle>`;
+  };
+  const timed = arcs.filter((a) => !a.allDay);
+  const hh = now ? (now.getHours() % 12) * 30 + now.getMinutes() * 0.5 : 0, mm = now ? now.getMinutes() * 6 : 0;
+  return html`<svg class="ddial" role="img" aria-label="The day as a clock: mornings on the inner ring, afternoons and evenings on the outer ring" width=${size} height=${size} viewBox="0 0 200 200" fill="none">${svg`
+    <circle cx="100" cy="100" r="97" stroke="var(--glass-line)" stroke-width=".6"></circle>
+    ${Array.from({ length: 60 }, (_, i) => svg`<rect x=${i % 5 ? 99.8 : 99.5} y="4" width=${i % 5 ? 0.4 : 1} height=${i % 5 ? 2.5 : 5} fill=${i % 15 ? 'var(--ink3)' : 'var(--accent)'} opacity=${i % 5 ? 0.5 : 1} transform="rotate(${i * 6} 100 100)"></rect>`)}
+    <circle cx="100" cy="100" r=${PM} stroke="var(--track)" stroke-width="1"></circle>
+    <circle cx="100" cy="100" r=${AM} stroke="var(--track)" stroke-width="1"></circle>
+    ${timed.map((a) => seg(a, AM, 0, 12))}${timed.map((a) => seg(a, PM, 12, 24))}
+    ${[[3, 174, 102.6], [6, 100, 176.6], [9, 26, 102.6]].map(([n, x, y]) => svg`<text class="dh" x=${x} y=${y} text-anchor="middle" font-size="7.5" font-weight="400" fill="var(--ink2)">${n}</text>`)}
+    <text class="dp" x="100" y="28.6" text-anchor="middle" font-size="6" font-weight="500" letter-spacing=".2em" fill="var(--ink2)">PM</text>
+    <text class="dp" x="100" y="48.6" text-anchor="middle" font-size="6" font-weight="500" letter-spacing=".2em" fill="var(--ink2)">AM</text>
+    ${now ? svg`<rect x="98.8" y="64" width="2.4" height="38" rx="1.2" fill="var(--accent)" transform="rotate(${hh} 100 100)"></rect>
+      <rect x="99.3" y="40" width="1.4" height="62" rx=".7" fill="var(--ink)" transform="rotate(${mm} 100 100)"></rect>
+      <circle cx="100" cy=${100 - (now.getHours() < 12 ? AM : PM)} r="3.4" fill="#000" stroke="var(--live)" stroke-width="1.4" transform="rotate(${hh} 100 100)"></circle>
+      <circle cx="100" cy="100" r="4" fill="var(--accent)"></circle><circle cx="100" cy="100" r="1.4" fill="#000"></circle>` : svg`<circle cx="100" cy="100" r="2.5" fill="var(--ink3)"></circle>`}`}</svg>`;
+};
+
 /* ---------------- the looks ---------------- */
 
 const PEOPLE = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0f766e', '--p-4': '#c2410c', '--p-5': '#7c3aed', '--p-family': '#475569', '--on-person': '#ffffff' };
@@ -346,6 +430,35 @@ export const LOOKS: LookDef[] = [
       '--turf': '#144226', '--turf2': '#113a21', '--mow1': '#15261c', '--mow2': '#192c21', '--chalk': 'rgba(255,255,255,.34)', '--board': '#070b09', '--tile': '#000000', '--board-line': 'var(--line)',
       '--p-family': '#55625a', '--bib-edge': 'rgba(255,255,255,.75)', '--evcard': '#223029', '--kid-mix': '42%', '--shadow': 'none', '--accent': '#ffd60a', '--timer': '#f1f4ea', '--ring-halo': '#0d1411',
       '--flood': 'radial-gradient(520px 300px at 0 0, rgba(255,244,190,.13), transparent 70%), radial-gradient(520px 300px at 100% 0, rgba(255,244,190,.13), transparent 70%)'
+    }
+  },
+  {
+    id: 'obsidian', name: 'Obsidian', tagline: 'Black glass lit in amber and blue', swatch: 'linear-gradient(160deg,#05070a 50%,#3a2200 80%,#0a2a44)',
+    fonts: ['Jost', 'Cormorant Garamond', 'Outfit'],
+    art: { clock: (c) => chrono(c.arcs ?? [], c.now ?? new Date()), timer: (c) => arcTimer(c.frac ?? 0, c.size),
+      dayview: (c) => obsDayDial(c.arcs ?? [], c.now, c.size), night: (c) => chrono(c.arcs ?? [], c.now ?? new Date(), c.size ?? 250),
+      player: (c) => haloPlayer(c.img, c.frac ?? 0, !!c.playing, c.size) },
+    preview: () => html`<span class="lp-obs"><i></i><i></i><i></i></span><span class="lp-blade"></span>`,
+    vars: {
+      // each person keeps their hue from every other look, softened to sit on black like an instrument's backlight
+      '--p-1': '#8fb8ff', '--p-2': '#ff9ab8', '--p-3': '#7fe0c4', '--p-4': '#ffad80', '--p-5': '#c8b0ff', '--p-family': '#c9c5bb', '--on-person': '#000000',
+      // warm white ink on true black: the OLED pixels are off everywhere but the words
+      '--ink': '#efece6', '--ink2': '#b3b0a8', '--ink3': '#8f8c85', '--ink-done': '#a19e97', '--ground': '#05070a', '--wet': '#8fcbff',
+      '--glass': '#0b0e13', '--glass-line': 'rgba(255,255,255,.085)', '--shadow': 'none', '--ctl-line': 'rgba(255,255,255,.26)', '--sheet-bg': '#0c0d10',
+      '--chip': 'rgba(255,255,255,.06)', '--chip-strong': 'rgba(255,255,255,.12)', '--chip-soft': 'rgba(255,255,255,.035)', '--chip-faint': 'rgba(255,255,255,.018)', '--track': 'rgba(255,255,255,.16)',
+      // champagne = now, current, chosen (and the one action, filled) · cool light = live, on, playing · jade = done
+      '--accent': '#ffaa28', '--primary': '#ffb43c', '--on-primary': '#140a00', '--primary-edge': '#e07800', '--live': '#38b6ff', '--ok': '#7fd3ff', '--on-ok': '#000000',
+      '--danger': '#ff8a7d', '--on-danger': '#120403',
+      '--sel-bg': 'rgba(255,170,40,.14)', '--sel-ink': '#ffd894', '--sel-ring': 'inset 0 0 0 1px #ffaa28', '--mark': '#ffaa28', '--on-mark': '#140a00',
+      '--timer': '#ffaa28', '--timer-face': 'transparent', '--timer-rim': 'var(--ctl-line)', '--ring-halo': '#000000', '--scrim': 'rgba(0,0,0,.74)', '--bg': 'none',
+      '--blade': 'linear-gradient(90deg, transparent, #ffaa28 18%, #fff0c8 50%, #ffaa28 82%, transparent)',
+      '--w-title': '300', '--w-sub': '400', '--w-heavy': '500', '--w-bold': '500', '--w-semi': '400',
+      '--font-content': "'Jost', 'Outfit', sans-serif", '--content-weight': '300'
+    },
+    // after dark the cabin dims: the same marks a step quieter, the light a little warmer
+    evening: {
+      '--ink': '#e2ded6', '--ink2': '#a9a59c', '--accent': '#f29a1f', '--primary': '#f5a52e', '--live': '#2fa2ee', '--glass': '#08090a', '--glass-line': 'rgba(255,255,255,.07)',
+      '--blade': 'linear-gradient(90deg, transparent, #d9800f 20%, #ffd894 50%, #d9800f 80%, transparent)'
     }
   }
 ];
@@ -1474,6 +1587,296 @@ const SPORTS = `
   @S[data-phone] .sheet { padding-top: 30px; }
 `;
 
+const OBSIDIAN = `
+  /* Obsidian: a luxury car's cabin at night. True black (the screen's pixels are off), smoked-glass panels edged by a hairline that
+     catches light along the top, wide extended capitals for time and labels, light weights for words.
+     Champagne = now, current, chosen, and the one filled action · a cool light = live, on, playing · jade = done.
+     A touch lights the hairline instead of shrinking the control. Nothing bounces. */
+  @B .fh { --pg-from: translateY(calc(6px * var(--m-d, 1))); font-family: 'Jost', 'Outfit', 'Avenir Next', sans-serif; font-weight: 300; letter-spacing: .01em;
+    background: radial-gradient(1400px 420px at 50% -180px, rgba(255,170,40,.09), transparent 72%), radial-gradient(1100px 300px at 50% calc(100% + 140px), rgba(56,182,255,.09), transparent 70%), linear-gradient(180deg, #07090d, #040507 60%, #020304); }
+  @B .fh::before { display: none; }
+  @B h1, @B h2 { font-family: 'Cormorant Garamond', 'Jost', serif; font-weight: 400; letter-spacing: .01em; }
+  @B .display { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+  @B .label { font-family: 'Jost', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .28em; text-transform: uppercase; color: var(--ink2); }
+  @B .muted { color: var(--ink2); }
+  /* the material: smoked glass on black, a hairline round it and a brighter one along the top edge, as if lit from the headliner */
+  /* panels: smoked glass with a slow glint of light that passes across every panel together, like a lamp moving past a car's paint */
+  @B .glass, @B .card { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.012) 38%, rgba(255,255,255,0)), var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 24px 60px -30px rgba(0,0,0,.9); }
+  @B .tap:active { transform: none; opacity: 1; box-shadow: inset 0 0 0 1px var(--live), 0 0 22px -6px var(--live); }
+  @B .pill, @B .round { background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px var(--ctl-line); font-weight: 400; letter-spacing: .02em; }
+  @B .pill.primary, @B .primary { background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%) 0 0 / 300% 100% no-repeat, linear-gradient(180deg, #ffd88a, var(--primary) 52%, var(--primary-edge)); color: var(--on-primary); box-shadow: 0 0 0 1px rgba(255,220,150,.45), inset 0 1px 0 rgba(255,255,255,.5), 0 8px 30px -8px rgba(255,150,20,.6), 0 0 22px -6px rgba(255,170,40,.5); font-weight: 500; letter-spacing: .06em; animation: obGlint 7s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .lead { font-weight: 500; box-shadow: 0 0 0 1px rgba(255,214,140,.35), 0 0 0 6px rgba(255,170,40,.12), 0 10px 32px -10px rgba(255,170,40,.6); }
+  @B .lead:active { box-shadow: 0 0 0 1px var(--live), 0 0 26px -4px var(--live); }
+  @B .toast { background: #0c0d10; color: var(--ink); border: 1px solid var(--glass-line); box-shadow: inset 3px 0 0 var(--accent), 0 18px 50px -14px rgba(0,0,0,.9); font-weight: 400; }
+  @B .sheet { background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 140px), var(--sheet-bg); border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,170,40,.35), 0 40px 120px -20px #000; }
+  @B .scrim { background: var(--scrim); -webkit-backdrop-filter: blur(6px) saturate(80%); backdrop-filter: blur(6px) saturate(80%); }
+  @B .avatar { box-shadow: 0 0 0 1px rgba(255,255,255,.18); }
+
+  /* header: one rail across the top, no islands; a hairline under it that fades at both ends */
+  @B .fh > header { position: relative; background: transparent; border: 0; }
+  @B .fh > header::after { content: ''; position: absolute; left: 4%; right: 4%; bottom: -4px; height: 1px; background: linear-gradient(90deg, transparent, rgba(56,182,255,.35), rgba(255,170,40,.8), rgba(56,182,255,.35), transparent) 0 0 / 50% 100% no-repeat, linear-gradient(90deg, transparent, rgba(255,255,255,.12) 20%, rgba(255,170,40,.3) 50%, rgba(255,255,255,.12) 80%, transparent); box-shadow: 0 0 10px rgba(255,170,40,.25); pointer-events: none; animation: obFlow 9s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: center; background: transparent; box-shadow: none; }
+  @B .clock .chrono { grid-row: 1 / span 2; }
+  @B .clock .hm { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-d2); letter-spacing: .06em; color: #fff4e2; text-shadow: 0 0 10px rgba(255,170,40,.45), 0 0 28px rgba(255,140,0,.25); }
+  @B .cap { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); font-weight: 400; max-width: 100%; }
+  @B .cap.hot { background: rgba(255,138,125,.12); color: var(--ink); border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); animation: fhHot 1.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .cap[data-warm] { background: rgba(255,170,40,.12); color: var(--ink); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  @B .badge { background: rgba(255,170,40,.16); color: var(--sel-ink); font-weight: 500; }
+  @B .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
+  @B .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1px var(--ctl-line); opacity: 1; }
+  @B .right { gap: 6px; }
+  @B .right > button.round { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .right > .weather { background: transparent; border-color: transparent; }
+
+  /* the page sits in the frame without a box of its own: the panels are the furniture */
+  @B .planner { background: transparent; border-color: transparent; box-shadow: none; padding: 6px 0 0; }
+  @B .seg { border-radius: 999px; padding: 3px; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .seg button { border-radius: 999px; font-weight: 300; color: var(--ink2); letter-spacing: .03em; }
+  @B .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: 400; }
+  @B .legend { font-weight: 300; color: var(--ink2); }
+  @B .col { background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 50%), var(--glass); border: 1px solid var(--glass-line); border-radius: 22px; padding: 10px 8px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+  @B .col.today { border: 1px solid transparent; background: linear-gradient(180deg, rgba(255,170,40,.11), rgba(255,170,40,.015) 45%, transparent) padding-box, linear-gradient(var(--glass), var(--glass)) padding-box, conic-gradient(from var(--ob-a, 0deg), rgba(255,170,40,.95), rgba(255,170,40,.15) 22%, rgba(56,182,255,.85) 50%, rgba(56,182,255,.12) 72%, rgba(255,170,40,.95)) border-box; box-shadow: 0 0 44px -14px rgba(255,170,40,.55), 0 0 60px -30px rgba(56,182,255,.6); animation: obEdge 12s linear infinite, obBloomA calc(var(--m-5) * 1.6) var(--e-out) 1; animation-iteration-count: var(--loops, infinite), 1; }
+  @B .dayhead { padding: 2px 4px 8px 6px; }
+  @B .num { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 200; font-size: var(--fs-4); letter-spacing: .04em; }
+  @B .today .num { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent), 0 0 14px -4px var(--accent); border-radius: 999px; font-size: var(--fs-2); width: auto; height: auto; padding: 3px 10px; }
+  @B .ev { background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, transparent), color-mix(in srgb, var(--c) 5%, transparent)); border-left: 2px solid var(--c); border-radius: 4px 10px 10px 4px; padding: 8px 9px 8px 10px; box-shadow: -6px 0 16px -10px var(--c); }
+  @B .ev .t { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-1); letter-spacing: .1em; }
+  @B .ev .content { font-weight: 400; }
+  @B .ev .w { font-weight: 300; font-size: var(--fs-2); }
+  @B .ev.next { box-shadow: -6px 0 16px -10px var(--c), inset 0 0 0 1px rgba(255,170,40,.7); }
+  @B .ev.past, @B .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 40%, transparent); box-shadow: none; }
+  @B .ev.past .t, @B .ev.past .w, @B .ev.past .content, @B .dayrow.past .content, @B .dayrow.past .muted { color: var(--ink-done); }
+  @B .more { background: transparent; font-weight: 400; color: var(--ink2); }
+  @B .cell { border-radius: 12px; border: 1px solid var(--glass-line); background: var(--glass); }
+  @B .cell.out { background: transparent; border-color: transparent; }
+  @B .cell.today { border-color: var(--accent); background: linear-gradient(180deg, rgba(255,170,40,.12), transparent), var(--glass); }
+  @B .dayrow { border-left-width: 2px; border-radius: 4px 12px 12px 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 16%, transparent), color-mix(in srgb, var(--c) 4%, transparent)); }
+
+  /* side cards */
+  @B .art { border-radius: 50%; background: radial-gradient(circle, #000 0 5%, #ffaa28 5.5% 6.5%, #050608 7% 30%, #15161a 30.5% 31%, #050608 31.5% 55%, #15161a 55.5% 56%, #050608 56.5% 80%, #15161a 80.5% 81%, #050608 81.5%); box-shadow: 0 0 0 1px rgba(255,255,255,.18); }
+  @B .playing .art { box-shadow: 0 0 0 1px var(--live), 0 0 28px -6px var(--live); animation: fhSpin 9s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .timerrow { align-items: center; gap: 12px; }
+  @B .timerrow.on .hint { display: none; }
+  @B .quick { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); border-radius: 999px; font-weight: 400; min-height: 44px; letter-spacing: .02em; }
+  @B .rem { font-weight: 300; }
+  @B .meter { height: 3px; background: var(--track); }
+  @B .meter > div { background: linear-gradient(90deg, var(--primary-edge), var(--accent), #fff0c8); box-shadow: 0 0 12px rgba(255,170,40,.6); }
+  @B .tread { font-family: 'Jost', 'Outfit', sans-serif; letter-spacing: .06em; }
+
+  /* dock: the instrument strip. The drawings sit back in monochrome; the page you are on comes up in full colour over a blade of light */
+  @B .dock { background: transparent; border-color: transparent; box-shadow: none; gap: 4px; padding: 0 8px; }
+  @B .dock .item { position: relative; font-size: var(--fs-1); font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; color: var(--ink3); height: 82px; gap: 7px; border-radius: 14px; background: transparent; }
+  /* the dock: line icons lit in electric blue, the page you are on in electric amber with bloom, its name under it; no faces (a child is his name) */
+  @B .dock .item { height: 80px; padding: 0 10px; font-size: var(--fs-1); letter-spacing: .22em; gap: 9px; justify-content: center; white-space: nowrap; min-width: 0; }
+  @B .dock .item svg.i { width: 30px; height: 30px; color: var(--live); stroke-width: 1.4; opacity: .8; filter: drop-shadow(0 0 3px rgba(56,182,255,.7)) drop-shadow(0 0 10px rgba(56,182,255,.25)); transition: color var(--m-3) ease, filter var(--m-3) ease, opacity var(--m-3) ease, transform var(--mt-3) var(--e-out); }
+  @B .dock .item[aria-current='page'] { color: var(--sel-ink); background: radial-gradient(120% 100% at 50% 100%, rgba(255,170,40,.16), transparent 70%); text-shadow: 0 0 10px rgba(255,170,40,.6); }
+  @B .dock .item[aria-current='page'] svg.i { color: var(--accent); opacity: 1; transform: translateY(calc(-2px * var(--m-d, 1))); filter: drop-shadow(0 0 3px rgba(255,170,40,.95)) drop-shadow(0 0 12px rgba(255,130,0,.6)); }
+  @B .dock .item.tap:active svg.i { opacity: 1; }
+  @B .dock .kidbtn .avatar { display: none; }
+  @B .dock .kidbtn { color: var(--ink2); font-family: 'Cormorant Garamond', 'Jost', serif; font-size: var(--fs-3); font-weight: 500; letter-spacing: .2em; }
+  @B .dock .item[aria-current='page']::after { content: ''; position: absolute; left: 14%; right: 14%; bottom: 2px; height: 1.5px; border-radius: 1px; background: var(--blade); box-shadow: 0 0 12px 1px rgba(255,170,40,.7), 0 0 26px rgba(255,140,0,.35); pointer-events: none; animation: obPulse 3.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .dock .kidbtn[aria-current='page'] { box-shadow: none; }
+  @B .dock .sep { background: linear-gradient(transparent, rgba(255,255,255,.2), transparent); width: 1px; }
+  /* the header's buttons: blue line icons with their words */
+  @B .right > button.round > svg.i { color: var(--live); filter: drop-shadow(0 0 3px rgba(56,182,255,.7)); }
+  @B[data-n3] .dock .item { font-size: var(--fs-1); letter-spacing: .1em; padding: 0 8px; }
+
+  /* lists: hairline rules, no boxes; the thing to do now is lit from the left */
+  @B .row { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  @B .check { border-width: 1.5px; border-color: var(--ink3); background: transparent; }
+  @B .done .check { background: var(--ok); border-color: var(--ok); color: #000; box-shadow: 0 0 14px -3px var(--ok); }
+  @B .row .content { font-weight: 300; }
+  @B .row.now { background: linear-gradient(90deg, rgba(255,170,40,.12), transparent 70%); border-radius: 4px 14px 14px 4px; box-shadow: inset 2px 0 0 var(--accent); }
+  @B .row.big { background: linear-gradient(90deg, rgba(255,170,40,.10), transparent); border-radius: 18px; border-bottom: 0; box-shadow: inset 0 0 0 1px rgba(255,170,40,.35); }
+  @B .field { background: transparent; box-shadow: none; border-bottom: 1px solid var(--ctl-line); border-radius: 0; font-weight: 200; font-size: var(--fs-5); padding: 0 4px; min-width: 0; letter-spacing: .01em; }
+  @B .field:focus-visible { outline: none; border-bottom-color: var(--live); box-shadow: 0 1px 0 var(--live), 0 10px 22px -16px var(--live); }
+  @B .key { background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px var(--glass-line), inset 0 1px 0 rgba(255,255,255,.06); border-radius: 12px; font-weight: 300; }
+  @B .key:active { background: rgba(56,182,255,.08); transform: none; box-shadow: inset 0 0 0 1px var(--live), 0 0 18px -6px var(--live); }
+  @B .key[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: 500; }
+  @B .tabs { background: transparent; }
+  @B .tab { font-weight: 300; letter-spacing: .03em; color: var(--ink2); }
+  @B .tab[aria-pressed='true'] { font-weight: 400; color: var(--sel-ink); box-shadow: inset 0 -2px 0 var(--accent); }
+  @B .ctab { background: #000; color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
+  @B .ctab[aria-pressed='true'] { background: color-mix(in srgb, var(--c) 18%, #000); box-shadow: inset 0 0 0 2px var(--c), 0 0 16px -6px var(--c); }
+
+  /* a child's page, in the same restraint: one fine ring of his colour behind him, numbers as instruments */
+  @B .hero::before { inset: 0; height: auto; background: radial-gradient(80% 50% at 50% 45%, color-mix(in srgb, var(--kid) 10%, transparent), transparent 70%); }
+  /* no cartoon: the name alone, set wide in the display face over a hairline of his colour */
+  @B .avbtn { display: none; }
+  @B .hero { justify-content: center; }
+  @B .name { font-family: 'Cormorant Garamond', 'Jost', serif; font-weight: 400; font-size: var(--fs-d1); letter-spacing: .22em; text-transform: uppercase; padding-bottom: 14px; background: linear-gradient(90deg, transparent, var(--kid), transparent) 50% 100% / 70% 1px no-repeat; }
+  @B .rank { background: transparent; color: var(--kid); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 70%, transparent); font-weight: 400; }
+  @B .stat { background: var(--chip-soft); border: 1px solid var(--glass-line); }
+  @B .stat b { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-5); letter-spacing: .04em; }
+  @B .stat span { font-weight: 300; }
+  @B .dots i.t { box-shadow: 0 0 0 2px #000, 0 0 0 3px var(--kid); }
+  @B .nextup { background: var(--chip-soft); border: 1px solid var(--glass-line); }
+  @B .jobs .done .check { border-color: var(--ok); }
+  @B .pic { background: var(--chip-soft); border: 1px solid color-mix(in srgb, var(--kid) 50%, transparent); border-radius: 22px; }
+  @B .pic.now { box-shadow: inset 0 0 0 1px var(--accent), 0 0 30px -12px var(--accent); }
+  @B .pic.done { background: color-mix(in srgb, var(--ok) 14%, transparent); border-color: var(--ok); }
+  @B .sec { margin-top: 12px; }
+  @B .sec h2 { font-family: 'Jost', 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 400; letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+  @B .sec span { font-weight: 300; }
+  @B .plus { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 500; }
+  @B .later { background: var(--chip-soft); font-weight: 300; }
+  @B .rw { background: transparent; color: var(--ink); border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.07); padding-left: 2px; }
+  @B .rw .n { font-weight: 300; }
+  @B .rw button { font-weight: 500; }
+  @B .rw button.save { background: var(--chip); color: var(--ink2); }
+
+  /* groceries */
+  @B .items { gap: 0; }
+  @B .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
+  @B .tag { font-weight: 500; letter-spacing: .04em; }
+  @B .who.glass { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+
+  /* home: a room with a light on glows warm from inside; a device that is on lights its ring */
+  @B .room { background: var(--glass); border-radius: 24px; border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+  @B .room.lit { background: radial-gradient(120% 80% at 50% 0%, rgba(255,170,40,.13), transparent 70%), var(--glass); border-color: rgba(255,170,40,.5); box-shadow: inset 0 1px 0 rgba(255,214,140,.35), 0 0 46px -18px rgba(255,170,40,.55); }
+  @B .rh h2 { font-size: var(--fs-4); font-weight: 300; }
+  @B .dev { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.07); padding-left: 2px; padding-right: 2px; }
+  @B .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .dev.on .dicon { background: rgba(255,170,40,.14); color: #ffd27a; box-shadow: inset 0 0 0 1px var(--accent), 0 0 20px -4px rgba(255,170,40,.7); }
+  @B .toggle { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .toggle[aria-checked='true'], @B [aria-checked='true'] > .toggle { background: color-mix(in srgb, var(--live) 30%, transparent); box-shadow: inset 0 0 0 1px var(--live), 0 0 16px -4px var(--live); }
+  @B .scene { background: transparent; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--ctl-line); font-weight: 400; letter-spacing: .02em; }
+
+  /* doodle: the paper stays bright; the gallery is framed in hairlines */
+  @B .pad { border-radius: 18px; }
+  @B .ink { box-shadow: none; }
+  @B .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px #000, 0 0 0 4px var(--accent); }
+  @B .snap { border-radius: 14px; box-shadow: 0 0 0 1px var(--ctl-line); }
+  @B .snap:nth-child(odd), @B .snap:nth-child(even) { transform: none; }
+  @B .snap::before { display: none; }
+  @B .by { background: #000; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); font-weight: 400; }
+
+  /* avatar studio */
+  @B .tile { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 300; }
+  @B .tile[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring), 0 0 24px -10px var(--accent); }
+
+  /* morning board */
+  @B .kcol { border-top: 0; background: var(--glass); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 45%, transparent), inset 0 2px 0 color-mix(in srgb, var(--kid) 80%, transparent); }
+  @B .khead h2 { font-weight: 300; }
+  @B .nextstep { background: linear-gradient(90deg, rgba(255,170,40,.12), transparent); box-shadow: inset 2px 0 0 var(--accent); font-weight: 400; }
+  @B .nextstep.set { background: linear-gradient(90deg, color-mix(in srgb, var(--ok) 14%, transparent), transparent); box-shadow: inset 2px 0 0 var(--ok); }
+  @B .lchip { background: transparent; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--glass-line); padding-left: 14px; padding-right: 14px; font-weight: 400; }
+  @B .leave { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
+
+  /* music: rooms are dark cells; the room you control is edged in champagne, a room that plays is lit by its stream */
+  @B .spk { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .spk.focus { background: linear-gradient(180deg, rgba(255,170,40,.1), transparent), var(--glass); box-shadow: inset 0 0 0 1px var(--accent); }
+  @B .spk.inmix { box-shadow: inset 0 0 0 1px var(--live), 0 0 24px -10px var(--live); }
+  @B .mroom { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .mstairs { box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .mzone { --stream: var(--live); }
+  @B .mzone[data-focus] { box-shadow: inset 0 0 0 1px var(--accent); }
+  @B .pool { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, transparent), transparent); border-top: 1px solid var(--c); box-shadow: 0 -10px 30px -12px var(--c); }
+  @B .pool::before { display: none; }
+  @B .mzone[data-playing] .pool { animation: breathe 4.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .puck { border: 1px solid var(--ink); box-shadow: 0 0 10px -2px var(--live); }
+  @B .mshelf { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .wholeh { border-width: 1px; border-color: var(--ctl-line); }
+  @B .viewbtn { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); letter-spacing: .03em; }
+  @B .vcard { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
+  @B .dplate { fill: transparent; stroke: var(--glass-line); stroke-width: 1; }
+  @B .bigdial, @B .desk, @B .rig, @B .vscene { --stream: var(--live); }
+  @B .dtrack { stroke: rgba(255,255,255,.1); stroke-width: 6; }
+  @B .dknob { fill: #000; stroke-width: 2; }
+  @B .dcover { box-shadow: 0 0 0 1px var(--ink); }
+  @B .dcard, @B .tuner { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .desk { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .sname { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 400; letter-spacing: .03em; }
+  @B .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .lamp[aria-pressed='true'] { background: color-mix(in srgb, var(--live) 24%, transparent); color: #fff; box-shadow: inset 0 0 0 1px var(--live), 0 0 18px -4px var(--live); }
+  @B .strip[data-live] .fcap { background: var(--c); box-shadow: 0 0 14px -2px var(--c); }
+  @B .fcap { background: #000; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .slot { --rail-w: 1px; }
+  @B .jog { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .mpad { box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .sock { background: #000; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .sock[aria-pressed='true'] { background: var(--c); box-shadow: 0 0 14px -2px var(--c); }
+  @B .cdisc { box-shadow: 0 0 0 1px var(--ink); }
+  @B .cbox { background-color: var(--glass); box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .ttable { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .tkey { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .tkey[data-go] { background: linear-gradient(180deg, #ffd27a, var(--primary) 55%, var(--primary-edge)); color: var(--on-primary); box-shadow: 0 8px 24px -10px rgba(255,170,40,.6); }
+  @B .vscene { box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .aname { background: #000; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .join { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  @B .join[aria-pressed='true'] { background: color-mix(in srgb, var(--live) 22%, transparent); color: #fff; box-shadow: inset 0 0 0 1px var(--live); }
+  @B .hit { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  @B .hit[aria-pressed='true'] { background: linear-gradient(90deg, rgba(255,170,40,.12), transparent); box-shadow: inset 2px 0 0 var(--accent); border-radius: 4px 12px 12px 4px; }
+  @B .st { padding: 5px 6px 7px; padding-right: max(6px, var(--st-pr, 0px)); background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); font-weight: 400; }
+  @B .st.on { box-shadow: inset 0 0 0 1px var(--live), 0 0 20px -8px var(--live); }
+  @B .pickrow { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .banner { background: linear-gradient(90deg, rgba(255,170,40,.12), transparent); box-shadow: inset 2px 0 0 var(--accent), inset 0 0 0 1px rgba(255,170,40,.25); }
+
+  /* day view: the day as a dial, the list beside it */
+  @B .dayview { gap: 28px; }
+  @B .dayart { padding: 0 14px; }
+
+  /* night: the chronograph and the time, nothing else lit; its line of light takes the night screen's own warm ink */
+  /* (since 0.33.5 night is the screensaver at its night level, not a screen of its own) */
+  @B .artm[data-night] { --live: var(--ink); }
+  /* the screensaver: the picture is framed like art in a dark room; the time sits on a smoked plate */
+  @B .artm .aplate { border-radius: 18px; background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,170,40,.3); }
+  @B .artm .atime .big { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
+  @B .artm .adate { letter-spacing: .12em; text-transform: uppercase; }
+  /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
+  @B .wtemp { font-family: 'Jost', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-d3); letter-spacing: .02em; }
+  @B .wtip { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 400; }
+  @B .wfact { background: transparent; }
+  @B .wday.today { background: linear-gradient(180deg, rgba(255,170,40,.1), transparent); box-shadow: inset 0 0 0 1px var(--accent); }
+  @B .wbar { box-shadow: 0 0 10px color-mix(in srgb, var(--live) 50%, transparent); }
+  @B .wwarn { background: rgba(255,138,125,.08); color: var(--danger); box-shadow: inset 0 0 0 1px var(--danger), inset 3px 0 0 var(--danger); }
+  @B .wcomp circle { stroke: var(--accent); opacity: .8; stroke-dasharray: 1 5; }
+  @B .sky .cloud { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+  @B .sky .disc, @B .sky .moon { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  @B .sky .rays { stroke: var(--accent); stroke-width: 1.5; }
+  @B .sky .bolt { fill: none; stroke: var(--live); stroke-width: 1.5; }
+  @B .sky .drop { fill: var(--live); }
+  @B .hchart .area { opacity: .1; }
+  @B .hchart .line { stroke-width: 1.5; }
+  @B .mbox { border-radius: 14px; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+
+  /* switches: on is the cool light (jade is kept for things that are done) */
+  @B .opt[aria-checked='true'] .sw { background: color-mix(in srgb, var(--live) 45%, #000); box-shadow: 0 0 14px -3px var(--live); }
+  /* the chosen look or picture: a champagne hairline and a tick, never a fill */
+  @B .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  @B .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 1px var(--accent), 0 0 30px -10px var(--accent); }
+  @B .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #000; font-size: var(--fs-2); font-weight: 600; line-height: 28px; text-align: center; box-shadow: 0 0 0 3px #000; }
+  /* sheets: chips are hairline rings; the chosen one is champagne */
+  @B .mchip, @B .chips button, @B .durs button, @B .ampm button, @B .allday { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); font-weight: 400; }
+  @B .mchip[aria-pressed='true'], @B .chips button[aria-pressed='true'], @B .durs button[aria-pressed='true'], @B .ampm button[aria-pressed='true'], @B .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: 500; }
+  @B .calfail, @B .remfail { color: var(--danger); }
+  @B .sosbtn { box-shadow: inset 0 0 0 1px var(--danger), 0 0 24px -8px var(--danger); }
+
+  /* phone, and anything narrower than 700 px: the day ring sits above the list instead of beside it */
+  @B[data-phone] .dayview, @B<700 .dayview { flex-direction: column; align-items: stretch; gap: 16px; }
+  @B[data-phone] .dayart, @B<700 .dayart { min-width: 0; padding: 0; align-self: center; }
+  @B[data-phone] .dayview .ddial, @B<700 .dayview .ddial { width: min(calc(72vw / var(--z, 1)), 300px); height: auto; }
+  @B[data-phone] .dayview .dh, @B<700 .dayview .dh { font-size: 10.5px; }
+  @B[data-phone] .dayview .dp, @B<700 .dayview .dp { font-size: 9.5px; translate: 0 2.5px; }
+  @B[data-phone] .dayview .dayrow, @B<700 .dayview .dayrow { min-width: 0; }
+  @B[data-phone] .clock .hm { font-size: var(--fs-6); }
+  /* phone: the dock is a black bar along the bottom with a hairline above it, fading at the right while there is more to slide to */
+  @B[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
+  @B[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 2px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: rgba(0,0,0,.94); border: 0; border-top: 1px solid var(--glass-line); }
+  @B[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, #000 85%); pointer-events: none; }
+  @B[data-phone] .dock .item { min-width: 64px; height: 70px; font-size: var(--fs-1); letter-spacing: .06em; }
+  @B[data-phone] .dock .item svg.i { width: 36px; height: 36px; }
+  /* the glint: one band of light fixed to the screen (background-attachment: fixed). Its place is one clock, --ob-x, animated on the root,
+     so every panel, whenever it was drawn, shows the same band at the same moment: it sweeps left to right and lights each panel in turn */
+  @B .fh { animation: obSweepX 14s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  @B .card:not(.sheet), @B .col:not(.today), @B .room:not(.lit), @B .kcol, @B .spk:not(.focus), @B .mroom, @B .cell:not(.out):not(.today), @B .stage, @B .rooms, @B .jobs, @B .hero, @B .planner .seg { background-image: linear-gradient(100deg, transparent 44%, rgba(255,228,190,.10) 48.6%, rgba(150,210,255,.12) 51.4%, transparent 56%), linear-gradient(180deg, rgba(255,255,255,.05), transparent 50%); background-size: 300vw 100vh, 100% 100%; background-attachment: fixed, scroll; background-repeat: no-repeat; background-position: var(--ob-x, -170vw) 0, 0 0; }
+  /* a thing that becomes chosen or current blooms once in electric amber; a thing switched on blooms once in electric blue */
+  @B .seg button[aria-pressed='true'], @B .tab[aria-pressed='true'], @B .vcard[aria-pressed='true'], @B .tile[aria-pressed='true'], @B .tcard[aria-pressed='true'], @B .key[aria-pressed='true'], @B .mchip[aria-pressed='true'], @B .chips button[aria-pressed='true'], @B .durs button[aria-pressed='true'], @B .ampm button[aria-pressed='true'], @B .allday[aria-pressed='true'], @B .hit[aria-pressed='true'], @B .row.now, @B .spk.focus, @B .mzone[data-focus], @B .pic.now, @B .nextstep, @B .cell.today, @B .ev.next, @B .room.lit, @B .cap[data-warm], @B .dock .item[aria-current='page'] { animation: obBloomA calc(var(--m-5) * 1.6) var(--e-out) 1; }
+  @B .toggle[aria-checked='true'], @B .dev.on .dicon, @B .lamp[aria-pressed='true'], @B .join[aria-pressed='true'], @B .st.on, @B .spk.inmix, @B .opt[aria-checked='true'] .sw, @B .sock[aria-pressed='true'] { animation: obBloomB calc(var(--m-5) * 1.6) var(--e-out) 1; }
+`;
+
 const KEYFRAMES = `
   /* the fridge door gets a bump now and then: every note jiggles on its pin (needs --tilt registered as a number, see ambient.ts) */
   @keyframes fjig { 0%, 93%, 100% { --tilt: 1; } 94.5% { --tilt: 2.3; } 96% { --tilt: -.2; } 97.5% { --tilt: 1.6; } 99% { --tilt: .7; } }
@@ -1482,6 +1885,24 @@ const KEYFRAMES = `
   .vinyl .spin { transform-box: fill-box; transform-origin: center; animation: fhSpin 5s linear infinite; animation-iteration-count: var(--loops, infinite); }
   .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
   /* Home Ground: the linesman's flag tips up once as a toast arrives (it stands still in calm mode) */
+  /* Obsidian's light: a glint across the glass, current along the header's hairline, an edge of light round today, the dock's blade breathing */
+  @keyframes obSweepX { 0%, 50% { --ob-x: -170vw; } 90%, 100% { --ob-x: -30vw; } }
+  /* the bloom: bright and wide at first, settling to the thing's own resting glow (filter, so it works on any shape and leaves its shadows alone) */
+  @keyframes obBloomA { from { filter: brightness(1.35) drop-shadow(0 0 5px rgba(255,190,80,.95)) drop-shadow(0 0 22px rgba(255,140,0,.65)); } 35% { filter: brightness(1.15) drop-shadow(0 0 4px rgba(255,190,80,.7)) drop-shadow(0 0 16px rgba(255,140,0,.4)); } }
+  @keyframes obBloomB { from { filter: brightness(1.35) drop-shadow(0 0 5px rgba(130,210,255,.95)) drop-shadow(0 0 22px rgba(40,150,255,.65)); } 35% { filter: brightness(1.15) drop-shadow(0 0 4px rgba(130,210,255,.7)) drop-shadow(0 0 16px rgba(40,150,255,.4)); } }
+  @keyframes obGlint { 0%, 70% { background-position: 130% 0, 0 0; } 90%, 100% { background-position: -30% 0, 0 0; } }
+  @keyframes obFlow { 0% { background-position: -60% 0, 0 0; } 100% { background-position: 160% 0, 0 0; } }
+  @keyframes obEdge { to { --ob-a: 360deg; } }
+  @keyframes obPulse { 50% { opacity: .55; box-shadow: 0 0 8px 0 rgba(255,170,40,.5); } }
+  @keyframes obSpark { to { transform: rotate(360deg); } }
+  .chrono .cspark { transform-box: view-box; transform-origin: 50px 50px; animation: obSpark 60s linear infinite; animation-iteration-count: var(--loops, infinite); }
+  /* Obsidian: the minute's line of light and the player's halo breathe, slowly; both stand still in calm mode */
+  @keyframes obGlow { 50% { opacity: .55; } }
+  @keyframes obHalo { 50% { opacity: .45; transform: scale(.97); } }
+  .chrono .cglow { filter: drop-shadow(0 0 2px var(--live, #38b6ff)) drop-shadow(0 0 6px var(--live, #38b6ff)); animation: obGlow 4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  .halo .hglow { opacity: 0; transform-box: fill-box; transform-origin: center; transition: opacity var(--m-5, 900ms) ease; }
+  .halo[data-on='1'] .hglow { opacity: 1; animation: obHalo 5s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
+  .halo { max-width: 100%; max-height: 100%; height: auto; }
   @keyframes sFlag { from { transform: rotate(calc(20deg * var(--m-d, 1))); } }
 `;
 
@@ -1512,6 +1933,11 @@ const PREVIEW = `
   .lookprev .lp-turf { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; border-top: 2px solid var(--chalk); background: repeating-linear-gradient(90deg, var(--turf) 0 26px, var(--turf2) 26px 52px); }
   .lookprev[data-prev='sports'] .lp-people { z-index: 1; }
   .lookprev[data-prev='sports'] .lp-people i { box-shadow: 0 0 0 1.5px #fff; }
+  .lookprev .lp-obs { position: absolute; inset: 14px 14px 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .lookprev .lp-obs i { border-radius: 8px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line), inset 0 1px 0 rgba(255,255,255,.08); }
+  .lookprev .lp-obs i:nth-child(2) { box-shadow: inset 0 0 0 1px var(--accent), 0 0 14px -4px var(--accent); }
+  .lookprev .lp-blade { position: absolute; left: 52%; right: 10%; bottom: 14px; height: 2px; border-radius: 1px; background: var(--blade); box-shadow: 0 0 10px var(--accent); }
+  .lookprev[data-prev='obsidian'] .lp-clock { display: none; }
   .lookprev .lp-ring { width: 56px; height: 56px; border-radius: 50%; border: 8px solid var(--track); border-top-color: var(--accent); border-right-color: var(--p-1); flex-shrink: 0; }
 `;
 
@@ -1547,4 +1973,4 @@ const tokens = (l: LookDef): string => {
   return `${root} {${decl(l.vars)}}\n${l.evening ? `${root}[data-tod='eve'], ${root}[data-tod='night'] {${decl(l.evening)}}\n` : ''}`;
 };
 
-export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(GLASS, 'glass') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit') + sportsArt() + scope(SPORTS, 'sports'));
+export const lookCss = unsafeCSS(KEYFRAMES + PREVIEW + LOOKS.map(tokens).join('') + scope(GLASS, 'glass') + scope(FRIDGE, 'fridge') + scope(ORBIT, 'orbit') + sportsArt() + scope(SPORTS, 'sports') + scope(OBSIDIAN, 'obsidian'));

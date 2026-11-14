@@ -345,6 +345,8 @@ export class FhMusic extends LitElement {
     /* Orbit keeps mint for "done": a paused room's handle is grey, and the jukebox switch is yellow when on */
     :host([data-look='orbit']) .mzone[data-live]:not([data-playing]) .grab i { box-shadow: inset 0 0 0 3px var(--ink2), 0 2px 5px rgba(0,0,0,.3); }
     :host([data-look='orbit']) .jsw[aria-checked='true'] i { background: var(--accent); }
+    :host([data-look='obsidian']) .mzone[data-live]:not([data-playing]) .grab i { box-shadow: inset 0 0 0 1.5px var(--ink2), 0 2px 8px rgba(0,0,0,.6); }
+    :host([data-look='obsidian']) .jsw[aria-checked='true'] i { background: var(--live); box-shadow: 0 0 12px -2px var(--live); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
     .puck { position: absolute; left: 50%; bottom: 12px; width: 68px; height: 68px; margin-left: -40px; border-radius: 50%; border: 3px solid #fff; box-sizing: border-box; touch-action: none; cursor: grab;
       background: radial-gradient(circle, #fff 0 7%, transparent 8%), var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 8px 20px -6px rgba(0,0,0,.55); }

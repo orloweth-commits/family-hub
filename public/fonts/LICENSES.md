@@ -7,3 +7,5 @@ The fonts in this folder ship with Family Hub so the panel never has to fetch th
 - `caveat.woff2`: Copyright 2014 The Caveat Project Authors (https://github.com/googlefonts/caveat)
 - `fredoka.woff2`: Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia/Fredoka-One)
 - `outfit.woff2`: Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+- `jost.woff2`: Copyright 2020 The Jost Project Authors (https://github.com/indestructible-type/Jost)
+- `cormorant-garamond.woff2`: Copyright 2015 The Cormorant Project Authors (https://github.com/CatharsisFonts/Cormorant)

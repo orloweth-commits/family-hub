@@ -6,6 +6,7 @@ import { reef } from './scenes/reef';
 import { sea } from './scenes/sea';
 import { space } from './scenes/space';
 import { sports } from './scenes/sports';
+import { obsidian } from './scenes/obsidian';
 import type { Ctx, Lay, Scene, Visitor } from './scenes/types';
 
 /**
@@ -20,9 +21,9 @@ try { (CSS as unknown as { registerProperty?: (d: object) => void }).registerPro
 
 
 /** Which world plays behind each look and photo theme. Sunset shares the sea's world; Orbit shares space's. */
-const SCENES: Record<string, Scene> = { sea, sunset: sea, reef, bush, space, orbit: space, fridge, sports };
+const SCENES: Record<string, Scene> = { sea, sunset: sea, reef, bush, space, orbit: space, fridge, sports, obsidian };
 /** looks with a world of their own; every other look takes the world of its photo theme */
-const OWN = new Set(['fridge', 'orbit', 'sports']);
+const OWN = new Set(['fridge', 'orbit', 'sports', 'obsidian']);
 /** the preview's `&scene=<id>` shows one world whatever the look is */
 const forced = (): string => { try { return String((globalThis as { __fhScene?: string }).__fhScene ?? ''); } catch { return ''; } };
 interface Guest { v: Visitor; id: number; y: number; x: number; flip: boolean; out?: boolean }
@@ -66,7 +67,7 @@ export class FhAmbient extends LitElement {
     .peek { left: auto; right: 0; animation: peek var(--t) ease-in-out both; }
     @keyframes peek { from, to { transform: translateX(100%); } 18%, 80% { transform: translateX(34%); } 30%, 34% { transform: translateX(34%) rotate(-5deg); } }
     .foot { top: auto; bottom: 4px; }
-  `, ...Object.values({ sea, reef, bush, space, fridge, sports }).map((s) => s.css)];
+  `, ...Object.values({ sea, reef, bush, space, fridge, sports, obsidian }).map((s) => s.css)];
   static properties = { look: { reflect: true }, theme: { reflect: true }, tod: {}, calm: { type: Boolean }, hold: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: true }, _guest: { state: true }, _lay: { state: true } };
   look = 'glass'; theme = 'sea'; tod: Ctx['tod'] = 'day'; calm = false;
   /** the card sets this while a sheet, the night screen or an alarm is up: a `solo` world then sends its visitor away and waits */
