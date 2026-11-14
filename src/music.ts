@@ -10,6 +10,7 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, viewHint, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Room, type ViewId } from './musicviews';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
+import { LINES, houseVoice, lineReady, voiceReady } from './voice';
 import './pin';
 
 type Tab = 'rooms' | 'search' | 'shelves' | 'juke' | 'radio' | 'call';
@@ -1123,27 +1124,39 @@ export class FhMusic extends LitElement {
   private async _call(checked = false): Promise<void> {
     if (this._calling) return;
     const msg = this._callMsg.trim(), to = this._callTo.length ? this._callTo : [];
+    // the built-in voice: what a call falls back to when the house voice cannot say it
     const tts = Object.keys(this.hass!.states).filter((e) => e.startsWith('tts.')).sort((a, b) => Number(b.includes('cloud')) - Number(a.includes('cloud')))[0];
+    const hv = houseVoice(), line = CALLS.indexOf(msg);
     if (!to.length) { this._say('Choose a room first'); return; }
     if (!msg) { this._say('Choose or type a message first'); return; }
-    if (!tts) { this._say('Home Assistant has no voice set up for speaking'); return; }
+    if (!tts && !hv) { this._say('Home Assistant has no voice set up for speaking'); return; }
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     // each room's own bedtime comes first; the household's quiet time covers the rest
     // by day anyone may call any room (the parents' room too) with a ready message. After bedtime a call wakes people, so it asks a grown-up. A message typed in is always a grown-up's.
-    const late = this._late, abed = to.filter((id) => this._abed(id)), typed = !CALLS.includes(msg);
+    const late = this._late, abed = to.filter((id) => this._abed(id)), typed = line < 0;
     if (!checked && this.pin && (late || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `It is after bedtime. ${this._name(this.hass!.states[abed[0]])} is asleep.` : late ? 'It is after bedtime. A call now could wake someone.' : 'A typed message is spoken out loud. That needs a grown-up.', run: () => void this._call(true) }; return; }
-    this._lastCall = Date.now();
+    this._lastCall = Date.now(); this._calling = true;
     const h = this._h, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
+    // The house voice (voice.ts), in this order: a ready message is played from its recording when the file is there; otherwise the house
+    // voice says it live, made and checked on this screen first (a speaker cannot tell us the sound never came), under the day's allowance;
+    // and when neither can be had, the built-in voice says it, as it always did.
+    const file = hv && line >= 0 ? await lineReady(LINES[line]) : '';
+    const live = hv && !file ? await voiceReady(msg) : '';
+    const will = live && hv ? { language: hv.language, options: hv.voice ? { voice: hv.voice } : undefined } : null;
+    const isMa = (id: string): boolean => !!h.services?.music_assistant?.play_announcement && (h.entities?.[id] as { platform?: string } | undefined)?.platform === 'music_assistant';
     // each room answers true when Home Assistant took the call; the toast says "Calling" only for rooms that did
     // the plain way: Home Assistant speaks on the speaker at whatever volume it is set to. If the voice has no such language, it speaks in its own.
-    const speak = (id: string): Promise<boolean> => Promise.resolve(h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice }, { entity_id: tts }))
-      .catch(() => h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts })).then(() => true, (e: unknown) => { console.warn('Family Hub: call failed', id, e); return false; });
+    const builtin = (id: string): Promise<unknown> => !tts ? Promise.reject(new Error('no built-in voice')) : Promise.resolve(h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice }, { entity_id: tts }))
+      .catch(() => h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true }, { entity_id: tts }));
+    const speak = (id: string): Promise<boolean> => (will ? Promise.resolve(h.callService('tts', 'speak', { media_player_entity_id: id, message: msg, cache: true, ...(will.language ? { language: will.language } : {}), ...(will.options ? { options: will.options } : {}) }, { entity_id: hv!.tts })).catch(() => builtin(id)) : builtin(id))
+      .then(() => true, (e: unknown) => { console.warn('Family Hub: call failed', id, e); return false; });
+    // a recording: played as an announcement (the music ducks and comes back); Music Assistant speakers are told how loud
+    const playFile = (id: string): Promise<boolean> => Promise.resolve(h.callService('media_player', 'play_media', { media_content_id: file, media_content_type: 'music', announce: true, ...(isMa(id) ? { extra: { announce_volume: vol } } : {}) }, { entity_id: id })).then(() => true, () => speak(id));
     // Music Assistant speakers can be told how loud to say it: make the speech once, then announce it in each room at the call volume
-    const ma = to.filter((id) => !!h.services?.music_assistant?.play_announcement && (h.entities?.[id] as { platform?: string } | undefined)?.platform === 'music_assistant');
-    const jobs: Promise<boolean>[] = to.filter((id) => !ma.includes(id)).map(speak);
-    if (ma.length) { const url = Promise.resolve(h.callApi<{ url?: string }>('POST', 'tts_get_url', { engine_id: tts, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice })).then((r) => r?.url ?? '', () => '');
+    const ma = file ? [] : to.filter(isMa);
+    const jobs: Promise<boolean>[] = to.filter((id) => !ma.includes(id)).map(file ? playFile : speak);
+    if (ma.length) { const url = live ? Promise.resolve(live) : !tts ? Promise.resolve('') : Promise.resolve(h.callApi<{ url?: string }>('POST', 'tts_get_url', { engine_id: tts, message: msg, cache: true, ...(lang ? { language: lang } : {}), ...voice })).then((r) => r?.url ?? '', () => '');
       for (const id of ma) jobs.push(url.then((u) => u ? Promise.resolve(h.callService('music_assistant', 'play_announcement', { url: u, announce_volume: vol }, { entity_id: id })).then(() => true, () => speak(id)) : speak(id))); }
-    this._calling = true;
     const done = await Promise.all(jobs), okIds = to.filter((id) => done[[...to.filter((x) => !ma.includes(x)), ...ma].indexOf(id)]);
     this._calling = false;
     if (!this.isConnected) return;

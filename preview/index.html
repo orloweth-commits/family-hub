@@ -72,6 +72,9 @@ const paintCard = (label, a = '#2a9d8f', b = '#e9c46a', w = 1024, h = 1024) => {
   g.font = `${Math.round(h * 0.045)}px sans-serif`; g.textAlign = 'center'; g.fillText(label, w / 2, h * 0.94); return c.toDataURL('image/jpeg', 0.7); };
 const hue = (s) => { let n = 0; for (const ch of s) n = (n * 31 + ch.charCodeAt(0)) % 360; return n; };
 const MEDIA = (window.__media = {});
+// the house voice in the preview: a fifth of a second of silence stands in for speech, and the recorded lines are files the test server really has
+const SILENCE = (() => { const n = 1600, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, t) => [...t].forEach((c, i) => b[o + i] = c.charCodeAt(0)); w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44); let t = ''; b.forEach((c) => t += String.fromCharCode(c)); return 'data:audio/wav;base64,' + btoa(t); })();
+if (new URLSearchParams(location.search).get('voice') && new URLSearchParams(location.search).get('vfiles') !== 'none') for (const l of ['dinner', 'getready', 'kitchen', 'bedtime5', 'leave', 'loveyou']) MEDIA[`line-${l}.mp3`] = new URLSearchParams(location.search).get('vfiles') === 'missing' ? '/no-such-line.mp3' : '/package.json';
 const PAINTED = !!q.get('painted');
 if (PAINTED) for (const [n, c] of [['riley', '#0d9488'], ['charlie', '#d97706'], ['max', '#7c3aed']]) { MEDIA[`sheet-${n}.png`] = paintCard(`${n} sheet`, c, '#f4f1ea'); MEDIA[`fhlook-${n}-base.jpg`] = paintCard(n, c, '#fde68a'); }
 const ARTN = q.get('artn') === null ? 3 : Number(q.get('artn'));
@@ -107,7 +110,7 @@ const hass = {
     st('media_player.office', 'idle', { friendly_name: 'Office', volume_level: 0.2, group_members: [] }), st('media_player.rileys_homepod', 'idle', { friendly_name: 'Riley’s HomePod', volume_level: 0.3, group_members: [] }),
     st('media_player.charlies_homepod', 'paused', { friendly_name: 'Charlie’s HomePod', volume_level: 0.25, group_members: [] }), st('media_player.alexs_homepod', 'idle', { friendly_name: 'Alex’s HomePod', volume_level: 0.3, group_members: [] }),
     st('media_player.lounge_room_sonos', 'idle', { friendly_name: 'Lounge Room Sonos', volume_level: 0.4, group_members: [] }), st('media_player.sonos_native', 'playing', { friendly_name: 'Lounge Sonos (native)', source: 'TV' }),
-    st('switch.sonos_night_sound', 'off'), st('switch.sonos_speech_enhancement', 'on'), st('button.kitchen_favorite_current_song', 'unknown'), st('tts.home_assistant_cloud', 'unknown'), st('script.fh_music_sleep', 'off'),
+    st('switch.sonos_night_sound', 'off'), st('switch.sonos_speech_enhancement', 'on'), st('button.kitchen_favorite_current_song', 'unknown'), st('tts.home_assistant_cloud', 'unknown'), st('tts.demo_voice', 'unknown'), (() => { const x = st('input_number.fh_voice_chars', 0); x[1].last_changed = new Date().toISOString(); return x; })(), st('script.fh_music_sleep', 'off'),
     st('todo.family_music', 3), st('todo.riley_music', 2), st('todo.charlie_music', 1), st('todo.max_music', 3),
     st('automation.porch', 'on', { friendly_name: 'Porch light at sunset' }), st('automation.school', 'on', { friendly_name: 'School morning chime' }), st('automation.sprinklers', 'off', { friendly_name: 'Sprinklers' })
   ]),
@@ -154,7 +157,7 @@ const hass = {
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
   },
-  callApi: async (_m, path, body) => { if (_m === 'POST' && String(path).startsWith('config/')) { (window.__calls ||= []).push('api.POST ' + path); window.__apiBody = body; if (path.includes('automation/config/')) { hass.states['automation.family_hub_nightly_art'] = { entity_id: 'automation.family_hub_nightly_art', state: 'on', attributes: { friendly_name: body.alias } }; el.hass = { ...hass }; } return { flow_id: 'flow1', result: 'ok' }; } if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); if (m && (window.__calFail ?? []).includes(m[1])) throw new Error('calendar not reachable'); return m ? (CAL[m[1]] ?? []) : []; },
+  callApi: async (_m, path, body) => { if (_m === 'POST' && String(path).startsWith('config/')) { (window.__calls ||= []).push('api.POST ' + path); window.__apiBody = body; if (path.includes('automation/config/')) { hass.states['automation.family_hub_nightly_art'] = { entity_id: 'automation.family_hub_nightly_art', state: 'on', attributes: { friendly_name: body.alias } }; el.hass = { ...hass }; } return { flow_id: 'flow1', result: 'ok' }; } if (path === 'tts_get_url') { (window.__calls ||= []).push('api.tts_get_url ' + JSON.stringify(body)); if (q.get('voice')) { if (window.__ttsFail === 'throw') throw new Error('engine down'); const u = window.__ttsFail ? '/no-such-sound.mp3' : SILENCE; return { url: u, path: u }; } return { url: 'http://demo.local/tts.mp3', path: '/tts.mp3' }; } const m = /^calendars\/([^?]+)/.exec(path); if (m && (window.__calFail ?? []).includes(m[1])) throw new Error('calendar not reachable'); return m ? (CAL[m[1]] ?? []) : []; },
   callWS: async (msg) => {
     if (msg.type === 'todo/item/list') return { items: store[msg.entity_id] ?? [] };
     // the jar as it stood at midnight: &jarbase=<n> (default three fewer than now), &jarbase=none for a Home Assistant without history
@@ -236,6 +239,9 @@ el.setConfig({
   all_off_wait: Number(q.get('offwait') || 0), pin_shuffle: q.get('shuffle') !== '0',
   // the trust guards (heartbeat, use counts, snapshots) are wired only with &trust=1, so the other suites see no extra calls; &calmin=<minutes> sets the stale limit; &bins=old saves the two colours that are not bins here
   ...(q.get('trust') ? { health: { heartbeat: 'input_datetime.fh_panel_seen', use_log: 'todo.family_hub_use', backup: 'todo.family_hub_backup', ...(q.get('calmin') ? { calendar_minutes: Number(q.get('calmin')) } : {}) } } : {}),
+  // the house voice is wired only with &voice=1 (so the other suites speak as before): &vcap=<chars> sets the daily allowance, &vcount=1 shares the count through a helper,
+  // &vfiles=none leaves the recordings out of the configuration, &vfiles=missing names recordings that are not there. window.__ttsFail = true makes the engine fail.
+  ...(q.get('voice') ? { voice: { tts: 'tts.demo_voice', voice: 'demo-voice', language: 'en', ...(q.get('vfiles') === 'none' ? {} : { files: 'media-source://media_source/local/line-{line}.mp3' }), ...(q.get('vcap') ? { daily_chars: Number(q.get('vcap')) } : {}), ...(q.get('vcount') ? { count: 'input_number.fh_voice_chars' } : {}) } } : {}),
   // &chat=off leaves the Ask button out
   ...(q.get('chat') === 'off' ? {} : { chat: { agent: 'conversation.demo_chat', pipeline: 'demo' } })
 });

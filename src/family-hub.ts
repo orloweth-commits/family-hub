@@ -25,6 +25,7 @@ import { artListOf } from './artlib';
 import { syncNightly } from './nightly';
 import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
+import { forgetLines, lineReady, setVoice } from './voice';
 import { loadFonts } from './fonts';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -46,7 +47,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.33.2';
+const VERSION = '0.33.3';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -194,6 +195,7 @@ export class FamilyHubCard extends LitElement {
     const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     setWeekendExtra(config.bedtime_weekend_extra);
+    setVoice(config.voice, () => this.hass); forgetLines();
     setPinShuffle(config.pin_shuffle !== false);
     this._config = config;
     let snd: string | null = null;
@@ -305,7 +307,7 @@ export class FamilyHubCard extends LitElement {
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > t && e.start.getTime() - t < 18 * 3_600_000 && !this._private(e.title));
     if (next) { const mins = Math.round((next.start.getTime() - t) / 60000); out.push(mins <= 45 ? `${next.title} in ${mins} min` : `${sameDay(next.start, now) ? '' : 'Tomorrow: '}${next.title} at ${fmtTime(next.start)}`); }
     const bn = this._bins(now);
-    if (bn && bn.bins.length && (sameDay(bn.night, now) || sameDay(bn.night, addDays(now, 1)))) out.push(`${sameDay(bn.night, now) ? 'Bins out tonight' : 'Bins out tomorrow'}: ${bn.bins.join(' and ')}`);
+    if (bn && bn.bins.length && (sameDay(bn.night, now) || sameDay(bn.night, addDays(now, 1)))) out.push(`${sameDay(bn.night, now) ? 'Bins out tonight' : 'Bins out tomorrow night'}: ${bn.bins.join(' and ')}`);
     const w = this.hass?.states[c.weather ?? ''];
     if (w) { const temp = Number(w.attributes.temperature), max = this._wx.max; out.push([COND[w.state] ?? '', Number.isFinite(temp) ? `${Math.round(temp)}°` : '', max !== undefined && now.getHours() < 15 ? `top of ${Math.round(max)}°` : ''].filter(Boolean).join(' · ')); }
     return out.filter(Boolean).slice(0, 2);
@@ -1051,7 +1053,10 @@ export class FamilyHubCard extends LitElement {
     this._dinner = null;
     const s = this._config.announce_script;
     if (!s || !this.hass) { this._say('Set announce_script in the card settings'); return; }
-    if (!(await this._call('script', 'turn_on', { entity_id: s }, undefined, this.renderRoot.querySelector('nav [data-nav="dinner"]')))) return;
+    // With a house voice the script is told which recording to play (fh_file), or '' when the file is not there, so that it speaks the line instead.
+    // A script that does not know these variables ignores them.
+    const variables = this._config.voice ? { variables: { fh_line: 'dinner', fh_file: await lineReady('dinner') } } : {};
+    if (!(await this._call('script', 'turn_on', { entity_id: s, ...variables }, undefined, this.renderRoot.querySelector('nav [data-nav="dinner"]')))) return;
     this._dinnerCooldown = Date.now() + 60_000;
     sfx('done');
     this._say('Calling everyone for dinner');
@@ -1090,7 +1095,9 @@ export class FamilyHubCard extends LitElement {
     const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
     const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
     const kp = this._kp, mk = this._page === 'music' && this._musicKid ? this._config.kids?.find((k) => k.name === this._musicKid) : undefined;
-    const calm = this._config.calm === false ? false : kp ? kp.calm : mk ? kidPrefs(mk).calm || this._config.calm === true : this._config.calm === true;
+    // calm: everywhere when the house says so; otherwise a child's page (and Music opened from it) follows his own choice, and the shared pages move.
+    // A child's page is animated until calm is chosen (Oliver, 14 Nov 2026).
+    const calm = this._config.calm === true || (kp ? kp.calm : mk ? kidPrefs(mk).calm : false);
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
@@ -1494,7 +1501,7 @@ export class FamilyHubCard extends LitElement {
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .edit=${this._editEv} .scope=${this._editEv ? this._editScope : ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { const was = this._editEv; if (this._sheet === 'add') close(); this._say(was ? (e.detail.startsWith('!') ? `The new one was added, but the old “${was.title}” could not be removed. Please delete it by hand.` : `Changed: ${e.detail}`) : `Added: ${e.detail}`, was && e.detail.startsWith('!') ? 10000 : undefined); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not ${this._editEv ? 'changed' : 'added'}: Home Assistant did not answer`, 8000)}></fh-add-event>`;
-    if (s === 'chat') { const ch = this._config.chat, name = ch?.name || 'Ask', kids = this._config.kids ?? [];
+    if (s === 'chat') { const ch = this._config.chat, hv = this._config.voice, name = ch?.name || 'Ask', kids = this._config.kids ?? [];
       if (!ch?.agent) return nothing;
       const who = this._asker, kid = who ? kids.find((k) => k.name === who) : undefined, rule = kid ? askFor(kid) : undefined, pics = rule?.mode === 'pictures';
       // set by child and opened from a shared page: first, who is asking? Each child then gets his own kind of Ask and his own time; a grown-up goes through the PIN
@@ -1508,7 +1515,7 @@ export class FamilyHubCard extends LitElement {
       return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
         <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${name} ?data-who=${who === null}>${this._sheetHead(name, who === null ? 'Who is asking?' : pics ? 'Tap a picture.' : 'Ask a question, or tap a picture.')}
           <p class="ainote">${AI_NOTE}</p>
-          ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? ''} .ttsVoice=${ch.tts_voice ?? ''} .ttsLanguage=${ch.tts_language ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
+          ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? hv?.tts ?? ''} .ttsVoice=${ch.tts ? ch.tts_voice ?? '' : hv?.voice ?? ''} .ttsLanguage=${ch.tts ? ch.tts_language ?? '' : hv?.language ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
     const body = s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
@@ -1723,7 +1730,7 @@ export class FamilyHubCard extends LitElement {
     if (contacts.length) secs.push(html`${h3('Who to ring')}${contacts.map((p) => html`<a class="irow tap" href=${`tel:${p.phone.replace(/[^\d+]/g, '')}`} aria-label=${`Ring ${p.name} on ${p.phone}`}><b>${p.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${p.phone}</span></a>`)}`);
     if (beds.length) secs.push(html`${h3('Bedtimes tonight')}${beds.map((k) => html`<div class="irow"><b>${k.name}</b><span>${t12(k.at)}</span></div>`)}`);
     if (tonight.length) secs.push(html`${h3('Still on today')}${tonight.map((x) => html`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${whenOn(x, now).label}</span></div>`)}`);
-    if (bins) secs.push(html`${h3('Bin night')}<div class="irow"><b>${sameDay(bins.night, now) ? 'Tonight' : bins.night.toLocaleDateString('en-AU', { weekday: 'long' })}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(bins.bins)}${bins.bins.join(' + ')}</span></div>`);
+    if (bins) secs.push(html`${h3('Bin night')}<div class="irow"><b>${sameDay(bins.night, now) ? 'Tonight' : `${bins.night.toLocaleDateString('en-AU', { weekday: 'long' })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(bins.bins)}${bins.bins.join(' + ')}</span></div>`);
     if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!c.parent_pin || Date.now() < this._wifiUntil ? html`<b>${b.wifi.password}</b>` : html`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the grown-ups’ PIN" @click=${() => this._wifiAsk()}>${icon('lock', 16)}Show</button>`}</div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);

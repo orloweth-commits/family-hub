@@ -146,7 +146,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   await off.context().close(); }
 
 // 5. the jar, tied to the jobs
-for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=kid&kid=0`, '16:20', { before: () => { try { localStorage.setItem('family-hub-kid-riley', JSON.stringify({ calm: false })); } catch { /* blocked */ } } }); const kid = K(page);
+for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=kid&kid=0`); const kid = K(page); // a child's page is animated unless calm is chosen (0.33.3)
   const rows = await kid.locator('.job.row').evaluateAll((els) => els.map((e) => ({ t: e.querySelector('.t').textContent.trim(), mb: e.querySelector('.mb')?.textContent.trim() ?? '', label: e.querySelector('.mb')?.getAttribute('aria-label') ?? '', pts: e.querySelector('.plus')?.textContent.trim() ?? '' })));
   const job = rows.find((x) => x.t === 'Unpack the dishwasher'), routine = rows.find((x) => x.t === 'Homework'), grow = rows.find((x) => /Clarinet/.test(x.t));
   ok(`${look}: a family job carries a marble and “+1”, with its points beside it`, job?.mb === '+1' && job.label === 'Adds one marble to the family jar' && job.pts === '+10', job);
@@ -170,9 +170,9 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     ok('the points still go to the child who did it', await state(page, 'input_number.riley_points') === '130');
   }
   await page.context().close(); }
-{ const page = await open('look=glass&page=kid&kid=0'); const kid = K(page); // a child's page is calm until he chooses otherwise
+{ const page = await open('look=glass&page=kid&kid=0', '16:20', { before: () => { try { localStorage.setItem('family-hub-kid-riley', JSON.stringify({ calm: true })); } catch { /* blocked */ } } }); const kid = K(page); // calm is a choice (0.33.3): this child has made it
   await kid.locator('.job.row', { hasText: 'Unpack the dishwasher' }).click(); await page.waitForTimeout(200);
-  ok('in calm mode (how a child’s page starts) nothing flies; the marble is still added', await kid.locator('.marble.fly').count() === 0 && (await calls(page, /script\.fh_add_points .*"jar":1/)).length === 1);
+  ok('in calm mode (a child’s own choice) nothing flies; the marble is still added', await kid.locator('.marble.fly').count() === 0 && (await calls(page, /script\.fh_add_points .*"jar":1/)).length === 1);
   await page.context().close();
   const nohist = await open('look=glass&page=kid&kid=0&jarbase=none');
   const j = (await K(nohist).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();

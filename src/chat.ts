@@ -6,6 +6,7 @@ import type { Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
 import { getShape, hush, say, sfx } from './util';
 import { isMuted } from './sound';
+import { voiceSpent, voiceUrl } from './voice';
 
 /* ------------------------------------------------------------------ *
  * Ask: a chat with an AI helper, for the children. The helper's own
@@ -329,9 +330,10 @@ export class FhChat extends LitElement {
   private _said = 0;
   private _speak(text: string, then?: () => void): void {
     const n = ++this._said, own = (): void => { if (n !== this._said) return; say(text); if (then) this._again = window.setTimeout(then, Math.max(1500, text.length * 75)); };
-    if (!this.tts || !this.hass?.callApi) { own(); return; }
-    within(Promise.resolve(this.hass.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', { engine_id: this.tts, message: text, cache: true, ...(this.ttsLanguage ? { language: this.ttsLanguage } : {}), ...(this.ttsVoice ? { options: { voice: this.ttsVoice } } : {}) })), 8000)
-      .then((r) => { if (n !== this._said) return; const url = r?.path ?? r?.url; if (!url) { own(); return; } hush(); this._play(String(url), then, own); }, () => own());
+    // Ask's own voice when it has one, otherwise the house voice; either way under the day's allowance (voice.ts), with the screen's own voice beyond it
+    const e = this.tts ? { tts: this.tts, voice: this.ttsVoice || undefined, language: this.ttsLanguage || undefined } : null;
+    if (!e || !this.hass?.callApi) { own(); return; }
+    void voiceUrl(text, e).then((u) => { if (n !== this._said) return; if (!u.url) { own(); return; } hush(); voiceSpent(text, e); this._play(u.url, then, own); });
   }
   private _press(k: string): void { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); this._typed = this._typed.slice(0, MAX_CHARS); }
 

@@ -589,7 +589,7 @@ export class FhSettings extends LitElement {
       </div>
       <div class="scard"><h3>${k.name}’s page <span class="muted">what it starts with</span></h3>
         ${this._row('Look', '', html`<div class="schips" role="group" aria-label="Look">${[['', 'Same as the panel'], ...LOOKS.map((l) => [l.id, l.name])].map(([id, n]) => html`<button class="tap" aria-pressed=${String((k.look_id ?? '') === id)} @click=${() => set((x) => { if (id) x.look_id = id as KidConfig['look_id']; else delete x.look_id; })}>${n}</button>`)}</div>`)}
-        ${this._row('Calm mode', 'No looping motion or tilted cards.', this._sw('Calm mode', k.calm ?? true, () => set((x) => { x.calm = !(x.calm ?? true); })))}
+        ${this._row('Calm mode', 'No looping motion or tilted cards, and nothing travels. Off unless you choose it: his page is animated.', this._sw('Calm mode', k.calm ?? false, () => set((x) => { if (x.calm) delete x.calm; else x.calm = true; })))}
         ${this._row('Sounds', 'Timers and alarms always sound.', this._seg('Sounds', k.sound_level ?? 'full', [['off', 'Off'], ['soft', 'Soft'], ['full', 'On']], (v) => set((x) => { x.sound_level = v; })))}
         ${this._row('One job at a time', 'Shows Now and Next, with “Show all” one tap away. Off shows the whole list.', this._sw('One job at a time', k.focus ?? true, () => set((x) => { x.focus = !(x.focus ?? true); })))}
         ${this._row('Older mode', 'A plainer page for an older child: no rank names or pictures on his jobs, his week first, and a private “Ask for a chat” in place of the feelings faces.', this._sw('Older mode', !!k.older, () => set((x) => { if (x.older) delete x.older; else x.older = true; })))}
@@ -761,6 +761,8 @@ export class FhSettings extends LitElement {
     const setBins = (fn: (b: NonNullable<Cfg['bins']>) => void): void => this._edit((x) => { x.bins = x.bins ?? { day: 1 }; fn(x.bins); });
     const names = Object.keys(BINS), notBins = [...new Set([...(bins?.always ?? []), ...(bins?.alternate ?? [])].map((s) => s.toLowerCase()).filter((s) => !isBin(s)))];
     const hc = d.health, cap = (s: string): string => s[0].toUpperCase() + s.slice(1);
+    // the setting says what it means: the night the bins go out, with the morning they are collected spelt out beside it
+    const binSay = (day: number): string => `Out on ${DAYS[day]} night, collected ${DAYS[(day + 1) % 7]} morning.`;
     const binChips = (label: string, list: string[], set: (l: string[]) => void): TemplateResult => html`<div class="schips" role="group" aria-label=${label}>${names.map((n) => html`<button class="tap" aria-pressed=${String(list.map((s) => s.toLowerCase()).includes(n))} @click=${() => set(list.map((s) => s.toLowerCase()).includes(n) ? list.filter((s) => s.toLowerCase() !== n) : [...list, n])}><i class="sw6" style="background:${BINS[n].col}" aria-hidden="true"></i>${cap(n)}<span class="muted" style="font-weight:500">${BINS[n].what}</span></button>`)}</div>`;
     return html`
       <div class="scard"><h3>${icon('moon', 20)}Night</h3>
@@ -774,12 +776,12 @@ export class FhSettings extends LitElement {
         ${this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
       </div>` : nothing}
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>
-        ${this._row('Bins go out', 'Shown on the planner the evening before collection.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}
+        ${this._row('Show bin night', 'On the planner, the screensaver and House info, on the evening the bins go out.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}
         ${bins ? html`
-          ${this._row('Collection day', '', html`<div class="schips" role="group" aria-label="Collection day">${DAYS.map((n, i) => html`<button class="tap" aria-pressed=${String(bins.day === i)} @click=${() => setBins((b) => { b.day = i; })}>${n.slice(0, 3)}</button>`)}</div>`)}
+          ${this._row('Bins go out on', `The night before the truck comes. ${binSay(bins.day)}`, html`<div class="schips" role="group" aria-label="Night the bins go out">${DAYS.map((n, i) => html`<button class="tap" aria-pressed=${String(bins.day === i)} @click=${() => setBins((b) => { b.day = i; })}>${n.slice(0, 3)}</button>`)}</div>`)}
           ${this._row('Every week', '', binChips('Bins every week', bins.always ?? [], (l) => setBins((b) => { b.always = l; })))}
           ${this._row('Taking turns', (bins.alternate ?? []).filter(isBin).length > 1 ? `In this order: ${(bins.alternate ?? []).filter(isBin).join(', then ')}.` : 'Bins that go out week about.', binChips('Bins taking turns', bins.alternate ?? [], (l) => setBins((b) => { b.alternate = l; })))}
-          ${(bins.alternate ?? []).length > 1 ? this._row(`A week the ${bins.alternate![0]} bin went out`, 'Any collection day it went out on: the turns are counted from there.', html`<input class="sin" type="date" aria-label="A collection day the first bin went out" .value=${bins.anchor ?? ''} @input=${(e: Event) => setBins((b) => { b.anchor = (e.target as HTMLInputElement).value; })}>`) : nothing}
+          ${(bins.alternate ?? []).length > 1 ? this._row(`A week the ${bins.alternate![0]} bin went out`, 'Any week it went out: the turns are counted from there.', html`<input class="sin" type="date" aria-label="A week the first bin went out" .value=${bins.anchor ?? ''} @input=${(e: Event) => setBins((b) => { b.anchor = (e.target as HTMLInputElement).value; })}>`) : nothing}
           ${notBins.length ? html`<span class="shint" data-act="bin-extra">${notBins.map(cap).join(' and ')}: not a bin here. ${notBins.length > 1 ? 'They go' : 'It goes'} when you save.</span>` : nothing}` : nothing}
       </div>
       <div class="scard"><h3>${icon('bulbOff', 20)}All off leaves these on</h3>
@@ -791,7 +793,7 @@ export class FhSettings extends LitElement {
         ${LOOKS.find((l) => l.id === look)?.themed ? this._row('Background', '', html`<div class="schips" role="group" aria-label="Background">${THEMES.map((t) => html`<button class="tap" aria-pressed=${String((d.theme ?? 'sea') === t.id)} @click=${() => this._edit((x) => { x.theme = t.id; })}>${t.name}</button>`)}</div>`) : nothing}
         ${this._row('Touch sounds', 'Timers and alarms always sound.', this._seg('Touch sounds', d.sounds === false ? 'off' : d.sounds === 'quiet' ? 'soft' : 'on', [['off', 'Off'], ['soft', 'Soft'], ['on', 'On']], (v) => this._edit((x) => { if (v === 'on') delete x.sounds; else x.sounds = v === 'off' ? false : 'quiet'; })))}
         ${this._row('Life behind the page', 'Twinkling stars, glints on the water, now and then a visitor.', this._sw('Life behind the page', d.ambient !== false, () => this._edit((x) => { if (x.ambient === false) delete x.ambient; else x.ambient = false; })))}
-        ${this._row('Calm mode', 'No looping motion and no tilt.', this._seg('Calm mode', d.calm === true ? 'all' : d.calm === false ? 'never' : 'kids', [['kids', 'Children’s pages'], ['all', 'Everywhere'], ['never', 'Never']], (v) => this._edit((x) => { if (v === 'kids') delete x.calm; else x.calm = v === 'all'; })))}
+        ${this._row('Calm mode', 'No looping motion and no tilt. A child’s page is animated unless calm is chosen for him.', this._seg('Calm mode', d.calm === true ? 'all' : 'kids', [['kids', 'Each child chooses'], ['all', 'Everywhere']], (v) => this._edit((x) => { if (v === 'kids') delete x.calm; else x.calm = true; })))}
         <span class="shint">Each screen can pick its own look and sounds with the palette button. Saving here sets this screen to match.</span>
       </div>
       <div class="scard"><h3>Words</h3>

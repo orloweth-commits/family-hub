@@ -67,7 +67,7 @@ console.log('bed wedge:', await page.locator('fh-kid .bedclock').getAttribute('a
 await page.close();
 
 // 7. calm mode stops the avatar loops
-page = await open('look=glass&page=kid&kid=1');
+page = await open('look=glass&page=kid&kid=1&calm=1');
 console.log('calm:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; const fh = r.querySelector('.fh'); const bob = r.querySelector('fh-kid').shadowRoot.querySelector('.av-bob'); return fh.hasAttribute('data-calm') + ' bob loops=' + (bob ? getComputedStyle(bob).animationIterationCount : 'n/a'); }));
 // 8. month cell and presence labels, scroll cue
 await HOME(page); await page.getByRole('button', { name: 'Planner' }).click(); await page.getByRole('button', { name: 'Month' }).click(); await page.waitForTimeout(300);
