@@ -104,7 +104,7 @@ else {
   ok('events in time order, all-day first, with a child’s name on what is his', mon.indexOf('All day: Nan’s birthday') >= 0 && mon.indexOf('6:45 am Swim squad (Riley)') > mon.indexOf('All day: Remembrance week') && mon.indexOf('3:30 pm Dentist') > mon.indexOf('6:45 am Swim squad (Riley)') && mon.indexOf('5:00 pm Riley basketball') > mon.indexOf('3:30 pm Dentist'), mon);
   ok('the same event in two calendars is said once', mon.filter((l) => /Dentist/.test(l)).length === 1);
   ok('each calendar’s own word filter applies (hide, only)', !has('monday', /Melbourne Cup|Canberra|Anniversary/));
-  ok('a private event keeps its time and loses its words', mon.includes('11:00 am Private event') && !has('monday', /Paediatrician/));
+  ok('a private event is left out of the message altogether', !has('monday', /Private|Paediatrician|11:00/), mon);
   ok('an event that began today is not given tomorrow’s time', mon.includes('Continues: Night shift'));
   ok('leaving times on a school day: an early event of his own pulls one child earlier, and says why', mon.includes('Leave by: 6:30 am Riley (Swim squad); 7:30 am Max; 7:50 am Charlie.'), mon.find((l) => /^Leave/.test(l)));
   ok('bin night tonight: the weekly bin and the one whose turn it is; a colour that is not a bin is left out', mon.includes('Bins out tonight: green and yellow.'), mon.find((l) => /^Bins/.test(l)));
