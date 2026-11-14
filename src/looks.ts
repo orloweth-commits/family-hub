@@ -74,7 +74,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
       'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
-    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
+    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
@@ -1629,7 +1629,7 @@ const OBSIDIAN = `
   @B .cap.hot { background: rgba(255,138,125,.12); color: var(--ink); border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); animation: fhHot 1.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .cap[data-warm] { background: rgba(255,170,40,.12); color: var(--ink); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
   @B .badge { background: rgba(255,170,40,.16); color: var(--sel-ink); font-weight: 500; }
-  @B .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
+  @B .presence { background: transparent; border-color: transparent; box-shadow: none; gap: 2px; padding: 7px 0; }
   @B .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1px var(--ctl-line); opacity: 1; }
   @B .right { gap: 6px; }
   @B .right > button.round { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
@@ -1731,6 +1731,8 @@ const OBSIDIAN = `
   @B .rw .n { font-weight: 300; }
   @B .rw button { font-weight: 500; }
   @B .rw button.save { background: var(--chip); color: var(--ink2); }
+  /* the question a reward asks (Spend? Ask a parent?) is a lit cell, not a ruled line */
+  @B .rw.ask { background: var(--sel-bg); border-radius: 14px; border-bottom: 0; padding: 10px 12px; box-shadow: var(--sel-ring), 0 0 26px -12px var(--accent); }
 
   /* groceries */
   @B .items { gap: 0; }

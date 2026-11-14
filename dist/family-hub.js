@@ -1544,7 +1544,7 @@ const as = (a, t = "--m-3") => {
       "themes",
       "setrow"
     ],
-    "fh-kid": ["hero", "avbtn", "name", "rank", "stat", "dots", "g", "t", "nextup", "jobs", "sec", "plus", "play", "later", "side", "rw", "n", "save", "pic", "wk", "job", "ring", "going", "e", "pt", "stars", "small", "cost", "notyet", "readme", "seedone", "studio"],
+    "fh-kid": ["hero", "avbtn", "name", "rank", "stat", "dots", "g", "t", "nextup", "jobs", "sec", "plus", "play", "later", "side", "rw", "ask", "n", "save", "pic", "wk", "job", "ring", "going", "e", "pt", "stars", "small", "cost", "notyet", "readme", "seedone", "studio"],
     "fh-groceries": ["list", "items", "tag", "who", "clear"],
     "fh-music": [
       "stage",
@@ -3297,7 +3297,7 @@ const q1 = `
   @B .cap.hot { background: rgba(255,138,125,.12); color: var(--ink); border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); animation: fhHot 1.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .cap[data-warm] { background: rgba(255,170,40,.12); color: var(--ink); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
   @B .badge { background: rgba(255,170,40,.16); color: var(--sel-ink); font-weight: 500; }
-  @B .presence { background: transparent; border-color: transparent; gap: 2px; padding: 7px 0; }
+  @B .presence { background: transparent; border-color: transparent; box-shadow: none; gap: 2px; padding: 7px 0; }
   @B .presence .avatar.away { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1px var(--ctl-line); opacity: 1; }
   @B .right { gap: 6px; }
   @B .right > button.round { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
@@ -3399,6 +3399,8 @@ const q1 = `
   @B .rw .n { font-weight: 300; }
   @B .rw button { font-weight: 500; }
   @B .rw button.save { background: var(--chip); color: var(--ink2); }
+  /* the question a reward asks (Spend? Ask a parent?) is a lit cell, not a ruled line */
+  @B .rw.ask { background: var(--sel-bg); border-radius: 14px; border-bottom: 0; padding: 10px 12px; box-shadow: var(--sel-ring), 0 0 26px -12px var(--accent); }
 
   /* groceries */
   @B .items { gap: 0; }
@@ -12448,6 +12450,7 @@ Fo.styles = [Zt, ci, X`${Vt(hi)}`, i2, X`
     :host([data-look='obsidian']) .coin .has, :host([data-look='obsidian']) .pickrow .pcover .art { background: var(--art, linear-gradient(160deg, #23272e, #0b0e13)) center / cover; color: var(--ink2); }
     :host([data-look='obsidian']) .pinw { background: conic-gradient(var(--accent), var(--live), var(--accent)); box-shadow: none; -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 61%); mask: radial-gradient(circle, transparent 0 58%, #000 61%); }
     :host([data-look='obsidian']) .pinw::after { display: none; }
+    :host([data-look='obsidian']) .agrab i { background: #0c0d10; color: var(--ink); box-shadow: inset 0 0 0 1px var(--c), 0 0 14px -4px var(--c); } :host([data-look='obsidian']) .agrab[data-idle] i { box-shadow: inset 0 0 0 1px var(--ctl-line); }
     :host([data-look='obsidian']) .pinstrip { background: #0c0d10; border: 1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,170,40,.35), 0 18px 50px -14px rgba(0,0,0,.9); font-weight: 400; }
     :host([data-look='obsidian']) .pinto { background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px var(--ctl-line); } :host([data-look='obsidian']) .pinto[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring), 0 0 22px -6px var(--accent); }
     .mzone[data-held] .grab { transition: none; } .mzone[data-held] .pool { transition: none; }
