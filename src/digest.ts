@@ -7,7 +7,7 @@ import { JAR, SNAP_PREFIX } from './trust';
  * parent's phone, read-only:
  *
  *   anything the panel is unsure of   a calendar that can't be reached, a wall panel that has gone quiet
- *   tomorrow                          the events, and on a school day when each child leaves
+ *   tomorrow                          the events (never a private one), and on a school day when each child leaves
  *   bins                              when tonight or tomorrow is bin night
  *   medicine                          a daily medicine with no record today
  *   rewards                           what is waiting on the reward ledger
@@ -72,12 +72,13 @@ const messageTemplate = (cfg: FamilyHubConfig, owedEntity: string): string => {
     // (a helper no screen has ever stamped reads as midnight today: no wall panel has been named yet, which is not a panel that has stopped)
     `{%- if hb > 0 and (hb | timestamp_custom('%H:%M:%S')) != '00:00:00' and now().timestamp() - hb > ${Math.max(10, h.heartbeat_minutes ?? 20) * 60} -%}${say(`'Check: the wall panel hasn’t checked in since ' ~ ('' if (hb | timestamp_custom('%Y-%m-%d')) == today else ((hb | timestamp_custom('%A')) ~ ' at ')) ~ (hb | timestamp_custom('%-I:%M %p') | lower) ~ '.'`)}{%- endif -%}`
   );
-  // tomorrow's events: each calendar's own word filter, the same event in two calendars once, private ones without their words
+  // tomorrow's events: each calendar's own word filter, the same event in two calendars once, private ones left out
   T.push(
     `{%- for c in CALS -%}{%- for e in (cal[c.e].events if (read and c.e in cal) else []) -%}`,
     `{%- set t = (e.summary | default('', true) | string | trim) -%}{%- set tl = t | lower -%}{%- set s = e.start | string -%}{%- set key = tl ~ '|' ~ s -%}`,
-    `{%- if t and key not in ns.seen and (not c.only or (c.only | select('in', tl) | list | count) > 0) and (c.hide | select('in', tl) | list | count) == 0 -%}`,
-    `{%- set ns.seen = ns.seen + [key] -%}{%- set allday = (s | length) <= 10 -%}{%- set priv = (PRIV | select('in', tl) | list | count) > 0 -%}`,
+    // (a private event is left out altogether: Oliver, 14 Nov 10:50 pm. The panel still shows its discreet chip)
+    `{%- if t and key not in ns.seen and (PRIV | select('in', tl) | list | count) == 0 and (not c.only or (c.only | select('in', tl) | list | count) > 0) and (c.hide | select('in', tl) | list | count) == 0 -%}`,
+    `{%- set ns.seen = ns.seen + [key] -%}{%- set allday = (s | length) <= 10 -%}{%- set priv = false -%}`,
     `{%- set d = none if allday else (as_datetime(s) | as_local) -%}{%- set m = (d.hour * 60 + d.minute) if (d and d.strftime('%Y-%m-%d') == tom) else -1 -%}`,
     `{%- set ns.ev = ns.ev + [{'k': ('0' if allday else ('1' if m < 0 else '2' ~ ('%04d' % m))) ~ tl, 'a': allday, 'm': m, 't': ('Private event' if priv else t), 'tl': tl, 'w': c.who, 'p': priv}] -%}`,
     `{%- endif -%}{%- endfor -%}{%- endfor -%}`,
