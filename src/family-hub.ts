@@ -12,7 +12,7 @@ import './music';
 import './weather';
 import './doodle';
 import './morning';
-import { art } from './art';
+import { art, moonAge, type ArtData } from './art';
 import './addevent';
 import { setPinShuffle } from './pin';
 import './chat';
@@ -1377,10 +1377,24 @@ export class FamilyHubCard extends LitElement {
       ${cut ? html`<span class="remmore">+${cut} more</span>` : nothing}`;
   }
 
+  /** What the dock's drawings show of this house, now: only things the card already knows. */
+  private _artData(playing: boolean): ArtData {
+    const c = this._config, st = this.hass?.states ?? {}, now = this._now, mins = now.getHours() * 60 + now.getMinutes();
+    const w = c.weather ? st[c.weather] : undefined, mpS = c.music_player ? st[c.music_player] : undefined;
+    const sunUp = st['sun.sun'] ? st['sun.sun'].state === 'above_horizon' : now.getHours() >= 6 && now.getHours() < 19;
+    const pic = playing ? (mpS?.attributes.entity_picture as string | undefined) : undefined;
+    const g = c.groceries ? Number(st[c.groceries]?.state) : NaN;
+    const m0 = hm(c.morning?.start ?? '06:30'), m1 = hm(c.morning?.end ?? '08:45');
+    return { day: now.getDate(), dow: now.toLocaleDateString('en-AU', { weekday: 'short' }), cond: w?.state, dark: !sunUp, playing,
+      cover: pic ? (/^(https?:|data:)/.test(pic) ? pic : this.hass?.hassUrl ? this.hass.hassUrl(pic) : pic) : undefined,
+      count: Number.isFinite(g) ? g : undefined, lit: Object.values(st).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length,
+      frac: (mins - m0) / Math.max(1, m1 - m0), moon: moonAge(now), south: (this.hass?.config?.latitude ?? -32) < 0 };
+  }
   private _dock(): TemplateResult {
     const mp = this._config.music_player, playing = !!mp && this.hass?.states[mp]?.state === 'playing';
+    const live = this._artData(playing);
     const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
+      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26, live)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
     // on a child's page the dock is his face and the way home: nothing else to look at or press
     if (this._page === 'kid' && kids[this._kid]) { const k = kids[this._kid], e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
@@ -1406,8 +1420,8 @@ export class FamilyHubCard extends LitElement {
       ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep wide" aria-hidden="true"></span>
-      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26)}All on</button>
-      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26)}All off</button>
+      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26, live)}All on</button>
+      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26, live)}All off</button>
       ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${art('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
     </nav>`;
   }
@@ -1470,7 +1484,7 @@ export class FamilyHubCard extends LitElement {
   private _moreBody(): TemplateResult {
     const c = this._config, h = this.hass, tracked = (c.people ?? []).filter((p) => p.entity);
     const go = (act: string, ic: string, label: string, sub: string, run: () => void): TemplateResult =>
-      html`<button class="morebtn tap" data-act=${act} @click=${run}>${art(ic, 30)}<span><b>${label}</b><span class="muted">${sub}</span></span></button>`;
+      html`<button class="morebtn tap" data-act=${act} @click=${run}>${art(ic, 36, { moon: moonAge(this._now), south: (this.hass?.config?.latitude ?? -32) < 0 })}<span><b>${label}</b><span class="muted">${sub}</span></span></button>`;
     return html`${this._sheetHead('More', '', '')}
       <div class="moregrid">
         ${go('looks', 'palette', 'Looks', 'Change how the panel looks', () => { this._sheet = ''; this._openLooks(); })}
