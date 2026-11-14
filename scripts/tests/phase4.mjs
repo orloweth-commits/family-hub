@@ -44,7 +44,7 @@ const noMeds = async (page) => { await page.evaluate(async () => { const c = doc
     await card.locator(`.sheet[data-sheet="more"] .morebtn[data-act="${act}"]`).click(); await page.waitForTimeout(450);
     ok(`More, ${act}: opens ${act === 'looks' ? 'the looks (behind the PIN here)' : 'its sheet'}`, (await head(page)).sheet === want, (await head(page)).sheet); await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c._pinAsk = null; c._sheet = 'more'; }); await page.waitForTimeout(350); }
   await card.locator('.sheet[data-sheet="more"] .morebtn[data-act="night"]').click(); await page.waitForTimeout(500);
-  ok('More, night: the night screen comes up', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); return c._nightManual === true && c._sheet === ''; }));
+  ok('More, night: the screensaver comes up at its night level', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); return c._nightManual === true && c._sheet === '' && c._art.on && !!c.shadowRoot.querySelector('.artm[data-night]'); }));
   await page.context().close();
   const nomed = await open('look=glass&page=planner&meds=missing'); await nomed.evaluate(async () => { const c = document.querySelector('family-hub-card'); const { meds, med_log, ...rest } = c._config; c.setConfig(rest); c._sheet = 'more'; await c.updateComplete; }); await nomed.waitForTimeout(400);
   ok('a house with no medicines set up has no Medicine in More', (await C(nomed).locator('.sheet[data-sheet="more"] .morebtn').evaluateAll((els) => els.map((e) => e.dataset.act))).join(',') === 'looks,info,night'); await nomed.context().close(); }

@@ -20,7 +20,7 @@ import { AI_NOTE } from './chat';
 import './settings';
 import { configError } from './validate';
 import { setMediaHass } from './media';
-import { ArtMode, artCss, artNight, artView } from './artmode';
+import { ArtMode, artCss, artNight, artView, brightTarget } from './artmode';
 import { artListOf } from './artlib';
 import { syncNightly } from './nightly';
 import { pinFresh, resumeNow } from './settings-store';
@@ -47,7 +47,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.33.4';
+const VERSION = '0.33.5';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -65,7 +65,7 @@ export class FamilyHubCard extends LitElement {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
-    _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _awakeUntil: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
+    _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true }, _wifiUntil: { state: true }, _calTick: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
   };
@@ -153,7 +153,6 @@ export class FamilyHubCard extends LitElement {
   /** set for a moment when time is added to the kitchen timer: the digits roll and the ring sweeps */
   private _bump = 0;
   private _remJust = '';
-  private _awakeUntil = 0;
   private _nightManual = false;
   private _page: Page = 'planner';
   private _kid = 0;
@@ -175,6 +174,8 @@ export class FamilyHubCard extends LitElement {
   /** What Home Assistant needs for the trust guards (the snapshot automation, the restore script, the panel watch), built from this configuration. Used when the card is set up; nothing on screen calls it. */
   trustSetup(): HaTrust { return haTrust(this._config); }
   /** The snapshot record and the use counts in TypeScript, for the tests and the restore drill: `customElements.get('family-hub-card').trust`. */
+  /** the brightness the screen should have for a given sun and room light (artmode.ts), for the tests and for calibrating at the wall */
+  static bright = brightTarget;
   static trust = { snapshotOf, snapText, snapParse, restoreCalls, useTotals, haTrust };
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
@@ -290,8 +291,9 @@ export class FamilyHubCard extends LitElement {
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   private _artBlocked(): boolean {
-    if (this._timerLeft() !== null || this._dinner || this._off || this._alarm || this._sheet || this._pinAsk || this._isNight()) return true;
-    if (Date.now() - this._musicAt < Math.max(this._art.idleMs, 10 * 60_000) && this._page === 'music') return true;
+    if (this._timerLeft() !== null || this._dinner || this._off || this._alarm || this._sheet || this._pinAsk) return true;
+    // someone choosing music is given longer, but only while something is actually playing
+    if (this._page === 'music' && Date.now() - this._musicAt < 10 * 60_000 && Object.values(this.hass?.states ?? {}).some((x) => x.entity_id.startsWith('media_player.') && x.state === 'playing')) return true;
     const f = this._focused();
     if (f && (f.matches('input, textarea, select') || f.isContentEditable)) return true;
     const page = this.renderRoot.querySelector('fh-music, fh-kid, fh-doodle') as (HTMLElement & { _calling?: boolean; _practice?: unknown; _studio?: boolean }) | null;
@@ -317,9 +319,12 @@ export class FamilyHubCard extends LitElement {
     const now = new Date(), timerOn = this._timerLeft() !== null;
     if (this._config) {
       const was = this._art.on;
-      this._art.tick(Date.now() - this._lastTouch, this._artBlocked(), this._eventsOn(now, this._soon).map((e) => e.title));
+      const night = this._isNight();
+      this._art.tick(Date.now() - this._lastTouch, this._artBlocked(), this._eventsOn(now, this._soon).map((e) => e.title), night);
       if (this._art.on !== was) this._now = now;
-      this._art.backlight(this._isNight() || (this._art.on && artNight(this._config.kids, this._config.quiet, now)) ? 'night' : this._art.on ? 'art' : 'hub');
+      // "Night" lasts until the panel is next woken
+      if (!this._art.on && this._nightManual) this._nightManual = false;
+      this._art.backlight(this._art.on ? (night ? 'night' : 'art') : 'hub', now.getTime());
     }
     // second-by-second only while something is counting down; otherwise every 15 s
     if (timerOn || this._dinner || this._off || now.getSeconds() % 15 === 0) this._now = now;
@@ -409,6 +414,8 @@ export class FamilyHubCard extends LitElement {
   }
   /** Escape closes whatever is on top (the PIN pad, then the dinner countdown, then a sheet); Tab stays inside an open sheet. */
   private _keys = (e: KeyboardEvent): void => {
+    // a key is a touch: it keeps the screensaver away, and brings the panel back from it
+    this._lastTouch = Date.now(); if (this._idle) this._idle = false; if (this._art.on) this._art.wake();
     if (e.key === 'Escape' && !e.defaultPrevented) {
       if (this._pinAsk) { const pad = this.renderRoot.querySelector('fh-pin') as (HTMLElement & { cancel?: () => void }) | null; if (pad?.cancel) pad.cancel(); else this._pinAsk = null; } else if (this._dinner) this._dinnerCancel(); else if (this._off) this._offCancel(); else if (this._sheet) this._sheet = ''; else return;
       e.preventDefault();
@@ -1089,7 +1096,6 @@ export class FamilyHubCard extends LitElement {
     if (!this._config) return nothing;
     const kid = this._page === 'kid' ? this._config.kids?.[this._kid] : undefined;
     const theme = themeById(kid?.theme ?? this._theme);
-    const night = this._isNight();
     const look = lookById(this._lk);
     // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
     const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
@@ -1101,12 +1107,11 @@ export class FamilyHubCard extends LitElement {
     const h = this._now.getHours();
     const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
-    // things that fade out before they leave: the sheet, the toast, the PIN pad's question and the night screen
-    const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [, nightOut] = linger(this, 'night', night, 400), [artUp, artOut] = linger(this, 'art', this._art.on, 250);
-    if (night) return html`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${calm} style=${`${skin}--z:${this._z}`}>${this._night()}</div>`;
+    // things that fade out before they leave: the sheet, the toast, the PIN pad's question and the screensaver
+    const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [artUp, artOut] = linger(this, 'art', this._art.on, 250);
     return html`
       <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} data-dow=${this._now.getDay()} ?data-calm=${calm} ?data-compact=${this._compact} style=${`${skin}--tod:${tod};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || nightOut || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || nightOut || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
+        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -1114,7 +1119,6 @@ export class FamilyHubCard extends LitElement {
         ${this._dinner ? this._dinnerView() : nothing}
         ${this._off ? this._offView() : nothing}
         <div class="toasts" role="status" aria-live="polite">${toast ? html`<div class="toast" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.act ? html`<button class="tap" @click=${() => { const a = this._toastAct; this._toast = ''; this._toastAct = null; clearTimeout(this._toastTimer); sfx('undo'); a?.run(); }}>${toast.act.label}</button>` : nothing}</div>` : nothing}</div>
-        ${nightOut ? this._night(true) : nothing}
         ${artUp ? this._artView(artOut, calm, theme.id, todKey) : nothing}
         ${this._alarm ? this._alarmView() : nothing}
         ${this._pinAsk ? html`<fh-pin .pin=${String(this._config.parent_pin ?? '')} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
@@ -1148,16 +1152,15 @@ export class FamilyHubCard extends LitElement {
   }
 
   private _artView(closing: boolean, calm: boolean, theme: string, tod: string): TemplateResult {
-    const now = this._now, clk = fmtClock(now), night = artNight(this._config.kids, this._config.quiet, now);
+    const now = this._now, clk = fmtClock(now), night = this._isNight();
     const arcs = this._arcs(this._eventsOn(now, this._soon)).map((x) => (night ? { ...x, colour: 'rgba(255,178,107,.7)' } : x));
     return artView(this._art, { now, hm: clk.hm, ampm: clk.ampm, date: fmtLongDate(now), art: lookArt(this._lk, 'night', { now, arcs, size: 190 }), lines: closing ? [] : this._artLines(), night, closing, calm, look: this._lk, theme, tod,
       onWake: (e: Event) => { if (e.type === 'keydown') { e.preventDefault(); this._lastTouch = Date.now(); this._art.wake(); } } });
   }
+  /** Night: a grown-up chose "Night", or it is the night window, or a child's bedtime has passed. The screensaver then shows its pictures dimmer and warmer, and the screen is at its lowest. */
   private _isNight(): boolean {
-    if (this._nightManual) return true;
     const n = this._config.night;
-    if (!n || this._alarm) return false;
-    return inWindow(this._now, n.start, n.end) && Date.now() > this._awakeUntil;
+    return this._nightManual || (!!n && inWindow(this._now, n.start, n.end)) || artNight(this._config.kids, this._config.quiet, this._now);
   }
 
   /** One fixed row of at most two chips, most urgent first, so the header never changes height. */
@@ -1532,7 +1535,7 @@ export class FamilyHubCard extends LitElement {
         ${go('looks', 'palette', 'Looks', 'Change how the panel looks', () => { this._sheet = ''; this._openLooks(); })}
         ${c.meds?.length || c.med_log ? go('meds', 'pill', 'Medicine', 'Given today, and the record', () => { this._sheet = 'meds'; void this._loadMedLog(); }) : nothing}
         ${go('info', 'info', 'House info', 'For babysitters and visitors', () => { this._sheet = 'sitter'; })}
-        ${go('night', 'moon', 'Night', 'Dim the screen now', () => { this._sheet = ''; this._nightManual = true; })}
+        ${go('night', 'moon', 'Night', 'Dim the screen now', () => { this._sheet = ''; this._nightManual = true; this._art.enter(this._eventsOn(this._now, this._soon).map((e) => e.title)); })}
       </div>
       ${tracked.length ? html`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
         <span class="phome" aria-hidden="true">${icon('home', 18)}</span>${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : nothing}`;
@@ -1749,29 +1752,6 @@ export class FamilyHubCard extends LitElement {
       <div class="info2">${secs.map((x) => html`<div class="icol">${x}</div>`)}</div>`;
   }
 
-  /** The night screen. Waking it (out) fades the black layer away over the panel and starts nothing else. */
-  private _night(out = false): TemplateResult {
-    const now = this._now, clk = fmtClock(now), early = now.getHours() < 6;
-    const day = early ? now : addDays(now, 1);
-    const evs = this._eventsOn(day, this._soon).filter((e) => !this._private(e.title)).slice(0, 3);
-    // burn-in care: the whole screen wanders on a slow path that takes hours to repeat, so no pixel rests
-    const t = now.getHours() * 60 + now.getMinutes();
-    const dx = Math.round(Math.sin(t / 7) * 38), dy = Math.round(Math.cos(t / 11) * 24);
-    const amber = this._arcs(this._eventsOn(now, this._soon)).map((x) => ({ ...x, colour: 'rgba(255,178,107,.7)' }));
-    const art = lookArt(this._lk, 'night', { now, arcs: amber, size: 230 });
-    return html`<button class="night" ?data-closing=${out} ?inert=${out} aria-label="Wake the panel" @click=${() => { this._nightManual = false; this._awakeUntil = Date.now() + 10 * 60_000; this._lastTouch = Date.now(); }}>
-      <div class="nwander" style="--dx:${dx}px;--dy:${dy}px">
-      <div class="nclock">${art === nothing ? nothing : html`<span class="nart">${art}</span>`}<div><span class="display big">${clk.hm}</span><div class="ndate">${fmtLongDate(now)}</div></div></div>
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
-        ${evs.length ? html`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
-          <span style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${early ? 'Today' : 'Tomorrow'}</span>
-          ${evs.map((e) => html`<div style="display:flex;align-items:center;gap:12px;font-size:var(--fs-3)"><span style="width:80px;opacity:.8">${whenOn(e, day).label}</span>${e.title}</div>`)}
-        </div>` : html`<span></span>`}
-        <span class="breathe" style="font-size:var(--fs-3);opacity:.7">Tap anywhere to wake</span>
-      </div>
-      </div>
-    </button>`;
-  }
 }
 
 if (!customElements.get('family-hub-card')) customElements.define('family-hub-card', FamilyHubCard);

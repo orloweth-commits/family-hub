@@ -49,7 +49,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   await page.waitForTimeout(200);
   const down = (await card.locator('.calnote[data-warn] > span').innerText().catch(() => '')).trim();
   ok('a calendar Home Assistant calls unavailable is named at once', down === 'The Riley calendar can’t be reached. What’s shown may be out of date.', down);
-  await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._nightManual = true; await c.updateComplete; });
+  await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._nightManual = true; c._art.enter(); await c.updateComplete; });
   ok('no warning at night', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); return c._isNight() && !c.shadowRoot.querySelector('.calnote[data-warn]'); }));
   await page.context().close(); }
 { const page = await open('look=glass&page=planner&trust=1&calmin=10'); await page.evaluate(() => { window.__calFail = ['calendar.family']; }); await page.clock.runFor('11:30'); await page.waitForTimeout(300);
@@ -204,7 +204,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   const old = await open('look=glass&page=planner&bins=old&sheet=settings&pane=house'); const O = old.locator('fh-settings');
   ok('colours saved from the older list are named once as not bins', (await O.locator('[data-act="bin-extra"]').innerText()).trim() === 'Blue and Purple: not a bin here. They go when you save.', await O.locator('[data-act="bin-extra"]').allInnerTexts());
   ok('and still not offered', await O.getByRole('group', { name: 'Bins every week' }).locator('button').count() === 3);
-  await O.getByRole('group', { name: 'Collection day' }).getByRole('button', { name: 'Tue' }).click(); await old.waitForTimeout(200);
+  await O.getByRole('group', { name: 'Night the bins go out' }).getByRole('button', { name: 'Tue' }).click(); await old.waitForTimeout(200);
   await O.locator('.sft [data-act="save"]').click(); await old.waitForTimeout(700);
   const saved = await old.evaluate(() => window.__dash.views[0].sections[0].cards[1].cards[0].bins);
   ok('saving drops them', saved.always.join(',') === 'green' && saved.alternate.join(',') === 'yellow,red' && saved.day === 2, saved);

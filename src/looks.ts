@@ -63,11 +63,11 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'family-hub-card': ['body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
-      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'night', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
+      'aclock', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
       // more of the base that Home Ground dresses
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
-      'tmr', 'ok', 'called', 'mtop', 'breathe', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
+      'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
@@ -726,7 +726,6 @@ const FRIDGE = `
   @F .leave { font-family: 'Fredoka', sans-serif; font-weight: 700; }
 
   /* night: the kitchen clock keeps watch */
-  @F .night .big { font-weight: 400; }
   /* the screensaver: the time is a note under a magnet, a little crooked */
   @F .artm:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
   @F .artm:not([data-night]) .aplate { background: #fffdf6; color: #23262b; border: 0; border-radius: 5px; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 12px 22px rgba(0,0,0,.34); rotate: -1.4deg; }
@@ -983,7 +982,6 @@ const ORBIT = `
   @O .dayart { padding: 0 14px; }
 
   /* night: only the dial and the time */
-  @O .night .big { font-weight: 300; }
   /* the screensaver: an instrument panel, thin and exact */
   @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
   @O .artm .atime .big { font-weight: 300; }
@@ -1424,16 +1422,14 @@ const SPORTS = `
   @S .banner { background: var(--panel2); border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--ink); }
 
   /* night: the ground after dark. Near-black, the scoreboard dimmed to tan, one floodlight on low; nothing moves */
-  @S .night { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); background: radial-gradient(520px 320px at 0 0, rgba(255,214,150,.05), transparent 70%), #020403; }
-  @S .night .big { display: none; }
+  /* at night the scoreboard on the screensaver is dim amber on black */
+  @S .artm[data-night] { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); }
   /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
   @S .artm .atime { display: none; }
   @S .artm .aplate { border-radius: 22px; }
   @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
-  @S .night .nart { opacity: 1; }
-  @S .night .dball { opacity: .4; }
-  @S .night .breathe { animation: none; opacity: .7; }
-
+  @S .artm[data-night] .dball { opacity: .4; }
+  
   /* portrait tablets: the same touchline, with the balls closer together so every place still fits */
   @S[data-shape='tall'] .dock { gap: 0; padding-left: 6px; padding-right: 6px; max-width: none; }
   @S[data-shape='tall'] .dock .item { min-width: 62px; }
@@ -1457,7 +1453,6 @@ const SPORTS = `
   /* phone: the scoreboard shrinks; the dock is the touchline along the bottom */
   @S[data-phone] .sboard { --u: 34px; }
   @S[data-phone] .weather .verdict { display: none; }
-  @S[data-phone] .night .sboard { --u: 84px; }
   @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
   @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
   @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: var(--fs-2); gap: 5px; }

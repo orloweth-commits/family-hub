@@ -85,11 +85,12 @@ page = await open('idle=1&artn=0'); await ahead(page, '01:10');
 ok('with no pictures it still comes up, bare', await page.locator('family-hub-card .artm[data-bare]').count() === 1 && await page.locator('family-hub-card .artm img.aimg').count() === 0);
 await page.close();
 
-// 6. after the earliest bedtime: a dim clock, no artwork, no news
+// 6. after the earliest bedtime: the same pictures at their night level (dimmer and warmer), never a black screen
 page = await open('idle=1&artn=3', { time: '19:45' }); await ahead(page, '01:10');
-ok('after the youngest’s bedtime it is the night clock', await page.locator('family-hub-card .artm[data-night]').count() === 1);
-ok('no artwork at night', await page.locator('family-hub-card .artm img.aimg').count() === 0);
-ok('no news at night', await page.locator('family-hub-card .artm .ainfo').count() === 0);
+await page.waitForTimeout(600);
+ok('after the youngest’s bedtime it is the night level', await page.locator('family-hub-card .artm[data-night]').count() === 1);
+ok('the pictures stay up at night', await page.locator('family-hub-card .artm img.aimg').count() >= 1);
+ok('and are dimmed', /brightness/.test(await page.locator('family-hub-card .artm img.aimg').last().evaluate((e) => getComputedStyle(e).filter)));
 await page.close();
 page = await open('idle=1&artn=3', { time: '19:10' }); await ahead(page, '01:10');
 ok('before bedtime it is still the artwork', await page.locator('family-hub-card .artm:not([data-night])').count() === 1); await page.close();
