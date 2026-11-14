@@ -102,9 +102,9 @@ export class FamilyHubCard extends LitElement {
   protected willUpdate(ch: PropertyValues): void {
     // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
     if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
-    // a child who cannot read yet gets Doodle's tools along the bottom. Since his page's dock is only his face and Home, "from his page" means he left it within the last two minutes
-    if (ch.has('_page') && ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture') this._leftPicKid = Date.now();
-    if (ch.has('_page') && this._page === 'doodle') this._doodleLow = Date.now() - this._leftPicKid < 120_000;
+    // a child who cannot read yet gets Doodle's tools along the bottom. Since his page's dock is only his face and Home, "from his page" means Doodle is the first place he goes after Home, within two minutes of leaving it
+    if (ch.has('_page')) { if (ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture') { this._leftPicKid = Date.now(); this._picHops = 0; } else this._picHops++; }
+    if (ch.has('_page') && this._page === 'doodle') this._doodleLow = this._picHops <= 1 && Date.now() - this._leftPicKid < 120_000;
     // remember what opened a sheet, so focus can go back to it when the sheet closes
     // (a sheet that opens after the PIN pad goes back to whatever opened the pad)
     // the PIN pad never opens over a sheet that did not ask for it
@@ -520,7 +520,7 @@ export class FamilyHubCard extends LitElement {
   private _spanWas = 7;
   /** Doodle was opened from the page of a child who cannot read: its colours and brushes run along the bottom edge, where he can reach */
   private _doodleLow = false;
-  private _leftPicKid = 0;
+  private _leftPicKid = 0; private _picHops = 9;
   private _refresh(): void {
     if (!this.hass || !this._config) return;
     const [a, b] = this._range();
