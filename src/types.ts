@@ -204,6 +204,8 @@ export interface FamilyHubConfig {
   health?: import('./trust').HealthConfig;
   /** the house voice: one Home Assistant text-to-speech engine and voice for everything said aloud (read-aloud on the children's pages, Ask unless `chat.tts` says otherwise, Call a room, the dinner call). `files` is where the recorded fixed lines live, a media id with {line} in it; `daily_chars` caps the new characters a day (default 1500); `count` is an input_number holding today's count, shared by every screen. See voice.ts */
   voice?: import('./voice').VoiceConfig;
+  /** the evening digest: one read-only message a night to the parents' phones (digest.ts). `notify` names the phones; `time` is when (default 19:30) */
+  digest?: import('./digest').DigestConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */

@@ -6,6 +6,7 @@ import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
+import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
@@ -36,7 +37,7 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'house', name: 'House', sub: 'Night screen, bins, lights, look and sounds', ic: 'home' },
   { id: 'pictures', name: 'Pictures', sub: 'The screensaver, the artwork and the children’s characters', ic: 'palette' },
   { id: 'music', name: 'Music', sub: 'Views, moments, the sleep timer and calls', ic: 'music' },
-  { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page and alerts', ic: 'info' },
+  { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page, alerts and the evening digest', ic: 'info' },
   { id: 'advanced', name: 'Advanced', sub: 'What is wired up, and earlier versions', ic: 'cog' }
 ];
 const KID_IC = svg`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`;
@@ -393,6 +394,53 @@ export class FhSettings extends LitElement {
     this._access = { ...(this._access ?? { ok: true }), latest: undefined, previous: { t: new Date().toISOString(), what: 'Kept in the dashboard', config: noPin(from), from: 'dashboard' } };
     wantPane(this._pane); resumeSoon();
     this.dispatchEvent(new CustomEvent('fh-config', { detail: next, bubbles: true, composed: true }));
+    // the evening digest is an automation written from these settings: a save that changes what it would say rewrites it
+    if (JSON.stringify(haDigest(from)) !== JSON.stringify(haDigest(next))) void this._digestSync(next, true);
+  }
+  /* ---------------- the evening digest (digest.ts) ---------------- */
+  /** what Home Assistant holds for the digest: undefined before asking, null when it has none or will not say */
+  private _dgHeld: Record<string, unknown> | null | undefined; private _dgBusy = '';
+  private async _digestLoad(): Promise<void> {
+    if (!this.hass) return;
+    try { this._dgHeld = await this.hass.callApi<Record<string, unknown>>('GET', `config/automation/config/${DIGEST_ID}`) ?? null; } catch { this._dgHeld = null; }
+    this._tick++;
+  }
+  /** Write the digest's automation from a saved configuration. After a save it is quiet unless it fails. */
+  private async _digestSync(cfg: Cfg, quiet = false): Promise<void> {
+    if (!this.hass || this._dgBusy) return; this._dgBusy = 'sync'; this._tick++;
+    try {
+      const did = await syncDigest(mediaHass() ?? this.hass, cfg);
+      this._dgHeld = haDigest(cfg);
+      if (!quiet) this._say(did === 'made' ? `Set up. The first one comes at ${timeWords(cfg.digest?.time)}.` : did === 'updated' ? 'The evening digest has been updated.' : did === 'off' ? 'The evening digest is switched off.' : 'Choose a phone first.');
+    } catch { this._say(quiet ? 'Saved, but Home Assistant would not take the evening digest. Under People and safety, press “Set it up”.' : 'Home Assistant would not save the evening digest. It needs an administrator.', { bad: true }); }
+    finally { this._dgBusy = ''; this._tick++; }
+  }
+  private async _digestNow(ent: string): Promise<void> {
+    if (!this.hass || this._dgBusy) return; this._dgBusy = 'now'; this._tick++;
+    try { await inTime(this.hass.callService('automation', 'trigger', { skip_condition: true }, { entity_id: ent })); this._say('Sent. It should be on the phone in a few seconds.'); }
+    catch { this._say('Home Assistant did not send it. Try again.', { bad: true }); }
+    finally { this._dgBusy = ''; this._tick++; }
+  }
+  private _digestCard(svcs: string[]): TemplateResult {
+    const d = this._draft, to = d.digest?.notify ?? [], S = (mediaHass() ?? this.hass)?.states ?? {}, ent = digestEntity(mediaHass() ?? this.hass), saved = digestOn(this.config), want = haDigest(this.config);
+    if (this._dgHeld === undefined && ent) { this._dgHeld = null; void this._digestLoad(); }
+    const setD = (fn: (g: NonNullable<Cfg['digest']>) => void): void => this._edit((x) => { x.digest = x.digest ?? {}; fn(x.digest); if (!x.digest.notify?.length) delete x.digest.notify; if (!Object.keys(x.digest).length) delete x.digest; });
+    const last = ent && S[ent]?.attributes.last_triggered ? new Date(String(S[ent].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : '';
+    const stale = !!ent && !!this._dgHeld && !!want && !sameDigest(this._dgHeld, want);
+    return html`<div class="scard" data-card="digest"><h3>${icon('info', 20)}The evening digest</h3>
+        <span class="shint">One message a night to a parent’s phone: tomorrow’s events and leaving times, bin night, a daily medicine with no record today, rewards waiting, marbles added today, and anything the panel is unsure of. It only reads: nothing can be changed from it.</span>
+        <span class="label">Phones it goes to</span>
+        <div class="spick" role="group" aria-label="Phones the evening digest goes to">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-dg=${id} aria-pressed=${String(to.includes(id))} @click=${() => setD((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
+        ${svcs.length || to.length ? nothing : html`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
+        ${to.length ? this._row('It is sent at', '', this._tm('The evening digest is sent at', () => this._draft.digest?.time, (v) => setD((x) => { if (v === DIGEST_TIME) delete x.time; else x.time = v; }), DIGEST_TIME)) : nothing}
+        ${this._dirty ? (to.length || saved ? html`<span class="shint" data-dg-state="unsaved">Save, and Home Assistant ${to.length ? 'is told what to send and when' : 'stops sending it'}.</span>` : nothing)
+          : !saved ? (ent && S[ent]?.state === 'on' ? this._row('No phone is chosen, but Home Assistant is still set to send it', '', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Switch it off</button>`) : nothing)
+          : !ent ? this._row('Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: evening digest”.', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Set it up</button>`)
+          : html`${this._row(S[ent].state === 'on' ? `On: every night at ${timeWords(this.config.digest?.time)}` : 'Switched off in Home Assistant', `${last ? `Last sent ${last}.` : 'Not sent yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
+              html`${S[ent].state === 'on' ? nothing : html`<button class="pill tap" data-act="dg-on" ?disabled=${!!this._dgBusy} @click=${() => { void Promise.resolve(this.hass?.callService('automation', 'turn_on', {}, { entity_id: ent })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }}>Switch it on</button>`}
+                ${stale ? html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Update it</button>` : nothing}
+                <button class="pill tap" data-act="dg-now" ?disabled=${!!this._dgBusy} @click=${() => void this._digestNow(ent)}>${this._dgBusy === 'now' ? 'Sending…' : 'Send one now'}</button>`)}`}
+      </div>`;
   }
   private async _put(back: Cfg, said: string): Promise<void> {
     if (this._busy || !this.hass) return;
@@ -1023,6 +1071,7 @@ export class FhSettings extends LitElement {
           ? html`<div class="snote" role="alertdialog" aria-label="Send a test alert"><span><b>Send a test to ${to.length} phone${to.length === 1 ? '' : 's'} now?</b> It is an ordinary message that says it is only a test.</span><div class="sbtns" style="justify-content:flex-start"><button class="pill tap primary" data-act="test-send" ?disabled=${!!this._busy} @click=${() => void this._testAlert()}>Send the test</button><button class="pill tap" @click=${() => { this._sure = ''; }}>Cancel</button></div></div>`
           : html`<div><button class="pill tap" data-act="test" ?disabled=${!!this._busy || this._dirty} @click=${() => { this._sure = 'test'; }}>Send a test…</button>${this._dirty ? html` <span class="shint">Save first.</span>` : nothing}</div>` : nothing}
       </div>
+      ${this._digestCard(svcs)}
       <div class="scard"><h3>${icon('ask', 20)}Ask and the internet</h3>
         ${d.chat?.agent ? this._row('The helper is called', 'The name on the speech-bubble button.', this._txt('chat.name', 'What the helper is called', d.chat.name ?? '', (v) => this._edit((x) => { if (v) x.chat!.name = v; else delete x.chat!.name; }), { ph: 'Ask' }), true) : html`<span class="shint">Ask (the children’s AI helper) is not set up. It is added in YAML, with a conversation agent from Home Assistant.</span>`}
         ${d.chat?.agent ? html`<span class="shint">What the helper may talk about is set in Home Assistant, on the agent itself. Whether it needs the PIN after bedtime is under PIN.</span>` : nothing}

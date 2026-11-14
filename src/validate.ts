@@ -57,5 +57,11 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
     if (voice.sync !== undefined) { const s = voice.sync as Record<string, unknown> | null; if (!s || typeof s !== 'object' || [s.voice, s.files].some((x) => x !== undefined && !/^input_text\.[a-z0-9_]+$/.test(String(x)))) return 'Family Hub: voice.sync should name text helpers, e.g. sync: { voice: input_text.fh_voice_id, files: input_text.fh_voice_files }'; }
     if (voice.files !== undefined && !String(voice.files).includes('{line}')) return 'Family Hub: voice.files should be a media id with {line} in it, e.g. media-source://media_source/local/line-{line}.mp3';
   }
+  const dg = (config as { digest?: Record<string, unknown> }).digest;
+  if (dg !== undefined) {
+    if (!dg || typeof dg !== 'object' || Array.isArray(dg)) return 'Family Hub: digest should be a group of options, e.g. digest: { notify: [notify.mobile_app_my_phone] }';
+    if (dg.notify !== undefined && !(Array.isArray(dg.notify) && dg.notify.every((x) => /^notify\.[a-z0-9_]+$/.test(String(x))))) return 'Family Hub: digest.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]';
+    if (dg.time !== undefined && !isTime(dg.time)) return 'Family Hub: digest.time should be a time like "19:30"';
+  }
   return null;
 };
