@@ -58,21 +58,21 @@ export class FhMorning extends LitElement {
     /* the jobs still to do, as faces: one for each job, whoever's it is (more than twelve: one face a child, with how many) */
     .faces { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; min-height: 36px; }
     .faces .fc { position: relative; display: inline-flex; line-height: 0; border-radius: 50%; }
-    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: 13px; line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
+    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
     .faces .fc[data-n] { margin-right: 8px; }
-    .label { font-size: 14px; }
+    .label { font-size: var(--fs-2); }
     /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */
     .goclock { display: flex; align-items: center; gap: 16px; justify-content: flex-end; flex: 1.2; min-width: 0; }
     .goclock .face { position: relative; flex-shrink: 0; line-height: 0; border-radius: 50%; }
-    .goclock .face > b { position: absolute; right: -6px; bottom: -6px; width: 40px; height: 40px; border-radius: 50%; background: var(--chip-strong); box-shadow: 0 0 0 2px var(--ink3); display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; }
+    .goclock .face > b { position: absolute; right: -6px; bottom: -6px; width: 40px; height: 40px; border-radius: 50%; background: var(--chip-strong); box-shadow: 0 0 0 2px var(--ink3); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); line-height: 1; }
     .goclock.soon .face { box-shadow: 0 0 0 4px var(--accent); }
     .goclock .words { display: flex; flex-direction: column; gap: 4px; text-align: right; min-width: 0; }
-    .goclock .at { font-size: 20px; font-weight: var(--w-bold, 700); } .goclock .at b { font-weight: var(--w-heavy, 800); white-space: nowrap; }
-    .goclock .who { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: 36px; }
+    .goclock .at { font-size: var(--fs-4); font-weight: var(--w-bold, 700); } .goclock .at b { font-weight: var(--w-heavy, 800); white-space: nowrap; }
+    .goclock .who { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-d1); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: var(--fs-6); }
     /* the words (not the countdown) may take two lines and never run off the card */
-    .leave.say { font-size: 34px; white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: 28px; }
+    .leave.say { font-size: var(--fs-6); white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: var(--fs-5); }
     :host([data-phone]) .goclock .words { text-align: left; }
     .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
@@ -89,52 +89,52 @@ export class FhMorning extends LitElement {
     :host([data-phone]) .board > div { flex: 1 1 100% !important; justify-content: flex-start !important; }
     .kcol { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .khead { display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 18px; min-height: 60px; min-width: 0; }
-    .khead h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .khead h2 { font-size: var(--fs-5); font-weight: var(--w-heavy, 800); flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .khead .go { flex-shrink: 0; line-height: 0; color: var(--ink2); }
     /* his current morning job: one big button, a picture, the words and a circle to tick. It is the only thing on the board a child presses in the morning */
     .jobbtn { display: flex; align-items: center; gap: 12px; min-height: 96px; padding: 10px 14px; border-radius: 22px; text-align: left; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--kid); flex-shrink: 0; }
-    .jobbtn .jpic { font-size: 48px; line-height: 1; flex-shrink: 0; }
+    .jobbtn .jpic { font-size: var(--fs-d2); line-height: 1; flex-shrink: 0; }
     .jobbtn .jtx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .jobbtn .jname { font-size: 24px; font-weight: var(--w-bold, 700); line-height: 1.15; overflow-wrap: anywhere; }
-    .jobbtn .jundo { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .jobbtn .jname { font-size: var(--fs-5); font-weight: var(--w-bold, 700); line-height: 1.15; overflow-wrap: anywhere; }
+    .jobbtn .jundo { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .jobbtn .check { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--on-ok, #fff); box-sizing: border-box; }
     .jobbtn.done { background: color-mix(in srgb, var(--ok) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--ok); }
     .jobbtn.done .check { background: var(--ok); border-color: var(--ok); }
     .jobbtn.done .jname { text-decoration: line-through; text-decoration-thickness: 2px; }
     .jobbtn.done .jpic { filter: grayscale(1); opacity: .6; }
     .jobbtn[aria-busy] { opacity: .7; }
-    .jobsdone { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 18px; background: color-mix(in srgb, var(--ok) 16%, var(--chip)); font-size: 17px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .jobsdone { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 18px; background: color-mix(in srgb, var(--ok) 16%, var(--chip)); font-size: var(--fs-3); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .jobsdone svg { color: var(--ok); flex-shrink: 0; }
     /* a card that is too short for everything tightens in steps, so the pictures of what to bring are never cut: the "Today" heading goes, then the job and the pictures shrink a little, then the day's events go (they are on the planner and on his page) */
     .kcol[data-fit] { gap: 8px; } .kcol[data-fit] > .label { display: none; } .kcol[data-fit] .klow { padding-top: 0; gap: 8px; }
-    .kcol[data-fit='2'] .jobbtn, .kcol[data-fit='3'] .jobbtn { min-height: 80px; padding-top: 6px; padding-bottom: 6px; } .kcol[data-fit='2'] .jpic, .kcol[data-fit='3'] .jpic { font-size: 40px; }
-    .kcol[data-fit='2'] .tile, .kcol[data-fit='3'] .tile { min-height: 72px; } .kcol[data-fit='2'] .te, .kcol[data-fit='3'] .te { font-size: 32px; }
+    .kcol[data-fit='2'] .jobbtn, .kcol[data-fit='3'] .jobbtn { min-height: 80px; padding-top: 6px; padding-bottom: 6px; } .kcol[data-fit='2'] .jpic, .kcol[data-fit='3'] .jpic { font-size: var(--fs-d1); }
+    .kcol[data-fit='2'] .tile, .kcol[data-fit='3'] .tile { min-height: 72px; } .kcol[data-fit='2'] .te, .kcol[data-fit='3'] .te { font-size: var(--fs-6); }
     .kcol[data-fit='3'] { padding: 10px 12px; overflow-y: auto; scrollbar-width: none; } .kcol[data-fit='3'] .mev2, .kcol[data-fit='3'] > .muted { display: none; }
-    .kcol[data-fit='3'] .tile { min-height: 60px; min-width: 64px; padding: 4px; } .kcol[data-fit='3'] .te { font-size: 26px; } .kcol[data-fit='3'] .khead { min-height: 52px; }
-    .jmsg { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--danger); }
+    .kcol[data-fit='3'] .tile { min-height: 60px; min-width: 64px; padding: 4px; } .kcol[data-fit='3'] .te { font-size: var(--fs-5); } .kcol[data-fit='3'] .khead { min-height: 52px; }
+    .jmsg { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--danger); }
     :host([data-n3]) .jobbtn, :host([data-phone]) .jobbtn { min-height: 76px; gap: 10px; padding: 8px 10px; }
-    :host([data-n3]) .jobbtn .jpic, :host([data-phone]) .jobbtn .jpic { font-size: 36px; }
-    :host([data-n3]) .jobbtn .jname, :host([data-phone]) .jobbtn .jname { font-size: 20px; }
+    :host([data-n3]) .jobbtn .jpic, :host([data-phone]) .jobbtn .jpic { font-size: var(--fs-6); }
+    :host([data-n3]) .jobbtn .jname, :host([data-phone]) .jobbtn .jname { font-size: var(--fs-4); }
     :host([data-n3]) .jobbtn .check, :host([data-phone]) .jobbtn .check { width: 44px; height: 44px; }
     /* the one line about jobs on this board, pooled for the whole family */
-    .nextstep { padding: 6px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); text-align: center; }
+    .nextstep { padding: 6px 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: center; }
     .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
-    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     /* a card says a time only when its child does not leave with the clock above: how much later, in plain words, then the time */
-    .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+    .lchip { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
     .lchip .lt { font-weight: var(--w-semi, 600); color: var(--ink2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     /* what the whole family has on is said once, across the top, not in every column */
     .fam { border-radius: 22px; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; flex-shrink: 0; }
-    .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .fam .fev .mt { color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     /* the lower half of each column is for someone who cannot read yet: a picture for each thing to bring or wear. (The time left is on the one clock above, never in a column.) */
     .klow { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
     .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
     .tile { min-width: 76px; min-height: 84px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; }
-    .tile .te { font-size: 40px; line-height: 1.1; }
-    .tile .tl { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
-    .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .tile .te { font-size: var(--fs-d1); line-height: 1.1; }
+    .tile .tl { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+    .mev2 { display: flex; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .mev2 .mt { width: 76px; color: var(--ink2); flex-shrink: 0; }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
@@ -286,7 +286,7 @@ export class FhMorning extends LitElement {
     return html`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
-          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
         ${team.total ? html`<div class="team" data-part="team" role="img" aria-label=${ready ? 'Morning jobs: all done' : `Morning jobs to go: ${togo.map((g) => `${g.k.name} ${g.n}`).join(', ')}`}>
           ${ready ? nothing : html`<div class="faces" aria-hidden="true">${team.total - team.done <= 12
             ? togo.flatMap((g) => Array.from({ length: g.n }, () => html`<span class="fc" data-who=${g.k.name}>${face(g.k)}</span>`))
@@ -316,7 +316,7 @@ export class FhMorning extends LitElement {
             ${msg ? html`<span class="jmsg" role="status">${msg}</span>` : nothing}
             <span class="label">Today</span>
             ${evs.length ? evs.slice(0, 3).map((ev) => html`<div class="mev2"><span class="mt">${whenOn(ev, today).label}</span><span>${ev.title}</span></div>`)
-              : html`<span class="muted" style="font-size:15px">Just school today</span>`}
+              : html`<span class="muted" style="font-size:var(--fs-2)">Just school today</span>`}
             <div class="klow">
               ${gone ? html`<div class="lchip" data-part="leaves"><span>Left</span></div>`
                 : differs ? html`<div class="lchip" data-part="leaves"><span>You leave ${laterWords(lv.at - next!.at)}</span><span class="lt">${t12(lv.at)}${lv.why !== 'school' ? ` · ${lv.why}` : ''}</span></div>` : nothing}

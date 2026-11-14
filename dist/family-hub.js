@@ -295,7 +295,7 @@ class Yi {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(uc)) {
           const g = d[r++], m = s.getAttribute(h).split(He), f = /([.?@])?(.*)/.exec(g);
-          p.push({ type: 1, index: o, name: f[2], strings: m, ctor: f[1] === "." ? m0 : f[1] === "?" ? g0 : f[1] === "@" ? u0 : yo }), s.removeAttribute(h);
+          p.push({ type: 1, index: o, name: f[2], strings: m, ctor: f[1] === "." ? m0 : f[1] === "?" ? g0 : f[1] === "@" ? u0 : vo }), s.removeAttribute(h);
         } else h.startsWith(He) && (p.push({ type: 6, index: o }), s.removeAttribute(h));
         if (xc.test(s.tagName)) {
           const h = s.textContent.split(He), g = h.length - 1;
@@ -411,7 +411,7 @@ class Ii {
     this._$AM === void 0 && (this._$Cv = t, this._$AP?.(t));
   }
 }
-let yo = class {
+let vo = class {
   get tagName() {
     return this.element.tagName;
   }
@@ -436,7 +436,7 @@ let yo = class {
     t === u ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 };
-class m0 extends yo {
+class m0 extends vo {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -444,7 +444,7 @@ class m0 extends yo {
     this.element[this.name] = t === u ? void 0 : t;
   }
 }
-let g0 = class extends yo {
+let g0 = class extends vo {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -452,7 +452,7 @@ let g0 = class extends yo {
     this.element.toggleAttribute(this.name, !!t && t !== u);
   }
 };
-class u0 extends yo {
+class u0 extends vo {
   constructor(t, e, i, s, o) {
     super(t, e, i, s, o), this.type = 5;
   }
@@ -524,8 +524,8 @@ k0?.({ LitElement: bt });
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const y0 = { CHILD: 2 }, yc = (a) => (...t) => ({ _$litDirective$: a, values: t });
-let vc = class {
+const v0 = { CHILD: 2 }, vc = (a) => (...t) => ({ _$litDirective$: a, values: t });
+let yc = class {
   constructor(t) {
   }
   get _$AU() {
@@ -546,13 +546,13 @@ let vc = class {
  * Copyright 2020 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const v0 = {}, K0 = (a, t = v0) => a._$AH = t;
+const y0 = {}, K0 = (a, t = y0) => a._$AH = t;
 /**
  * @license
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const aa = yc(class extends vc {
+const aa = vc(class extends yc {
   constructor() {
     super(...arguments), this.key = u;
   }
@@ -983,7 +983,7 @@ const Ei = (a) => Xa.find((t) => t.id === a) ?? Xa[0], Ll = {
   const { vs: i, gain: s } = Fc(a, t, e.indoors, e.raw), o = e.rate ?? 48e3, r = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext, n = new r(1, Math.ceil(o * (C0(i) + 0.05)), o);
   return tl(n, n.destination, i, 0, s), (await n.startRendering()).getChannelData(0);
 };
-let Re = null, va = null, $r = 1, Bi = !1, Os = 1, Ds = "on", Rc = "", Vr = "sea";
+let Re = null, ya = null, $r = 1, Bi = !1, Os = 1, Ds = "on", Rc = "", Vr = "sea";
 const Ql = {};
 let $c = 0;
 const Nr = () => {
@@ -1014,13 +1014,13 @@ const Nr = () => {
   const t = Rc || "glass";
   return Vo(t) ? t : Vo(Vr) ? Vr : "sea";
 }, Yl = () => $c, H0 = (a) => {
-  $r = Math.max(0, Math.min(4, Number(a) || 0)), va && Re && va.gain.setTargetAtTime($r, Re.currentTime, 0.01);
+  $r = Math.max(0, Math.min(4, Number(a) || 0)), ya && Re && ya.gain.setTargetAtTime($r, Re.currentTime, 0.01);
 }, zc = () => {
   try {
     if (!Re) {
       const a = globalThis.AudioContext || globalThis.webkitAudioContext;
       if (!a) return null;
-      Re = new a({ latencyHint: "interactive" }), va = Re.createGain(), va.gain.value = $r, va.connect(Re.destination), _c(Re);
+      Re = new a({ latencyHint: "interactive" }), ya = Re.createGain(), ya.gain.value = $r, ya.connect(Re.destination), _c(Re);
     }
     return Re;
   } catch {
@@ -1040,11 +1040,11 @@ try {
 }
 const Wc = (a, t, e, i) => {
   const s = zc();
-  if (!s || !va) return;
+  if (!s || !ya) return;
   const o = () => {
     try {
       const { vs: n, gain: p } = Fc(a, t, i);
-      tl(s, va, n, s.currentTime + 4e-3, p * e);
+      tl(s, ya, n, s.currentTime + 4e-3, p * e);
     } catch {
     }
   };
@@ -1069,7 +1069,7 @@ const Wc = (a, t, e, i) => {
     Ql[a] = t, Wr.played++, Wr.last = a, Wc(zr(), a, i ? 1 : Os * (Ds === "quiet" ? 0.4 : 1), i && Bi);
   } catch {
   }
-}, t1 = (a, t, e = !1) => {
+}, tf = (a, t, e = !1) => {
   try {
     Wc(a, t, 1, e);
   } catch {
@@ -1077,13 +1077,13 @@ const Wc = (a, t, e, i) => {
 }, Wr = { played: 0, last: "" };
 try {
   const a = globalThis;
-  a.fhSfx ??= S, a.fhSound ??= { EVENTS: Uc, PALETTES: Ac, CLASS: qc, LIMITS: j0, recipe: Sc, render: I0, build: tl, audition: t1, paletteInfo: Z0, setMaster: H0, setSounds: Tr, setMuted: Nc, setVolume: Vc, soundPalette: zr, stats: Wr, state: () => ({ muted: Bi, level: Os, mode: Ds, palette: zr(), context: Re?.state ?? "none" }) };
+  a.fhSfx ??= S, a.fhSound ??= { EVENTS: Uc, PALETTES: Ac, CLASS: qc, LIMITS: j0, recipe: Sc, render: I0, build: tl, audition: tf, paletteInfo: Z0, setMaster: H0, setSounds: Tr, setMuted: Nc, setVolume: Vc, soundPalette: zr, stats: Wr, state: () => ({ muted: Bi, level: Os, mode: Ds, palette: zr(), context: Re?.state ?? "none" }) };
 } catch {
 }
-const e1 = ["dinner", "getready", "kitchen", "bedtime5", "leave", "loveyou"], a1 = 1500;
+const ef = ["dinner", "getready", "kitchen", "bedtime5", "leave", "loveyou"], af = 1500;
 let Rt = null, Ji = () => {
 };
-const i1 = (a, t) => {
+const sf = (a, t) => {
   Rt = a && typeof a.tts == "string" && a.tts.startsWith("tts.") ? a : null, Ji = t;
 }, jr = () => Rt, jc = "fh-voice-day", Cr = "fh-voice-known", Cc = () => {
   const a = /* @__PURE__ */ new Date();
@@ -1099,17 +1099,17 @@ const i1 = (a, t) => {
     localStorage.setItem(a, JSON.stringify(t));
   } catch {
   }
-}, s1 = (a) => {
+}, of = (a) => {
   let t = 5381;
   for (let e = 0; e < a.length; e++) t = (t << 5) + t + a.charCodeAt(e) | 0;
   return (t >>> 0).toString(36);
-}, Lc = (a, t) => s1(`${t.tts}|${t.voice ?? ""}|${t.language ?? ""}|${a.trim()}`), Qc = (a, t) => el(Cr, []).includes(Lc(a, t)), Gc = () => {
+}, Lc = (a, t) => of(`${t.tts}|${t.voice ?? ""}|${t.language ?? ""}|${a.trim()}`), Qc = (a, t) => el(Cr, []).includes(Lc(a, t)), Gc = () => {
   const a = el(jc, {}), t = a.d === Cc() && Number(a.n) || 0, e = Rt?.count ? Ji()?.states[Rt.count] : void 0, i = e?.last_changed ? new Date(e.last_changed) : null, s = e && i && i.toDateString() === (/* @__PURE__ */ new Date()).toDateString() && Number(e.state) || 0;
   return Math.max(t, s);
-}, o1 = () => {
+}, rf = () => {
   const a = Number(Rt?.daily_chars);
-  return Number.isFinite(a) && a >= 0 ? a : a1;
-}, Yc = (a, t = Rt) => !!t && (Qc(a, t) || Gc() + a.trim().length <= o1()), al = (a, t = Rt) => {
+  return Number.isFinite(a) && a >= 0 ? a : af;
+}, Yc = (a, t = Rt) => !!t && (Qc(a, t) || Gc() + a.trim().length <= rf()), al = (a, t = Rt) => {
   if (!t || Qc(a, t)) return;
   const e = Gc() + a.trim().length;
   Bl(jc, { d: Cc(), n: e }), Bl(Cr, [...el(Cr, []), Lc(a, t)].slice(-400));
@@ -1123,18 +1123,18 @@ const i1 = (a, t) => {
   }, (o) => {
     clearTimeout(s), i(o);
   });
-}), Lr = (a, t) => /^(https?|data|blob):/.test(t) ? t : a.hassUrl ? a.hassUrl(t) : t, r1 = (a, t) => ({ engine_id: t.tts, message: a, cache: !0, ...t.language ? { language: t.language } : {}, ...t.voice ? { options: { voice: t.voice } } : {} });
+}), Lr = (a, t) => /^(https?|data|blob):/.test(t) ? t : a.hassUrl ? a.hassUrl(t) : t, nf = (a, t) => ({ engine_id: t.tts, message: a, cache: !0, ...t.language ? { language: t.language } : {}, ...t.voice ? { options: { voice: t.voice } } : {} });
 async function il(a, t = Rt, e = 8e3) {
   const i = Ji(), s = { url: "", abs: "" };
   if (!t?.tts || !i?.callApi || !a.trim() || !Yc(a, t)) return s;
   try {
-    const o = await Da(Promise.resolve(i.callApi("POST", "tts_get_url", r1(a, t))), e), r = o?.path ?? o?.url;
+    const o = await Da(Promise.resolve(i.callApi("POST", "tts_get_url", nf(a, t))), e), r = o?.path ?? o?.url;
     return r ? { url: Lr(i, String(r)), abs: String(o?.url ?? Lr(i, String(r))) } : s;
   } catch {
     return s;
   }
 }
-async function n1(a, t = Rt, e = 9e3) {
+async function lf(a, t = Rt, e = 9e3) {
   const i = await il(a, t, e);
   if (!i.url) return "";
   try {
@@ -1144,9 +1144,9 @@ async function n1(a, t = Rt, e = 9e3) {
     return "";
   }
 }
-const l1 = (a) => Rt?.files && Rt.files.includes("{line}") ? Rt.files.replace("{line}", a) : "", Qr = /* @__PURE__ */ new Map();
+const pf = (a) => Rt?.files && Rt.files.includes("{line}") ? Rt.files.replace("{line}", a) : "", Qr = /* @__PURE__ */ new Map();
 async function Bc(a) {
-  const t = l1(a), e = Ji();
+  const t = pf(a), e = Ji();
   if (!t || !e?.callWS) return "";
   const i = Qr.get(t);
   if (i && Date.now() - i.at < 6e5) return i.ok ? t : "";
@@ -1162,8 +1162,8 @@ async function Bc(a) {
   }
   return Qr.set(t, { at: Date.now(), ok: s }), s ? t : "";
 }
-const p1 = () => Qr.clear(), d1 = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u, Zc = (a) => {
-  const t = a.description ?? "", e = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), i = e ? Number(e[1]) : 0, s = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || i ? "job" : "routine", o = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", r = /(\d+)\s*min/i.exec(`${a.summary} ${t}`), n = d1.exec(a.summary), p = /@icon[:=]\s*(\S+)/.exec(t);
+const df = () => Qr.clear(), cf = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u, Zc = (a) => {
+  const t = a.description ?? "", e = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), i = e ? Number(e[1]) : 0, s = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || i ? "job" : "routine", o = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", r = /(\d+)\s*min/i.exec(`${a.summary} ${t}`), n = cf.exec(a.summary), p = /@icon[:=]\s*(\S+)/.exec(t);
   return { ...a, summary: n ? a.summary.slice(n[0].length) : a.summary, pic: p?.[1] ?? n?.[1], song: /@song/.test(t), lane: s, slot: o, pts: s === "grow" ? 0 : i, minutes: r ? Number(r[1]) : 0 };
 }, ut = (a) => {
   const [t, e] = String(a ?? "").split(":").map(Number);
@@ -1173,7 +1173,7 @@ const p1 = () => Qr.clear(), d1 = /^\s*((?:\p{Extended_Pictographic}|\p{Regional
   return e < 720 ? "am" : e >= ut(a) - 60 ? "bed" : "after";
 };
 let Oc = 30;
-const c1 = (a) => {
+const hf = (a) => {
   Oc = Number.isFinite(a) ? Math.max(0, Math.min(180, Number(a))) : 30;
 }, Ne = (a, t = /* @__PURE__ */ new Date()) => {
   const e = ut(a ?? "20:00") + ([5, 6].includes(t.getDay()) ? Oc : 0);
@@ -1181,7 +1181,7 @@ const c1 = (a) => {
 }, Mi = (a, t = /* @__PURE__ */ new Date()) => {
   const e = re(t), i = ut(Ne(a, t));
   return e >= i - 60 || e < 300;
-}, vo = (a, t, e) => {
+}, yo = (a, t, e) => {
   if (!a || !t) return !0;
   for (const i of e) if (a.states[i] !== t.states[i]) return !0;
   return !1;
@@ -1195,13 +1195,13 @@ const c1 = (a) => {
   return t;
 };
 let Gr = "wide";
-const Is = /* @__PURE__ */ new Set(), vt = () => Gr, h1 = (a) => {
+const Is = /* @__PURE__ */ new Set(), yt = () => Gr, ff = (a) => {
   a !== Gr && (Gr = a, Is.forEach((t) => t()));
 };
 let Yr = 0;
-const Ha = () => Yr, f1 = (a) => {
+const Ha = () => Yr, mf = (a) => {
   a !== Yr && (Yr = a, Is.forEach((t) => t()));
-}, m1 = (a) => (Is.add(a), () => Is.delete(a)), g1 = (a, t = 3) => {
+}, gf = (a) => (Is.add(a), () => Is.delete(a)), uf = (a, t = 3) => {
   const e = a;
   e.removeAttribute("data-fit");
   for (let i = 1; i <= t && (e.scrollHeight > e.clientHeight + 2 || e.scrollWidth > e.clientWidth + 2); i++) e.setAttribute("data-fit", String(i));
@@ -1221,7 +1221,7 @@ class Ce {
   }
   run() {
     const t = this.host.renderRoot;
-    t?.querySelectorAll && (t.querySelectorAll("[data-fits]").forEach((e) => g1(e)), t.querySelectorAll(".scrolly").forEach(Kt));
+    t?.querySelectorAll && (t.querySelectorAll("[data-fits]").forEach((e) => uf(e)), t.querySelectorAll(".scrolly").forEach(Kt));
   }
 }
 const Kt = (a) => {
@@ -1328,7 +1328,7 @@ const Dc = () => {
   } catch {
     return t;
   }
-}, u1 = (a, t) => {
+}, bf = (a, t) => {
   try {
     localStorage.setItem(Zr(a), JSON.stringify({ ...JSON.parse(localStorage.getItem(Zr(a)) || "{}"), ...t }));
   } catch {
@@ -1342,10 +1342,10 @@ function $e(a, t, e, i = 160) {
     o.until && (o.last = e, o.until = 0, a.requestUpdate());
   }, i)), [o.last, !0]) : [e, !1];
 }
-const b1 = 12e3, $t = "Home Assistant is slow. Try again.";
+const xf = 12e3, $t = "Home Assistant is slow. Try again.";
 class Lt extends Error {
 }
-const mt = (a, t = b1) => new Promise((e, i) => {
+const mt = (a, t = xf) => new Promise((e, i) => {
   const s = window.setTimeout(() => i(new Lt("no answer")), t);
   Promise.resolve(a).then((o) => {
     clearTimeout(s), e(o);
@@ -1371,7 +1371,7 @@ async function Ws(a, t) {
 const Zi = (a, t = "--m-3") => {
   const e = getComputedStyle(a), i = e.getPropertyValue(t).trim(), s = parseFloat(i) || 0;
   return { ms: /ms$/.test(i) ? s : s * 1e3, travel: e.getPropertyValue("--m-d").trim() !== "0" && !matchMedia("(prefers-reduced-motion: reduce)").matches };
-}, x1 = (a, t) => new Map([...a.querySelectorAll(t)].map((e) => [e.dataset.key ?? "", e.getBoundingClientRect()])), w1 = (a, t, e) => {
+}, wf = (a, t) => new Map([...a.querySelectorAll(t)].map((e) => [e.dataset.key ?? "", e.getBoundingClientRect()])), kf = (a, t, e) => {
   for (const i of a.querySelectorAll(t)) {
     const s = e.get(i.dataset.key ?? "");
     if (!s) continue;
@@ -1600,7 +1600,7 @@ const Zi = (a, t = "--m-3") => {
     <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${c} 50 50)"></rect>
     <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
-}, k1 = (a, t, e = 360) => {
+}, vf = (a, t, e = 360) => {
   const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, g, m, f) => {
     const k = Math.max(m, r(h.start)), b = Math.min(f, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
     if (b <= k && !(r(h.start) >= m && r(h.start) < f)) return u;
@@ -1619,7 +1619,7 @@ const Zi = (a, t = "--m-3") => {
       <rect x="98.4" y="52" width="3.2" height="50" rx="1.6" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
       <circle cx="100" cy=${100 - (t.getHours() < 12 ? 62 : 84)} r="5" fill="var(--accent)" stroke="var(--ground, #000)" stroke-width="2" transform="rotate(${c} 100 100)"></circle>
       <circle cx="100" cy="100" r="4.5" fill="var(--accent)"></circle>` : x`<circle cx="100" cy="100" r="3" fill="var(--ink3)"></circle>`}`}</svg>`;
-}, y1 = (a, t, e = 230) => l`
+}, yf = (a, t, e = 230) => l`
   <svg class="vinyl" aria-hidden="true" width=${e} height=${e} viewBox="0 0 200 200">${x`
     <rect x="4" y="4" width="192" height="192" rx="12" fill="#d9cdb4"></rect>
     <g class=${t ? "spin" : ""}>
@@ -1632,7 +1632,7 @@ const Zi = (a, t = "--m-3") => {
       <circle cx="94" cy="104" r="3.5" fill="#f4efe3"></circle>
     </g>
     <g transform="rotate(${t ? 24 : 6} 176 30)"><rect x="173" y="26" width="6" height="92" rx="3" fill="#8b8477"></rect><rect x="168" y="112" width="16" height="22" rx="3" fill="#26272b"></rect></g>
-    <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`, v1 = (a, t, e, i = 230) => {
+    <circle cx="176" cy="30" r="11" fill="#26272b"></circle><circle cx="176" cy="30" r="4" fill="#8b8477"></circle>`}</svg>`, Kf = (a, t, e, i = 230) => {
   const o = 2 * Math.PI * 92, r = Math.max(0, Math.min(1, t));
   return l`<svg class="pring" aria-hidden="true" width=${i} height=${i} viewBox="0 0 200 200" fill="none">${x`
     <circle cx="100" cy="100" r=${92} stroke="rgba(255,255,255,.22)" stroke-width="6"></circle>
@@ -1647,7 +1647,7 @@ const Zi = (a, t = "--m-3") => {
     <circle cx="50" cy="50" r="46" fill="var(--timer-face, var(--chip-strong))" stroke="var(--timer-rim, var(--ink3))" stroke-width="4"></circle>
     <circle cx="50" cy="50" r="22" stroke="var(--timer, var(--accent))" stroke-width="44" stroke-dasharray="${i * e} ${e}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="3" fill="var(--timer-rim, var(--ink3))"></circle>`}</svg>`;
-}, Tt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, la = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, ol = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], K1 = {
+}, Tt = (a, t = "0 0 24 24") => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${t}">${a}</svg>`)}")`, la = (a) => `<g stroke="#14201A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, ol = ["whistle", "soccer", "tennis", "hockey", "floor", "rugby", "footy"], Uf = {
   soccer: la('<circle cx="12" cy="12" r="9.7" fill="#fff"/><path d="M12 8.6l3.2 2.3-1.2 3.9h-4l-1.2-3.9z" fill="#14201A"/><path d="M12 8.6V3.5M15.2 10.900l4.5-1.5M14 14.800l2.800 4M10 14.800l-2.800 4M8.800 10.900L4.300 9.400" fill="none"/>'),
   tennis: la('<circle cx="12" cy="12" r="9.7" fill="#D4E157"/><path d="M4.600 6.500c4.200 2 4.200 9 0 11M19.400 6.500c-4.200 2-4.200 9 0 11" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="9.7" fill="none"/>'),
   hockey: la('<path d="M17 2.500L10.800 15.800Q9.300 19.200 6 18Q4 17 4.600 14.600" fill="none" stroke="#B7814A" stroke-width="3"/><circle cx="17.500" cy="17.500" r="3.7" fill="#fff"/>'),
@@ -1655,8 +1655,8 @@ const Zi = (a, t = "--m-3") => {
   rugby: la('<g transform="rotate(-35 12 12)"><ellipse cx="12" cy="12" rx="10.5" ry="6.800" fill="#fff"/><path d="M5.500 9.200c1.600 1.800 1.600 3.800 0 5.600M18.500 9.200c-1.600 1.800-1.600 3.800 0 5.600" fill="none" stroke="#B7814A" stroke-width="1.6"/><path d="M9 12h6M10.500 10.800v2.400M12 10.800v2.400M13.500 10.800v2.400" fill="none" stroke-width="1.2"/></g>'),
   footy: la('<g transform="rotate(-35 12 12)"><path d="M1.500 12Q12 3.200 22.500 12 12 20.800 1.500 12z" fill="#C8372D"/><path d="M9 10.300h6M10.200 9.300v2M12 9.300v2M13.800 9.300v2" fill="none" stroke="#fff" stroke-width="1.3"/></g>'),
   whistle: la('<circle cx="12" cy="12" r="9.7" fill="#fff"/><g fill="none" stroke-width="1.6"><circle cx="9.600" cy="13.400" r="3.900"/><path d="M12.200 10.400H18.600v2.900h-4.800M9.600 9.500V7M7 7.500l.9 1.200M12.200 7.500l-.9 1.200"/></g>')
-}, pa = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, zo = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", es = (a, t) => Tt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), U1 = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', El = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', A1 = () => {
-  const a = ":host([data-look='sports']) .fh", t = `${a}[data-tod='eve'], ${a}[data-tod='night']`, e = Object.entries(K1).map(([s, o]) => `--s-${s}:${Tt(o)}`);
+}, pa = (a, t, e = 2) => `<g fill="none" stroke="${t}" stroke-width="${e}" stroke-linecap="round" stroke-linejoin="round">${a}</g>`, zo = "M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z", es = (a, t) => Tt(`<path fill="${t}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${a}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`), Af = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>', El = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>', qf = () => {
+  const a = ":host([data-look='sports']) .fh", t = `${a}[data-tod='eve'], ${a}[data-tod='night']`, e = Object.entries(Uf).map(([s, o]) => `--s-${s}:${Tt(o)}`);
   e.push(
     "--s-ball:var(--s-soccer)",
     `--s-bib:${Tt(`<path d="${zo}"/>`)}`,
@@ -1666,7 +1666,7 @@ const Zi = (a, t = "--m-3") => {
     `--s-flag-ok:${es("#14201A", "#17703A")}`,
     `--s-away:${Tt(`<path d="${zo}" fill="none" stroke="#5C6961" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
     `--s-cone:${Tt(pa(El, "#B42318"))}`,
-    `--s-pea:${Tt(pa(U1, "#14201A"))}`,
+    `--s-pea:${Tt(pa(Af, "#14201A"))}`,
     `--s-clip:${Tt('<rect x="1" y="-8" width="118" height="30" rx="8" fill="#9AA59D" stroke="#14201A" stroke-width="2"/><rect x="1" y="16" width="118" height="5" fill="rgba(0,0,0,.14)"/><circle cx="60" cy="9" r="6" fill="#fff" stroke="#14201A" stroke-width="2"/>', "0 0 120 24")}`,
     `--s-bag:${Tt('<g stroke="#14201A" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.500 7h9l3.300 8.500A4.500 4.500 0 0 1 15.600 22H8.400a4.500 4.500 0 0 1-4.200-6.500z" fill="#fff"/><circle cx="9.500" cy="17" r="2.6" fill="#D4E157"/><circle cx="14.800" cy="17.300" r="2.6" fill="#fff"/><circle cx="12" cy="12.300" r="2.4" fill="#C8372D"/><path d="M9 7c0-2.500 1.200-4 3-4s3 1.500 3 4" fill="none" stroke="#B7814A" stroke-width="2"/></g>')}`,
     `--s-goal:${Tt(pa('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', "#14201A"), "0 0 32 24")}`
@@ -1686,19 +1686,19 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
 }, tp = (a, t) => {
   const e = String(a.getHours() % 12 || 12), i = String(a.getMinutes()).padStart(2, "0");
   return l`<span class="sboard" role="img" aria-label=${`${e}:${i}`} style=${t ? `--sz:${t}px` : ""}>${[...e].map((s) => l`<b class="dg">${s}</b>`)}<i class="colon"></i>${[...i].map((s) => l`<b class="dg">${s}</b>`)}<i class="dball" data-ball=${ol[a.getDay()]}></i></span>`;
-}, q1 = (a) => l`<i class="dball" data-ball=${ol[a.getDay()]} aria-hidden="true"></i>`, M1 = (a, t = 120) => {
+}, Mf = (a) => l`<i class="dball" data-ball=${ol[a.getDay()]} aria-hidden="true"></i>`, Sf = (a, t = 120) => {
   const e = Math.max(0, Math.min(1, a)), i = e > 0 ? 1 - e : 0, s = 12 + 216 * i;
   return l`<svg class="tmeter" aria-hidden="true" width=${t * 2} height=${Math.round(t * 2 * 0.117)} viewBox="0 0 240 28" fill="none">${x`
     <rect x="12" y="11.5" width="216" height="5" rx="2.5" fill="var(--track)"></rect>
     <rect x="12" y="11.5" width=${216 * i} height="5" rx="2.5" fill="var(--ink)"></rect>
     <rect x="119" y="4" width="2" height="20" rx="1" fill="var(--ink3)"></rect>
     <g style="transform:translateX(${s}px);transition:transform var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"><circle cx="0" cy="14" r="9.5" fill="#fff" stroke="#14201A" stroke-width="2"></circle><path d="M0 10.6l3.200 2.300-1.200 3.800h-4l-1.200-3.800z" fill="#14201A"></path></g>`}</svg>`;
-}, S1 = (a, t) => {
+}, _f = (a, t) => {
   const e = Math.max(1, Math.min(12, t)), i = Math.max(0, Math.min(e, Math.round(a / Math.max(1, t) * e))), s = e > 8 ? 22 : 28, o = (n) => l`<i style="flex:1;min-width:6px;height:0;border-top:3px ${n ? "solid var(--ok)" : "dashed var(--track)"}"></i>`, r = l`<i style="width:${s}px;height:${s}px;flex-shrink:0;border-radius:50%;background:var(--ok);display:grid;place-items:center"><svg viewBox="0 0 24 24" width=${s - 10} height=${s - 10} fill="none" stroke="var(--on-ok, #fff)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></i>`;
   return l`<div aria-hidden="true" style="display:flex;align-items:center;height:40px;flex-shrink:0;padding:0 2px">
     ${Array.from({ length: e }, (n, p) => l`${p ? o(p <= i) : u}${p < i ? r : p === i ? l`<i style="width:22px;height:26px;margin:0 -2px -6px 0;flex-shrink:0;align-self:flex-start;background:var(--s-flag) center / contain no-repeat"></i><i style="width:34px;height:34px;flex-shrink:0;background:var(--s-ball) center / contain no-repeat"></i>` : l`<i style="width:14px;height:14px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--ink3)"></i>`}`)}
     ${o(i >= e)}<i style="width:44px;height:33px;flex-shrink:0;background:var(--s-goal) center / contain no-repeat"></i></div>`;
-}, _1 = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", F1 = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, Jc = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : u}${F1[a]}</span>`, ep = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, ea = [
+}, Ff = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", Rf = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, Jc = (a, t = !1) => l`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : u}${Rf[a]}</span>`, ep = { "--p-1": "#2563eb", "--p-2": "#db2777", "--p-3": "#0f766e", "--p-4": "#c2410c", "--p-5": "#7c3aed", "--p-family": "#475569", "--on-person": "#ffffff" }, ea = [
   {
     id: "glass",
     name: "Glass",
@@ -1717,10 +1717,10 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
       clock: (a) => Xl(a.now ?? /* @__PURE__ */ new Date()),
       timer: (a) => js(a.frac ?? 0, a.size),
       night: (a) => Xl(a.now ?? /* @__PURE__ */ new Date(), a.size ?? 230),
-      player: (a) => y1(a.img, !!a.playing, a.size)
+      player: (a) => yf(a.img, !!a.playing, a.size)
     },
     preview: () => l`<span class="lp-note"></span><span class="lp-note lp-today"><i></i></span><span class="lp-note"></span>`,
-    options: [{ id: "hand", label: "Writing on notes and lists", off: "Print", on: "Handwriting", onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: "Print is easier to read from across the room." }],
+    options: [{ id: "hand", label: "Writing on notes and lists", off: "Print", on: "Handwriting", onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:var(--fs-4);font-weight:700", hint: "Print is easier to read from across the room." }],
     vars: {
       ...ep,
       "--ink": "#26272b",
@@ -1755,10 +1755,10 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
       "--timer": "#c62a22",
       "--timer-face": "var(--paper)",
       "--timer-rim": "var(--ink)",
-      "--t-hero": "46px",
-      "--t-title": "42px",
-      "--t-head": "30px",
-      "--t-sub": "26px",
+      "--t-hero": "var(--fs-d1)",
+      "--t-title": "var(--fs-d1)",
+      "--t-head": "var(--fs-6)",
+      "--t-sub": "var(--fs-5)",
       "--w-title": "700",
       "--w-sub": "700",
       "--w-heavy": "700",
@@ -1766,8 +1766,8 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
       "--w-semi": "500",
       "--font-content": "'Fredoka', sans-serif",
       "--content-weight": "500",
-      "--content-size": "17px",
-      "--content-size-lg": "21px",
+      "--content-size": "var(--fs-3)",
+      "--content-size-lg": "var(--fs-4)",
       "--content-ink": "var(--ink)",
       "--bg": "none"
     },
@@ -1799,9 +1799,9 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
     art: {
       clock: (a) => Hl(a.arcs ?? [], a.now ?? /* @__PURE__ */ new Date()),
       timer: (a) => js(a.frac ?? 0, a.size),
-      dayview: (a) => k1(a.arcs ?? [], a.now, a.size),
+      dayview: (a) => vf(a.arcs ?? [], a.now, a.size),
       night: (a) => Hl(a.arcs ?? [], a.now ?? /* @__PURE__ */ new Date(), a.size ?? 250),
-      player: (a) => v1(a.img, a.frac ?? 0, !!a.playing, a.size)
+      player: (a) => Kf(a.img, a.frac ?? 0, !!a.playing, a.size)
     },
     preview: () => l`<span class="lp-ring"></span><span class="lp-card"><i></i><i></i><i></i></span>`,
     vars: {
@@ -1859,12 +1859,12 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
     previewClock: !1,
     art: {
       clock: (a) => tp(a.now ?? /* @__PURE__ */ new Date(), a.size),
-      day: (a) => a.now ? q1(a.now) : l``,
+      day: (a) => a.now ? Mf(a.now) : l``,
       night: (a) => tp(a.now ?? /* @__PURE__ */ new Date(), 150),
       // the kitchen timer is a match clock on a touchline; a small timer (a child's practice, bedtime) stays a round stopwatch face
-      timer: (a) => a.size === void 0 || a.size >= 100 ? M1(a.frac ?? 0, a.size) : js(a.frac ?? 0, a.size),
-      steps: (a) => a.total ? S1(a.done ?? 0, a.total) : l``,
-      wx: (a) => a.wx ? Jc(_1(a.wx.state, a.wx.uv, a.wx.rain, a.wx.max)) : l``
+      timer: (a) => a.size === void 0 || a.size >= 100 ? Sf(a.frac ?? 0, a.size) : js(a.frac ?? 0, a.size),
+      steps: (a) => a.total ? _f(a.done ?? 0, a.total) : l``,
+      wx: (a) => a.wx ? Jc(Ff(a.wx.state, a.wx.uv, a.wx.rain, a.wx.max)) : l``
     },
     preview: () => l`<span class="lp-lanes"><i></i><i class="lp-now"><b></b></i><i></i><i></i></span><span class="lp-turf"></span>`,
     vars: {
@@ -1979,15 +1979,15 @@ ${ol.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
 };
 let Ia = "glass";
 const Ir = /* @__PURE__ */ new Set(), Pt = () => Ia, Wo = (a) => {
-  Ia = Ot(a).id, X0(Ia), R1(Ia), Ir.forEach((t) => t());
+  Ia = Ot(a).id, X0(Ia), $f(Ia), Ir.forEach((t) => t());
 };
-function R1(a) {
+function $f(a) {
   Kc(...Ot(a).fonts ?? []);
 }
 class Ht {
   constructor(t) {
     this.host = t, this._shape = () => {
-      const e = vt(), i = e === "wide" && Ha() >= 3 && !!this.host.stackNarrow;
+      const e = yt(), i = e === "wide" && Ha() >= 3 && !!this.host.stackNarrow;
       this.host.setAttribute("data-shape", e === "phone" || i ? "tall" : e), this.host.toggleAttribute("data-stack", i), this.host.toggleAttribute("data-phone", e === "phone");
       const s = Ha();
       for (const o of [1, 2, 3]) this.host.toggleAttribute("data-n" + o, s >= o);
@@ -1996,13 +1996,13 @@ class Ht {
     }, t.addController(this);
   }
   hostConnected() {
-    Ir.add(this._on), this._off = m1(this._on), this.host.setAttribute("data-look", Ia), this._shape();
+    Ir.add(this._on), this._off = gf(this._on), this.host.setAttribute("data-look", Ia), this._shape();
   }
   hostDisconnected() {
     Ir.delete(this._on), this._off?.();
   }
 }
-const $1 = `
+const Vf = `
   /* the clock sits on its own pane of glass, so the greeting, the time and the date read over any photo and whatever drifts behind it */
   @G .clock { margin: -8px 0 -8px -14px; padding: 8px 18px 8px 14px; border-radius: 26px; background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%); box-shadow: inset 0 0 0 1px var(--glass-line); }
   @G[data-phone] .clock { margin: 0; padding: 6px 14px 8px; flex: 0 1 auto; }
@@ -2057,10 +2057,10 @@ const $1 = `
   @G .field { min-width: 0; }
   @G .tcard { position: relative; }
   @G .tcard[aria-pressed='true'] { background: var(--chip); color: var(--ink); box-shadow: 0 0 0 3px var(--primary); }
-  @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: 17px; font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
-`, V1 = `
+  @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: var(--fs-3); font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
+`, Nf = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
-  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
+  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: var(--fs-3); background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
   @F .fh::before { display: none; }
   @F .fh:not([data-calm]):not([data-tod='night']) { animation: fjig 37s linear infinite; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
@@ -2070,7 +2070,7 @@ const $1 = `
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color var(--m-5, 900ms) ease; }
   @F .glass.round { border-radius: 50%; }
-  @F .label { letter-spacing: .05em; font-size: 14px; }
+  @F .label { letter-spacing: .05em; font-size: var(--fs-2); }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
   @F .pill.primary, @F .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
   /* the lead action is a chunky plastic push-button; pressing any plastic button sends it down onto its edge */
@@ -2097,14 +2097,14 @@ const $1 = `
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @F .clock .aclock { grid-row: 1 / span 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
-  @F .clock .hm { font-weight: 700; font-size: 50px; }
+  @F .clock .hm { font-weight: 700; font-size: var(--fs-d2); }
   @F .cap { background: var(--paper); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -1.2deg); font-weight: 600; }
   @F .cap.hot { background: var(--danger); color: #fff; animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @F .cap[data-warm] { background: #f5b301; color: #2a1a00; }
   @F .weather { border-radius: 4px; rotate: calc(var(--tilt, 1) * -1deg); }
   @F .presence { background: transparent; box-shadow: none; gap: 2px; padding: 0 4px; }
   @F .presence { gap: 10px; }
-  @F .presence .avatar { background: transparent; color: var(--c); font-weight: 700; font-size: 34px; width: auto; min-width: 26px; height: 44px; border-radius: 0; letter-spacing: -.04em; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
+  @F .presence .avatar { background: transparent; color: var(--c); font-weight: 700; font-size: var(--fs-6); width: auto; min-width: 26px; height: 44px; border-radius: 0; letter-spacing: -.04em; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
   @F .presence .avatar.away { color: transparent; -webkit-text-stroke: 2px var(--c); opacity: 1; rotate: 14deg; text-shadow: none; }
   @F .right > button.round { background: var(--magnet); color: var(--ink); box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .right > button.round[data-act='night'] { background: #33363b; color: #ffd75a; }
@@ -2113,9 +2113,9 @@ const $1 = `
   @F .planner { background: transparent; box-shadow: none; padding: 4px 0 0; animation: none; }
   @F .planner h1 { background: linear-gradient(transparent 62%, var(--note-today) 62%, var(--note-today) 92%, transparent 92%); align-self: flex-start; padding: 0 6px 0 2px; }
   @F .seg { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); border-radius: 26px; padding: 4px; }
-  @F .seg button { border-radius: 22px; color: var(--ink); font-size: 16px; font-weight: 500; }
+  @F .seg button { border-radius: 22px; color: var(--ink); font-size: var(--fs-3); font-weight: 500; }
   @F .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
-  @F .legend { font-size: 15px; font-weight: 500; }
+  @F .legend { font-size: var(--fs-2); font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
   @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color var(--m-5, 900ms) ease; }
   @F .col:nth-child(even) { rotate: calc(var(--tilt, 1) * .8deg); }
@@ -2126,9 +2126,9 @@ const $1 = `
   @F .num { font-weight: 700; }
   @F .today .num { background: var(--ink); color: var(--note-today); }
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
-  @F .ev .t { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  @F .ev .t { font-size: var(--fs-1); font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 4; } @F .col[data-tight] .ev .content { -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: 14px; font-weight: 500; }
+  @F .ev .w { font-size: var(--fs-1); font-weight: 500; }
   @F .ev.next { box-shadow: none; }
   /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
   @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -2157,15 +2157,15 @@ const $1 = `
   @F .playing .art { animation: fhSpin 4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @F .timerrow { align-items: center; }
   @F .timerrow.on .hint { display: none; }
-  @F .quick { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; min-height: 44px; font-size: 16px; font-weight: 500; }
-  @F .rem { font-weight: 500; font-size: 16px; line-height: 1.15; }
+  @F .quick { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; min-height: 44px; font-size: var(--fs-3); font-weight: 500; }
+  @F .rem { font-weight: 500; font-size: var(--fs-3); line-height: 1.15; }
   @F .rem .check { width: 20px; height: 20px; border-width: 2px; }
   @F .meter { border: 2px solid var(--ink); background: var(--paper); height: 12px; border-radius: 8px; }
   @F .meter > div { background: #f5b301; border-radius: 0; }
 
   /* dock: a row of fridge magnets */
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
-  @F .dock .item { font-weight: 600; font-size: 15px; height: 80px; gap: 7px; border-radius: 0; }
+  @F .dock .item { font-weight: 600; font-size: var(--fs-2); height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item svg.i { padding: 8px; background: var(--bt, var(--magnet)); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #fff3c4; }
@@ -2179,25 +2179,25 @@ const $1 = `
   @F .dock .sep { background: transparent; margin: 0 2px; }
   /* a portrait tablet with all thirteen magnets (the morning): smaller words and tighter gaps, so the row fits and no two labels touch */
   @F[data-n3] .dock { gap: 4px; }
-  @F[data-n3] .dock .item { font-size: 14px; }
+  @F[data-n3] .dock .item { font-size: var(--fs-2); }
   @F .tcard { position: relative; border-radius: 4px; background: var(--paper); box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   /* the chosen look: a ring and a tick, never a fill */
   @F .tcard[aria-pressed='true'] { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
-  @F .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--paper); }
+  @F .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: var(--fs-3); font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--paper); }
 
   /* lists: lined paper, a tick box you could draw, print by default */
   @F .row { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
   @F .check { width: 32px; height: 32px; border-radius: 5px 9px 6px 10px; border: 2.5px solid var(--ink); background: var(--paper); }
-  @F .done .check { background: var(--paper); border-color: var(--ink); color: var(--ok); transform: none; font-size: 34px; font-weight: 700; overflow: visible; }
+  @F .done .check { background: var(--paper); border-color: var(--ink); color: var(--ok); transform: none; font-size: var(--fs-6); font-weight: 700; overflow: visible; }
   @F .done .check svg { width: 28px; height: 28px; stroke-width: 4; }
   @F .row .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size-lg); line-height: 1.1; }
   @F .row.now { background: transparent; }
   @F .row.now .content { text-decoration: underline var(--note-today); text-decoration-thickness: .5em; text-underline-offset: -.34em; text-decoration-skip-ink: none; }
   @F .big .check { width: 48px; height: 48px; }
-  @F .big.done .check { font-size: 50px; }
-  @F .row.big .content { font-size: 30px; }
+  @F .big.done .check { font-size: var(--fs-d2); }
+  @F .row.big .content { font-size: var(--fs-6); }
   @F .row.big { background: var(--note); padding-left: 12px; }
-  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; min-width: 0; }
+  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: var(--fs-5); padding: 0 6px; min-width: 0; }
   /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
   @F .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
@@ -2207,17 +2207,17 @@ const $1 = `
   /* kid page */
   @F .hero { overflow: visible; rotate: calc(var(--tilt, 1) * -.6deg); }
   @F .hero::before { inset: -10px auto auto 50%; width: 96px; height: 24px; margin-left: -48px; background: color-mix(in srgb, var(--kid) 50%, #fff); opacity: .85; transform: rotate(-3deg); }
-  @F .name { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 46px; color: color-mix(in srgb, var(--kid) 72%, #000); }
+  @F .name { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-d1); color: color-mix(in srgb, var(--kid) 72%, #000); }
   @F .rank { font-weight: 600; background: color-mix(in srgb, var(--kid) 72%, #000); }
   @F .stat { background: var(--chip-soft); border-radius: 8px; }
   @F .stat b { font-family: 'Fredoka', sans-serif; font-weight: 700; }
-  @F .stat span { font-weight: 500; font-size: 14px; }
+  @F .stat span { font-weight: 500; font-size: var(--fs-2); }
   @F .dots i.g { background: #f5b301; border-color: #8a5f00; }
   @F .nextup { background: var(--chip-soft); border-radius: 8px; }
   /* the red margin runs down the edge of the page, clear of every word */
   @F .jobs { background: linear-gradient(90deg, transparent 0 8px, var(--margin) 8px 10px, transparent 10px) 0 0 / 100% 100% no-repeat, var(--glass); }
-  @F .sec h2 { font-size: 30px; line-height: 1; padding: 0 4px; }
-  @F .sec span { font-weight: 500; font-size: 14px; }
+  @F .sec h2 { font-size: var(--fs-6); line-height: 1; padding: 0 4px; }
+  @F .sec span { font-weight: 500; font-size: var(--fs-2); }
   @F .plus { font-weight: 600; }
   @F .play { box-shadow: 0 3px 0 var(--primary-edge); }
   @F .later { background: var(--chip-soft); border-radius: 8px; font-weight: 500; }
@@ -2225,24 +2225,24 @@ const $1 = `
   @F .side > .card { rotate: calc(var(--tilt, 1) * .6deg); }
   @F .tabs { background: transparent; border-radius: 0; padding: 0; }
   @F .rw { background: var(--chip-soft); color: var(--ink); border-radius: 8px; }
-  @F .rw .n { font-weight: 500; font-size: 16px; }
+  @F .rw .n { font-weight: 500; font-size: var(--fs-3); }
   @F .rw button { font-weight: 600; background: #f5b301; color: #26272b; box-shadow: 0 3px 0 #a87400; }
   @F .rw button.save { background: var(--chip); color: var(--ink2); box-shadow: none; }
   @F .pic { border-radius: 3px; background: var(--paper); box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -1deg); }
   @F .pic:nth-child(even) { rotate: calc(var(--tilt, 1) * 1.2deg); }
   @F .pic.done { background: color-mix(in srgb, var(--ok) 24%, var(--paper)); }
-  @F .wk { font-size: 15px; }
+  @F .wk { font-size: var(--fs-2); }
 
   /* groceries: a shopping-list pad and chunky keys */
   @F .list.glass { background: linear-gradient(90deg, transparent 0 10px, var(--margin) 10px 12px, transparent 12px) 0 0 / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .items { gap: 0; }
   /* lists that have tightened to fit keep their ruled lines, just closer together */
   @F .items[data-fit] .row { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
-  @F .items[data-fit] .row .content { font-size: 17px; }
+  @F .items[data-fit] .row .content { font-size: var(--fs-3); }
   @F .items[data-fit] .check { width: 24px; height: 24px; }
   @F .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
-  @F .jobs [data-fit] .row .content { font-size: 18px; }
-  @F .tag { font-weight: 600; font-size: 12px; }
+  @F .jobs [data-fit] .row .content { font-size: var(--fs-3); }
+  @F .tag { font-weight: 600; font-size: var(--fs-1); }
   @F .who.glass { border-radius: 4px; }
 
   /* music: the player is a dark deck */
@@ -2302,7 +2302,7 @@ const $1 = `
   @F .rooms { background: transparent; box-shadow: none; padding-left: 4px; padding-right: 4px; }
   @F .room { background: var(--note); border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .room.lit { background: var(--note-today); box-shadow: 0 7px 10px rgba(0,0,0,.2); rotate: calc(var(--tilt, 1) * .5deg); }
-  @F .rh h2 { font-size: 28px; line-height: 1; }
+  @F .rh h2 { font-size: var(--fs-5); line-height: 1; }
   @F .dev { background: transparent; border-radius: 0; border-bottom: 1.5px solid color-mix(in srgb, var(--ink) 18%, transparent); padding-left: 2px; padding-right: 2px; }
   @F .dicon { background: var(--magnet); color: var(--ink); box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.12); }
   @F .dev.on .dicon { background: #ffd23f; color: #5b3a00; box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.14), 0 0 0 4px rgba(255,210,63,.4); }
@@ -2318,7 +2318,7 @@ const $1 = `
   @F .snaps { gap: 26px 12px; padding: 12px 6px; }
   @F .snap { aspect-ratio: auto; height: 108px; border-radius: 2px; border: 7px solid #fff; border-bottom-width: 26px; background-color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.26); }
   @F .snap::before { top: -16px; width: 46px; height: 16px; margin-left: -23px; border-radius: 1px; background: color-mix(in srgb, var(--note-today) 82%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.12); rotate: -4deg; }
-  @F .by { left: 0; right: 0; bottom: -25px; padding: 0; background: transparent; border-radius: 0; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.2; text-align: center; color: #26272b; }
+  @F .by { left: 0; right: 0; bottom: -25px; padding: 0; background: transparent; border-radius: 0; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-3); font-weight: 700; line-height: 1.2; text-align: center; color: #26272b; }
 
   /* avatar studio: the mirror is a taped photo, the shelf is a sheet of stickers */
   @F .mirror { overflow: visible; rotate: calc(var(--tilt, 1) * -.5deg); }
@@ -2329,7 +2329,7 @@ const $1 = `
   /* morning board: one note per child under a magnet in their colour */
   @F .kcol { position: relative; overflow: visible; border-top: 0; border-radius: 2px; padding-top: 30px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); }
   @F .kcol::before { content: ''; position: absolute; top: 6px; left: 50%; margin-left: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--kid); box-shadow: 0 2px 3px rgba(0,0,0,.3), inset 0 -3px 0 rgba(0,0,0,.18); }
-  @F .khead h2 { font-size: 36px; }
+  @F .khead h2 { font-size: var(--fs-6); }
   @F .nextstep { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); font-weight: 600; }
   @F .nextstep.set { background: color-mix(in srgb, var(--ok) 22%, var(--paper)); }
   @F .lchip { background: transparent; border-radius: 0; border-bottom: 2px dashed var(--ink); padding-left: 2px; padding-right: 2px; font-weight: 600; }
@@ -2347,8 +2347,8 @@ const $1 = `
   @F .wweek { rotate: calc(var(--tilt, 1) * .5deg); background: var(--paper); }
   @F .wmaps { background: #fff; padding: 12px 12px 8px; }
   @F .wmaps .mbox { border-radius: 2px; }
-  @F .wtemp { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 86px; font-weight: 700; }
-  @F .wtip { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); border-radius: 3px 14px 3px 12px; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; line-height: 1.1; }
+  @F .wtemp { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-d5); font-weight: 700; }
+  @F .wtip { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); border-radius: 3px 14px 3px 12px; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-4); font-weight: 700; line-height: 1.1; }
   @F .wfact { background: transparent; border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 28%, transparent); padding: 4px 2px 6px; }
   @F .wday { border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 22%, transparent); }
   @F .wday.today { background: transparent; box-shadow: inset 0 0 0 2.5px var(--primary); border-radius: 14px 18px 12px 20px; rotate: calc(var(--tilt, 1) * -.6deg); border-bottom-color: transparent; }
@@ -2363,9 +2363,9 @@ const $1 = `
   @F[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
   @F[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: var(--paper); border-top: 2px solid var(--ink); box-shadow: 0 -6px 14px rgba(0,0,0,.14); }
   @F[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--paper) 85%); pointer-events: none; }
-  @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: var(--fs-2); }
   @F[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 10px; }
-`, N1 = `
+`, Tf = `
   /* a ring always means time or progress · ink-filled = an action · yellow = now · mint = done */
   @O .fh { --ring-halo: #0a0f1e; --pg-from: scale(calc(1 - .01 * var(--m-d, 1))); font-family: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif; font-weight: 400; background: var(--ground) repeating-radial-gradient(circle at 62px 68px, transparent 0 89px, rgba(255,255,255,.04) 89px 90px); }
   @O .fh::before { display: none; }
@@ -2375,7 +2375,7 @@ const $1 = `
   @O .lead:active { transform: scale(calc(1 - .02 * var(--m-d, 1))); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent); }
   @O h1, @O h2, @O .display { font-family: 'Outfit', sans-serif; letter-spacing: -.01em; }
   @O .glass { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
-  @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 14px; }
+  @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: var(--fs-2); }
   @O .pill, @O .round { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
   @O .pill.primary, @O .primary { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 600; }
   @O .toast { background: var(--primary); color: var(--on-primary); font-weight: 500; }
@@ -2391,7 +2391,7 @@ const $1 = `
   /* header */
   @O .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @O .clock .dial { grid-row: 1 / span 2; }
-  @O .clock .hm { font-weight: 400; font-size: 52px; letter-spacing: -.02em; }
+  @O .clock .hm { font-weight: 400; font-size: var(--fs-d2); letter-spacing: -.02em; }
   /* the header is drawn a little tighter than the base (smaller rings, closer avatars) so an alert chip has room for all of its words */
   @O .cap { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 500; max-width: 100%; }
   @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
@@ -2411,12 +2411,12 @@ const $1 = `
   @O .col { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 22px; padding: 10px 8px; }
   @O .col.today { background: color-mix(in srgb, var(--accent) 13%, var(--glass)); border: 2px solid var(--accent); }
   @O .dayhead { padding: 2px 4px 6px 6px; }
-  @O .num { font-weight: 400; font-size: 22px; }
-  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; font-size: 15px; }
+  @O .num { font-weight: 400; font-size: var(--fs-4); }
+  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; font-size: var(--fs-2); }
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: 14px; }
+  @O .ev .w { font-weight: 400; font-size: var(--fs-1); }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
   /* what is over keeps its outline and loses its fill; the words stay readable */
   @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }
@@ -2440,7 +2440,7 @@ const $1 = `
 
   /* dock: a line of rings */
   @O .dock { background: transparent; border-color: transparent; gap: 6px; padding: 0; }
-  @O .dock .item { font-size: 15px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
+  @O .dock .item { font-size: var(--fs-2); font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
   @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
@@ -2452,7 +2452,7 @@ const $1 = `
   @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
   @O[data-n3] .dock { gap: 4px; }
-  @O[data-n3] .dock .item { font-size: 14px; }
+  @O[data-n3] .dock .item { font-size: var(--fs-2); }
 
   /* lists */
   @O .row { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
@@ -2461,7 +2461,7 @@ const $1 = `
   @O .row .content { font-weight: 400; }
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
-  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; min-width: 0; }
+  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: var(--fs-5); padding: 0 4px; min-width: 0; }
   /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
   @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
@@ -2476,17 +2476,17 @@ const $1 = `
 
   /* kid page */
   @O .hero::before { inset: 0; height: auto; background: repeating-radial-gradient(circle at 50% 26%, transparent 0 43px, color-mix(in srgb, var(--kid) 34%, transparent) 43px 44px); -webkit-mask-image: radial-gradient(circle at 50% 26%, #000 22%, transparent 70%); mask-image: radial-gradient(circle at 50% 26%, #000 22%, transparent 70%); }
-  @O .name { font-weight: 500; font-size: 38px; }
+  @O .name { font-weight: 500; font-size: var(--fs-6); }
   @O .rank { background: color-mix(in srgb, var(--kid) 20%, transparent); color: var(--kid); font-weight: 600; }
   @O .stat { background: var(--chip-soft); }
-  @O .stat b { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 34px; }
+  @O .stat b { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-6); }
   @O .stat span { font-weight: 400; }
   @O .dots i.t { box-shadow: 0 0 0 2px #121a31, 0 0 0 4px var(--kid); }
   @O .nextup { background: var(--chip-soft); }
   @O .jobs .done .check { border-color: var(--ok); }
   @O .pic.now { box-shadow: 0 0 0 3px var(--accent); }
   @O .sec { margin-top: 12px; }
-  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--ink); }
+  @O .sec h2 { font-size: var(--fs-3); font-weight: 600; color: var(--ink); }
   @O .sec span { font-weight: 400; }
   @O .plus { background: var(--track); color: var(--ink); box-shadow: none; font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
@@ -2506,7 +2506,7 @@ const $1 = `
   /* home: rooms are outlined cells; a room with a light on carries the 'now' yellow */
   @O .room { background: transparent; border-radius: 26px; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .room.lit { background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
-  @O .rh h2 { font-size: 20px; font-weight: 500; }
+  @O .rh h2 { font-size: var(--fs-4); font-weight: 500; }
   @O .dev { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); padding-left: 2px; padding-right: 2px; }
   @O .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .dev.on .dicon { background: var(--accent); color: #0a0f1e; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
@@ -2596,7 +2596,7 @@ const $1 = `
   @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
   @O .artm .atime .big { font-weight: 300; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
-  @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
+  @O .wtemp { font-weight: 300; font-size: var(--fs-d4); letter-spacing: -.04em; }
   @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
   @O .wfact { background: transparent; }
   @O .wday.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
@@ -2616,7 +2616,7 @@ const $1 = `
   /* the chosen look: a ring and a tick, never a fill */
   @O .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 3px var(--accent); }
-  @O .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #0a0f1e; font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px #172039; }
+  @O .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #0a0f1e; font-size: var(--fs-3); font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px #172039; }
   /* sheets: chips are rings, the chosen one is yellow; who gave a medicine is a ring too, so adding to the record is the one filled action */
   @O .mchip, @O .chips button, @O .durs button, @O .ampm button, @O .allday { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
   @O .mchip[aria-pressed='true'], @O .chips button[aria-pressed='true'], @O .durs button[aria-pressed='true'], @O .ampm button[aria-pressed='true'], @O .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
@@ -2632,9 +2632,9 @@ const $1 = `
   @O[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
   @O[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: rgba(10,15,30,.92); border: 0; border-top: 1px solid var(--glass-line); }
   @O[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, #0a0f1e 85%); pointer-events: none; }
-  @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: var(--fs-2); }
   @O[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 11px; }
-`, T1 = `
+`, zf = `
   /* Home Ground. Round things can be pressed; square things only tell you something.
      hero = hi-vis fill on a 4 px step · action = chalk pill, 2 px edge and step · choice = flat · selected = inverted with a hi-vis bar · now = pennant and heavy edge · done = green tick */
   @S .fh { font-family: 'Inter', system-ui, sans-serif; font-weight: 500; background: var(--flood), var(--ground); transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
@@ -2643,16 +2643,16 @@ const $1 = `
   @S .fh[data-calm] { --mow1: var(--mow2); }
   @S h1, @S h2 { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; letter-spacing: -.015em; }
   @S .display { font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  @S .label { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .09em; color: var(--ink2); }
+  @S .label { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; font-weight: 700; font-size: var(--fs-2); letter-spacing: .09em; color: var(--ink2); }
   /* windows: boards on the clubhouse wall, with one chalk corner arc */
   @S .glass { background: radial-gradient(circle at 100% 100%, transparent 0 21px, var(--track) 21.5px 23.5px, transparent 24px) right bottom / 26px 26px no-repeat, var(--panel); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
   @S .card { border-radius: 14px; }
   /* actions */
-  @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: 16px; }
+  @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: var(--fs-3); }
   @S .round { border-radius: 50%; }
-  @S .quick { border-radius: 999px; min-height: 44px; font-size: 15px; white-space: nowrap; }
+  @S .quick { border-radius: 999px; min-height: 44px; font-size: var(--fs-2); white-space: nowrap; }
   @S .pill.primary, @S .primary, @S .lead { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
-  @S .lead { font-size: 18px; padding: 0 24px; }
+  @S .lead { font-size: var(--fs-3); padding: 0 24px; }
   @S .tap:active { opacity: 1; }
   @S .pill.tap:active, @S .round.tap:active, @S .quick.tap:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .lead.tap:active, @S .primary.tap:active { transform: translateY(calc(4px * var(--m-d, 1))) scale(calc(1 + .02 * var(--m-d, 1)), calc(1 - .04 * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); opacity: 1; }
@@ -2666,12 +2666,12 @@ const $1 = `
   @S .remfail { padding: 8px 10px 8px 38px; border-radius: 10px; background: var(--s-cone) 9px 9px / 22px 22px no-repeat, var(--danger-wash); box-shadow: inset 0 0 0 2px var(--danger); }
   /* choices: flat, no step; the chosen one is inverted with a hi-vis bar */
   @S .seg { height: 52px; padding: 3px; border-radius: 28px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink); gap: 2px; }
-  @S .seg button { height: 46px; border-radius: 24px; font-weight: 600; font-size: 16px; color: var(--ink); }
+  @S .seg button { height: 46px; border-radius: 24px; font-weight: 600; font-size: var(--fs-3); color: var(--ink); }
   @S .seg button[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
-  @S .mchip, @S .chips button, @S .durs button, @S .ampm button, @S .allday { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .mchip, @S .chips button, @S .durs button, @S .ampm button, @S .allday { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: var(--fs-3); }
   @S .mchip[aria-pressed='true'], @S .chips button[aria-pressed='true'], @S .durs button[aria-pressed='true'], @S .ampm button[aria-pressed='true'], @S .allday[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
   @S .tabs { background: transparent; border-radius: 0; gap: 8px; padding: 0; }
-  @S .tab { border-radius: 10px 10px 4px 4px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .tab { border-radius: 10px 10px 4px 4px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: var(--fs-3); }
   @S .tab[aria-pressed='true'], @S .tab[aria-selected='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
   /* lists: a tick box; done is green and struck through; the current row carries the pennant */
   @S .row { border-radius: 10px; }
@@ -2689,12 +2689,12 @@ const $1 = `
   @S .meter > div { position: relative; height: 5px; min-width: 1px; background: var(--ink); border-radius: 3px; }
   @S .meter > div::after { content: ''; position: absolute; right: -10px; top: -8px; width: 20px; height: 20px; background: var(--s-ball) center / contain no-repeat; }
   /* bibs: a person's colour is always worn with their initial; under lights the bib gets a chalk outline */
-  @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
+  @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
   /* the small bib is the full 22 px one: its initial is never under 12 px */
-  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: 12px; }
-  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
+  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: var(--fs-1); }
+  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: var(--fs-2); font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
   @S .presence .avatar.away { background: var(--s-away) center / contain no-repeat; color: var(--ink); filter: none; outline: 0; opacity: 1; }
@@ -2725,9 +2725,9 @@ const $1 = `
   @S .cap.ok { background: var(--ok-wash); color: var(--ok); }
   /* the weather chip is the pitch report */
   @S .weather { border-radius: 12px; height: 56px; padding: 0 12px; gap: 10px; background: var(--panel); }
-  @S .badge { border-radius: 6px; background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .badge { border-radius: 6px; background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
   @S .badge.hot { background: var(--danger); color: var(--on-danger); box-shadow: none; }
-  @S .verdict { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border-radius: 6px; background: var(--ok-wash); color: var(--ok); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .02em; white-space: nowrap; flex-shrink: 0; }
+  @S .verdict { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border-radius: 6px; background: var(--ok-wash); color: var(--ok); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); letter-spacing: .02em; white-space: nowrap; flex-shrink: 0; }
   @S .verdict[data-v='hat'] { background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
   @S .verdict[data-v='wet'] { background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
   @S .presence { background: transparent; border: 0; box-shadow: none; gap: 5px; padding: 0 2px; }
@@ -2736,7 +2736,7 @@ const $1 = `
 
   /* planner: the week is seven mown lanes with chalk between them */
   @S .planner { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 0; gap: 10px; }
-  @S .legend { font-size: 15px; font-weight: 600; color: var(--ink); gap: 16px; }
+  @S .legend { font-size: var(--fs-2); font-weight: 600; color: var(--ink); gap: 16px; }
   @S .week { gap: 0; border-radius: 14px; border: 1.5px solid var(--line); background: var(--mow2); overflow: hidden; }
   @S .col { border-radius: 0; background: transparent; border-left: 2px solid var(--chalk); padding: 0 6px 6px; box-shadow: none; }
   @S .col:nth-child(odd) { background: var(--mow1); }
@@ -2744,18 +2744,18 @@ const $1 = `
   @S .col.today { background: var(--panel); box-shadow: inset 0 0 0 3px var(--ink); }
   @S .dayhead { height: 46px; flex-shrink: 0; margin: 0 -6px; padding: 0 8px; gap: 4px; border-bottom: 2px solid var(--chalk); }
   @S .dayhead .dball { margin-left: auto; }
-  @S .num { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 700; }
-  @S .today .num { width: auto; height: 28px; padding: 0 6px; border-radius: 6px; background: var(--sel); color: var(--on-sel); box-shadow: none; font-size: 19px; }
+  @S .num { font-family: 'Outfit', sans-serif; font-size: var(--fs-4); font-weight: 700; }
+  @S .today .num { width: auto; height: 28px; padding: 0 6px; border-radius: 6px; background: var(--sel); color: var(--on-sel); box-shadow: none; font-size: var(--fs-4); }
   @S .col.today .dayhead::before { content: ''; width: 20px; height: 20px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; }
   /* events are fixture cards: the person's colour down the edge, the time on the scoreboard face */
   @S .ev { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: 8px; padding: 6px 5px 7px 7px; }
-  @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink2); }
-  @S .ev .content { font-size: 16px; font-weight: 600; }
+  @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: var(--fs-2); color: var(--ink2); }
+  @S .ev .content { font-size: var(--fs-3); font-weight: 600; }
   /* who it is for: their bib in the corner of the card, with their initial (the name itself stays for screen readers) */
   @S .ev { position: relative; }
   @S .ev .t { padding-right: 26px; }
-  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 8px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 12px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
-  @S .ev .w::first-letter { font-size: 12px; }
+  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 7px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 13px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
+  @S .ev .w::first-letter { font-size: var(--fs-1); }
   @S .col.today .ev.past .w { display: block; }
   @S .ev.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 30px top 6px / 18px 18px no-repeat, var(--evcard); }
   @S .ev.past, @S .dayrow.past { opacity: 1; background: transparent; border-style: dashed; border-left-style: solid; border-left-color: color-mix(in srgb, var(--c) 55%, transparent); }
@@ -2767,7 +2767,7 @@ const $1 = `
   @S .cell.out { background: transparent; border-style: dashed; color: var(--ink3); }
   @S .cell.today { background: var(--panel); border: 3px solid var(--ink); }
   @S .cell.today .mtop > span:first-child { font-weight: 800; text-decoration: underline; text-decoration-color: var(--ink); text-decoration-thickness: 3px; text-underline-offset: 3px; }
-  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: 15px; }
+  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: var(--fs-2); }
   /* day: the match-day programme, one lane */
   @S .dayrow { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c, var(--line)); border-radius: 8px; }
   @S .daylist { background: var(--mow1); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; }
@@ -2777,7 +2777,7 @@ const $1 = `
   @S .freeday > span:first-child { width: 150px; height: 60px; border-bottom: 3px solid var(--ink); background: var(--s-ball) center bottom / 54px 54px no-repeat; }
   @S .freeday > span:first-child svg { display: none; }
   @S .freeday h2 { font-size: 0; }
-  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, 22px); }
+  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, var(--fs-4)); }
   /* the rail: now playing sits on a scoreboard; the kitchen timer is the match clock; the family jar is the ball bag */
   @S .np { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
   @S .np .muted { color: var(--board-ink2); }
@@ -2786,16 +2786,16 @@ const $1 = `
   @S .timerrow { flex-wrap: wrap; row-gap: 6px; }
   @S .timerrow .tmeter { order: 3; flex: 0 0 100%; width: 100%; height: auto; }
   @S .tmeter { max-width: 100%; }
-  @S .tread { margin: 0; padding: 0 12px; border-radius: 8px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-size: 30px; font-weight: 700; }
+  @S .tread { margin: 0; padding: 0 12px; border-radius: 8px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-size: var(--fs-6); font-weight: 700; }
   @S .timerrow .tcancel { color: var(--ink2); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
   @S .timerrow.on .hint { display: none; }
   @S .jarpic { width: 34px; height: 34px; flex-shrink: 0; background: var(--s-bag) center / contain no-repeat; }
   @S .jarpic svg { display: none; }
-  @S .rem { font-weight: 500; font-size: 16px; }
+  @S .rem { font-weight: 500; font-size: var(--fs-3); }
 
   /* dock: the touchline. Mown turf with a chalk line; places to go are white balls standing on it */
   @S .dock { align-self: stretch; margin: 0 calc(-1 * var(--pad-x)) calc(-1 * var(--pad-y)); padding: 9px 12px 9px; gap: 10px; justify-content: center; border: 0; border-top: 3px solid var(--chalk); border-radius: 0; box-shadow: none; background: repeating-linear-gradient(90deg, var(--turf) 0 80px, var(--turf2) 80px 160px); }
-  @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; }
+  @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: var(--fs-2); font-weight: 700; }
   @S .dock .item svg.i { width: 54px; height: 54px; padding: 14px; border-radius: 50%; background: #fff; color: #14201a; box-shadow: inset 0 0 0 2px #14201a, 0 3px 0 rgba(8,24,14,.55); stroke-width: 2; }
   @S .dock .item svg.i { padding: 9px; }
   @S .dock .item.tap:active svg.i { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px #14201a; }
@@ -2822,7 +2822,7 @@ const $1 = `
   @S .what ~ [role='img'] { align-items: center; height: 24px; gap: 10px; }
   @S .what ~ [role='img'] span { width: 18px; height: 18px; border: 2px solid var(--ink); background: var(--panel); }
   @S .what ~ [role='img'] span.on { background: var(--ink); border-color: var(--ink); }
-  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: 15px; font-weight: 600; color: var(--ink2); white-space: nowrap; }
+  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); white-space: nowrap; }
   /* toasts: the linesman's flag */
   @S .toast { background: var(--panel); color: var(--ink); border-radius: 12px; box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 rgba(20,32,26,.18); text-align: left; padding: 12px 18px 12px 14px; gap: 10px; }
   @S .toast::before { content: ''; width: 22px; height: 22px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; transform-origin: 25% 90%; animation: sFlag var(--mt-4, 400ms) var(--e-spring, ease) both; }
@@ -2831,9 +2831,9 @@ const $1 = `
   /* the look picker: the chosen card is a ring and a tick, never a fill */
   @S .tcard { position: relative; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); border-radius: 14px; }
   @S .tcard[aria-pressed='true'] { background: var(--panel2); color: var(--ink); box-shadow: 0 0 0 3px var(--ink); }
-  @S .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 8px; background: var(--sel); color: var(--on-sel); font-size: 17px; font-weight: 800; line-height: 27px; text-align: center; box-shadow: 0 0 0 3px var(--panel); }
+  @S .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 8px; background: var(--sel); color: var(--on-sel); font-size: var(--fs-3); font-weight: 800; line-height: 27px; text-align: center; box-shadow: 0 0 0 3px var(--panel); }
   /* the floodlight switch, with its word */
-  @S .opt { gap: 8px; font-weight: 700; font-size: 16px; }
+  @S .opt { gap: 8px; font-weight: 700; font-size: var(--fs-3); }
   @S .opt::after { content: 'Off'; min-width: 28px; text-align: left; }
   @S .opt[aria-checked='true']::after { content: 'On'; }
   @S .opt .sw { width: 68px; height: 36px; border-radius: 18px; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink3); }
@@ -2847,7 +2847,7 @@ const $1 = `
   @S .hero::before { display: none; }
   /* the name is as big as its length allows (--nl, its letters, comes from the page), so a seven-letter name stays on one line beside the rank and is never broken mid-word */
   @S .name { font-size: clamp(30px, calc(300px / var(--nl, 6)), 44px); font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
-  @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
   @S .stat { background: var(--panel2); border-radius: 10px; }
   @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .dots i.g { background: var(--ok); border-color: var(--ok); }
@@ -2856,12 +2856,12 @@ const $1 = `
   @S .nextup .meter { margin: 8px 0 6px; }
   @S .jobs .ring { width: auto; height: 36px; padding: 0 10px; border-radius: 8px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); display: flex; align-items: center; }
   @S .jobs .ring svg { display: none; }
-  @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
+  @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: var(--fs-3); font-weight: 700; }
   @S .job { border-radius: 10px; background: var(--panel2); }
   @S .row.now { padding-left: 38px; background: var(--s-flag) 10px center / 22px 22px no-repeat, var(--panel); box-shadow: inset 0 0 0 3px var(--ink); }
   @S .job.done .check { background: var(--ok); border-color: var(--ok); }
-  @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
-  @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: 16px; }
+  @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
+  @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: var(--fs-3); }
   @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
@@ -2882,17 +2882,17 @@ const $1 = `
   @S .pic.big { padding-top: calc(12px - 6px * var(--fit, 0)); padding-bottom: calc(16px - 8px * var(--fit, 0)); row-gap: calc(6px - 4px * var(--fit, 0)); }
   @S .pic.big .e { font-size: calc(112px - 28px * var(--fit, 0)); }
   @S .pic.big .pt { font-size: calc(32px - 6px * var(--fit, 0)); }
-  @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
+  @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: 800; line-height: 1.05; text-align: left; }
   @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
-  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: var(--fs-4); font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
   @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
-  @S .pic.small .e { font-size: 48px; }
+  @S .pic.small .e { font-size: var(--fs-d2); }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
   @S .pic.big.done::after { display: none; }
   @S .readme, @S .seedone { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
   @S .studio[data-locked] { background: transparent; color: var(--ink3); box-shadow: none; outline: 2px dashed var(--ink3); outline-offset: -2px; }
-  @S .sec h2 { font-size: 18px; }
-  @S .wk { font-size: 15px; }
+  @S .sec h2 { font-size: var(--fs-3); }
+  @S .wk { font-size: var(--fs-2); }
 
   /* groceries: the canteen docket */
   /* the dark docket bar is painted inside the card, so the card's own corners clip it */
@@ -2925,7 +2925,7 @@ const $1 = `
   @S .snap { border-radius: 8px; box-shadow: 0 0 0 1.5px var(--line); }
   /* who drew it: a caption under the tile, so it never covers the drawing or hangs off the corner */
   @S .snaps { row-gap: 30px; padding-bottom: 32px; }
-  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: 18px; line-height: 1.2; font-weight: 700; }
+  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: var(--fs-3); line-height: 1.2; font-weight: 700; }
 
   /* style studio: kit laid out on the bench */
   @S .tile { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
@@ -2940,8 +2940,8 @@ const $1 = `
   @S .leave { font-family: 'Outfit', sans-serif; font-weight: 700; }
 
   /* weather: the pitch report. The verdict comes first, then the readings */
-  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: 20px; gap: 8px; align-self: flex-start; flex-shrink: 0; }
-  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
+  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: var(--fs-4); gap: 8px; align-self: flex-start; flex-shrink: 0; }
+  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: var(--fs-3); }
   @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .wtip { background: var(--panel2); border-radius: 10px; }
   @S .wfact { background: var(--panel2); border-radius: 10px; padding: 6px 10px; }
@@ -2961,8 +2961,8 @@ const $1 = `
   @S .talk { box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); }
 
   /* add an event: the time is picked on a scoreboard drum */
-  @S .chips button { font-size: 15px; gap: 5px; }
-  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 12px; }
+  @S .chips button { font-size: var(--fs-2); gap: 5px; }
+  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: var(--fs-1); }
   @S .dialbox { border-radius: 12px; background: var(--panel2); }
   @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
   @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--board-ink), inset -5px 0 0 var(--board-ink); }
@@ -2998,7 +2998,7 @@ const $1 = `
   @S .sname { background: var(--board); color: var(--board-ink); border-radius: 6px; box-shadow: 0 0 0 1.5px var(--board-line); font-weight: 700; }
   @S .lamp { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .lamp[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; }
-  @S .lamp[data-other] { font-size: 15px; padding: 0 7px; }
+  @S .lamp[data-other] { font-size: var(--fs-2); padding: 0 7px; }
   @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
   @S .slot { --rail-w: 5px; }
   @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }
@@ -3035,7 +3035,7 @@ const $1 = `
   /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
   @S .artm .atime { display: none; }
   @S .artm .aplate { border-radius: 22px; }
-  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: 26px; }
+  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
   @S .night .nart { opacity: 1; }
   @S .night .dball { opacity: .4; }
   @S .night .breathe { animation: none; opacity: .7; }
@@ -3051,12 +3051,12 @@ const $1 = `
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
   @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
   /* a compact screen (1024 x 768) drops the other looks' timer pills to 14 px; these keep the look's 15 px, which the tighter drawing above leaves room for */
-  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: 15px; }
+  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: var(--fs-2); }
   /* a choice of several on a phone wraps to as many rows as its words need */
   @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
   @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
-  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
+  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: var(--fs-2); }
   @S[data-n3] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-n3] .dock .sep { margin: 0 2px 20px; }
   @S[data-n3] .dock .kidbtn .avatar { scale: 1.08; }
@@ -3066,7 +3066,7 @@ const $1 = `
   @S[data-phone] .night .sboard { --u: 84px; }
   @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
   @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
-  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: 14px; gap: 5px; }
+  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: var(--fs-2); gap: 5px; }
   @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
   @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }
@@ -3077,13 +3077,13 @@ const $1 = `
   @S[data-phone] .week { overflow-x: auto; }
   /* phone: the picture job stacks, and its button runs along the bottom beside the speaker */
   @S[data-phone] .pic.big { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 14px 14px 16px; text-align: center; }
-  @S[data-phone] .pic.big .e { grid-area: auto; font-size: 96px; }
-  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: 28px; }
+  @S[data-phone] .pic.big .e { grid-area: auto; font-size: var(--fs-d5); }
+  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: var(--fs-5); }
   @S[data-phone] .pic.big .stars { grid-area: auto; justify-content: center; }
   @S[data-phone] .pic.big::after { grid-area: auto; margin: 6px 86px 0 0; }
   @S[data-phone] .planner { padding: 0; }
   @S[data-phone] .sheet { padding-top: 30px; }
-`, z1 = `
+`, Wf = `
   /* the fridge door gets a bump now and then: every note jiggles on its pin (needs --tilt registered as a number, see ambient.ts) */
   @keyframes fjig { 0%, 93%, 100% { --tilt: 1; } 94.5% { --tilt: 2.3; } 96% { --tilt: -.2; } 97.5% { --tilt: 1.6; } 99% { --tilt: .7; } }
   @keyframes fhSpin { to { transform: rotate(360deg); } }
@@ -3092,7 +3092,7 @@ const $1 = `
   .vinyl, .pring { max-width: 100%; max-height: 100%; height: auto; }
   /* Home Ground: the linesman's flag tips up once as a toast arrives (it stands still in calm mode) */
   @keyframes sFlag { from { transform: rotate(calc(20deg * var(--m-d, 1))); } }
-`, W1 = `
+`, jf = `
   .lookprev { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; overflow: hidden; padding: 10px; color: var(--ink); }
   .lookprev .lp-clock { position: absolute; top: 8px; right: 10px; line-height: 0; }
   .lookprev .lp-clock svg { width: 30px; height: 30px; }
@@ -3135,23 +3135,27 @@ const as = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
   return [...o].map(([r, n]) => r ? `@media (max-width: ${Number(r) - 1}px) { ${n.join(", ")} {${s}} }
 ` : `${n.join(", ")} {${s}}
 `).join("");
-}), j1 = (a) => {
+}), Cf = (a) => {
   if (!a.vars) return "";
   const t = (i) => Object.entries(i).map(([s, o]) => `${s}:${o}`).join(";"), e = `:host([data-look='${a.id}']) .fh`;
   return `${e} {${t(a.vars)}}
 ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ` : ""}`;
-}, C1 = _t(z1 + W1 + ea.map(j1).join("") + as($1, "glass") + as(V1, "fridge") + as(N1, "orbit") + A1() + as(T1, "sports")), Qt = H`
-  :host { display: block; height: 100%; }
+}, Lf = _t(Wf + jf + ea.map(Cf).join("") + as(Vf, "glass") + as(Nf, "fridge") + as(Tf, "orbit") + qf() + as(zf, "sports")), Qt = H`
+  :host { display: block; height: 100%;
+    /* The type scale: six sizes for words and five for numerals and pictures. Every font-size in the card names a step
+       (scripts/check-type.mjs keeps it that way), so a page never shows a seventh size by accident. */
+    --fs-1: 13px; --fs-2: 15px; --fs-3: 17px; --fs-4: 20px; --fs-5: 26px; --fs-6: 32px;
+    --fs-d1: 44px; --fs-d2: 50px; --fs-d3: 64px; --fs-d4: 72px; --fs-d5: 88px; }
   * { box-sizing: border-box; }
   button { font: inherit; color: inherit; border: 0; background: transparent; cursor: pointer; padding: 0; }
   h1, h2, .display { font-family: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif; letter-spacing: -0.025em; margin: 0; }
   /* Type roles. Templates name a role; a look restyles the role through its tokens (--t-* sizes, --w-* weights),
      so no look ever has to fight an inline size. Weights everywhere go through --w-heavy / --w-bold / --w-semi. */
-  .t-hero { font-size: var(--t-hero, 34px); font-weight: var(--w-title, 800); }
-  .t-title { font-size: var(--t-title, 28px); font-weight: var(--w-title, 800); }
-  .t-head { font-size: var(--t-head, 26px); font-weight: var(--w-title, 800); }
-  .t-sub { font-size: var(--t-sub, 22px); font-weight: var(--w-sub, 700); }
+  .t-hero { font-size: var(--t-hero, var(--fs-6)); font-weight: var(--w-title, 800); }
+  .t-title { font-size: var(--t-title, var(--fs-5)); font-weight: var(--w-title, 800); }
+  .t-head { font-size: var(--t-head, var(--fs-5)); font-weight: var(--w-title, 800); }
+  .t-sub { font-size: var(--t-sub, var(--fs-4)); font-weight: var(--w-sub, 700); }
 
   .fh {
     position: relative; overflow: hidden; overflow: clip; isolation: isolate;
@@ -3218,7 +3222,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .rem .content { flex: 1; min-width: 0; }
   .rem.tap:active { transform: none; }
   /* the lead action: the one thing a page or sheet is for */
-  .lead { height: 52px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  .lead { height: 52px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: var(--fs-3); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
   /* one focus ring and one disabled style for every control, in every component that shares this sheet */
   :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--ring-halo, #fff); }
@@ -3235,8 +3239,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: live 2s ease-out infinite; animation-iteration-count: var(--loops, infinite); flex-shrink: 0; }
   @keyframes live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
   .muted { color: var(--ink2); }
-  .label { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; }
-  .pill { height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
+  .label { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; }
+  .pill { height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
   .round { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: inline-flex; align-items: center; justify-content: center; }
   .primary { background: var(--primary); color: var(--on-primary); }
   .avatar { border-radius: 50%; color: var(--on-person); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -3248,18 +3252,18 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .fh[data-compact] header { min-height: 56px; height: 56px; }
   .fh[data-compact] .clock { min-width: 0; }
   .fh[data-compact] .clock .greet { display: none; }
-  .fh[data-compact] .clock .hm { font-size: 46px; }
+  .fh[data-compact] .clock .hm { font-size: var(--fs-d1); }
   .fh[data-compact] .clock > svg { width: 52px; height: 52px; }
   .fh[data-compact] .clock { max-height: 56px; }
-  .clock .hm { font-size: 54px; font-weight: var(--w-bold, 700); line-height: 1; }
+  .clock .hm { font-size: var(--fs-d2); font-weight: var(--w-bold, 700); line-height: 1; }
   .kids { display: flex; gap: 6px; padding: 6px; border-radius: 999px; }
-  .kid { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; background: var(--chip); font-weight: var(--w-semi, 600); font-size: 15px; }
+  .kid { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; background: var(--chip); font-weight: var(--w-semi, 600); font-size: var(--fs-2); }
   .right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .right > .round { width: 52px; height: 52px; }
   /* each header button says what it is: the picture over one word, as the dock does. Where the header is short (compact, phone) the word goes and the round button stays */
   .right > .round .rl { display: none; }
   .fh:not([data-compact]) .right > .round.hb { width: auto; min-width: 58px; height: 52px; padding: 4px 9px 5px; border-radius: 18px; flex-direction: column; justify-content: center; gap: 1px; }
-  .fh:not([data-compact]) .right > .round.hb .rl { display: block; font-size: 13px; line-height: 1.15; font-weight: var(--w-semi, 600); white-space: nowrap; }
+  .fh:not([data-compact]) .right > .round.hb .rl { display: block; font-size: var(--fs-1); line-height: 1.15; font-weight: var(--w-semi, 600); white-space: nowrap; }
   .fh:not([data-compact]) .right > .round.hb > svg { width: 22px; height: 22px; flex-shrink: 0; }
   /* when the row is too full the weather chip and who-is-home give way, a step at a time (data-fit is set after measuring) */
   header[data-fit~='nobadge'] .weather .badge, header[data-fit~='slim'] .weather .wsub, header[data-fit~='slim'] .weather .wtop { display: none; }
@@ -3267,17 +3271,17 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* while a medication chip is showing, the round pill button (it opens the same sheet) makes room */
   header[data-medchip] .right > [data-act='meds'] { display: none; }
   .weather { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 16px; border-radius: 999px; text-align: left; white-space: nowrap; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, #f59e0b 22%, var(--chip)); font-size: 14px; font-weight: var(--w-heavy, 800); white-space: nowrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, #f59e0b 22%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); white-space: nowrap; }
   .badge.hot { background: color-mix(in srgb, #dc2626 22%, var(--chip)); }
   /* one row that never wraps: a chip that does not fit is taken out whole (lowest priority first), never cut through its words */
   .capsule { flex: 1; min-width: 0; display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 12px; height: 68px; padding: 8px; margin: -8px; overflow: hidden; }
   .cap { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-line); font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
+    border: 1px solid var(--glass-line); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
   /* the names on a medication chip never shrink away (a look may cap the chip at the row's width): the row then counts as too full, and lesser things step aside first */
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
   .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-  .cap b { font-variant-numeric: tabular-nums; font-size: 18px; }
+  .cap b { font-variant-numeric: tabular-nums; font-size: var(--fs-3); } /* the chip's words are a step under its number: the header is the tightest row on the panel */
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
   .cap.hot { background: #c81e1e; color: #fff; border-color: #c81e1e; animation: hotring 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes hotring { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, #c81e1e 38%, transparent); } }
@@ -3287,22 +3291,22 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .presence { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 10px; border-radius: 999px; }
   .presence .phome { display: flex; color: var(--ink2); padding: 0 2px 0 4px; }
   .sos { display: flex; gap: 12px; align-items: stretch; }
-  .sos000 { flex: 1; min-width: 0; border-radius: 20px; padding: 12px 16px; background: #fee2e2; color: #7f1d1d; display: flex; flex-direction: column; gap: 2px; font-size: 15px; font-weight: var(--w-semi, 600); }
-  .sos000 > b { font-size: 22px; font-weight: var(--w-heavy, 800); }
-  .sosaddr { margin-top: 4px; font-size: 16px; }
+  .sos000 { flex: 1; min-width: 0; border-radius: 20px; padding: 12px 16px; background: #fee2e2; color: #7f1d1d; display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+  .sos000 > b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
+  .sosaddr { margin-top: 4px; font-size: var(--fs-3); }
   .sosbtn { position: relative; overflow: hidden; flex: 0 0 290px; min-height: 84px; border-radius: 20px; padding: 0 18px; background: #c81e1e; color: #fff; display: flex; align-items: center; gap: 12px; text-align: left; box-shadow: 0 6px 0 #7f1212, 0 12px 18px rgba(127,18,18,.35); touch-action: none; -webkit-user-select: none; user-select: none; }
-  .sosbtn b { display: block; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: 14px; font-weight: var(--w-semi, 600); }
+  .sosbtn b { display: block; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); line-height: 1.15; } .sosbtn small { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .sosbtn > span { position: relative; }
   .sosbtn > i { position: absolute; inset: 0; background: rgba(255,255,255,.3); transform: scaleX(0); transform-origin: left; }
   .sosbtn[data-s='hold'] { transform: translateY(4px); box-shadow: 0 2px 0 #7f1212; }
   .sosbtn[data-s='hold'] > i { transform: scaleX(1); transition: transform 1.5s linear; }
   .sosbtn[data-s='sent'] { background: #166534; box-shadow: 0 6px 0 #0d3d20; }
-  .sosnote { font-size: 15px; font-weight: var(--w-bold, 700); }
+  .sosnote { font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
   .sosnote:empty { display: none; }
   .bin { display: inline-block; width: 12px; height: 15px; border-radius: 3px 3px 4px 4px; box-shadow: inset 0 3px 0 rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.18); flex-shrink: 0; margin: 0 1px; }
   .med2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; }
   .mrow { display: flex; flex-wrap: wrap; gap: 8px; }
-  .mchip { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); }
+  .mchip { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .mchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
   :host([data-phone]) .med2 { grid-template-columns: 1fr; }
   /* a phone's sheet header has room for one word beside the title */
@@ -3313,18 +3317,18 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .icol { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .med2 .icol .label { margin-top: 8px; }
   .med2 .icol > .label:first-child { margin-top: 0; }
-  .irow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); }
+  .irow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 12px; background: var(--chip); font-size: var(--fs-3); font-weight: var(--w-semi, 600); }
   .irow b { font-weight: var(--w-bold, 700); min-width: 0; }
   a.irow { color: inherit; text-decoration: none; min-height: 48px; box-sizing: border-box; align-items: center; }
   a.irow .display { text-decoration: underline; text-underline-offset: 3px; }
-  .iline { font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.35; padding: 2px 2px; }
+  .iline { font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.35; padding: 2px 2px; }
   :host([data-phone]) .sos { flex-direction: column; } :host([data-phone]) .sosbtn { flex: none; } 
-  .presence .avatar { width: 32px; height: 32px; font-size: 13px; background: var(--c); }
+  .presence .avatar { width: 32px; height: 32px; font-size: var(--fs-1); background: var(--c); }
   /* who is home, as faces: home in full colour with the person's ring; away grey with a dashed ring */
   .presence .pface { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: inline-flex; background: var(--chip); box-shadow: 0 0 0 2px var(--c); }
   .presence .pface img { width: 100%; height: 100%; object-fit: cover; }
   .presence .pface.away { filter: grayscale(1); opacity: .7; box-shadow: none; outline: 2px dashed var(--ink2); outline-offset: 0; }
-  .presence .pname { font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; padding: 0 6px 0 2px; }
+  .presence .pname { font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; padding: 0 6px 0 2px; }
   .presence .pname.away { color: var(--ink2); font-weight: var(--w-semi, 600); }
   /* away: still fully there to read, but grey and dashed */
   .presence .avatar.away { background: var(--chip); color: var(--ink); filter: grayscale(1); outline: 2px dashed var(--ink2); outline-offset: -2px; }
@@ -3336,9 +3340,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .planner { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
   .bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .seg { display: flex; padding: 3px; border-radius: 12px; background: var(--track); }
-  .seg button { height: 44px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: 15px; font-weight: 500; color: var(--ink2); }
+  .seg button { height: 44px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: var(--fs-2); font-weight: 500; color: var(--ink2); }
   .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--fs-2); line-height: 1.2; font-weight: var(--w-semi, 600); color: var(--ink2); }
   /* how fresh the calendars are: a quiet word at the end of the legend, or a plain warning on a line of its own */
   .calnote { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .calnote[data-warn] { flex: 1 1 100%; margin-left: 0; white-space: normal; color: var(--ink); background: var(--chip-strong); border-radius: 12px; padding: 6px 6px 6px 12px; }
@@ -3346,9 +3350,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .calnote[data-warn] > svg { flex-shrink: 0; color: var(--warn, var(--accent)); }
   .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   /* a person's colour never stands alone: the chip carries their initial too */
-  .init { min-width: 19px; height: 19px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: 12px; font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
+  .init { min-width: 19px; height: 19px; padding: 0 4px; border-radius: 6px; background: var(--c, var(--p-family)); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-heavy, 800); line-height: 1; letter-spacing: 0;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-style: normal; text-transform: none; }
-  .init.sm { min-width: 16px; height: 16px; padding: 0 2px; border-radius: 5px; font-size: 12px; }
+  .init.sm { min-width: 17px; height: 17px; padding: 0 2px; border-radius: 5px; font-size: var(--fs-1); }
   /* a list with more below fades out at the bottom edge instead of cutting a row in half */
   .scrolly[data-more] { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 44px), transparent); }
 
@@ -3356,9 +3360,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .col { display: flex; flex-direction: column; gap: 6px; padding: 8px 6px; border-radius: 16px; background: var(--chip-soft); min-width: 0; overflow: hidden; }
   .col.today { background: var(--chip-strong); box-shadow: 0 4px 14px rgba(0,0,0,.06); }
   .dayhead { display: flex; align-items: center; gap: 6px; padding: 2px 2px 4px; }
-  .num { font-size: 17px; font-weight: var(--w-heavy, 800); padding: 0 4px; }
-  .pchip { margin-left: auto; font-size: 13px; opacity: .7; }
-  .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 14px; }
+  .num { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); padding: 0 4px; }
+  .pchip { margin-left: auto; font-size: var(--fs-1); opacity: .7; }
+  .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: var(--fs-2); }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
   /* an event is a button: it opens its details */
   button.ev, button.dayrow { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
@@ -3368,21 +3372,21 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* the details of one event: read-only */
   .evtitle { overflow-wrap: anywhere; }
   .evd { display: flex; flex-direction: column; gap: 10px; padding-left: 14px; border-left: 6px solid var(--c, var(--p-family)); }
-  .evrow { display: flex; align-items: flex-start; gap: 12px; font-size: 18px; font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .evrow { display: flex; align-items: flex-start; gap: 12px; font-size: var(--fs-3); font-weight: var(--w-semi, 600); line-height: 1.3; }
   .evrow .evic { flex: 0 0 26px; display: flex; justify-content: center; padding-top: 1px; color: var(--ink2); }
   .evrow .evtx { min-width: 0; overflow-wrap: anywhere; }
-  .evrow.evday { font-size: 20px; font-weight: var(--w-bold, 700); }
-  .evpart { font-size: 16px; }
+  .evrow.evday { font-size: var(--fs-4); font-weight: var(--w-bold, 700); }
+  .evpart { font-size: var(--fs-3); }
   /* the calendar's notes: plain text under a small label, line breaks kept; a long note scrolls inside its own box so the sheet keeps its shape */
-  .evnotebox { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; } .evnotebox .label { font-size: 13px; }
-  .evnotes { margin: 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: 16px; line-height: 1.4; font-weight: 500; white-space: pre-line; overflow-wrap: anywhere; max-height: min(260px, 34vh); overflow-y: auto; overscroll-behavior: contain; }
-  .ev .t { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); }
-  .ev .n { font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .evnotebox { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; } .evnotebox .label { font-size: var(--fs-1); }
+  .evnotes { margin: 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: var(--fs-3); line-height: 1.4; font-weight: 500; white-space: pre-line; overflow-wrap: anywhere; max-height: min(260px, 34vh); overflow-y: auto; overscroll-behavior: contain; }
+  .ev .t { font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .ev .n { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .evs { position: relative; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; padding: 3px; margin: -3px; }
   .evs > .ev { flex-shrink: 0; }
   .ell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .evcap { min-width: 0; max-width: 100%; }
-  .ev .w { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+  .ev .w { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); }
   .ev.priv { flex-direction: row; align-items: center; gap: 6px; background: transparent; border-left: 0; padding: 2px 6px; color: var(--ink2); }
   /* finished: paler card, quieter words, still readable */
   .ev.past { background: color-mix(in srgb, var(--c) 8%, var(--chip-soft)); border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -3392,8 +3396,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .dayrow.past { background: color-mix(in srgb, var(--c, transparent) 8%, transparent); border-left-color: color-mix(in srgb, var(--c, transparent) 45%, transparent); }
   /* "+N more": a small pill directly under the last event shown; the button around it is a full 44 px target that reaches into the column's padding */
   .more { height: 44px; margin-bottom: -14px; flex-shrink: 0; padding: 0; background: transparent; text-align: left; display: flex; align-items: flex-start; }
-  .more .mpill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
-  .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
+  .more .mpill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
+  .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
   .ev .loc svg, .dayrow .loc svg { flex: 0 0 auto; }
   .col[data-tight] .ev .loc { display: none; }
   .col[data-wrap] .ev .loc { align-items: flex-start; } .col[data-wrap] .ev .loc svg { margin-top: 1px; }
@@ -3412,28 +3416,28 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* only a word too long for its column is hyphenated (12 letters or more, where the browser can limit it); shorter words move to the next line whole */
   .ev .n[data-hy], .dayrow .content[data-hy] { hyphens: auto; -webkit-hyphens: auto; hyphenate-limit-chars: 12 4 4; }
   /* a title with a word wider than its column is set a step smaller first, so most such words stay whole */
-  .ev .n[data-hy] { font-size: 13px; }
+  .ev .n[data-hy] { font-size: var(--fs-1); }
   .dayrow.next .dwhen { color: var(--ink); }
   .dayrow { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c, transparent) 22%, transparent); border-left: 6px solid var(--c, transparent); }
 
   .month { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px; }
-  .mhead { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); padding: 0 6px; }
+  .mhead { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: var(--fs-2); line-height: 17px; font-weight: var(--w-semi, 600); color: var(--ink2); padding: 0 6px; }
   .cell { display: flex; flex-direction: column; gap: 3px; padding: 6px 7px; border-radius: 12px; background: var(--chip-soft); min-width: 0; overflow: hidden; }
   .cell.out { background: var(--chip-faint); color: var(--ink3); }
   .cell.today { background: var(--chip-strong); }
-  .cell .mev { display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 0; height: 18px; line-height: 18px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .cell .mev { display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 0; height: 18px; line-height: 18px; font-size: var(--fs-1); font-weight: 500; white-space: nowrap; }
   /* a cell with lines to spare lets a title run to a second line instead of cutting it */
   .cell .mev.two { height: auto; max-height: 39px; align-items: flex-start; white-space: normal; }
   .cell .mev.two > .ell { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .cell .mev.two > .init { margin-top: 1.5px; }
   .cell .mev > .ell { flex: 1; }
-  .cell .mtop { display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 20px; flex-shrink: 0; font-size: 14px; font-weight: var(--w-bold, 700); }
-  .cell .mmore { padding: 0 7px; height: 20px; line-height: 20px; border-radius: 999px; background: var(--ink); color: var(--ring-halo, #fff); font-size: 14px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+  .cell .mtop { display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 20px; flex-shrink: 0; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+  .cell .mmore { padding: 0 7px; height: 20px; line-height: 20px; border-radius: 999px; background: var(--ink); color: var(--ring-halo, #fff); font-size: var(--fs-1); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
 
   .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
   .empty .pic { color: var(--accent); line-height: 0; }
   .weekwrap { position: relative; flex: 1; min-height: 0; display: flex; }
-  .weekwrap > .quiet { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 20px; border-radius: 999px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); white-space: nowrap; }
+  .weekwrap > .quiet { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 20px; border-radius: 999px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); white-space: nowrap; }
 
   aside { width: var(--rail); flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
   .card { border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -3446,11 +3450,11 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
   .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 12px; margin: -6px -12px; }
-  .remmore { height: 16px; line-height: 16px; font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
+  .remmore { height: 16px; line-height: 16px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
   .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
   @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
   [data-bump] { --ring-t: var(--mt-3); --ring-e: var(--e-out); }
-  .tread { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; margin: 0 -6px; border-radius: 12px; font-size: 32px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+  .tread { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; margin: 0 -6px; border-radius: 12px; font-size: var(--fs-6); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
   /* compact frame: now playing is one row (the Music page has the rest) */
   .fh[data-compact] aside > .card.np { flex-direction: row; align-items: center; }
   .fh[data-compact] aside > .card.np .np-main { flex: 1; min-width: 0; }
@@ -3459,22 +3463,22 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .progress { height: 4px; border-radius: 2px; background: var(--track); }
   .progress > div { height: 4px; border-radius: 2px; background: var(--ink); }
   .timerrow { display: flex; align-items: center; gap: 10px; }
-  .timerrow .tcancel { margin-left: auto; padding: 0 10px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .timerrow .tcancel { margin-left: auto; padding: 0 10px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); }
   .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .np button.tap, .timerrow button { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-  .grid3 button:not(.lead) { height: 44px; border-radius: 12px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
-  .rem { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); flex-shrink: 0; }
+  .grid3 button:not(.lead) { height: 44px; border-radius: 12px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+  .rem { display: flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); flex-shrink: 0; }
   .rem .content { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2; }
   .ring { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ink3); flex-shrink: 0; }
 
   /* dock */
   nav.dock { align-self: center; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 26px; }
   /* every label rests on the same line, whatever stands above it (an icon or a child's face) */
-  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  .dock .item { min-width: 74px; height: 68px; padding: 0 6px 6px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   /* an icon in a wrapper takes no more room than a bare one, so every label sits on one line across the dock */
   .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
   .grid3 button { white-space: nowrap; padding: 0 2px; }
-  .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
+  .fh[data-compact] .grid3 button:not(.lead) { font-size: var(--fs-1); }
   /* ---- the header's and the dock's buttons: a filled drawing each, and where the card knows something true, the drawing shows it ----
      (today's date, today's sky, the record playing, how much is on the list, lights on, tonight's moon: see art.ts).
      Each button still names its hue once: --bt (a pale tint), --bl (the same hue, deep) and --bo (the hue as light, for a dark sky);
@@ -3546,14 +3550,14 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* the More sheet: what left the header, as big named buttons */
   .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
-  .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: 18px; font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: 14px; font-weight: var(--w-semi, 600); }
+  .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .morebtn svg.i { flex-shrink: 0; }
   :host([data-phone]) .moregrid { grid-template-columns: 1fr; }
   /* the planner at rest: today is larger (its column is widened where the week is drawn) and the other days step back */
   .week { transition: grid-template-columns var(--mt-4) var(--e-out); }
   .week .col { transition: opacity var(--m-4) ease; }
   .week[data-rest] .col:not(.today) { opacity: .5; }
-  .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
+  .dock .cta { height: 60px; padding: 0 20px; border-radius: 18px; display: flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
 
   /* sheets, toasts, night */
   /* one sheet system: a dark scrim, a sheet that the page does not read through, three widths, and never over the header or the dock */
@@ -3568,9 +3572,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .shead h2 { display: flex; align-items: center; gap: 10px; }
   /* what a sheet is for sits in its footer; on a phone the footer stays in reach while the sheet scrolls */
   .sfoot { display: flex; align-items: center; gap: 16px; }
-  .sfoot > .muted { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; }
+  .sfoot > .muted { flex: 1; min-width: 0; font-size: var(--fs-1); line-height: 1.35; }
   .sfoot > .lead, .sfoot > .pill { flex-shrink: 0; }
-  .sfoot .evdel { color: var(--danger, #b3261e); } .sfoot .evgo { background: var(--danger, #b3261e); color: #fff; } .sfoot.evask { flex-wrap: wrap; justify-content: flex-end; } .sfoot.evask.rep .evq { flex-basis: 100%; } .sfoot.evask .evq { flex: 1 1 240px; font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); }
+  .sfoot .evdel { color: var(--danger, #b3261e); } .sfoot .evgo { background: var(--danger, #b3261e); color: #fff; } .sfoot.evask { flex-wrap: wrap; justify-content: flex-end; } .sfoot.evask.rep .evq { flex-basis: 100%; } .sfoot.evask .evq { flex: 1 1 240px; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); }
   .sfoot > .pill { display: inline-flex; align-items: center; gap: 6px; }
   .sheet.chatsheet { width: min(1180px, 100%); height: min(736px, 100%); gap: 14px; overflow: hidden; }
   /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
@@ -3578,11 +3582,11 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* the note about the helper sits directly under the subtitle, so it is read before anything is asked */
   /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a grown-up's way in */
   .askwho { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; align-content: center; gap: 18px; }
-  .whobtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-width: 168px; min-height: 176px; padding: 16px 14px; border-radius: 28px; background: var(--chip); font-size: 20px; font-weight: var(--w-bold, 700); color: var(--ink); }
+  .whobtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-width: 168px; min-height: 176px; padding: 16px 14px; border-radius: 28px; background: var(--chip); font-size: var(--fs-4); font-weight: var(--w-bold, 700); color: var(--ink); }
   .whobtn .avatar { overflow: hidden; flex-shrink: 0; }
   .whobtn .wn { max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   :host([data-phone]) .whobtn { min-width: 132px; min-height: 150px; }
-  .ainote { margin: -10px 0 0; font-size: 15px; line-height: 1.3; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
+  .ainote { margin: -10px 0 0; font-size: var(--fs-2); line-height: 1.3; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
   .chatsheet .shead .muted { color: var(--ink); }
   :host([data-phone]) .sheet.chatsheet { height: auto; overflow-y: auto; }
   /* a short screen with the on-screen keys open: the Ask sheet takes the full height and drops its two lines of introduction, so the whole keyboard and a few lines of conversation fit */
@@ -3601,8 +3605,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
-  .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; }
-  .setlabel .muted { font-size: 14px; font-weight: 500; }
+  .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); }
+  .setlabel .muted { font-size: var(--fs-2); font-weight: 500; }
   .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); }
   .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform var(--mt-2); }
   .opt[aria-checked='true'] .sw { background: var(--ok); }
@@ -3614,11 +3618,11 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* a read-aloud button while its words are being spoken */
   [data-speaking] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--ink); }
   .toast:empty { display: none; }
-  .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: 16px; font-weight: var(--w-semi, 600); animation: fadeIn var(--m-3, 240ms) var(--e-out, ease) backwards; }
+  .toast { display: flex; align-items: center; gap: 14px; max-width: min(100%, 720px); box-sizing: border-box; text-align: center; pointer-events: auto; padding: 14px 22px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; font-size: var(--fs-3); font-weight: var(--w-semi, 600); animation: fadeIn var(--m-3, 240ms) var(--e-out, ease) backwards; }
   /* a page's own toast (it has no strip around it) sits centred above the dock; pages sit inside the card's body, so this is measured from the page's own bottom edge */
   :host(:not(family-hub-card)) .toast { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: min(90%, 720px); bottom: 16px; z-index: 44; }
   :host([data-phone]:not(family-hub-card)) .toast { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
-  .toast button { flex-shrink: 0; height: 44px; padding: 0 18px; margin: -6px -10px -6px 0; border-radius: 999px; background: #fff; color: #111; font-size: 15px; font-weight: var(--w-bold, 700); }
+  .toast button { flex-shrink: 0; height: 44px; padding: 0 18px; margin: -6px -10px -6px 0; border-radius: 999px; background: #fff; color: #111; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
   .toast button:focus-visible { outline-color: #fff; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash var(--m-5) ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
@@ -3632,7 +3636,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .night .nclock { display: flex; align-items: center; gap: 40px; }
   .night .nart { line-height: 0; opacity: .8; }
   .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
-  .night .ndate { font-size: 26px; font-weight: 500; margin-top: 10px; opacity: .6; }
+  .night .ndate { font-size: var(--fs-5); font-weight: 500; margin-top: 10px; opacity: .6; }
   .night .dglass { background: rgba(255,178,107,.06); border: 1px solid rgba(255,178,107,.18); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .alarm { position: absolute; inset: 0; z-index: 45; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #fff;
     background: radial-gradient(circle, #f97316, #b91c1c); animation: alarmbg 1s ease-in-out infinite alternate !important; animation-play-state: running !important; }
@@ -3663,7 +3667,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-n2]) nav.dock { gap: 0; max-width: 100%; }
   :host([data-n2]) .dock .item { min-width: 62px; } :host([data-n2]) .dock .item .kn { max-width: 80px; }
   :host([data-n2]) .dock .sep { margin: 0 3px; }
-  :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: 14px; white-space: nowrap; }
+  :host([data-n3]) .dock .item { min-width: 44px; padding: 0 4px; font-size: var(--fs-2); white-space: nowrap; }
   :host([data-n3]) .dock .item .kn { max-width: 60px; }
   :host([data-n3]) nav.dock { padding: 6px; }
   :host([data-n3]) .planner { padding: 12px 14px 14px; gap: 10px; border-radius: 22px; }
@@ -3691,7 +3695,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .fh { height: auto; min-height: calc((100vh - var(--header-height, 0px)) / var(--z, 1)); overflow: visible; padding: 12px 12px 92px; gap: 12px; }
   :host([data-phone]) header { min-height: 0; gap: 8px; }
   :host([data-phone]) .clock { min-width: 0; flex: 1 1 auto; }
-  :host([data-phone]) .clock .hm { font-size: 42px; }
+  :host([data-phone]) .clock .hm { font-size: var(--fs-d1); }
   :host([data-phone]) .right { flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex: 1 1 auto; }
   :host([data-phone]) .right > button.round { width: 44px !important; height: 44px !important; min-width: 0 !important; padding: 0 !important; border-radius: 50% !important; }
   :host([data-phone]) .right > .round .rl { display: none !important; }
@@ -3700,7 +3704,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
   :host([data-phone]) header { flex-wrap: wrap; }
   :host([data-phone]) .capsule { height: auto; min-height: 0; flex-wrap: wrap; flex-basis: 100%; gap: 8px; }
-  :host([data-phone]) .cap { max-width: 100%; height: 44px; font-size: 15px; flex-shrink: 1; overflow: hidden; }
+  :host([data-phone]) .cap { max-width: 100%; height: 44px; font-size: var(--fs-2); flex-shrink: 1; overflow: hidden; }
   :host([data-phone]) .body { flex: none; }
   :host([data-phone]) .planner { padding: 14px 12px; border-radius: 22px; }
   :host([data-phone]) .bar { gap: 8px; }
@@ -3708,19 +3712,19 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* on a phone a choice of several fills the row, and wraps when its words are too long for one */
   :host([data-phone]) .seg { flex: 1 1 100%; flex-wrap: wrap; height: auto; }
   :host([data-phone]) .seg button { flex: 1 1 auto; min-width: 0; height: auto; min-height: 44px; padding: 6px 10px; line-height: 1.15; }
-  :host([data-phone]) .legend { gap: 6px 10px; font-size: 14px; }
+  :host([data-phone]) .legend { gap: 6px 10px; font-size: var(--fs-2); }
   :host([data-phone]) .week { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; min-height: 400px; }
   :host([data-phone]) .week .col { flex: 0 0 47%; scroll-snap-align: start; }
   :host([data-phone]) .daylist { overflow: visible; flex: none; display: flex !important; }
   :host([data-phone]) .dayrow { gap: 10px; padding: 10px 12px; }
-  :host([data-phone]) .dayrow > span:first-child { width: 64px !important; font-size: 14px !important; }
+  :host([data-phone]) .dayrow > span:first-child { width: 64px !important; font-size: var(--fs-2) !important; }
   :host([data-phone]) .month { min-height: 380px; }
   :host([data-phone]) .cell .mev { font-size: 0; gap: 0; }
-  :host([data-phone]) .cell .mmore { padding: 0 3px; font-size: 12px; }
+  :host([data-phone]) .cell .mmore { padding: 0 3px; font-size: var(--fs-1); }
   :host([data-phone]) aside { flex-direction: column; }
   :host([data-phone]) nav.dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 9; max-width: none; overflow-x: auto; justify-content: flex-start; padding: 6px; border-radius: 22px; scrollbar-width: none; }
   :host([data-phone]) nav.dock::-webkit-scrollbar { display: none; }
-  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: 13px; }
+  :host([data-phone]) .dock .item { min-width: 60px; height: 58px; flex-shrink: 0; font-size: var(--fs-1); }
   :host([data-phone]) nav.dock[data-more] { -webkit-mask-image: linear-gradient(to left, transparent, #000 36px); mask-image: linear-gradient(to left, transparent, #000 36px); }
   :host([data-phone]) .dock .kidbtn .avatar { width: 34px !important; height: 34px !important; }
 
@@ -3735,11 +3739,11 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .toasts { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); padding: 0 10px; }
   :host([data-phone]) .toast { border-radius: 20px; }
   :host([data-phone]) .night { padding: 32px 24px; }
-  :host([data-phone]) .night .big { font-size: 92px; }
+  :host([data-phone]) .night .big { font-size: var(--fs-d5); }
   :host([data-phone]) .night .nclock { flex-direction: column; align-items: flex-start; gap: 16px; }
   :host([data-phone]) .keys { display: none; }
 
-  ${C1}
+  ${Lf}
 
   @media (forced-colors: active) {
     button, .pill, .cap, .key, input, .field, [role='switch'], [role='tab'], [role='slider'] { border: 1px solid ButtonText; }
@@ -3750,8 +3754,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 `, je = (a) => () => (a = a * 16807 % 2147483647, (a - 1) / 2147483646), Ps = (a, t, e) => {
   const i = je(t);
   return Array.from({ length: a }, () => `${(i() * 100).toFixed(2)}vw ${(i() * 100).toFixed(2)}vh 0 ${i() < 0.2 ? 1 : 0}px ${e}`).join(",");
-}, Pr = (a) => a >= 9 && a <= 11 ? "spring" : a === 12 || a <= 2 ? "summer" : a <= 5 ? "autumn" : "winter", L1 = { spring: ["#6f8236", "#a3ad54", "#c9c77a"], summer: ["#a88a40", "#d2b868", "#ead9a0"], autumn: ["#8f7c40", "#bda65c", "#dccb92"], winter: ["#4f7a30", "#7fa046", "#b4c878"] }, jo = (a, t, e) => {
-  const i = je(a), s = Pr(t), o = L1[s], r = [];
+}, Pr = (a) => a >= 9 && a <= 11 ? "spring" : a === 12 || a <= 2 ? "summer" : a <= 5 ? "autumn" : "winter", Qf = { spring: ["#6f8236", "#a3ad54", "#c9c77a"], summer: ["#a88a40", "#d2b868", "#ead9a0"], autumn: ["#8f7c40", "#bda65c", "#dccb92"], winter: ["#4f7a30", "#7fa046", "#b4c878"] }, jo = (a, t, e) => {
+  const i = je(a), s = Pr(t), o = Qf[s], r = [];
   for (let n = 0; n < (e ? 13 : 19); n++) {
     const p = (e ? 8 : 2) + n * (e ? 13 : 9.4) + i() * 6, c = (n < 7 ? 52 : 28) * (0.5 + i() * 0.6) * (1 - n / 44) * (e ? 1.25 : 1), d = (i() - 0.38) * 18, h = 1.6 + i() * 1.8;
     if (r.push(x`<path d="M${p.toFixed(0)} 90q${(d / 4).toFixed(0)}-${(c * 0.55).toFixed(0)} ${d.toFixed(0)}-${c.toFixed(0)}" stroke=${o[e ? 0 : 1 + n % 2]} stroke-width=${h.toFixed(1)}/>`), e || n % 3 !== 1 || n > 14) continue;
@@ -3762,7 +3766,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 }, is = (a, t, e = 30) => x`<svg viewBox="0 0 46 16" width=${e}><path d="M1 12Q12-2 45 5Q22 18 1 12z" fill=${a}/><path d="M1 12Q22 9 45 5Q22 18 1 12z" fill=${t} opacity=".55"/><path d="M1 12Q20 8 45 5" stroke="#f0e6b8" stroke-width=".8" fill="none" opacity=".7"/></svg>`, ip = x`<svg viewBox="-10 -10 20 26" width="15"><path d="M0 0v13M0 0l-8-3M0 0l-6-7M0 0l-2-9M0 0l3-9M0 0l7-6M0 0l8-2" stroke="#fffdf2" stroke-width=".8" stroke-linecap="round" opacity=".9"/><ellipse cy="14" rx="1.2" ry="2.2" fill="#7a5c30"/></svg>`, sp = (a, t) => x`<svg viewBox="0 0 200 50" width=${a} fill=${t}><ellipse cx="70" cy="34" rx="68" ry="9"/><ellipse cx="126" cy="26" rx="70" ry="10"/><ellipse cx="60" cy="22" rx="30" ry="12"/><ellipse cx="104" cy="15" rx="36" ry="14"/><ellipse cx="146" cy="19" rx="24" ry="9"/></svg>`, rl = (a, t, e, i) => {
   const s = je(t);
   return Array.from({ length: a }, () => `${(s() * 100).toFixed(1)}vw ${(s() * i).toFixed(1)}vh 0 ${s() < 0.3 ? 1.5 : 0.7}px ${e}`).join(",");
-}, Q1 = rl(26, 11, "rgba(255,250,228,.95)", 13), G1 = rl(20, 23, "rgba(226,236,255,.9)", 15), Y1 = rl(22, 37, "rgba(255,246,214,.75)", 100), B1 = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], Ft = (a, t, e) => x`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, Gt = (a, t, e, i = "") => x`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, zt = (a, t, e, i = "linear", s = 0) => _t(e.map(([o, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(o + s * t).toFixed(4)}) ${Math.round((r - o) / t)}`).join(",")), ge = [[0, 0.48], [0.82, 1.02]], Z1 = [[0, 0.16], [0.36, 1.02]], O1 = [[0, 1.02]], ss = (a, t, e) => _t(
+}, Gf = rl(26, 11, "rgba(255,250,228,.95)", 13), Yf = rl(20, 23, "rgba(226,236,255,.9)", 15), Bf = rl(22, 37, "rgba(255,246,214,.75)", 100), Zf = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], Ft = (a, t, e) => x`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, Gt = (a, t, e, i = "") => x`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, zt = (a, t, e, i = "linear", s = 0) => _t(e.map(([o, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(o + s * t).toFixed(4)}) ${Math.round((r - o) / t)}`).join(",")), ge = [[0, 0.48], [0.82, 1.02]], Of = [[0, 0.16], [0.36, 1.02]], Df = [[0, 1.02]], ss = (a, t, e) => _t(
   `.${a} .bush-la{animation:${zt("bush-swa", t, e)}}.${a} .bush-lb{animation:${zt("bush-swb", t, e)}}.${a} .bush-bb{animation:${zt("bush-bob", t / 2, e, "ease-in-out")}}.${a} .bush-ct{animation:${zt("bush-ctr", t, e, "ease-in-out")}}`
 ), $a = (a) => a.tod !== "night", Ke = (a) => a.tod === "day", Co = (a) => a.tod !== "day", op = (a) => a.month === 12 || a.month <= 2, Dt = (a, t, e, i = 3.4, s = "") => x`<path class=${a} style=${s} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, ke = (a, t, e = 1.6, i = "#2a1a10") => x`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, Lo = x`${Dt("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${Dt("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
   <g class="bush-wag"><path d="M11 19Q3 19 1 28" stroke="#2a211d" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M4 22Q2 25 1 28" stroke="#4a3d36" stroke-width="1.2" stroke-linecap="round" fill="none"/></g>
@@ -3786,7 +3790,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M33 3Q40 0 44 5Q45 9 41 11Q35 11 33 3z" fill="#2a2623"/><path d="M36 2Q38-3.5 42.5-1.500Q40 0 39.5 3z" fill="#1f1c1a"/><ellipse cx="39" cy="7.6" rx="2.3" ry="1.8" fill="#e9e2cf"/><path d="M43 4.500Q47.5 5 46 10.500Q44 9 43 8z" fill="#6a645c"/><circle cx="41.2" cy="5" r=".8" fill="#7a2e22"/>
   <g class="bush-wng" style="--d:-${i}s;--wb:.47s"><path d="M12 7Q16-18 35-23Q32-8 28 6z" fill="#221f1c"/><path d="M17-6Q24-16 33-20M15 0Q22-8 31-12M14 5Q20 0 29-3" stroke="#4f4841" stroke-width=".8" fill="none"/></g></g>`, np = (a, t, e) => x`<g transform="translate(${a} ${t})"><g class="bush-und" style="--d:-${e}s"><path d="M2 6L-25 3.500L-27 8L2 9.500z" fill="#2f7f5a"/><path d="M-12 5L-25 3.500L-27 8L-12 8z" fill="#2a5fa8"/><path d="M0 6Q10 0 26 1Q34 2 36 6Q30 11 18 11Q8 11 0 6z" fill="#3f9a4a"/><path d="M4 5Q14 1 28 2.5" stroke="#7fcc7a" stroke-width="1" fill="none" opacity=".8"/><path d="M12 9.500Q22 12.5 31 8Q26 11.5 18 11.500z" fill="#e6d23a"/>
   <path d="M30 1Q37-2 41 3Q42 7 38 8.500Q32 8 30 1z" fill="#1a1a1c"/><path d="M30 1.500Q33.5 5 32.5 9.500L30.5 9Q31 5 29 2.500z" fill="#f0d430"/><ellipse cx="36" cy="5.8" rx="2" ry="1.3" fill="#3a6fd0"/><path d="M39.5 1.300l2.3 1l-1.6 1z" fill="#d2362e"/><path d="M41 3.600Q43.8 4.4 42.4 7.200Q41 6.8 40.6 5.600z" fill="#cfd3d0"/><circle cx="38.3" cy="3.6" r=".7" fill="#6a3a20"/>
-  <g class="bush-pw" style="--d:-${e}s"><path d="M8 5Q10-14 26-17Q26-6 22 5z" fill="#2f8a44"/><path d="M21-15Q26-17 26-8L24 0z" fill="#2a5fa8"/><path d="M11-2Q16-10 23-13" stroke="#7fcc7a" stroke-width=".8" fill="none"/></g></g></g>`, os = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill="#7c9460"/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill="#56703f"/></g>`, D1 = H`
+  <g class="bush-pw" style="--d:-${e}s"><path d="M8 5Q10-14 26-17Q26-6 22 5z" fill="#2f8a44"/><path d="M21-15Q26-17 26-8L24 0z" fill="#2a5fa8"/><path d="M11-2Q16-10 23-13" stroke="#7fcc7a" stroke-width=".8" fill="none"/></g></g></g>`, os = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill="#7c9460"/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill="#56703f"/></g>`, If = H`
   .bush-a { position: absolute; pointer-events: none; }
   .bush-p { transform-box: fill-box; }
   /* sky */
@@ -3847,7 +3851,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   @keyframes bush-swb { from, to { transform: rotate(0deg); } 25% { transform: rotate(calc(var(--sw, 26deg) * -1)); } 75% { transform: rotate(var(--sw, 26deg)); } }
   @keyframes bush-bob { from, to { transform: translateY(0); } 50% { transform: translateY(var(--bob, -2.5px)); } }
   @keyframes bush-ctr { from, to { transform: rotate(0deg); } 25% { transform: rotate(var(--ct, 5deg)); } 75% { transform: rotate(calc(var(--ct, 5deg) * -1)); } }
-  ${ss("bush-gF", 0.02, ge)} ${ss("bush-gN", 0.015, Z1)} ${ss("bush-gD", 0.025, [[0, 0.3]])} ${ss("bush-gA", 0.02, O1)}
+  ${ss("bush-gF", 0.02, ge)} ${ss("bush-gN", 0.015, Of)} ${ss("bush-gD", 0.025, [[0, 0.3]])} ${ss("bush-gA", 0.02, Df)}
   .bush-eye { transform-box: fill-box; transform-origin: 50% 50%; animation: bush-wink 4.3s linear infinite; }
   @keyframes bush-wink { from, 90%, to { transform: scaleY(1); } 94% { transform: scaleY(.1); } }
 
@@ -4027,39 +4031,39 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   @keyframes bush-und { from, to { transform: translateY(8px); } 50% { transform: translateY(-8px); } }
   .bush-pw { transform-box: fill-box; transform-origin: 50% 100%; animation: bush-pw 1.05s linear infinite; animation-delay: var(--d, 0s); }
   @keyframes bush-pw { from, 10%, 22%, 34%, 46% { transform: scaleY(1); opacity: 1; } 4%, 16%, 28%, 40% { transform: scaleY(-.7); opacity: 1; } 52%, 96% { transform: scaleY(.1); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
-`, I1 = (a) => {
+`, Jf = (a) => {
   const t = Math.min(1, Math.max(0, (a.mins - 360) / 720)), e = a.tod === "eve" ? 7 : 88 - 76 * t, i = a.tod === "eve" ? 8 + Math.min(6, (a.mins - 1080) / 30) : 9.5 - 7 * Math.sin(Math.PI * t), s = a.tod === "night" ? "rgba(206,216,236,.16)" : a.tod === "eve" ? "rgba(255,208,170,.42)" : "rgba(255,255,255,.44)";
   return l`
     ${a.tod === "night" ? l`<i class="bush-a bush-moon" style="left:49%;top:5.5%"><svg viewBox="0 0 40 40" width="40" style="margin:100px"><circle cx="20" cy="20" r="17" fill="#f3f1e2"/><path d="M20 3a17 17 0 1 0 0 34a21 21 0 0 1 0-34z" fill="#c9cbc4" opacity=".5"/><circle cx="25" cy="13" r="3.2" fill="#d9d7c8"/><circle cx="29" cy="24" r="2.2" fill="#d9d7c8"/><circle cx="22" cy="28" r="1.6" fill="#dddbcd"/></svg></i>` : l`<i class="bush-a bush-sun ${a.tod === "eve" ? "bush-low" : ""}" style="left:${e.toFixed(1)}%;top:${i.toFixed(1)}%"></i>`}
     <i class="bush-a bush-cloud" style="top:-1%;animation-delay:-58s">${sp(300, s)}</i>
     <i class="bush-a bush-cloud" style="top:4.5%;animation-duration:251s;animation-delay:-171s;opacity:.75">${sp(190, s)}</i>`;
-}, J1 = (a, t) => {
+}, Pf = (a, t) => {
   const e = t ? "#4f6248" : "#7c9460", i = t ? "#34452f" : "#56703f", s = (o, r, n, p = 1) => x`<g transform="translate(${o} ${r}) rotate(${n}) scale(${p})"><path d="M0 0Q9 10 4 34Q-5 16 0 0z" fill=${e}/><path d="M0 0Q2 16 4 34Q-5 16 0 0z" fill=${i}/></g>`;
   return x`<svg class="bush-a bush-bough" viewBox="0 0 96 84" width="92"><path d="M40-2Q38 16 52 26Q66 34 82 32M46 20Q34 30 18 30" stroke="#6b5340" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M40-2Q38 16 52 26" stroke="#8d745c" stroke-width="1" fill="none"/>
     ${s(18, 30, 14)}${s(28, 29, -8, 0.9)}${s(40, 24, 6, 1.1)}${s(54, 27, -14)}${s(66, 31, 4, 1.15)}${s(80, 32, -20, 0.9)}${s(84, 32, 18, 0.8)}
     ${a === 12 || a <= 2 ? x`<g fill="#d8362c"><circle cx="34" cy="34" r="5"/><circle cx="60" cy="36" r="5.5"/><circle cx="46" cy="30" r="4"/></g><g fill="#f4d04a"><circle cx="34" cy="34" r="1.5"/><circle cx="60" cy="36" r="1.7"/><circle cx="46" cy="30" r="1.2"/></g>` : x`<g fill="#7a6048"><path d="M32 30l-3 7h6zM58 31l-3 8h6.500zM47 26l-2 6h5z"/></g><g fill="#4f3c2c"><ellipse cx="32" cy="37" rx="3" ry="1.2"/><ellipse cx="58.2" cy="39" rx="3.2" ry="1.3"/><ellipse cx="47.5" cy="32" rx="2.5" ry="1"/></g>`}</svg>`;
-}, P1 = x`<svg class="bush-a bush-mill" viewBox="0 0 54 92" width="44"><g stroke="#5e4c40" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M27 24L16 91M27 24L38 91M24 44h6M21.5 60h11M19 76h16M24 44l8.5 16M30 44l-8.5 16M21.5 60l13.5 16M32.5 60l-13.5 16"/><path d="M27 22h20" stroke-width="1.2"/></g><path d="M42 16h11l-3 6l3 6h-11z" fill="#6e5a4c"/>
-  <g class="bush-vane"><circle cx="27" cy="22" r="12" fill="none" stroke="#7d6a5c" stroke-width="12" stroke-dasharray="4.4 1.880"/><circle cx="27" cy="22" r="18.5" fill="none" stroke="#5e4c40" stroke-width=".9"/></g><circle cx="27" cy="22" r="2.6" fill="#4a3a30"/></svg>`, X1 = (a) => x`<svg class="bush-a bush-fire" viewBox="0 0 64 70" width="66"><circle class="bush-glow" cx="32" cy="46" r="30" fill=${a ? "rgba(255,140,60,.2)" : "rgba(255,170,70,.3)"}/>
+}, Xf = x`<svg class="bush-a bush-mill" viewBox="0 0 54 92" width="44"><g stroke="#5e4c40" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M27 24L16 91M27 24L38 91M24 44h6M21.5 60h11M19 76h16M24 44l8.5 16M30 44l-8.5 16M21.5 60l13.5 16M32.5 60l-13.5 16"/><path d="M27 22h20" stroke-width="1.2"/></g><path d="M42 16h11l-3 6l3 6h-11z" fill="#6e5a4c"/>
+  <g class="bush-vane"><circle cx="27" cy="22" r="12" fill="none" stroke="#7d6a5c" stroke-width="12" stroke-dasharray="4.4 1.880"/><circle cx="27" cy="22" r="18.5" fill="none" stroke="#5e4c40" stroke-width=".9"/></g><circle cx="27" cy="22" r="2.6" fill="#4a3a30"/></svg>`, Hf = (a) => x`<svg class="bush-a bush-fire" viewBox="0 0 64 70" width="66"><circle class="bush-glow" cx="32" cy="46" r="30" fill=${a ? "rgba(255,140,60,.2)" : "rgba(255,170,70,.3)"}/>
   <ellipse cx="32" cy="65" rx="26" ry="4" fill="#2e1408" opacity=".3"/><path d="M12 62l36-10" stroke="#4a3122" stroke-width="5.5" stroke-linecap="round"/><path d="M52 62l-36-10" stroke="#3a2619" stroke-width="5.5" stroke-linecap="round"/><path d="M14 61l32-9" stroke="#7a5a40" stroke-width="1.2" stroke-linecap="round"/>
   ${a ? x`<g class="bush-flame"><path d="M32 40Q40 50 36 56Q32 60 28 56Q24 50 32 40z" fill="#f08a2a"/></g><path d="M22 57h20" stroke="#ff9a3a" stroke-width="3" stroke-linecap="round" opacity=".8"/>` : x`<g class="bush-flame"><path d="M32 16Q48 38 40 54Q32 62 24 54Q16 38 32 16z" fill="#f2761c"/><path d="M26 30Q20 42 24 54Q30 58 30 50z" fill="#e2541a" opacity=".7"/></g><g class="bush-flame2"><path d="M33 32Q41 46 37 55Q32 59 28 55Q25 46 33 32z" fill="#ffc94a"/><path d="M32 44Q35 51 33 56Q31 57 30 55z" fill="#fff0b0"/></g><circle class="bush-spark" cx="34" cy="20" r="1.3" fill="#ffd27a"/>`}
-  <g fill="#8d8279"><path d="M6 66q4-8 10 0zM18 68q5-8 11 0zM33 68q5-8 11 0zM46 66q5-7 10 0z"/></g><g fill="#b3a79c" opacity=".7"><path d="M8 63q3-3 5 0zM21 64q3-3 6 0zM36 64q3-3 6 0zM48 63q3-3 5 0z"/></g></svg>`, H1 = x`<svg class="bush-a bush-owl" viewBox="0 0 46 40" width="44"><path d="M4 38Q0 12 23 9Q46 12 42 38z" fill="#4a392c"/><path d="M8 34Q6 16 23 14Q40 16 38 34z" fill="#6b5442"/><path d="M10 15Q17 17 22 22Q15 14 12 12zM36 15Q29 17 24 22Q31 14 34 12z" fill="#e8dcc4"/><g fill="#d9c9a8" opacity=".8"><circle cx="12" cy="31" r="1.3"/><circle cx="18" cy="35" r="1.3"/><circle cx="28" cy="35" r="1.3"/><circle cx="34" cy="31" r="1.3"/></g>
+  <g fill="#8d8279"><path d="M6 66q4-8 10 0zM18 68q5-8 11 0zM33 68q5-8 11 0zM46 66q5-7 10 0z"/></g><g fill="#b3a79c" opacity=".7"><path d="M8 63q3-3 5 0zM21 64q3-3 6 0zM36 64q3-3 6 0zM48 63q3-3 5 0z"/></g></svg>`, Ef = x`<svg class="bush-a bush-owl" viewBox="0 0 46 40" width="44"><path d="M4 38Q0 12 23 9Q46 12 42 38z" fill="#4a392c"/><path d="M8 34Q6 16 23 14Q40 16 38 34z" fill="#6b5442"/><path d="M10 15Q17 17 22 22Q15 14 12 12zM36 15Q29 17 24 22Q31 14 34 12z" fill="#e8dcc4"/><g fill="#d9c9a8" opacity=".8"><circle cx="12" cy="31" r="1.3"/><circle cx="18" cy="35" r="1.3"/><circle cx="28" cy="35" r="1.3"/><circle cx="34" cy="31" r="1.3"/></g>
   <circle cx="15" cy="23" r="5.6" fill="#d9c436"/><circle cx="31" cy="23" r="5.6" fill="#d9c436"/><circle cx="15" cy="23" r="3" fill="#15100c"/><circle cx="31" cy="23" r="3" fill="#15100c"/><circle cx="16" cy="22" r=".9" fill="#fff"/><circle cx="32" cy="22" r=".9" fill="#fff"/><g class="bush-lid" fill="#6b5442"><rect x="9" y="17" width="12" height="12"/><rect x="25" y="17" width="12" height="12"/></g><path d="M23 25l-2.2 4.500h4.400z" fill="#b9b3a4"/></svg>`, Pc = {
-  css: D1,
+  css: If,
   always: (a) => {
     const t = a.tod === "day", e = a.tod === "night", i = t && a.mins > 630 && a.mins < 930, s = Pr(a.month) === "summer" || Pr(a.month) === "autumn" ? ["#b08d3e", "#7a5f24"] : ["#8a9a5b", "#5f6f3a"];
     return l`
-      ${I1(a)}
-      ${e ? l`<i class="bush-a bush-stars" style="box-shadow:${Q1}"></i><i class="bush-a bush-stars" style="box-shadow:${G1};animation-duration:7.9s"></i>
-        <svg class="bush-a" viewBox="-40 -40 80 80" width="84" style="left:30%;top:.5%;rotate:${(a.mins / 4 % 360).toFixed(0)}deg" fill="#fffbe6"><circle cx="0" cy="-26" r="2.3"/><circle cx="-3" cy="27" r="2.8"/><circle cx="-17" cy="-3" r="2.4"/><circle cx="14" cy="-8" r="2.1"/><circle cx="6" cy="4" r="1.2"/><circle cx="-30" cy="24" r="2.6" fill="#ffe9b0"/><circle cx="-36" cy="6" r="2.4"/></svg>${H1}` : u}
+      ${Jf(a)}
+      ${e ? l`<i class="bush-a bush-stars" style="box-shadow:${Gf}"></i><i class="bush-a bush-stars" style="box-shadow:${Yf};animation-duration:7.9s"></i>
+        <svg class="bush-a" viewBox="-40 -40 80 80" width="84" style="left:30%;top:.5%;rotate:${(a.mins / 4 % 360).toFixed(0)}deg" fill="#fffbe6"><circle cx="0" cy="-26" r="2.3"/><circle cx="-3" cy="27" r="2.8"/><circle cx="-17" cy="-3" r="2.4"/><circle cx="14" cy="-8" r="2.1"/><circle cx="6" cy="4" r="1.2"/><circle cx="-30" cy="24" r="2.6" fill="#ffe9b0"/><circle cx="-36" cy="6" r="2.4"/></svg>${Ef}` : u}
       ${t ? l`<i class="bush-a bush-dap" style="left:-8%;top:8%"></i><i class="bush-a bush-dap" style="left:42%;top:30%;animation-duration:61s;animation-delay:-19s"></i>
         <i class="bush-a bush-gust" style="--y:5%;--d:-3s">${is(s[0], s[1])}</i><i class="bush-a bush-gust" style="--y:9%;--d:-1.6s">${is(s[0], s[1], 22)}</i><i class="bush-a bush-gust" style="--y:91%;--d:-.4s">${is("#a8854a", "#7a5f24", 26)}</i>
         <i class="bush-a bush-fluff" style="--y:6%;--d:-12s">${ip}</i><i class="bush-a bush-fluff" style="--y:2%;--d:-41s;animation-duration:89s">${ip}</i>
-        ${i ? l`<i class="bush-a bush-motes" style="box-shadow:${Y1}"></i>` : u}` : l`${a.tod === "eve" ? l`<i class="bush-a bush-warm"></i>` : u}
-        ${B1.slice(0, e ? 4 : 3).map(([o, r, n]) => l`<i class="bush-a bush-fly" style="--x:${o}%;--y:${r}%;--d:-${n}s"></i>`)}`}
-      ${J1(a.month, e)}${P1}
+        ${i ? l`<i class="bush-a bush-motes" style="box-shadow:${Bf}"></i>` : u}` : l`${a.tod === "eve" ? l`<i class="bush-a bush-warm"></i>` : u}
+        ${Zf.slice(0, e ? 4 : 3).map(([o, r, n]) => l`<i class="bush-a bush-fly" style="--x:${o}%;--y:${r}%;--d:-${n}s"></i>`)}`}
+      ${Pf(a.month, e)}${Xf}
       <i class="bush-a bush-tus bush-bk" style="left:0">${jo(31, a.month, !0)}</i>
       <i class="bush-a bush-tus" style="left:0">${jo(7, a.month, !1)}</i><i class="bush-a bush-tus bush-r">${jo(19, a.month, !1)}</i>
-      ${t ? u : X1(e)}`;
+      ${t ? u : Hf(e)}`;
   },
   cast: [
     // --- on the ground --------------------------------------------------------------------------------------------------
@@ -4277,7 +4281,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <g class="fr-gh"><path d="M25 78q-4 10-1 20 3 9 8 10.5 5-1.5 8-10.5 3-10-1-20z" fill="#ab9e8a"/><path d="M27 82q4-3 10 0-5 4-10 0z" fill="#6d6254"/><path d="M26 86q-2 8 1 14" style=${_("#cdc2ad", 1.3)}/><path d="M30 105h.1M34 105h.1" style=${_("#5c5246", 1.2)}/>
     <ellipse cx="25.3" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><ellipse cx="38.7" cy="94" rx="2.9" ry="3.5" fill="#17130f" stroke="#c9a65a" stroke-width=".9"/><circle cx="26" cy="92.6" r=".9" fill="#fff"/><circle cx="39.4" cy="92.6" r=".9" fill="#fff"/></g></svg>`, hp = l`<svg class="fr-sway" viewBox="0 0 60 104" width="54" style="overflow:visible"><path d="M33 104Q28 70 32 52" style=${_("#00000022", 17)} transform="translate(5 2)"/>
   <path d="M30 104Q25 70 29 50" style=${_(pp, 16)}/><path d="M25 100Q21 72 25 52" style=${_("#f0b566", 4)}/><path d="M22 90l15-2M21 76l15-1M22 62l14 1" style=${_(Xr, 4.5)}/>
-  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${_(pp, 15)}/><path d="M25 50Q27 32 17 20" style=${_("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${_(Xr, 4.5)}/><path d="M21 17l-3-3" style=${_("#f7ead2", 14)}/></g></svg>`, fp = x`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, mp = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", gp = (a = 0, t = 0) => x`<g transform="translate(${a} ${t})"><path d=${mp} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${mp} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, up = (a, t = u) => x`<g style=${_(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Qo = (a, t, e, i = "") => x`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${_("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${_(Ut, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${Se}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${_("#b9c1cc", 3)}/><path d="M29 36V3" style=${_("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ci = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, bp = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), xp = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], wp = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], E1 = [
+  <g class="fr-tip"><path d="M29 52Q32 30 20 16" style=${_(pp, 15)}/><path d="M25 50Q27 32 17 20" style=${_("#f0b566", 4)}/><path d="M23 44l13 3M24 31l11 6" style=${_(Xr, 4.5)}/><path d="M21 17l-3-3" style=${_("#f7ead2", 14)}/></g></svg>`, fp = x`<path d="M0 13a3.6 3 0 1 0 5 2.6V5l8-2.4v7.6a3.6 3 0 1 0 2 2.8V0L3 3v10z"/>`, mp = "M18 2l4.7 10.4 11.3 1.2-8.4 7.7 2.3 11.2L18 26.8 8.1 32.5l2.3-11.2L2 13.6l11.3-1.2z", gp = (a = 0, t = 0) => x`<g transform="translate(${a} ${t})"><path d=${mp} fill="#000" opacity=".16" transform="translate(1.5 2.5)"/><path d=${mp} fill="#f3b61b" stroke="#fff8e0" stroke-width="2" stroke-linejoin="round"/><path d="M18 2l4.7 10.4L18 18zM34 13.6l-8.4 7.7L18 18zM27.9 32.5L18 26.8V18zM8.1 32.5l2.3-11.2L18 18zM2 13.6l11.3-1.2L18 18z" fill="#ffe588" opacity=".85"/><path d="M18 2l-4.7 10.4L18 18z" fill="#d99a06" opacity=".55"/></g>`, up = (a, t = u) => x`<g style=${_(a)}><circle cx="30" cy="16" r="9"/><path d="M30 25v33M30 58l-9 26h-6M30 58l9 26h6"/></g><circle cx="33" cy="14" r="1.6" fill=${a}/>${t}`, Qo = (a, t, e, i = "") => x`<g transform="translate(${a} ${(46 * (1 - t)).toFixed(1)}) scale(${t})"><g class="fr-rock ${i}"><ellipse cx="16" cy="43.5" rx="13" ry="2.5" fill="#000" opacity=".2"/><path d="M8 43v-3h16v3z" fill="#3b3f46"/><path d="M11 40v-9h4v9zM17 40v-9h4v9z" fill="#7d8591"/><path d="M8 33V21q8-5 16 0v12z" fill=${e}/><path d="M9 20v-8q7-9 14 0v8z" fill="#b9c1cc"/><path d="M11 18v-6q2-4 5-5" style=${_("#e6ebf2", 1.6)}/><path d="M12 14h9" style=${_(Ut, 2.2)}/><path d="M16 5q5-7 9-1-5-1-8 3z" fill=${Se}/><g class="fr-arm ${i}"><path d="M24 25l5 2" style=${_("#b9c1cc", 3)}/><path d="M29 36V3" style=${_("#8a6d3b", 2)}/><path d="M29 3l-3 5h6z" fill="#cfd6df"/><path d="M29 9l8 2-8 3z" fill=${e}/></g><path d="M1 23h9v8q-4.5 5-9 0z" fill="#e9c46a" stroke="#8a6d1d"/></g></g>`, ci = (a, t) => `@keyframes ${a}{${t.map(([e, i]) => `${e}%{transform:${i}}`).join("")}}`, bp = (a) => a.map(([t, e, i]) => [t, `translateY(${e}%) rotate(${i}deg)`]), xp = [[0, -105, 0], [5, -92, 5], [10, -80, -5], [15, -68, 5], [20, -58, -3], [30, -58, -3], [34, -48, 4], [38, -40, -4], [42, -34, 0]], wp = [[86, -34, 0], [90, -58, 5], [94, -82, -5], [100, -105, 0]], t1 = [
   ci("fr-gk", bp([...xp, ...wp])),
   ci("fr-gk2", bp([...xp, [50, -34, 0], [51.5, -29, 0], [53, -34, 0], [60, -34, 0], [62, -33, 0], [64, -34, 0], ...wp])),
   ci("fr-gla", [0, 10, 20, 30, 38, 42, 86, 94, 100].map((a) => [a, "translateY(0)"]).concat([5, 15, 34, 90].map((a) => [a, "translateY(3.5px)"])).sort((a, t) => a[0] - t[0])),
@@ -4286,7 +4290,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ].join(`
 `), Xc = {
   css: H`
-    ${_t(E1)}
+    ${_t(t1)}
     /* always there */
     .fr-win, .fr-eve, .fr-glow, .fr-dust, .fr-web, .fr-xmas { position: absolute; pointer-events: none; }
     .fr-win { top: -6vh; width: 52vw; height: 112vh; animation: fr-drift 173s ease-in-out infinite alternate; }
@@ -4600,13 +4604,13 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M40 10C36 4 28 1.6 22 2.6C16 3.6 12 7 9.5 9L9.5 11C12 13 16 16.4 22 17.4C28 18.4 36 16 40 10Z" fill="url(#${a})"/>
   ${s.stripe ? x`<path d="M37 9Q24 5.4 10 9.5L10 10.7Q24 8.6 37 10.5Z" fill=${s.stripe}/>` : u}
   <path d="M38 11.6Q28 16.6 12 11.6Q24 19.4 38 11.6Z" fill="#fff" opacity=".3"/><path d="M31.5 5.6Q29.6 10 31.5 14.8" stroke="#000" stroke-opacity=".2" stroke-width=".8" fill="none"/>
-  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${Mt(35, 8.4, 1.7)}${s.extra ?? u}`, Yt = (a, t, e, i) => x`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, tf = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", ns = (a, t, e, i, s, o, r) => E(t, e, i, x`${L(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${tf} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${Mt(17, 9, 1.9, "#e9d28a")}`), ls = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", te = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, Go = (a, t) => x`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, Yo = (a, t, e) => x`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, kp = (a, t) => E(a, t, 1, x`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), yp = (a, t) => E(a, t, 1, x`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), vp = (a, t) => E(a, t, 1, x`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), Kp = (a) => x`${L(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${Mt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Up = (a, t, e) => x`${L(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${Mt(93, 20.5, 1.4, "#3d5263")}`, ef = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(je(11)), Ap = (a, t, e) => {
+  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${Mt(35, 8.4, 1.7)}${s.extra ?? u}`, Yt = (a, t, e, i) => x`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, e1 = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", ns = (a, t, e, i, s, o, r) => E(t, e, i, x`${L(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${e1} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${Mt(17, 9, 1.9, "#e9d28a")}`), ls = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", te = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, Go = (a, t) => x`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, Yo = (a, t, e) => x`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, kp = (a, t) => E(a, t, 1, x`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), vp = (a, t) => E(a, t, 1, x`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), yp = (a, t) => E(a, t, 1, x`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), Kp = (a) => x`${L(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${Mt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Up = (a, t, e) => x`${L(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${Mt(93, 20.5, 1.4, "#3d5263")}`, a1 = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(je(11)), Ap = (a, t, e) => {
   const i = Math.floor(a / 44);
   return x`<path d="M20 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke=${t} stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M19 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke="#fff" stroke-opacity=".14" stroke-width="1.6" fill="none"/>${Array.from({ length: i }, (s, o) => {
     const r = o % 2 === 0, n = r ? 12 : 28, p = a - 22 - o * 44;
     return x`<g transform="translate(${n} ${p}) rotate(${r ? -38 : 38})"><path d="M0 0Q${r ? -7 : 7}-14 0-27Q${r ? 5 : -5}-13 0 0Z" fill=${e}/><circle r="2.6" fill=${t}/></g>`;
   })}`;
-}, af = Array.from({ length: 16 }, (a, t) => {
+}, i1 = Array.from({ length: 16 }, (a, t) => {
   const e = t / 16 * Math.PI * 2 + 0.2, i = Math.cos(e), s = Math.sin(e);
   return `M${(48 + 24 * i).toFixed(1)} ${(38 + 13 * s).toFixed(1)}L${(48 + 29 * i).toFixed(1)} ${(38 + 15.8 * s).toFixed(1)}`;
 }).join("") + "M40 32l-2-3M52 31l1-3M46 40l-1 3M58 37l3 1M36 38l-3 1M56 43l2 2M42 45l-1 3", qp = (a, t, e, i) => x`${qt(a, t, e, 0.42, 0.3)}
@@ -4641,7 +4645,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "puffer", ms: 27e3, move: "reef-go", weight: 2, y: [0, 1], art: l`<svg class="reef-s" viewBox="0 0 190 78" width="170">${L("rpA", "#a48a55", "#f5eed9", 0, 1, "#d3bd88")}
     <path class="reef-wa" style="transform-origin:100% 50%;--r:15deg;--d:.5s" d="M25 38L8 28Q12.5 38 8 48Z" fill="#b8a36d"/>
     <path class="reef-wa" style="transform-origin:100% 100%;--r:12deg;--d:.27s" d="M31 28q-7-7-10 1z" fill="#c4b07a"/><path class="reef-wa" style="transform-origin:100% 0;--r:12deg;--d:.27s;--dl:-.2s" d="M31 48q-7 7-10-1z" fill="#c4b07a"/>
-    <g class="reef-pf"><path class="reef-sp" d=${af} stroke="#f3ebd0" stroke-width="1.1" stroke-linecap="round"/><ellipse cx="48" cy="38" rx="25" ry="13.5" fill="url(#rpA)"/>
+    <g class="reef-pf"><path class="reef-sp" d=${i1} stroke="#f3ebd0" stroke-width="1.1" stroke-linecap="round"/><ellipse cx="48" cy="38" rx="25" ry="13.5" fill="url(#rpA)"/>
       <path d="M32 32q5-4 10-1q-4 4-10 1zM49 28q6-3 11 1q-5 4-11-1zM40 37q4-2 8 0q-4 3-8 0zM58 35q4-2 7 1q-4 2-7-1zM28 39q3-2 6 0q-3 2-6 0z" fill="#5c4724" opacity=".55"/>
       <path d="M30 31l-3 .6M37 28l-3 0M45 27l-3-.6M54 28l-2-1.6M62 31l-1.4-2M33 45l-3 .8M44 48l-3 .8M56 47l-2 1.6M64 42l1 2" stroke="#f3ebd0" stroke-width="1" stroke-linecap="round"/><path d="M32 30Q46 23 62 30" stroke="#fff" stroke-width="2" fill="none" opacity=".22" stroke-linecap="round"/></g>
     <path class="reef-wa" style="transform-origin:100% 40%;--r:17deg;--d:.29s" d="M53 40q-9 0-11 7q8 1 12-3z" fill="#cdb983" opacity=".92"/>
@@ -4675,13 +4679,13 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "hermit", ms: 22e3, move: "reef-co", weight: 2, art: l`<svg class="reef-s" viewBox="0 0 92 66" width="80">${qt("rhsA", "#f4e6c8", "#b98f5a", 0.4, 0.3, 0.75)}${L("rhcA", "#d9603a", "#9c3418")}<ellipse cx="44" cy="61" rx="34" ry="3.4" fill="#000" opacity=".18"/>
     <g class="reef-hc">${kp(56, 46)}</g>
     <g class="reef-wa" style="transform-origin:60% 100%;--r:2.4deg;--d:.62s"><path d="M24 22L3 5Q16 4 34 11Z" fill="#c9a26a"/><path d="M8 8l8 8M14 7l9 9" stroke="#8a6234" stroke-width="1.2" opacity=".7"/><ellipse cx="37" cy="34" rx="22" ry="20" fill="url(#rhsA)"/><path d="M19 22Q34 10 53 22M16 34Q36 18 59 34M20 46Q36 34 55 44" stroke="#8a6234" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/><path d="M22 26Q34 16 48 22" stroke="#fff" stroke-width="2.4" fill="none" opacity=".4" stroke-linecap="round"/><ellipse cx="55" cy="44" rx="10" ry="9" fill="#4a2e17"/><path d="M46 46Q52 54 63 49" stroke="#e9d6ae" stroke-width="2" fill="none"/></g>
-    <g class="reef-hc">${yp(58, 45)}</g><g class="reef-he">${vp(57, 39)}</g></svg>` },
+    <g class="reef-hc">${vp(58, 45)}</g><g class="reef-he">${yp(57, 39)}</g></svg>` },
   // rare: a hermit crab who has moved into a toy tip-truck drives out, tips its load of pebbles, and reverses away
   { id: "truck", ms: 24e3, move: "reef-co", weight: 0.5, art: l`<svg class="reef-s" viewBox="0 0 108 68" width="94">${L("rtkA", "#f7b14e", "#d77f1c")}${L("rtkB", "#4a96d6", "#2a629c")}${L("rhcA", "#d9603a", "#9c3418")}<ellipse cx="52" cy="63" rx="46" ry="3.4" fill="#000" opacity=".18"/>
     ${kp(46, 50)}<g class="reef-dp"><circle cx="2" cy="44" r="3.4" fill="#c9b8a0"/><circle cx="-5" cy="50" r="2.6" fill="#a89880"/><circle cx="4" cy="53" r="2.8" fill="#dccdb8"/><circle cx="-2" cy="38" r="2.2" fill="#b7a58c"/></g>
     <g class="reef-tp" style="transform-origin:0 100%"><path d="M6 16h50l-4 28H12z" fill="url(#rtkA)"/><path d="M5 15.5h52" stroke="#b96a14" stroke-width="3.6" stroke-linecap="round"/><path d="M22 20l1 20M38 20l-1 20" stroke="#b96a14" stroke-width="1.6" opacity=".7"/><path d="M10 20h42" stroke="#fff" stroke-width="1.6" opacity=".35"/></g>
     <path d="M58 22h19q4 0 6 3l9 12v9H58z" fill="url(#rtkB)"/><path d="M63 26h13l7 10H63z" fill="#cfe8f6"/><path d="M65 28h9l3 4" stroke="#fff" stroke-width="1.4" fill="none" opacity=".7"/><path d="M6 44h90v6H6z" fill="#3a444d"/><path d="M6 44h90" stroke="#6a7782" stroke-width="1"/>
-    <g class="reef-he">${vp(69, 31)}</g>${yp(88, 34)}
+    <g class="reef-he">${yp(69, 31)}</g>${vp(88, 34)}
     ${[26, 78].map((a) => x`<g class="reef-wh"><circle cx=${a} cy="53" r="9.4" fill="#23272c"/><circle cx=${a} cy="53" r="4.4" fill="#c2cad1"/><path d="M${a} 44v18M${a - 9} 53h18" stroke="#23272c" stroke-width="1.6"/><circle cx=${a} cy="53" r="9.4" fill="none" stroke="#4d565e" stroke-width="1.4" stroke-dasharray="2 2.4"/></g>`)}</svg>` },
   // a school of fusiliers swims by in the shape of an arrow behind its leader, one place empty; the one who slept in wriggles after them and slots in
   { id: "arrow", ms: 27e3, move: "across", weight: 3, y: [0, 2], art: l`<svg class="reef-s reef-dr" style="--dd:6.1s" viewBox="0 0 200 92" width="160">
@@ -4945,7 +4949,7 @@ const Hc = {
       ${t ? l`<i class="reef-moon" style="left:${o}%"></i>` : l`<i class="reef-sun" style="left:${o}%;--c:${n}"></i>`}${p}
       <i class="reef-sh"></i>${a.tod === "day" ? l`<i class="reef-sh"></i>` : u}
       <i class="reef-pl" style="box-shadow:${Ps(46, 5, t ? "rgba(150,255,230,.4)" : "rgba(255,255,255,.32)")}"></i><i class="reef-pl" style="box-shadow:${Ps(24, 9, c)};--o:${t ? 0.35 : 1}"></i>
-      ${t ? u : l`<svg class="reef-s reef-sch" viewBox="0 0 128 56" width="128"><path d=${ef} fill="rgba(226,244,255,.62)"/></svg>`}
+      ${t ? u : l`<svg class="reef-s reef-sch" viewBox="0 0 128 56" width="128"><path d=${a1} fill="rgba(226,244,255,.62)"/></svg>`}
       <svg class="reef-s reef-k" style="left:-4px" viewBox="0 0 40 352" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.4deg;--d:11.7s">${Ap(352, "#1d6f5a", "#2f9a76")}</g></svg>
       <svg class="reef-s reef-k" style="right:-6px" viewBox="0 0 40 264" width="40"><g class="reef-wa" style="transform-origin:50% 100%;--r:2.8deg;--d:13.9s">${Ap(264, "#17604e", "#288a6a")}</g></svg>
       <svg class="reef-s reef-k" style="left:0" viewBox="0 0 190 136" width="190">${qt("rkbA", "#dc8ab4", "#8f4a78", 0.4, 0.2, 0.9)}${L("rkbB", "#3aa883", "#145a48")}${qt("rkbC", "#f6a85a", "#c8642a", 0.4, 0.3)}
@@ -4974,7 +4978,7 @@ const Hc = {
 }, le = () => typeof innerWidth != "number" || innerWidth >= 1e3, ht = (a) => a.tod !== "night", Cs = (a) => a.tod === "eve" || a.theme === "sunset" && a.tod !== "night", Bo = (a, t) => {
   const e = je(t);
   return Array.from({ length: a }, () => `${(4 + e() * 92).toFixed(1)}vw ${(6 + e() * 96).toFixed(0)}px 0 ${e() < 0.3 ? 1 : 0}px #fff`).join(",");
-}, pe = (a, t, e = 0) => x`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Zo = (a, t, e = 1, i = 0, s = 3.1) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${s}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${s}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, ds = (a, t, e, i) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Oo = (a, t, e, i) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, Ge = (a, t, e) => x`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, Fp = x`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, Do = (a, t) => x`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, sf = [
+}, pe = (a, t, e = 0) => x`<ellipse cx=${a} cy=${e} rx=${t} ry=${Math.max(1.6, t * 0.13)} fill="#4a3415" opacity=".2"/>`, Zo = (a, t, e = 1, i = 0, s = 3.1) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-beat" style="--p:${s}s;animation-delay:${i - 0.09}s"><path d="M4-2Q1-21-13-31Q-11-15-8-1z" fill="#8f9ba8"/></g><path d="M-13-1L-28-3-26 3-12 4z" fill="#fff"/><path d="M-16 1Q-8-8 6-7Q13-10 18-8Q22-6 21-3Q14 6 2 7Q-10 7-16 1z" fill="#fff"/><path d="M-15 2Q-2 9 14 3Q8 7 2 7Q-10 7-15 2z" fill="#d5dee8"/><path d="M20-6.5l8 2.3-8 1.7z" fill="#c8102e"/><circle cx="17" cy="-5.5" r=".9" fill="#2a2a2a"/><g class="sea-beat" style="--p:${s}s;animation-delay:${i}s"><path d="M6-3Q2-23-14-34Q-11-17-9-1z" fill="#b9c3cd"/><path d="M-8.5-25L-14-34-11.4-20z" fill="#1f2328"/><path d="M5-4Q3-14-3-22Q-3-12-4-2z" fill="#d3dae1"/></g></g>`, ds = (a, t, e, i) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.66s;animation-delay:${i - 0.08}s"><path d="M2-3Q-4-24 14-33Q14-18 16-3z" fill="#191715"/></g><path d="M-12-3L-34-5-34 4-12 4z" fill="#26221f"/><path d="M-31-4.7h9v8.5h-9z" fill="#ece6d4"/><path d="M-16 0Q-8-9 6-8Q14-12 21-10Q26-7 25-2Q18 7 2 8Q-10 8-16 0z" fill="#2e2a26"/><path d="M-14 2Q0 9 18 3Q10 8 2 8Q-10 8-14 2z" fill="#1b1917"/><path d="M12-10Q15-16 21-13z" fill="#26221f"/><ellipse cx="15" cy="-2.5" rx="2.3" ry="1.7" fill="#d9d2bf"/><path d="M24-7Q29-6 27 0Q25-2 23-3z" fill="#55514c"/><circle cx="21" cy="-7.5" r=".8" fill="#0c0b0a"/><g class="sea-flap" style="--p:.66s;animation-delay:${i}s"><path d="M4-4Q-4-28 18-38Q16-20 18-3z" fill="#2e2a26"/><path d="M5-6Q2-20 12-28Q11-16 12-5z" fill="#403b35"/></g></g>`, Oo = (a, t, e, i) => x`<g transform="translate(${a} ${t}) scale(${e})"><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i - 0.07}s"><path d="M-2-3Q-10-22 6-32Q6-18 10-3z" fill="#fff"/><path d="M-2-3Q-7-16 1-22Q3-12 8-3z" fill="#16171a"/></g><path d="M-22 0Q-14-8 0-8Q12-8 16-3Q10 6-4 6Q-16 6-22 0z" fill="#1f2125"/><path d="M-20 1Q-6 8 12 1Q6 6-4 6Q-16 6-20 1z" fill="#0f1012"/><path d="M-20-1l-9 1 8 3z" fill="#1f2125"/><path d="M12-6Q26-8 44-7L45-4Q28-3 14 0z" fill="#1f2125"/><path d="M43-8.5Q49-9 51-6Q49-4 44-3.5z" fill="#1f2125"/><path d="M50-7.5l8 1.7-8 1.5z" fill="#c0392b"/><path d="M54.5-6.8l1.5.4-1.5.5z" fill="#fff"/><g class="sea-flap" style="--p:.52s;--f:-.75;animation-delay:${i}s"><path d="M0-4Q-10-26 8-37Q8-20 13-3z" fill="#fff"/><path d="M0-4Q-7-19 3-26Q5-14 11-3z" fill="#26282d"/></g></g>`, Ge = (a, t, e) => x`<g transform="translate(${a} 30) scale(${t})"><ellipse cy="15" rx="9" ry="1.7" fill="#4a3415" opacity=".2"/><g class="sea-bob" style="animation-delay:${e}s;--p:.34s;--h:-2.2px"><path d="M-6 5l-5 5-1 5M-3 7l-2 5 0 3M6 5l5 5 1 5M3 7l2 5 0 3" stroke="#e9dccb" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M-11 10h.1M-5 12h.1M11 10h.1M5 12h.1" stroke="#7d5ba6" stroke-width="2.5" stroke-linecap="round"/><circle r="8.5" fill="#7fb6dc"/><path d="M-8.3 2A8.5 8.5 0 0 0 8.3 2A10 7 0 0 1-8.3 2z" fill="#5a8fb8"/><ellipse cx="-2" cy="-3.5" rx="4.2" ry="2.4" fill="#cfe6f5"/><path d="M5 3l5 2-1 3-4-2z" fill="#e9dccb"/><path d="M4-7v-3M7-6v-3" stroke="#5a8fb8" stroke-width="1"/><circle cx="4" cy="-10.5" r="1" fill="#1d2325"/><circle cx="7" cy="-9.5" r="1" fill="#1d2325"/></g></g>`, Fp = x`<defs><radialGradient id="sea-cg"><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`, Do = (a, t) => x`<svg viewBox="0 0 ${t + 160} 64" width=${t + 160} overflow="visible"><path d="M${t + 16} 30Q${t + 40} 34 ${t + 66} 27" stroke="#6b7783" stroke-width=".9" fill="none"/><g class="sea-wig" style="--o:100% 50%;--a:-2.5deg;--b:2.5deg;--p:1.3s"><g class="sea-wig" style="--o:100% 50%;--a:-9deg;--b:9deg;--p:.7s"><path d="M10 19l-10 3 6 4-6 4 6 4-6 4 10 3z" fill="#c2410c"/></g><path d="M10 17h${t}l6 13-6 13H10z" fill="#fffaf0"/><path d="M10 38h${t}l-2 5H10z" fill="#e6dcc6"/><path d="M10 17h${t}M10 43h${t}" stroke="#c2410c" stroke-width="1.6"/><text x=${t / 2 + 10} y="35.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#c2410c">${a}</text></g><g class="sea-wag" transform="translate(${t + 62} 0)"><path d="M26 42l-4 11M50 42l5 11M34 42l14 11" stroke="#7d8894" stroke-width="1.5"/><path d="M8 53Q30 50 66 52Q76 53 80 56Q60 61 14 59Q6 57 8 53z" fill="#dfe5ea"/><path d="M10 57Q40 60 78 56Q60 61 14 59z" fill="#a9b4be"/><path d="M4 27L-2 9Q4 8 8 12L18 26z" fill="#f7f9fb"/><path d="M-2 9Q4 8 8 12L10 15-0.5 14z" fill="#1e63a8"/><path d="M-6 28l14-2 2 4-16 1z" fill="#dfe5ea"/><path d="M2 27Q20 21 44 20Q70 20 84 28Q88 32 84 36Q66 42 40 41Q14 39 2 31z" fill="#f7f9fb"/><path d="M4 31Q30 36 86 32Q84 36 84 36Q66 42 40 41Q14 39 4 31z" fill="#cfd8e0"/><path d="M4 30Q40 33 86 30" stroke="#1e63a8" stroke-width="2.4" fill="none"/><path d="M46 22h18q7 2 9 6H44z" fill="#34485c"/><path d="M48 23h7l-1 4h-8z" fill="#8fb4d4"/><path d="M26 14h46l5 4q-28 3-55 0z" fill="#f7f9fb"/><path d="M22 18q27 3 55 0l-1 2q-26 3-53 0z" fill="#b4bfc9"/><path d="M40 20l-6 14M58 20l4 10" stroke="#7d8894" stroke-width="1.3"/><path d="M84 27l5 2-5 3z" fill="#34485c"/><ellipse class="sea-prop" cx="90" cy="29.5" rx="1.8" ry="15" fill="#34485c" opacity=".35"/></g></svg>`, s1 = [
   // ---------- the sky band ----------
   { id: "gulls", ms: 24e3, move: "across sea-soar", weight: 5, y: [2, 6], when: ht, art: x`<svg viewBox="0 0 250 70" width="250" overflow="visible">${Zo(204, 30, 1.25, 0, 3.1)}${Zo(138, 48, 1.1, -1.3, 3.7)}<g class="sea-lag">${Zo(84, 26, 0.9, -0.6, 1.9)}</g></svg>` },
   { id: "pelican", ms: 3e4, move: "across sea-soar", weight: 3, y: [2, 4], flip: !1, when: ht, art: x`<svg viewBox="-56 -56 150 80" width="156" overflow="visible"><g class="sea-beat" style="--p:4.3s;animation-delay:-.12s"><path d="M10-7Q2-40-28-50Q-22-28-12-5z" fill="#3a3f47"/></g><path d="M-30-3l-16-1 2 8 15 2z" fill="#262a30"/><path d="M-36 0Q-22-14 4-12Q22-12 30-4Q22 10 0 12Q-24 12-36 0z" fill="#fbfbf8"/><path d="M-33 2Q-6 14 26 0Q18 10 0 12Q-24 12-33 2z" fill="#d3d9df"/><g class="sea-gulp"><path d="M18-10Q22-20 30-19Q36-17 35-11Q32-5 24-4z" fill="#fbfbf8"/><path class="sea-fish" d="M66-3l9-6 0 11zM62-6l6 3-6 4z" fill="#8fa9bd"/><path d="M33-15L80-8 34-9z" fill="#eda58f"/><path d="M34-10L80-8Q62 7 42 3Q35-1 34-10z" fill="#f6c9b6"/><path d="M36-8Q58-3 78-8Q62 3 44 1Q37-2 36-8z" fill="#efb7a2"/><path d="M77-9l4 1-2 3z" fill="#e0902e"/><circle cx="30" cy="-13" r="2.3" fill="#e7c44d"/><circle cx="30" cy="-13" r="1.1" fill="#24201b"/></g><g class="sea-beat" style="--p:4.3s"><path d="M12-8Q0-46-34-58Q-28-32-16-5z" fill="#262a30"/><path d="M11-8Q4-30-12-42Q-12-22-8-6z" fill="#fbfbf8"/><path d="M-12-42Q-22-50-34-58Q-28-44-22-34z" fill="#3a3f47"/></g></svg>` },
@@ -5014,7 +5018,7 @@ const Hc = {
   { id: "dolphins", ms: 11e3, move: "across sea-pod", weight: 3, front: !0, y: [50, 57], when: (a) => a.mins % 4 === 0, art: x`<svg class="sea-leap" style="animation-delay:.45s" viewBox="0 0 60 30" width="27" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#8497a8"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#74889a"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/></svg><svg class="sea-leap" viewBox="0 0 60 30" width="45" overflow="visible"><path d="M4 17Q18 4 38 6Q48 7 53 12L58 13Q53 15 49 15Q36 22 18 20L6 26 5 20 0 15z" fill="#6b8296"/><path d="M8 15Q22 5 38 6Q46 7 51 11Q36 8 8 16z" fill="#566c80"/><path d="M26 6Q28 0 34 1Q32 4 34 7z" fill="#566c80"/><path d="M20 19Q36 20 49 15Q40 22 24 21z" fill="#e6edf2"/><path d="M30 18l-3 7 7-6z" fill="#566c80"/><circle cx="46.5" cy="11.5" r=".9" fill="#1a2228"/></svg>` },
   { id: "beach-ball", ms: 9e3, move: "across foot sea-bb", weight: 2, front: !0, when: (a) => ht(a) && a.mins % 4 === 1, art: x`<svg viewBox="-21 -21 42 42" width="42"><defs><radialGradient id="sea-bl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1a2a3a" stop-opacity=".3"/></radialGradient></defs><g class="sea-spin"><circle r="20" fill="#fbfaf5"/><path d="M0 0L-10-17.3A20 20 0 0 1 10-17.3z" fill="#e2483d"/><path d="M0 0L20 0A20 20 0 0 1 10 17.3z" fill="#2f7fd0"/><path d="M0 0L-10 17.3A20 20 0 0 1-20 0z" fill="#f4c542"/><circle r="3.2" fill="#fbfaf5"/></g><circle r="20" fill="url(#sea-bl)"/></svg>` },
   { id: "feather", ms: 12e3, move: "down", weight: 2, front: !0, flip: !1, when: (a) => a.mins % 4 === 2, art: x`<svg viewBox="0 0 44 16" width="40"><path d="M3 9Q10-1 26 1Q36 2 42 6Q36 14 22 15Q12 15 3 9z" fill="#fbfbf9"/><path d="M3 9Q20 8 42 6Q36 14 22 15Q12 15 3 9z" fill="#dfe4ea"/><path d="M30 2l3 5M36 4l2 3M24 14l3-5M31 13l3-5" stroke="#b9c3cd" stroke-width=".8"/><path d="M0 10Q20 7 42 6" stroke="#9aa6b2" stroke-width="1" fill="none"/></svg>` }
-], of = [[360, 9], [540, 3], [720, 1.5], [900, 4], [1020, 12], [1080, 26], [1150, 53]], rf = [[360, 24], [720, 34], [1080, 52], [1150, 58]], hi = (a, t, e, i, s) => l`<i class="sea-cl" style="--y:${a}%;--w:${t}vw;--o:${e};--t:${i}s;--d:${-s * i}s"></i>`, cs = (a, t, e) => l`<svg class="sea-grass ${a}" viewBox="0 0 92 70" fill="none" stroke-linecap="round"><path d="M40 70Q30 40 8 30M44 70Q40 34 26 12M48 70Q50 30 44 4M52 70Q58 36 72 16M56 70Q66 46 88 38" stroke=${t} stroke-width="2.6"/><path d="M42 70Q34 46 18 44M50 70Q54 40 60 22M46 70Q46 44 36 28" stroke=${e} stroke-width="2.2"/><path d="M26 12l-3-7M44 4l-1-8M72 16l4-7" stroke=${e} stroke-width="4"/></svg>`, nf = l`<svg class="sea-flag" viewBox="0 0 46 96"><path d="M6 96V4" stroke="#f4f1e6" stroke-width="3" stroke-linecap="round"/><path d="M7.2 96V4" stroke="#bfb9a8" stroke-width="1"/><g class="sea-fly"><path d="M8 6h34v22H8z" fill="#f4c81f"/><path d="M8 6h34v11H8z" fill="#d93a2b"/><path d="M20 6h6v22h-6z" fill="#000" opacity=".1"/><path d="M30 6h4v22h-4z" fill="#fff" opacity=".16"/></g></svg>`, lf = l`<svg class="sea-light" viewBox="0 0 120 120"><defs><linearGradient id="sea-bm" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient></defs><path class="sea-beam" d="M78 23L-520-40v126z" fill="url(#sea-bm)"/><path d="M18 120q10-22 34-24q10-12 30-8q22-2 38 14v18z" fill="#3b4658"/><path d="M52 96q10-12 30-8q-16 2-22 10z" fill="#566277"/><path d="M68 92l4-58h12l4 58z" fill="#f1eee4"/><path d="M80 34h4l4 58h-6z" fill="#c9c6bb"/><path d="M69.5 70h17l1 11h-19zM71 47h14l.8 11H70.2z" fill="#c9443b"/><path d="M66 34h24v-4H66zM72 16h12l3 4H69z" fill="#2b3340"/><rect x="71" y="18" width="14" height="12" fill="#ffe27a"/><circle class="sea-lamp" cx="78" cy="23" r="15" fill="#fff6c8" opacity=".5"/></svg>`, Er = {
+], o1 = [[360, 9], [540, 3], [720, 1.5], [900, 4], [1020, 12], [1080, 26], [1150, 53]], r1 = [[360, 24], [720, 34], [1080, 52], [1150, 58]], hi = (a, t, e, i, s) => l`<i class="sea-cl" style="--y:${a}%;--w:${t}vw;--o:${e};--t:${i}s;--d:${-s * i}s"></i>`, cs = (a, t, e) => l`<svg class="sea-grass ${a}" viewBox="0 0 92 70" fill="none" stroke-linecap="round"><path d="M40 70Q30 40 8 30M44 70Q40 34 26 12M48 70Q50 30 44 4M52 70Q58 36 72 16M56 70Q66 46 88 38" stroke=${t} stroke-width="2.6"/><path d="M42 70Q34 46 18 44M50 70Q54 40 60 22M46 70Q46 44 36 28" stroke=${e} stroke-width="2.2"/><path d="M26 12l-3-7M44 4l-1-8M72 16l4-7" stroke=${e} stroke-width="4"/></svg>`, n1 = l`<svg class="sea-flag" viewBox="0 0 46 96"><path d="M6 96V4" stroke="#f4f1e6" stroke-width="3" stroke-linecap="round"/><path d="M7.2 96V4" stroke="#bfb9a8" stroke-width="1"/><g class="sea-fly"><path d="M8 6h34v22H8z" fill="#f4c81f"/><path d="M8 6h34v11H8z" fill="#d93a2b"/><path d="M20 6h6v22h-6z" fill="#000" opacity=".1"/><path d="M30 6h4v22h-4z" fill="#fff" opacity=".16"/></g></svg>`, l1 = l`<svg class="sea-light" viewBox="0 0 120 120"><defs><linearGradient id="sea-bm" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient></defs><path class="sea-beam" d="M78 23L-520-40v126z" fill="url(#sea-bm)"/><path d="M18 120q10-22 34-24q10-12 30-8q22-2 38 14v18z" fill="#3b4658"/><path d="M52 96q10-12 30-8q-16 2-22 10z" fill="#566277"/><path d="M68 92l4-58h12l4 58z" fill="#f1eee4"/><path d="M80 34h4l4 58h-6z" fill="#c9c6bb"/><path d="M69.5 70h17l1 11h-19zM71 47h14l.8 11H70.2z" fill="#c9443b"/><path d="M66 34h24v-4H66zM72 16h12l3 4H69z" fill="#2b3340"/><rect x="71" y="18" width="14" height="12" fill="#ffe27a"/><circle class="sea-lamp" cx="78" cy="23" r="15" fill="#fff6c8" opacity=".5"/></svg>`, Er = {
   css: H`
     .sea-w { position: absolute; inset: 0; --sea-c: 255,255,255; }
     .sea-w i, .sea-w svg { position: absolute; display: block; }
@@ -5188,7 +5192,7 @@ const Hc = {
     @keyframes sea-spin { to { rotate: calc(var(--sd, 1) * 360deg); } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.theme === "sunset", i = Cs(a), s = a.month >= 6 && a.month <= 8, o = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : _p(rf, a.mins), r = t ? 5 : e ? 49 : _p(of, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, c = e ? 58 : 52, d = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", g = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
+    const t = a.tod === "night", e = a.theme === "sunset", i = Cs(a), s = a.month >= 6 && a.month <= 8, o = t ? 34 + (a.mins + 180) % 1440 / 60 : e ? 72 : _p(r1, a.mins), r = t ? 5 : e ? 49 : _p(o1, a.mins), n = !t && (e || a.mins < 1150), p = r > 14, c = e ? 58 : 52, d = t ? "176,190,216" : e ? "255,226,200" : i ? "255,236,224" : "255,255,255", h = t ? "#6d7a6a" : i ? "#a8935a" : "#a9a25e", g = t ? "#8a957f" : i ? "#d2b878" : "#c9bf7c";
     return l`<div class="sea-w" style="--sea-c:${d};--sea-g:${t ? "214,226,255" : i ? "255,224,170" : "255,255,255"};--sx:${o.toFixed(1)}%;--sy:${r.toFixed(1)}%;--rx:${((30 + o) / 1.6).toFixed(2)}%;--ry:${((30 + r) / 1.6).toFixed(2)}%;--ray:${p ? "rgba(255,214,150,.2)" : "rgba(255,255,255,.17)"};--bo:${t ? 0.16 : 0.34}">
       ${n ? l`<i class="sea-rays"></i><i class="sea-sun" style="--sz:${p ? "38vmin" : "150px"};background:${p ? "radial-gradient(circle, #fff3c4 0 13%, rgba(255,214,130,.8) 16%, rgba(255,170,90,.3) 38%, transparent 68%)" : "radial-gradient(circle, #fffbe2 0 21%, rgba(255,243,180,.8) 24%, rgba(255,240,170,.3) 42%, transparent 70%)"}"></i>` : u}
       ${t ? l`<i class="sea-stars" style="box-shadow:${Bo(7, 5)}"></i><i class="sea-stars" style="box-shadow:${Bo(6, 11)};animation-duration:4.3s"></i><i class="sea-stars" style="box-shadow:${Bo(6, 23)};animation-duration:5.9s"></i>
@@ -5200,14 +5204,14 @@ const Hc = {
       <i class="sea-foam" style="top:${c + 18}%"></i>
       ${n && o > 30 || t ? l`<i class="sea-glit" style="top:${c + 1}%;height:15%"></i>` : u}
       ${cs("fl", h, h)}${cs("fr", h, h)}${cs("l", h, g)}${cs("r", h, g)}
-      ${t ? lf : a.month >= 10 || a.month <= 3 ? nf : u}
+      ${t ? l1 : a.month >= 10 || a.month <= 3 ? n1 : u}
     </div>`;
   },
-  cast: sf
+  cast: s1
 }, Ko = (a, t, e, i) => {
   const s = je(t);
   return Array.from({ length: a }, () => `${(s() * i).toFixed(1)}vw ${(s() * 100).toFixed(1)}vh 0 ${s() < 0.16 ? 1 : 0}px ${e[Math.floor(s() * e.length)]}`).join(",");
-}, pf = Ko(70, 7, ["#cdd6ff", "#e9edff", "#ffd9c2"], 100), df = Ko(90, 51, ["#e9edff", "#bcd0ff"], 100), cf = Ko(42, 91, ["#fff", "#dfe8ff"], 108), hf = Ko(20, 333, ["#fff3cf", "#fff", "#cfe0ff"], 116), ff = (() => {
+}, p1 = Ko(70, 7, ["#cdd6ff", "#e9edff", "#ffd9c2"], 100), d1 = Ko(90, 51, ["#e9edff", "#bcd0ff"], 100), c1 = Ko(42, 91, ["#fff", "#dfe8ff"], 108), h1 = Ko(20, 333, ["#fff3cf", "#fff", "#cfe0ff"], 116), f1 = (() => {
   const a = je(19);
   return Array.from({ length: 80 }, () => `${(a() * 130 - 65).toFixed(1)}vw ${((a() + a() + a()) / 3 * 24 - 12).toFixed(1)}vh 0 0 rgba(225,232,255,.75)`).join(",");
 })(), it = x`<defs>
@@ -5221,10 +5225,10 @@ const Hc = {
 <linearGradient id="spfx" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#ffe08a"/><stop offset=".7" stop-color="#ff9a3c" stop-opacity=".8"/><stop offset="1" stop-color="#ff5a28" stop-opacity="0"/></linearGradient>
 <radialGradient id="spgr" cx=".4" cy=".3"><stop offset="0" stop-color="#d7e2d2"/><stop offset=".6" stop-color="#93a892"/><stop offset="1" stop-color="#566a5c"/></radialGradient>
 <radialGradient id="sprk" cx=".35" cy=".28" r=".8"><stop offset="0" stop-color="#b9ab9c"/><stop offset=".55" stop-color="#7d7068"/><stop offset="1" stop-color="#3a3340"/></radialGradient>
-</defs>`, Wt = "url(#spm1)", ie = "url(#spm2)", wa = "#d2453f", Oe = "#ffd166", tn = x`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, en = x`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${wa}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, Rp = x`${tn}${en}`, an = (a, t, e = "") => x`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${Wt}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, ma = (a, t, e = "") => x`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${ie}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${Wt}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${Wt}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${Wt}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${an(7.5, a)}${an(26, t, e)}<circle cx="20" cy="11" r="10" fill=${Wt}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, Io = x`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, $p = (a, t) => x`${[0, 1.1, 2.2].map((e, i) => x`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, mf = x`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, gf = x`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, Vp = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${it}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${Wt}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${ie}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => x`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : Oe}/>`)}</g></svg>`, Np = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${it}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${ma(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, hs = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => x`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((s, o) => {
+</defs>`, Wt = "url(#spm1)", ie = "url(#spm2)", wa = "#d2453f", Oe = "#ffd166", tn = x`<path class="sp-fl sp-l" d="M10 52q-4 13 6 24q10-11 6-24z" fill="url(#spfx)"/>`, en = x`<path d="M8 32L0 55l9-5zM24 32l8 23-9-5z" fill="#a8322f"/><path d="M16 0C7 10 6 26 7 50h18C26 26 25 10 16 0z" fill="url(#spcy)"/><path d="M16 0c-3.4 3.6-5.6 8-7 13.5h14C21.6 8 19.4 3.6 16 0z" fill=${wa}/><path class="sp-g" d="M16 0c3.4 3.6 5.6 8 7 13.5h-5C18 8 17.3 3.5 16 0z" opacity=".25"/><path class="sp-d" d="M7.2 43h17.6M7 37h18" fill="none" stroke="#7d86a6" stroke-width=".6"/><circle class="sp-y" cx="16" cy="25" r="5" fill="#59627f"/><circle class="sp-g" cx="16" cy="25" r="3.7" fill="url(#spvz)"/><path d="M11 50h10l2.5 4.5h-15z" fill="#353b58"/>`, Rp = x`${tn}${en}`, an = (a, t, e = "") => x`<g class="sp-arm ${e}" style="--r:${t}deg"><rect x=${a} y="19" width="6.5" height="15" rx="3.2" fill=${Wt}/><rect class="sp-g" x=${a} y="29.5" width="6.5" height="4.5" rx="2.2" fill="#737c9b"/></g>`, ma = (a, t, e = "") => x`<rect x="6.5" y="13" width="27" height="23" rx="5" fill=${ie}/><rect x="12" y="32" width="7.5" height="16" rx="3.7" fill=${Wt}/><rect x="20.5" y="32" width="7.5" height="16" rx="3.7" fill=${Wt}/><path class="sp-g" d="M12 43.5h7.5v2q0 3-3.7 3t-3.8-3zM20.5 43.5H28v2q0 3-3.7 3t-3.8-3z" fill="#737c9b"/><rect x="11" y="17" width="18" height="21" rx="7" fill=${Wt}/><rect x="15.5" y="24.5" width="9" height="6" rx="1.5" fill="#aeb6cc"/><circle class="sp-l" cx="18.2" cy="27.5" r="1" fill="#e8554d"/><circle class="sp-l" cx="21.8" cy="27.5" r="1" fill="#6ee7c0"/><path class="sp-g" d="M11 21h18" stroke="#d2453f" stroke-width="1.4"/>${an(7.5, a)}${an(26, t, e)}<circle cx="20" cy="11" r="10" fill=${Wt}/><path class="sp-y" d="M12.5 8.5q7.5-5 15 0v4.5q-7.5 6.5-15 0z" fill="url(#spau)"/><path class="sp-g" d="M14.5 8.5q3-2 6.5-2.2" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8" stroke-linecap="round"/>`, Io = x`<path d="M-9 14q0-9 9-9t9 9v6h-18z" fill="url(#spgr)"/><rect x="-2" y="-2" width="4" height="8" fill="#8a9e8a"/><path d="M-10-13q0-11 10-11t10 11q0 8-6 14-4 3-8 0-6-6-6-14z" fill="url(#spgr)"/><path class="sp-l" d="M-7.5-10.5q3.5-2.5 6 1-1.2 4.5-4.5 3.5-2.5-1-1.5-4.500zM7.5-10.5q-3.5-2.5-6 1 1.2 4.5 4.5 3.5 2.5-1 1.5-4.500z" fill="#0d1020"/><path class="sp-l" d="M-5.5-9.5l1.2-.6M3-9.5l1.2-.6" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`, $p = (a, t) => x`${[0, 1.1, 2.2].map((e, i) => x`<g transform="translate(${a + i * 3} ${t})"><g class="sp-nt" style="animation-delay:-${e}s"><path class="sp-l" d="M3 0V-14l11-3V-2" fill="none" stroke="#ffe08a" stroke-width="1.7"/><path class="sp-l" d="M3-14l11-3" fill="none" stroke="#ffe08a" stroke-width="3.6"/><ellipse class="sp-l" cx="0" cy="0" rx="3.6" ry="2.7" fill="#ffe08a"/><ellipse class="sp-l" cx="11" cy="-2" rx="3.6" ry="2.7" fill="#ffe08a"/></g></g>`)}`, m1 = x`<path d="M-16-5q1-4 6-4h13q5 0 7 2l4-2q5 0 6 4l-1 4q-3 2-6 1h-2l0 4 1 9h-3l-2-8q-6 2-12 0l-1 8h-3l-1-9q-2-1-3 2l-1 7h-3l1-9q-2-5-1-9z" fill="#f4f1ea"/><path class="sp-g" d="M-9-9h7q2 5-3 6t-7-3zM3 2q3-6 8-3l-1 5q-4 1-7-2zM13-8q4-2 6 1l-2 2z" fill="#2c2a30"/><path class="sp-g" d="M-3 5q3 2 6 0v3q-3 2-6 0z" fill="#e9a9b3"/><path class="sp-g" d="M15-2q3 1 5-1l-1 3q-2 1-4 0z" fill="#e9a9b3"/><path d="M-16-4q-4 2-3 9" fill="none" stroke="#f4f1ea" stroke-width="1.2"/><path d="M11-8l-2-3M16-8l2-3" fill="none" stroke="#d9d2c0" stroke-width="1.3"/>`, g1 = x`<path d="M-7-16h12v17l8 5q4 3 1 8t-10 2L-7 7z" fill="#c8483f"/><path class="sp-g" d="M-7-16h12v5H-7zM-7 2l4 6-4-1zM10 12q4 0 5 3-2 4-6 4z" fill="#f1ece0"/><path class="sp-g" d="M-3-16v5M1-16v5" stroke="#c9c2b0" stroke-width=".8"/><path class="sp-g" d="M5-11V1l8 5q4 3 1 8" fill="none" stroke="#7d201c" stroke-width="2" opacity=".5"/><path class="sp-oo sp-d" d="M-7-11h12M-7-6h12" fill="none"/>`, Vp = (a) => l`<svg class="sp-v" viewBox="0 0 96 116" width="100">${it}<linearGradient id="spb" x2="0" y2="1"><stop offset="0" stop-color="#d9fbff" stop-opacity=".85"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".08"/></linearGradient><path class="sp-beam sp-l" d="M39 34L20 114h56L57 34z" fill="url(#spb)"/><g class="sp-cargo">${a}</g><path d="M33 20a15 15 0 0 1 30 0z" fill="#9fd7ee" fill-opacity=".55"/><path class="sp-g" d="M44 20q0-8 4-8t4 8z" fill="#22303f" opacity=".75"/><path class="sp-g" d="M37 16q3-8 10-9" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8" stroke-linecap="round"/><path d="M3 28q14-9 30-9h30q16 0 30 9-45 9-90 0z" fill=${Wt}/><path d="M3 28q45 9 90 0-4 5-26 7H29Q7 33 3 28z" fill=${ie}/><path d="M29 35h38q-4 5-19 5t-19-5z" fill="#2e3552"/><ellipse class="sp-l sp-bk" cx="48" cy="37" rx="11" ry="1.8" fill="#c9f6ff"/><path class="sp-g" d="M14 25q34-6 68 0" fill="none" stroke="#fff" stroke-width=".8" opacity=".7"/><g class="sp-run">${[12, 30, 48, 66, 84].map((t, e) => x`<circle class="sp-l" cx=${t} cy=${28.5 + (e === 2 ? 3 : e % 4 ? 2.4 : 0)} r="1.7" fill=${e % 2 ? "#7bdff2" : Oe}/>`)}</g></svg>`, Np = (a) => l`<svg class="sp-v" viewBox="0 0 150 60" width="196">${it}<g class="sp-lunge"><g transform="translate(34 2) rotate(28)">${ma(-105, -95)}</g></g><g transform="translate(118 26)"><g class="sp-hop"><g class="sp-sway">${a}</g></g></g></svg>`, hs = (a, t) => l`<svg class="sp-c sp-v" viewBox="0 0 140 90" width="146" fill="none" stroke-linecap="round" stroke-linejoin="round">${a.split("|").map((e, i) => x`<g class="sp-pop" style="animation-delay:${(0.5 + i * 1.1).toFixed(1)}s"><polyline points=${e} stroke="rgba(232,236,247,.5)" stroke-width=".9"/>${e.split(" ").map((s, o) => {
   const [r, n] = s.split(",");
   return x`<circle cx=${r} cy=${n} r=${(i + o) % 3 ? 2.1 : 2.9} fill=${(i + o) % 4 ? "#fff" : "#ffe9c2"}/>`;
-})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, uf = (a) => x`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${Wt}/><path d="M26 28.5q9 5 0 10z" fill=${wa}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${ie}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${wa}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${Wt}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, Jo = (a, t, e) => x`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, sn = {
+})}</g>`)}<g class="sp-pop" style="animation-delay:${(1 + a.split("|").length * 1.1).toFixed(1)}s" stroke="#6ee7c0" stroke-width="1.1" opacity=".7">${t}</g></svg>`, u1 = (a) => x`<path class="sp-fh sp-l" d="M3 30q-8 2-11 4 3 2 11 4z" fill="url(#spfx)"/><rect x="2" y="28" width="27" height="11" rx="5.5" fill=${Wt}/><path d="M26 28.5q9 5 0 10z" fill=${wa}/><path d="M6 28l-5-6h9zM6 39l-5 5h9z" fill="#a8322f"/><path class="sp-y" d="M18 23L36 3" fill="none" stroke="#e0a93a" stroke-width="1.5"/><path class="sp-m ${a ? "sp-flap" : ""}" d="M36 3l-11 .5 2.5 3.5-1 4z" fill="#6ee7c0"/><path d="M9 16q0-3 5-3t5 3v12H9z" fill=${ie}/><path d="M12 3q-7-5-10 2 5-2 7 2z" fill=${wa}/><path d="M8 9q0-6 6-6t6 6v4q-6 3-12 0z" fill=${Wt}/><path class="sp-l" d="M12 8.5h8" fill="none" stroke="#1c2340" stroke-width="1.8"/><path d="M16 15h9v6q0 6-4.5 8-4.5-2-4.5-8z" fill="#3f66c8"/><path class="sp-g" d="M20.5 15v14M16 20h9" stroke="#ffe08a" stroke-width="1.3"/>`, Jo = (a, t, e) => x`<g class="sp-wh"><circle cx=${a} cy=${t} r=${e} fill="#3a4162"/><circle class="sp-g" cx=${a} cy=${t} r=${e - 2.2} fill="#8790ae"/><path d="M${a - e} ${t}h${e * 2}M${a} ${t - e}v${e * 2}" fill="none" stroke="#c9cfe0" stroke-width=".9"/></g>`, sn = {
   css: H`
     .sp-w { position: absolute; inset: 0; }
     .sp-w i { position: absolute; display: block; }
@@ -5366,8 +5370,8 @@ const Hc = {
   always: (a) => {
     const t = a.look === "orbit", e = a.tod !== "day", i = (s, o, r) => l`<svg class="sp-sk sp-c" style="--x:${s}%;--y:${o}%;--t:${r}s" viewBox="-10 -10 20 20"><path d="M0-10Q0 0 10 0Q0 0 0 10Q0 0-10 0Q0 0 0-10z" fill="#fff"/><circle r="1.6" fill="#fff"/></svg>`;
     return l`<div class="sp-w ${t ? "sp-o" : ""}">
-      <i class="sp-neb"><i style="box-shadow:${ff}"></i></i>
-      <div style="opacity:${e ? 1 : 0.6}"><i class="sp-s" style="box-shadow:${pf}"></i>${a.tod === "night" ? l`<i class="sp-s sp-s1" style="box-shadow:${df}"></i>` : u}<i class="sp-s sp-s2" style="box-shadow:${cf}"></i><i class="sp-s sp-s3" style="box-shadow:${hf}"></i></div>
+      <i class="sp-neb"><i style="box-shadow:${f1}"></i></i>
+      <div style="opacity:${e ? 1 : 0.6}"><i class="sp-s" style="box-shadow:${p1}"></i>${a.tod === "night" ? l`<i class="sp-s sp-s1" style="box-shadow:${d1}"></i>` : u}<i class="sp-s sp-s2" style="box-shadow:${c1}"></i><i class="sp-s sp-s3" style="box-shadow:${h1}"></i></div>
       ${i(30.2, 1.2, 5.3)}${e ? i(0.3, 85, 11.3) : u}<i class="sp-pass"></i>
       ${e ? l`<svg class="sp-cross sp-c" style="--r:${Math.round((a.mins / 4 + a.month * 30) % 360)}deg" viewBox="-56 -6 100 60" fill="#fff"><path d="M20 2L22 46M5 22L36 17M-28 34L-50 42" stroke="rgba(232,236,247,.28)" stroke-width="1"/><circle cx="20" cy="2" r="2.8" fill="#ffc2a0"/><circle cx="22" cy="46" r="3.3" fill="#dfe8ff"/><circle cx="5" cy="22" r="3" fill="#dfe8ff"/><circle cx="36" cy="17" r="2.3"/><circle cx="28" cy="28" r="1.4" fill="#ffd9b0"/><circle cx="-28" cy="34" r="3" fill="#dfe8ff"/><circle cx="-50" cy="42" r="3.3" fill="#fff3cf"/><g fill="#fff" opacity=".7"><circle cx="9" cy="15" r=".8"/><circle cx="11" cy="17.5" r=".6"/><circle cx="7.5" cy="17" r=".6"/></g></svg>` : u}
       ${e ? l`<i class="sp-gal"><svg class="sp-c" viewBox="0 0 60 60" fill="none" stroke-linecap="round"><radialGradient id="spgx"><stop offset="0" stop-color="#fff3cf"/><stop offset=".25" stop-color="#cfd8ff" stop-opacity=".55"/><stop offset="1" stop-color="#9fb0ff" stop-opacity="0"/></radialGradient><circle cx="30" cy="30" r="29" fill="url(#spgx)"/><g stroke="#dfe6ff"><path d="M30 30c-2-9 8-14 16-9s8 18-2 24-24 2-27-10" stroke-width="2.2" opacity=".8"/><path d="M30 30c2 9-8 14-16 9s-8-18 2-24 24-2 27 10" stroke-width="2.2" opacity=".8"/><path d="M38 14q14 6 10 22M22 46Q8 40 12 24" stroke-width="1" opacity=".5" stroke-dasharray=".5 3"/></g><circle cx="30" cy="30" r="4" fill="#fff8e0"/></svg></i>` : u}
@@ -5390,8 +5394,8 @@ const Hc = {
     { id: "rock", ms: 4e4, move: "across", weight: 2, y: [1, 5], art: l`<svg class="sp-v" viewBox="0 0 110 80" width="100">${it}<g class="sp-tum"><path d="M20 22q10-16 30-14 18-6 30 8 14 10 8 28-4 16-22 18-20 8-34-4Q14 48 14 36q0-8 6-14z" fill="url(#sprk)"/><g class="sp-g"><ellipse cx="74" cy="50" rx="7" ry="5" fill="#3a3340" opacity=".6"/><ellipse cx="30" cy="52" rx="5" ry="3.5" fill="#3a3340" opacity=".6"/><path d="M67 51a7 5 0 0 0 14 0M25 53a5 3.5 0 0 0 10 0" fill="none" stroke="#d9cdbd" stroke-width=".8"/></g><ellipse class="sp-oo sp-d" cx="74" cy="50" rx="7" ry="5"/><g fill="none" stroke="#f1e9d6" stroke-linecap="round"><path class="sp-y" d="M30 34q16-10 34-4" stroke-width="1.8"/><path class="sp-y" d="M36 31l-2 9M42 29l-1 10M48 28v10M54 28l1 9M60 29l2 8" stroke-width="1.1"/><path class="sp-y" d="M36 40l-4 8 5 1M56 38l5 8-4 2" stroke-width="1.4"/><path class="sp-y" d="M30 34l-8 6" stroke-width="1.4"/></g><path class="sp-y" d="M64 30l5-9q8-3 11 3l-1 6-8 3zM72 33l7 1-1 3-8-1z" fill="#f1e9d6"/><circle class="sp-l" cx="73" cy="25.5" r="1.6" fill="#3a3340"/></g><g class="sp-tum2"><path d="M94 60l6-3 5 4-2 6-7 1z" fill="url(#sprk)"/></g><path d="M6 14l4-2 3 3-2 4-5-1z" fill="url(#sprk)"/></svg>` },
     { id: "hauler", ms: 34e3, move: "across sp-slow", weight: 2, y: [2, 6], art: l`<svg class="sp-v" viewBox="-14 0 224 46" width="216">${it}<path class="sp-fh sp-l" d="M8 16Q-8 20-14 23q6 3 22 7z" fill="#9fe0ff" opacity=".85"/><path d="M8 14h14v18H8l-3-4V18z" fill=${ie}/><rect x="22" y="21" width="140" height="4" fill=${ie}/>${[["#b5503c", 26], ["#3f8f8a", 72], ["#c99a3a", 118]].map(([a, t]) => x`<rect x=${t} y="8" width="42" height="30" rx="1.5" fill=${a}/><path class="sp-g" d="M${t} 28h42v8.5q0 1.5-1.5 1.500h-39q-1.5 0-1.5-1.500z" opacity=".3"/><path class="sp-g" d="M${t} 8h42v3H${t}z" fill="#fff" opacity=".25"/><path class="sp-d" d="M${+t + 7} 8v30M${+t + 14} 8v30M${+t + 21} 8v30M${+t + 28} 8v30M${+t + 35} 8v30" fill="none" stroke="#1c2340" stroke-width=".6" opacity=".45"/>`)}<path d="M162 12h18q16 2 22 11-6 9-22 11h-18z" fill="url(#spm1)"/><path class="sp-y" d="M183 15q10 2 14 7h-14z" fill="url(#spvz)"/><path class="sp-d" d="M168 12v22M176 12v22" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M170 12V5M166 5h8" fill="none" stroke="#aeb6cc"/><circle class="sp-l sp-bk" cx="170" cy="4" r="1.7" fill="#ff5a5a"/><circle class="sp-puf sp-l" cx="192" cy="38" r="5" fill="#fff"/></svg>` },
     // ---- saucers ----
-    { id: "saucer", ms: 18e3, move: "sp-stop", weight: 2, y: [0.3, 0.8], art: Vp(mf) },
-    { id: "sock", ms: 18e3, move: "sp-stop", weight: 1, y: [0.3, 0.8], art: Vp(gf) },
+    { id: "saucer", ms: 18e3, move: "sp-stop", weight: 2, y: [0.3, 0.8], art: Vp(m1) },
+    { id: "sock", ms: 18e3, move: "sp-stop", weight: 1, y: [0.3, 0.8], art: Vp(g1) },
     { id: "alien", ms: 16e3, move: "sp-stop", weight: 2, y: [1.5, 3], art: l`<svg class="sp-v" viewBox="0 0 80 74" width="92">${it}<ellipse cx="40" cy="40" rx="31" ry="5" fill="#2e3552"/><g class="sp-pilot"><g transform="translate(-1 -12)">${an(7, -150, "sp-wv")}</g>${Io}</g><path class="sp-lid" d="M13 38a27 25 0 0 1 54 0z" fill="#9fd7ee" fill-opacity=".4"/><path d="M8 40h64q-3 22-32 22T8 40z" fill="url(#spm1)"/><path class="sp-g" d="M8 40h64q-1 5-4 9-28 7-56 0-3-4-4-9z" fill="#fff" opacity=".35"/><path class="sp-d" d="M14 51q26 7 52 0M40 40v22" fill="none" stroke="#737c9b" stroke-width=".7"/><path d="M24 60l-6 10h-4M56 60l6 10h4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><g class="sp-run"><circle class="sp-l" cx="22" cy="46" r="1.8" fill=${Oe}/><circle class="sp-l" cx="40" cy="48" r="1.8" fill="#7bdff2"/><circle class="sp-l" cx="58" cy="46" r="1.8" fill=${Oe}/></g></svg>` },
     // ---- astronauts ----
     { id: "tether", ms: 28e3, move: "across sp-drift", weight: 2, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 70" width="236">${it}<path class="sp-y" d="M166 42q-30 26-56 2t-58 6" fill="none" stroke="#e0a93a" stroke-width="1.3"/><g class="sp-sway"><g transform="translate(18 12)">${ma(150, -75, "sp-wv")}</g></g><g transform="translate(160 12)"><path d="M2 38L10 8q12-9 24 0l8 30z" fill="url(#spcy)"/><path d="M0 38h44l-3 6H3z" fill="#5a4636"/><path class="sp-g" d="M0 38h44l-1 2H1z" fill="#c98f4a"/><rect class="sp-y" x="17" y="16" width="10" height="9" rx="2" fill="url(#spvz)"/><path class="sp-d" d="M8 16h28M5 27h34M22 3v13" fill="none" stroke="#8790ae" stroke-width=".6"/><path d="M10 8q12-9 24 0-12-3-24 0z" fill=${ie}/><circle class="sp-puf sp-l" cx="44" cy="22" r="5" fill="#fff"/></g></svg>` },
@@ -5412,7 +5416,7 @@ const Hc = {
     { id: "wink", ms: 11e3, move: "sp-cl", weight: 0.5, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 130 110" width="130" height="110"><radialGradient id="spey"><stop offset="0" stop-color="#3f1508"/><stop offset=".4" stop-color="#8f3a22"/><stop offset=".75" stop-color="#f3e2c0"/><stop offset="1" stop-color="#f3e2c0" stop-opacity="0"/></radialGradient><g class="sp-eyes"><ellipse class="sp-l" cx="42" cy="56" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="42" cy="56" rx="12" ry="8"/><g class="sp-wink"><ellipse class="sp-l" cx="80" cy="60" rx="14" ry="10" fill="url(#spey)"/><ellipse class="sp-oo sp-y" cx="80" cy="60" rx="12" ry="8"/></g><g class="sp-pup"><ellipse class="sp-l" cx="43" cy="56" rx="3.6" ry="4.6" fill="#1c0a06"/><ellipse class="sp-l" cx="81" cy="60" rx="3.6" ry="4.6" fill="#1c0a06"/><circle class="sp-l" cx="42" cy="54.5" r="1" fill="#fff" opacity=".8"/><circle class="sp-l" cx="80" cy="58.5" r="1" fill="#fff" opacity=".8"/></g></g><path class="sp-grin sp-y" d="M44 80q16 12 34 5" fill="none" stroke="#6b3a1f" stroke-width="3.5" stroke-linecap="round" opacity=".75"/></svg>` },
     { id: "rover", ms: 44e3, move: "sp-rov", weight: 2, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 92 44" width="100">${it}<g class="sp-dust"><circle class="sp-l" cx="80" cy="39" r="3.5" fill="#cfd5e6"/><circle class="sp-l" cx="87" cy="37" r="2.2" fill="#cfd5e6"/><circle class="sp-l" cx="73" cy="38" r="2.2" fill="#cfd5e6"/></g><g class="sp-body"><g class="sp-drill"><path d="M76 16h6v16l-3 8-3-8z" fill=${ie}/><path class="sp-d" d="M76 32l6-3M76 28l6-3M76 24l6-3" fill="none" stroke="#dfe3ee" stroke-width=".7"/></g><path d="M56 18h30v6H56z" fill="#b5503c"/><path class="sp-g" d="M56 22h30v2H56z" opacity=".3"/><path d="M4 14h30v14H4z" fill="url(#spm1)"/><path class="sp-d" d="M4 21h30M14 14v14M24 14v14" fill="none" stroke="#8790ae" stroke-width=".6"/><g class="sp-mast"><path d="M30 14V4" fill="none" stroke="#aeb6cc" stroke-width="1.4"/><rect x="26" y="0" width="10" height="5" rx="1.5" fill=${ie}/><circle class="sp-l" cx="34" cy="2.5" r="1.2" fill="#7bdff2"/></g><path d="M9 14L4 3h8z" fill=${Wt}/><path class="sp-y" d="M36 8h15l8 11v9H36z" fill="url(#spau)"/><path d="M40 11h9l6 8H40z" fill="url(#spvz)"/><rect x="2" y="27" width="62" height="5" rx="2" fill=${ie}/><path d="M12 32v4M33 32v4M54 32v4" fill="none" stroke="#737c9b" stroke-width="2"/></g>${Jo(12, 36, 7)}${Jo(33, 36, 7)}${Jo(54, 36, 7)}</svg>` },
     // ---- parades, rarities and seasons ----
-    { id: "parade", ms: 24e3, move: "across", weight: 1.5, y: [2, 5], art: l`<svg class="sp-v" viewBox="-12 0 190 50" width="204">${it}${[0, 1, 2, 3].map((a) => x`<g transform="translate(${132 - a * 44} ${a % 2 ? 5 : 0})"><g class="sp-march ${a % 2 ? "b" : ""}">${uf(a === 0)}</g></g>`)}</svg>` },
+    { id: "parade", ms: 24e3, move: "across", weight: 1.5, y: [2, 5], art: l`<svg class="sp-v" viewBox="-12 0 190 50" width="204">${it}${[0, 1, 2, 3].map((a) => x`<g transform="translate(${132 - a * 44} ${a % 2 ? 5 : 0})"><g class="sp-march ${a % 2 ? "b" : ""}">${u1(a === 0)}</g></g>`)}</svg>` },
     { id: "whale", ms: 64e3, move: "across", weight: 0.3, y: [1, 3], art: l`<svg class="sp-v" viewBox="0 0 210 90" width="200" opacity=".82"><linearGradient id="spwh" x2="0" y2="1"><stop offset="0" stop-color="#8ea3da"/><stop offset=".55" stop-color="#5f74b4"/><stop offset="1" stop-color="#3a4a86"/></linearGradient><g class="sp-glide"><path class="sp-tail" d="M44 40Q30 34 22 22 10 12 2 16q6 10 16 20-12 8-14 22 12-2 22-12 8-4 18-6z" fill="url(#spwh)"/><path class="sp-fin" d="M124 52q-4 20-26 34-8 4-10-1 16-14 18-36z" fill="#4c5f9e"/><path d="M40 40Q66 16 120 12q34-2 62 10 18 8 24 20-2 12-22 18-30 10-66 8-44-2-78-28z" fill="url(#spwh)"/><path d="M206 42q-2 12-22 18-30 10-66 8-22-1-40-8 60 2 128-18z" fill="#e3e8f6"/><path class="sp-g" d="M96 62q50 2 104-14M104 65q46 0 92-12M116 67q40-1 74-10" fill="none" stroke="#8f9cc4" stroke-width=".7"/><path d="M120 12q6-5 10 0z" fill="#5f74b4"/><path class="sp-g" d="M70 26q40-12 100 0" fill="none" stroke="#c9d6ff" stroke-width="1.2" opacity=".5"/><path class="sp-d" d="M180 44q12 2 24-2" fill="none" stroke="#2c3966" stroke-width=".8"/><circle class="sp-l" cx="176" cy="38" r="1.8" fill="#101a3a"/><g class="sp-g" fill="#c9d6ff" opacity=".7"><circle cx="190" cy="28" r="1"/><circle cx="196" cy="33" r="1"/><circle cx="184" cy="24" r="1"/></g><g class="sp-run"><circle class="sp-l" cx="150" cy="7" r="1.5" fill="#fff"/><circle class="sp-l" cx="158" cy="2" r="1.2" fill="#fff"/><circle class="sp-l" cx="143" cy="1" r="1.2" fill="#fff"/><circle class="sp-l" cx="152" cy="-5" r="1" fill="#fff"/></g></g></svg>` },
     { id: "jelly", ms: 5e4, move: "across", weight: 0.5, y: [2, 6], when: (a) => a.tod !== "day", art: l`<svg class="sp-v" viewBox="-40 -6 110 72" width="118" opacity=".85"><radialGradient id="spjl" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#e9fbff" stop-opacity=".9"/><stop offset=".6" stop-color="#8fd8ff" stop-opacity=".45"/><stop offset="1" stop-color="#b79cff" stop-opacity=".25"/></radialGradient><g transform="rotate(78 30 30)"><g class="sp-surge">${[[14, -4, 0], [24, 2, -0.7], [36, 2, -1.3], [46, -4, -0.4]].map(([a, t, e]) => x`<g class="sp-tent" style="animation-delay:${e}s"><path class="sp-m" d="M${a} 30q${t} 12 0 22t${-t} 20${t} 16" fill="none" stroke="#a9e4ff" stroke-width="1.1" opacity=".7" stroke-linecap="round"/></g>`)}<g class="sp-bell"><path d="M4 30Q4 4 30 4t26 26q-6 5-13 0-6 5-13 0-6 5-13 0-7 5-13 0z" fill="url(#spjl)"/><path class="sp-g" d="M12 22Q16 9 30 8" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7" stroke-linecap="round"/><path class="sp-d sp-m" d="M30 6v22M18 10q-4 8-3 18M42 10q4 8 3 18" fill="none" stroke="#e9fbff" stroke-width=".6" opacity=".6"/><ellipse class="sp-l sp-run" cx="30" cy="18" rx="6" ry="4" fill="#fff6c9" opacity=".8"/></g></g></g></svg>` },
     { id: "xmas", ms: 24e3, move: "across sp-drift", weight: 3, y: [2, 5], when: (a) => a.month === 12, art: l`<svg class="sp-v" viewBox="0 0 170 50" width="180">${it}<path d="M58 34q16 8 34-6" fill="none" stroke="#e0a93a" stroke-width="1"/><g transform="translate(168 12) rotate(90)">${Rp}</g><path d="M8 44q-7 0-7-8M4 44h52M14 44v-6M46 44v-6" fill="none" stroke="#a8322f" stroke-width="2.2" stroke-linecap="round"/><path d="M10 31h44v6q0 2-2 2H12q-2 0-2-2z" fill=${wa}/><path class="sp-g" d="M10 31h44v2H10z" fill="#fff" opacity=".3"/><rect x="30" y="25" width="4" height="6" fill="#6b4a2b"/><path class="sp-m" d="M32 0L22 12h5L18 21h5l-8 7h34l-8-7h5l-9-9h5z" fill="#2f8f58"/><path class="sp-g" d="M32 0l10 12h-5l9 9h-5l8 7H38q4-14-6-28z" opacity=".25"/><g class="sp-bk"><circle class="sp-l" cx="32" cy="1" r="2.4" fill=${Oe}/><circle class="sp-l" cx="27" cy="13" r="1.7" fill="#ff6b6b"/><circle class="sp-l" cx="39" cy="19" r="1.7" fill="#7bdff2"/><circle class="sp-l" cx="24" cy="24" r="1.7" fill=${Oe}/><circle class="sp-l" cx="36" cy="9" r="1.5" fill="#7bdff2"/><circle class="sp-l" cx="31" cy="22" r="1.7" fill="#ff6b6b"/></g></svg>` },
@@ -5421,20 +5425,20 @@ const Hc = {
     { id: "launch", ms: 12e3, move: "sp-pad", weight: 1, front: !0, flip: !1, art: l`<svg class="sp-v" viewBox="0 0 36 100" width="36">${it}<g fill="#ffe08a" font-family="sans-serif" font-size="19" font-weight="700" text-anchor="middle">${[3, 2, 1].map((a, t) => x`<text class="sp-n" style="animation-delay:${t * 1.6}s" x="18" y="17">${a}</text>`)}</g><g class="sp-puff"><circle cx="9" cy="80" r="6" fill="#dfe3ee"/><circle cx="27" cy="80" r="6" fill="#dfe3ee"/><circle cx="18" cy="83" r="6.5" fill="#f1f3f9"/></g><g transform="translate(2 24)"><g class="sp-ign">${tn}</g>${en}</g></svg>` },
     { id: "scooter", ms: 9500, move: "across foot", weight: 2, front: !0, art: l`<svg class="sp-v" viewBox="0 0 62 62" width="56">${it}<g class="sp-jump"><path class="sp-kick" d="M27 40l-7 8-3 7h-4" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 52h36" fill="none" stroke="#aeb6cc" stroke-width="3" stroke-linecap="round"/><path d="M48 53L42 15M36 13.5l13 2.5" fill="none" stroke="#dfe3ee" stroke-width="2.4" stroke-linecap="round"/><circle cx="9" cy="55.5" r="5" fill="#2c3350"/><circle cx="9" cy="55.5" r="2" fill="#aeb6cc"/><circle cx="48.5" cy="55.5" r="5" fill="#2c3350"/><circle cx="48.5" cy="55.5" r="2" fill="#aeb6cc"/><g class="sp-lean"><path d="M29 40v10h5" fill="none" stroke="#8a9e8a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 31l10-14" fill="none" stroke="#8a9e8a" stroke-width="2.8" stroke-linecap="round"/><g transform="translate(27 22) scale(.92)">${Io}</g><path d="M21 21q-9 1-14 7l8-2q-3 3-2 5 6-3 9-8z" fill=${wa}/></g></g></svg>` }
   ]
-}, bf = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, jt = (a, t = {}) => ({ ...t, px: a }), ze = (a) => {
+}, b1 = { px: 1, aw: 1280, ah: 800, at: 110, ab: 678, dt: 694, db: 780, dl: 133, dr: 1147, cx: 563.2, gx: 976, am: 8, sy: 790 }, jt = (a, t = {}) => ({ ...t, px: a }), ze = (a) => {
   const t = {};
   for (const [e, i] of a) for (const s in i) t[s] = (t[s] ?? 0) + e * i[s];
   return t;
-}, C = (a, t) => ze([[1, a], [1, jt(t)]]), ta = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (bf[e] ?? 0), 0), j = (a, t = 2) => +a.toFixed(t), Ct = (a) => {
+}, C = (a, t) => ze([[1, a], [1, jt(t)]]), ta = (a) => Object.entries(a).reduce((t, [e, i]) => t + i * (b1[e] ?? 0), 0), j = (a, t = 2) => +a.toFixed(t), Ct = (a) => {
   const t = Object.entries(a).filter(([, e]) => Math.abs(e) > 1e-4).map(([e, i]) => e === "px" ? `${j(i, 1)}px` : `var(--${e})*${j(i, 4)}`);
   return t.length > 1 || (t[0] ?? "").includes("*") ? `calc(${t.join(" + ")})` : t[0] ?? "0px";
 }, Xs = (a, t) => {
   const e = 1 - t;
   return ze([[e * e * e, a[0]], [3 * e * e * t, a[1]], [3 * e * t * t, a[2]], [t * t * t, a[3]]]);
-}, rt = (a, t, e = "") => `transform:translate(${Ct(a)},${Ct(t)})${e}`, De = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${j(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, Bt = (a, t, e) => De(a, e.map(([i, s, o]) => [i / t, s, o])), _e = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Tp = "cubic-bezier(.333,.667,.667,1)", xf = "cubic-bezier(.333,0,.667,.333)", Po = "cubic-bezier(.333,0,.667,1)", wf = "cubic-bezier(.2,.8,.2,1)", kf = "cubic-bezier(.2,1.4,.4,1)", yf = "cubic-bezier(.4,0,1,1)", Va = "ease-in-out", ve = { aw: 1 }, Wi = { ah: 1 }, ka = { at: 1 }, ga = { dt: 1 }, Si = { dl: 1 }, Ya = C(ga, -5), zp = [[ze([[0.5, { dr: 1 }], [0.5, ve]]), C(Wi, 40)], [C(ve, 30), { ah: 0.25 }], [{ aw: 0.77 }, jt(-150)], [{ cx: 1 }, C(ka, 70)]], Wp = [[C(ve, 60), { at: 0.76 }], [{ aw: 0.86 }, jt(-10)], [{ aw: 0.625 }, jt(10)], [{ cx: 1 }, C(ka, 120)]], Xo = (a) => {
+}, rt = (a, t, e = "") => `transform:translate(${Ct(a)},${Ct(t)})${e}`, De = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${j(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, Bt = (a, t, e) => De(a, e.map(([i, s, o]) => [i / t, s, o])), _e = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Tp = "cubic-bezier(.333,.667,.667,1)", x1 = "cubic-bezier(.333,0,.667,.333)", Po = "cubic-bezier(.333,0,.667,1)", w1 = "cubic-bezier(.2,.8,.2,1)", k1 = "cubic-bezier(.2,1.4,.4,1)", v1 = "cubic-bezier(.4,0,1,1)", Va = "ease-in-out", ye = { aw: 1 }, Wi = { ah: 1 }, ka = { at: 1 }, ga = { dt: 1 }, Si = { dl: 1 }, Ya = C(ga, -5), zp = [[ze([[0.5, { dr: 1 }], [0.5, ye]]), C(Wi, 40)], [C(ye, 30), { ah: 0.25 }], [{ aw: 0.77 }, jt(-150)], [{ cx: 1 }, C(ka, 70)]], Wp = [[C(ye, 60), { at: 0.76 }], [{ aw: 0.86 }, jt(-10)], [{ aw: 0.625 }, jt(10)], [{ cx: 1 }, C(ka, 120)]], Xo = (a) => {
   const t = 1 - Math.pow(1 - a, 1.2);
   return [Xs(Wp.map((e) => e[0]), t), Xs(Wp.map((e) => e[1]), t)];
-}, Ec = [[jt(-20), C(ve, 20), { aw: 0.47 }], [C(ve, 20), jt(-20), { aw: 0.59 }], [jt(-20), C(ve, 20), { aw: 0.37 }]], vf = () => {
+}, Ec = [[jt(-20), C(ye, 20), { aw: 0.47 }], [C(ye, 20), jt(-20), { aw: 0.59 }], [jt(-20), C(ye, 20), { aw: 0.37 }]], y1 = () => {
   const a = [];
   return Ec.forEach(([t, e, i], s) => {
     const o = s * 1200, r = (ta(i) - ta(t)) / (ta(e) - ta(t)), n = o + 900 * r, p = (c) => ze([[1, Ya], [c, { am: 1 }]]);
@@ -5445,20 +5449,20 @@ const Hc = {
       a.push([n + (o + 900 - n) * d, `transform:translateY(${Ct(p(-1.15 * (2 * d - d * d)))})`]);
     }
   }), a.sort((t, e) => t[0] - e[0]);
-}, Kf = C(Si, -44), Uf = C(Wi, -24), jp = (a) => [ze([[1 - a, C(ve, 50)], [a, C({ cx: 1 }, -60)]]), ze([[0.5 + 0.9 * a * a, ka], [1, jt(-30 * Math.sin(Math.PI * a))]])], Af = [
+}, K1 = C(Si, -44), U1 = C(Wi, -24), jp = (a) => [ze([[1 - a, C(ye, 50)], [a, C({ cx: 1 }, -60)]]), ze([[0.5 + 0.9 * a * a, ka], [1, jt(-30 * Math.sin(Math.PI * a))]])], A1 = [
   De("gd-soccer", _e(24).map((a) => {
     const t = 1 - Math.pow(1 - a, 1.5);
     return [a, rt(Xs(zp.map((e) => e[0]), t), Xs(zp.map((e) => e[1]), t), ` scale(${j(1.3 - 0.5 * t)})`)];
   })),
   De("gd-punt", [[0, rt({ cx: 1 }, C(ka, 140))], [1, rt({ aw: 0.86 }, C(ka, 140))]]),
-  De("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", Tp], [0.5, `transform:translateY(${Ct(ze([[-1, ka], [1, jt(-110)]]))}) scale(1.2)`, xf], [1, "transform:translateY(0) scale(.65)"]]),
+  De("gd-punt-y", [[0, "transform:translateY(0) scale(.65)", Tp], [0.5, `transform:translateY(${Ct(ze([[-1, ka], [1, jt(-110)]]))}) scale(1.2)`, x1], [1, "transform:translateY(0) scale(.65)"]]),
   De("gd-torpedo", _e(20).map((a) => {
     const [t, e] = Xo(a), [i, s] = Xo(Math.max(0, a - 0.01)), [o, r] = Xo(Math.min(1, a + 0.01));
     return [a, rt(t, e, ` rotate(${j(Math.atan2(ta(r) - ta(s), ta(o) - ta(i)) * 180 / Math.PI - 180, 1)}deg) scale(${j(1.15 - 0.45 * a)})`)];
   })),
   Bt("gd-rally", 3300, Ec.flatMap(([a, t], e) => [[e * 1200, `transform:translateX(${Ct(a)})`], [e * 1200 + 900, `transform:translateX(${Ct(t)})`]])),
-  Bt("gd-rally-y", 3300, vf()),
-  De("gd-skim", [[0, rt(jt(-20), { sy: 1 }), Tp], [1, rt(C(ve, 20), { sy: 1 })]]),
+  Bt("gd-rally-y", 3300, y1()),
+  De("gd-skim", [[0, rt(jt(-20), { sy: 1 }), Tp], [1, rt(C(ye, 20), { sy: 1 })]]),
   De("gd-float", [[0, rt({ aw: 0.93 }, jt(-30), " scale(1)"), Po], [0.36, rt({ gx: 1 }, C(ka, 40), " scale(.9)"), Po], [0.8, rt({ gx: 1 }, C({ ab: 1 }, -6), " scale(1.08)"), Po], [1, rt(C({ gx: 1 }, 108), ze([[0.5, ga], [0.5, { db: 1 }]]), " scale(.94)")]]),
   /* the corner flag knocked by the last shot of a rally */
   Bt("gd-knock", 2300, [
@@ -5468,25 +5472,25 @@ const Hc = {
     [2300, rt(C(Si, -20), C(Ya, 139))]
   ]),
   Bt("gd-knock-sq", 2300, [[0, "transform:scale(1,1)"], [620, "transform:scale(1,1)"], [650, "transform:scale(1.08,.92)"], [720, "transform:scale(1,1)"], [2300, "transform:scale(1,1)"]]),
-  Bt("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", wf], [1170, "transform:rotate(-16deg)", Va], [1420, "transform:rotate(10deg)", Va], [1660, "transform:rotate(-6deg)", Va], [1900, "transform:rotate(3deg)", Va], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
+  Bt("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", w1], [1170, "transform:rotate(-16deg)", Va], [1420, "transform:rotate(10deg)", Va], [1660, "transform:rotate(-6deg)", Va], [1900, "transform:rotate(3deg)", Va], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
   /* the gull with a chip, and the ball that chases it */
   Bt("gd-gull", 2300, [..._e(14).map((a) => {
     const [t, e] = jp(a);
     return [2050 * a, rt(t, e)];
   }), [2300, rt(C({ cx: 1 }, -60), { at: 1.4 })]]),
-  Bt("gd-chase", 2300, [[0, rt(C(ve, 120), { at: 0.6 }, " scale(.6)")], ..._e(18).map((a) => {
+  Bt("gd-chase", 2300, [[0, rt(C(ye, 120), { at: 0.6 }, " scale(.6)")], ..._e(18).map((a) => {
     const [t, e] = jp(a);
     return [250 + 2050 * a, rt(t, C(e, 8 - 16 * Math.abs(Math.sin(3 * Math.PI * a))), " scale(.6)")];
   })]),
   /* sprinkler, line marker, dog */
-  Bt("gd-head", 2300, [[0, "transform:translateY(18px)", kf], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", yf], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
+  Bt("gd-head", 2300, [[0, "transform:translateY(18px)", k1], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", v1], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
   Bt("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", Va], [1070, "transform:rotate(52deg)", Va], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
   Bt("gd-spray", 2300, [[0, "opacity:0"], [240, "opacity:0"], [340, "opacity:1"], [1900, "opacity:1"], [2050, "opacity:0"], [2300, "opacity:0"]]),
   Bt("gd-bow", 2300, [[0, "opacity:0"], [600, "opacity:0"], [1050, "opacity:.8"], [1650, "opacity:.8"], [2e3, "opacity:0"], [2300, "opacity:0"]]),
   Bt("gd-chalk", 2300, [[0, "transform:scaleX(0);opacity:1"], [190, "transform:scaleX(0);opacity:1"], [2e3, "transform:scaleX(.97);opacity:1"], [2300, "transform:scaleX(1);opacity:0"]]),
   Bt("gd-cart", 2300, [[0, `${rt(jt(-44), C(ga, 3))};opacity:1`], [2e3, `${rt(C({ aw: 0.4 }, -20), C(ga, 3))};opacity:1`], [2300, `${rt(C({ aw: 0.4 }, 61), C(ga, 3))};opacity:0`]]),
-  De("gd-dog", [[0, rt(jt(-60), C(ga, 4))], [1, rt(C(ve, 60), C(ga, 4))]])
-].join(""), Vt = "#2b2f36", Ma = "#f6f3e7", th = "#d9e63a", Ea = "#f47b20", qf = "#f5c531", Mf = "#9aa5b1", wt = (a, t, e = 32, i = 32) => `${j(e + a * Math.cos(t * Math.PI / 180), 1)} ${j(i + a * Math.sin(t * Math.PI / 180), 1)}`, Uo = (a) => `<path d="M${wt(a, -35)}A${a} ${a} 0 0 1 ${wt(a, 145)}A${j(a * 1.35, 1)} ${j(a * 1.35, 1)} 0 0 0 ${wt(a, -35)}z" opacity=".13"/>`, eh = (() => {
+  De("gd-dog", [[0, rt(jt(-60), C(ga, 4))], [1, rt(C(ye, 60), C(ga, 4))]])
+].join(""), Vt = "#2b2f36", Ma = "#f6f3e7", th = "#d9e63a", Ea = "#f47b20", q1 = "#f5c531", M1 = "#9aa5b1", wt = (a, t, e = 32, i = 32) => `${j(e + a * Math.cos(t * Math.PI / 180), 1)} ${j(i + a * Math.sin(t * Math.PI / 180), 1)}`, Uo = (a) => `<path d="M${wt(a, -35)}A${a} ${a} 0 0 1 ${wt(a, 145)}A${j(a * 1.35, 1)} ${j(a * 1.35, 1)} 0 0 0 ${wt(a, -35)}z" opacity=".13"/>`, eh = (() => {
   const a = [];
   let t = "", e = "";
   for (let i = 0; i < 5; i++) {
@@ -5494,24 +5498,24 @@ const Hc = {
     a.push(wt(9.5, s)), t += `M${wt(9.5, s)}L${wt(15.5, s)}M${wt(19.5, s + 19)}L${wt(19.5, s + 53)}`, e += `M${wt(15.5, s)}L${wt(19.5, s - 19)}L${wt(24, s - 13)}A24 24 0 0 1 ${wt(24, s + 13)}L${wt(19.5, s + 19)}z`;
   }
   return `<circle cx="32" cy="32" r="24" fill="#fff"/><g class="gd-m"><path d="M${a.join("L")}z${e}" fill="${Vt}"/><path d="${t}" stroke="${Vt}" stroke-width="1.6" fill="none"/></g>${Uo(24)}<circle cx="32" cy="32" r="24" fill="none" stroke="${Vt}" stroke-width="1.6"/>`;
-})(), Sf = `<circle cx="32" cy="32" r="22" fill="${th}"/><g class="gd-m"><path d="M${wt(22, 217)}Q27 32 ${wt(22, 143)}M${wt(22, -37)}Q37 32 ${wt(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${Uo(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, _f = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${Ma}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${Vt}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${Vt}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${Vt}" stroke-width="1.500"/>`, Ho = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", Ff = `<defs><clipPath id="gd-fc"><path d="${Ho}"/></clipPath></defs><path d="${Ho}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${Ma}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Ho}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, Rf = (() => {
+})(), S1 = `<circle cx="32" cy="32" r="22" fill="${th}"/><g class="gd-m"><path d="M${wt(22, 217)}Q27 32 ${wt(22, 143)}M${wt(22, -37)}Q37 32 ${wt(22, 37)}" stroke="#fff" stroke-width="3" fill="none"/></g>${Uo(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="#98a31f" stroke-width="1.6"/>`, _1 = `<path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="${Ma}"/><path d="M14.5 19.5Q10 32 14.5 44.500M49.500 19.500Q54 32 49.500 44.500" stroke="${Vt}" stroke-width="3.800" fill="none"/><path d="M21 32H43" stroke="#b5713a" stroke-width="1.400"/><path d="M25 29.400v5.200M29.700 29.400v5.200M34.300 29.400v5.200M39 29.400v5.200" stroke="${Vt}" stroke-width="1.200"/><path d="M4 32C6 19 19 14 32 14C45 14 58 19 60 32C58 45 45 50 32 50C19 50 6 45 4 32z" fill="none" stroke="${Vt}" stroke-width="1.500"/>`, Ho = "M5 32C13 11 51 11 59 32C51 53 13 53 5 32z", F1 = `<defs><clipPath id="gd-fc"><path d="${Ho}"/></clipPath></defs><path d="${Ho}" fill="#c8372d"/><path d="M17.500 22.500Q14 32 17.500 41.500M46.500 22.500Q50 32 46.500 41.500" stroke="#000" stroke-opacity=".22" stroke-width="1.300" fill="none"/><g clip-path="url(#gd-fc)"><g class="gd-lace"><path d="M25.500 32h13M27 29.200v5.600M30.300 29.200v5.600M33.700 29.200v5.600M37 29.200v5.600" stroke="${Ma}" stroke-width="1.700" stroke-linecap="round"/></g></g><path d="${Ho}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.200"/>`, R1 = (() => {
   let a = "";
   for (let t = -2; t <= 2; t++) for (let e = -3; e <= 3; e++) {
     const i = e * 6 + (t & 1 ? 3 : 0), s = t * 5.2;
     Math.hypot(i, s) < 11.6 && (a += `M${j(32 + i, 1)} ${j(32 + s, 1)}h.01`);
   }
   return `<circle cx="32" cy="32" r="15" fill="#fff"/><g class="gd-m"><path d="${a}" stroke="#a9b1bb" stroke-width="2.400" stroke-linecap="round"/></g>${Uo(15)}<circle cx="32" cy="32" r="15" fill="none" stroke="${Vt}" stroke-opacity=".6" stroke-width="1.800"/>`;
-})(), $f = (() => {
+})(), $1 = (() => {
   let a = '<circle cx="32" cy="32" r="4.300"/>';
   for (let t = 0; t < 6; t++) {
     const e = wt(12.3, t * 60), i = wt(19.3, t * 60 + 30);
     a += `<ellipse cx="${e.split(" ")[0]}" cy="${e.split(" ")[1]}" rx="3" ry="3.900" transform="rotate(${t * 60} ${e})"/><ellipse cx="${i.split(" ")[0]}" cy="${i.split(" ")[1]}" rx="1.500" ry="3.400" transform="rotate(${t * 60 + 30} ${i})"/>`;
   }
   return `<circle cx="32" cy="32" r="22" fill="#fff"/><g class="gd-m" fill="#56606c">${a}</g>${Uo(22)}<circle cx="32" cy="32" r="22" fill="none" stroke="${Vt}" stroke-opacity=".6" stroke-width="1.500"/>`;
-})(), Vf = { soccer: [eh, 40], rugby: [_f, 43], footy: [Ff, 43], tennis: [Sf, 20], hockey: [Rf, 0], floorball: [$f, 32] }, Ye = (a, t = "") => {
-  const [e, i] = Vf[a];
+})(), V1 = { soccer: [eh, 40], rugby: [_1, 43], footy: [F1, 43], tennis: [S1, 20], hockey: [R1, 0], floorball: [$1, 32] }, Ye = (a, t = "") => {
+  const [e, i] = V1[a];
   return `<i class="gd-b gd-${a} ${t}"${i ? ` style="--s:${i}px"` : ""}><i class="gd-k"><i class="gd-spin"><svg viewBox="0 0 64 64">${e}</svg></i></i></i>`;
-}, on = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${Ct(t)};top:${Ct(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, he = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, Nf = `<path d="M0 0V-64" stroke="${qf}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${Ea}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, Tf = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${Vt}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, zf = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${Vt}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, Wf = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${j(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), jf = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), Cf = `<path d="M22-12 40-24" stroke="${Vt}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${Ea}" stroke="${Vt}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${Ma}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${Vt}"/><path d="M20-9v8M16-5h8" stroke="${Ma}" stroke-width="1"/></g>`, Lf = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${Vt}"/><circle cx="27" cy="-18.500" r="3.600" fill="${th}" stroke="#7f8c18" stroke-width=".8"/>`, kt = (a, t) => [j(960 + 830 * a / t, 1), j(250 + 8300 / t, 1)], Qf = (a) => {
+}, on = (a, t, e, i) => `<i class="gd-p ${a}" style="left:${Ct(t)};top:${Ct(e)}"><svg viewBox="0 0 1 1" width="1" height="1">${i}</svg></i>`, he = (a) => l`<i class="gd-in" .innerHTML=${a}></i>`, N1 = `<path d="M0 0V-64" stroke="${q1}" stroke-width="3" stroke-linecap="round"/><path d="M1-63 21-55 1-47z" fill="${Ea}"/><path d="M1-55 21-55 1-47z" opacity=".12"/>`, T1 = `<ellipse rx="15" ry="6.500" fill="#fff" stroke="#8b9299"/><circle cx="-14" cy="-4" r="5" fill="#fff" stroke="#8b9299"/><circle cx="-15.500" cy="-5" r="1" fill="${Vt}"/><path d="M-19-3.500-26-2-19-1z" fill="#f2a31b"/><rect x="-33" y="-3.200" width="9" height="2.600" rx="1" fill="#f4d35e" stroke="#b98a1a" stroke-width=".6"/><g class="gd-wing"><path d="M-6-2Q4-26 20-20Q10-14 8-2z" fill="#aeb4ba" stroke="#5a6068"/></g><path d="M14 0 24-3 22 3z" fill="#5a6068"/>`, z1 = `<rect x="-5" y="-12" width="10" height="14" rx="2" fill="${Vt}"/><rect x="-7" y="-14" width="14" height="4" rx="2" fill="#5a6068"/>`, W1 = [16, 26, 36, 46, 56].map((a, t) => `<circle cy="${-a}" r="${j(1.6 + t * 0.25)}" fill="#e3f4ff"/><circle cx="${t % 2 ? 4 : -4}" cy="${-a + 5}" r="1.300" fill="#e3f4ff" opacity=".8"/>`).join(""), j1 = [["#e2574c", 38], ["#f4d35e", 34.5], ["#58b368", 31], ["#4f9bd9", 27.5]].map(([a, t]) => `<path d="M${-t} 0A${t} ${t} 0 0 1 ${t} 0" fill="none" stroke="${a}" stroke-width="3"/>`).join(""), C1 = `<path d="M22-12 40-24" stroke="${Vt}" stroke-width="2.400" stroke-linecap="round"/><rect x="2" y="-20" width="22" height="13" rx="3" fill="${Ea}" stroke="${Vt}" stroke-width="1.200"/><path d="M8-7 6-1h8l-2-6z" fill="${Ma}"/><g class="gd-wheel"><circle cx="20" cy="-5" r="5" fill="${Vt}"/><path d="M20-9v8M16-5h8" stroke="${Ma}" stroke-width="1"/></g>`, L1 = `<path class="gd-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.200" fill="none" stroke-linecap="round"/><g class="gd-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="gd-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.500" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.500" r="1" fill="${Vt}"/><circle cx="27" cy="-18.500" r="3.600" fill="${th}" stroke="#7f8c18" stroke-width=".8"/>`, kt = (a, t) => [j(960 + 830 * a / t, 1), j(250 + 8300 / t, 1)], Q1 = (a) => {
   const t = a ? { s0: "#131b33", s1: "#3b4673", hill: "#263a52", t1: "#1e3f3d", t2: "#173231", far: "#2a6d47", g1: "#2f7a4b", g2: "#2b7146", chalk: 0.46, wall: "#b9b3a6", roof: "#3a2b2a", court: "#2f6c84", steel: "#55607a", lamp: "#fff3c4", post: "#f6f3e7" } : { s0: "#cbe7f4", s1: "#e6f4f2", hill: "#a8d1b3", t1: "#63a56f", t2: "#4a8d5c", far: "#62b36c", g1: "#58ad63", g2: "#51a55c", chalk: 0.52, wall: "#f1e7d0", roof: "#8a5226", court: "#5fa6c4", steel: "#8b96a3", lamp: "#f6f3e7", post: "#ffffff" }, e = (F, V, z, R, P) => {
     const nt = je(F);
     let Et = "";
@@ -5540,12 +5544,12 @@ const Hc = {
     const [z, R] = kt(34, F), P = 830 / F;
     g += `<path d="M${z} ${R}V${j(R - V * P, 1)}" stroke="${t.post}" stroke-width="${j(0.3 * P, 1)}" stroke-linecap="round"/><path d="M${z} ${R}V${j(R - 1.5 * P, 1)}" stroke="${Ea}" stroke-width="${j(0.55 * P, 1)}" stroke-linecap="round"/>`;
   }
-  const [m, f] = kt(-34, 41.5), [k, b] = kt(-34, 44.5), w = kt(-37.5, 41.5), v = kt(-37.5, 44.5), U = j(3.4 * 830 / 41.5, 1), y = j(3.4 * 830 / 44.5, 1), A = `<path d="M${m} ${j(f - U, 1)}L${w}L${v}L${k} ${j(b - y, 1)}V${b}L${m} ${f}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${f}V${j(f - U, 1)}L${k} ${j(b - y, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, T = `<rect y="${h - 4}" width="1920" height="${j(1084 - h, 1)}" fill="${t.g1}"/><path d="${c}" fill="${t.g2}"/><g fill="none" stroke="${Ma}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${kt(-34, 29.4)}L${kt(-34, 70)}L${kt(34, 70)}L${kt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${kt(34, 42)}L${kt(27, 42)}L${kt(27, 45)}L${kt(34, 45)}"/><path d="${d}"/><path d="M0 942H1920" stroke-width="6"/></g>${A}${g}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
+  const [m, f] = kt(-34, 41.5), [k, b] = kt(-34, 44.5), w = kt(-37.5, 41.5), y = kt(-37.5, 44.5), U = j(3.4 * 830 / 41.5, 1), v = j(3.4 * 830 / 44.5, 1), A = `<path d="M${m} ${j(f - U, 1)}L${w}L${y}L${k} ${j(b - v, 1)}V${b}L${m} ${f}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${f}V${j(f - U, 1)}L${k} ${j(b - v, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, T = `<rect y="${h - 4}" width="1920" height="${j(1084 - h, 1)}" fill="${t.g1}"/><path d="${c}" fill="${t.g2}"/><g fill="none" stroke="${Ma}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${kt(-34, 29.4)}L${kt(-34, 70)}L${kt(34, 70)}L${kt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${kt(34, 42)}L${kt(27, 42)}L${kt(27, 45)}L${kt(34, 45)}"/><path d="${d}"/><path d="M0 942H1920" stroke-width="6"/></g>${A}${g}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
   return `<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="gd-sky" x2="0" y2="1"><stop offset=".35" stop-color="${t.s0}"/><stop offset="1" stop-color="${t.s1}"/></linearGradient>${a ? '<radialGradient id="gd-glow"><stop stop-color="#fff3c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>' : ""}</defs>${r}${p}${T}</svg>`;
-}, Gf = {}, Yf = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${Ea}"/><path d="M12 31H52" stroke="${Mf}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${eh}</g></svg>`, Bf = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${Ea}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${Ea}"/><path d="M22 26H42L44.300 34H19.700z" fill="${Ma}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, Zf = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${Bf}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, Of = (a) => {
+}, G1 = {}, Y1 = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${Ea}"/><path d="M12 31H52" stroke="${M1}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${eh}</g></svg>`, B1 = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${Ea}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${Ea}"/><path d="M22 26H42L44.300 34H19.700z" fill="${Ma}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, Z1 = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${B1}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, O1 = (a) => {
   const t = a.tod !== "day", e = t ? "eve" : "day", i = !!a.lay && !a.lay.phone && a.lay.corner >= 110;
-  return l`<div class="gd-world ${t ? "gd-eve" : ""}"><div class="gd-art" .innerHTML=${Gf[e] ??= Qf(t)}></div><div class="gd-wash"></div>${i ? l`<i class="gd-gear gd-bag" .innerHTML=${Yf}></i><i class="gd-gear gd-cones" .innerHTML=${Zf}></i>` : u}</div>`;
-}, Df = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], Na = (a, t) => (e) => Df[e.weekday] === a ? 2 * t : t, fs = (a) => !a.lay?.phone, Eo = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, tr = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, Cp = he(on("gd-bow", C({ dr: 1 }, 46), C(Wi, -30), jf) + `<i class="gd-p gd-spray" style="left:${Ct(C({ dr: 1 }, 46))};top:${Ct(C(Wi, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${Wf}</svg></i></i>` + on("gd-head", C({ dr: 1 }, 46), C(Wi, -6), zf)), If = [
+  return l`<div class="gd-world ${t ? "gd-eve" : ""}"><div class="gd-art" .innerHTML=${G1[e] ??= Q1(t)}></div><div class="gd-wash"></div>${i ? l`<i class="gd-gear gd-bag" .innerHTML=${Y1}></i><i class="gd-gear gd-cones" .innerHTML=${Z1}></i>` : u}</div>`;
+}, D1 = ["", "soccer", "rally", "skim", "floorball", "punt", "torpedo"], Na = (a, t) => (e) => D1[e.weekday] === a ? 2 * t : t, fs = (a) => !a.lay?.phone, Eo = (a) => !!a.lay && !a.lay.phone && a.lay.gutter >= 10, tr = (a) => !!a.lay && !a.lay.phone && a.lay.corner >= 110 && a.lay.gutter >= 10, Cp = he(on("gd-bow", C({ dr: 1 }, 46), C(Wi, -30), j1) + `<i class="gd-p gd-spray" style="left:${Ct(C({ dr: 1 }, 46))};top:${Ct(C(Wi, -20))}"><i class="gd-sweep"><svg viewBox="0 0 1 1" width="1" height="1">${W1}</svg></i></i>` + on("gd-head", C({ dr: 1 }, 46), C(Wi, -6), z1)), I1 = [
   { id: "soccer", ms: 5600, move: "gd-st", flip: !1, weight: Na("soccer", 4), when: fs, art: he(Ye("soccer")) },
   { id: "punt", ms: 5200, move: "gd-st", flip: !1, weight: Na("punt", 4), when: fs, art: he(Ye("rugby")) },
   { id: "torpedo", ms: 3600, move: "gd-st", flip: !1, weight: Na("torpedo", 4), when: fs, art: he(Ye("footy")) },
@@ -5553,12 +5557,12 @@ const Hc = {
   { id: "skim", ms: 2400, move: "gd-st", flip: !1, front: !0, lane: !0, weight: Na("skim", 4), when: (a) => !!a.lay && !a.lay.phone && (a.lay.strip >= 10 || a.lay.gutter >= 10), art: he(Ye("hockey")) },
   { id: "floorball", ms: 9e3, move: "gd-st", flip: !1, weight: Na("floorball", 3), art: he(Ye("floorball")) },
   /* the surprises: each rare on its own, and together at most one in ten minutes, six a day, none after 6.30 pm (see `rare` below) */
-  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: tr, art: he(on("gd-flag", Kf, Uf, Nf) + Ye("tennis", "gd-knock")) },
-  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => fs(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: he(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${Tf}</svg></i>` + Ye("soccer", "gd-chase")) },
+  { id: "flagknock", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 0.5, max: "hour", when: tr, art: he(on("gd-flag", K1, U1, N1) + Ye("tennis", "gd-knock")) },
+  { id: "gull", ms: 2300, move: "gd-st gd-fade", flip: !1, weight: 3, max: "day", when: (a) => fs(a) && (a.mins >= 720 && a.mins < 810 || a.weekday === 5 && a.mins >= 1020 && a.mins < 1110), art: he(`<i class="gd-b gd-gull"><svg viewBox="0 0 1 1" width="1" height="1">${T1}</svg></i>` + Ye("soccer", "gd-chase")) },
   { id: "sprinkler", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => tr(a) && !a.rainy && a.mins >= 360 && a.mins < 450, art: Cp },
   { id: "sprinkler-pm", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => tr(a) && !a.rainy && a.mins >= 1050, art: Cp },
-  { id: "marker", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Eo(a) && (a.weekday === 6 || a.weekday === 1) && a.mins < 540, art: he(`<i class="gd-line"></i><i class="gd-b gd-cart"><svg viewBox="0 0 1 1" width="1" height="1">${Cf}</svg></i>`) },
-  { id: "dog", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Eo(a) && (a.weekday === 0 || a.weekday === 6) && a.mins >= 780 && a.mins < 1020, art: he(`<i class="gd-b gd-dog"><i class="gd-k"><svg viewBox="0 0 1 1" width="1" height="1">${Lf}</svg></i></i>`) }
+  { id: "marker", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Eo(a) && (a.weekday === 6 || a.weekday === 1) && a.mins < 540, art: he(`<i class="gd-line"></i><i class="gd-b gd-cart"><svg viewBox="0 0 1 1" width="1" height="1">${C1}</svg></i>`) },
+  { id: "dog", ms: 2300, move: "gd-st gd-fade", flip: !1, front: !0, lane: !0, weight: 3, max: "day", when: (a) => Eo(a) && (a.weekday === 0 || a.weekday === 6) && a.mins >= 780 && a.mins < 1020, art: he(`<i class="gd-b gd-dog"><i class="gd-k"><svg viewBox="0 0 1 1" width="1" height="1">${L1}</svg></i></i>`) }
 ], ah = {
   gap: [2e4, 9e4],
   solo: !0,
@@ -5637,16 +5641,16 @@ const Hc = {
     .gd-l1, .gd-l2, .gd-tail { animation: gd-leg 164ms ease-in-out 14 both; }
     .gd-l1 { transform-origin: 0 -10px; --a: 26deg; } .gd-l2 { transform-origin: 4px -10px; --a: -26deg; } .gd-tail { transform-origin: -14px -16px; --a: -16deg; }
     @keyframes gd-leg { 0%, 100% { transform: rotate(var(--a)); } 50% { transform: rotate(calc(var(--a) * -1)); } }
-    ${_t(Af)}
+    ${_t(A1)}
   `,
-  always: Of,
-  cast: If
+  always: O1,
+  cast: I1
 };
 try {
   CSS.registerProperty?.({ name: "--tilt", syntax: "<number>", inherits: !0, initialValue: "1" });
 } catch {
 }
-const Jf = { sea: Er, sunset: Er, reef: Hc, bush: Pc, space: sn, orbit: sn, fridge: Xc, sports: ah }, Pf = /* @__PURE__ */ new Set(["fridge", "orbit", "sports"]), Xf = () => {
+const J1 = { sea: Er, sunset: Er, reef: Hc, bush: Pc, space: sn, orbit: sn, fridge: Xc, sports: ah }, P1 = /* @__PURE__ */ new Set(["fridge", "orbit", "sports"]), X1 = () => {
   try {
     return String(globalThis.__fhScene ?? "");
   } catch {
@@ -5659,7 +5663,7 @@ const Jf = { sea: Er, sunset: Er, reef: Hc, bush: Pc, space: sn, orbit: sn, frid
     };
   }
   get _scene() {
-    return Jf[Xf() || (Pf.has(this.look) ? this.look : this.theme)];
+    return J1[X1() || (P1.has(this.look) ? this.look : this.theme)];
   }
   get _ctx() {
     const t = /* @__PURE__ */ new Date();
@@ -5815,7 +5819,7 @@ ro.styles = [H`
   `, ...Object.values({ sea: Er, reef: Hc, bush: Pc, space: sn, fridge: Xc, sports: ah }).map((t) => t.css)], ro.properties = { look: { reflect: !0 }, theme: { reflect: !0 }, tod: {}, calm: { type: Boolean }, hold: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: !0 }, _guest: { state: !0 }, _lay: { state: !0 } };
 let rn = ro;
 customElements.get("fh-ambient") || customElements.define("fh-ambient", rn);
-const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)", yt = "cubic-bezier(.4,0,1,1)", nn = "#f6b90f", Ef = `
+const H1 = 40, pt = "cubic-bezier(.2,.8,.2,1)", ve = "cubic-bezier(.2,1.4,.4,1)", vt = "cubic-bezier(.4,0,1,1)", nn = "#f6b90f", E1 = `
 .spk-layer{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout style}
 .spk-fx{position:absolute;transform-origin:0 0;pointer-events:none}
 .spk-fx *{pointer-events:none}
@@ -5851,7 +5855,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
   e.length > 2 && o !== "linear" && !r && (e[0].easing || (e[0].easing = o), o = "linear"), a.plans.push([t, e, { duration: i, delay: s, easing: o, fill: "both", ...r }]);
 }, _i = (a, t, e, i = 0) => {
   a.target && !a.calm && a.own.push([a.target, t.map((s) => ({ transform: `rotate(${s}deg)` })), { duration: e, delay: i, easing: "ease-in-out", composite: "add" }]);
-}, ya = (a) => {
+}, va = (a) => {
   a.w.style.overflow = "hidden", a.w.style.borderRadius = a.rad;
 }, ln = (a, t, e, i = 700) => {
   q(a, Z(a, `width:${a.W}px;height:${a.H}px;border-radius:${a.rad};box-sizing:border-box;${t}`), D(e), i);
@@ -5861,7 +5865,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
 }), Qp = (a, t, e, i) => {
   const s = a.pal[i % a.pal.length], o = O(8, 12), r = a.look === "orbit";
   return Y(a, t, e, 10, 8, `<path d="M0 2Q5-.5 10 2V5Q5 2.500 0 5z" fill="${r ? "none" : s}" stroke="${r ? s : "none"}"/><path d="M0 5Q5 2.500 10 5L8.500 7.500Q5 5.800 1.500 7.500z" fill="${r ? "none" : `color-mix(in srgb,${s} 68%,#000)`}" stroke="${r ? s : "none"}" stroke-width=".8"/>`, `scale:${(o / 10).toFixed(2)}`);
-}, us = "M10 1l2.7 5.7 6.2.7-4.6 4.2 1.3 6.1L10 14.6l-5.6 3.1 1.3-6.1L1.1 7.4l6.2-.7z", Ja = '<defs><linearGradient id="spk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe98a"/><stop offset=".42" stop-color="#f6b90f"/><stop offset=".56" stop-color="#fff4b8"/><stop offset=".7" stop-color="#f2b20a"/><stop offset="1" stop-color="#cf9004"/></linearGradient></defs>', Gp = (a) => a.look === "orbit" ? `<path d="${us}" fill="none" stroke="var(--ac)" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 6.500v6M7 9.500h6" stroke="var(--ac)" stroke-width="1" stroke-linecap="round" opacity=".7"/>` : `${Ja}<path d="${us}" transform="translate(.9 1.500)" fill="#000" opacity=".2" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="${us}" fill="#fff" stroke="#fff" stroke-width="3.400" stroke-linejoin="round"/><path d="${us}" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" stroke-linejoin="round"/><path d="M19.800 7.200l-5.200-.5 2.300 3.600z" fill="#000" opacity=".22"/><path d="M18.900 7.400l-4.500-.6 1.800 3.200c1.500-.3 2.500-1.300 2.700-2.600z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/>`, tm = '<path class="spk-f" d="M12 25.500C8.500 22 4 14 2.500 6c3.500 1.500 5.800 4.500 6.800 7.500C9.800 8.500 10.800 4 12 .5c1.200 3.500 2.200 8 2.700 13 1-3 3.300-6 6.800-7.500C20 14 15.500 22 12 25.500z"/>', em = '<path class="spk-f" d="M13 1C6 1 1.500 6 1.500 13c0 8 6.500 16 9.500 18l-1.500 2.500h7L15 31c3-2 9.500-10 9.500-18C24.500 6 20 1 13 1z"/><path class="spk-sh" d="M21 5c3 6 1 17-7 25.500 5-3.500 10.500-10.500 10.500-17.500 0-3-1.300-6-3.500-8z" opacity=".16"/><path d="M6.500 9c.8-2.800 2.800-4.600 5-5" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" opacity=".8"/><circle cx="6" cy="12.500" r="1" fill="#fff" opacity=".6"/>', am = '<path class="spk-l" style="stroke-width:1.100" d="M2.500 0c-3 4 3 7 0 12"/>', im = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.300 9.500C5 4 9 10 11.800 4.800" fill="none" stroke="#fff" stroke-width="1.700" stroke-linecap="round" opacity=".75"/><path class="spk-sh" d="M3.300 11.300C6.500 7.300 9.500 12 12.300 8" fill="none" stroke="#000" stroke-width="1.300" stroke-linecap="round" opacity=".28"/>', sm = '<defs><radialGradient id="spk-m" cx=".34" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient></defs><circle class="spk-sh" cx="7" cy="7" r="6.300" fill="url(#spk-m)"/><ellipse cx="4.700" cy="4.200" rx="1.600" ry="1" fill="#fff" transform="rotate(-35 4.700 4.200)"/>', om = '<path class="spk-f" d="M3.500 17L.5 24h3.500zM14.500 17l3 7H14z"/><path class="spk-f" style="--c:#f4f6fb" d="M9 1C4.500 5 3.500 11 3.500 17v5.500h11V17C14.500 11 13.500 5 9 1z"/><path class="spk-f" d="M9 1C7 2.800 5.800 5 5 7.500h8C12.200 5 11 2.800 9 1z"/><circle class="spk-f" style="--c:#7cc4f0" cx="9" cy="12.500" r="2.400"/><path class="spk-sh" d="M12 4.500c1.800 3.500 2.500 8 2.500 12.500v5.500H12z" opacity=".13"/>', rm = '<path class="spk-f" style="--c:#ff9d2e" d="M1 0h8c0 4.500-2 8-4 10C3 8 1 4.500 1 0z"/><path d="M3.200 0h3.600c0 2.500-.8 4.500-1.800 5.800C4 4.500 3.200 2.500 3.200 0z" fill="#ffe680"/>', nm = '<path class="spk-f" d="M0 4.500Q8 1 15.500 4.500V21Q8 18 0 21z"/><path class="spk-f" style="--c:#fffdf5" d="M1.500 3Q8 .3 15.500 3.500V19Q8 16 1.500 18.500z"/><path class="spk-l" style="--c:#9aa3b2;stroke-width:1" d="M4 6.500q4-1.300 9 0M4 9.800q4-1.300 9 0M4 13.100q3-1 6-.4"/>', sr = '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round" d="M5.500 0l1.500 4L11 5.500 7 7l-1.500 4L4 7 0 5.500 4 4z"/>', lm = [6.5, 23.5].map((a) => `<ellipse class="spk-f" cx="${a}" cy="7.500" rx="3.300" ry="3.900"/><ellipse cx="${a}" cy="7.900" rx="1.500" ry="2.100" fill="#6b4a38"/>`).join("") + '<path class="spk-f" d="M15 4.500c5.500 0 9 3.300 10.200 7.800 1.500 5.500-1.700 14.200-10.200 14.200S3.300 17.800 4.800 12.300C6 7.800 9.500 4.500 15 4.500z"/><path class="spk-f" style="--c:#e6cdaa;stroke:none" d="M15 14.500c4 0 7.500 2.500 7.500 6s-3.500 5-7.500 5-7.500-1.500-7.500-5 3.500-6 7.500-6z"/><path class="spk-d" d="M12.300 15.600h5.400c.6 0 .9.700.5 1.200L15.800 19.200c-.4.400-1.200.4-1.600 0L11.800 16.800c-.4-.5-.1-1.200.5-1.200z"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M8.800 19.500c1.500 3.300 5 3.500 6.200.3 1.200 3.200 4.700 3 6.200-.3"/><circle class="spk-d" cx="10.300" cy="12.300" r="1.350"/><circle class="spk-d" cx="19.700" cy="12.300" r="1.350"/><path class="spk-f" style="--c:#6aa84f" d="M20 22.500c2.500-3 6.500-3.300 9-1.200-2 3-6.200 3.700-9 1.200z"/>', pm = '<path class="spk-f" style="--c:#c98f52" d="M9 3.200h16.500a1.800 1.800 0 010 3.600H9z"/><path class="spk-f" style="--c:#cfd6e0" d="M5.500 2.500H9.500v5H5.500z"/><path class="spk-f" d="M5.500 2.300C3 2.300.8 3.500 0 6c2 .9 4 1.500 5.500 1.500z"/>', dm = Ja + '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" d="M14 1.500A10 10 0 0014 21.500A14 14 0 0114 1.500z"/><path d="M5.400 10.800q1.200 1.300 2.500 0" fill="none" stroke="#8a5a00" stroke-width="1" stroke-linecap="round"/><path d="M6.300 14.800q1.200.8 2.300 0" fill="none" stroke="#8a5a00" stroke-width=".9" stroke-linecap="round"/><path class="spk-sh" d="M4.500 7c1-2 2.500-3.200 4.500-4" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" opacity=".8"/>', cm = Ja + '<path class="spk-f" d="M3 0h6l3 13H7z"/><path class="spk-f" style="--c:color-mix(in srgb,var(--c0) 65%,#000)" d="M11 0h6l-4 13H8z"/><circle class="spk-g" cx="10" cy="20.500" r="8" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".8"/><circle cx="10" cy="20.500" r="5.600" fill="none" stroke="#c98a00" stroke-width=".7" opacity=".7"/><path d="M10 16.300l1.300 2.700 2.900.3-2.200 2 .7 2.900-2.700-1.500-2.700 1.500.7-2.900-2.200-2 2.900-.3z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/><path class="spk-sh" d="M4.500 17.500c1-1.800 2.500-3 4.500-3.500" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round" opacity=".85"/>', hm = '<path class="spk-f" style="--c:#f4dfa8" d="M9 6L7 0l5 4zM15 4.500L16.500 0l2.500 4.500z"/><path class="spk-f" d="M3 27V14C3 8 7.500 4 13 4h4c3 0 5 1.500 7 3.200l5 2.300c2.500 1.200 2.500 5 0 6.200L24 17.500c-2 1.200-4 2-6 2.500l-1 7z"/><circle class="spk-w" cx="15" cy="10.500" r="3.200"/><circle class="spk-d" cx="16" cy="10.800" r="1.500"/><circle class="spk-d" cx="27.500" cy="11.200" r=".9"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M21 15.500c2 .8 4 .6 6-.4"/>', fm = '<path class="spk-f" d="M1 12.500h25v5.500H1z"/><path class="spk-f" d="M26 18V5.500h8.500L41 11v7z"/><path class="spk-w" d="M29 7.500h4.700l4 3.500H29z"/><path class="spk-l" d="M41 16.500h2"/>', mm = '<circle cx="5" cy="5" r="4.200" class="spk-f" style="--c:#3a3d45"/><path class="spk-l" style="--c:#fff;stroke-width:1.300" d="M5 2.200v5.600M2.200 5h5.600"/>', gm = '<path class="spk-f" d="M.8.8h9.400v8.400H.8z"/><path class="spk-l" style="stroke-width:1.100" d="M5.500.8v8.400"/>', um = '<path class="spk-l" style="stroke-width:2.200" d="M1 10h4M10 10v5a2 2 0 002 2h9a2 2 0 002-2v-5"/><path class="spk-f" d="M5 8.600h20c4 0 8-2.600 10.500-7.600v18c-2.500-5-6.500-7.600-10.500-7.600H5z"/>' + [12, 16.5, 21].map((a) => `<path class="spk-f" d="M${a - 1.4} 3.500h2.800v5h-2.800z"/>`).join(""), Yp = '<path class="spk-f" style="--c:#2b2d36" d="M5 3.200h29v4.600H5zM34 3l6-2v9l-6-2zM5 3.600L0 5.500l5 1.900z"/><path class="spk-w" d="M8 3.200h1.300v4.600H8zM30.500 3.200h1.300v4.600h-1.300z"/>' + [12, 15.5, 19, 23, 26.5].map((a) => `<circle class="spk-w" cx="${a}" cy="5.500" r="1"/>`).join(""), bm = '<path class="spk-l" style="stroke-width:1.500" d="M6.300 10V1.500l3.200 1.800"/><ellipse class="spk-f" cx="3.800" cy="10.200" rx="2.900" ry="2.200" transform="rotate(-20 3.800 10.200)"/>', sh = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.600 2.600c2.800 2.400 2.800 6.400 0 8.800M11.400 2.600c-2.800 2.400-2.800 6.400 0 8.800" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round"/>', xm = '<path class="spk-l" style="--c:var(--ink);opacity:.45;stroke-width:1.500" d="M-16 9h9M-20 14.500h11M-14 20h7"/><path class="spk-f" d="M24.500 5.500l-9 1.200 6.500 3.300z"/><path class="spk-l" style="stroke-width:2.600" d="M6 19.500h18.500L28.500 20M27.800 19.500L24 3.500M20.500 3.500h7"/><path class="spk-l" style="stroke-width:1.500" d="M1.500 17.500c1-2.500 4.500-3 6.500-1"/><circle class="spk-f" style="--c:#3a3d45" cx="5" cy="21" r="3.200"/><circle class="spk-f" style="--c:#3a3d45" cx="29" cy="21" r="3.200"/>', wm = '<path class="spk-f" d="M14 4c0-4 6-5 8.500-1.500-3.500 0-4.500 2-5.500 4z"/><path class="spk-f" style="--c:#b9c2cf" d="M4 31v-8c0-3 3-5.500 6-5.500h8c3 0 6 2.500 6 5.500v8z"/><path class="spk-f" style="--c:#cfd6e0" d="M6 18v-5.500a8 8 0 0116 0V18z"/><path class="spk-d" d="M8.500 11.500h11v2.200h-11z"/><path class="spk-f" d="M1 20h9.500v5c0 3-2.700 5.200-4.700 6.200C3.700 30.200 1 28 1 25z"/><path d="M3.500 23.500l2.300 2.300 2.300-2.300" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" stroke-linejoin="round"/>', km = '<path class="spk-f" style="--c:#b9c2cf" d="M.7 2.500a2 2 0 014 0V11a2 2 0 01-4 0z"/>', Bp = '<path class="spk-l" style="--c:var(--ink);stroke-width:2" d="M7 1C3.500 4 3.500 10 7 13M2.500 3.500c-2 2.500-2 5 0 7"/>', ym = {
+}, us = "M10 1l2.7 5.7 6.2.7-4.6 4.2 1.3 6.1L10 14.6l-5.6 3.1 1.3-6.1L1.1 7.4l6.2-.7z", Ja = '<defs><linearGradient id="spk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe98a"/><stop offset=".42" stop-color="#f6b90f"/><stop offset=".56" stop-color="#fff4b8"/><stop offset=".7" stop-color="#f2b20a"/><stop offset="1" stop-color="#cf9004"/></linearGradient></defs>', Gp = (a) => a.look === "orbit" ? `<path d="${us}" fill="none" stroke="var(--ac)" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 6.500v6M7 9.500h6" stroke="var(--ac)" stroke-width="1" stroke-linecap="round" opacity=".7"/>` : `${Ja}<path d="${us}" transform="translate(.9 1.500)" fill="#000" opacity=".2" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="${us}" fill="#fff" stroke="#fff" stroke-width="3.400" stroke-linejoin="round"/><path d="${us}" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" stroke-linejoin="round"/><path d="M19.800 7.200l-5.200-.5 2.300 3.600z" fill="#000" opacity=".22"/><path d="M18.900 7.400l-4.500-.6 1.800 3.200c1.500-.3 2.500-1.300 2.700-2.600z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/>`, tm = '<path class="spk-f" d="M12 25.500C8.500 22 4 14 2.500 6c3.500 1.500 5.800 4.500 6.800 7.500C9.800 8.500 10.800 4 12 .5c1.200 3.500 2.200 8 2.700 13 1-3 3.300-6 6.800-7.500C20 14 15.500 22 12 25.500z"/>', em = '<path class="spk-f" d="M13 1C6 1 1.500 6 1.500 13c0 8 6.500 16 9.500 18l-1.500 2.500h7L15 31c3-2 9.500-10 9.500-18C24.500 6 20 1 13 1z"/><path class="spk-sh" d="M21 5c3 6 1 17-7 25.500 5-3.500 10.500-10.500 10.500-17.500 0-3-1.300-6-3.500-8z" opacity=".16"/><path d="M6.500 9c.8-2.800 2.800-4.600 5-5" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" opacity=".8"/><circle cx="6" cy="12.500" r="1" fill="#fff" opacity=".6"/>', am = '<path class="spk-l" style="stroke-width:1.100" d="M2.500 0c-3 4 3 7 0 12"/>', im = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.300 9.500C5 4 9 10 11.800 4.800" fill="none" stroke="#fff" stroke-width="1.700" stroke-linecap="round" opacity=".75"/><path class="spk-sh" d="M3.300 11.300C6.500 7.300 9.500 12 12.300 8" fill="none" stroke="#000" stroke-width="1.300" stroke-linecap="round" opacity=".28"/>', sm = '<defs><radialGradient id="spk-m" cx=".34" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient></defs><circle class="spk-sh" cx="7" cy="7" r="6.300" fill="url(#spk-m)"/><ellipse cx="4.700" cy="4.200" rx="1.600" ry="1" fill="#fff" transform="rotate(-35 4.700 4.200)"/>', om = '<path class="spk-f" d="M3.500 17L.5 24h3.500zM14.500 17l3 7H14z"/><path class="spk-f" style="--c:#f4f6fb" d="M9 1C4.500 5 3.500 11 3.500 17v5.500h11V17C14.500 11 13.500 5 9 1z"/><path class="spk-f" d="M9 1C7 2.800 5.800 5 5 7.500h8C12.200 5 11 2.800 9 1z"/><circle class="spk-f" style="--c:#7cc4f0" cx="9" cy="12.500" r="2.400"/><path class="spk-sh" d="M12 4.500c1.800 3.500 2.500 8 2.500 12.500v5.500H12z" opacity=".13"/>', rm = '<path class="spk-f" style="--c:#ff9d2e" d="M1 0h8c0 4.500-2 8-4 10C3 8 1 4.500 1 0z"/><path d="M3.200 0h3.600c0 2.500-.8 4.500-1.800 5.800C4 4.500 3.200 2.500 3.200 0z" fill="#ffe680"/>', nm = '<path class="spk-f" d="M0 4.500Q8 1 15.500 4.500V21Q8 18 0 21z"/><path class="spk-f" style="--c:#fffdf5" d="M1.500 3Q8 .3 15.500 3.500V19Q8 16 1.500 18.500z"/><path class="spk-l" style="--c:#9aa3b2;stroke-width:1" d="M4 6.500q4-1.300 9 0M4 9.800q4-1.300 9 0M4 13.100q3-1 6-.4"/>', sr = '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round" d="M5.500 0l1.500 4L11 5.500 7 7l-1.500 4L4 7 0 5.500 4 4z"/>', lm = [6.5, 23.5].map((a) => `<ellipse class="spk-f" cx="${a}" cy="7.500" rx="3.300" ry="3.900"/><ellipse cx="${a}" cy="7.900" rx="1.500" ry="2.100" fill="#6b4a38"/>`).join("") + '<path class="spk-f" d="M15 4.500c5.500 0 9 3.300 10.200 7.800 1.500 5.500-1.700 14.200-10.200 14.200S3.300 17.800 4.800 12.300C6 7.800 9.500 4.500 15 4.500z"/><path class="spk-f" style="--c:#e6cdaa;stroke:none" d="M15 14.500c4 0 7.500 2.500 7.500 6s-3.500 5-7.500 5-7.500-1.500-7.500-5 3.500-6 7.500-6z"/><path class="spk-d" d="M12.300 15.600h5.400c.6 0 .9.700.5 1.200L15.800 19.200c-.4.400-1.200.4-1.600 0L11.800 16.800c-.4-.5-.1-1.200.5-1.200z"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M8.800 19.500c1.500 3.300 5 3.500 6.200.3 1.200 3.200 4.700 3 6.200-.3"/><circle class="spk-d" cx="10.300" cy="12.300" r="1.350"/><circle class="spk-d" cx="19.700" cy="12.300" r="1.350"/><path class="spk-f" style="--c:#6aa84f" d="M20 22.500c2.500-3 6.500-3.300 9-1.200-2 3-6.200 3.700-9 1.200z"/>', pm = '<path class="spk-f" style="--c:#c98f52" d="M9 3.200h16.500a1.800 1.800 0 010 3.600H9z"/><path class="spk-f" style="--c:#cfd6e0" d="M5.500 2.500H9.500v5H5.500z"/><path class="spk-f" d="M5.500 2.300C3 2.300.8 3.500 0 6c2 .9 4 1.500 5.500 1.500z"/>', dm = Ja + '<path class="spk-g" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".6" d="M14 1.500A10 10 0 0014 21.500A14 14 0 0114 1.500z"/><path d="M5.400 10.800q1.200 1.300 2.500 0" fill="none" stroke="#8a5a00" stroke-width="1" stroke-linecap="round"/><path d="M6.300 14.800q1.200.8 2.300 0" fill="none" stroke="#8a5a00" stroke-width=".9" stroke-linecap="round"/><path class="spk-sh" d="M4.500 7c1-2 2.500-3.200 4.500-4" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" opacity=".8"/>', cm = Ja + '<path class="spk-f" d="M3 0h6l3 13H7z"/><path class="spk-f" style="--c:color-mix(in srgb,var(--c0) 65%,#000)" d="M11 0h6l-4 13H8z"/><circle class="spk-g" cx="10" cy="20.500" r="8" fill="url(#spk-g)" stroke="#c98a00" stroke-width=".8"/><circle cx="10" cy="20.500" r="5.600" fill="none" stroke="#c98a00" stroke-width=".7" opacity=".7"/><path d="M10 16.300l1.300 2.700 2.900.3-2.200 2 .7 2.900-2.700-1.500-2.700 1.500.7-2.900-2.200-2 2.900-.3z" fill="#fff6c8" stroke="#c98a00" stroke-width=".5" stroke-linejoin="round"/><path class="spk-sh" d="M4.500 17.500c1-1.800 2.500-3 4.500-3.500" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round" opacity=".85"/>', hm = '<path class="spk-f" style="--c:#f4dfa8" d="M9 6L7 0l5 4zM15 4.500L16.500 0l2.500 4.500z"/><path class="spk-f" d="M3 27V14C3 8 7.500 4 13 4h4c3 0 5 1.500 7 3.200l5 2.300c2.500 1.200 2.500 5 0 6.200L24 17.500c-2 1.200-4 2-6 2.500l-1 7z"/><circle class="spk-w" cx="15" cy="10.500" r="3.200"/><circle class="spk-d" cx="16" cy="10.800" r="1.500"/><circle class="spk-d" cx="27.500" cy="11.200" r=".9"/><path class="spk-l" style="--c:var(--ink);stroke-width:1.200" d="M21 15.500c2 .8 4 .6 6-.4"/>', fm = '<path class="spk-f" d="M1 12.500h25v5.500H1z"/><path class="spk-f" d="M26 18V5.500h8.500L41 11v7z"/><path class="spk-w" d="M29 7.500h4.700l4 3.500H29z"/><path class="spk-l" d="M41 16.500h2"/>', mm = '<circle cx="5" cy="5" r="4.200" class="spk-f" style="--c:#3a3d45"/><path class="spk-l" style="--c:#fff;stroke-width:1.300" d="M5 2.200v5.600M2.200 5h5.600"/>', gm = '<path class="spk-f" d="M.8.8h9.400v8.400H.8z"/><path class="spk-l" style="stroke-width:1.100" d="M5.500.8v8.400"/>', um = '<path class="spk-l" style="stroke-width:2.200" d="M1 10h4M10 10v5a2 2 0 002 2h9a2 2 0 002-2v-5"/><path class="spk-f" d="M5 8.600h20c4 0 8-2.600 10.500-7.600v18c-2.500-5-6.500-7.600-10.500-7.600H5z"/>' + [12, 16.5, 21].map((a) => `<path class="spk-f" d="M${a - 1.4} 3.500h2.800v5h-2.800z"/>`).join(""), Yp = '<path class="spk-f" style="--c:#2b2d36" d="M5 3.200h29v4.600H5zM34 3l6-2v9l-6-2zM5 3.600L0 5.500l5 1.900z"/><path class="spk-w" d="M8 3.200h1.300v4.600H8zM30.500 3.200h1.300v4.600h-1.300z"/>' + [12, 15.5, 19, 23, 26.5].map((a) => `<circle class="spk-w" cx="${a}" cy="5.500" r="1"/>`).join(""), bm = '<path class="spk-l" style="stroke-width:1.500" d="M6.300 10V1.500l3.200 1.800"/><ellipse class="spk-f" cx="3.800" cy="10.200" rx="2.900" ry="2.200" transform="rotate(-20 3.800 10.200)"/>', sh = '<circle class="spk-f" cx="7" cy="7" r="6.300"/><path d="M2.600 2.600c2.800 2.400 2.800 6.400 0 8.800M11.400 2.600c-2.800 2.400-2.800 6.400 0 8.800" fill="none" stroke="#fff" stroke-width="1.200" stroke-linecap="round"/>', xm = '<path class="spk-l" style="--c:var(--ink);opacity:.45;stroke-width:1.500" d="M-16 9h9M-20 14.500h11M-14 20h7"/><path class="spk-f" d="M24.500 5.500l-9 1.200 6.500 3.300z"/><path class="spk-l" style="stroke-width:2.600" d="M6 19.500h18.500L28.500 20M27.800 19.500L24 3.500M20.500 3.500h7"/><path class="spk-l" style="stroke-width:1.500" d="M1.500 17.500c1-2.500 4.500-3 6.500-1"/><circle class="spk-f" style="--c:#3a3d45" cx="5" cy="21" r="3.200"/><circle class="spk-f" style="--c:#3a3d45" cx="29" cy="21" r="3.200"/>', wm = '<path class="spk-f" d="M14 4c0-4 6-5 8.500-1.500-3.500 0-4.500 2-5.500 4z"/><path class="spk-f" style="--c:#b9c2cf" d="M4 31v-8c0-3 3-5.500 6-5.500h8c3 0 6 2.500 6 5.500v8z"/><path class="spk-f" style="--c:#cfd6e0" d="M6 18v-5.500a8 8 0 0116 0V18z"/><path class="spk-d" d="M8.500 11.500h11v2.200h-11z"/><path class="spk-f" d="M1 20h9.500v5c0 3-2.700 5.200-4.700 6.200C3.700 30.200 1 28 1 25z"/><path d="M3.500 23.500l2.300 2.300 2.300-2.300" fill="none" stroke="#fff" stroke-width="1.300" stroke-linecap="round" stroke-linejoin="round"/>', km = '<path class="spk-f" style="--c:#b9c2cf" d="M.7 2.500a2 2 0 014 0V11a2 2 0 01-4 0z"/>', Bp = '<path class="spk-l" style="--c:var(--ink);stroke-width:2" d="M7 1C3.500 4 3.500 10 7 13M2.500 3.500c-2 2.500-2 5 0 7"/>', vm = {
   tick(a) {
     const t = a.W / 2, e = a.H / 2;
     if (a.calm) {
@@ -5876,7 +5880,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       [-78, -45, -12].forEach((i, s) => {
         const o = i * Math.PI / 180, r = Z(a, `left:${t + Math.cos(o) * 13}px;top:${e + Math.sin(o) * 13 - 1.5}px;width:${s === 1 ? 12 : 9}px;height:3px;border-radius:2px;background:var(--ok);transform-origin:0 50%`);
         q(a, r, N([[`rotate(${i}deg) scaleX(0)`, 1], [`rotate(${i}deg) scaleX(1)`, 1, 0.3], [`rotate(${i}deg) scaleX(1)`, 1, 0.8], [`rotate(${i}deg) scaleX(1)`, 0]]), 600 - s * 60, s * 60, "ease-out");
-      }), q(a, Y(a, t - 22, e - 21, 20, 20, Gp(a), "transform-origin:50% 50%"), N([["rotate(-50deg) scale(0)", 0], ["rotate(-12deg) scale(.78)", 1, 0.4, ye], ["rotate(-12deg) scale(.7)", 1, 0.8], ["rotate(-12deg) scale(.7)", 0]]), 520, 120);
+      }), q(a, Y(a, t - 22, e - 21, 20, 20, Gp(a), "transform-origin:50% 50%"), N([["rotate(-50deg) scale(0)", 0], ["rotate(-12deg) scale(.78)", 1, 0.4, ve], ["rotate(-12deg) scale(.7)", 1, 0.8], ["rotate(-12deg) scale(.7)", 0]]), 520, 120);
     else {
       q(a, st(a, t, e, 44, "border:1.5px solid var(--ok)"), N([["scale(.25)", 1], ["scale(.8)", 0.8, 0.6], ["scale(1)", 0]]), 600, 0, "ease-out");
       for (let i = 0; i < 5; i++) {
@@ -5886,17 +5890,17 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
     }
   },
   points(a) {
-    const t = a.look, e = t === "glass" ? `font:800 15px/1 ${a.font};padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.94);color:var(--ok);box-shadow:0 2px 6px rgba(0,0,0,.16)` : t === "fridge" ? "font:700 28px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)" : "font:600 14px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)", i = Z(a, `left:${a.W / 2}px;top:-3px`), s = document.createElement("span");
+    const t = a.look, e = t === "glass" ? `font:800 15px/1 ${a.font};padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.94);color:var(--ok);box-shadow:0 2px 6px rgba(0,0,0,.16)` : t === "fridge" ? "font:700 26px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)" : "font:600 15px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)", i = Z(a, `left:${a.W / 2}px;top:-3px`), s = document.createElement("span");
     s.style.cssText = `position:absolute;left:0;bottom:0;translate:-50% 0;white-space:nowrap;${e}`, s.textContent = (a.o.text ?? "+10").slice(0, 24), i.appendChild(s), a.calm ? q(a, i, D(), 900) : q(a, i, N([["translateY(8px) scale(.7)", 0], ["translateY(0) scale(1.08)", 1, 0.2], ["translateY(-3px) scale(1)", 1, 0.32], ["translateY(-16px) scale(1)", 1, 0.75], ["translateY(-24px) scale(1)", 0]]), 900, 0, "ease-out");
   },
   done(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e, look: i } = a, s = !!a.o.soft;
     if (i === "fridge") {
       const o = s ? 3 : 5, r = s ? 24 : Jt(e * 0.36, 26, 36);
       for (let n = 0; n < o; n++) {
         const p = O(-20, 20), c = Y(a, t * (n + 1) / (o + 1) - r / 2 + O(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, Gp(a)), d = (h, g) => `rotate(${p + h}deg) scale(${g})`;
-        c.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? q(a, c, N([[d(0, "1"), 0], [d(0, "1"), 1, 0.25], [d(0, "1"), 1, 0.7], [d(0, "1"), 0]]), 800) : q(a, c, N([[d(14, "2.3"), 0], [d(10, "2.1"), 1, 0.07, yt], [d(0, ".86,.9"), 1, 0.17, "ease-out"], [d(-2, "1.06"), 1, 0.25, "ease-in-out"], [d(0, "1"), 1, 0.33], [d(0, "1"), 1, 0.82], [d(0, "1"), 0]]), 1e3 - n * 105, n * 105 + O(0, 20));
+        c.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? q(a, c, N([[d(0, "1"), 0], [d(0, "1"), 1, 0.25], [d(0, "1"), 1, 0.7], [d(0, "1"), 0]]), 800) : q(a, c, N([[d(14, "2.3"), 0], [d(10, "2.1"), 1, 0.07, vt], [d(0, ".86,.9"), 1, 0.17, "ease-out"], [d(-2, "1.06"), 1, 0.25, "ease-in-out"], [d(0, "1"), 1, 0.33], [d(0, "1"), 1, 0.82], [d(0, "1"), 0]]), 1e3 - n * 105, n * 105 + O(0, 20));
       }
     } else if (i === "orbit") {
       const o = e - 8, r = Z(a, `left:${t * 0.06}px;top:${o - 0.75}px;width:${t * 0.88}px;height:1.5px;background:var(--ok);transform-origin:0 50%`);
@@ -5927,7 +5931,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
         q(a, s, D(), 600);
         return;
       }
-      q(a, s, N([["translateY(-18px)", 0], ["translateY(-14px)", 1, 0.12, yt], ["translateY(0)", 1, 0.36, "ease-out"], ["translateY(-5px)", 1, 0.52, "ease-in"], ["translateY(0)", 1, 0.66], ["translateY(0)", 1, 0.85], ["translateY(0)", 0]]), 720), [-1, 1].forEach((o) => q(a, Z(a, `left:${t + o * 11 - 3.5}px;top:1px;width:7px;height:2.5px;border-radius:2px;background:var(--ink)`), N([[`rotate(${o * 25}deg) scaleX(.2)`, 0], [`rotate(${o * 25}deg) translateX(${o * 3}px) scaleX(1)`, 1, 0.4], [`rotate(${o * 25}deg) translateX(${o * 6}px) scaleX(.4)`, 0]]), 300, 250)), _i(a, [0, 1.6, -1.1, 0.5, 0], 440, 260);
+      q(a, s, N([["translateY(-18px)", 0], ["translateY(-14px)", 1, 0.12, vt], ["translateY(0)", 1, 0.36, "ease-out"], ["translateY(-5px)", 1, 0.52, "ease-in"], ["translateY(0)", 1, 0.66], ["translateY(0)", 1, 0.85], ["translateY(0)", 0]]), 720), [-1, 1].forEach((o) => q(a, Z(a, `left:${t + o * 11 - 3.5}px;top:1px;width:7px;height:2.5px;border-radius:2px;background:var(--ink)`), N([[`rotate(${o * 25}deg) scaleX(.2)`, 0], [`rotate(${o * 25}deg) translateX(${o * 3}px) scaleX(1)`, 1, 0.4], [`rotate(${o * 25}deg) translateX(${o * 6}px) scaleX(.4)`, 0]]), 300, 250)), _i(a, [0, 1.6, -1.1, 0.5, 0], 440, 260);
     } else {
       const s = Jt(Math.min(a.W, a.H) * 1.2, 38, 66), o = i === "orbit", r = o ? "border:1.5px solid var(--ac)" : "border:2px solid #fff;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent)";
       if (a.calm) {
@@ -5943,7 +5947,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, s, D(), 520);
       return;
     }
-    q(a, s, N([["translateY(-23px) scale(.6)", 0, 0, pt], ["translateY(-21px) scale(1)", 1, 0.14, yt], ["translateY(0) scale(1.14,.84)", 1, 0.48, "ease-out"], ["translateY(-6px) scale(.97,1.03)", 1, 0.62, "ease-in"], ["translateY(0) scale(1.06,.94)", 1, 0.75], ["translateY(0) scale(1)", 1, 0.82], ["translateY(5px) scale(.8)", 0]]), 680), q(a, o, [{ transform: "rotate(-40deg)" }, { transform: `rotate(${a.dir * 250}deg)` }], 680, 0, "ease-out", { fill: "both" }), _i(a, [0, -2.6, 1.9, -1, 0.4, 0], 380, 320);
+    q(a, s, N([["translateY(-23px) scale(.6)", 0, 0, pt], ["translateY(-21px) scale(1)", 1, 0.14, vt], ["translateY(0) scale(1.14,.84)", 1, 0.48, "ease-out"], ["translateY(-6px) scale(.97,1.03)", 1, 0.62, "ease-in"], ["translateY(0) scale(1.06,.94)", 1, 0.75], ["translateY(0) scale(1)", 1, 0.82], ["translateY(5px) scale(.8)", 0]]), 680), q(a, o, [{ transform: "rotate(-40deg)" }, { transform: `rotate(${a.dir * 250}deg)` }], 680, 0, "ease-out", { fill: "both" }), _i(a, [0, -2.6, 1.9, -1, 0.4, 0], 380, 320);
   },
   ring(a) {
     const { W: t, H: e, look: i } = a, s = t / 2, o = e / 2, r = `width:${t}px;height:${e}px;border-radius:${a.rad};box-sizing:border-box;`;
@@ -5956,7 +5960,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       _i(a, [0, -8, 8, -8, 8, -7, 6, 0], 860), [-1, 1].forEach((n) => q(a, Y(a, n < 0 ? -13 : t + 4, o - 7, 9, 14, Bp, n > 0 ? "scale:-1 1" : ""), N([["translateX(0)", 0], [`translateX(${n * 3}px)`, 1, 0.2], [`translateX(${n * 3}px)`, 1, 0.75], [`translateX(${n * 6}px)`, 0]]), 860));
     else {
       const n = Math.max(e, 34) + 10;
-      q(a, st(a, s, o, n, "border:1.5px solid var(--ac)"), N([["scale(1)", 0], ["scale(1)", 1, 0.14, yt], ["scale(.1)", 1, 0.48], ["scale(.1)", 0, 0.56], ["scale(.1)", 0]]), 900), q(a, st(a, s, o, 6, "background:var(--ac)"), [{ opacity: 0 }, { opacity: 0, offset: 0.42 }, { opacity: 1, offset: 0.48 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], 900), q(a, st(a, s, o, n * 1.5, "border:1.5px solid var(--ac)"), N([["scale(.06)", 1], ["scale(.7)", 0.8, 0.6], ["scale(1)", 0]]), 460, 440, "ease-out");
+      q(a, st(a, s, o, n, "border:1.5px solid var(--ac)"), N([["scale(1)", 0], ["scale(1)", 1, 0.14, vt], ["scale(.1)", 1, 0.48], ["scale(.1)", 0, 0.56], ["scale(.1)", 0]]), 900), q(a, st(a, s, o, 6, "background:var(--ac)"), [{ opacity: 0 }, { opacity: 0, offset: 0.42 }, { opacity: 1, offset: 0.48 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], 900), q(a, st(a, s, o, n * 1.5, "border:1.5px solid var(--ac)"), N([["scale(.06)", 1], ["scale(.7)", 0.8, 0.6], ["scale(1)", 0]]), 460, 440, "ease-out");
     }
   },
   sweep(a) {
@@ -5966,7 +5970,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       return;
     }
     if (i === "glass") {
-      ya(a);
+      va(a);
       const s = Math.max(40, t * 0.4);
       q(a, Z(a, `top:-20%;width:${s}px;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5) 40%,rgba(255,255,255,.8) 50%,rgba(255,255,255,.5) 60%,transparent)`), N([[`translateX(${-s}px)`, 0], [`translateX(${-s * 0.6}px)`, 1, 0.12], [`translateX(${t - s * 0.4}px)`, 1, 0.88], [`translateX(${t}px)`, 0]]), 900, 0, "ease-in-out");
     } else if (i === "fridge")
@@ -5994,11 +5998,11 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* ---- of our own invention ---- */
   stomp(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e } = a, i = a.o.soft ? 3 : 5, s = t * 0.1, o = t * 0.9, r = e * 0.7, n = e * 0.36, p = Math.atan2(n - r, (o - s) * a.dir) * 180 / Math.PI + 90, c = a.look === "glass" ? `color-mix(in srgb,${a.kid} 70%,transparent)` : a.look === "fridge" ? "#9a6a3a" : "var(--ok)";
     for (let d = 0; d < i; d++) {
       const h = i > 1 ? d / (i - 1) : 0.5, g = d % 2 ? 1 : -1, m = p + g * 9, f = (a.dir > 0 ? s + (o - s) * h : o - (o - s) * h) - 10, k = r + (n - r) * h - 11 + g * 7, b = Y(a, f - 2, k - 3, 24, 26, tm, `--c:${c};transform-origin:50% 70%`);
-      a.look === "glass" && b.querySelectorAll(".spk-f").forEach((w) => w.setAttribute("style", "stroke:none")), a.calm ? q(a, b, N([[`rotate(${m}deg)`, 0], [`rotate(${m}deg)`, 0.9, 0.25], [`rotate(${m}deg)`, 0.9, 0.7], [`rotate(${m}deg)`, 0]]), 800) : q(a, b, N([[`rotate(${m}deg) scale(1.7)`, 0], [`rotate(${m}deg) scale(.92)`, 0.95, 0.2, yt], [`rotate(${m}deg) scale(1)`, 0.9, 0.3], [`rotate(${m}deg) scale(1)`, 0.85, 0.7], [`rotate(${m}deg) scale(1)`, 0]]), 700, d * 115);
+      a.look === "glass" && b.querySelectorAll(".spk-f").forEach((w) => w.setAttribute("style", "stroke:none")), a.calm ? q(a, b, N([[`rotate(${m}deg)`, 0], [`rotate(${m}deg)`, 0.9, 0.25], [`rotate(${m}deg)`, 0.9, 0.7], [`rotate(${m}deg)`, 0]]), 800) : q(a, b, N([[`rotate(${m}deg) scale(1.7)`, 0], [`rotate(${m}deg) scale(.92)`, 0.95, 0.2, vt], [`rotate(${m}deg) scale(1)`, 0.9, 0.3], [`rotate(${m}deg) scale(1)`, 0.85, 0.7], [`rotate(${m}deg) scale(1)`, 0]]), 700, d * 115);
     }
   },
   puff(a) {
@@ -6007,26 +6011,26 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, s, D(), 900);
       return;
     }
-    q(a, s, N([["translateY(27px)", 1], ["translateY(0)", 1, 0.22, "ease-out"], ["translateY(3px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, yt], ["translateY(27px)", 1]]), 1150, 0, ye);
+    q(a, s, N([["translateY(27px)", 1], ["translateY(0)", 1, 0.22, "ease-out"], ["translateY(3px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, vt], ["translateY(27px)", 1]]), 1150, 0, ve);
     const o = t > 0 ? 30 : a.W - 30, r = i === "glass" ? "background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.08)" : i === "fridge" ? "background:var(--pp);border:1.5px solid var(--ink)" : "border:1.3px solid var(--ok);background:var(--gd)";
     [[9, 16, -3], [12, 30, -9], [15, 46, -5]].forEach(([n, p, c], d) => q(a, st(a, o, -15, n, r), N([["translate(0,0) scale(.2)", 0], [`translate(${t * p * 0.5}px,${c * 0.5}px) scale(.9)`, 0.95, 0.35], [`translate(${t * p}px,${c}px) scale(1.25)`, 0]]), 520, 400 + d * 110, pt)), [[14, -12], [22, 2]].forEach(([n, p], c) => q(a, st(a, o, -15, 4, "background:var(--ac)"), N([["translate(0,0) scale(.4)", 0], [`translate(${t * n * 0.5}px,${p * 0.5}px) scale(1)`, 1, 0.4], [`translate(${t * n}px,${p}px) scale(.3)`, 0]]), 380, 420 + c * 150, pt));
   },
   truck(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e } = a, i = a.dir, s = t / 2 - 14, o = t + 12, r = e - 25, n = 1180, p = (w) => i > 0 ? w : t - 44 - w, c = (w) => `translateX(${i * w}px)`, d = Z(a, `left:${p(0)}px;top:${r}px;width:44px;height:24px`), h = Z(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", d, !1), g = Y(a, 0, 0, 44, 24, fm, "--c:var(--pr)", h, !1), m = [5, 28].map((w) => Y(a, w, 14, 10, 10, mm, "transform-origin:50% 50%", h, !1)), f = Y(a, 7, 3.5, 11, 10, gm, "--c:var(--ac);transform-origin:50% 50%", h);
     if (a.calm) {
       d.style.translate = `${p(s) - p(0)}px 0`, q(a, d, D(), 800), f.style.opacity = "1", f.removeAttribute("data-p");
       return;
     }
     const k = 0.36, b = 0.56;
-    q(a, d, [{ transform: c(-50), opacity: 1, easing: pt }, { transform: c(s), opacity: 1, offset: k }, { transform: c(s), opacity: 1, offset: b, easing: yt }, { transform: c(o), opacity: 1 }], n), q(a, f, [
+    q(a, d, [{ transform: c(-50), opacity: 1, easing: pt }, { transform: c(s), opacity: 1, offset: k }, { transform: c(s), opacity: 1, offset: b, easing: vt }, { transform: c(o), opacity: 1 }], n), q(a, f, [
       { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
       { transform: "translate(0,0) rotate(0deg)", offset: k, easing: "ease-out" },
       { transform: "translate(-9px,-8px) rotate(-50deg)", offset: (k + b) / 2, easing: "ease-in" },
-      { transform: "translate(-17px,9px) rotate(-90deg)", offset: b, easing: yt },
+      { transform: "translate(-17px,9px) rotate(-90deg)", offset: b, easing: vt },
       { opacity: 1, offset: 0.86 },
       { transform: `translate(${-17 - (o - s)}px,9px) rotate(-90deg)`, opacity: 0 }
-    ], n), m.forEach((w) => q(a, w, [{ transform: "rotate(0deg)", opacity: 1, easing: pt }, { transform: "rotate(500deg)", offset: k }, { transform: "rotate(500deg)", offset: b, easing: yt }, { transform: "rotate(1100deg)", opacity: 1 }], n)), q(a, g, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((w, v) => q(a, st(a, p(s) + (i > 0 ? 0 : 44), e - 5, 7 + v * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), N([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * b + w, pt));
+    ], n), m.forEach((w) => q(a, w, [{ transform: "rotate(0deg)", opacity: 1, easing: pt }, { transform: "rotate(500deg)", offset: k }, { transform: "rotate(500deg)", offset: b, easing: vt }, { transform: "rotate(1100deg)", opacity: 1 }], n)), q(a, g, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((w, y) => q(a, st(a, p(s) + (i > 0 ? 0 : 44), e - 5, 7 + y * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), N([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * b + w, pt));
   },
   tada(a) {
     const t = a.o.variant === "clarinet", e = a.dir, i = t ? 40 : 37, s = t ? 11 : 20, o = e > 0 ? a.W * 0.6 - i / 2 : a.W * 0.4 - i / 2, r = -s / 2 - 2, n = t ? -22 : -14, p = Z(a, `left:${o}px;top:${r}px;width:${i}px;height:${s}px;transform-origin:${e > 0 ? 0 : 100}% 50%`);
@@ -6081,7 +6085,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       s.style.rotate = "-200deg", q(a, i, D(), 1e3);
       return;
     }
-    q(a, i, N([["translateY(32px)", 1], ["translateY(0)", 1, 0.24, "ease-out"], ["translateY(2px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, yt], ["translateY(32px)", 1]]), 1180, 0, ye), q(a, s, [{ transform: "rotate(0deg)" }, { transform: "rotate(0deg)", offset: 0.32, easing: ye }, { transform: "rotate(-200deg)", offset: 0.46 }, { transform: "rotate(-200deg)", offset: 0.72, easing: "ease-in" }, { transform: "rotate(0deg)", offset: 0.82 }, { transform: "rotate(0deg)" }], 1180, 0, "linear", { fill: "none" });
+    q(a, i, N([["translateY(32px)", 1], ["translateY(0)", 1, 0.24, "ease-out"], ["translateY(2px)", 1, 0.3], ["translateY(0)", 1, 0.36], ["translateY(0)", 1, 0.84, vt], ["translateY(32px)", 1]]), 1180, 0, ve), q(a, s, [{ transform: "rotate(0deg)" }, { transform: "rotate(0deg)", offset: 0.32, easing: ve }, { transform: "rotate(-200deg)", offset: 0.46 }, { transform: "rotate(-200deg)", offset: 0.72, easing: "ease-in" }, { transform: "rotate(0deg)", offset: 0.82 }, { transform: "rotate(0deg)" }], 1180, 0, "linear", { fill: "none" });
   },
   rocket(a) {
     const t = a.W / 2, e = Z(a, `left:${t - 9}px;top:-25px;width:18px;height:25px;transform-origin:50% 100%`), i = Y(a, 4, 21.5, 10, 10, rm, "transform-origin:50% 0", e, !1);
@@ -6099,7 +6103,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, i, D(), 900);
       return;
     }
-    q(a, i, N([["translateY(8px) scale(.6)", 0, 0, ye], ["translateY(0) scale(1)", 1, 0.16], ["translateY(1px) scale(1.05,.95)", 1, 0.3], ["translateY(0) scale(1)", 1, 0.4], ["translateY(0) scale(1)", 1, 0.86], ["translateY(3px) scale(.9)", 0]]), 1100), s.forEach((o, r) => q(a, o, [{ transform: "scaleX(.06)" }, { transform: "scaleX(.06)", offset: 0.2 + r * 0.04, easing: ye }, { transform: "scaleX(1)", offset: 0.42 + r * 0.05 }, { transform: "scaleX(1)" }], 1100, 0, "linear", { fill: "both" })), [[-13, -24, 9], [2, -31, 12], [15, -22, 8]].forEach(([o, r, n], p) => q(a, Y(a, e + 16 - n / 2, -8 - n / 2, 11, 11, Ja + sr, `scale:${n / 11};transform-origin:50% 50%`), N([["translate(0,0) rotate(-40deg) scale(.2)", 0, 0, "ease-out"], [`translate(${o * 0.7}px,${r * 0.75}px) rotate(10deg) scale(1.15)`, 1, 0.4, "ease-in-out"], [`translate(${o * 0.95}px,${r}px) rotate(25deg) scale(.9)`, 1, 0.75], [`translate(${o}px,${r - 3}px) rotate(40deg) scale(.3)`, 0]]), 600, 400 + p * 95));
+    q(a, i, N([["translateY(8px) scale(.6)", 0, 0, ve], ["translateY(0) scale(1)", 1, 0.16], ["translateY(1px) scale(1.05,.95)", 1, 0.3], ["translateY(0) scale(1)", 1, 0.4], ["translateY(0) scale(1)", 1, 0.86], ["translateY(3px) scale(.9)", 0]]), 1100), s.forEach((o, r) => q(a, o, [{ transform: "scaleX(.06)" }, { transform: "scaleX(.06)", offset: 0.2 + r * 0.04, easing: ve }, { transform: "scaleX(1)", offset: 0.42 + r * 0.05 }, { transform: "scaleX(1)" }], 1100, 0, "linear", { fill: "both" })), [[-13, -24, 9], [2, -31, 12], [15, -22, 8]].forEach(([o, r, n], p) => q(a, Y(a, e + 16 - n / 2, -8 - n / 2, 11, 11, Ja + sr, `scale:${n / 11};transform-origin:50% 50%`), N([["translate(0,0) rotate(-40deg) scale(.2)", 0, 0, "ease-out"], [`translate(${o * 0.7}px,${r * 0.75}px) rotate(10deg) scale(1.15)`, 1, 0.4, "ease-in-out"], [`translate(${o * 0.95}px,${r}px) rotate(25deg) scale(.9)`, 1, 0.75], [`translate(${o}px,${r - 3}px) rotate(40deg) scale(.3)`, 0]]), 600, 400 + p * 95));
   },
   quokka(a) {
     const t = a.dir, e = ir(a, Jt(a.W * (t > 0 ? 0.7 : 0.3) - 19, 0, Math.max(0, a.W - 38)), -27, 38, 27), i = Y(a, 4, 1, 30, 26, lm, "--c:#9c7c5e;transform-origin:50% 100%", e);
@@ -6107,7 +6111,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, i, D(), 1e3);
       return;
     }
-    q(a, i, N([["translateY(27px)", 1, 0, "ease-out"], ["translateY(-2px) scale(.96,1.06)", 1, 0.2, "ease-in-out"], ["translateY(1px) scale(1.03,.97)", 1, 0.28], ["translateY(0) rotate(0deg)", 1, 0.34, "ease-in-out"], [`translateY(0) rotate(${-9 * t}deg)`, 1, 0.48, "ease-in-out"], [`translateY(0) rotate(${9 * t}deg)`, 1, 0.68, "ease-in-out"], ["translateY(-1px) rotate(0deg)", 1, 0.8, yt], ["translateY(27px)", 1]]), 1180);
+    q(a, i, N([["translateY(27px)", 1, 0, "ease-out"], ["translateY(-2px) scale(.96,1.06)", 1, 0.2, "ease-in-out"], ["translateY(1px) scale(1.03,.97)", 1, 0.28], ["translateY(0) rotate(0deg)", 1, 0.34, "ease-in-out"], [`translateY(0) rotate(${-9 * t}deg)`, 1, 0.48, "ease-in-out"], [`translateY(0) rotate(${9 * t}deg)`, 1, 0.68, "ease-in-out"], ["translateY(-1px) rotate(0deg)", 1, 0.8, vt], ["translateY(27px)", 1]]), 1180);
   },
   paint(a) {
     const { W: t, H: e } = a, i = a.dir, s = Math.max(30, t - 8), o = [a.pal[1 % a.pal.length], nn, a.pal[0]], r = "cubic-bezier(.45,0,.3,1)", n = o.map((d, h) => Z(a, `left:4px;top:${e - 3 + h * 3}px;width:${s}px;height:${a.look === "orbit" ? 1.5 : 3.4}px;border-radius:2px;background:${d};transform-origin:${i > 0 ? 0 : 100}% 50%`));
@@ -6125,7 +6129,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, i, D(), 1e3);
       return;
     }
-    q(a, i, N([["translateY(16px) rotate(-50deg) scale(.6)", 0, 0, pt], ["translateY(-2px) rotate(6deg) scale(1)", 1, 0.3, "ease-in-out"], ["translateY(0) rotate(-4deg) scale(1)", 1, 0.48, "ease-in-out"], ["translateY(0) rotate(0deg) scale(1)", 1, 0.6], ["translateY(0) rotate(0deg) scale(1)", 1, 0.86], ["translateY(-3px) rotate(8deg) scale(.9)", 0]]), 1150), [[-15, -22, 9], [25, -30, 11], [31, -11, 7]].forEach(([s, o, r], n) => q(a, Y(a, e + (t > 0 ? s : 12 - s), o, 11, 11, Ja + sr, `scale:${r / 11};transform-origin:50% 50%`), N([["rotate(-60deg) scale(0)", 0, 0, ye], ["rotate(0deg) scale(1.2)", 1, 0.3], ["rotate(10deg) scale(.8)", 1, 0.5, "ease-in-out"], ["rotate(0deg) scale(1)", 1, 0.7], ["rotate(20deg) scale(0)", 0]]), 600, 330 + n * 130));
+    q(a, i, N([["translateY(16px) rotate(-50deg) scale(.6)", 0, 0, pt], ["translateY(-2px) rotate(6deg) scale(1)", 1, 0.3, "ease-in-out"], ["translateY(0) rotate(-4deg) scale(1)", 1, 0.48, "ease-in-out"], ["translateY(0) rotate(0deg) scale(1)", 1, 0.6], ["translateY(0) rotate(0deg) scale(1)", 1, 0.86], ["translateY(-3px) rotate(8deg) scale(.9)", 0]]), 1150), [[-15, -22, 9], [25, -30, 11], [31, -11, 7]].forEach(([s, o, r], n) => q(a, Y(a, e + (t > 0 ? s : 12 - s), o, 11, 11, Ja + sr, `scale:${r / 11};transform-origin:50% 50%`), N([["rotate(-60deg) scale(0)", 0, 0, ve], ["rotate(0deg) scale(1.2)", 1, 0.3], ["rotate(10deg) scale(.8)", 1, 0.5, "ease-in-out"], ["rotate(0deg) scale(1)", 1, 0.7], ["rotate(20deg) scale(0)", 0]]), 600, 330 + n * 130));
   },
   medal(a) {
     const t = a.dir, e = t > 0 ? a.W * 0.72 - 10 : a.W * 0.28 - 10, i = Y(a, e, -31, 20, 30, cm, "transform-origin:50% 0");
@@ -6135,7 +6139,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
     }
     q(a, i, N([[`rotate(${-48 * t}deg) scale(.5)`, 0, 0, "ease-in"], [`rotate(${-34 * t}deg) scale(1)`, 1, 0.1, "ease-in-out"], [`rotate(${24 * t}deg)`, 1, 0.3, "ease-in-out"], [`rotate(${-14 * t}deg)`, 1, 0.47, "ease-in-out"], [`rotate(${7 * t}deg)`, 1, 0.62, "ease-in-out"], [`rotate(${-3 * t}deg)`, 1, 0.74, "ease-in-out"], ["rotate(0deg)", 1, 0.84], ["rotate(0deg) scale(.9)", 0]]), 1180), q(a, Y(a, e + 12, -18, 11, 11, Ja + sr.replace("url(#spk-g)", "#fff"), "transform-origin:50% 50%"), N([["rotate(-30deg) scale(0)", 0], ["rotate(0deg) scale(1)", 1, 0.4], ["rotate(30deg) scale(0)", 0]]), 300, 800);
   }
-}, pn = "#f7f5ee", ue = "ease-in-out", ji = "color-mix(in srgb,var(--ink) 40%,transparent)", or = `border:2.5px solid ${pn};box-shadow:0 0 0 1px ${ji},inset 0 0 0 1px ${ji}`, vm = '<circle cx="7" cy="7" r="6.3" fill="#d9e63a" stroke="#7f8c18"/><path d="M2.6 2.6c2.8 2.4 2.8 6.4 0 8.8M11.4 2.6c-2.8 2.4-2.8 6.4 0 8.8" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>', Km = '<circle cx="7" cy="7" r="6.3" fill="#fff" stroke="#2b2f36"/><path d="M7 4.3l2.6 1.9-1 3h-3.200l-1-3z" fill="#2b2f36"/><path d="M7 4.300V.9M9.600 6.200l3.300-1.100M8.600 9.200l2 2.800M5.400 9.200l-2 2.800M4.400 6.200L1.100 5.100" stroke="#2b2f36" stroke-width=".9" fill="none"/>', Um = '<circle cx="5" cy="5" r="4.3" fill="#fff" stroke="#6b737d"/><path d="M3 3.400a3 3 0 0 1 3.400-1" stroke="#b9bfc5" fill="none"/>', Am = '<circle cx="9" cy="9" r="8.3" fill="#fff" stroke="#6b737d"/>' + [[9, 9], [13.8, 9], [4.2, 9], [11.4, 13.2], [6.6, 13.2], [11.4, 4.8], [6.6, 4.8]].map(([a, t]) => `<circle cx="${a}" cy="${t}" r="1.5" fill="#56606c"/>`).join(""), qm = '<path d="M9 53V1M17 53V1M25 53V1M33 53V1M41 11V53M49 26V53M57 41V53M1 40h55M1 27h48M1 14h41" stroke="var(--ink)" stroke-width="1" opacity=".45" fill="none"/>', Mm = '<path class="spk-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.2" fill="none" stroke-linecap="round"/><g class="spk-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="spk-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.5" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.5" r="1" fill="#2b2f36"/><circle cx="27" cy="-18.5" r="3.6" fill="#d9e63a" stroke="#7f8c18" stroke-width=".8"/>', I = (a, t, e = "") => `translate(${a.toFixed(1)}px,${t.toFixed(1)}px)${e}`, Sm = {
+}, pn = "#f7f5ee", ue = "ease-in-out", ji = "color-mix(in srgb,var(--ink) 40%,transparent)", or = `border:2.5px solid ${pn};box-shadow:0 0 0 1px ${ji},inset 0 0 0 1px ${ji}`, ym = '<circle cx="7" cy="7" r="6.3" fill="#d9e63a" stroke="#7f8c18"/><path d="M2.6 2.6c2.8 2.4 2.8 6.4 0 8.8M11.4 2.6c-2.8 2.4-2.8 6.4 0 8.8" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>', Km = '<circle cx="7" cy="7" r="6.3" fill="#fff" stroke="#2b2f36"/><path d="M7 4.3l2.6 1.9-1 3h-3.200l-1-3z" fill="#2b2f36"/><path d="M7 4.300V.9M9.600 6.200l3.300-1.100M8.600 9.200l2 2.800M5.400 9.200l-2 2.800M4.400 6.200L1.100 5.100" stroke="#2b2f36" stroke-width=".9" fill="none"/>', Um = '<circle cx="5" cy="5" r="4.3" fill="#fff" stroke="#6b737d"/><path d="M3 3.400a3 3 0 0 1 3.400-1" stroke="#b9bfc5" fill="none"/>', Am = '<circle cx="9" cy="9" r="8.3" fill="#fff" stroke="#6b737d"/>' + [[9, 9], [13.8, 9], [4.2, 9], [11.4, 13.2], [6.6, 13.2], [11.4, 4.8], [6.6, 4.8]].map(([a, t]) => `<circle cx="${a}" cy="${t}" r="1.5" fill="#56606c"/>`).join(""), qm = '<path d="M9 53V1M17 53V1M25 53V1M33 53V1M41 11V53M49 26V53M57 41V53M1 40h55M1 27h48M1 14h41" stroke="var(--ink)" stroke-width="1" opacity=".45" fill="none"/>', Mm = '<path class="spk-tail" d="M-14-16Q-22-22-20-28" stroke="#8a5a2b" stroke-width="3.2" fill="none" stroke-linecap="round"/><g class="spk-l1"><path d="M-10-10V0M10-10V0" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/></g><g class="spk-l2"><path d="M-6-10V0M14-10V0" stroke="#6f4620" stroke-width="3" stroke-linecap="round"/></g><rect x="-16" y="-20" width="32" height="12" rx="6" fill="#b9814f" stroke="#6f4620"/><circle cx="19" cy="-21" r="6.5" fill="#b9814f" stroke="#6f4620"/><path d="M15-26 12-18 18-20z" fill="#6f4620"/><circle cx="21" cy="-22.5" r="1" fill="#2b2f36"/><circle cx="27" cy="-18.5" r="3.6" fill="#d9e63a" stroke="#7f8c18" stroke-width=".8"/>', I = (a, t, e = "") => `translate(${a.toFixed(1)}px,${t.toFixed(1)}px)${e}`, Sm = {
   /* a small ball goes through the sticks, then a chalk tick pops in */
   tick(a) {
     const t = a.W / 2, e = a.H / 2, i = "M4.5 11.5l4.5 5 9-12", s = 'fill="none" stroke-linecap="round" stroke-linejoin="round"', o = Y(a, t - 11, e - 11, 22, 22, `<path d="${i}" ${s} stroke="var(--ok)" stroke-width="5.5"/><path d="${i}" ${s} stroke="${pn}" stroke-width="2.6"/>`, "transform-origin:50% 55%");
@@ -6143,11 +6147,11 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, o, D(), 540);
       return;
     }
-    q(a, Y(a, t - 13, e - 16, 26, 32, '<path d="M4 31V2M22 31V2" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>'), [{ opacity: 0 }, { opacity: 0.9, offset: 0.12 }, { opacity: 0.9, offset: 0.7 }, { opacity: 0 }], 560), q(a, st(a, t, e, 8, "background:var(--ac);border:1px solid var(--ink)"), N([["translate(-22px,16px) scale(1.5)", 1], ["translate(0,0) scale(1)", 1, 0.6], ["translate(8px,-14px) scale(.4)", 0]]), 240, 0, pt), q(a, o, N([["scale(.5)", 0, 0, ye], ["scale(1)", 1, 0.3], ["scale(1)", 1, 0.8], ["scale(1)", 0]]), 540, 100);
+    q(a, Y(a, t - 13, e - 16, 26, 32, '<path d="M4 31V2M22 31V2" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>'), [{ opacity: 0 }, { opacity: 0.9, offset: 0.12 }, { opacity: 0.9, offset: 0.7 }, { opacity: 0 }], 560), q(a, st(a, t, e, 8, "background:var(--ac);border:1px solid var(--ink)"), N([["translate(-22px,16px) scale(1.5)", 1], ["translate(0,0) scale(1)", 1, 0.6], ["translate(8px,-14px) scale(.4)", 0]]), 240, 0, pt), q(a, o, N([["scale(.5)", 0, 0, ve], ["scale(1)", 1, 0.3], ["scale(1)", 1, 0.8], ["scale(1)", 0]]), 540, 100);
   },
   /* streamers thrown in from both sides, kept inside the card */
   done(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e } = a;
     if (a.calm) {
       ln(a, "background:var(--ok)", 0.18);
@@ -6175,7 +6179,7 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       q(a, t, D(), 520);
       return;
     }
-    q(a, t, N([["translateY(-23px) scale(.6)", 0, 0, pt], ["translateY(-21px) scale(1)", 1, 0.14, yt], ["translateY(0) scale(1.14,.84)", 1, 0.48, "ease-out"], ["translateY(-6px) scale(.97,1.03)", 1, 0.62, "ease-in"], ["translateY(0) scale(1.06,.94)", 1, 0.75], ["translateY(0) scale(1)", 1, 0.82], ["translateY(5px) scale(.8)", 0]]), 680), q(a, e, [{ transform: "rotate(-40deg)" }, { transform: `rotate(${a.dir * 250}deg)` }], 680, 0, "ease-out", { fill: "both" }), _i(a, [0, -2.6, 1.9, -1, 0.4, 0], 380, 320);
+    q(a, t, N([["translateY(-23px) scale(.6)", 0, 0, pt], ["translateY(-21px) scale(1)", 1, 0.14, vt], ["translateY(0) scale(1.14,.84)", 1, 0.48, "ease-out"], ["translateY(-6px) scale(.97,1.03)", 1, 0.62, "ease-in"], ["translateY(0) scale(1.06,.94)", 1, 0.75], ["translateY(0) scale(1)", 1, 0.82], ["translateY(5px) scale(.8)", 0]]), 680), q(a, e, [{ transform: "rotate(-40deg)" }, { transform: `rotate(${a.dir * 250}deg)` }], 680, 0, "ease-out", { fill: "both" }), _i(a, [0, -2.6, 1.9, -1, 0.4, 0], 380, 320);
   },
   /* two whistle pips */
   ring(a) {
@@ -6197,17 +6201,17 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* the last thing off the list: a soccer ball into a net that bulges */
   truck(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e } = a, i = Math.max(2, t - 72), s = e - 4, o = i + 36, r = s - 9, n = Math.min(t * 0.12, i - 20), p = Math.max(10, e * 0.5), c = 2300, d = Z(a, `left:${i}px;top:${s - 54}px;width:64px;height:54px`, Es(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = Y(a, 0, 0, 64, 54, qm, "transform-origin:0 50%", d, !1), g = Z(a, "left:-7px;top:-7px;width:14px;height:14px"), m = Y(a, 0, 0, 14, 14, Km, "transform-origin:50% 50%", g, !1);
     if (a.calm) {
       g.style.translate = `${o}px ${r}px`, q(a, d, D(), 1e3), q(a, g, D(), 1e3);
       return;
     }
     const f = [[n, p], [n + (o - n) * 0.45, p - 26], [o - 4, r - 70], [o, r - 21]], k = Array.from({ length: 9 }, (b, w) => {
-      const v = w / 8, U = 1 - v, y = (A) => U * U * U * f[0][A] + 3 * U * U * v * f[1][A] + 3 * U * v * v * f[2][A] + v * v * v * f[3][A];
-      return [I(y(0), y(1)), 1, v * 1e3 / c];
+      const y = w / 8, U = 1 - y, v = (A) => U * U * U * f[0][A] + 3 * U * U * y * f[1][A] + 3 * U * y * y * f[2][A] + y * y * y * f[3][A];
+      return [I(v(0), v(1)), 1, y * 1e3 / c];
     });
-    q(a, g, N([...k, [I(o + 3, r), 1, 1300 / c, "ease-out"], [I(o + 4, r - 5), 1, 1420 / c, "ease-in"], [I(o + 3, r), 1, 1540 / c], [I(o + 3, r), 1, 0.92], [I(o + 3, r), 0]]), c), q(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], c, 0, "linear", { fill: "both" }), q(a, d, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], c), q(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / c, easing: pt }, { transform: "scaleX(1.16)", offset: 1140 / c, easing: ye }, { transform: "scaleX(1)", offset: 1500 / c }, { transform: "scaleX(1)" }], c, 0, "linear", { fill: "both" });
+    q(a, g, N([...k, [I(o + 3, r), 1, 1300 / c, "ease-out"], [I(o + 4, r - 5), 1, 1420 / c, "ease-in"], [I(o + 3, r), 1, 1540 / c], [I(o + 3, r), 1, 0.92], [I(o + 3, r), 0]]), c), q(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], c, 0, "linear", { fill: "both" }), q(a, d, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], c), q(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / c, easing: pt }, { transform: "scaleX(1.16)", offset: 1140 / c, easing: ve }, { transform: "scaleX(1)", offset: 1500 / c }, { transform: "scaleX(1)" }], c, 0, "linear", { fill: "both" });
   },
   /* a floorball held up on a puff of air */
   puff(a) {
@@ -6216,11 +6220,11 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
       e.style.translate = "0 -12px", q(a, e, D(), 900);
       return;
     }
-    q(a, e, N([["translateY(4px) scale(.6)", 0, 0, pt], ["translateY(-30px) rotate(0deg)", 1, 0.22, ue], ["translateY(-25px) rotate(14deg)", 1, 0.36, ue], ["translateY(-31px) rotate(-10deg)", 1, 0.5, ue], ["translateY(-26px) rotate(12deg)", 1, 0.64, ue], ["translateY(-30px) rotate(0deg)", 1, 0.78, yt], ["translateY(2px) scale(.7)", 0]]), 2e3), [0, 1, 2].forEach((i) => q(a, st(a, t - 6 + i * 6, -6, 9, `background:${pn};box-shadow:0 0 0 1px ${ji}`), N([["translateY(-12px) scale(.4)", 0], ["translateY(-8px) scale(.8)", 0.75, 0.3], ["translateY(2px) scale(1.25)", 0]]), 440, 380 + i * 120, "linear", { iterations: 3, fill: "both" }));
+    q(a, e, N([["translateY(4px) scale(.6)", 0, 0, pt], ["translateY(-30px) rotate(0deg)", 1, 0.22, ue], ["translateY(-25px) rotate(14deg)", 1, 0.36, ue], ["translateY(-31px) rotate(-10deg)", 1, 0.5, ue], ["translateY(-26px) rotate(12deg)", 1, 0.64, ue], ["translateY(-30px) rotate(0deg)", 1, 0.78, vt], ["translateY(2px) scale(.7)", 0]]), 2e3), [0, 1, 2].forEach((i) => q(a, st(a, t - 6 + i * 6, -6, 9, `background:${pn};box-shadow:0 0 0 1px ${ji}`), N([["translateY(-12px) scale(.4)", 0], ["translateY(-8px) scale(.8)", 0.75, 0.3], ["translateY(2px) scale(1.25)", 0]]), 440, 380 + i * 120, "linear", { iterations: 3, fill: "both" }));
   },
   /* streamers unroll over the jar */
   salute(a) {
-    ya(a);
+    va(a);
     const { W: t, H: e } = a, i = Jt(e * 0.85 / 88, 0.35, 1), s = ["var(--ac)", "var(--ok)", "#4f9bd9"], o = 2200, r = s.map((n, p) => Y(a, t * (0.22 + 0.28 * p) - 8, -2, 16, 88, `<path d="M8 0q9 11 0 22t0 22 0 22 0 20" fill="none" stroke="${n}" stroke-width="6" stroke-linecap="round"/>`, `transform-origin:50% 0;scale:${i.toFixed(2)}`));
     if (a.calm) {
       r.forEach((n) => q(a, n, D(), 1e3));
@@ -6228,18 +6232,18 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
     }
     r.forEach((n, p) => {
       const c = p % 2 ? -1 : 1;
-      q(a, n, N([["scaleY(0) rotate(0deg)", 1, 0, ye], ["scaleY(1) rotate(0deg)", 1, (400 + p * 60) / o, ue], [`scaleY(1) rotate(${6 * c}deg)`, 1, 800 / o, ue], [`scaleY(1) rotate(${-5 * c}deg)`, 1, 1200 / o, ue], [`scaleY(1) rotate(${3 * c}deg)`, 1, 1600 / o, ue], ["scaleY(1) rotate(0deg)", 1, 1900 / o], ["scaleY(1) rotate(0deg)", 0]]), o);
+      q(a, n, N([["scaleY(0) rotate(0deg)", 1, 0, ve], ["scaleY(1) rotate(0deg)", 1, (400 + p * 60) / o, ue], [`scaleY(1) rotate(${6 * c}deg)`, 1, 800 / o, ue], [`scaleY(1) rotate(${-5 * c}deg)`, 1, 1200 / o, ue], [`scaleY(1) rotate(${3 * c}deg)`, 1, 1600 / o, ue], ["scaleY(1) rotate(0deg)", 1, 1900 / o], ["scaleY(1) rotate(0deg)", 0]]), o);
     });
-    for (let n = 0; n < 6; n++) q(a, Z(a, `left:${t * (0.12 + 0.15 * n)}px;width:6px;height:11px;border-radius:2px;background:${[...s, "var(--ink)"][n % 4]}`), N([["translateY(-14px) rotate(0deg)", 1, 0, yt], [`translateY(${e + 12}px) rotate(${n % 2 ? 300 : -260}deg)`, 1, 0.92], [`translateY(${e + 12}px) rotate(0deg)`, 0]]), 1450, 150 + n * 90);
+    for (let n = 0; n < 6; n++) q(a, Z(a, `left:${t * (0.12 + 0.15 * n)}px;width:6px;height:11px;border-radius:2px;background:${[...s, "var(--ink)"][n % 4]}`), N([["translateY(-14px) rotate(0deg)", 1, 0, vt], [`translateY(${e + 12}px) rotate(${n % 2 ? 300 : -260}deg)`, 1, 0.92], [`translateY(${e + 12}px) rotate(0deg)`, 0]]), 1450, 150 + n * 90);
   },
   /* the timer is on: a tennis ball lands on the card's top edge, bounces twice and rolls off the end */
   rocket(a) {
-    const t = Jt(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = Z(a, "left:-7px;top:-7px;width:14px;height:14px"), o = Y(a, 0, 0, 14, 14, vm, "transform-origin:50% 50%", s, !1);
+    const t = Jt(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = Z(a, "left:-7px;top:-7px;width:14px;height:14px"), o = Y(a, 0, 0, 14, 14, ym, "transform-origin:50% 50%", s, !1);
     if (a.calm) {
       s.style.translate = `${t + e * 0.5}px ${i}px`, q(a, s, D(), 800);
       return;
     }
-    q(a, s, N([[I(t, i - 70), 0, 0, yt], [I(t + 1, i - 66), 1, 0.03, yt], [I(t + 10, i, " scale(1.08,.92)"), 1, 0.205, "ease-out"], [I(t + 26, i - 22), 1, 0.285, "ease-in"], [I(t + 42, i, " scale(1.05,.95)"), 1, 0.364, "ease-out"], [I(t + 49, i - 7), 1, 0.41, "ease-in"], [I(t + 56, i), 1, 0.455, pt], [I(t + e, i), 1, 0.773, yt], [I(t + e + 8, i + 60), 0, 0.977], [I(t + e + 8, i + 60), 0]]), 2200), q(a, o, [{ transform: "rotate(0deg)" }, { transform: "rotate(200deg)", offset: 0.455 }, { transform: "rotate(900deg)", offset: 0.773 }, { transform: "rotate(1100deg)" }], 2200, 0, "linear", { fill: "both" });
+    q(a, s, N([[I(t, i - 70), 0, 0, vt], [I(t + 1, i - 66), 1, 0.03, vt], [I(t + 10, i, " scale(1.08,.92)"), 1, 0.205, "ease-out"], [I(t + 26, i - 22), 1, 0.285, "ease-in"], [I(t + 42, i, " scale(1.05,.95)"), 1, 0.364, "ease-out"], [I(t + 49, i - 7), 1, 0.41, "ease-in"], [I(t + 56, i), 1, 0.455, pt], [I(t + e, i), 1, 0.773, vt], [I(t + e + 8, i + 60), 0, 0.977], [I(t + e + 8, i + 60), 0]]), 2200), q(a, o, [{ transform: "rotate(0deg)" }, { transform: "rotate(200deg)", offset: 0.455 }, { transform: "rotate(900deg)", offset: 0.773 }, { transform: "rotate(1100deg)" }], 2200, 0, "linear", { fill: "both" });
   },
   /* everyone is ready on time: the dog trots along the top of the card with the ball */
   quokka(a) {
@@ -6286,18 +6290,18 @@ const Hf = 40, pt = "cubic-bezier(.2,.8,.2,1)", ye = "cubic-bezier(.2,1.4,.4,1)"
   if (t && t.parentNode === a && t.isConnected) return t;
   t = document.createElement("div"), t.className = "spk-layer", t.setAttribute("aria-hidden", "true");
   const e = document.createElement("style");
-  return e.textContent = Ef, t.appendChild(e), a.appendChild(t), Lp.set(a, t), Hs.add(t), t;
+  return e.textContent = E1, t.appendChild(e), a.appendChild(t), Lp.set(a, t), Hs.add(t), t;
 };
 function St(a, t, e = {}) {
   try {
-    const i = ym[a];
+    const i = vm[a];
     if (!i || !t || typeof document > "u" || !("animate" in Element.prototype)) return null;
     const s = t instanceof Element ? null : t, o = s ? _m(s.x, s.y) ?? document.body : t;
     if (!o.isConnected) return null;
-    const r = getComputedStyle(o), n = (lt, M = "") => r.getPropertyValue(lt).trim() || M, p = o.getRootNode(), c = p instanceof ShadowRoot ? p : document.body, d = e.look ?? Rm(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), g = $m(c), m = g.getBoundingClientRect(), f = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, w = k !== 1 && b > 8 && Math.abs(f.width / b - 1) < Math.abs(f.width / b - k) ? k : 1, v = n("--ink", "#1b2430"), U = n("--primary", "#0b5fa5"), y = e.colour || n("--kid") || n("--c") || U, A = document.createElement("div");
+    const r = getComputedStyle(o), n = (lt, M = "") => r.getPropertyValue(lt).trim() || M, p = o.getRootNode(), c = p instanceof ShadowRoot ? p : document.body, d = e.look ?? Rm(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), g = $m(c), m = g.getBoundingClientRect(), f = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, w = k !== 1 && b > 8 && Math.abs(f.width / b - 1) < Math.abs(f.width / b - k) ? k : 1, y = n("--ink", "#1b2430"), U = n("--primary", "#0b5fa5"), v = e.colour || n("--kid") || n("--c") || U, A = document.createElement("div");
     A.className = `spk-fx spk-${d}`, A.setAttribute("data-kind", a);
     const T = s ? s.x - m.left : f.left * w - m.left, F = s ? s.y - m.top : f.top * w - m.top, V = s ? 0 : f.width * w / k, z = s ? 0 : f.height * w / k;
-    A.style.cssText = `left:${T}px;top:${F}px;width:${V}px;height:${z}px;transform:scale(${k});--ink:${v};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${U};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${y};--c0:${y}`;
+    A.style.cssText = `left:${T}px;top:${F}px;width:${V}px;height:${z}px;transform:scale(${k});--ink:${y};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${U};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${v};--c0:${v}`;
     const R = {
       look: d,
       calm: h,
@@ -6308,19 +6312,19 @@ function St(a, t, e = {}) {
       target: s ? null : o,
       rad: s ? "0" : r.borderRadius || "0",
       font: r.fontFamily || "sans-serif",
-      kid: y,
+      kid: v,
       dir: e.dir === -1 ? -1 : 1,
       pal: ["--p-1", "--p-2", "--p-3", "--p-4", "--p-5", "--accent", "--primary"].map((lt) => n(lt)).filter(Boolean),
       plans: [],
       own: []
     };
-    R.pal.length || (R.pal = [U, y, nn]);
+    R.pal.length || (R.pal = [U, v, nn]);
     const P = d === "sports" ? Sm[a] : void 0;
     P ? P(R) : (d === "sports" && (R.look = "glass"), i(R));
     const nt = () => {
       g.querySelector(".spk-fx") || (g.remove(), Hs.delete(g));
     };
-    if (!R.plans.length || ih() + A.querySelectorAll("[data-p]").length > Hf)
+    if (!R.plans.length || ih() + A.querySelectorAll("[data-p]").length > H1)
       return nt(), null;
     g.appendChild(A);
     const Et = [];
@@ -6442,15 +6446,15 @@ const Vm = {
 }, ii = H`
   .keys { display: flex; flex-direction: column; gap: 8px; }
   .krow { display: flex; gap: 8px; justify-content: center; }
-  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform var(--mt-1, 80ms) ease; }
+  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: var(--fs-5); font-weight: 500; transition: transform var(--mt-1, 80ms) ease; }
   .key:active { transform: scale(.92); background: var(--chip); }
-  .key.wide { width: 96px; font-size: 20px; }
+  .key.wide { width: 96px; font-size: var(--fs-4); }
   .key.wide[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-  .key.space { width: 420px; font-size: 17px; }
+  .key.space { width: 420px; font-size: var(--fs-3); }
   .keys.compact, .keys.compact .krow { gap: 6px; }
-  .keys.compact .key { width: 56px; height: 48px; border-radius: 12px; font-size: 22px; }
-  .keys.compact .key.wide { width: 84px; font-size: 18px; }
-  .keys.compact .key.space { width: 420px; font-size: 16px; }
+  .keys.compact .key { width: 56px; height: 48px; border-radius: 12px; font-size: var(--fs-4); }
+  .keys.compact .key.wide { width: 84px; font-size: var(--fs-3); }
+  .keys.compact .key.space { width: 420px; font-size: var(--fs-3); }
   .keys .krow.pk .key.space, .keys.compact .krow.pk .key.space { width: 240px; }
   /* in a box narrower than the row, the keys give way together (never under a 44 px target) rather than running off the edge */
   .keys, .krow { min-width: 0; }
@@ -6477,7 +6481,7 @@ const Vm = {
     super.disconnectedCallback(), this._commitClear(), this._unsub?.(), this._unsub = void 0, this._subFor = "";
   }
   updated(t) {
-    (t.has("hass") || t.has("entity")) && this.hass && this._subFor !== this.entity && this._subscribe(), this.renderRoot.querySelectorAll(".scrolly").forEach(Kt), this._places && (this._places.size <= 40 && w1(this.renderRoot, ".row[data-key]", this._places), this._places = null);
+    (t.has("hass") || t.has("entity")) && this.hass && this._subFor !== this.entity && this._subscribe(), this.renderRoot.querySelectorAll(".scrolly").forEach(Kt), this._places && (this._places.size <= 40 && kf(this.renderRoot, ".row[data-key]", this._places), this._places = null);
   }
   async _subscribe() {
     this._unsub?.(), this._subFor = this.entity;
@@ -6569,7 +6573,7 @@ const Vm = {
     });
   }
   willUpdate(t) {
-    this._places = this.hasUpdated && (t.has("_tk") || t.has("_items") || t.has("_hidden")) ? x1(this.renderRoot, ".row[data-key]") : null;
+    this._places = this.hasUpdated && (t.has("_tk") || t.has("_items") || t.has("_hidden")) ? wf(this.renderRoot, ".row[data-key]") : null;
   }
   /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
   _shown(t) {
@@ -6629,7 +6633,7 @@ const Vm = {
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
           <h1 class="t-title">Groceries</h1>
-          ${this._failed ? u : l`<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${s.length} to buy</span>`}
+          ${this._failed ? u : l`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${s.length} to buy</span>`}
         </div>
         ${this._failed ? l`<div class="failed" role="alert"><span style="color:var(--ink2)">${K("cart", 40)}</span><span>Can’t reach the shopping list.</span>
           <button class="retry tap" @click=${() => {
@@ -6642,20 +6646,20 @@ const Vm = {
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${o.filter((n) => this._shown(n) === "completed").length})</button></div>
             ${o.map((n) => this._row(n))}` : u}
-          ${!s.length && !o.length && !i.length ? l`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${K("cart", 40)}</span><span style="font-size:17px;font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:15px">Type an item or tap a usual to add it.</span></div>` : u}
+          ${!s.length && !o.length && !i.length ? l`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${K("cart", 40)}</span><span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:var(--fs-2)">Type an item or tap a usual to add it.</span></div>` : u}
         </div>`}
         <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((n) => l`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === n.name} aria-busy=${this._sending === n.name ? "true" : u} @click=${() => void this._send(n)}>
-            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${B(n.colour)}">${n.name[0]}</span>${n.name}</button>`)}
-          ${this.recipients.length ? u : l`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>`}
+            <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${B(n.colour)}">${n.name[0]}</span>${n.name}</button>`)}
+          ${this.recipients.length ? u : l`<span class="muted" style="font-size:var(--fs-1)">(add phones in the card settings)</span>`}
         </div>
         <div class="entry">
-          <input class="field" .value=${this._typed} inputmode=${vt() === "phone" ? "text" : "none"} autocomplete="off" placeholder="Type an item…" aria-label="New item"
+          <input class="field" .value=${this._typed} inputmode=${yt() === "phone" ? "text" : "none"} autocomplete="off" placeholder="Type an item…" aria-label="New item"
             @input=${(n) => {
       this._typed = n.target.value;
     }}
@@ -6699,14 +6703,14 @@ no.styles = [Qt, ii, H`
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
     .done .strike { color: var(--ink2); }
-    .txt { flex: 1; min-width: 0; font-size: 16px; font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
-    .tag { font-size: 13px; font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
-    .label { font-size: 13px; }
-    .note { font-size: 13px; }
+    .txt { flex: 1; min-width: 0; font-size: var(--fs-3); font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
+    .tag { font-size: var(--fs-1); font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .label { font-size: var(--fs-1); }
+    .note { font-size: var(--fs-1); }
     .trolley { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
-    .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
-    .failed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; font-size: 17px; font-weight: var(--w-semi, 600); padding: 16px; }
-    .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .failed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; font-size: var(--fs-3); font-weight: var(--w-semi, 600); padding: 16px; }
+    .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     /* two columns leave no room for the aisle chip; the list is still sorted by aisle. Phones show it. */
     :host(:not([data-phone])) .tag { display: none; }
     :host([data-shape='tall']) .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -6723,7 +6727,7 @@ no.styles = [Qt, ii, H`
     :host([data-phone]) .items { overflow: visible; flex: none; grid-template-columns: minmax(0, 1fr); padding: 0; margin: 0; }
     :host([data-phone]) .keys { display: none; }
     :host([data-phone]) .entry { flex-wrap: wrap; }
-    :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: 20px; }
+    :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: var(--fs-4); }
     :host([data-phone]) .entry .lead { height: 52px; flex: 0 0 auto; }
     /* tablets narrower than the canvas: the list narrows so the keyboard keeps whole keys; under 900 px the two stack and the page scrolls */
     :host([data-shape='wide'][data-n1]) .list { width: 440px; }
@@ -6738,23 +6742,23 @@ no.styles = [Qt, ii, H`
     :host([data-shape='tall'][data-n3]) .add .key.space { width: 380px; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .entry { display: flex; gap: 10px; align-items: center; min-width: 0; }
-    .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
+    .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
-    .entry .lead { height: 60px; padding: 0 26px; font-size: 18px; flex-shrink: 0; }
+    .entry .lead { height: 60px; padding: 0 26px; font-size: var(--fs-3); flex-shrink: 0; }
     .usuals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .usuals > span { font-size: 13px; font-weight: var(--w-bold, 700); margin-right: 4px; }
+    .usuals > span { font-size: var(--fs-1); font-weight: var(--w-bold, 700); margin-right: 4px; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
     .keys { flex: 1; min-height: 0; justify-content: center; }
     :host(:not([data-shape='tall']):not([data-phone])) .krow { flex: 1 1 52px; max-height: 78px; min-height: 44px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key { height: 100%; width: 56px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.wide { width: 86px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.space { width: 380px; }
-    .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
-    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .toast.act { display: flex; align-items: center; gap: 14px; pointer-events: auto; padding: 8px 8px 8px 22px; }
-    .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: 15px; font-weight: var(--w-heavy, 800); }
+    .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     .toast .undo:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   `], no.properties = {
   _tk: { state: !0 },
@@ -7213,7 +7217,7 @@ const si = `
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; container-type: size; opacity: var(--m-d, 1); }
   .confetti i { position: absolute; top: -20px; animation-name: fall; animation-timing-function: cubic-bezier(.25,.6,.45,1); animation-fill-mode: forwards; opacity: 0; }
   @keyframes fall { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--drift), calc(100cqh + 20px)) rotate(var(--rot)); } }
-  .burst { position: absolute; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-weight: var(--w-heavy, 800); font-size: 30px; color: var(--ok);
+  .burst { position: absolute; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-weight: var(--w-heavy, 800); font-size: var(--fs-6); color: var(--ok);
     text-shadow: 0 2px 10px rgba(0,0,0,.18); animation: burst var(--m-5, 900ms) cubic-bezier(.2,.8,.2,1) forwards; z-index: 20; }
   @keyframes burst { 0% { opacity: 0; transform: translateY(calc(10px * var(--m-d, 1))) scale(calc(1 - .4 * var(--m-d, 1))); } 20% { opacity: 1; transform: translateY(calc(-6px * var(--m-d, 1))) scale(calc(1 + .15 * var(--m-d, 1))); } 100% { opacity: 0; transform: translateY(calc(-70px * var(--m-d, 1))); } }
   .shake { animation: shake var(--m-4, 400ms); }
@@ -7528,7 +7532,7 @@ const si = `
 }, wh = (a, t = et.cost, e = /* @__PURE__ */ new Date()) => {
   const i = qo(e).slice(0, 7), s = a.filter((o) => o.d.startsWith(i)).length;
   return { n: s, usd: Math.round(s * t * 100) / 100 };
-}, yg = (a, t, e = /* @__PURE__ */ new Date()) => a.filter((i) => i.kind === "look" && i.d === qo(e) && i.who.includes(t)).length, vg = (a, t = /* @__PURE__ */ new Date(), e = []) => {
+}, vg = (a, t, e = /* @__PURE__ */ new Date()) => a.filter((i) => i.kind === "look" && i.d === qo(e) && i.who.includes(t)).length, yg = (a, t = /* @__PURE__ */ new Date(), e = []) => {
   const i = a.filter((d) => d.kind === "art" && !d.hidden);
   if (!i.length) return [];
   const s = i.reduce((d, h) => h.d > d ? h.d : d, ""), o = e.map((d) => d.toLowerCase()), r = (d) => [d.event, d.theme].some((h) => !!h && o.some((g) => g.includes(h.toLowerCase()) || h.toLowerCase().includes(g))), n = Number(qo(t).replace(/-/g, "")), p = (d) => {
@@ -7621,7 +7625,7 @@ const Kg = async (a, t, e) => {
     return t ? `🖌️ ${t} paint${t === 1 ? "" : "s"} left today.` : "🖌️ No paints left today. More tomorrow!";
   }
   get _left() {
-    return Math.max(0, (this.art.looks_per_day ?? et.looks) - yg(this._record ?? [], this.kid.name));
+    return Math.max(0, (this.art.looks_per_day ?? et.looks) - vg(this._record ?? [], this.kid.name));
   }
   /** Wear the look he has put together: at once when it has been painted before, else have it painted (half a minute or so). */
   async _wear() {
@@ -7761,36 +7765,36 @@ const Kg = async (a, t, e) => {
       this._jump++;
     }}>${Xt(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
         ${r && !this._picMode ? l`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === r.id ? "♥ Saving for" : "Next unlock"}: ${r.label} <span class="muted">· ${r.req - this.life} to go</span></span>
+          <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${this._goal === r.id ? "♥ Saving for" : "Next unlock"}: ${r.label} <span class="muted">· ${r.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round((this.life - n) / (r.req - n) * 100)}%"></div></div></div>` : u}
         <div class="sfoot">
           <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!p || d} @click=${() => {
       this._draft = void 0, this._jump++;
     }}>Undo all</button>
-          ${o ? l`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:16px" ?disabled=${d || p && !c && !!h} aria-busy=${d ? "true" : u} @click=${() => {
+          ${o ? l`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:var(--fs-3)" ?disabled=${d || p && !c && !!h} aria-busy=${d ? "true" : u} @click=${() => {
       p ? this._wear() : g();
-    }}>${d ? "Painting…" : p ? c ? "Wear this look" : l`🖌️ Paint it!` : "Done"}</button>` : l`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${p ? "Save my look" : "Done"}</button>`}
+    }}>${d ? "Painting…" : p ? c ? "Wear this look" : l`🖌️ Paint it!` : "Done"}</button>` : l`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:var(--fs-3)" @click=${() => this._save()}>${p ? "Save my look" : "Done"}</button>`}
         </div>
       </section>
       <section class="glass shelf ${this._picMode ? "low" : ""}">
-        <div class="tabs ${this._picMode ? "pics" : ""}" role="tablist">${i.map((w) => l`<button class="tap" role="tab" aria-label=${w.label} aria-selected=${String(w.id === this._tab)} style=${this._picMode ? "font-size:26px;width:58px;height:52px;padding:0" : ""} @click=${() => {
+        <div class="tabs ${this._picMode ? "pics" : ""}" role="tablist">${i.map((w) => l`<button class="tap" role="tab" aria-label=${w.label} aria-selected=${String(w.id === this._tab)} style=${this._picMode ? "font-size:var(--fs-5);width:58px;height:52px;padding:0" : ""} @click=${() => {
       this._tab = w.id, S("tap"), this._picMode && at(w.label);
     }}>${this._picMode ? w.emoji : l`<span class="te" aria-hidden="true">${w.emoji}</span> ${w.label}`}</button>`)}</div>
         ${s.swatch ? l`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${s.swatch.label}</span>
           ${b.show.map((w) => {
-      const v = !ba(w, this.life, this.grow);
-      return l`<button class="tap ${v ? "locked" : ""} ${this._shake === `${s.id}:${w[0]}` ? "shake" : ""}"
-            title=${w[1]} aria-label=${`${w[1]}${v ? `, unlocks at ${w[2]} points` : ""}`} aria-pressed=${String(this.d[s.swatch.key] === w[0])}
+      const y = !ba(w, this.life, this.grow);
+      return l`<button class="tap ${y ? "locked" : ""} ${this._shake === `${s.id}:${w[0]}` ? "shake" : ""}"
+            title=${w[1]} aria-label=${`${w[1]}${y ? `, unlocks at ${w[2]} points` : ""}`} aria-pressed=${String(this.d[s.swatch.key] === w[0])}
             style="background:${w[0]}" @click=${() => this._pick(s, w, !0)}></button>`;
     })}${b.hidden ? l`<span class="swmore">+${b.hidden} more later</span>` : u}</div>` : u}
         <div class="gridwrap"><div class="grid scrolly" @scroll=${this._cue}>
           ${k.show.map((w) => {
-      const v = !ba(w, this.life, this.grow), U = Hm(this.d, s, w[0]), y = !!w[3];
-      return l`<div class="cell"><button class="tile tap ${v ? "locked shimmer" : ""} ${this._shake === `${s.id}:${w[0]}` ? "shake" : ""}" aria-pressed=${String(U)} @click=${() => this._pick(s, w)}>
-              <span class="av">${v && y ? l`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : o ? l`<span class="emo" aria-hidden="true">${gn(s, w[0])}</span>` : Xt(Fi(this.d, s, w[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${v && y ? "Surprise" : w[1]}
-              ${v ? l`<span class="lock">${y ? "🌱" : l`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? l`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : w[2]}`}</span>` : m(w[2]) ? l`<span class="new">NEW</span>` : u}
+      const y = !ba(w, this.life, this.grow), U = Hm(this.d, s, w[0]), v = !!w[3];
+      return l`<div class="cell"><button class="tile tap ${y ? "locked shimmer" : ""} ${this._shake === `${s.id}:${w[0]}` ? "shake" : ""}" aria-pressed=${String(U)} @click=${() => this._pick(s, w)}>
+              <span class="av">${y && v ? l`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:var(--fs-d1)">🎁</span>` : o ? l`<span class="emo" aria-hidden="true">${gn(s, w[0])}</span>` : Xt(Fi(this.d, s, w[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${y && v ? "Surprise" : w[1]}
+              ${y ? l`<span class="lock">${v ? "🌱" : l`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? l`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : w[2]}`}</span>` : m(w[2]) ? l`<span class="new">NEW</span>` : u}
             </button>
-              ${v && !y && !this._picMode ? l`<button class="heart tap" aria-pressed=${String(this._goal === w[0])} aria-label=${this._goal === w[0] ? `${w[1]} is my goal` : `Make ${w[1]} my goal`} @click=${() => this._setGoal(w)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === w[0] ? "#e11d48" : "none"} stroke=${this._goal === w[0] ? "#9f1239" : "currentColor"} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : u}</div>`;
+              ${y && !v && !this._picMode ? l`<button class="heart tap" aria-pressed=${String(this._goal === w[0])} aria-label=${this._goal === w[0] ? `${w[1]} is my goal` : `Make ${w[1]} my goal`} @click=${() => this._setGoal(w)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === w[0] ? "#e11d48" : "none"} stroke=${this._goal === w[0] ? "#9f1239" : "currentColor"} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : u}</div>`;
     })}
           ${k.hidden ? l`<div class="cell more" role="note" aria-label="${k.hidden} more to discover later"><span class="e" aria-hidden="true">✨</span>${this._picMode ? u : l`<span>${k.hidden} more to discover</span>`}</div>` : u}
         </div>${this._picMode ? l`<button class="tap rowgo back" aria-label="Go back along the row" @click=${() => this._along(-1)}>${K("left", 30)}</button><button class="tap rowgo fwd" aria-label="More to choose" @click=${() => this._along(1)}>${K("right", 30)}</button>` : u}</div>
@@ -7811,14 +7815,14 @@ po.styles = [Qt, H`
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     /* eight tabs in two even rows of four (the picture tabs of a child who cannot read stay in one row) */
     .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .tabs.pics { display: flex; flex-wrap: wrap; }
-    .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
-    .pill { font-size: 15px; }
+    .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .pill { font-size: var(--fs-2); }
     .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
     /* a sheet's footer stacks and sticks on a phone; the studio's two buttons stay side by side under the picture */
     :host([data-phone]) .mirror > .sfoot { position: static; flex-direction: row; align-items: stretch; margin: 0; padding: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; flex: 1 1 100%; gap: 10px; }
     /* four tabs across a phone: the picture sits over the word, so no word is cut */
-    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: 13px; line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
-    :host([data-phone]) .tabs:not(.pics) .te { font-size: 18px; line-height: 1; }
+    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: var(--fs-1); line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
+    :host([data-phone]) .tabs:not(.pics) .te { font-size: var(--fs-3); line-height: 1; }
     /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
@@ -7847,44 +7851,44 @@ po.styles = [Qt, H`
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
     /* "Undo all" with nothing to undo is only resting: no padlock and no dashed edge in any look (those mean "locked") */
     :host([data-look]) .sfoot .pill[disabled] { outline: none; background: var(--chip-soft); color: var(--ink2); } :host([data-look]) .sfoot .pill[disabled]::before { content: none; }
-    .label { font-size: 14px; }
+    .label { font-size: var(--fs-2); }
     /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
     :host(:not([data-shape='tall'])) .toast { left: 18px; right: auto; margin: 0; max-width: 344px; bottom: 84px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+    .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: var(--fs-4); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; grid-auto-rows: max-content; padding: 6px 6px 18px; }
     .lock { display: inline-flex; align-items: center; gap: 3px; }
     .lock svg { flex-shrink: 0; }
     .cell { position: relative; display: flex; } .cell > .tile { flex: 1; min-width: 0; }
-    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 15px; font-weight: var(--w-bold, 700); text-align: center; }
+    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: center; }
     .tile[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--chip-strong); }
     .tile.locked .av { filter: grayscale(1) brightness(.85); opacity: .55; }
-    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); z-index: 2; }
+    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); z-index: 2; }
     .cell > .heart { z-index: 2; }
     .sw { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .sw button { width: 44px; height: 44px; /* token */ border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
-    .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
+    .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); background: rgba(0,0,0,.35); border-radius: 50%; }
     /* "more to come": not a button, so it has no fill and no outline */
-    .cell.more { align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 96px; padding: 8px; border-radius: 20px; border: 2px dashed var(--track); color: var(--ink2); font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; }
-    .cell.more .e { font-size: 30px; line-height: 1; }
-    .swmore { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
+    .cell.more { align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 96px; padding: 8px; border-radius: 20px; border: 2px dashed var(--track); color: var(--ink2); font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; }
+    .cell.more .e { font-size: var(--fs-6); line-height: 1; }
+    .swmore { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     /* his rank lives here, where it pays off, under the studio's title */
-    .rankline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 4px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
-    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); }
+    .rankline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 4px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
+    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     /* a painted character: his picture, and what he has chosen that is not painted yet */
-    .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: 50px; line-height: 1; }
+    .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: var(--fs-d2); line-height: 1; }
     .tile.locked .emo { filter: grayscale(1); opacity: .5; }
     .easel { position: relative; z-index: 1; width: 300px; height: 300px; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
     .easel fh-pic { width: 100%; height: 100%; }
     .easel[data-old] fh-pic { filter: saturate(.55) brightness(.92); }
-    .easel .blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 96px; background: var(--chip); }
+    .easel .blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-d5); background: var(--chip); }
     .parts { z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
-    .parts span { width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; }
-    .pnote { z-index: 1; font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; min-height: 20px; }
-    .wet { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: color-mix(in srgb, var(--kid) 34%, rgba(20,20,26,.72)); color: #fff; text-align: center; padding: 18px; font-size: 18px; font-weight: var(--w-bold, 700); }
-    .wet .brush { font-size: 64px; animation: brush 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .parts span { width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-5); line-height: 1; }
+    .pnote { z-index: 1; font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; min-height: 20px; }
+    .wet { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: color-mix(in srgb, var(--kid) 34%, rgba(20,20,26,.72)); color: #fff; text-align: center; padding: 18px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .wet .brush { font-size: var(--fs-d3); animation: brush 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes brush { from { transform: translate(calc(-26px * var(--m-d, 1)), 0) rotate(-14deg); } to { transform: translate(calc(26px * var(--m-d, 1)), calc(-8px * var(--m-d, 1))) rotate(12deg); } }
     .wet .bar { width: 76%; height: 10px; border-radius: 999px; background: rgba(255,255,255,.28); overflow: hidden; } .wet .bar i { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width 1s linear; }
     ${_t(si)}
@@ -7998,8 +8002,8 @@ co.styles = [Qt, H`
     .dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink2); transition: background var(--m-2, 160ms); }
     .dots span.on { background: var(--ink); border-color: var(--ink); }
     .grid { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
-    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; }
-    .what { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); align-self: flex-start; margin-top: -8px; }
+    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: var(--fs-5); font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; }
+    .what { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); align-self: flex-start; margin-top: -8px; }
     @media (max-height: 640px) { .grid { grid-template-columns: repeat(3, 64px); gap: 8px; } .grid button { height: 64px; } .pad { gap: 10px; } }
     /* the pad fits the space it is given (a page's own pad has only that page's height, and the line that says why can run to four lines): smaller keys first, then the words beside the keys */
     :host { container-type: size; }
@@ -8008,9 +8012,9 @@ co.styles = [Qt, H`
       .pad { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto 1fr; column-gap: 28px; align-items: start; justify-items: start; width: 640px; }
       .grid { grid-column: 2; grid-row: 1 / 5; } .note { text-align: left; }
     }
-    @container (max-height: 400px) { .grid { grid-template-columns: repeat(3, 56px); gap: 6px; } .grid button { height: 56px; font-size: 24px; } }
+    @container (max-height: 400px) { .grid { grid-template-columns: repeat(3, 56px); gap: 6px; } .grid button { height: 56px; font-size: var(--fs-5); } }
     .bad { animation: shake var(--m-4, 400ms); }
-    .note { min-height: 20px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--danger, #c62a22); text-align: center; }
+    .note { min-height: 20px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--danger, #c62a22); text-align: center; }
     .grid button[disabled] { opacity: .4; }
     @keyframes shake { 20%, 60% { transform: translateX(calc(-10px * var(--m-d, 1))); } 40%, 80% { transform: translateX(calc(10px * var(--m-d, 1))); } }
   `], co.properties = { pin: {}, reason: {}, _typed: { state: !0 }, _bad: { state: !0 }, _note: { state: !0 }, _wait: { state: !0 } };
@@ -8153,7 +8157,7 @@ const Sg = [
   shouldUpdate(t) {
     if (t.size === 1 && t.has("hass") && this.kid) {
       const e = this._e;
-      return vo(t.get("hass"), this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, "input_number.family_jar"]);
+      return yo(t.get("hass"), this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, "input_number.family_jar"]);
     }
     return t.size === 1 && t.has("_now") ? this._now.getSeconds() === 0 || !!this._practice : !0;
   }
@@ -8431,9 +8435,9 @@ const Sg = [
     }}>
       <div class="glass cbox" role="dialog" aria-modal="true" aria-label="Days off">
         <h2 class="t-head">Days off this week</h2>
-        <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);text-align:center">A day off never counts against ${this.kid.name}’s week.</span>
+        <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);text-align:center">A day off never counts against ${this.kid.name}’s week.</span>
         <div class="daybtns">${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((e, i) => l`<button class="tap" aria-pressed=${String(t[i] === "O")} @click=${() => this._dayOff(i)}>${e}<span>${t[i] === "O" ? "Day off" : t[i] === "G" ? "Good day" : "–"}</span></button>`)}</div>
-        <button class="pill tap primary" style="height:52px;padding:0 28px;font-size:16px" @click=${() => {
+        <button class="pill tap primary" style="height:52px;padding:0 28px;font-size:var(--fs-3)" @click=${() => {
       this._days = !1;
     }}>Done</button>
       </div></div>`;
@@ -8483,18 +8487,18 @@ const Sg = [
     }}>
         ${this._drawn ? Xt(i, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : l`<span class="avph"></span>`}</button>
       <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1></div>
-      ${this._wind ? l`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : u}
-      ${this.kid.special_time && !this._picMode ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : u}
+      ${this._wind ? l`<div class="nextup"><span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : u}
+      ${this.kid.special_time && !this._picMode ? l`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : u}
       ${this._wind && this._picMode && this.ask ? l`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
       this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
     }}>${K("ask", 40)}<span>Ask</span></button></div>` : u}
       ${this._wind ? u : (() => {
       const o = this._block().todo.length, r = this.oneAtATime && o > 0, n = this._picMode && this.ask;
-      return l`${r ? l`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
+      return l`${r ? l`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
           <div class="lowrow" style=${r ? "" : "margin-top:auto"}>${n ? l`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
         this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
       }}>${K("ask", 40)}<span>Ask</span></button>` : u}
-          <button class="pill tap studio" ?data-locked=${r} aria-label=${r ? `${this._picMode ? "My look" : "Style studio"}: ${o} job${o === 1 ? "" : "s"} to go first` : u} style="height:${n ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(p) => {
+          <button class="pill tap studio" ?data-locked=${r} aria-label=${r ? `${this._picMode ? "My look" : "Style studio"}: ${o} job${o === 1 ? "" : "s"} to go first` : u} style="height:${n ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:var(--fs-3);flex-shrink:0" @click=${(p) => {
         if (r) {
           this._sound("locked");
           const c = p.currentTarget;
@@ -8518,7 +8522,7 @@ const Sg = [
     return l`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._night ? "Night time" : this._wind ? "Wind down" : this._picMode ? e === "am" ? "My morning" : e === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${f}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${f}</span></div>
         ${this.oneAtATime && this._showAll ? l`<button class="pill tap" @click=${() => {
       this._showAll = !1;
     }}>One at a time</button>` : u}
@@ -8529,12 +8533,12 @@ const Sg = [
       </div>
       ${It(Pt(), "steps", { done: c, total: d })}
       ${k ? this._focusList(p, c, r.length) : l`<div class="list scrolly" data-fits @scroll=${Kt}>
-        ${this._picMode ? l`<div class="pics">${i.map((v) => this._pic(v))}</div>${i.length ? l`<div class="readrow">${this._reader()}</div>` : u}` : l`
-            ${i.length ? l`<div class="sec"><h2>${hd[e]} routine</h2>${b ? u : l`<span>just what we do</span>`}</div>${i.map((v) => this._row(v))}` : u}
-            ${s.length ? l`<div class="sec"><h2>Family jobs</h2><span data-act="jar-rule">each one adds a marble to the jar</span></div>${s.map((v) => this._row(v))}` : u}
-            ${o.length ? l`<div class="sec"><h2>${b ? "Practice and reading" : "Growing"}</h2>${b ? u : l`<span>for you – surprises along the way</span>`}</div>${o.map((v) => this._row(v))}` : u}`}
-        ${r.length && !this._wind ? l`<div class="later"><span>Later: ${hd[r[0].slot]} (${r.length})</span><span>${r.map((v) => this._picMode ? Gs(v) : "").join(" ")}</span></div>` : u}
-        ${n.length ? u : l`<div class="wind"><span style="font-size:44px">${this._night ? "🌙" : "🌤️"}</span><span>${this._night ? "Sleep time. See you in the morning." : "Nothing right now. Enjoy!"}</span></div>`}
+        ${this._picMode ? l`<div class="pics">${i.map((y) => this._pic(y))}</div>${i.length ? l`<div class="readrow">${this._reader()}</div>` : u}` : l`
+            ${i.length ? l`<div class="sec"><h2>${hd[e]} routine</h2>${b ? u : l`<span>just what we do</span>`}</div>${i.map((y) => this._row(y))}` : u}
+            ${s.length ? l`<div class="sec"><h2>Family jobs</h2><span data-act="jar-rule">each one adds a marble to the jar</span></div>${s.map((y) => this._row(y))}` : u}
+            ${o.length ? l`<div class="sec"><h2>${b ? "Practice and reading" : "Growing"}</h2>${b ? u : l`<span>for you – surprises along the way</span>`}</div>${o.map((y) => this._row(y))}` : u}`}
+        ${r.length && !this._wind ? l`<div class="later"><span>Later: ${hd[r[0].slot]} (${r.length})</span><span>${r.map((y) => this._picMode ? Gs(y) : "").join(" ")}</span></div>` : u}
+        ${n.length ? u : l`<div class="wind"><span style="font-size:var(--fs-d1)">${this._night ? "🌙" : "🌤️"}</span><span>${this._night ? "Sleep time. See you in the morning." : "Nothing right now. Enjoy!"}</span></div>`}
       </div>`}
     </section>`;
   }
@@ -8550,7 +8554,7 @@ const Sg = [
     }}>${zg}<span>See what I did</span></button></div></div>`;
     if (!s) return l`<div class="focus"><div class="allset"><span class="big-e">${this._wind ? "🌙" : "🎉"}</span>
       <h2 class="t-head">${this._night ? "Sleep time" : this._wind ? "All set for bed" : e ? "All done!" : "Nothing right now"}</h2>
-      <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._night ? "See you in the morning." : this._wind ? "Sleep well." : e ? i ? "More later. Enjoy your free time!" : "Great work today." : "Enjoy!"}</span>
+      <span class="muted" style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">${this._night ? "See you in the morning." : this._wind ? "Sleep well." : e ? i ? "More later. Enjoy your free time!" : "Great work today." : "Enjoy!"}</span>
       ${e ? l`<button class="pill tap" @click=${() => {
       this._showAll = !0;
     }}>See what I did</button>` : u}</div></div>`;
@@ -8595,16 +8599,16 @@ const Sg = [
     }}>${Tg(36)}</button>`;
   }
   _rewards() {
-    const t = Ie(this.hass, this._e.points), e = this.kid.rewards ?? md, i = this._star, s = this._picMode ? l`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
+    const t = Ie(this.hass, this._e.points), e = this.kid.rewards ?? md, i = this._star, s = this._picMode ? l`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:var(--fs-d1)">🫙</span>
         <span style="display:flex;flex-direction:column;gap:2px">${(() => {
       const o = Math.floor(t / i);
-      return o > 10 ? l`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${za(!0, 30)} ${o}</b>` : o ? l`<span class="starjar">${Array.from({ length: o }, () => za(!0, 24))}</span>` : za(!1, 28);
+      return o > 10 ? l`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${za(!0, 30)} ${o}</b>` : o ? l`<span class="starjar">${Array.from({ length: o }, () => za(!0, 24))}</span>` : za(!1, 28);
     })()}
         <span>${Math.floor(t / i)} stars in my jar</span></span></div>` : l`<div class="ptsline" role="group" aria-label=${t ? `${t} points to spend` : "No points to spend yet"}>${t ? l`<b>${t}</b><span>${t === 1 ? "point" : "points"} to spend</span>` : l`<span>${this.kid.older ? "No points to spend yet" : "✨ Ready to start"}</span>`}</div>`;
     return l`${s}${this._owed.length ? l`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(", ")}</span></div>` : u}${e.map((o, r) => {
       const n = t >= o.cost, p = o.icon ?? (this._picMode ? gd[r % gd.length] : "🎁"), c = this._costWords(o), d = Math.max(1, Math.round(o.cost / i)), h = Math.min(d, Math.floor(t / i)), g = this._saving === o.name, m = this._held === o.name || g, f = this._capped(o), k = ld(this._now);
       return this._spend === o.name && n || m ? l`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${c} on ${o.name}?" ?data-held=${m} aria-busy=${g ? "true" : u}>
-          <span class="rpic" aria-hidden="true">${p}</span><span class="q">Spend ${c}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${o.name}</span></span>
+          <span class="rpic" aria-hidden="true">${p}</span><span class="q">Spend ${c}?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name}</span></span>
           <button class="tap" ?disabled=${m} @click=${() => {
         this._held = o.name, this._heldAt = Date.now(), window.setTimeout(() => {
           this._held === o.name && (this._held = "");
@@ -8613,7 +8617,7 @@ const Sg = [
         this._spend = "", this._sound("tap");
       }}>${Ng}Not now</button></div>` : l`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${f} aria-label="${o.name}: ${f ? `had this week. Back on ${k}` : n ? `spend ${c}` : this._picMode ? `${h} of ${d} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
           <span class="rpic" aria-hidden="true">${p}</span>
-          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${za(n, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${h} / ${d}</b>` : Array.from({ length: d }, (b, w) => za(w < h, 18))}</span>` : u}</span>
+          <span class="n">${o.name}${this._picMode ? l`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? l`${za(n, 20)}<b style="font-size:var(--fs-2);line-height:20px;margin-left:4px">${h} / ${d}</b>` : Array.from({ length: d }, (b, w) => za(w < h, 18))}</span>` : u}</span>
           ${f ? l`<span class="cost notyet" style="margin-left:auto">Back ${k}</span>` : this._picMode ? u : l`<span class="cost ${n ? "" : "notyet"}" style="margin-left:auto">${n ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
     })}`;
   }
@@ -8626,8 +8630,8 @@ const Sg = [
       <div class="tabbody scrolly" @scroll=${Kt}>${i === "rewards" ? this._rewards() : this._weekBody()}</div></section>`;
   }
   _windCard() {
-    return l`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      ${this._night ? u : l`<span class="muted wbed" style="font-size:14px">Bedtime ${cd(Ne(this.kid.bedtime, this._now))}</span>`}</section>`;
+    return l`<section class="glass card"><span class="label">Rewards</span><span style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
+      ${this._night ? u : l`<span class="muted wbed" style="font-size:var(--fs-2)">Bedtime ${cd(Ne(this.kid.bedtime, this._now))}</span>`}</section>`;
   }
   _jar() {
     const t = Ie(this.hass, "input_number.family_jar"), e = this.jarTarget || 120, i = Math.min(1, t / e);
@@ -8639,32 +8643,32 @@ const Sg = [
         <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
         <rect clip-path="url(#jc)" x="6" y=${58 - 44 * i} width="36" height=${44 * i} fill="var(--accent)" style="transition:y var(--mt-5, 900ms) var(--e-out, ease), height var(--mt-5, 900ms) var(--e-out, ease)"></rect></svg>
       <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="jarhead"><span class="label">Family jar</span>${s > 0 && !this._wind ? l`<span class="jarwhy" data-act="jar-today"><b>${s} added today</b></span>` : u}</span>
-        <span style="font-size:15px;font-weight:var(--w-bold, 700)">${t >= e ? "Full! Time for " + this.jarReward : `${e - t} marble${e - t === 1 ? "" : "s"} to ${this.jarReward}`}</span>
+        <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${t >= e ? "Full! Time for " + this.jarReward : `${e - t} marble${e - t === 1 ? "" : "s"} to ${this.jarReward}`}</span>
         ${this._wind ? u : l`<span class="jarwhy rule" data-act="jar-why">Every family job adds a marble.${this._jarTold ? u : l` <span data-act="jar-first">${this.kid.older ? "Routines and practice" : "Routines and growing"} add none.</span>`}</span>`}
       </span></div></section>`;
   }
   _feelCard() {
-    const t = this._picMode ? $g : Rg, e = this._feel ? fd(this._feel) : "mid", i = this._picMode ? "height:56px;font-size:18px" : "", s = ud[e];
+    const t = this._picMode ? $g : Rg, e = this._feel ? fd(this._feel) : "mid", i = this._picMode ? "height:56px;font-size:var(--fs-3)" : "", s = ud[e];
     return l`<section class="glass card feelcard" aria-label="How are you feeling">
-      ${this._feel ? l`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:15px;font-weight:var(--w-semi, 600)">${s}</span>
-            ${this._picMode ? l`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(o) => at(s, o.currentTarget)}>🔊</button>` : u}</div>
+      ${this._feel ? l`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${s}</span>
+            ${this._picMode ? l`<button class="round tap" style="font-size:var(--fs-4);flex-shrink:0" aria-label="Read the question" @click=${(o) => at(s, o.currentTarget)}>🔊</button>` : u}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${e === "up" ? l`<button class="pill tap" style=${i} @click=${() => this._feelReply("share")}>💬 Leave a note</button><button class="pill tap" style=${i} @click=${() => this._feelReply("ok")}>👍 All good</button>` : l`<button class="pill tap" style=${i} @click=${() => this._feelReply("hug")}>🤗 Hug</button><button class="pill tap" style=${i} @click=${() => this._feelReply("chat")}>💬 Chat later</button><button class="pill tap" style=${i} @click=${() => this._feelReply("ok")}>I’m OK</button>`}</div>` : l`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._picMode ? l`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(o) => at("How are you feeling?", o.currentTarget)}>🔊</button>` : u}</div>
+            ${this._picMode ? l`<button class="round tap" style="font-size:var(--fs-4)" aria-label="Read the question" @click=${(o) => at("How are you feeling?", o.currentTarget)}>🔊</button>` : u}</div>
           <div class="feel ${this._picMode ? "three" : ""}">${t.map(([o, r]) => l`<button class="tap" aria-label=${r} @click=${() => this._feelPick(r)}>${o}</button>`)}</div>`}
     </section>`;
   }
   /** Older mode: no faces on a shared wall. One quiet button leaves a note for a grown-up; nothing about it appears on the panel. */
   _chatCard() {
     return l`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
-      <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:16px" @click=${() => {
+      <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => {
       this._feel = "", this._feelReply("chat");
     }}>${K("ask", 20)}Ask for a chat</button>
-      <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
+      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
   }
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   _windChat() {
-    return l`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
-      <button class="pill tap" style="height:52px;justify-content:center;font-size:16px" @click=${() => {
+    return l`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
+      <button class="pill tap" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => {
       this._feel = "", this._feelReply("chat");
     }}>💬 Ask for a chat</button></section>`;
   }
@@ -8680,12 +8684,12 @@ const Sg = [
         }}>
           <span class="e" aria-hidden="true">${Fg(n.title)}</span><span class="pt">${n.title}</span>
           <span class="moons" aria-hidden="true">${p === 0 ? "☀️" : p <= 7 ? Array.from({ length: p }, () => l`<span>🌙</span>`) : "🌙"}</span><span class="sl">${r(p)}</span></button>`;
-      })}</div>` : l`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+      })}</div>` : l`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
     }
     return l`${this._wind ? l`<span class="label">${`${this.kid.name}’s week`}</span>` : u}
       ${i.length ? i.map((o, r) => l`<div class="wk"><span class="d">${r && s(i[r - 1].start) === s(o.start) ? "" : s(o.start)}</span>
         <span style="flex:1;font-weight:var(--w-semi, 600);display:flex;gap:6px;align-items:baseline"><span class="init sm" style="--c:${o.family ? "var(--p-family)" : "var(--kid)"};align-self:center" role="img" aria-label=${o.family ? "Family" : this.kid.name}>${o.family ? "F" : this.kid.name[0]}</span>
-          <span>${o.title}${o.allDay ? "" : l` <span class="muted" style="font-weight:500">· ${ft(o.start)}</span>`}</span></span></div>`) : l`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+          <span>${o.title}${o.allDay ? "" : l` <span class="muted" style="font-weight:500">· ${ft(o.start)}</span>`}</span></span></div>`) : l`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
   }
   _celebration() {
     const t = this._celebrate, e = this._look;
@@ -8693,12 +8697,12 @@ const Sg = [
       i.target === i.currentTarget && this._closeCelebrate(!1);
     }}>
       <div class="glass cbox" role="dialog" aria-label="New unlocks">
-        <span class="rank" style="font-size:14px">${t.some((i) => Wg.has(i.id)) ? "SURPRISE!" : `NEW UNLOCK${t.length > 1 ? "S" : ""}`}</span>
+        <span class="rank" style="font-size:var(--fs-2)">${t.some((i) => Wg.has(i.id)) ? "SURPRISE!" : `NEW UNLOCK${t.length > 1 ? "S" : ""}`}</span>
         <h1 class="t-hero" style="text-align:center">${this.kid.name}, you unlocked ${t.length > 1 ? `${t.length} things` : t[0].label}!</h1>
         <div class="unl">${t.slice(0, 8).map((i, s) => l`<div style="animation-delay:${0.15 + s * 0.12}s">
           ${this._itemPic(e, i, 96, i.cat.crop)}${i.label}</div>`)}</div>
         <div style="display:flex;gap:12px"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => this._closeCelebrate(!1)}>Later</button>
-          ${this._wind ? u : l`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => this._closeCelebrate(!0)}>${K("star", 18)}Try it on</button>`}</div>
+          ${this._wind ? u : l`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => this._closeCelebrate(!0)}>${K("star", 18)}Try it on</button>`}</div>
       </div>
     </div>`;
   }
@@ -8709,20 +8713,20 @@ ho.styles = [Qt, H`
     /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
     @media (max-height: 700px) { :host([data-shape='wide']:not([data-n3])) .hero { gap: 6px; padding-top: 10px; padding-bottom: 10px; } }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
-    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
-    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
+    .name { font-size: var(--fs-6); font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
+    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     .stat { border-radius: 18px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
-    .stat b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .stat span { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .stat b { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-5); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     /* good days: one filled dot for each day earned, and nothing drawn for the days that were not */
     .dots { display: flex; gap: 5px; min-height: 14px; }
     .dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink2); }
     .dots i.g { background: var(--ok); border-color: var(--ok); }
     .daybtns { display: grid; grid-template-columns: repeat(7, 76px); gap: 10px; }
-    .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-bold, 700); }
+    .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .daybtns button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .daybtns button span { font-size: 14px; font-weight: var(--w-semi, 600); }
+    .daybtns button span { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .nextup { width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 18px; background: var(--chip); padding: 8px 12px 8px 8px; }
     .jobs { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
     .list { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
@@ -8731,9 +8735,9 @@ ho.styles = [Qt, H`
     .list[data-fit] .sec { margin-top: 1px; }
     .list[data-fit] .job { min-height: 46px; padding-top: 4px; padding-bottom: 4px; }
     .list[data-fit] .job .box { width: 28px; height: 28px; }
-    .list[data-fit] .job .t { font-size: 16px; }
+    .list[data-fit] .job .t { font-size: var(--fs-3); }
     .list[data-fit] .pic { min-height: 148px; }
-    .list[data-fit] .pic .e { font-size: 72px; }
+    .list[data-fit] .pic .e { font-size: var(--fs-d4); }
     .list[data-fit='2'], .list[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; align-content: start; }
     .list[data-fit='2'] > :not(.job), .list[data-fit='3'] > :not(.job), .list[data-fit='2'] > .job:has(.play), .list[data-fit='3'] > .job:has(.play) { grid-column: 1 / -1; }
     :host([data-shape='tall']) { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); }
@@ -8769,8 +8773,8 @@ ho.styles = [Qt, H`
     :host([data-phone]) .celebrate { position: fixed; border-radius: 0; }
     :host([data-phone]) .daybtns { grid-template-columns: repeat(4, 1fr); }
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
-    .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
-    .sec span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .sec h2 { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
+    .sec span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
     /* the touch is answered on the way down, before Home Assistant or even the click: the tile lights and the check pops */
     .job[data-just], .pic[data-just] { background: var(--chip-strong); }
@@ -8785,21 +8789,21 @@ ho.styles = [Qt, H`
     .job.now { box-shadow: inset 0 0 0 2.5px var(--kid); }
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
-    .focus .label { font-size: 14px; margin-top: 4px; }
+    .focus .label { font-size: var(--fs-2); margin-top: 4px; }
     /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */
     .focus[data-fit] { gap: 6px; --fit: 1; }
     .focus[data-fit] .label { margin-top: 0; }
     .focus[data-fit] .picwrap { min-height: 132px; }
     .focus[data-fit] .pic.big { flex-direction: row; gap: 18px; padding: 8px 96px 8px 18px; }
-    .focus[data-fit] .pic.big .e { font-size: 88px; line-height: 1.1; }
+    .focus[data-fit] .pic.big .e { font-size: var(--fs-d5); line-height: 1.1; }
     .focus[data-fit] .pic.small { flex-basis: 76px; padding-top: 4px; padding-bottom: 4px; }
-    .focus[data-fit] .pic.small .e { font-size: 52px; line-height: 1.1; }
+    .focus[data-fit] .pic.small .e { font-size: var(--fs-d2); line-height: 1.1; }
     .focus[data-fit='2'] .job.big, .focus[data-fit='3'] .job.big { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
-    .label { font-size: 14px; }
-    .pill { font-size: 15px; }
+    .label { font-size: var(--fs-2); }
+    .pill { font-size: var(--fs-2); }
     .job.big { min-height: 96px; padding: 16px 18px; }
-    .job.big .box { width: 52px; height: 52px; font-size: 26px; }
-    .job.big .t { font-size: 28px; font-weight: var(--w-bold, 700); }
+    .job.big .box { width: 52px; height: 52px; font-size: var(--fs-5); }
+    .job.big .t { font-size: var(--fs-5); font-weight: var(--w-bold, 700); }
     .job.soonjob { opacity: .82; }
     /* the current picture job, with its "read it to me" button in the lower corner where a small child can reach it */
     .picwrap { position: relative; display: flex; flex: 4 1 0; min-height: 204px; max-height: 300px; }
@@ -8808,43 +8812,43 @@ ho.styles = [Qt, H`
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
     .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
-    .pic.big .pt { font-size: 28px; }
+    .pic.big .pt { font-size: var(--fs-5); }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
-    .pic.small .e { font-size: 72px; }
-    .pic.small .pt { font-size: 20px; }
+    .pic.small .e { font-size: var(--fs-d4); }
+    .pic.small .pt { font-size: var(--fs-4); }
     .allset { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
-    .allset .big-e { font-size: 72px; animation: hooray var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1) both; }
+    .allset .big-e { font-size: var(--fs-d4); animation: hooray var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1) both; }
     @keyframes hooray { from { transform: scale(calc(1 - .7 * var(--m-d, 1))) rotate(calc(-20deg * var(--m-d, 1))); opacity: 0; } }
-    button.later { width: 100%; min-height: 48px; align-items: center; text-align: left; font-size: 15px; }
+    button.later { width: 100%; min-height: 48px; align-items: center; text-align: left; font-size: var(--fs-2); }
     /* all done, in pictures: the child's own character celebrating, and one big button to look back at the day */
     .party { position: relative; display: flex; align-items: center; justify-content: center; line-height: 0; }
     .party .burstart { position: absolute; inset: -18px -70px; width: calc(100% + 140px); height: calc(100% + 36px); }
-    .seedone { display: flex; align-items: center; gap: 14px; min-height: 96px; padding: 12px 28px 12px 18px; border-radius: 26px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink2); font-size: 22px; font-weight: var(--w-heavy, 800); }
+    .seedone { display: flex; align-items: center; gap: 14px; min-height: 96px; padding: 12px 28px 12px 18px; border-radius: 26px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink2); font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .feel.three { justify-content: space-around; }
-    .feel.three button { font-size: 46px; width: 72px; height: 72px; }
+    .feel.three button { font-size: var(--fs-d1); width: 72px; height: 72px; }
     .job.done .box { background: var(--ok); border-color: var(--ok); transform: scale(1.08); }
     .job.done .t { color: var(--ink-done, var(--ink3)); text-decoration: line-through; }
-    .job .t { flex: 1; font-size: 18px; font-weight: var(--w-semi, 600); }
-    .plus { font-size: 14px; font-weight: var(--w-heavy, 800); padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--kid) 22%, transparent); white-space: nowrap; }
+    .job .t { flex: 1; font-size: var(--fs-3); font-weight: var(--w-semi, 600); }
+    .plus { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--kid) 22%, transparent); white-space: nowrap; }
     .grow { background: color-mix(in srgb, var(--ok) 18%, transparent); }
     /* one filled button on the page: the timer of the job to do now. Any other timer is an outlined one. */
-    .play { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px var(--primary); font-weight: var(--w-bold, 700); font-size: 15px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .play { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px var(--primary); font-weight: var(--w-bold, 700); font-size: var(--fs-2); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
     .now .play:not(.going) { background: var(--primary); color: var(--on-primary); box-shadow: none; }
-    .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: 16px; }
-    .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
+    .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: var(--fs-3); }
+    .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
     .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
     .pic { border-radius: 24px; background: var(--chip); padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; min-height: 190px; justify-content: center; }
-    .pic .pt { font-size: 17px; font-weight: var(--w-bold, 700); text-align: center; }
-    .pic .e { font-size: 96px; line-height: 1.1; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.6,.4,1); }
+    .pic .pt { font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: center; }
+    .pic .e { font-size: var(--fs-d5); line-height: 1.1; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.6,.4,1); }
     .pic.done { background: color-mix(in srgb, var(--ok) 25%, var(--chip)); }
     .pic.done .e { transform: scale(.85) rotate(-8deg); opacity: .6; }
-    .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
+    .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
     .stars { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px; line-height: 0; }
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
     .avph { display: block; width: 186px; max-width: 100%; aspect-ratio: 200 / 240; border-radius: 22px; background: var(--chip-soft); }
     .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
-    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
+    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
     /* the card holds his picture, his name and the way into his studio: nothing to count, so the picture takes the room */
     .avbtn { position: relative; flex: 0 1 300px; min-height: 110px; display: flex; justify-content: center; }
@@ -8877,23 +8881,23 @@ ho.styles = [Qt, H`
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     /* a long reward name keeps a readable line: what it costs drops under it instead of squeezing it */
     .rw { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
-    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
-    .rw .rpic { font-size: 24px; flex-shrink: 0; }
-    .rw.picrow .rpic { font-size: 40px; }
+    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
+    .rw .rpic { font-size: var(--fs-5); flex-shrink: 0; }
+    .rw.picrow .rpic { font-size: var(--fs-d1); }
     .rw .stars { max-width: 100px; }
-    .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
+    .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
     /* "80 to go" is a status, not something to press: a flat tile with no outline */
     .rw .cost.notyet { box-shadow: none; background: var(--track); color: var(--ink); font-weight: var(--w-semi, 600); }
-    .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
+    .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
     .rw.ask[data-held] { pointer-events: none; }
     @keyframes lockwig { 0%, 100% { rotate: 0deg; } 25% { rotate: calc(-16deg * var(--m-d, 1)); } 60% { rotate: calc(12deg * var(--m-d, 1)); } 82% { rotate: calc(-6deg * var(--m-d, 1)); } }
     .studio[data-nudge] svg { transform-origin: 50% 20%; animation: lockwig var(--m-4, 400ms) var(--e-out, ease) 1; }
     .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); } .rw.ask .q .muted { color: inherit; /* the row's own selected ink: the muted ink vanished on the pale selected fill in Space */ }
-    .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
-    .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .rw.ask .q { flex: 1 1 100%; font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .jarwhy { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    .jarwhy { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
     .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }
@@ -8904,43 +8908,43 @@ ho.styles = [Qt, H`
     /* a marble: the same small glass ball on a family-job row, in flight and in the jar */
     .marble { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, transparent 42%), var(--accent); box-shadow: inset 0 -2px 3px rgba(0,0,0,.22); }
     .marble.fly { position: fixed; left: 0; top: 0; width: 16px; height: 16px; z-index: 60; pointer-events: none; }
-    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: var(--w-heavy, 800); white-space: nowrap; }
-    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; min-width: 0; }
+    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); white-space: nowrap; }
+    .wk { display: flex; gap: 10px; font-size: var(--fs-2); align-items: baseline; min-width: 0; }
     .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
-    .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
-    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
+    .wk .init { min-width: 22px; height: 22px; font-size: var(--fs-2); }
+    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: var(--fs-2); }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
-    .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .bedclock b span { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
+    .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
+    .bedclock b span { font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
     .ring { position: relative; width: 52px; height: 52px; }
     .ring svg { transform: rotate(-90deg); }
-    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
+    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
-    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: 14px; letter-spacing: -.01em; }
-    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
+    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: var(--fs-2); letter-spacing: -.01em; }
+    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the page's messages sit at the top here, clear of the buttons a child is reaching for */
     :host(:not([data-phone])) .toast { bottom: auto; top: 4px; }
     .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .feel button { font-size: 30px; width: 46px; height: 46px; border-radius: 50%; }
+    .feel button { font-size: var(--fs-6); width: 46px; height: 46px; border-radius: 50%; }
     .feel button:active { background: var(--chip-strong); }
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
     .unl { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
+    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))); } }
     /* points live where they are spent: one line at the top of the rewards */
-    .ptsline { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; padding: 2px 6px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .ptsline b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .ptsline { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; padding: 2px 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .ptsline b { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-5); font-weight: var(--w-heavy, 800); line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
     .tabbody > .stat { flex-shrink: 0; }
     /* coming up, for a child who cannot read: three pictures side by side, each with one moon for every sleep until it. A tap reads it out */
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
-    .soonpic .e { font-size: 40px; line-height: 1.1; }
+    .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
     /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
-    .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
-    .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: 14px; line-height: 1.1; margin-top: auto; }
-    .soonpic .sl { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
+    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
+    .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
+    .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
     ${_t(si)}
     ${_t(cl)}
@@ -9132,11 +9136,11 @@ const jg = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   }
   render() {
     if (!this.hass) return u;
-    const t = this.hass, e = this._rooms(), i = vt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, g) => h + g.ents.filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length, 0), p = e.reduce((h, g) => h + g.ents.filter(Wa).length, 0), c = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), d = this._columns(e, i === "phone" ? 1 : i === "wide" && Ha() >= 2 ? 2 : Ha() >= 1 ? 3 : e.length > 9 ? 4 : 3);
+    const t = this.hass, e = this._rooms(), i = yt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, g) => h + g.ents.filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length, 0), p = e.reduce((h, g) => h + g.ents.filter(Wa).length, 0), c = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), d = this._columns(e, i === "phone" ? 1 : i === "wide" && Ha() >= 2 ? 2 : Ha() >= 1 ? 3 : e.length > 9 ? 4 : 3);
     return l`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
-          ${e.length ? l`<span class="muted" style="font-size:15px">${n ? `${n} light${n > 1 ? "s" : ""} on` : "All lights off"} · ${e.length} room${e.length === 1 ? "" : "s"}${p ? ` · ${p} not responding` : ""}</span>` : u}</div>
+          ${e.length ? l`<span class="muted" style="font-size:var(--fs-2)">${n ? `${n} light${n > 1 ? "s" : ""} on` : "All lights off"} · ${e.length} room${e.length === 1 ? "" : "s"}${p ? ` · ${p} not responding` : ""}</span>` : u}</div>
           ${c > 0 ? l`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${Zt.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(c / 60)}:${String(c % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : u}</div>
         ${e.length ? l`<div class="rgrid" data-fits>
           ${d.map((h) => l`<div class="rcol">${h.map((g) => {
@@ -9196,7 +9200,7 @@ Za.styles = [Qt, H`
     .rgrid[data-fit] { gap: 10px; }
     .rgrid[data-fit] .rcol { gap: 10px; }
     .rgrid[data-fit] .room { padding: 10px; gap: 4px; border-radius: 18px; }
-    .rgrid[data-fit] .rh h2 { font-size: 17px; }
+    .rgrid[data-fit] .rh h2 { font-size: var(--fs-3); }
     .rgrid[data-fit='2'] .dev, .rgrid[data-fit='3'] .dev { padding: 2px 8px; }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
@@ -9218,13 +9222,13 @@ Za.styles = [Qt, H`
     /* a lit room glows at its edge; its background stays the theme's own, so the words on it keep their contrast in dark themes too */
     .room.lit { box-shadow: 0 0 0 2px color-mix(in srgb, #ffb703 75%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-    .rh h2 { flex: 1; min-width: 0; font-size: 19px; font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
+    .rh h2 { flex: 1; min-width: 0; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
     .dev { display: flex; align-items: center; gap: 10px; min-height: 52px; /* token */ padding: 4px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
     .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: background-color var(--m-3, 240ms), color var(--m-3, 240ms), box-shadow var(--m-3, 240ms); }
     .dev.on .dicon { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
     .dev .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
-    .dev .n { font-size: 15px; font-weight: var(--w-semi, 600); overflow-wrap: anywhere; }
-    .dev .s { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .dev .n { font-size: var(--fs-2); font-weight: var(--w-semi, 600); overflow-wrap: anywhere; }
+    .dev .s { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .dev.gone { cursor: default; }
     .dev.gone .dicon { opacity: .55; }
     .dev .pinned { color: var(--ink2); display: flex; flex-shrink: 0; }
@@ -9232,36 +9236,36 @@ Za.styles = [Qt, H`
     [data-busy] .dicon, .scene[data-busy] { animation: busy 1s ease-in-out infinite; }
     @keyframes busy { 50% { opacity: .35; } }
     .side { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
-    .side .label { font-size: 13px; }
+    .side .label { font-size: var(--fs-1); }
     .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .scene { min-height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-size: 15px; font-weight: var(--w-bold, 700); text-align: left; line-height: 1.2; }
+    .scene { min-height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.2; }
     .scene.go { animation: go var(--m-5, 900ms) ease; }
     @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(calc(1 + .04 * var(--m-d, 1))); } }
-    .auto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 4px; border-radius: 12px; font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.25; }
+    .auto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 4px; border-radius: 12px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.25; }
     .auto > span:first-child { flex: 1; min-width: 0; }
     /* the switch: a 56 by 32 track inside a control at least 44 high (the row, or the room's "Lights" button) */
-    .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
+    .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
     .toggle { display: block; width: 56px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-3, 240ms); }
     .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
-    .grown { height: 44px; /* token */ font-size: 15px; }
+    .grown { height: 44px; /* token */ font-size: var(--fs-2); }
     /* while the PIN window is open the page says so, counts it down and offers to close it */
-    .unl { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-size: 15px; font-weight: var(--w-semi, 600); }
+    .unl { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .unl .ut { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; line-height: 1; }
     .unl b { font-variant-numeric: tabular-nums; font-weight: var(--w-heavy, 800); }
-    .unl .pill { height: 44px; /* token */ font-size: 15px; white-space: nowrap; }
+    .unl .pill { height: 44px; /* token */ font-size: var(--fs-2); white-space: nowrap; }
     :host([data-phone]) .unl .ut > span { white-space: normal; }
     .none { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; color: var(--ink2); }
-    .none b { font-size: 22px; font-weight: var(--w-heavy, 800); color: var(--ink); }
-    .none span { font-size: 16px; line-height: 1.4; max-width: 460px; }
-    .tipline { font-size: 15px; line-height: 1.35; }
+    .none b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .none span { font-size: var(--fs-3); line-height: 1.4; max-width: 460px; }
+    .tipline { font-size: var(--fs-2); line-height: 1.35; }
   `], Za.properties = { hass: { attribute: !1 }, pin: {}, hideScripts: { attribute: !1 }, hide: { attribute: !1 }, _unlocked: { state: !0 }, _askPin: { state: !0 }, _went: { state: !0 }, _all: { state: !0 }, _busy: { state: !0 }, _opt: { state: !0 }, _tick: { state: !0 } }, Za.WINDOW = 6e4;
 let wn = Za;
 customElements.get("fh-home") || customElements.define("fh-home", wn);
-const Xi = (a, t) => a.entities?.[t]?.platform ?? "", gl = (a) => !!a && a.state !== "unavailable", yh = (a) => Object.keys(a.states).filter((t) => t.startsWith("media_player.") && Xi(a, t) === "music_assistant" && !a.entities?.[t]?.hidden).map((t) => a.states[t]).filter(gl), ks = (a) => !!a.services?.music_assistant && yh(a).length > 0, vh = (a, t) => {
-  const e = yh(a);
+const Xi = (a, t) => a.entities?.[t]?.platform ?? "", gl = (a) => !!a && a.state !== "unavailable", vh = (a) => Object.keys(a.states).filter((t) => t.startsWith("media_player.") && Xi(a, t) === "music_assistant" && !a.entities?.[t]?.hidden).map((t) => a.states[t]).filter(gl), ks = (a) => !!a.services?.music_assistant && vh(a).length > 0, yh = (a, t) => {
+  const e = vh(a);
   return e.length ? e.sort((s, o) => String(s.attributes.friendly_name).localeCompare(String(o.attributes.friendly_name))) : (t.length ? t : Object.keys(a.states).filter((s) => s.startsWith("media_player."))).map((s) => a.states[s]).filter(gl);
 }, Fe = (a, t, e) => {
   if (!e) return;
@@ -9314,7 +9318,7 @@ const Kh = async (a) => {
 }, wd = (a, t, e) => {
   const i = a.entities?.[t]?.device_id;
   return i ? Object.values(a.entities ?? {}).find((s) => s.device_id === i && e.test(s.entity_id) && !!a.states[s.entity_id])?.entity_id : void 0;
-}, yn = (a, t, e) => a.states["script.fh_music_sleep"] ? (a.callService("script", "fh_music_sleep", { player: t, minutes: e }), !0) : Xi(a, t) === "sonos" ? (a.callService("sonos", "set_sleep_timer", { sleep_time: e * 60 }, { entity_id: t }), !0) : !1, Yg = (a, t) => a.states["script.fh_music_sleep"] ? (a.callService("script", "turn_off", {}, { entity_id: "script.fh_music_sleep" }), !0) : Xi(a, t) === "sonos" ? (a.callService("sonos", "clear_sleep_timer", {}, { entity_id: t }), !0) : !1, ui = (a) => `todo.${a.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_music`, Bg = async (a, t) => {
+}, vn = (a, t, e) => a.states["script.fh_music_sleep"] ? (a.callService("script", "fh_music_sleep", { player: t, minutes: e }), !0) : Xi(a, t) === "sonos" ? (a.callService("sonos", "set_sleep_timer", { sleep_time: e * 60 }, { entity_id: t }), !0) : !1, Yg = (a, t) => a.states["script.fh_music_sleep"] ? (a.callService("script", "turn_off", {}, { entity_id: "script.fh_music_sleep" }), !0) : Xi(a, t) === "sonos" ? (a.callService("sonos", "clear_sleep_timer", {}, { entity_id: t }), !0) : !1, ui = (a) => `todo.${a.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_music`, Bg = async (a, t) => {
   if (!a.states[t]) return [];
   try {
     return (await a.callWS({ type: "todo/item/list", entity_id: t })).items.filter((i) => i.status !== "completed").map((i) => {
@@ -9361,10 +9365,10 @@ const Kh = async (a) => {
   const e = t.currentTarget, i = e.getBoundingClientRect(), s = t.clientX, o = t.clientY, r = !!t.target.closest(".fcap"), n = 16, p = (k) => (a.vert ? (i.bottom - n - k.clientY) / Math.max(1, i.height - 2 * n) : (k.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, c = r ? a.v - p(t) : 0;
   let d = !1, h = !1, g = a.v;
   const m = (k) => {
-    const b = k, w = Math.abs(b.clientX - s), v = Math.abs(b.clientY - o), U = a.vert ? v : w, y = a.vert ? w : v;
+    const b = k, w = Math.abs(b.clientX - s), y = Math.abs(b.clientY - o), U = a.vert ? y : w, v = a.vert ? w : y;
     if (!h) {
       if (!d) {
-        if (y >= ao && y > U) {
+        if (v >= ao && v > U) {
           h = !0;
           return;
         }
@@ -9405,27 +9409,27 @@ const Kh = async (a) => {
   t.hasVol ? bl(t.vol, (s) => a.vol(t.id, s, !0), i)(e) : i(e);
 }, So = (a) => a.offline ? "Offline" : a.live ? a.playing ? "Playing" : "Paused" : a.asleep ? "Asleep" : "Quiet", kl = (a) => `${a.vol} per cent, ${So(a).toLowerCase()}`, _a = (a) => a.colour ? `--c:${a.colour}` : "", _o = (a) => a.linked ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u, Sh = (a, t, e, i) => l`<span class="mkeys"><button class="mkey tap" aria-label="Previous" @click=${t}>${ct("prev", 22)}</button>
   <button class="mkey go ngo tap" aria-label=${a ? "Pause" : "Play"} @click=${e}>${ct(a ? "pause" : "play", 22)}</button>
-  <button class="mkey tap" aria-label="Next" @click=${i}>${ct("next", 22)}</button></span>`, vn = (a, t) => [200 + a * Math.cos(t * Math.PI / 180), 200 + a * Math.sin(t * Math.PI / 180)], mr = (a, t, e) => {
-  const [i, s] = vn(a, t), [o, r] = vn(a, e);
+  <button class="mkey tap" aria-label="Next" @click=${i}>${ct("next", 22)}</button></span>`, yn = (a, t) => [200 + a * Math.cos(t * Math.PI / 180), 200 + a * Math.sin(t * Math.PI / 180)], mr = (a, t, e) => {
+  const [i, s] = yn(a, t), [o, r] = yn(a, e);
   return `M${i.toFixed(1)} ${s.toFixed(1)} A${a} ${a} 0 ${e - t > 180 ? 1 : 0} 1 ${o.toFixed(1)} ${r.toFixed(1)}`;
 }, Ig = (a) => {
-  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, s = 2 * Math.PI * 106, o = (w, v, U) => (y) => {
-    const A = y.currentTarget.ownerSVGElement, T = (F) => {
-      const V = A.getBoundingClientRect(), R = ((Math.atan2(F.clientY - (V.top + V.height / 2), F.clientX - (V.left + V.width / 2)) * 180 / Math.PI - v) % 360 + 360) % 360;
+  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, s = 2 * Math.PI * 106, o = (w, y, U) => (v) => {
+    const A = v.currentTarget.ownerSVGElement, T = (F) => {
+      const V = A.getBoundingClientRect(), R = ((Math.atan2(F.clientY - (V.top + V.height / 2), F.clientX - (V.left + V.width / 2)) * 180 / Math.PI - y) % 360 + 360) % 360;
       return sa((R > U + (360 - U) / 2 ? 0 : Math.min(R, U)) / U * 100);
     };
     if (!w.hasVol) {
-      Ua(y, () => {
+      Ua(v, () => {
       }, (F, V, z) => {
         !F && !z && a.toggle(w.id);
       }, Mo);
       return;
     }
-    Ua(y, (F) => a.vol(w.id, T(F), !1), (F, V, z) => {
+    Ua(v, (F) => a.vol(w.id, T(F), !1), (F, V, z) => {
       z ? a.drop(w.id) : F ? a.vol(w.id, T(V), !0) : a.toggle(w.id);
     }, ao);
   }, r = a.dial, n = r.stops.length, p = r.stops.findIndex((w) => w.on), c = (w) => (w + 0.5) / Math.max(1, n) * 100, d = (w) => {
-    const v = w.currentTarget, U = v.querySelector(".tneedle"), y = v.getBoundingClientRect(), A = (F) => Math.max(0, Math.min(1, (F.clientX - y.left) / y.width)), T = (F) => Math.max(0, Math.min(n - 1, Math.round(A(F) * n - 0.5)));
+    const y = w.currentTarget, U = y.querySelector(".tneedle"), v = y.getBoundingClientRect(), A = (F) => Math.max(0, Math.min(1, (F.clientX - v.left) / v.width)), T = (F) => Math.max(0, Math.min(n - 1, Math.round(A(F) * n - 0.5)));
     n && Ua(w, (F) => {
       U && (U.style.transition = "none", U.style.left = `${A(F) * 100}%`);
     }, (F, V, z) => {
@@ -9433,8 +9437,8 @@ const Kh = async (a) => {
       U && (U.style.transition = "", U.style.left = `${R < 0 ? 2 : c(R)}%`), z || r.tune(R);
     }, 4);
   }, h = (w) => {
-    const v = w.key === "ArrowRight" || w.key === "ArrowUp" ? 1 : w.key === "ArrowLeft" || w.key === "ArrowDown" ? -1 : 0;
-    v && n && (w.preventDefault(), r.tune(Math.max(0, Math.min(n - 1, (p < 0 ? v > 0 ? -1 : n : p) + v))));
+    const y = w.key === "ArrowRight" || w.key === "ArrowUp" ? 1 : w.key === "ArrowLeft" || w.key === "ArrowDown" ? -1 : 0;
+    y && n && (w.preventDefault(), r.tune(Math.max(0, Math.min(n - 1, (p < 0 ? y > 0 ? -1 : n : p) + y))));
   }, g = r.sleep.left, m = g === null ? 0 : Math.max(0.02, Math.min(1, g / Math.max(1, r.sleep.mins))), f = m * 2 * Math.PI, k = 20 + 16 * Math.sin(f), b = 20 - 16 * Math.cos(f);
   return l`<div class="dialwrap">
     <section class="dcard dnext" aria-label="Up next"><h3>Up next</h3>
@@ -9444,20 +9448,20 @@ const Kh = async (a) => {
     <svg viewBox="0 0 400 400">
       <circle class="dplate" cx="200" cy="200" r="184"></circle>
       ${a.now.playing ? x`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : u}
-      ${a.rooms.map((w, v) => {
-    const U = -90 + v * e + i / 2, y = e - i, A = U + y * Math.max(0.03, w.vol / 100), [T, F] = vn(152, A);
+      ${a.rooms.map((w, y) => {
+    const U = -90 + y * e + i / 2, v = e - i, A = U + v * Math.max(0.03, w.vol / 100), [T, F] = yn(152, A);
     return x`<g class="darc" data-zone=${w.id} ?data-live=${w.live} ?data-playing=${w.playing} ?data-asleep=${w.asleep} ?data-offline=${w.offline} ?data-focus=${w.focus} ?data-hot=${a.over === w.id} ?data-held=${a.held === w.id} style=${_a(w)} role="slider" tabindex="0" aria-label="Volume in ${w.name}"
-          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${w.vol} aria-valuetext="${kl(w)}. Enter ${w.on ? "drops" : "adds"} the room." @pointerdown=${o(w, U, y)} @keydown=${wl(a, w)}>
-          <path class="dhit" d=${mr(152, U, U + y)}></path><path class="dtrack" d=${mr(152, U, U + y)}></path>
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${w.vol} aria-valuetext="${kl(w)}. Enter ${w.on ? "drops" : "adds"} the room." @pointerdown=${o(w, U, v)} @keydown=${wl(a, w)}>
+          <path class="dhit" d=${mr(152, U, U + v)}></path><path class="dtrack" d=${mr(152, U, U + v)}></path>
           ${w.hasVol ? x`${w.live ? x`<path class="dfill" d=${mr(152, U, A)}></path>` : u}<circle class="dknob" cx=${T} cy=${F} r="15"></circle>` : u}</g>`;
   })}
       <circle class="dprogt" cx="200" cy="200" r="106"></circle>
       <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${a.now.frac * s} ${s}" transform="rotate(-90 200 200)"></circle>
     </svg>
     <button class="dcover tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}><span>${ct(a.now.playing ? "pause" : "play", 30)}</span></button>
-    <div class="dlabels">${a.rooms.map((w, v) => {
-    const U = -90 + v * e + e / 2, y = Math.cos(U * Math.PI / 180), A = Math.sin(U * Math.PI / 180), [T, F] = xl(a, w), V = y > 0.3 ? "0" : y < -0.3 ? "-100%" : "-50%", z = Math.abs(y) > 0.3 ? "-50%" : A > 0 ? "0" : "-100%";
-    return l`<div class="dlabel" data-side=${y > 0.3 ? "r" : y < -0.3 ? "l" : "m"} ?data-held=${a.held === w.id} ?data-offline=${w.offline} style="left:${50 + 50.5 * y + (Math.abs(y) > 0.3 && Math.abs(A) > 0.5 ? 7 * Math.sign(y) : 0)}%;top:${50 + 50.5 * A}%;transform:translate(${V},${z})">
+    <div class="dlabels">${a.rooms.map((w, y) => {
+    const U = -90 + y * e + e / 2, v = Math.cos(U * Math.PI / 180), A = Math.sin(U * Math.PI / 180), [T, F] = xl(a, w), V = v > 0.3 ? "0" : v < -0.3 ? "-100%" : "-50%", z = Math.abs(v) > 0.3 ? "-50%" : A > 0 ? "0" : "-100%";
+    return l`<div class="dlabel" data-side=${v > 0.3 ? "r" : v < -0.3 ? "l" : "m"} ?data-held=${a.held === w.id} ?data-offline=${w.offline} style="left:${50 + 50.5 * v + (Math.abs(v) > 0.3 && Math.abs(A) > 0.5 ? 7 * Math.sign(v) : 0)}%;top:${50 + 50.5 * A}%;transform:translate(${V},${z})">
         <button class="dname tap" aria-pressed=${String(w.focus)} aria-label="Show ${w.name} in the player" @click=${() => a.focus(w.id)}><b>${w.asleep ? "☾ " : ""}${w.name}${_o(w)}</b><span>${So(w)}</span></button>
         ${w.hasVol && !w.offline ? l`<span class="dstep">${T}<b class="vnum" aria-hidden="true">${w.vol}</b>${F}</span>` : u}</div>`;
   })}</div>
@@ -9470,7 +9474,7 @@ const Kh = async (a) => {
         <span><b>Sleep fade · ${r.sleep.room}</b><span>${g !== null ? `${g} min left · tap to cancel` : `Fade out in ${r.sleep.mins} min`}</span></span></button>` : u}</section>
     <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, n)} aria-valuenow=${p < 0 ? 1 : p + 1} aria-valuetext=${p < 0 ? "Not tuned" : r.stops[p].name} @pointerdown=${d} @keydown=${h}>
       <i class="tticks" aria-hidden="true"></i>
-      ${r.stops.map((w, v) => l`<span class="tstop" ?data-on=${w.on} style="left:${c(v)}%;max-width:${(100 / n - 2).toFixed(1)}%">${w.name}</span>`)}
+      ${r.stops.map((w, y) => l`<span class="tstop" ?data-on=${w.on} style="left:${c(y)}%;max-width:${(100 / n - 2).toFixed(1)}%">${w.name}</span>`)}
       ${n ? l`<i class="tneedle" aria-hidden="true" ?data-on=${p >= 0} style="left:${p < 0 ? 2 : c(p)}%"></i>` : l`<span class="tstop" style="left:50%">Pin music or add stations to fill the tuner</span>`}
     </div></div>`;
 }, Jg = (a) => {
@@ -9488,15 +9492,15 @@ const Kh = async (a) => {
   }, r = (d) => {
     const h = d.currentTarget.getBoundingClientRect(), g = h.left + h.width / 2, m = h.top + h.height / 2, f = (U) => Math.atan2(U.clientY - m, U.clientX - g) * 180 / Math.PI;
     let k = f(d), b = 0, w = !1;
-    const v = (U) => {
-      const y = f(U);
-      let A = y - k;
-      return A > 180 ? A -= 360 : A < -180 && (A += 360), k = y, b += A, b;
+    const y = (U) => {
+      const v = f(U);
+      let A = v - k;
+      return A > 180 ? A -= 360 : A < -180 && (A += 360), k = v, b += A, b;
     };
     Ua(d, (U) => {
-      w = !0, a.jogTo(v(U), !1);
-    }, (U, y, A) => {
-      U && !A ? a.jogTo(v(y), !0) : w && a.jogTo(0, !0);
+      w = !0, a.jogTo(y(U), !1);
+    }, (U, v, A) => {
+      U && !A ? a.jogTo(y(v), !0) : w && a.jogTo(0, !0);
     }, 6);
   }, n = (d) => {
     const h = d.key === "ArrowRight" || d.key === "ArrowUp" ? 10 : d.key === "ArrowLeft" || d.key === "ArrowDown" ? -10 : 0;
@@ -9520,8 +9524,8 @@ const Kh = async (a) => {
       <span class="sname"><span>Whole house</span></span>
       <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${K("home", 22)}</button>
       <div class="well">${t.length ? s : l`<span class="sval">–</span>`}</div></div></div></div>`;
-}, yd = 6, Pg = (a) => {
-  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - yd)), o = t.items.slice(s, s + yd), r = t.items[i], n = (f) => (f + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, c = (f, k) => {
+}, vd = 6, Pg = (a) => {
+  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - vd)), o = t.items.slice(s, s + vd), r = t.items[i], n = (f) => (f + 0.5) / a.rooms.length * 100, p = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, c = (f, k) => {
     const [b, w] = xl(a, f);
     return l`<div class="cab" data-zone=${f.id} ?data-live=${f.live} ?data-playing=${f.playing} ?data-asleep=${f.asleep} ?data-offline=${f.offline} ?data-focus=${f.focus} ?data-hot=${a.over === f.id} ?data-held=${a.held === f.id} style="--top:${n(k)}%;--n:${a.rooms.length};${_a(f)}">
     <button class="chit tap" aria-pressed=${String(f.focus)} aria-label="Show ${f.name} in the player" @click=${() => a.focus(f.id)}><span class="cone" aria-hidden="true"><i></i></span>
@@ -9530,13 +9534,13 @@ const Kh = async (a) => {
       style="--v:${f.vol}" @pointerdown=${Mh(a, f, () => 150)} @keydown=${wl(a, f)}><i></i></span>${w}</span>` : u}
     <button class="sock tap" data-notrack aria-pressed=${String(f.on)} ?disabled=${f.offline} aria-label="${f.on ? "Remove" : "Add"} ${f.name} ${f.on ? "from" : "to"} the music" @click=${() => a.toggle(f.id)}>${f.on ? "" : "＋"}</button></div>`;
   }, d = a.rooms.map((f, k) => [f, k]).filter(([f]) => f.on), h = (f) => 39 + (f - (d.length - 1) / 2) * Math.min(9, 60 / Math.max(1, d.length)), g = d.map(([f, k], b) => {
-    const v = h(b), U = 70, y = n(k), A = 9 + Math.abs(y - v) * 0.18;
-    return x`<path class="wire" ?data-playing=${f.playing} style="${_a(f)};animation-delay:${-b * 0.4}s" d="M${64.6} ${v} C${64.6 + 3.4} ${v + A}, ${U - 3.4} ${y + A}, ${U} ${y}"></path>`;
+    const y = h(b), U = 70, v = n(k), A = 9 + Math.abs(v - y) * 0.18;
+    return x`<path class="wire" ?data-playing=${f.playing} style="${_a(f)};animation-delay:${-b * 0.4}s" d="M${64.6} ${y} C${64.6 + 3.4} ${y + A}, ${U - 3.4} ${v + A}, ${U} ${v}"></path>`;
   }), m = (f, k) => {
-    const b = s + k, w = b === i, v = 0.5 + (k - (o.length - 1) / 2) / Math.max(3, o.length - 1);
-    return l`<button class="sleeve tap" ?data-front=${w} ?data-lifted=${a.liftedItem === f} style="z-index:${10 - Math.abs(b - i)};--x:${v};--tilt:${(-9 + 17 * v).toFixed(1)}deg;--art:${f.img ? `url(${f.img})` : `linear-gradient(135deg, var(--p-${b % 5 + 1}), var(--p-${(b + 2) % 5 + 1}))`}"
+    const b = s + k, w = b === i, y = 0.5 + (k - (o.length - 1) / 2) / Math.max(3, o.length - 1);
+    return l`<button class="sleeve tap" ?data-front=${w} ?data-lifted=${a.liftedItem === f} style="z-index:${10 - Math.abs(b - i)};--x:${y};--tilt:${(-9 + 17 * y).toFixed(1)}deg;--art:${f.img ? `url(${f.img})` : `linear-gradient(135deg, var(--p-${b % 5 + 1}), var(--p-${(b + 2) % 5 + 1}))`}"
       aria-label="${f.name}. ${w ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
-      @pointerdown=${(U) => a.carryItem(U, f, (y) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(y / 52)))))} @click=${() => t.tap(b)}><span class="sart">${f.img ? "" : f.name[0]}</span></button>`;
+      @pointerdown=${(U) => a.carryItem(U, f, (v) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(v / 52)))))} @click=${() => t.tap(b)}><span class="sart">${f.img ? "" : f.name[0]}</span></button>`;
   };
   return l`<div class="rig" data-fits>
     <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${g}</svg>
@@ -9637,10 +9641,10 @@ const Kh = async (a) => {
   return i.forEach((c, d) => {
     t[c.id] = [2 + (d + 0.5) / i.length * 96, e.length ? 60 : 45];
   }), t;
-}, vd = { sea: "buoys", reef: "shells", space: "stars", orbit: "stars", bush: "lanterns", sunset: "beach balls", fridge: "photos", sports: "kit bag" }, Rh = (a) => Sh(a.now.playing, () => a.prev(), () => a.playPause(), () => a.next()), $h = (a, t) => {
+}, yd = { sea: "buoys", reef: "shells", space: "stars", orbit: "stars", bush: "lanterns", sunset: "beach balls", fridge: "photos", sports: "kit bag" }, Rh = (a) => Sh(a.now.playing, () => a.prev(), () => a.playPause(), () => a.next()), $h = (a, t) => {
   const e = a.crate, i = e.items.slice(0, 7), s = e.tabs.map((g) => g.name), o = s[(s.indexOf(e.who) + 1) % Math.max(1, s.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), p = (g) => `${(g + 0.5) / n * 100} ${g % 2 ? 62 : 38}`, c = t === "space" || t === "orbit", d = t === "fridge" || t === "bush", h = c ? `M${i.map((g, m) => p(m)).join(" L")}` : "M0 6 Q50 20 100 6";
   return l`<div class="sshelf" data-kind=${t}>
-    <button class="slabel tap" aria-label="${r} ${vd[t] ?? "shelf"}. Show ${o === "Family" ? "the family" : `${o}’s`} shelf" @click=${() => e.pick(o)}><b>${e.calm ? "🌙 " : ""}${r} ${vd[t] ?? "shelf"}</b><span>${i.length ? "Carry one to a room" : "Pin music from Search"}</span></button>
+    <button class="slabel tap" aria-label="${r} ${yd[t] ?? "shelf"}. Show ${o === "Family" ? "the family" : `${o}’s`} shelf" @click=${() => e.pick(o)}><b>${e.calm ? "🌙 " : ""}${r} ${yd[t] ?? "shelf"}</b><span>${i.length ? "Carry one to a room" : "Pin music from Search"}</span></button>
     <div class="sitems" style="--n:${n}">${i.length > 1 && (c || d) ? l`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : u}${i.map((g, m) => l`<button class="sitem tap" style="--i:${m};animation-delay:${-m * 0.55}s" ?data-lifted=${a.liftedItem === g} aria-label="${g.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
       @pointerdown=${(f) => a.carryItem(f, g)} @click=${() => e.play(g)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${g.img ? `url(${g.img})` : `linear-gradient(135deg, var(--p-${m % 5 + 1}), var(--p-${(m + 2) % 5 + 1}))`}"></i></button>`)}</div>
   </div>`;
@@ -9688,10 +9692,10 @@ const Kh = async (a) => {
   })}
     ${$h(a, t)}
   </div>`;
-}, ys = [36, 58], gr = 82, Kd = "0 22 100 92", eu = (a, t) => {
-  const e = _h[t], i = a.sdrag, s = (c) => ys[Math.min(ys.length - 1, a.streams.indexOf(c))], o = (c) => (d, h) => {
-    const g = d.target.closest(".vscene") ?? document.body, m = getComputedStyle(g), f = Number(m.getPropertyValue("--sq")) || 0.42, k = Number(m.getPropertyValue("--k")) || 1, b = Number(m.getPropertyValue("--cy")) || 0.4, w = Number(m.getPropertyValue("--uh")) || 1, v = Math.hypot(d.clientX - (h.left + h.width / 2), (d.clientY - (h.top + h.height * b)) / f) / Math.min(h.height * w, h.width * 0.56) * 100 / k, U = [...a.streams.map((A) => [s(A), A]), [gr, ""]], [, y] = U.sort((A, T) => Math.abs(A[0] - v) - Math.abs(T[0] - v))[0];
-    y && y !== c.stream ? a.join(c.id, y) : !y && c.stream && !c.lead && a.leave(c.id);
+}, vs = [36, 58], gr = 82, Kd = "0 22 100 92", eu = (a, t) => {
+  const e = _h[t], i = a.sdrag, s = (c) => vs[Math.min(vs.length - 1, a.streams.indexOf(c))], o = (c) => (d, h) => {
+    const g = d.target.closest(".vscene") ?? document.body, m = getComputedStyle(g), f = Number(m.getPropertyValue("--sq")) || 0.42, k = Number(m.getPropertyValue("--k")) || 1, b = Number(m.getPropertyValue("--cy")) || 0.4, w = Number(m.getPropertyValue("--uh")) || 1, y = Math.hypot(d.clientX - (h.left + h.width / 2), (d.clientY - (h.top + h.height * b)) / f) / Math.min(h.height * w, h.width * 0.56) * 100 / k, U = [...a.streams.map((A) => [s(A), A]), [gr, ""]], [, v] = U.sort((A, T) => Math.abs(A[0] - y) - Math.abs(T[0] - y))[0];
+    v && v !== c.stream ? a.join(c.id, v) : !v && c.stream && !c.lead && a.leave(c.id);
   }, r = a.rooms.filter((c) => !c.stream), n = (c) => {
     const d = c.stream ? a.rooms.filter((f) => f.stream === c.stream) : r, h = d.indexOf(c), g = c.stream ? a.streams.indexOf(c.stream) : 0, m = c.stream ? (g * 137 + h * 360 / d.length) % 360 : (100 + h * 360 / Math.max(1, d.length)) % 360;
     return l`<div class="arm" ?data-moving=${c.playing} ?data-away=${i?.id === c.id} style="--a:${m};--r:${c.stream ? s(c.stream) : gr};--t:${c.stream ? 70 + g * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
@@ -9699,7 +9703,7 @@ const Kh = async (a) => {
   }, p = i ? a.rooms.find((c) => c.id === i.id) : void 0;
   return l`<div class="vscene orbits" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
     <svg class="backdrop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${Fh[t]}</svg>
-    ${a.streams.slice(0, ys.length).map((c, d) => l`<span class="ring" style="--r:${ys[d]};--c:${d ? "var(--p-3)" : "var(--stream, var(--primary))"}"></span>`)}<span class="ring park" style="--r:${gr}"></span>
+    ${a.streams.slice(0, vs.length).map((c, d) => l`<span class="ring" style="--r:${vs[d]};--c:${d ? "var(--p-3)" : "var(--stream, var(--primary))"}"></span>`)}<span class="ring park" style="--r:${gr}"></span>
     <div class="sun">${l`<span class="suntx"><b>${a.now.title}</b><span>${a.now.artist || (a.now.lead ? "Same orbit, same music" : "Pick something to play")}</span>${Rh(a)}</span>`}</div>
     <div class="core">${Vh(a)}</div>
     <div class="plane">${a.rooms.map(n)}</div>
@@ -9717,14 +9721,14 @@ const Kh = async (a) => {
     <div class="vgrid">${ul.map((i) => l`<button class="vcard tap" aria-pressed=${String(i.id === a)} @click=${() => t(i.id)}>${K(i.icon, 34)}<b>${i.name}</b><span>${i.about}</span></button>`)}</div>
     <button class="pill tap" style="align-self:flex-end" @click=${e}>Close</button></section></div>`, su = H`
   /* Switcheroo: the one button that changes how the rooms are shown. Same name, same pinwheel, on every view. */
-  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
+  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
   .pinw { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(#ff5d5d 0 60deg, #ffb13d 0 120deg, #ffe14a 0 180deg, #4fd27a 0 240deg, #45b7f5 0 300deg, #a877f2 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.75), 0 1px 3px rgba(0,0,0,.3); position: relative; animation: pinw 9s linear infinite; animation-play-state: var(--motion, running); }
   .pinw::after { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
   .viewbtn:active .pinw { animation-duration: var(--m-4, 400ms); }
   @keyframes pinw { to { transform: rotate(360deg); } }
   .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .vcard { min-height: 112px; padding: 12px 10px; border-radius: 20px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
-  .vcard b { font-size: 16px; font-weight: var(--w-bold, 700); } .vcard span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .vcard b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .vcard span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: translateY(calc(-3px * var(--m-d, 1))); } .vcard[aria-pressed='true'] span { color: inherit; }
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* ---- one family of volume controls: 44 px to touch, a fill up to the value (--v), a 32 px thumb, the number, quieter and louder at the ends ---- */
@@ -9737,10 +9741,10 @@ const Kh = async (a) => {
   .vfill { position: absolute; left: 4px; top: calc(50% - var(--rail-w) / 2); width: calc(12px + (100% - 32px) * var(--v) / 100); height: var(--rail-w); border-radius: 99px; background: var(--vc); transition: width var(--m-3, 240ms) var(--e-out, ease), height var(--m-3, 240ms) var(--e-out, ease); }
   .vs .fcap { position: absolute; left: calc((100% - 32px) * var(--v) / 100); top: 6px; width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--vc), 0 2px 5px rgba(0,0,0,.3);
     transition: left var(--m-3, 240ms) var(--e-out, ease), bottom var(--m-3, 240ms) var(--e-out, ease), transform var(--m-2, 160ms) var(--e-spring, ease); }
-  .fcap b { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); padding: 2px 9px; border-radius: 10px; background: rgba(15,15,20,.9); color: #fff; font-size: 18px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; opacity: 0; pointer-events: none; transition: opacity var(--m-2, 160ms); z-index: 4; }
+  .fcap b { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); padding: 2px 9px; border-radius: 10px; background: rgba(15,15,20,.9); color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; opacity: 0; pointer-events: none; transition: opacity var(--m-2, 160ms); z-index: 4; }
   .vs[data-held] .fcap { transform: scale(1.15); transition: transform var(--m-2, 160ms) var(--e-spring, ease); } .vs[data-held] .vfill { transition: none; } .vs[data-held] .fcap b { opacity: 1; }
   .vs[data-idle] .vfill { display: none; } .vs[data-idle] .fcap { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); }
-  .vnum { display: inline-block; min-width: 2ch; font-size: 18px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; text-align: center; color: var(--ink); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
+  .vnum { display: inline-block; min-width: 2ch; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; text-align: center; color: var(--ink); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
   .vs > .vnum { min-width: 32px; text-align: right; }
   /* standing up (a fader): louder at the top, quieter at the bottom, the number underneath */
   .vs[data-vert] { flex-direction: column-reverse; min-height: 0; } .vs[data-vert] > .vnum { order: -1; text-align: center; min-height: 22px; }
@@ -9766,25 +9770,25 @@ const Kh = async (a) => {
   /* the dial is as big as its row allows less 20 px above and below, and never over 520 px; the cards beside it share one height and one centre line */
   .bigdial { height: min(100% - 40px, 520px); aspect-ratio: 1; flex-shrink: 0; position: relative; user-select: none; -webkit-user-select: none; }
   .dcard { grid-row: 1; align-self: center; box-sizing: border-box; height: min(100% - 40px, 330px); min-width: 0; border-radius: 24px; background: var(--chip); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-  .dcard h3 { margin: 0; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dcard h3 { margin: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
   .dnext { grid-column: 1; justify-self: end; width: min(100%, 270px); } .dturn { grid-column: 3; justify-self: start; width: min(100%, 270px); }
   .dn { display: flex; align-items: center; gap: 12px; min-width: 0; } .dn .puck.onshelf { width: 46px; flex: 0 0 46px; border-width: 2.5px; }
   .dn > span { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .dn b, .dn span span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dn b { font-size: 15px; font-weight: var(--w-bold, 700); } .dn span span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .dnone { margin: 0; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .dn b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .dn span span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dnone { margin: 0; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
   .dcoins { display: flex; flex-wrap: nowrap; gap: 3px; align-items: center; margin: 0 -8px; padding: 7px 6px; overflow-x: auto; scrollbar-width: none; }
-  .dcoin { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
+  .dcoin { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .dcoin[data-now] { box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); margin: 0 4px; }
-  .dwho { margin: 0; font-size: 15px; font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
+  .dwho { margin: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
   .dsleep { min-height: 52px; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 16px; padding: 4px 8px 4px 4px; }
   .dsleep svg { width: 48px; height: 48px; flex-shrink: 0; } .swt { fill: var(--track); stroke: var(--ink2); stroke-width: 1.5; } .sww { fill: var(--accent); }
-  .dsleep > span { display: flex; flex-direction: column; line-height: 1.2; } .dsleep b { font-size: 15px; font-weight: var(--w-bold, 700); } .dsleep span span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dsleep > span { display: flex; flex-direction: column; line-height: 1.2; } .dsleep b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .dsleep span span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dsleep[data-on] { background: var(--chip-strong); }
   /* the tuner: ticks like a radio dial, a stop for each favourite and station, and a needle to slide */
   .tuner { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 720px); height: 62px; position: relative; border-radius: 20px; background: var(--chip); touch-action: none; cursor: ew-resize; outline: none; user-select: none; -webkit-user-select: none; }
   .tuner:focus-visible { box-shadow: 0 0 0 3px var(--ink); }
   .tticks { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink2) 0 1.5px, transparent 1.5px 14.4px); opacity: .7; -webkit-mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); -webkit-mask-composite: source-over; mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); }
-  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: 15px; line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
+  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: var(--fs-2); line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
   .tstop[data-on] { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .tstop:only-of-type { max-width: 90%; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left var(--mt-4, 400ms) cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
@@ -9817,7 +9821,7 @@ const Kh = async (a) => {
   .dlabel { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1.15; white-space: nowrap; }
   .dlabel[data-side='r'] { align-items: flex-start; text-align: left; } .dlabel[data-side='l'] { align-items: flex-end; text-align: right; }
   .dname { min-width: 44px; min-height: 44px; padding: 2px 8px; display: flex; flex-direction: column; justify-content: center; align-items: inherit; text-align: inherit; border-radius: 12px; }
-  .dname b { font-size: clamp(16px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; } .dname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dname b { font-size: clamp(16px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; } .dname span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dname[aria-pressed='true'] b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .dstep { display: inline-flex; align-items: center; } .dlabel[data-held] .vnum { transform: scale(1.3); }
   :host([data-shape='tall']:not([data-phone])) .dialwrap { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) auto auto; }
@@ -9835,7 +9839,7 @@ const Kh = async (a) => {
   :host([data-phone]) .bigdial { height: auto; aspect-ratio: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; } :host([data-phone]) .bigdial > svg { position: static; width: 250px; height: 250px; }
   :host([data-phone]) .dcover { left: calc(50% - 60px); top: 65px; width: 120px; height: 120px; }
   :host([data-phone]) .dlabels { position: static; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } :host([data-phone]) .dlabel { position: static; transform: none !important; align-items: center; text-align: center; }
-  :host([data-phone]) .dcard { width: auto; height: auto; align-self: stretch; } :host([data-phone]) .tuner { order: -1; width: 100%; } :host([data-phone]) .tstop { font-size: 13px; }
+  :host([data-phone]) .dcard { width: auto; height: auto; align-self: stretch; } :host([data-phone]) .tuner { order: -1; width: 100%; } :host([data-phone]) .tstop { font-size: var(--fs-1); }
 
   /* ---- desk ---- */
   /* three rows that always fit: what is playing, the keys, then the wheel and the pads (the pads are never cut by the edge) */
@@ -9846,9 +9850,9 @@ const Kh = async (a) => {
   .dart i { width: 22%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 0 2px rgba(0,0,0,.15); opacity: 0; }
   .dart[data-playing] i { opacity: 1; animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .dtx { min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.15; }
-  .dtx i { font-style: normal; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dtx i { font-style: normal; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
   .dtx b { font-size: clamp(17px, 6cqh, 26px); font-weight: var(--w-heavy, 800); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .dtx span { font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dtx span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .desk .tkeys { flex: none; min-height: 0; }
   .dplay { min-height: 0; display: flex; align-items: center; gap: 12px; }
   .jog { height: 100%; max-height: 136px; aspect-ratio: 1; flex-shrink: 0; position: relative; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track), 0 6px 0 rgba(0,0,0,.16); touch-action: none; cursor: grab; outline: none; display: flex; align-items: center; justify-content: center; }
@@ -9859,7 +9863,7 @@ const Kh = async (a) => {
   .jring i { position: absolute; right: 8%; top: 8%; width: 20%; height: 20%; border-radius: 50%; background: var(--track); box-shadow: inset 0 2px 3px rgba(0,0,0,.2); }
   .jog b { position: relative; font-size: clamp(15px, 5cqh, 20px); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
   .pads { flex: 1; min-width: 0; min-height: 0; align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(44px, 1fr); gap: 8px; padding-bottom: 6px; }
-  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.05; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
+  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.05; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
   .mpad span { font-size: clamp(16px, 4.4cqh, 24px); line-height: 1; }
   .mpad:active, .mpad[data-busy] { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
   .mpad[data-on] { box-shadow: 0 6px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -9869,13 +9873,13 @@ const Kh = async (a) => {
   .strip[data-focus] { background: var(--chip-strong); }
   .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
   .strip.master { background: var(--chip-soft); --c: var(--accent); margin-left: 4px; }
-  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 4px 6px; border-radius: 8px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
-  .lamp { width: 48px; height: 48px; border-radius: 50%; background: #5b6472; color: #fff; font-size: 15px; font-weight: var(--w-heavy, 800); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background var(--m-2, 160ms), box-shadow var(--m-2, 160ms); } .lamp[disabled] { opacity: .5; }
+  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 4px 6px; border-radius: 8px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
+  .lamp { width: 48px; height: 48px; border-radius: 50%; background: #5b6472; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background var(--m-2, 160ms), box-shadow var(--m-2, 160ms); } .lamp[disabled] { opacity: .5; }
   .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
   /* a room with other music says so in a word, on a lamp wide enough to hold it */
-  .lamp[data-other] { background: var(--c); font-size: 13px; width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
+  .lamp[data-other] { background: var(--c); font-size: var(--fs-1); width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
   .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 2px; }
@@ -9885,7 +9889,7 @@ const Kh = async (a) => {
   .strip[data-playing] .vu i[data-peak] { animation: vu .45s steps(2, jump-none) infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .strip[data-playing] .vu i[data-peak] + i[data-peak] { animation-delay: -.2s; }
   @keyframes vu { to { opacity: .3; } }
-  .sval { align-self: center; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .sval { align-self: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); }
   .desk[data-fit] .vu { display: none; }
   :host([data-shape='tall']:not([data-phone])) .desk { flex-direction: column; gap: 12px; }
   :host([data-shape='tall']:not([data-phone])) .dside { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 130px 64px; gap: 12px 16px; padding: 4px; }
@@ -9903,7 +9907,7 @@ const Kh = async (a) => {
   /* the crate: dividers behind, sleeves fanned in the box */
   .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 31%; }
   .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
-  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: margin-top var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
   .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }
@@ -9916,10 +9920,10 @@ const Kh = async (a) => {
   .cbox { position: absolute; left: 0; right: 0; top: calc(26% + var(--S) - 12px); bottom: 0; z-index: 2; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 8px 0 rgba(0,0,0,.14), inset 0 0 0 1.5px rgba(255,255,255,.6); padding: 10px 14px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 4px; overflow: hidden;
     background-image: linear-gradient(var(--track), var(--track)), linear-gradient(var(--track), var(--track)); background-size: calc(100% - 28px) 2px; background-repeat: no-repeat; background-position: 14px 8px, 14px calc(100% - 8px); }
   .clabel { display: flex; align-items: center; gap: 8px; max-width: 100%; }
-  .clabel b { min-width: 0; padding: 6px 14px; border-radius: 6px; background: #fff; color: #17140f; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .clabel b { min-width: 0; padding: 6px 14px; border-radius: 6px; background: #fff; color: #17140f; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .cnav { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--chip); display: flex; align-items: center; justify-content: center; } .cnav[disabled] { opacity: .35; }
   .cpick { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-  .cpick b { max-width: 100%; font-size: 16px; font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cpick span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .cpick b { max-width: 100%; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cpick span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .rig[data-fit] .cpick span { display: none; }
   /* the turntable */
   .tdeck { position: absolute; left: 34%; width: 30.6%; top: 0; bottom: 0; display: flex; flex-direction: column; gap: 3.5%; }
@@ -9935,7 +9939,7 @@ const Kh = async (a) => {
   .tarm::before { content: ''; position: absolute; left: calc(var(--P) * -.017); top: 0; width: calc(var(--P) * .034); height: calc(var(--P) * .6); border-radius: 4px; background: #8b8477; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
   .tarm i { position: absolute; left: calc(var(--P) * -.048); top: calc(var(--P) * .56); width: calc(var(--P) * .096); height: calc(var(--P) * .13); border-radius: 5px; background: #26272b; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
   .ttitle { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-  .ttitle b { max-width: 100%; font-size: clamp(15px, 5.4cqh, 22px); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ttitle span { max-width: 100%; min-height: 1.2em; font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ttitle b { max-width: 100%; font-size: clamp(15px, 5.4cqh, 22px); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ttitle span { max-width: 100%; min-height: 1.2em; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .jack { position: absolute; right: -9px; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: var(--stream, var(--primary)); box-shadow: 0 0 0 3px var(--chip-strong); z-index: 2; }
   .tkeys { flex: 0 0 clamp(56px, 17cqh, 76px); display: flex; gap: 8px; }
   .tkey { flex: 1 1 0; border-radius: 20px; background: var(--chip-strong); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,.2); margin-bottom: 6px; transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
@@ -9950,7 +9954,7 @@ const Kh = async (a) => {
   .cab[data-playing] .cone i { animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes thump { from { transform: scale(.82); } to { transform: scale(1.14); } }
   .ctext { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
-  .ctext b, .ctext > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext > b { font-size: 16px; font-weight: 700; } .ctext > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); } .ctext .vnum { min-width: 0; } .cab[data-held] .vnum { transform: scale(1.3); }
+  .ctext b, .ctext > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext > b { font-size: var(--fs-3); font-weight: 700; } .ctext > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); } .ctext .vnum { min-width: 0; } .cab[data-held] .vnum { transform: scale(1.3); }
   .cvol { display: inline-flex; align-items: center; flex-shrink: 0; }
   .cknob { width: 44px; height: 44px; border-radius: 50%; position: relative; flex-shrink: 0; touch-action: none; cursor: ns-resize; outline: none; background: conic-gradient(from -135deg, var(--c) calc(var(--v) * 2.7deg), var(--track) 0 270deg, transparent 0); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
   .cknob::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 1.5px var(--ink3), 0 2px 4px rgba(0,0,0,.25); }
@@ -9959,12 +9963,12 @@ const Kh = async (a) => {
   .cknob[data-idle] { background: conic-gradient(from -135deg, var(--track) 0 270deg, transparent 0); } .cknob[data-idle]::before { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); } .cknob[data-idle] i::after { background: var(--ink3); }
   .cab[data-held] .cknob { transform: scale(1.15); }
   .sock[disabled] { opacity: .4; }
-  .sock { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); z-index: 2; }
+  .sock { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); z-index: 2; }
   .sock[aria-pressed='true'] { background: var(--c); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
   :host([data-phone]) .rig { flex: none; display: flex; flex-direction: column; gap: 14px; container-type: normal; --S: 138px; --P: 200px; }
   :host([data-phone]) .cratecol { position: relative; width: auto; height: 330px; }
   :host([data-phone]) .tdeck { position: relative; left: auto; width: auto; height: 400px; gap: 12px; }
-  :host([data-phone]) .tkeys { flex-basis: 64px; } :host([data-phone]) .ttitle b { font-size: 19px; }
+  :host([data-phone]) .tkeys { flex-basis: 64px; } :host([data-phone]) .ttitle b { font-size: var(--fs-4); }
   :host([data-phone]) .cab { position: relative; top: auto; width: auto; height: 64px; transform: none; padding: 0 52px 0 8px; }
   :host([data-phone]) .sock { left: auto; right: 6px; } :host([data-phone]) .wires, :host([data-phone]) .jack { display: none; }
 
@@ -9983,7 +9987,7 @@ const Kh = async (a) => {
   .sun { position: absolute; left: 14px; top: 10px; max-width: 29%; display: flex; align-items: center; gap: 12px; z-index: 2; } .vscene[data-narrow] .sun { max-width: none; }
   .puck.spot { position: static; margin: 0; width: clamp(64px, 18cqh, 96px); height: clamp(64px, 18cqh, 96px); flex-shrink: 0; }
   .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
-  .suntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .suntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); } .suntx span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .actor { width: var(--aw); display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
   /* a free room stands where it is told, but whole: never cut by the edge of the scene, never on the shelf */
   .actor.free { position: absolute; --half: calc(max(var(--aw), 180px) / 2 + 6px); --halfh: calc(var(--aw) * .43 + 28px); left: clamp(var(--half), var(--x), 100% - var(--half)); top: clamp(var(--halfh), var(--y), 100% - var(--halfh) - var(--shelf-h)); transform: translate(-50%, -50%); transition: left var(--mt-5, 900ms) cubic-bezier(.3,1.3,.5,1), top var(--mt-5, 900ms) cubic-bezier(.3,1.3,.5,1); }
@@ -10002,7 +10006,7 @@ const Kh = async (a) => {
   .aname { position: relative; z-index: 1; max-width: 200px; min-height: 44px; border-radius: 14px; display: flex; align-items: center; line-height: 1.15; background: var(--chip-strong); background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
   .vscene[data-kind='space'] .aname { background: #1b1e45; background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); }
   .atx { min-width: 60px; min-height: 44px; padding: 4px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .atx > b { font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .atx > b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   /* the shelf in the world */
   .skeys { display: flex; gap: 6px; margin-top: 6px; } .suntx .mkeys { margin-top: 6px; }
   .puck.spot[data-hot] { box-shadow: 0 0 0 5px var(--accent), 0 8px 20px -6px rgba(0,0,0,.55); transform: scale(1.08); }
@@ -10017,7 +10021,7 @@ const Kh = async (a) => {
   .sitem:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   .sdeco { display: none; }
   .slabel { min-height: 44px; flex-shrink: 0; max-width: 46%; padding: 4px 14px; border-radius: 14px; background: var(--chip-strong); display: flex; flex-direction: column; justify-content: center; text-align: left; line-height: 1.15; }
-  .slabel b { font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .slabel span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slabel b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .slabel span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* sea: buoys, each with a little flag, bobbing on the swell */
   .sshelf[data-kind='sea'] .sitems { padding-top: 14px; }
   .sshelf[data-kind='sea'] .sitem { animation: abob 3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -10070,7 +10074,7 @@ const Kh = async (a) => {
   @keyframes aglow { from { transform: scale(.9); } to { transform: scale(1.2); opacity: .12; } }
   .aorbit { display: none; }
   .alog { fill: #6b4a2b; stroke: #3d2a18; stroke-width: 1.5; } .aflame { fill: var(--c); } .aflame.in { fill: #ffd166; } .aember { fill: #b45309; opacity: .8; }
-  .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: 20px; font-weight: 700; text-anchor: middle; }
+  .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: var(--fs-4); font-weight: 700; text-anchor: middle; }
   .bob, .swim, .flick, .sway, .jig { transform-box: fill-box; transform-origin: 50% 100%; }
   .actor[data-playing] .bob { animation: abob 2.6s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
   @keyframes abob { from { transform: translateY(-3px) rotate(-3deg); } to { transform: translateY(3px) rotate(3deg); } }
@@ -10092,7 +10096,7 @@ const Kh = async (a) => {
   .vscene[data-kind='sports'] .aidle { fill: var(--panel, #fff); opacity: 1; }
   .vscene[data-kind='sports'] .actor:not([data-live]) .pring { fill: var(--panel, #fff); stroke: var(--ink3); stroke-dasharray: 5 4; }
   .vscene[data-kind='sports'] .actor:not([data-live]) .ainit { fill: var(--ink2); }
-  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; }
+  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: var(--fs-5); font-weight: 800; }
   .vscene[data-kind='sports'] .pball { display: block; } .pball circle { fill: #fff; stroke: #14201a; stroke-width: 2; } .pball path { fill: #14201a; }
   .vscene[data-kind='sports'] .actor:not([data-playing]) .pball { opacity: .55; }
   .vscene[data-kind='sports'] .tie { stroke: var(--ink); stroke-width: 3px; stroke-dasharray: 2 10; opacity: 1; }
@@ -10101,7 +10105,7 @@ const Kh = async (a) => {
   :host([data-phone]) .vscene { flex: none; height: 720px; --k: .5; --sq: .9; }
   /* two rooms side by side on a phone: the name may take two lines so the chips never overlap */
   :host([data-phone]) .actor.free { --half: 90px; } :host([data-phone]) .aname { max-width: 176px; } :host([data-phone]) .atx { min-width: 0; padding: 2px; } :host([data-phone]) .atx > b { white-space: normal; flex-wrap: wrap; justify-content: center; text-align: center; max-width: 84px; line-height: 1.05; }
-`, vs = { thumbs: {}, res: {}, key: "" }, Ks = {}, ou = [{ name: "ABC Kids listen", match: "ABC Kids listen" }, { name: "ABC Jazz", match: "ABC Jazz" }], ru = [{ name: "Dinner", find: "dinner" }, { name: "Dance", find: "dance hits" }, { name: "Tidy-up", find: "motivation" }, { name: "Wind down", find: "sleep sounds" }], nu = [[/dinner|eat|meal|breakfast|lunch/i, "🍽️"], [/danc|party|disco/i, "🪩"], [/tidy|clean|chore|job/i, "🧹"], [/wind|sleep|bed|calm|night/i, "🌙"], [/morning|wake/i, "☀️"], [/read|story|homework|study/i, "📚"]], Us = (a) => `${Math.floor(a / 60)}:${String(Math.floor(a % 60)).padStart(2, "0")}`, ur = ["Dinner’s ready!", "Time to get ready, please.", "Please come to the kitchen.", "Five minutes until bedtime.", "Time to leave – shoes on!", "I love you!"], Ud = ["🍽️", "⏰", "🍳", "🌙", "👟", "❤️"], Ad = /* @__PURE__ */ new Set(), lu = { track: "Song", album: "Album", playlist: "Playlist", artist: "Artist", radio: "Radio", podcast: "Podcast", audiobook: "Story" }, br = () => (/* @__PURE__ */ new Date()).toDateString(), bi = (a, t) => {
+`, ys = { thumbs: {}, res: {}, key: "" }, Ks = {}, ou = [{ name: "ABC Kids listen", match: "ABC Kids listen" }, { name: "ABC Jazz", match: "ABC Jazz" }], ru = [{ name: "Dinner", find: "dinner" }, { name: "Dance", find: "dance hits" }, { name: "Tidy-up", find: "motivation" }, { name: "Wind down", find: "sleep sounds" }], nu = [[/dinner|eat|meal|breakfast|lunch/i, "🍽️"], [/danc|party|disco/i, "🪩"], [/tidy|clean|chore|job/i, "🧹"], [/wind|sleep|bed|calm|night/i, "🌙"], [/morning|wake/i, "☀️"], [/read|story|homework|study/i, "📚"]], Us = (a) => `${Math.floor(a / 60)}:${String(Math.floor(a % 60)).padStart(2, "0")}`, ur = ["Dinner’s ready!", "Time to get ready, please.", "Please come to the kitchen.", "Five minutes until bedtime.", "Time to leave – shoes on!", "I love you!"], Ud = ["🍽️", "⏰", "🍳", "🌙", "👟", "❤️"], Ad = /* @__PURE__ */ new Set(), lu = { track: "Song", album: "Album", playlist: "Playlist", artist: "Artist", radio: "Radio", podcast: "Podcast", audiobook: "Story" }, br = () => (/* @__PURE__ */ new Date()).toDateString(), bi = (a, t) => {
   try {
     const e = localStorage.getItem(a);
     return e === null ? t : JSON.parse(e);
@@ -10114,7 +10118,7 @@ const Kh = async (a) => {
   } catch {
   }
 }, ja = () => {
-  const a = vt();
+  const a = yt();
   return a === "wide" && Ha() >= 3 ? "tall" : a;
 }, fo = class fo extends bt {
   constructor() {
@@ -10182,7 +10186,7 @@ const Kh = async (a) => {
   }
   get _list() {
     if (!this.hass?.states) return [];
-    const t = this.hass, e = vh(t, this.players);
+    const t = this.hass, e = yh(t, this.players);
     let i = e;
     if (this.lock && this.map.length) {
       const o = this.map.flatMap((n) => (n.rooms ?? []).flatMap((p) => (p.zones ?? (p.player ? [{ player: p.player, name: p.name }] : [])).map((c) => ({ id: c.player ?? "", name: c.name ?? p.name ?? "" })))).filter((n) => n.id), r = /* @__PURE__ */ new Set();
@@ -10229,8 +10233,8 @@ const Kh = async (a) => {
   }
   async _loadRadio() {
     const t = this.source + JSON.stringify(this.stations);
-    if (vs.key === t) {
-      this._thumbs = vs.thumbs, this._resolved = vs.res;
+    if (ys.key === t) {
+      this._thumbs = ys.thumbs, this._resolved = ys.res;
       return;
     }
     if (!(this._loaded || !this.hass || Date.now() - this._radioTried < 3e4)) {
@@ -10241,7 +10245,7 @@ const Kh = async (a) => {
           const r = o.id ? o.id.startsWith("media-source://") ? o.id : `media-source://radio_browser/${o.id}` : "", n = e.children.find((p) => r ? p.media_content_id === r : p.title.toLowerCase().includes((o.match ?? o.name).toLowerCase()));
           n ? (s[o.name] = n.media_content_id, n.thumbnail && (i[o.name] = n.thumbnail)) : r && (s[o.name] = r);
         }
-        this._thumbs = i, this._resolved = s, Object.assign(vs, { thumbs: i, res: s, key: t });
+        this._thumbs = i, this._resolved = s, Object.assign(ys, { thumbs: i, res: s, key: t });
       } catch (e) {
         console.warn("Family Hub: radio browse failed", e), this._loaded = !1;
       }
@@ -10349,7 +10353,7 @@ const Kh = async (a) => {
       e();
       return;
     }
-    const i = yn(this._h, t.entity_id, this.sleepMinutes);
+    const i = vn(this._h, t.entity_id, this.sleepMinutes);
     i && (this._sleepAt = { id: t.entity_id, until: Date.now() + this.sleepMinutes * 6e4 }), this._say(i ? `${this._name(t)} will fade out in ${this.sleepMinutes} minutes` : "The sleep timer needs the Family Hub sleep script in Home Assistant", i ? e : void 0);
   }
   /* ---------------- rooms ---------------- */
@@ -10553,9 +10557,9 @@ const Kh = async (a) => {
       };
     }))), n = Number(s.media_duration) || 0, p = s.media_position_updated_at ? new Date(s.media_position_updated_at).getTime() : 0, c = t?.state === "playing", d = n ? Math.min(n, (Number(s.media_position) || 0) + (c && p ? (this._now - p) / 1e3 : 0)) : 0, h = n ? d / n : 0, g = this._pads, m = this._jog, f = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
-    const k = this.kids.find((M) => M.name === this._shelf), b = !!k && Mi(k.bedtime), w = this._items[this._shelf] ?? [], v = b ? w.filter((M) => M.calm) : w, U = Math.max(0, Math.min(v.length - 1, this._crateAt));
+    const k = this.kids.find((M) => M.name === this._shelf), b = !!k && Mi(k.bedtime), w = this._items[this._shelf] ?? [], y = b ? w.filter((M) => M.calm) : w, U = Math.max(0, Math.min(y.length - 1, this._crateAt));
     this._mode === "dial" && this._loadRadio();
-    const y = this._juke, A = (M) => y.picks.filter((G) => G.done && G.who === M).length, T = y.on ? y.picks.filter((M) => !M.done).sort((M, G) => +(G.who === this._dj) - +(M.who === this._dj) || A(M.who) - A(G.who) || M.t - G.t) : [], F = T.length ? T.slice(0, 3).map((M) => ({ title: M.name, sub: `${M.who}’s pick`, art: M.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], V = this._everyone, z = new Set(T.map((M) => M.who)), R = [...V].sort((M, G) => Number(z.has(M.name)) - Number(z.has(G.name)) || A(M.name) - A(G.name))[0]?.name ?? "", P = (this._items.Family ?? []).slice(0, 4), nt = this._stations.filter((M) => !P.some((G) => G.name.toLowerCase() === M.name.toLowerCase())).slice(0, Math.max(0, 7 - P.length)), Et = t && c ? Ks[t.entity_id] : "", Nt = [...P.map((M) => ({ name: M.name, on: c && !Et && this._lastUri === M.uri, go: () => {
+    const v = this._juke, A = (M) => v.picks.filter((G) => G.done && G.who === M).length, T = v.on ? v.picks.filter((M) => !M.done).sort((M, G) => +(G.who === this._dj) - +(M.who === this._dj) || A(M.who) - A(G.who) || M.t - G.t) : [], F = T.length ? T.slice(0, 3).map((M) => ({ title: M.name, sub: `${M.who}’s pick`, art: M.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], V = this._everyone, z = new Set(T.map((M) => M.who)), R = [...V].sort((M, G) => Number(z.has(M.name)) - Number(z.has(G.name)) || A(M.name) - A(G.name))[0]?.name ?? "", P = (this._items.Family ?? []).slice(0, 4), nt = this._stations.filter((M) => !P.some((G) => G.name.toLowerCase() === M.name.toLowerCase())).slice(0, Math.max(0, 7 - P.length)), Et = t && c ? Ks[t.entity_id] : "", Nt = [...P.map((M) => ({ name: M.name, on: c && !Et && this._lastUri === M.uri, go: () => {
       t && this._gentle(t.entity_id, () => {
         delete Ks[t.entity_id], this._shelfPlay(M, t);
       });
@@ -10597,7 +10601,7 @@ const Kh = async (a) => {
         pick: (M) => {
           M !== this._shelf && S("sleeve"), this._shelf = M, this._crateAt = 0;
         },
-        items: v,
+        items: y,
         at: U,
         calm: b,
         room: this._name(t),
@@ -10608,7 +10612,7 @@ const Kh = async (a) => {
           M !== this._crateAt && S("sleeve"), this._crateAt = M;
         },
         tap: (M) => {
-          Date.now() - this._carried < 400 || (M !== U ? (S("sleeve"), this._crateAt = M) : t && v[M] && this._gentle(t.entity_id, () => this._shelfPlay(v[M], t)));
+          Date.now() - this._carried < 400 || (M !== U ? (S("sleeve"), this._crateAt = M) : t && y[M] && this._gentle(t.entity_id, () => this._shelfPlay(y[M], t)));
         }
       },
       streams: [...e ? [e.entity_id] : [], ...o],
@@ -10750,8 +10754,8 @@ const Kh = async (a) => {
     const k = (w) => {
       if (!m) {
         if (!g) {
-          const v = Math.abs(w.clientX - n), U = Math.abs(w.clientY - p);
-          if (v >= 10 && v > U) {
+          const y = Math.abs(w.clientX - n), U = Math.abs(w.clientY - p);
+          if (y >= 10 && y > U) {
             m = !0;
             return;
           }
@@ -10776,18 +10780,18 @@ const Kh = async (a) => {
     let o = !1, r = 0;
     i && t.stopPropagation();
     const n = t.currentTarget, p = this.renderRoot.querySelector(".panel"), c = t.clientX, d = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, g = String(i?.attributes.entity_picture ?? s?.img ?? ""), m = (b, w) => {
-      const v = (y) => {
-        const A = y.getBoundingClientRect();
+      const y = (v) => {
+        const A = v.getBoundingClientRect();
         return b >= A.left && b <= A.right && w >= A.top && w <= A.bottom;
       };
-      if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(v)) return "all";
+      if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(y)) return "all";
       const U = s ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
-      return U && v(U) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(v)?.dataset.zone ?? "";
+      return U && y(U) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(y)?.dataset.zone ?? "";
     }, f = (b) => {
       const w = p.getBoundingClientRect();
       if (r = Math.max(r, Math.hypot(b.clientX - c, b.clientY - d)), !this._carry && !o && r < Mo) return;
-      const v = !!h && (b.clientX < h.left || b.clientX > h.right || b.clientY < h.top || b.clientY > h.bottom);
-      if (o && v && (o = !1, e.flick(0)), !this._carry && !o && !v && r < 60 && e.flick && Math.abs(b.clientX - c) > Math.abs(b.clientY - d) * 1.4 && (o = !0), o) {
+      const y = !!h && (b.clientX < h.left || b.clientX > h.right || b.clientY < h.top || b.clientY > h.bottom);
+      if (o && y && (o = !1, e.flick(0)), !this._carry && !o && !y && r < 60 && e.flick && Math.abs(b.clientX - c) > Math.abs(b.clientY - d) * 1.4 && (o = !0), o) {
         e.flick(b.clientX - c);
         return;
       }
@@ -10808,20 +10812,20 @@ const Kh = async (a) => {
         return;
       }
       this._carried = Date.now();
-      const v = w.over && w.over !== "all" ? this._list.find((U) => U.entity_id === w.over) ?? this.hass.states[w.over] : void 0;
+      const y = w.over && w.over !== "all" ? this._list.find((U) => U.entity_id === w.over) ?? this.hass.states[w.over] : void 0;
       if (i && w.over === "all") this._wholeHouse(() => {
         this._focus = i.entity_id, this._everywhere(!0, i);
       });
       else if (s && w.over === "all") this._wholeHouse(() => {
-        const U = this._off(this._cur) ? this._list.find((y) => !this._off(y)) : this._cur;
+        const U = this._off(this._cur) ? this._list.find((v) => !this._off(v)) : this._cur;
         U && (this._shelfPlay(s, U), this._everywhere(!0, U));
       });
-      else if (i && v && v.entity_id !== i.entity_id) this._gentle(v.entity_id, () => this._move(v, i));
+      else if (i && y && y.entity_id !== i.entity_id) this._gentle(y.entity_id, () => this._move(y, i));
       else if (s && w.over === "deck") {
         const U = this._cur;
         U && this._gentle(U.entity_id, () => this._shelfPlay(s, U));
-      } else s && v && this._gentle(v.entity_id, () => {
-        this._focus = v.entity_id, this._shelfPlay(s, v);
+      } else s && y && this._gentle(y.entity_id, () => {
+        this._focus = y.entity_id, this._shelfPlay(s, y);
       });
     };
     n.setPointerCapture(t.pointerId), n.addEventListener("pointermove", f), n.addEventListener("pointerup", k), n.addEventListener("pointercancel", k);
@@ -10837,16 +10841,16 @@ const Kh = async (a) => {
   }
   _house() {
     const t = this._cur, e = t && this._leader(t), i = this._group(e), s = this._floors, o = this._carry, r = [...new Set(this._list.map((p) => this._leader(p)?.entity_id).filter((p) => !!p && p !== e?.entity_id))], n = (p, c) => {
-      const d = p.p, h = d.entity_id, g = this._leader(d), m = g?.state === "playing", f = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(d), w = this._off(d), v = b !== null && !w, U = !!g && this._group(g).length > 1, y = g && g.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(g.entity_id) % 4]});` : "", A = w ? "Offline" : g ? m ? String(g.attributes.media_title ?? "Music") : "Paused" : c ? "Asleep" : "Quiet", T = g?.attributes.entity_picture ? `--art:url(${g.attributes.entity_picture})` : "";
-      return l`<div class="mzone" data-zone=${h} ?data-offline=${w} ?data-focus=${f} ?data-live=${!!g} ?data-playing=${m} ?data-asleep=${c} ?data-linked=${U} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${y}--v:${b ?? 0}" @pointerdown=${(F) => this._volDown(F, d)}>
-        ${g && v ? l`<span class="pool"></span>` : u}
+      const d = p.p, h = d.entity_id, g = this._leader(d), m = g?.state === "playing", f = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(d), w = this._off(d), y = b !== null && !w, U = !!g && this._group(g).length > 1, v = g && g.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(g.entity_id) % 4]});` : "", A = w ? "Offline" : g ? m ? String(g.attributes.media_title ?? "Music") : "Paused" : c ? "Asleep" : "Quiet", T = g?.attributes.entity_picture ? `--art:url(${g.attributes.entity_picture})` : "";
+      return l`<div class="mzone" data-zone=${h} ?data-offline=${w} ?data-focus=${f} ?data-live=${!!g} ?data-playing=${m} ?data-asleep=${c} ?data-linked=${U} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${v}--v:${b ?? 0}" @pointerdown=${(F) => this._volDown(F, d)}>
+        ${g && y ? l`<span class="pool"></span>` : u}
         ${g ? l`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (b ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${f ? l`<b></b>` : u}</span>` : u}
         ${o && g?.entity_id !== h ? l`<span class="land" aria-hidden="true"></span>` : u}
         <button class="zname tap" aria-pressed=${String(f)} aria-label="${p.name}: ${A}${b !== null ? `, volume ${b}` : ""}${U ? ", linked with another room" : ""}" @click=${() => {
         this._focus = h;
       }}><b>${c ? "☾ " : ""}${p.name}${U ? l`<i class="linkd" aria-hidden="true"></i>` : u}</b><span>${A}</span></button>
         ${h === e?.entity_id || w ? u : l`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${p.name} ${k ? "from" : "to"} the music" @click=${() => this._join(h)}>${k ? "✓" : "＋"}</button>`}
-        ${v ? l`${ai(p.name, b, !0, () => this._volStep(h, 5))}
+        ${y ? l`${ai(p.name, b, !0, () => this._volStep(h, 5))}
           <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${p.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${b} aria-valuetext="${b} per cent${g ? "" : ", quiet"}" @keydown=${bl(b, (F) => this._setVol(h, F, !0))}><i></i></span>
           ${ai(p.name, b, !1, () => this._volStep(h, -5))}<b class="zvol" aria-hidden="true">${b}</b>` : u}
         ${g?.entity_id === h ? l`<span class="puck" role="button" tabindex="0" ?data-lifted=${o?.from === h} style=${T} aria-label="${g.attributes.media_title ?? "Music"} in ${p.name}. Tap to ${m ? "pause" : "play"}, drag to move it to another room."
@@ -10916,7 +10920,7 @@ const Kh = async (a) => {
       return;
     }
     this._gentle(s.entity_id, () => {
-      S("needle"), this._start(t, "play", !1, s), i && Mi(i.bedtime) && yn(this._h, s.entity_id, this.sleepMinutes) && (this._sleepAt = { id: s.entity_id, until: Date.now() + this.sleepMinutes * 6e4 }, window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400));
+      S("needle"), this._start(t, "play", !1, s), i && Mi(i.bedtime) && vn(this._h, s.entity_id, this.sleepMinutes) && (this._sleepAt = { id: s.entity_id, until: Date.now() + this.sleepMinutes * 6e4 }, window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400));
     });
   }
   _pin(t, e) {
@@ -10998,7 +11002,7 @@ const Kh = async (a) => {
       return;
     }
     this._lastCall = Date.now(), this._calling = !0;
-    const d = this._h, h = this.callLanguage, g = this.callVoice ? { options: { voice: this.callVoice } } : {}, m = Math.max(0, Math.min(100, Math.round(this.callVolume))), f = o && r >= 0 ? await Bc(e1[r]) : "", k = o && !f ? await n1(e) : "", b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, w = (R) => !!d.services?.music_assistant?.play_announcement && d.entities?.[R]?.platform === "music_assistant", v = (R) => s ? Promise.resolve(d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0, ...h ? { language: h } : {}, ...g }, { entity_id: s })).catch(() => d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), U = (R) => (b ? Promise.resolve(d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => v(R)) : v(R)).then(() => !0, (P) => (console.warn("Family Hub: call failed", R, P), !1)), y = (R) => Promise.resolve(d.callService("media_player", "play_media", { media_content_id: f, media_content_type: "music", announce: !0, ...w(R) ? { extra: { announce_volume: m } } : {} }, { entity_id: R })).then(() => !0, () => U(R)), A = f ? [] : i.filter(w), T = i.filter((R) => !A.includes(R)).map(f ? y : U);
+    const d = this._h, h = this.callLanguage, g = this.callVoice ? { options: { voice: this.callVoice } } : {}, m = Math.max(0, Math.min(100, Math.round(this.callVolume))), f = o && r >= 0 ? await Bc(ef[r]) : "", k = o && !f ? await lf(e) : "", b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, w = (R) => !!d.services?.music_assistant?.play_announcement && d.entities?.[R]?.platform === "music_assistant", y = (R) => s ? Promise.resolve(d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0, ...h ? { language: h } : {}, ...g }, { entity_id: s })).catch(() => d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), U = (R) => (b ? Promise.resolve(d.callService("tts", "speak", { media_player_entity_id: R, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => y(R)) : y(R)).then(() => !0, (P) => (console.warn("Family Hub: call failed", R, P), !1)), v = (R) => Promise.resolve(d.callService("media_player", "play_media", { media_content_id: f, media_content_type: "music", announce: !0, ...w(R) ? { extra: { announce_volume: m } } : {} }, { entity_id: R })).then(() => !0, () => U(R)), A = f ? [] : i.filter(w), T = i.filter((R) => !A.includes(R)).map(f ? v : U);
     if (A.length) {
       const R = k ? Promise.resolve(k) : s ? Promise.resolve(d.callApi("POST", "tts_get_url", { engine_id: s, message: e, cache: !0, ...h ? { language: h } : {}, ...g })).then((P) => P?.url ?? "", () => "") : Promise.resolve("");
       for (const P of A) T.push(R.then((nt) => nt ? Promise.resolve(d.callService("music_assistant", "play_announcement", { url: nt, announce_volume: m }, { entity_id: P })).then(() => !0, () => U(P)) : U(P)));
@@ -11043,11 +11047,11 @@ const Kh = async (a) => {
     return l`<section class="glass stage" style=${s ? `--art:${s}` : ""} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${i ? "" : "animation:none;background:rgba(255,255,255,.5)"}"></span>
-        <span style="font-size:13px;font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i ? "Playing in" : "Ready in"} ${this._name(t)}${r ? ` + ${r} more` : ""}</span></div>
+        <span style="font-size:var(--fs-1);font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i ? "Playing in" : "Ready in"} ${this._name(t)}${r ? ` + ${r} more` : ""}</span></div>
       <div class="deck">${g === u ? l`<div class="cover ${i ? "" : "paused"}"></div>` : g}</div>
       <div class="titles" style="display:flex;flex-direction:column;gap:2px;min-width:0">
-        <span class="display" style="font-size:24px;font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_title ?? (t.state === "off" ? "Off" : "Nothing playing")}</span>
-        <span style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_artist ?? e.media_album_name ?? "Search, pick from a shelf or tap a station"}</span>
+        <span class="display" style="font-size:var(--fs-5);font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_title ?? (t.state === "off" ? "Off" : "Nothing playing")}</span>
+        <span style="font-size:var(--fs-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.media_artist ?? e.media_album_name ?? "Search, pick from a shelf or tap a station"}</span>
       </div>
       ${p ? l`<div class="bar" role="progressbar" aria-label="Track progress" aria-valuenow=${Math.round(h * 100)} aria-valuemin="0" aria-valuemax="100"><i style="width:${h * 100}%"></i></div>` : u}
       <div class="ctl">
@@ -11079,7 +11083,7 @@ const Kh = async (a) => {
       S("tap"), this._viewAsk = !0;
     }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${i === "house" ? u : l`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === "all"} @click=${() => this._spread()}>${this._allJoined ? K("check", 20) : K("home", 20)}Whole house</button>`}
-        ${e && this._mix(e).length ? l`<button class="pill tap" style="font-size:15px" @click=${() => this._everywhere(!1, e)}>Just ${this._name(e)}</button>` : u}
+        ${e && this._mix(e).length ? l`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => this._everywhere(!1, e)}>Just ${this._name(e)}</button>` : u}
         ${s.length ? l`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${s.map((o) => this._name(o)).join(", ")}`)}>${K("plug", 18)}${s.length === this._list.length ? "Every speaker is offline" : `${s.length} ${s.length === 1 ? "speaker" : "speakers"} offline`}</button>` : u}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(!0)}>?</button>
         <span class="hint" role="note" ?data-on=${this._coach}>${Zg(i, Pt(), this.theme)}</span>`;
@@ -11109,7 +11113,7 @@ const Kh = async (a) => {
       const h = r && wd(this.hass, r, c);
       if (!h) return u;
       const g = this.hass.states[h].state === "on";
-      return l`<button class="pill tap" style="font-size:15px" aria-pressed=${String(g)} @click=${() => {
+      return l`<button class="pill tap" style="font-size:var(--fs-2)" aria-pressed=${String(g)} @click=${() => {
         this._h.callService("switch", g ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((m) => this._oops("The TV sound didn’t change", m));
       }}>${d} ${g ? "on" : "off"}</button>`;
     }, p = this._mode;
@@ -11127,16 +11131,16 @@ const Kh = async (a) => {
         ${r ? l`<span class="soft">TV sound</span>${n(/^switch\..*night_sound$/, "Night")}${n(/^switch\..*speech_enhancement$/, "Clear speech")}` : u}
       </div>`}
       ${p === "house" ? this._house() : p === "dial" ? Ig(this._vctx()) : p === "desk" ? Jg(this._vctx()) : p === "cables" ? Pg(this._vctx()) : p === "scene" ? au(this._vctx()) : l`<div class="grid scrolly" data-fits @scroll=${Kt}>${this._list.map((c) => {
-      const d = c.attributes, h = c.entity_id, g = this._leader(c), m = c.state === "playing", f = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(c), w = this._name(c), v = this._off(c), U = !!g && this._group(g).length > 1, y = v ? "Offline" : k ? `With ${this._name(e)}` : g ? g.state === "playing" ? String(g.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
-      return l`<div class="spk ${f ? "focus" : k ? "inmix" : ""}" data-zone=${h} ?data-offline=${v}>
+      const d = c.attributes, h = c.entity_id, g = this._leader(c), m = c.state === "playing", f = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(c), w = this._name(c), y = this._off(c), U = !!g && this._group(g).length > 1, v = y ? "Offline" : k ? `With ${this._name(e)}` : g ? g.state === "playing" ? String(g.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
+      return l`<div class="spk ${f ? "focus" : k ? "inmix" : ""}" data-zone=${h} ?data-offline=${y}>
         <div class="top"><button class="rsel tap" aria-pressed=${String(f)} @click=${() => {
         this._focus = h;
       }}>
           <span class="thumb ${m ? "eq" : ""}" style=${d.entity_picture ? `--art:url(${d.entity_picture})` : ""}>${m ? l`<i></i><i></i><i></i>` : K("music", 20)}</span>
-          <span class="rtx"><span class="sn2">${w}${U ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u}</span><span class="rst">${y}</span></span></button>
-          ${h === e?.entity_id || v ? u : l`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${w} ${k ? "from" : "to"} the music" @click=${() => this._join(h)}>${k ? "✓" : "＋"}</button>`}</div>
-        ${b !== null && !v ? io({ name: w, v: b, live: !!g, held: this._held === h, set: (A, T) => this._setVol(h, A, T), drop: () => this._volDrop(h) }) : u}
-        ${!f && !k && !v && s && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(c)}>Move the music here</button>` : u}
+          <span class="rtx"><span class="sn2">${w}${U ? l`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u}</span><span class="rst">${v}</span></span></button>
+          ${h === e?.entity_id || y ? u : l`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${w} ${k ? "from" : "to"} the music" @click=${() => this._join(h)}>${k ? "✓" : "＋"}</button>`}</div>
+        ${b !== null && !y ? io({ name: w, v: b, live: !!g, held: this._held === h, set: (A, T) => this._setVol(h, A, T), drop: () => this._volDrop(h) }) : u}
+        ${!f && !k && !y && s && t?.state === "playing" ? l`<button class="pill tap moveb" @click=${() => this._move(c)}>Move the music here</button>` : u}
       </div>`;
     })}</div>`}`;
   }
@@ -11150,8 +11154,8 @@ const Kh = async (a) => {
     }} @keydown=${(e) => {
       e.key === "Enter" && this._search();
     }}>
-        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? "Looking…" : "Search"}</button>
-        ${t ? l`<button class="pill tap" style="height:52px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${this._keys ? "Hide the keyboard" : "Show the keyboard"} aria-pressed=${String(this._keys)} @click=${() => {
+        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? "Looking…" : "Search"}</button>
+        ${t ? l`<button class="pill tap" style="height:52px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${this._keys ? "Hide the keyboard" : "Show the keyboard"} aria-pressed=${String(this._keys)} @click=${() => {
       this._keys = !this._keys;
     }}>Keyboard</button>` : u}
         <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => {
@@ -11160,7 +11164,7 @@ const Kh = async (a) => {
   }
   _searchTab() {
     const t = this._hits, e = t?.find((i) => i.uri === this._sel);
-    return l`${this._adding ? l`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || "everyone"}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${() => {
+    return l`${this._adding ? l`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || "everyone"}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
       this._adding = !1, this._tab = "juke";
     }}>Back</button></div>` : u}
       ${this._keys && !t ? l`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${K("search", 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : u}
@@ -11189,7 +11193,7 @@ const Kh = async (a) => {
     }}>
       <section class="glass sheet" role="dialog" aria-modal="true" aria-label="Pin to a shelf" style="width:min(560px,92%);gap:12px">
         <h2 class="t-head">Pin “${t.name}”</h2><span class="soft">Whose shelf? Calm picks are the only ones offered at wind-down.</span>
-        ${this._shelfNames.map((e) => l`<div class="setrow"><b style="font-size:17px">${e === "Family" ? "Family shelf" : `${e}’s shelf`}</b><span style="display:flex;gap:8px">
+        ${this._shelfNames.map((e) => l`<div class="setrow"><b style="font-size:var(--fs-3)">${e === "Family" ? "Family shelf" : `${e}’s shelf`}</b><span style="display:flex;gap:8px">
           <button class="pill tap primary" @click=${() => this._pin(e, !1)}>Pin</button><button class="pill tap" @click=${() => this._pin(e, !0)}>🌙 Pin as calm</button></span></div>`)}
         <span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
         <div class="acts">${this._pads.map((e) => {
@@ -11222,14 +11226,14 @@ const Kh = async (a) => {
       p.stopPropagation(), this._unpin(n);
     }} @keydown=${(p) => {
       (p.key === "Enter" || p.key === " ") && (p.preventDefault(), p.stopPropagation(), this._unpin(n));
-    }}>✕</span>` : u}</button>`)}</div>` : l`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">${e ? "Nothing calm pinned yet" : "Nothing pinned yet"}</h2>
+    }}>✕</span>` : u}</button>`)}</div>` : l`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">${e ? "Nothing calm pinned yet" : "Nothing pinned yet"}</h2>
           <span>${this.hass.states[ui(this._shelf)] ? "Search for an album, a playlist or a story, then tap Pin." : `This shelf needs the to-do list ${ui(this._shelf)} in Home Assistant.`}</span></div>`}</div>
-      <div class="dropside"><span class="soft" style="font-size:14px">Drag a record to a room, or tap it to play in <b>${this._name(o)}</b>.</span>
+      <div class="dropside"><span class="soft" style="font-size:var(--fs-2)">Drag a record to a room, or tap it to play in <b>${this._name(o)}</b>.</span>
         ${this._mini((n) => n === o?.entity_id, (n) => {
       this._shelfTo = n;
     })}
         <span style="flex:1"></span><span style="align-self:flex-end">
-        ${i.length ? l`<button class="pill tap" style="font-size:15px" @click=${() => {
+        ${i.length ? l`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => {
       this._edit ? this._edit = !1 : this._guard("Change this shelf?", () => {
         this._edit = !0;
       });
@@ -11242,12 +11246,12 @@ const Kh = async (a) => {
       this._jpick = !1, this._adding = !0, this._prev = this._prev === "rooms" ? "rooms" : "juke", this._tab = "search", this._keys = !0, this._hits = null, this._text = "", this._caps = !0;
     };
     if (this._jpick && t.who) {
-      const f = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((v) => !f.has(v.uri) && !!f.add(v.uri)), b = this.kids.find((v) => v.name === t.who)?.mode === "picture", w = l`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${n}>${K("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => {
+      const f = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((y) => !f.has(y.uri) && !!f.add(y.uri)), b = this.kids.find((y) => y.name === t.who)?.mode === "picture", w = l`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${n}>${K("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
         this._jpick = !1, this._prev === "rooms" && (this._tab = "rooms");
       }}>Back</button></div>`;
       return l`${b ? u : w}
-        ${k.length ? l`<div class="covers scrolly jcovers ${b ? "low" : ""}" data-fits @scroll=${Kt}>${k.map((v) => l`<button class="st tap" aria-label="Add ${v.name}" @click=${() => this._addPick(v)}>
-          <i class="disc"></i><span class="img" style=${v.img ? `--art:url(${v.img})` : ""}>${v.img ? "" : v.name[0]}</span><span class="lbl">${v.name}</span></button>`)}</div>` : l`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${b ? w : u}`;
+        ${k.length ? l`<div class="covers scrolly jcovers ${b ? "low" : ""}" data-fits @scroll=${Kt}>${k.map((y) => l`<button class="st tap" aria-label="Add ${y.name}" @click=${() => this._addPick(y)}>
+          <i class="disc"></i><span class="img" style=${y.img ? `--art:url(${y.img})` : ""}>${y.img ? "" : y.name[0]}</span><span class="lbl">${y.name}</span></button>`)}</div>` : l`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${b ? w : u}`;
     }
     const p = t.picks.filter((f) => !f.done).sort((f, k) => +(k === i) - +(f === i) || f.t - k.t), c = t.picks.filter((f) => f.done).sort((f, k) => k.t - f.t), d = (f) => f.done ? this._q?.next?.name === f.name ? l`<i aria-hidden="true">${ct("next", 14)}</i>Up next` : l`<i aria-hidden="true">✓</i>Played` : f === i ? l`<i aria-hidden="true">${ct("play", 14)}</i>Next` : l`<i aria-hidden="true">⏳</i>Waiting`, h = (f) => l`<div class="pickrow ${f.done ? "played" : ""}" ?data-next=${f === i}>
       <span class="pcover"><i class="disc"></i><span class="art" style=${f.img ? `--art:url(${f.img})` : ""}>${f.img ? "" : K("music", 26)}</span>
@@ -11255,21 +11259,21 @@ const Kh = async (a) => {
       <span class="nm">${f.name}${f.sub ? l` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${f.sub}</span>` : u}</span>
       <span class="when">${d(f)}</span></div>`, g = (f) => p.find((k) => k.who === f), m = this.kids.some((f) => f.mode === "picture") ? "jlow" : "";
     return l`${this._dj ? l`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : u}
-      <div class="coins ${m}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((f) => {
+      <div class="coins ${m}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((f) => {
       const k = g(f.name);
       return l`<button class="coin tap" style="--c:${B(f.colour)}" aria-pressed=${String(t.who === f.name)} ?data-next=${f.name === r} aria-label="${f.name}${f.name === r ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
         this._saveJuke({ who: f.name }), this._prev = "juke", this._jpick = !0;
       }}>
         <span class="face"><span class="fpic">${this._face(f.name, 50)}</span>${k ? l`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? u : ct("play", 12)}</i>` : u}</span><span class="cname">${f.name}</span><span class="cnext">${f.name === r ? "Next" : ""}</span></button>`;
     })}</div>
-      <div class="acts ${m}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!t.who} @click=${() => {
+      <div class="acts ${m}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
     }}>＋ ${t.who ? `${t.who} adds a song` : "Pick who’s choosing"}</button>
-        <button class="jsw tap" role="switch" aria-checked=${String(t.on)} style="font-size:15px" @click=${() => {
+        <button class="jsw tap" role="switch" aria-checked=${String(t.on)} style="font-size:var(--fs-2)" @click=${() => {
       this._saveJuke({ on: !t.on }), t.on || this._feed();
     }}><i></i>${t.on ? "Jukebox is on" : "Jukebox is off"}</button>
-        <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
-        ${t.picks.length ? l`<button class="pill tap" style="font-size:15px" @click=${() => {
+        <span class="soft" style="flex:1;font-size:var(--fs-2)">Everyone gets a turn.</span>
+        ${t.picks.length ? l`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => {
       const f = t.picks;
       this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: f }));
     }}>Clear</button>` : u}</div>
@@ -11277,7 +11281,7 @@ const Kh = async (a) => {
   }
   _radio() {
     const t = this._cur, e = t && t.state === "playing" ? Ks[t.entity_id] : "";
-    return l`<span class="muted" style="font-size:14px">Tap a station to play it in <b>${this._name(t)}</b>. Pick a different room in the Rooms tab.</span>
+    return l`<span class="muted" style="font-size:var(--fs-2)">Tap a station to play it in <b>${this._name(t)}</b>. Pick a different room in the Rooms tab.</span>
       <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr));padding:6px;margin:-6px">${this._stations.map((i) => {
       const s = this._thumbs[i.name], o = e === i.name;
       return l`<button class="st tap ${o ? "on" : ""}" @click=${() => this._play(i)}>
@@ -11294,7 +11298,7 @@ const Kh = async (a) => {
       this._callTo = e ? [] : t;
     }}>Everyone</button>`;
     return l`${this._ckeys ? l`<div class="rchips" role="group" aria-label="Rooms to call">${this._list.map((r) => l`<button class="pill tap rchip" ?disabled=${this._off(r)} aria-pressed=${String(this._callTo.includes(r.entity_id))} @click=${() => i(r.entity_id)}>${this._abed(r.entity_id) ? "☾ " : ""}${this._name(r)}</button>`)}${o}</div>` : l`<div class="callrow">
-        <div class="callside"><span class="soft" style="font-size:14px">Tap the rooms to call</span>
+        <div class="callside"><span class="soft" style="font-size:var(--fs-2)">Tap the rooms to call</span>
           ${this._mini((r) => this._callTo.includes(r), i, !0)}
           <span style="align-self:flex-start">${o}</span></div>
         <div class="bubbles">${ur.map((r, n) => l`<button class="bubble tap" aria-pressed=${String(this._callMsg === r)} @click=${() => s(r)}><span class="bpic" aria-hidden="true">${Ud[n]}</span>${r}</button>`)}</div></div>`}
@@ -11312,7 +11316,7 @@ const Kh = async (a) => {
       [this._callMsg, this._caps] = We(this._callMsg, r, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
-    }, !0)}</div>` : l`<span class="soft" style="font-size:14px">It is spoken over the music in that room, then the music carries on.</span>`}`;
+    }, !0)}</div>` : l`<span class="soft" style="font-size:var(--fs-2)">It is spoken over the music in that room, then the music carries on.</span>`}`;
   }
 };
 fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
@@ -11329,12 +11333,12 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
     .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width calc(1s * var(--m-d, 1)) linear; }
     .ctl { display: flex; align-items: center; justify-content: space-between; }
-    .ctl button { color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .ctl button { color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); }
     .ctl button[aria-pressed='true'] { background: rgba(255,255,255,.22); }
     .ctl .go { width: 66px; height: 66px; background: #fff; color: #111; }
-    .upnext { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; }
+    .upnext { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; }
     .mini { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; }
-    .mini .tog { height: 44px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .mini .tog { height: 44px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .mini .tog[aria-pressed='true'] { background: #fff; color: #111; }
     .stage .vs { --vc: #fff; --rail: rgba(255,255,255,.3); } .stage .vstep, .stage .vnum { color: #fff; } .stage .vrail:focus-visible, .stage .vstep:focus-visible { outline-color: #fff; }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
@@ -11344,11 +11348,11 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .mhead[data-one] { gap: 8px; } .mhead[data-one] h1 { display: none; } /* the section is named "Music" for assistive technology instead */
     .mhead[data-one] .finder { height: 48px; padding: 0 16px; flex: 1 1 120px; } .mhead[data-one] .nowbar { max-width: 28%; flex: 0 1 auto; }
     .mhead[data-one] .pill, .mhead[data-one] .viewbtn, .mhead[data-one] .offnote { flex-shrink: 0; }
-    .helpb, .peekb { width: 48px; height: 48px; flex-shrink: 0; font-size: 20px; font-weight: var(--w-heavy, 800); }
+    .helpb, .peekb { width: 48px; height: 48px; flex-shrink: 0; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .helpb { color: var(--ink); }
     .body { position: relative; }
     /* the hint: one quiet line in the toolbar beside "?", shown for four seconds the first time a view is opened and whenever "?" is tapped. It is never laid over the view. On a wide screen it borrows the search field's place while it shows. */
-    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
+    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: var(--fs-2); line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
     /* the hint is never cut, and never takes a row of its own on a wide screen (a tap takes the hint away, and a row that vanished under the finger would lose the tap):
@@ -11363,11 +11367,11 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
     .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .ntx b { font-size: 15px; } .ntx span { font-size: 14px; }
+    .ntx b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .ntx span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .ntx b { font-size: var(--fs-2); } .ntx span { font-size: var(--fs-2); }
     .acts .hint { flex: 1 1 0; min-width: 0; } .acts .hint:not([data-on]) { display: none; } :host([data-phone]) .acts .hint { flex: 1 1 100%; order: 9; }
     /* a home speaker that cannot be reached keeps its place, greyed, and the page says how many */
-    .offnote { height: 44px; padding: 0 14px 0 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; background: color-mix(in srgb, var(--accent) 26%, var(--chip-strong)); box-shadow: inset 0 0 0 2px var(--accent); }
+    .offnote { height: 44px; padding: 0 14px 0 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; background: color-mix(in srgb, var(--accent) 26%, var(--chip-strong)); box-shadow: inset 0 0 0 2px var(--accent); }
     /* offline: the picture fades, the words stay readable */
     [data-offline] { filter: grayscale(1); }
     [data-offline] :is(svg, .puck, .thumb, .cone, .well, .dtrack, .dfill, .dknob, .vs, .cvol) { opacity: .45; }
@@ -11376,7 +11380,7 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .panel { position: relative; }
     .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
     /* search is a field, not a tab: it is always in the same place and looks like somewhere to type */
-    .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink2);
+    .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink2);
       background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent), 0 6px 14px -8px rgba(0,0,0,.35); transition: box-shadow var(--m-2, 160ms); }
     .finder:active { box-shadow: inset 0 0 0 3px var(--primary); }
     .finder span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -11386,18 +11390,18 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .callrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .callside, .dropside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
-    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
+    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: var(--fs-3); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
     .bubble[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: scale(1.03); }
-    .sayit { height: 52px; padding: 0 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
+    .sayit { height: 52px; padding: 0 24px; font-size: var(--fs-3); display: inline-flex; align-items: center; gap: 8px; }
     .map.snug { flex: none; }
     .map.snug .floor { flex: none; height: 100px; min-height: 0; }
     .map.snug .mstairs { flex-basis: 36px; }
     /* the little house: each room is a button, so the room leaves space for its focus ring */
     .map.snug .mroom { overflow: visible; } .map.snug .mz:first-child { border-radius: 16px 0 0 16px; } .map.snug .mz:last-child { border-radius: 0 16px 16px 0; } .map.snug .mz:only-child { border-radius: 16px; }
-    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 15px; position: relative; transition: background var(--m-2, 160ms); }
+    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: var(--fs-2); position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
-    .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
+    .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--mark, var(--primary)) 30%, transparent) 28%, transparent 28%); }
     .mz[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
@@ -11441,7 +11445,7 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     :host([data-phone]) .msgs { grid-template-columns: 1fr 1fr; }
     /* the places on the page: a picture each, and the one you are in stands up */
     .tabs { display: flex; gap: 8px; }
-    .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+    .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
     :host([data-phone]) .tabs:not(.inline) button { padding: 0 6px; gap: 4px; }
@@ -11455,18 +11459,18 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .spk { border-radius: 20px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; --rail: var(--track); }
     .spk.focus { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
     .spk.inmix { box-shadow: 0 0 0 3px var(--ok); }
-    .spk .sn2 { font-size: 16px; line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .spk .sn2 { font-size: var(--fs-3); line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .spk .top { display: flex; align-items: center; gap: 10px; }
     .spk .rsel { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; min-height: 44px; }
-    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .moveb { height: 44px; font-size: 15px; align-self: flex-start; }
+    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .moveb { height: 44px; font-size: var(--fs-2); align-self: flex-start; }
     .thumb { width: 44px; height: 44px; border-radius: 12px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: 7px; }
     .eq i { width: 4px; border-radius: 2px; background: #fff; animation: eq .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); box-shadow: 0 0 4px rgba(0,0,0,.4); }
     .eq i:nth-child(2) { animation-delay: .3s; } .eq i:nth-child(3) { animation-delay: .6s; }
     @keyframes eq { from { height: 4px; } to { height: 20px; } }
-    .join { width: 44px; height: 44px; border-radius: 50%; background: var(--track); font-size: 20px; font-weight: var(--w-heavy, 800); flex-shrink: 0; }
+    .join { width: 44px; height: 44px; border-radius: 50%; background: var(--track); font-size: var(--fs-4); font-weight: var(--w-heavy, 800); flex-shrink: 0; }
     .join[aria-pressed='true'] { background: var(--ok); color: var(--on-ok, #fff); }
-    .field { flex: 1; min-width: 0; height: 52px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: 20px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    .field { flex: 1; min-width: 0; height: 52px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: var(--fs-4); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .hits { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; align-content: start; }
     .hits[data-fit] { gap: 3px 10px; }
     .hit { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; min-height: 52px; border-radius: 14px; background: var(--chip); text-align: left; min-width: 0; }
@@ -11475,22 +11479,22 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .hit .art, .pickrow .art { width: 40px; height: 40px; border-radius: 9px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--ink2); }
     .hit .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
     .hit .tx b, .hit .tx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hit .tx b { font-size: 15px; font-weight: var(--w-bold, 700); }
-    .hit .tx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .kind { font-size: 12px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
+    .hit .tx b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .hit .tx span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .kind { font-size: var(--fs-1); font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 6px; }
     .covers[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
-    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
+    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: var(--fs-2); font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
+    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); color: #fff; }
     .st .lbl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
-    .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 18px; font-weight: var(--w-heavy, 800); }
+    .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .pchip[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--c, var(--primary)); }
-    .pchip .avatar { width: 32px; height: 32px; font-size: 13px; background: var(--c); overflow: hidden; }
+    .pchip .avatar { width: 32px; height: 32px; font-size: var(--fs-1); background: var(--c); overflow: hidden; }
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
@@ -11505,15 +11509,15 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
       :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .when { align-self: start; justify-self: start; }
     }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
-    .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
+    .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-4); font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
     .coin[aria-pressed='true'] .face { transform: translateY(-5px) scale(1.1); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c), 0 10px 14px -6px rgba(0,0,0,.4); }
-    .coin .cname { font-size: 14px; font-weight: var(--w-bold, 700); }
+    .coin .cname { font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .coin[aria-pressed='true'] .cname { text-decoration: underline; text-underline-offset: 3px; }
     .coin .face { position: relative; } .fpic { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     /* someone with a song waiting wears its cover, not a tick */
     .coin .has { position: absolute; right: -6px; bottom: -6px; width: 26px; height: 26px; border-radius: 7px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--chip-strong), 0 2px 4px rgba(0,0,0,.3); }
-    .coin .cnext { height: 16px; font-size: 14px; font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .coin .cnext { height: 16px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); color: var(--ink); }
     .coin[data-next] .face { box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .jcovers { flex: 1; min-height: 0; }
     /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
@@ -11522,14 +11526,14 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .jcovers .st { --st-pr: 20px; padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
     .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background var(--m-2, 160ms); flex-shrink: 0; }
     .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .jsw[aria-checked='true'] i { background: var(--ok); }
     .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
+    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
@@ -11539,21 +11543,21 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }
     .pickrow[data-next] .disc { transform: translateX(13%) scale(.94); animation: puck 6s linear infinite; animation-iteration-count: var(--loops, infinite); }
     .pickrow .pcover .art { position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; box-shadow: 0 8px 14px -8px rgba(0,0,0,.5); background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; }
-    .pcover .init { position: absolute; left: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); font-size: 13px; box-shadow: 0 0 0 2.5px var(--chip-strong); }
+    .pcover .init { position: absolute; left: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); font-size: var(--fs-1); box-shadow: 0 0 0 2.5px var(--chip-strong); }
     .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
-    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 14px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
+    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
     .when i { font-style: normal; display: inline-flex; }
     .pickrow[data-next] .when { background: var(--mark, var(--primary)); color: var(--on-mark, var(--on-primary)); }
-    .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
+    .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
+    .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: left; }
     .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
-    .soft { color: var(--ink2); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .soft { color: var(--ink2); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
 
     /* ---- the house: rooms you can see, music you can pick up ---- */
     .map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; position: relative; user-select: none; -webkit-user-select: none; }
     .floor { flex: 1 1 0; min-height: 96px; display: flex; gap: 8px; }
-    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
     .mroom { flex: var(--size, 1) 1 0; min-width: 0; display: flex; border-radius: 20px; background: var(--chip-soft); overflow: hidden; }
     /* the stairs: treads seen from above between two rails (level lines, so they never look like the slanted hatch of a speaker that is offline) */
     .mstairs { flex: 0 0 54px; border-radius: 10px; background: repeating-linear-gradient(to bottom, var(--ink3) 0 2.5px, transparent 2.5px 16px) 9px 0 / calc(100% - 18px) 100% no-repeat, var(--chip-soft); box-shadow: inset 5px 0 0 var(--ink3), inset -5px 0 0 var(--ink3); }
@@ -11595,8 +11599,8 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     /* a room's name is never cut: a long one takes a second line */
     .zname b { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
     .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .zname b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .zname span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
     .grab { position: absolute; right: 6px; bottom: var(--lvl); width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; outline: none; border-radius: 12px; transition: bottom var(--mt-2, 160ms) ease-out; z-index: 1; }
     .grab i { display: block; width: 52px; height: 14px; box-sizing: border-box; border-radius: 7px; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--c), 0 2px 5px rgba(0,0,0,.3); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
@@ -11619,9 +11623,9 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .maprow > .map { min-width: 0; }
     .mshelf { flex: 0 0 clamp(236px, 25%, 310px); min-width: 0; border-radius: 22px; background: var(--chip); padding: 12px; display: flex; flex-direction: column; gap: 10px; user-select: none; -webkit-user-select: none; }
     .shead { display: flex; align-items: center; justify-content: flex-start; gap: 4px; flex-wrap: wrap; }
-    .shead b { flex: 1 1 100%; min-width: 0; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shead b { flex: 1 1 100%; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .swho { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
+    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: var(--fs-1); font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
     .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
     /* the label has the whole column (the record alone is sized by the row), so a long name is not cut */
@@ -11630,11 +11634,11 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 45px; font-size: 14px; line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .srec span { max-width: 100%; height: 45px; font-size: var(--fs-2); line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
-    .wholeh b { display: block; font-size: 16px; font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wholeh b { display: block; font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wholeh[data-joined] { border-style: solid; border-color: var(--ink2); background: var(--sel-bg); color: var(--sel-ink); } .wholeh[data-joined] span span { color: inherit; }
     .wholeb[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .wholeh[data-open] { border-color: var(--primary); animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -11682,22 +11686,22 @@ fo.styles = [Qt, ii, H`${_t(si)}`, su, H`
     .panel { container: panel / inline-size; }
     .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } :host([data-phone]) .tabs.inline[data-words] button { padding: 0 8px; gap: 4px; } .tabs.inline[data-words] button span { display: inline; }
     /* Whole house is a plain button: play is the one filled key in the toolbar */
-    .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: 15px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: var(--fs-2); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .acts .pill[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     /* the house: a room's volume is a level you can see, with its number inside and a bar to hold. The level runs between the quieter button at the bottom and the louder button under the ＋. */
     .pool, .grab, .zvol, .mzone::after { --r0: 56px; --r1: 104px; --lvl: calc(var(--r0) + (100% - var(--r0) - var(--r1)) * var(--v, 0) / 100); }
     @container zone (max-height: 219px) { .pool, .grab, .zvol, .mzone::after { --r0: 14px; --r1: 58px; } .mzone > .vstep { display: none; } }
     @container zone (max-width: 139px) { .puck { left: 44%; } }
-    .zvol { position: absolute; left: 12px; bottom: 8px; font-size: 20px; line-height: 1; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; pointer-events: none; transform-origin: left bottom; transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
+    .zvol { position: absolute; left: 12px; bottom: 8px; font-size: var(--fs-4); line-height: 1; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; pointer-events: none; transform-origin: left bottom; transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
     .mzone:not([data-live]) .zvol { color: var(--ink2); }
     .mzone[data-held] .zvol { transform: scale(1.4); } .mzone[data-held] .grab i { transform: scale(1.15); }
     .mzone > .vstep { position: absolute; right: 12px; z-index: 1; } .mzone > .vstep[data-step='up'] { top: 54px; } .mzone > .vstep[data-step='down'] { bottom: 6px; }
     .zname b { display: flex; flex-wrap: wrap; align-items: center; } .zname b .linkd { flex-shrink: 0; }
     /* calling: a picture on every ready message; with the keyboard up the rooms and the messages stay in reach */
-    .bpic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .bpic { font-size: var(--fs-5); line-height: 1; flex-shrink: 0; }
     .sayrow { display: flex; gap: 10px; align-items: center; } .qpics { display: flex; gap: 4px; flex-shrink: 0; }
-    .qpic { width: 44px; height: 44px; border-radius: 12px; background: var(--chip); font-size: 22px; display: inline-flex; align-items: center; justify-content: center; } .qpic[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring); }
-    .rchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .rchip { font-size: 15px; } .rchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
+    .qpic { width: 44px; height: 44px; border-radius: 12px; background: var(--chip); font-size: var(--fs-4); display: inline-flex; align-items: center; justify-content: center; } .qpic[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring); }
+    .rchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .rchip { font-size: var(--fs-2); } .rchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
     :host([data-phone]) .sayrow { flex-wrap: wrap; } :host([data-phone]) .qpics { flex: 1 1 100%; justify-content: space-between; }
     /* calm mode and "reduce motion": nothing on the Music page moves by itself, not even once */
     :host([data-still]) *, :host([data-still]) *::before, :host([data-still]) *::after { animation: none !important; }
@@ -11871,20 +11875,20 @@ mo.styles = [Qt, H`
     :host([dark]) .bar, :host([dark]) .zoom { --rbar: rgba(16,24,44,.86); --rink: #eef3ff; }
     .bar button, .zoom button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: inherit; flex-shrink: 0; }
     .bar button { background: var(--primary); color: var(--on-primary); }
-    .when { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 66px; }
-    .ago { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .when { font-size: var(--fs-2); font-weight: 800; font-variant-numeric: tabular-nums; min-width: 66px; }
+    .ago { font-size: var(--fs-1); font-weight: 600; white-space: nowrap; }
     .ticks { flex: 1; display: flex; gap: 3px; align-items: center; min-width: 0; }
     .ticks i { flex: 1; height: 6px; border-radius: 3px; background: currentColor; opacity: .2; }
     .ticks i.seen { opacity: .55; }
     .ticks i.cur { opacity: 1; height: 10px; background: var(--accent); }
     .zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; border-radius: 22px; background: var(--rbar, rgba(255,255,255,.88)); color: var(--rink, #14202e); box-shadow: 0 4px 14px rgba(0,0,0,.22); cursor: default; }
     .zoom button:disabled { opacity: .3; }
-    .zoom b { font-size: 24px; line-height: 1; font-weight: 600; }
-    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: 13px; font-weight: 700; pointer-events: none; }
+    .zoom b { font-size: var(--fs-5); line-height: 1; font-weight: 600; }
+    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: var(--fs-1); font-weight: 700; pointer-events: none; }
     :host([dark]) .key { --rkey: #10182c; --rink: #eef3ff; }
     .key b { font-weight: inherit; }
     .key span { width: 74px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #9ad7f5, #3b8fe0, #1f4fc4, #f7e33c, #f39a1e, #e0261c, #a31278); }
-    .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 15px; font-weight: 600; color: var(--ink2); pointer-events: none; }
+    .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); pointer-events: none; }
   `], mo.properties = { lat: { type: Number }, lon: { type: Number }, zoom: { type: Number }, dark: { type: Boolean, reflect: !0 }, _z: { state: !0 }, _frames: { state: !0 }, _i: { state: !0 }, _play: { state: !0 }, _size: { state: !0 }, _pan: { state: !0 }, _err: { state: !0 } };
 let An = mo;
 customElements.get("fh-radar") || customElements.define("fh-radar", An);
@@ -11918,7 +11922,7 @@ const qn = {
 }, qd = (a) => {
   const t = a.getHours();
   return t === 0 ? "12 am" : t === 12 ? "12 pm" : `${t % 12} ${t < 12 ? "am" : "pm"}`;
-}, Ms = (a) => `hsl(${Math.round(Math.max(5, Math.min(210, 210 - (a - 5) / 30 * 205)))} 78% 54%)`, xu = (a) => a >= 11 ? "Extreme" : a >= 8 ? "Very high" : a >= 6 ? "High" : a >= 3 ? "Moderate" : "Low", wu = "M18 46a10 10 0 0 1 1.6-19.9A14 14 0 0 1 46.5 24 9.5 9.5 0 0 1 46 46z", Md = (a = 32, t = 32, e = 11) => x`<g class="sun" style="transform-origin:${a}px ${t}px"><g class="rays">${[0, 45, 90, 135, 180, 225, 270, 315].map((i) => x`<path d="M${a} ${t - e - 4}v-6" transform="rotate(${i} ${a} ${t})"></path>`)}</g><circle class="disc" cx=${a} cy=${t} r=${e}></circle></g>`, ku = (a = 32, t = 32, e = 1) => x`<g transform="translate(${a - 32 * e} ${t - 32 * e}) scale(${e})"><path class="moon" d="M44 38.5A15 15 0 1 1 26.5 19a12 12 0 0 0 17.5 19.500z"></path><path class="star s1" d="M46 14l1.3 3.2 3.2 1.3-3.2 1.300L46 23l-1.3-3.2-3.2-1.3 3.2-1.300z"></path><path class="star s2" d="M52 30l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></g>`, xe = (a = "", t = "") => x`<path class="cloud ${a}" d=${wu} transform=${t}></path>`, yr = (a) => x`<g class="drops">${Array.from({ length: a }, (t, e) => x`<path class="drop" style="animation-delay:${-(e * 0.37) % 1.2}s" d="M${32 - (a - 1) * 5 + e * 10} 50l-2.5 7"></path>`)}</g>`, Sd = x`<path class="bolt" d="M34 44l-7 10h6l-3 9 10-12h-6l4-7z"></path>`, Th = (a = "") => {
+}, Ms = (a) => `hsl(${Math.round(Math.max(5, Math.min(210, 210 - (a - 5) / 30 * 205)))} 78% 54%)`, xu = (a) => a >= 11 ? "Extreme" : a >= 8 ? "Very high" : a >= 6 ? "High" : a >= 3 ? "Moderate" : "Low", wu = "M18 46a10 10 0 0 1 1.6-19.9A14 14 0 0 1 46.5 24 9.5 9.5 0 0 1 46 46z", Md = (a = 32, t = 32, e = 11) => x`<g class="sun" style="transform-origin:${a}px ${t}px"><g class="rays">${[0, 45, 90, 135, 180, 225, 270, 315].map((i) => x`<path d="M${a} ${t - e - 4}v-6" transform="rotate(${i} ${a} ${t})"></path>`)}</g><circle class="disc" cx=${a} cy=${t} r=${e}></circle></g>`, ku = (a = 32, t = 32, e = 1) => x`<g transform="translate(${a - 32 * e} ${t - 32 * e}) scale(${e})"><path class="moon" d="M44 38.5A15 15 0 1 1 26.5 19a12 12 0 0 0 17.5 19.500z"></path><path class="star s1" d="M46 14l1.3 3.2 3.2 1.3-3.2 1.300L46 23l-1.3-3.2-3.2-1.3 3.2-1.300z"></path><path class="star s2" d="M52 30l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></g>`, xe = (a = "", t = "") => x`<path class="cloud ${a}" d=${wu} transform=${t}></path>`, vr = (a) => x`<g class="drops">${Array.from({ length: a }, (t, e) => x`<path class="drop" style="animation-delay:${-(e * 0.37) % 1.2}s" d="M${32 - (a - 1) * 5 + e * 10} 50l-2.5 7"></path>`)}</g>`, Sd = x`<path class="bolt" d="M34 44l-7 10h6l-3 9 10-12h-6l4-7z"></path>`, Th = (a = "") => {
   switch (a) {
     case "sunny":
       return Md();
@@ -11929,13 +11933,13 @@ const qn = {
     case "cloudy":
       return x`${xe("back", "translate(10 -8) scale(.8)")}${xe("drift", "translate(-2 4)")}`;
     case "rainy":
-      return x`${xe("", "translate(0 -8)")}${yr(3)}`;
+      return x`${xe("", "translate(0 -8)")}${vr(3)}`;
     case "pouring":
-      return x`${xe("dark", "translate(0 -8)")}${yr(5)}`;
+      return x`${xe("dark", "translate(0 -8)")}${vr(5)}`;
     case "lightning":
       return x`${xe("dark", "translate(0 -10)")}${Sd}`;
     case "lightning-rainy":
-      return x`${xe("dark", "translate(0 -10)")}${Sd}${yr(2)}`;
+      return x`${xe("dark", "translate(0 -10)")}${Sd}${vr(2)}`;
     case "hail":
     case "snowy":
     case "snowy-rainy":
@@ -11949,7 +11953,7 @@ const qn = {
     default:
       return xe();
   }
-}, vr = (a, t) => l`<svg class="sky" viewBox="0 0 64 64" width=${t} height=${t} role="img" aria-label=${qn[a ?? ""] ?? a ?? ""}>${Th(a)}</svg>`, yu = { sun: "Hat and sunscreen", rain: "Raincoat", jumper: "Jumper", water: "Water bottle", inside: "Stay inside", blanket: "Extra blanket", outside: "Play outside" }, vu = {
+}, yr = (a, t) => l`<svg class="sky" viewBox="0 0 64 64" width=${t} height=${t} role="img" aria-label=${qn[a ?? ""] ?? a ?? ""}>${Th(a)}</svg>`, vu = { sun: "Hat and sunscreen", rain: "Raincoat", jumper: "Jumper", water: "Water bottle", inside: "Stay inside", blanket: "Extra blanket", outside: "Play outside" }, yu = {
   sun: x`<ellipse cx="26" cy="38" rx="23" ry="6.500" fill="#f4c95d" stroke="#8a5a00" stroke-width="2.500"></ellipse><path d="M12 37c0-11 6-18 14-18s14 7 14 18z" fill="#ffe08a" stroke="#8a5a00" stroke-width="2.500" stroke-linejoin="round"></path><path d="M12.500 33.500h27" stroke="#d1495b" stroke-width="4"></path>
     <rect x="43" y="30" width="15" height="27" rx="4" fill="#fff" stroke="#8a5a00" stroke-width="2.500"></rect><rect x="46" y="23" width="9" height="7" rx="2" fill="#f77f00" stroke="#8a5a00" stroke-width="2.500"></rect><circle cx="50.500" cy="43.500" r="4" fill="#ffc533"></circle>`,
   rain: x`<path d="M22 12c3 4 17 4 20 0l12 9-5 9-5-3v29H20V27l-5 3-5-9z" fill="#ffd23f" stroke="#7a5200" stroke-width="2.500" stroke-linejoin="round"></path><path d="M22 12c1 8 5 12 10 12s9-4 10-12" fill="#f4b400" stroke="#7a5200" stroke-width="2.500" stroke-linejoin="round"></path><path d="M32 24v32" stroke="#7a5200" stroke-width="2.500"></path><circle cx="35.500" cy="33" r="1.800" fill="#7a5200"></circle><circle cx="35.500" cy="43" r="1.800" fill="#7a5200"></circle>
@@ -11959,7 +11963,7 @@ const qn = {
   inside: x`<path d="M8 30L32 10l24 20" fill="none" stroke="#5c3d2e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 28v28h36V28L32 13z" fill="#ffe8c2" stroke="#5c3d2e" stroke-width="2.500" stroke-linejoin="round"></path><path d="M34 28l-8 12h6l-3 10 10-13h-6l4-9z" fill="#ffd21f" stroke="#b27f00" stroke-width="1.500" stroke-linejoin="round"></path>`,
   blanket: x`<path d="M6 22v32M6 44h52v10M58 44v-8a6 6 0 0 0-6-6H24v14" fill="none" stroke="#5c3d2e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="15" cy="34" r="5.500" fill="#ffd9b8" stroke="#5c3d2e" stroke-width="2.500"></circle><path d="M24 32h28a4 4 0 0 1 4 4v8H24z" fill="#7b8cde" stroke="#39428a" stroke-width="2.500" stroke-linejoin="round"></path><path d="M46 8a8 8 0 1 0 8 10 7 7 0 0 1-8-10z" fill="#f4dc7a" stroke="#8a6d00" stroke-width="1.500"></path>`,
   outside: x`<circle cx="46" cy="18" r="9" fill="#ffc533"></circle><circle cx="26" cy="40" r="17" fill="#ef476f" stroke="#7d1535" stroke-width="2.500"></circle><path d="M12 31c9 2 17 2 28-1M11 47c10-3 20-3 30 1M26 23v34" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round"></path>`
-}, Ku = (a, t = 64) => l`<svg viewBox="0 0 64 64" width=${t} height=${t} aria-hidden="true">${vu[a]}</svg>`, Uu = x`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`, _d = {
+}, Ku = (a, t = 64) => l`<svg viewBox="0 0 64 64" width=${t} height=${t} aria-hidden="true">${yu[a]}</svg>`, Uu = x`<svg class="i" viewBox="0 0 24 24" style="--s:26px" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`, _d = {
   glass: ["Right now", "The next hours", "The week ahead", "From above"],
   fridge: ["Today", "Later on", "This week", "Rain and wind"],
   orbit: ["Weather now", "Next 24 hours", "Seven-day outlook", "Rain radar and wind"],
@@ -12037,7 +12041,7 @@ const qn = {
     ];
   }
   shouldUpdate(t) {
-    return t.size === 1 && t.has("hass") ? vo(t.get("hass"), this.hass, this._ids()) : !0;
+    return t.size === 1 && t.has("hass") ? yo(t.get("hass"), this.hass, this._ids()) : !0;
   }
   willUpdate() {
     this.hass && this.entity && this._loadedFor !== this.entity && (this._loadedFor = this.entity, this._load());
@@ -12081,25 +12085,25 @@ const qn = {
     </svg>`;
   }
   _now() {
-    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = be(this._o("temp")) ?? e.temperature, o = be(this._o("temp_feels_like")) ?? e.apparent_temperature, r = be(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = be(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = Ze(this._o("wind_direction")) ?? e.wind_bearing, c = be(this._o("humidity")) ?? e.humidity, d = be(this._o("rain_since_9am")), h = be(this._f("rain_chance")) ?? i?.precipitation_probability, g = Ze(this._f("rain_amount_range")), m = this._uv(), f = Ze(this._f("fire_danger")), k = qs(Ze(this._f("astronomical_sunrise_time"))), b = qs(Ze(this._f("astronomical_sunset_time"))), w = Ze(this._f("extended_text")), v = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((V) => V.phase !== "cancelled" && (!V.expiry_time || new Date(V.expiry_time).getTime() > Date.now())), U = (V, z, R = "") => l`<div class="wfact ${R}"><b>${V}</b><small>${z}</small></div>`, y = this._tips(), A = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, T = [h !== void 0, d !== void 0, c !== void 0, !!f].filter(Boolean).length, F = T === 4 || T === 2 ? "half" : "";
+    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = be(this._o("temp")) ?? e.temperature, o = be(this._o("temp_feels_like")) ?? e.apparent_temperature, r = be(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = be(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, p = Ze(this._o("wind_direction")) ?? e.wind_bearing, c = be(this._o("humidity")) ?? e.humidity, d = be(this._o("rain_since_9am")), h = be(this._f("rain_chance")) ?? i?.precipitation_probability, g = Ze(this._f("rain_amount_range")), m = this._uv(), f = Ze(this._f("fire_danger")), k = qs(Ze(this._f("astronomical_sunrise_time"))), b = qs(Ze(this._f("astronomical_sunset_time"))), w = Ze(this._f("extended_text")), y = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((V) => V.phase !== "cancelled" && (!V.expiry_time || new Date(V.expiry_time).getTime() > Date.now())), U = (V, z, R = "") => l`<div class="wfact ${R}"><b>${V}</b><small>${z}</small></div>`, v = this._tips(), A = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, T = [h !== void 0, d !== void 0, c !== void 0, !!f].filter(Boolean).length, F = T === 4 || T === 2 ? "half" : "";
     return l`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
-      ${Pt() === "sports" ? Jc(this._verdict(y), !0) : u}
-      ${v.map((V) => l`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${V.short_title ?? V.title}</span></div>`)}
+      ${Pt() === "sports" ? Jc(this._verdict(v), !0) : u}
+      ${y.map((V) => l`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${V.short_title ?? V.title}</span></div>`)}
       <div class="top">
-        ${vr(t?.state, 72)}
+        ${yr(t?.state, 72)}
         <div>
           <div class="wtemp display">${s !== void 0 ? l`${Math.round(s)}<sup>°</sup>` : "–"}</div>
           <div class="cond">${qn[t?.state ?? ""] ?? t?.state ?? ""}</div>
         </div>
       </div>
-      <div class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">
+      <div class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">
         ${o !== void 0 ? l`Feels like ${Math.round(o)}°` : u}${i?.temperature !== void 0 ? l`${o !== void 0 ? " · " : ""}Top ${Math.round(i.temperature)}°` : u}${i?.templow !== void 0 && i.templow !== i.temperature ? l` · Low ${Math.round(i.templow)}°` : u}
       </div>
       <div class="wtip" role="group" aria-label="What to wear today">
-        <div class="tips">${y.map((V) => l`<span class="tipone">${Ku(V.id)}<span>${yu[V.id]}</span></span>`)}</div>
+        <div class="tips">${v.map((V) => l`<span class="tipone">${Ku(V.id)}<span>${vu[V.id]}</span></span>`)}</div>
         <button class="speak tap" aria-label="Read the advice aloud" @click=${(V) => {
-      S("tap"), at(y.map((z) => z.say).join(" "), V.currentTarget);
+      S("tap"), at(v.map((z) => z.say).join(" "), V.currentTarget);
     }}>${Uu}</button>
       </div>
       <div class="facts">
@@ -12116,7 +12120,7 @@ const qn = {
   }
   _hoursChart() {
     const t = Date.now() - 18e5, e = this._hours.filter((m) => new Date(m.datetime).getTime() >= t).slice(0, 24);
-    if (e.length < 2) return l`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:15px;margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
+    if (e.length < 2) return l`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:var(--fs-2);margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
     const i = this._hw, s = 158, o = e.length, r = e.map((m) => m.temperature ?? 0), n = Math.min(...r), p = Math.max(...r), c = (m) => 98 - (m - n) / Math.max(1, p - n) * 24, d = (m) => m * i + i / 2, h = e.map((m, f) => `${d(f)} ${c(m.temperature ?? n)}`), g = (m) => {
       const f = this.renderRoot.querySelector(".hscroll");
       f && f.scrollTo({ left: Math.round((f.scrollLeft + m * f.clientWidth) / this._hw) * this._hw, behavior: Zi(this).travel ? "smooth" : "auto" });
@@ -12154,7 +12158,7 @@ const qn = {
       const d = new Date(p.datetime), h = d.toDateString() === e, g = p.precipitation_probability ?? 0, m = p.templow ?? p.temperature ?? o, f = p.temperature ?? r, k = p.templow === void 0 || p.templow === p.temperature, b = h ? "Today" : d.toLocaleDateString("en-AU", { weekday: "short" });
       return l`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : d.toLocaleDateString("en-AU", { weekday: "long" })}: ${qn[p.condition ?? ""] ?? ""}, ${k ? "" : `${Math.round(m)} to `}${Math.round(f)} degrees${g >= 30 ? `, ${Math.round(g)} percent chance of rain` : ""}`}>
             <span class="dn">${b}<small>${d.getDate()} ${d.toLocaleDateString("en-AU", { month: "short" })}</small></span>
-            ${vr(c === 0 && p.condition === "clear-night" ? "clear-night" : p.condition, 38)}
+            ${yr(c === 0 && p.condition === "clear-night" ? "clear-night" : p.condition, 38)}
             <span class="rng">
               <span class="lo">${k ? "" : `${Math.round(m)}°`}</span>
               <span class="track"><span class="wbar" style="left:${k ? (f - o) / n * 100 - 4 : (m - o) / n * 100}%;right:${100 - (f - o) / n * 100}%;background:linear-gradient(90deg, ${Ms(m)}, ${Ms(f)})"></span></span>
@@ -12163,7 +12167,7 @@ const qn = {
             </span>
           </div>`;
     })}
-      </div>` : l`<p class="muted" style="font-size:15px;margin:0">${this._failed ? "The forecast could not be loaded. It will try again shortly." : "Loading the forecast…"}</p>`}
+      </div>` : l`<p class="muted" style="font-size:var(--fs-2);margin:0">${this._failed ? "The forecast could not be loaded. It will try again shortly." : "Loading the forecast…"}</p>`}
     </section>`;
   }
   /** Home Ground goes dark under lights (from 6 pm until 6 am), and the radar map goes with it. */
@@ -12195,7 +12199,7 @@ const qn = {
   render() {
     if (!this.entity) return l`<section class="glass off"><h2>Weather</h2><p class="muted">Add a weather entity to the card (<code>weather: weather.your_town</code>) to see the forecast here.</p></section>`;
     const t = this.hass?.states[this.entity];
-    return !t || t.state === "unavailable" || t.state === "unknown" ? l`<section class="glass off" role="status">${vr("cloudy", 72)}<h2>Weather is not available right now</h2>
+    return !t || t.state === "unavailable" || t.state === "unknown" ? l`<section class="glass off" role="status">${yr("cloudy", 72)}<h2>Weather is not available right now</h2>
       <p class="muted">Home Assistant cannot reach the forecast at the moment. It will come back here by itself.</p>
       <button class="retry tap" @click=${() => {
       this._loadedFor = "", this.requestUpdate();
@@ -12205,7 +12209,7 @@ const qn = {
 go.styles = [Qt, H`
     :host { display: grid; flex: 1; min-height: 0; gap: 16px; grid-template-columns: 330px minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr) auto; }
     section { border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
-    h2 { font-size: 19px; font-weight: var(--w-heavy, 800); }
+    h2 { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .wnow { grid-area: 1 / 1 / 3 / 2; overflow: auto; }
     .wmaps { grid-area: 1 / 2; padding: 12px; }
     .wweek { grid-area: 1 / 3 / 3 / 4; }
@@ -12231,16 +12235,16 @@ go.styles = [Qt, H`
 
     /* now */
     .top { display: flex; align-items: center; gap: 12px; }
-    .wtemp { font-size: 62px; line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+    .wtemp { font-size: var(--fs-d3); line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
     .wtemp sup { font-size: .45em; vertical-align: top; position: relative; top: .1em; }
-    .cond { font-size: 17px; font-weight: var(--w-bold, 700); }
+    .cond { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     /* advice a child can act on: up to three pictures of what to wear or take, and a button that says it aloud */
     .wtip { display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 10px; border-radius: 16px; background: var(--chip); }
     .tips { flex: 1; min-width: 0; display: flex; gap: 6px; justify-content: space-around; }
-    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; }
     .tipone svg { width: 64px; height: 64px; flex-shrink: 0; }
     .speak { width: 52px; height: 52px; /* token */ border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .said { font-size: 15px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
+    .said { font-size: var(--fs-2); line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
     .facts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 12px; }
     .wfact { grid-column: span 2; }
     .wfact.half { grid-column: span 3; }
@@ -12248,8 +12252,8 @@ go.styles = [Qt, H`
     .wfact { border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); padding: 6px 2px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .wfact.wide { grid-column: span 6; flex-direction: row; align-items: center; gap: 12px; }
     .wfact.stack { flex-direction: column; align-items: flex-start; gap: 1px; }
-    .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
-    .wfact small { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
+    .wfact b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
+    .wfact small { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
     /* the card tightens in steps until it fits: the Bureau's paragraph goes first, then the least urgent readings */
     .wnow[data-fit] { gap: 8px; }
     .wnow[data-fit] .said { display: none; }
@@ -12257,12 +12261,12 @@ go.styles = [Qt, H`
     .wnow[data-fit='2'] .wtip, .wnow[data-fit='3'] .wtip { padding: 4px 6px 4px 10px; }
     .wnow[data-fit='2'] .tipone, .wnow[data-fit='3'] .tipone { flex-direction: row; justify-content: center; gap: 6px; }
     .wnow[data-fit='3'] .x3 { display: none; }
-    .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: 50px; }
+    .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: var(--fs-d2); }
     .wnow[data-fit='3'] { gap: 6px; padding-top: 12px; padding-bottom: 12px; }
-    .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; }
     .wcomp { flex-shrink: 0; }
     .wcomp .ring { fill: none; stroke: var(--ink2); stroke-width: 1.5; opacity: .5; }
-    .wcomp text { font-size: 14px; font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
+    .wcomp text { font-size: var(--fs-2); font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
     .wcomp .needle { fill: var(--accent); transform-origin: 32px 32px; }
     .wcomp .sway { transform-origin: 32px 32px; animation: sway 3.600s ease-in-out infinite; animation-play-state: var(--motion, running); }
     @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
@@ -12276,42 +12280,42 @@ go.styles = [Qt, H`
     .hhead h2 { flex: 0 1 auto; min-width: 0; }
     .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .hchart { display: block; }
-    .hchart text { font-size: 14px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
-    .hchart .wind { font-size: 14px; }
+    .hchart text { font-size: var(--fs-2); font-weight: 600; fill: var(--ink2); text-anchor: middle; }
+    .hchart .wind { font-size: var(--fs-2); }
     /* the unit is said once, here, so the hours below carry the number alone */
-    .hkey { flex: 1 1 0; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
+    .hkey { flex: 1 1 0; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hchart .tv { font-size: var(--fs-2); font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
     .hchart .rainbar { fill: #3b9ae1; }
-    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: 14px; font-weight: 700; }
-    .hchart .day { font-size: 14px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
+    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: var(--fs-2); font-weight: 700; }
+    .hchart .day { font-size: var(--fs-2); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
     .hchart .split { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .5; }
 
     /* week */
     .days { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; overflow: auto; }
     .wday { display: grid; grid-template-columns: 52px 40px 1fr; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 14px; min-height: 52px; }
     .wday.today { background: var(--chip); }
-    .wday .dn { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .wday .dn small { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+    .wday .dn { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .wday .dn small { display: block; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     .wday .lo { color: var(--ink2); text-align: right; }
-    .wday .wet { grid-column: 1 / -1; font-size: 14px; font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
+    .wday .wet { grid-column: 1 / -1; font-size: var(--fs-2); font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
     .track { height: 8px; border-radius: 4px; background: var(--track); position: relative; }
     .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 8px; }
 
     /* maps */
     .mhead { display: flex; align-items: center; gap: 10px; padding: 2px 6px 0; }
     .mhead h2 { flex: 1; }
-    .mhead .seg button { font-size: 15px; }
+    .mhead .seg button { font-size: var(--fs-2); }
     .mhead .seg button[aria-pressed='false'] { color: var(--ink); }
     .mbox { flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; position: relative; background: var(--chip-soft); }
     .mbox iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: 15px; line-height: 1.4; max-width: 340px; }
-    .credit { font-size: 14px; color: var(--ink2); padding: 0 6px; }
+    .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: var(--fs-2); line-height: 1.4; max-width: 340px; }
+    .credit { font-size: var(--fs-2); color: var(--ink2); padding: 0 6px; }
     .off { grid-column: 1 / -1; align-items: center; justify-content: center; text-align: center; gap: 8px; }
-    .off p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 520px; }
-    .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); margin-top: 6px; }
+    .off p { margin: 0; font-size: var(--fs-3); line-height: 1.4; max-width: 520px; }
+    .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: var(--fs-3); font-weight: var(--w-bold, 700); margin-top: 6px; }
 
     /* the drawn sky */
     .sky { flex-shrink: 0; overflow: visible; }
@@ -12595,7 +12599,7 @@ const Ss = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
       return l`<span class="snapbox"><button class="snap tap" aria-label="View doodle${s ? ` by ${s}` : ""}" style="background-image:url('${i.url}')" @click=${() => {
         this._view = i.url;
       }}>${s ? l`<span class="by">${s}</span>` : ""}</button>${this._tidy ? l`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([i])}>${K("close", 18)}</button>` : u}</span>`;
-    })}</div>` : l`<span class="muted" style="font-size:15px;line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
+    })}</div>` : l`<span class="muted" style="font-size:var(--fs-2);line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._askPin ? l`<fh-pin .pin=${String(this.pin)} @ok=${() => {
       this._askPin = !1, this._tidy = !0;
@@ -12647,7 +12651,7 @@ uo.styles = [Qt, H`
     :host([low][data-shape='tall']:not([data-phone])) .brushes, :host([low][data-n3]:not([data-phone])) .brushes { grid-area: 3 / 1; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .easel { min-height: 440px; }
-    :host([data-phone]) .hint { font-size: 22px; text-align: center; padding: 0 20px; }
+    :host([data-phone]) .hint { font-size: var(--fs-4); text-align: center; padding: 0 20px; }
     :host([data-phone]) .acts { flex-wrap: wrap; }
     :host([data-phone]) .view { position: fixed; border-radius: 0; }
     .brushes .rule { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
@@ -12667,26 +12671,26 @@ uo.styles = [Qt, H`
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
     canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
-    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: #6b6a66; }
+    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: var(--w-bold, 700); color: #6b6a66; }
     .chalk .hint { color: #c9d3cd; }
     /* the bar wraps rather than squeezing anything: the hero keeps its words on one line */
     .acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .acts .pill { font-size: 15px; white-space: nowrap; }
+    .acts .pill { font-size: var(--fs-2); white-space: nowrap; }
     /* who drew it and the hero travel together: on a narrow easel they drop to a second row, still at the right */
     .sign { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px; margin-left: auto; }
     .artists { display: flex; align-items: center; gap: 6px; }
-    .artists > .muted { font-size: 14px; font-weight: var(--w-bold, 700); margin-right: 2px; }
-    .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.15; }
-    .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: 24px; }
+    .artists > .muted { font-size: var(--fs-2); font-weight: var(--w-bold, 700); margin-right: 2px; }
+    .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: var(--fs-5); }
     .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .stickup { height: 52px; /* token */ padding: 0 22px; font-size: 17px; white-space: nowrap; flex-shrink: 0; }
-    .stampbtn { font-size: 26px; }
+    .stickup { height: 52px; /* token */ padding: 0 22px; font-size: var(--fs-3); white-space: nowrap; flex-shrink: 0; }
+    .stampbtn { font-size: var(--fs-5); }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
     .ghead { display: flex; align-items: center; gap: 8px; }
-    .tidy { height: 44px; padding: 0 14px; font-size: 15px; }
-    .gallery .label { font-size: 13px; }
-    .clearall { font-size: 15px; }
+    .tidy { height: 44px; padding: 0 14px; font-size: var(--fs-2); }
+    .gallery .label { font-size: var(--fs-1); }
+    .clearall { font-size: var(--fs-2); }
     .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .clearall { height: 44px; background: var(--danger, #dc2626); color: var(--on-danger, #fff); justify-content: center; }
     .snapbox { position: relative; display: block; }
@@ -12696,7 +12700,7 @@ uo.styles = [Qt, H`
     .snap { aspect-ratio: 4/3; border-radius: 10px; background: #fff center / cover; box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); position: relative; }
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }
     .snap::before { content: ''; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 3px rgba(0,0,0,.3); }
-    .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: 13px; font-weight: var(--w-heavy, 800); text-transform: capitalize; }
+    .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: var(--fs-1); font-weight: var(--w-heavy, 800); text-transform: capitalize; }
     .stick { animation: stick var(--m-5, 900ms) cubic-bezier(.2,1.3,.4,1); }
     @keyframes stick { 40% { transform: scale(calc(1 - .6 * var(--m-d, 1))) translate(calc(60% * var(--m-d, 1)), calc(-10% * var(--m-d, 1))) rotate(calc(8deg * var(--m-d, 1))); opacity: .6; } }
     .view { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; border-radius: 28px; }
@@ -12785,7 +12789,7 @@ const Vu = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], $d = (a, t) => {
     Object.values(this._justT).forEach((t) => clearTimeout(t)), this._unsubs.forEach((t) => t()), this._unsubs = [], this._subKey = "";
   }
   shouldUpdate(t) {
-    return t.size === 1 && t.has("hass") ? vo(t.get("hass"), this.hass, this.kids.map((e) => J(e).avatar)) : !0;
+    return t.size === 1 && t.has("hass") ? yo(t.get("hass"), this.hass, this.kids.map((e) => J(e).avatar)) : !0;
   }
   async _sub() {
     if (!this.hass?.connection) {
@@ -12885,7 +12889,7 @@ const Vu = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], $d = (a, t) => {
     return l`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
-          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}</span></div>
         ${d.total ? l`<div class="team" data-part="team" role="img" aria-label=${h ? "Morning jobs: all done" : `Morning jobs to go: ${f.map((b) => `${b.k.name} ${b.n}`).join(", ")}`}>
           ${h ? u : l`<div class="faces" aria-hidden="true">${d.total - d.done <= 12 ? f.flatMap((b) => Array.from({ length: b.n }, () => l`<span class="fc" data-who=${b.k.name}>${m(b.k)}</span>`)) : f.map((b) => l`<span class="fc" data-who=${b.k.name} data-n=${b.n}>${m(b.k)}<b>${b.n}</b></span>`)}</div>`}
           <span class="nextstep ${h ? "set" : ""}">${h ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${d.total - d.done} to go between us`}</span></div>` : u}
@@ -12897,9 +12901,9 @@ const Vu = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], $d = (a, t) => {
       ${k.length ? l`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${k.slice(0, 4).map((b) => l`<span class="fev"><span class="mt">${fe(b, p).label}</span><span>${b.title}</span></span>`)}</section>` : u}
       <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((b) => {
-      const w = g(b), v = this._own(b), U = this._bring(b, v), y = e.find((nt) => nt.k === b), A = y.at - t, T = A <= -5, F = !T && !!i && y.at !== i.at, V = this._job(b), z = V.c, R = z?.status === "completed", P = this._msg[b.name];
+      const w = g(b), y = this._own(b), U = this._bring(b, y), v = e.find((nt) => nt.k === b), A = v.at - t, T = A <= -5, F = !T && !!i && v.at !== i.at, V = this._job(b), z = V.c, R = z?.status === "completed", P = this._msg[b.name];
       return l`<section class="glass kcol" data-fits data-kid=${b.name} style="--kid:${B(b.colour)}" aria-label=${b.name}>
-            <button class="khead tap" data-act="open" aria-label=${`${b.name}: ${T ? "has left" : `leaves at ${o(y.at)}`}${U.length ? `. Bring and wear: ${U.map((nt) => Td(nt)[1]).join(", ")}` : ""}. Opens ${b.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: b.name }))}>
+            <button class="khead tap" data-act="open" aria-label=${`${b.name}: ${T ? "has left" : `leaves at ${o(v.at)}`}${U.length ? `. Bring and wear: ${U.map((nt) => Td(nt)[1]).join(", ")}` : ""}. Opens ${b.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: b.name }))}>
               ${Xt(w, { size: 60, crop: "head", jump: this._cheer, age: b.age, ring: B(b.colour) })}<h2>${b.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
             ${z ? l`<button class="jobbtn big tap ${R ? "done" : ""}" data-part="job" data-uid=${z.uid} aria-pressed=${R ? "true" : "false"} aria-label=${R ? `${b.name}: ${z.summary}, done. Tap to undo` : `${b.name}, now: ${z.summary}. Tap when it is done`} @click=${(nt) => {
         this._tick(b, z, nt);
@@ -12909,9 +12913,9 @@ const Vu = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], $d = (a, t) => {
                 <span class="check" aria-hidden="true">${R ? Vd : u}</span></button>` : V.total ? l`<div class="jobsdone" data-part="job">${Vd}<span>Morning jobs done</span></div>` : u}
             ${P ? l`<span class="jmsg" role="status">${P}</span>` : u}
             <span class="label">Today</span>
-            ${v.length ? v.slice(0, 3).map((nt) => l`<div class="mev2"><span class="mt">${fe(nt, p).label}</span><span>${nt.title}</span></div>`) : l`<span class="muted" style="font-size:15px">Just school today</span>`}
+            ${y.length ? y.slice(0, 3).map((nt) => l`<div class="mev2"><span class="mt">${fe(nt, p).label}</span><span>${nt.title}</span></div>`) : l`<span class="muted" style="font-size:var(--fs-2)">Just school today</span>`}
             <div class="klow">
-              ${T ? l`<div class="lchip" data-part="leaves"><span>Left</span></div>` : F ? l`<div class="lchip" data-part="leaves"><span>You leave ${zu(y.at - i.at)}</span><span class="lt">${o(y.at)}${y.why !== "school" ? ` · ${y.why}` : ""}</span></div>` : u}
+              ${T ? l`<div class="lchip" data-part="leaves"><span>Left</span></div>` : F ? l`<div class="lchip" data-part="leaves"><span>You leave ${zu(v.at - i.at)}</span><span class="lt">${o(v.at)}${v.why !== "school" ? ` · ${v.why}` : ""}</span></div>` : u}
               ${U.length ? l`<div class="tiles" data-part="bring">${U.map((nt) => {
         const [Et, Nt] = Td(nt);
         return l`<span class="tile"><span class="te" aria-hidden="true">${Et}</span><span class="tl">${Nt}</span></span>`;
@@ -12930,21 +12934,21 @@ bo.styles = [Qt, H`
     /* the jobs still to do, as faces: one for each job, whoever's it is (more than twelve: one face a child, with how many) */
     .faces { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; min-height: 36px; }
     .faces .fc { position: relative; display: inline-flex; line-height: 0; border-radius: 50%; }
-    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: 13px; line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
+    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
     .faces .fc[data-n] { margin-right: 8px; }
-    .label { font-size: 14px; }
+    .label { font-size: var(--fs-2); }
     /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */
     .goclock { display: flex; align-items: center; gap: 16px; justify-content: flex-end; flex: 1.2; min-width: 0; }
     .goclock .face { position: relative; flex-shrink: 0; line-height: 0; border-radius: 50%; }
-    .goclock .face > b { position: absolute; right: -6px; bottom: -6px; width: 40px; height: 40px; border-radius: 50%; background: var(--chip-strong); box-shadow: 0 0 0 2px var(--ink3); display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; }
+    .goclock .face > b { position: absolute; right: -6px; bottom: -6px; width: 40px; height: 40px; border-radius: 50%; background: var(--chip-strong); box-shadow: 0 0 0 2px var(--ink3); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); line-height: 1; }
     .goclock.soon .face { box-shadow: 0 0 0 4px var(--accent); }
     .goclock .words { display: flex; flex-direction: column; gap: 4px; text-align: right; min-width: 0; }
-    .goclock .at { font-size: 20px; font-weight: var(--w-bold, 700); } .goclock .at b { font-weight: var(--w-heavy, 800); white-space: nowrap; }
-    .goclock .who { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: 36px; }
+    .goclock .at { font-size: var(--fs-4); font-weight: var(--w-bold, 700); } .goclock .at b { font-weight: var(--w-heavy, 800); white-space: nowrap; }
+    .goclock .who { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .leave { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-d1); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    :host([data-n3]) .leave, :host([data-phone]) .leave { font-size: var(--fs-6); }
     /* the words (not the countdown) may take two lines and never run off the card */
-    .leave.say { font-size: 34px; white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: 28px; }
+    .leave.say { font-size: var(--fs-6); white-space: normal; text-wrap: balance; } :host([data-n3]) .leave.say, :host([data-phone]) .leave.say { font-size: var(--fs-5); }
     :host([data-phone]) .goclock .words { text-align: left; }
     .leave.go { animation: hop var(--m-5, 900ms) cubic-bezier(.3,1.5,.5,1) 3; }
     @keyframes hop { 40% { transform: translateY(calc(-10px * var(--m-d, 1))) rotate(calc(-2deg * var(--m-d, 1))); } 70% { transform: rotate(calc(1deg * var(--m-d, 1))); } }
@@ -12961,52 +12965,52 @@ bo.styles = [Qt, H`
     :host([data-phone]) .board > div { flex: 1 1 100% !important; justify-content: flex-start !important; }
     .kcol { border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; text-align: left; border-top: 6px solid var(--kid); }
     .khead { display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 18px; min-height: 60px; min-width: 0; }
-    .khead h2 { font-size: 24px; font-weight: var(--w-heavy, 800); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .khead h2 { font-size: var(--fs-5); font-weight: var(--w-heavy, 800); flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .khead .go { flex-shrink: 0; line-height: 0; color: var(--ink2); }
     /* his current morning job: one big button, a picture, the words and a circle to tick. It is the only thing on the board a child presses in the morning */
     .jobbtn { display: flex; align-items: center; gap: 12px; min-height: 96px; padding: 10px 14px; border-radius: 22px; text-align: left; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--kid); flex-shrink: 0; }
-    .jobbtn .jpic { font-size: 48px; line-height: 1; flex-shrink: 0; }
+    .jobbtn .jpic { font-size: var(--fs-d2); line-height: 1; flex-shrink: 0; }
     .jobbtn .jtx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .jobbtn .jname { font-size: 24px; font-weight: var(--w-bold, 700); line-height: 1.15; overflow-wrap: anywhere; }
-    .jobbtn .jundo { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .jobbtn .jname { font-size: var(--fs-5); font-weight: var(--w-bold, 700); line-height: 1.15; overflow-wrap: anywhere; }
+    .jobbtn .jundo { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .jobbtn .check { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--on-ok, #fff); box-sizing: border-box; }
     .jobbtn.done { background: color-mix(in srgb, var(--ok) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--ok); }
     .jobbtn.done .check { background: var(--ok); border-color: var(--ok); }
     .jobbtn.done .jname { text-decoration: line-through; text-decoration-thickness: 2px; }
     .jobbtn.done .jpic { filter: grayscale(1); opacity: .6; }
     .jobbtn[aria-busy] { opacity: .7; }
-    .jobsdone { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 18px; background: color-mix(in srgb, var(--ok) 16%, var(--chip)); font-size: 17px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .jobsdone { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; border-radius: 18px; background: color-mix(in srgb, var(--ok) 16%, var(--chip)); font-size: var(--fs-3); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .jobsdone svg { color: var(--ok); flex-shrink: 0; }
     /* a card that is too short for everything tightens in steps, so the pictures of what to bring are never cut: the "Today" heading goes, then the job and the pictures shrink a little, then the day's events go (they are on the planner and on his page) */
     .kcol[data-fit] { gap: 8px; } .kcol[data-fit] > .label { display: none; } .kcol[data-fit] .klow { padding-top: 0; gap: 8px; }
-    .kcol[data-fit='2'] .jobbtn, .kcol[data-fit='3'] .jobbtn { min-height: 80px; padding-top: 6px; padding-bottom: 6px; } .kcol[data-fit='2'] .jpic, .kcol[data-fit='3'] .jpic { font-size: 40px; }
-    .kcol[data-fit='2'] .tile, .kcol[data-fit='3'] .tile { min-height: 72px; } .kcol[data-fit='2'] .te, .kcol[data-fit='3'] .te { font-size: 32px; }
+    .kcol[data-fit='2'] .jobbtn, .kcol[data-fit='3'] .jobbtn { min-height: 80px; padding-top: 6px; padding-bottom: 6px; } .kcol[data-fit='2'] .jpic, .kcol[data-fit='3'] .jpic { font-size: var(--fs-d1); }
+    .kcol[data-fit='2'] .tile, .kcol[data-fit='3'] .tile { min-height: 72px; } .kcol[data-fit='2'] .te, .kcol[data-fit='3'] .te { font-size: var(--fs-6); }
     .kcol[data-fit='3'] { padding: 10px 12px; overflow-y: auto; scrollbar-width: none; } .kcol[data-fit='3'] .mev2, .kcol[data-fit='3'] > .muted { display: none; }
-    .kcol[data-fit='3'] .tile { min-height: 60px; min-width: 64px; padding: 4px; } .kcol[data-fit='3'] .te { font-size: 26px; } .kcol[data-fit='3'] .khead { min-height: 52px; }
-    .jmsg { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--danger); }
+    .kcol[data-fit='3'] .tile { min-height: 60px; min-width: 64px; padding: 4px; } .kcol[data-fit='3'] .te { font-size: var(--fs-5); } .kcol[data-fit='3'] .khead { min-height: 52px; }
+    .jmsg { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--danger); }
     :host([data-n3]) .jobbtn, :host([data-phone]) .jobbtn { min-height: 76px; gap: 10px; padding: 8px 10px; }
-    :host([data-n3]) .jobbtn .jpic, :host([data-phone]) .jobbtn .jpic { font-size: 36px; }
-    :host([data-n3]) .jobbtn .jname, :host([data-phone]) .jobbtn .jname { font-size: 20px; }
+    :host([data-n3]) .jobbtn .jpic, :host([data-phone]) .jobbtn .jpic { font-size: var(--fs-6); }
+    :host([data-n3]) .jobbtn .jname, :host([data-phone]) .jobbtn .jname { font-size: var(--fs-4); }
     :host([data-n3]) .jobbtn .check, :host([data-phone]) .jobbtn .check { width: 44px; height: 44px; }
     /* the one line about jobs on this board, pooled for the whole family */
-    .nextstep { padding: 6px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); text-align: center; }
+    .nextstep { padding: 6px 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: center; }
     .nextstep.set { background: color-mix(in srgb, var(--ok) 20%, var(--chip)); }
     .bring { display: flex; flex-wrap: wrap; gap: 8px; }
-    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     /* a card says a time only when its child does not leave with the clock above: how much later, in plain words, then the time */
-    .lchip { font-size: 15px; font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+    .lchip { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
     .lchip .lt { font-weight: var(--w-semi, 600); color: var(--ink2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     /* what the whole family has on is said once, across the top, not in every column */
     .fam { border-radius: 22px; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; flex-shrink: 0; }
-    .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
+    .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .fam .fev .mt { color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     /* the lower half of each column is for someone who cannot read yet: a picture for each thing to bring or wear. (The time left is on the one clock above, never in a column.) */
     .klow { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
     .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
     .tile { min-width: 76px; min-height: 84px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; }
-    .tile .te { font-size: 40px; line-height: 1.1; }
-    .tile .tl { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
-    .mev2 { display: flex; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .tile .te { font-size: var(--fs-d1); line-height: 1.1; }
+    .tile .tl { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+    .mev2 { display: flex; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .mev2 .mt { width: 76px; color: var(--ink2); flex-shrink: 0; }
     ${_t(si)}
     ${_t(cl)}
@@ -13033,9 +13037,9 @@ customElements.get("fh-morning") || customElements.define("fh-morning", Fn);
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-class Rn extends vc {
+class Rn extends yc {
   constructor(t) {
-    if (super(t), this.it = u, t.type !== y0.CHILD) throw Error(this.constructor.directiveName + "() can only be used in child bindings");
+    if (super(t), this.it = u, t.type !== v0.CHILD) throw Error(this.constructor.directiveName + "() can only be used in child bindings");
   }
   render(t) {
     if (t === u || t == null) return this._t = void 0, this.it = t;
@@ -13056,7 +13060,7 @@ Rn.directiveName = "unsafeHTML", Rn.resultType = 1;
 let $n = class extends Rn {
 };
 $n.directiveName = "unsafeSVG", $n.resultType = 2;
-const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[t] ?? t), W = (a) => (Math.round(a * 10) / 10).toString(), Ti = (a, t, e, i = 0.38) => `<ellipse cx="${W(a - e * 0.32)}" cy="${W(t - e * 0.38)}" rx="${W(e * 0.42)}" ry="${W(e * 0.26)}" fill="#fff" opacity="${i}" transform="rotate(-28 ${W(a - e * 0.32)} ${W(t - e * 0.38)})"/>`, Wd = (a, t) => {
+const Lu = vc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[t] ?? t), W = (a) => (Math.round(a * 10) / 10).toString(), Ti = (a, t, e, i = 0.38) => `<ellipse cx="${W(a - e * 0.32)}" cy="${W(t - e * 0.38)}" rx="${W(e * 0.42)}" ry="${W(e * 0.26)}" fill="#fff" opacity="${i}" transform="rotate(-28 ${W(a - e * 0.32)} ${W(t - e * 0.38)})"/>`, Wd = (a, t) => {
   const e = a > 99 ? "99+" : String(a), i = e.length > 2 ? 17 : e.length > 1 ? 14 : 12;
   return `<g class="p-badge"><rect x="${W(38 - i)}" y="1" width="${i}" height="12" rx="6" fill="${t}" stroke="#fff" stroke-width="1.5"/><text x="${W(38 - i / 2)}" y="10.2" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff">${e}</text></g>`;
 }, qe = (a, t, e, i, s, o = "p-cloud") => `<g transform="translate(${a} ${t}) scale(${e})"><g class="${o}"><path d="M7.500 20a6.500 6.500 0 0 1-.6-12.970A9 9 0 0 1 24.200 8.300 5.900 5.900 0 0 1 23.500 20z" fill="${s}"/><path d="M7.500 18.200a5.600 5.600 0 0 1-.3-11.190A8.100 8.100 0 0 1 22.900 8.500a4.900 4.900 0 0 1 .6 9.700z" fill="${i}"/></g></g>`, Ur = (a, t, e) => `<g class="p-ray">${Array.from({ length: 8 }, (s, o) => `<rect x="${W(a - 1.3)}" y="${W(t - e - 5.6)}" width="2.600" height="4" rx="1.300" fill="#ffab1a" transform="rotate(${o * 45} ${a} ${t})"/>`).join("")}</g><circle class="p-sun" cx="${a}" cy="${t}" r="${e}" fill="#ffc933"/>${Ti(a, t, e, 0.5)}`, Qu = (a, t, e, i = 0.12, s = !0) => {
@@ -13186,7 +13190,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     s.end = "on", s.until = `${r.getFullYear()}-${String(r.getMonth() + 1).padStart(2, "0")}-${String(r.getDate()).padStart(2, "0")}`;
   }
   return s;
-}, Ju = ["M", "T", "W", "T", "F", "S", "S"], Pu = zh, ki = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], yi = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], ha = 44, Xu = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Hu = { "Western Australia": "WA", "New South Wales": "NSW", Victoria: "VIC", Queensland: "QLD", "South Australia": "SA", Tasmania: "TAS", "Northern Territory": "NT", "Australian Capital Territory": "ACT" }, Ve = (a) => String(a).padStart(2, "0"), Yd = (a) => `${a.getFullYear()}-${Ve(a.getMonth() + 1)}-${Ve(a.getDate())} ${Ve(a.getHours())}:${Ve(a.getMinutes())}:00`, Fs = (a) => `${a.getFullYear()}-${Ve(a.getMonth() + 1)}-${Ve(a.getDate())}`, Rs = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), Oa = class Oa extends bt {
+}, Ju = ["M", "T", "W", "T", "F", "S", "S"], Pu = zh, ki = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], vi = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], ha = 44, Xu = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Hu = { "Western Australia": "WA", "New South Wales": "NSW", Victoria: "VIC", Queensland: "QLD", "South Australia": "SA", Tasmania: "TAS", "Northern Territory": "NT", "Australian Capital Territory": "ACT" }, Ve = (a) => String(a).padStart(2, "0"), Yd = (a) => `${a.getFullYear()}-${Ve(a.getMonth() + 1)}-${Ve(a.getDate())} ${Ve(a.getHours())}:${Ve(a.getMinutes())}:00`, Fs = (a) => `${a.getFullYear()}-${Ve(a.getMonth() + 1)}-${Ve(a.getDate())}`, Rs = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), Oa = class Oa extends bt {
   constructor() {
     super(...arguments), this.lookCtl = new Ht(this), this.calendars = [], this.defaultCal = "", this.places = !0, this.edit = null, this._span = 1, this.scope = "", this._rep = null, this._rawRule = "", this._repOpen = !1, this._custom = !1, this._pickFor = "date", this._notes = "", this._notes0 = "", this._t = "", this._loc = "", this._in = "what", this._found = null, this._date = ot(/* @__PURE__ */ new Date()), this._all = !1, this._h = 9, this._m = 0, this._pm = !1, this._dur = 60, this._cal = "", this._busy = !1, this._err = "", this._caps = !0, this._pick = !1, this._shown = /* @__PURE__ */ new Date(), this._seekGen = 0, this._spin = {}, this._hardKeys = !1, this._onKey = (t) => {
       if (t.key === "Escape" && this._pick)
@@ -13228,7 +13232,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     return t < 60 ? `${t} min` : t % 60 ? `${Math.floor(t / 60)} h ${t % 60}` : `${t / 60} h`;
   }
   firstUpdated() {
-    this.renderRoot.querySelector(vt() === "phone" ? ".box" : "input.field")?.focus({ preventScroll: !0 });
+    this.renderRoot.querySelector(yt() === "phone" ? ".box" : "input.field")?.focus({ preventScroll: !0 });
   }
   /** One line that says what will be added: "Dentist · Tue 17 Nov · 5:00 pm · 1 h · Charlie". */
   _summary() {
@@ -13279,7 +13283,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
   }
   _setDrum(t, e) {
     const i = t === "h" ? this._h : this._m;
-    t === "h" ? this._h = ki[Math.max(0, Math.min(ki.length - 1, e))] : this._m = yi[Math.max(0, Math.min(yi.length - 1, e))], (t === "h" ? this._h : this._m) !== i && S("step");
+    t === "h" ? this._h = ki[Math.max(0, Math.min(ki.length - 1, e))] : this._m = vi[Math.max(0, Math.min(vi.length - 1, e))], (t === "h" ? this._h : this._m) !== i && S("step");
   }
   _scrolled(t, e) {
     const i = e.currentTarget;
@@ -13289,12 +13293,12 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
   }
   _nudge(t, e, i) {
     i?.preventDefault();
-    const s = t === "h" ? ki : yi, o = s.indexOf(t === "h" ? this._h : this._m);
+    const s = t === "h" ? ki : vi, o = s.indexOf(t === "h" ? this._h : this._m);
     this._setDrum(t, (o + e + s.length) % s.length);
   }
   updated(t) {
     const e = this.renderRoot.querySelector(".box");
-    if (e && vt() !== "phone") {
+    if (e && yt() !== "phone") {
       const i = getComputedStyle(this), s = parseFloat(i.getPropertyValue("--top")) || 110, o = parseFloat(i.paddingBottom) || 0, r = this.clientHeight < 700 && typeof matchMedia == "function" && matchMedia("(hover: hover) and (pointer: fine)").matches;
       if (r !== this._hardKeys) {
         this._hardKeys = r, this.setAttribute("data-keys", r ? "off" : "on"), this.requestUpdate();
@@ -13302,7 +13306,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
       }
       this.toggleAttribute("data-under", e.scrollHeight <= this.clientHeight - s - o + 1);
     }
-    for (const [i, s, o] of [["h", ki, this._h], ["m", yi, this._m]]) {
+    for (const [i, s, o] of [["h", ki, this._h], ["m", vi, this._m]]) {
       const r = this.renderRoot.querySelector(`.drum[data-d='${i}']`);
       if (!r || this._spin[i]) continue;
       const n = s.indexOf(o) * ha;
@@ -13310,7 +13314,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }
   }
   _drum(t) {
-    const e = t === "h" ? ki : yi, i = t === "h" ? this._h : this._m;
+    const e = t === "h" ? ki : vi, i = t === "h" ? this._h : this._m;
     return l`<div class="drum" data-d=${t} tabindex="0" role="spinbutton" aria-label=${t === "h" ? "Hour" : "Minutes"} aria-valuenow=${i} aria-valuetext=${t === "h" ? `${i} ${this._pm ? "pm" : "am"}` : `${Ve(i)} minutes`} aria-valuemin=${e[0]} aria-valuemax=${e[e.length - 1]}
       @scroll=${(o) => this._scrolled(t, o)} @keydown=${(o) => {
       o.key === "ArrowUp" ? this._nudge(t, -1, o) : o.key === "ArrowDown" ? this._nudge(t, 1, o) : o.key === "PageUp" || o.key === "PageDown" ? (o.preventDefault(), this._setDrum(t, e.indexOf(i) + (o.key === "PageUp" ? -3 : 3))) : (o.key === "Home" || o.key === "End") && (o.preventDefault(), this._setDrum(t, o.key === "Home" ? 0 : e.length - 1));
@@ -13437,7 +13441,7 @@ const Lu = yc($n), zd = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }
   }
   render() {
-    const t = ot(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = sl(this.calendars.map((d) => d.name ?? d.entity)), s = vt() === "phone", o = !Array.from({ length: 7 }, (d, h) => tt(t, h)).some((d) => Rs(d, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), p = s || this._hardKeys, c = l`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
+    const t = ot(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = sl(this.calendars.map((d) => d.name ?? d.entity)), s = yt() === "phone", o = !Array.from({ length: 7 }, (d, h) => tt(t, h)).some((d) => Rs(d, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), p = s || this._hardKeys, c = l`<button class="tap lead" style="height:60px;padding:0 26px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
     return l`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? "Change this event" : "Add to the calendar"} @click=${(d) => d.stopPropagation()} @keydown=${this._onKey}>
       <div style="display:flex;gap:12px;align-items:center">
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? "Change this event" : "Add to the calendar"}</h2>
@@ -13534,7 +13538,7 @@ Oa.styles = [Qt, ii, H`
     :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
     :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
     :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)); }
-    :host([data-phone]) .durs button { min-width: 0; font-size: 13px; padding: 0 2px; }
+    :host([data-phone]) .durs button { min-width: 0; font-size: var(--fs-1); padding: 0 2px; }
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
     :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }
@@ -13542,33 +13546,33 @@ Oa.styles = [Qt, ii, H`
     :host { animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     .box > * { flex-shrink: 0; }
-    .sum { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); } .err:empty { display: none; }
+    .sum { flex: 1; min-width: 0; text-align: right; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .err { color: var(--danger, #dc2626); font-size: var(--fs-2); font-weight: var(--w-semi, 600); } .err:empty { display: none; }
     /* the keyboard is as wide as the sheet (up to 900 px), so the keys are as big as the sheet allows */
     .box .keys { width: 100%; max-width: 900px; align-self: center; }
     .box .keys .key, .box .keys.compact .key { flex: 1 1 0; width: auto; min-width: 0; }
     .box .keys .key.wide, .box .keys.compact .key.wide { flex: 1.5 1 0; width: auto; }
     .box .keys .key.space, .box .keys.compact .key.space { flex: 0 1 62%; width: auto; }
-    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
     .field { text-overflow: ellipsis; }
     .box .xbtn { margin-left: auto; }
     .field.on { box-shadow: inset 0 0 0 3px var(--primary); }
     .box .field:focus-visible { outline: none; }
-    .field.where { height: 48px; font-size: 19px; }
+    .field.where { height: 48px; font-size: var(--fs-4); }
     /* what and where share a row, with Add at its end */
     .what { display: flex; gap: 10px; align-items: center; }
     .what > .field { flex: 1.5 1 0; height: 60px; }
     .wherebox { position: relative; flex: 1 1 0; display: flex; align-items: center; gap: 6px; min-width: 0; }
-    .wherebox .field.where { height: 60px; font-size: 18px; padding: 0 14px; }
+    .wherebox .field.where { height: 60px; font-size: var(--fs-3); padding: 0 14px; }
     :host([data-phone]) .what { flex-direction: column; align-items: stretch; }
     :host([data-phone]) .what > .field, :host([data-phone]) .wherebox { flex: none; }
     .wherebox > .pin { line-height: 0; width: 30px; display: flex; justify-content: center; color: var(--accent); }
     .places { position: absolute; left: 0; right: 0; top: 64px; min-width: 320px; z-index: 5; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; gap: 2px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 14px 34px rgba(0,0,0,.28); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
-    .places button { min-height: 44px; padding: 5px 12px; border-radius: 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .places button small { font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .places .note { font-size: 12px; color: var(--ink2); padding: 2px 12px 4px; }
+    .places button { min-height: 44px; padding: 5px 12px; border-radius: 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .places button small { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .places .note { font-size: var(--fs-1); color: var(--ink2); padding: 2px 12px 4px; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
+    .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     /* each set of chips is one row: seven days in a grid, and the calendars side by side (a long name is cut, never wrapped under the others) */
     .chips.days { display: grid; grid-template-columns: 1.15fr 1.5fr repeat(5, 1fr); gap: 6px; }
@@ -13577,7 +13581,7 @@ Oa.styles = [Qt, ii, H`
     .chips.cals button { min-width: 0; padding: 0 11px 0 9px; }
     .rowhead { display: flex; align-items: center; gap: 8px; min-height: 44px; }
     .rowhead .sub { flex: 1; }
-    .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
+    .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     .rowhead .calbtn { background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
     .rowhead .farchip { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     :host([data-phone]) .chips.days, :host([data-phone]) .chips.cals { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
@@ -13588,7 +13592,7 @@ Oa.styles = [Qt, ii, H`
     :host([data-n3]:not([data-phone])) .dialbox { justify-content: center; }
     :host([data-n3]:not([data-phone])) .chips.cals { display: flex; flex-wrap: wrap; }
     .when > .left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
-    .sub { font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+    .sub { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
 
     /* the time dial: two drums that spin, and am / pm beside them */
     .dialbox { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 22px; background: var(--chip); }
@@ -13598,44 +13602,44 @@ Oa.styles = [Qt, ii, H`
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); border-radius: 10px; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${ha}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${ha}px; scroll-snap-align: center; font-style: normal; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
     .drum::before, .drum::after { content: ''; display: block; height: ${ha}px; }
-    .colon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
+    .colon { font-size: var(--fs-6); font-weight: 800; padding-bottom: 4px; }
     .ampm { display: flex; flex-direction: column; gap: 6px; }
-    .ampm button { width: 60px; height: 44px; border-radius: 12px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .ampm button { width: 60px; height: 44px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .ampm button[aria-pressed='true'], .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .side { display: flex; flex-direction: column; gap: 6px; }
-    .allday { height: 44px; padding: 0 14px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .allday { height: 44px; padding: 0 14px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .durs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .durs button { height: 44px; min-width: 66px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
+    .durs button { height: 44px; min-width: 66px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     .durs button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
 
     /* the calendar that opens from the end of the day row */
     .month { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 430px; max-width: 94%; border-radius: 24px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 20px 50px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
     .mnav { display: flex; align-items: center; gap: 6px; }
-    .mnav b { flex: 1; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); }
-    .mnav button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+    .mnav b { flex: 1; text-align: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
+    .mnav button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); font-weight: 800; }
     .mgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-    .mgrid span { font-size: 13px; font-weight: 800; color: var(--ink2); padding: 2px 0; }
-    .mgrid button { height: 44px; border-radius: 12px; font-size: 16px; font-weight: var(--w-semi, 600); font-variant-numeric: tabular-nums; }
+    .mgrid span { font-size: var(--fs-1); font-weight: 800; color: var(--ink2); padding: 2px 0; }
+    .mgrid button { height: 44px; border-radius: 12px; font-size: var(--fs-3); font-weight: var(--w-semi, 600); font-variant-numeric: tabular-nums; }
     .mgrid button.td { box-shadow: inset 0 0 0 2px var(--accent); }
     .mgrid button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .mgrid button:disabled { opacity: .3; }
     .veil.top { z-index: 7; } .month.top { z-index: 8; }
     .month.rep { width: 600px; max-height: 96%; overflow-y: auto; gap: 12px; padding: 16px; }
-    .rhead { display: flex; align-items: baseline; gap: 12px; } .rhead b { font-size: 20px; font-weight: var(--w-heavy, 800); } .rhead .muted { flex: 1; min-width: 0; font-size: 15px; text-align: right; }
+    .rhead { display: flex; align-items: baseline; gap: 12px; } .rhead b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); } .rhead .muted { flex: 1; min-width: 0; font-size: var(--fs-2); text-align: right; }
     .rlist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .rlist button, .rseg button { min-height: 44px; padding: 6px 12px; border-radius: 14px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.15; text-align: left; overflow-wrap: anywhere; }
+    .rlist button, .rseg button { min-height: 44px; padding: 6px 12px; border-radius: 14px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.15; text-align: left; overflow-wrap: anywhere; }
     .rseg button { text-align: center; flex: 1 1 auto; } .rseg { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 200px; }
     .rlist button[aria-checked='true'], .rseg button[aria-checked='true'], .rdays button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .rrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .rrow > .sub { flex: 0 0 56px; } .rrow > .muted { font-size: 15px; }
-    .rrow .calbtn { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
-    .rstep { display: inline-flex; align-items: center; gap: 4px; } .rstep button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 22px; font-weight: 800; } .rstep button:disabled { opacity: .35; } .rstep b { min-width: 34px; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
-    .rdays { display: flex; gap: 6px; flex-wrap: wrap; } .rdays button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .rfoot { display: flex; justify-content: flex-end; } .rfoot .lead { height: 48px; padding: 0 26px; font-size: 17px; }
+    .rrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .rrow > .sub { flex: 0 0 56px; } .rrow > .muted { font-size: var(--fs-2); }
+    .rrow .calbtn { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    .rstep { display: inline-flex; align-items: center; gap: 4px; } .rstep button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: var(--fs-4); font-weight: 800; } .rstep button:disabled { opacity: .35; } .rstep b { min-width: 34px; text-align: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+    .rdays { display: flex; gap: 6px; flex-wrap: wrap; } .rdays button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .rfoot { display: flex; justify-content: flex-end; } .rfoot .lead { height: 48px; padding: 0 26px; font-size: var(--fs-3); }
     .rowhead .repbtn { min-width: 0; flex: 0 1 auto; } .rowhead .repbtn span { overflow: hidden; text-overflow: ellipsis; max-width: 200px; } .rowhead .repbtn[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .what > .field.notes { flex: 1 1 0; font-size: 18px; padding: 0 14px; min-width: 0; }
+    .what > .field.notes { flex: 1 1 0; font-size: var(--fs-3); padding: 0 14px; min-width: 0; }
     :host([data-phone]) .rlist { grid-template-columns: 1fr; } :host([data-phone]) .month.rep { width: 100%; }
     .veil { position: absolute; inset: 0; z-index: 5; border-radius: inherit; background: rgba(0,0,0,.18); }
   `], Oa.properties = { hass: { attribute: !1 }, calendars: { attribute: !1 }, defaultCal: {}, edit: { attribute: !1 }, scope: {}, _rep: { state: !0 }, _repOpen: { state: !0 }, _custom: { state: !0 }, _notes: { state: !0 }, _pickFor: { state: !0 }, places: { type: Boolean }, _t: { state: !0 }, _loc: { state: !0 }, _in: { state: !0 }, _found: { state: !0 }, _date: { state: !0 }, _all: { state: !0 }, _h: { state: !0 }, _m: { state: !0 }, _pm: { state: !0 }, _dur: { state: !0 }, _cal: { state: !0 }, _busy: { state: !0 }, _err: { state: !0 }, _caps: { state: !0 }, _pick: { state: !0 }, _shown: { state: !0 } }, Oa.WAIT = 15e3;
@@ -13651,7 +13655,7 @@ const Eu = [
 ], Wh = "Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.", Bd = "That is all the Ask time for today. There is more tomorrow!", zn = "fh-ask-used", Zd = "fh-ask-told", jh = () => {
   const a = /* @__PURE__ */ new Date();
   return `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()}`;
-}, yl = (a) => {
+}, vl = (a) => {
   try {
     const t = JSON.parse(localStorage.getItem(a) || "{}");
     return t && t.day === jh() && t.by && typeof t.by == "object" ? t.by : {};
@@ -13663,27 +13667,27 @@ const Eu = [
     localStorage.setItem(a, JSON.stringify({ day: jh(), by: t }));
   } catch {
   }
-}, t2 = (a) => Number(yl(zn)[a]) || 0, e2 = (a, t) => {
-  const e = yl(zn);
+}, t2 = (a) => Number(vl(zn)[a]) || 0, e2 = (a, t) => {
+  const e = vl(zn);
   e[a] = (Number(e[a]) || 0) + t, Ch(zn, e);
 }, a2 = (a) => {
-  const t = yl(Zd), e = a || "panel";
+  const t = vl(Zd), e = a || "panel";
   return t[e] || Tc() ? !1 : (t[e] = 1, Ch(Zd, t), !0);
-}, vi = "I could not get an answer just now. Try again in a moment.", i2 = "I did not hear anything. Tap and try again.", s2 = "I cannot use the microphone on this screen. You can still type.", Ki = 300, Od = 2e4, o2 = 15e3, r2 = 18e4, vl = "fh-chat-log", Lh = 30, Qh = () => {
+}, yi = "I could not get an answer just now. Try again in a moment.", i2 = "I did not hear anything. Tap and try again.", s2 = "I cannot use the microphone on this screen. You can still type.", Ki = 300, Od = 2e4, o2 = 15e3, r2 = 18e4, yl = "fh-chat-log", Lh = 30, Qh = () => {
   try {
-    const a = JSON.parse(localStorage.getItem(vl) || "[]");
+    const a = JSON.parse(localStorage.getItem(yl) || "[]");
     return Array.isArray(a) ? a : [];
   } catch {
     return [];
   }
 }, Dd = (a, t) => {
   try {
-    localStorage.setItem(vl, JSON.stringify([...Qh(), { q: a, a: t, t: Date.now() }].slice(-Lh)));
+    localStorage.setItem(yl, JSON.stringify([...Qh(), { q: a, a: t, t: Date.now() }].slice(-Lh)));
   } catch {
   }
 }, n2 = () => {
   try {
-    localStorage.removeItem(vl);
+    localStorage.removeItem(yl);
   } catch {
   }
 }, Id = (a) => String(a ?? "").replace(/[*_#`]+/g, "").replace(/[ \t]+\n/g, `
@@ -13817,7 +13821,7 @@ const Eu = [
       this._add("helper", s), this._read && this._speak(s);
     } catch (o) {
       if (i !== this._gen) return;
-      console.warn("Family Hub: the helper did not answer", o), this._add("helper", vi, !0);
+      console.warn("Family Hub: the helper did not answer", o), this._add("helper", yi, !0);
     } finally {
       i === this._gen && (this._busy = !1, Dd(e, s));
     }
@@ -13869,7 +13873,7 @@ const Eu = [
         { type: "assist_pipeline/run", start_stage: "stt", end_stage: "tts", input: { sample_rate: 16e3 }, pipeline: this.pipeline, conversation_id: this._cid }
       ), await e.unsub;
     } catch (s) {
-      console.warn("Family Hub: could not start listening", s), e.stop || Wn(i), t === this._gen && this._voice === e && (this._endVoice(), this._add("helper", i ? vi : s2, !0));
+      console.warn("Family Hub: could not start listening", s), e.stop || Wn(i), t === this._gen && this._voice === e && (this._endVoice(), this._add("helper", i ? yi : s2, !0));
     }
   }
   /** Sends one chunk of sound; chunks wait (a few seconds at most) until the pipeline has said where to send them. */
@@ -13900,7 +13904,7 @@ const Eu = [
         } catch {
         }
       t.waitT = window.setTimeout(() => {
-        this._voice === t && (this._endVoice(), this._add("helper", vi, !0));
+        this._voice === t && (this._endVoice(), this._add("helper", yi, !0));
       }, Od);
     }
   }
@@ -13924,7 +13928,7 @@ const Eu = [
       }
       case "intent-end": {
         const s = i.intent_output ?? {};
-        s.conversation_id && (this._cid = s.conversation_id), t.reply = Id(s.response?.speech?.plain?.speech), t.reply ? this._add("helper", t.reply) : this._add("helper", vi, !0);
+        s.conversation_id && (this._cid = s.conversation_id), t.reply = Id(s.response?.speech?.plain?.speech), t.reply ? this._add("helper", t.reply) : this._add("helper", yi, !0);
         break;
       }
       case "tts-end": {
@@ -13933,7 +13937,7 @@ const Eu = [
         break;
       }
       case "error": {
-        console.warn("Family Hub: voice pipeline", i.code, i.message), t.reply || this._add("helper", i.code === "stt-no-text-recognized" ? i2 : vi, !0), t.reply || (this._convo = !1), t.done = !0, this._endVoice();
+        console.warn("Family Hub: voice pipeline", i.code, i.message), t.reply || this._add("helper", i.code === "stt-no-text-recognized" ? i2 : yi, !0), t.reply || (this._convo = !1), t.done = !0, this._endVoice();
         break;
       }
       case "run-end": {
@@ -13993,7 +13997,7 @@ const Eu = [
     this.pin ? this.dispatchEvent(new CustomEvent("pin", { detail: { reason: "See what was asked?", run: t } })) : t();
   }
   render() {
-    const t = this.mode === "pictures", e = !t && !!this.pipeline && Jd(), i = [...this._bubbles].reverse().find((r) => r.from === "helper"), s = this._busy && !this._listening, o = vt() === "phone";
+    const t = this.mode === "pictures", e = !t && !!this.pipeline && Jd(), i = [...this._bubbles].reverse().find((r) => r.from === "helper"), s = this._busy && !this._listening, o = yt() === "phone";
     return l`
       <div class="conv">
         ${this._grown ? this._logView() : l`<div class="thread" role="log" aria-label="Conversation" tabindex="0">
@@ -14050,7 +14054,7 @@ const Eu = [
     const t = (e) => new Date(e).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
     return l`<div class="thread" role="region" aria-label="What was asked" tabindex="0" style="gap:8px">
       <div style="display:flex;align-items:center;gap:10px;margin-top:0">
-        <div style="flex:1"><b style="font-size:18px">What was asked</b><div class="small">The last ${Lh} questions and answers, kept on this screen only.</div></div>
+        <div style="flex:1"><b style="font-size:var(--fs-3)">What was asked</b><div class="small">The last ${Lh} questions and answers, kept on this screen only.</div></div>
         <button class="pill tap" ?disabled=${!this._log.length} @click=${() => {
       n2(), this._log = [];
     }}>Clear</button>
@@ -14067,7 +14071,7 @@ xo.styles = [Qt, ii, H`
     .conv { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
     .thread { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 24px; background: var(--chip-soft, var(--chip)); overscroll-behavior: contain; }
     .thread > :first-child { margin-top: auto; }
-    .bubble { max-width: 80%; padding: 13px 18px; border-radius: 24px; border-bottom-left-radius: 8px; align-self: flex-start; background: var(--chip-strong); color: var(--ink); font-size: 20px; line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; animation: fhc-in var(--m-3, 240ms) var(--e-out, ease) both; }
+    .bubble { max-width: 80%; padding: 13px 18px; border-radius: 24px; border-bottom-left-radius: 8px; align-self: flex-start; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-4); line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; animation: fhc-in var(--m-3, 240ms) var(--e-out, ease) both; }
     .bubble.asker { align-self: flex-end; border-radius: 24px; border-bottom-right-radius: 8px; background: var(--primary); color: var(--on-primary); }
     .bubble.wait { display: inline-flex; gap: 8px; align-items: center; min-height: 28px; padding: 18px 20px; }
     .bubble.wait i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; opacity: .7; animation: fhc-bounce 1.1s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
@@ -14076,9 +14080,9 @@ xo.styles = [Qt, ii, H`
     @keyframes fhc-bounce { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-7px); } }
     @keyframes fhc-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 55%, transparent); } 50% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--danger) 0%, transparent); } }
     .send { display: flex; gap: 10px; align-items: center; }
-    .field { flex: 1; min-width: 0; height: 56px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 22px; font-weight: var(--w-semi, 600); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    .field { flex: 1; min-width: 0; height: 56px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-4); font-weight: var(--w-semi, 600); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
-    .send .lead { height: 56px; padding: 0 26px; font-size: 18px; }
+    .send .lead { height: 56px; padding: 0 26px; font-size: var(--fs-3); }
     button[disabled] { opacity: .45; }
     /* Send with nothing to send: an outline that still reads, not a faded fill */
     .send .lead[disabled] { opacity: 1; background: transparent; color: var(--ink2); border: 2px solid var(--ink2); }
@@ -14088,32 +14092,32 @@ xo.styles = [Qt, ii, H`
     .voice { display: flex; align-items: center; gap: 16px; min-height: 100px; }
     .talk { width: 96px; height: 96px; border-radius: 50%; flex-shrink: 0; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; }
     .talk[aria-pressed='true'] { background: var(--danger); color: #fff; animation: fhc-pulse 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
-    .voice b { font-size: 20px; font-weight: var(--w-bold, 700); line-height: 1.25; }
-    .voice .convo { height: 52px; padding: 0 16px; font-size: 15px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+    .voice b { font-size: var(--fs-4); font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .voice .convo { height: 52px; padding: 0 16px; font-size: var(--fs-2); white-space: nowrap; flex-shrink: 0; margin-left: auto; }
     :host([low]) .voice .convo { margin-left: 0; }
-    .nomic { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
+    .nomic { font-size: var(--fs-2); font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
     .starters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
-    .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
+    .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: var(--fs-2); line-height: 1.2; font-weight: var(--w-semi, 600); }
+    .starter span { font-size: var(--fs-d1); line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
     /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
-    :host([data-look]) .opts .pill { font-size: 15px; }
-    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
-    .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
+    :host([data-look]) .opts .pill { font-size: var(--fs-2); }
+    .opts .pill { font-size: var(--fs-2); flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
+    .small { font-size: var(--fs-2); line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
     :host(:not([data-phone])) .ctl > * { flex-shrink: 0; }
     :host(:not([data-phone])) .ctl > .starters { flex-shrink: 1; min-height: 80px; overflow-y: auto; overscroll-behavior: contain; padding: 6px; margin: -6px; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-    .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: 16px; line-height: 1.35; }
+    .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: var(--fs-3); line-height: 1.35; }
     .rec .small { font-weight: var(--w-semi, 600); }
-    .send .kb { font-size: 15px; }
+    .send .kb { font-size: var(--fs-2); }
     /* opened from the page of a child who cannot read: the talk button and the six pictures sit in the lower half, where he can reach; the conversation is above */
     :host([low]) { flex-direction: column; gap: 12px; }
     :host([low]) .conv { flex: 1 1 0; min-height: 0; }
     :host([low]) .ctl { flex: 0 0 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; align-items: center; }
     :host([low]) .voice { flex-direction: column; gap: 6px; min-height: 0; text-align: center; max-width: 150px; }
-    :host([low]) .voice b { font-size: 16px; }
+    :host([low]) .voice b { font-size: var(--fs-3); }
     :host([low]) .ctl > .starters { grid-template-columns: repeat(3, 1fr); overflow: visible; }
     :host([low]) .ctl > .nomic { max-width: 220px; }
     :host([low]) .opts { grid-column: 1 / -1; margin-top: 0; }
@@ -14141,16 +14145,16 @@ xo.styles = [Qt, ii, H`
     :host([kb][low][data-shape='wide']:not([data-phone])) .conv { flex: 2 1 0; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl { flex: 1 1 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .voice { flex-direction: row; gap: 16px; min-height: 100px; max-width: none; text-align: left; }
-    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: 20px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: var(--fs-4); }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr 1fr; overflow-y: auto; }
     :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
     /* pictures only (a child who cannot read): no field, no keys, no microphone. The pictures take the whole row and grow */
     :host([pics]) .ctl > .starters { grid-column: 1 / -1; }
-    :host([pics]) .starter { min-height: 88px; font-size: 17px; }
-    :host([pics]) .starter span { font-size: 48px; width: 54px; }
-    .left { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); flex-shrink: 0; }
+    :host([pics]) .starter { min-height: 88px; font-size: var(--fs-3); }
+    :host([pics]) .starter span { font-size: var(--fs-d2); width: 54px; }
+    .left { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); flex-shrink: 0; }
     :host([low]) .left { grid-column: 1 / -1; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
@@ -14266,7 +14270,7 @@ class k2 {
     }
   }
 }
-const Hd = 10 * 6e4, y2 = (a, t) => {
+const Hd = 10 * 6e4, v2 = (a, t) => {
   const e = {};
   for (const i of a)
     if (i.summary.startsWith(t + " "))
@@ -14285,7 +14289,7 @@ const Hd = 10 * 6e4, y2 = (a, t) => {
 }, Ed = (a, t) => {
   const e = a.states[t]?.state;
   return e === void 0 || e === "unknown" || e === "unavailable" ? "" : String(e);
-}, v2 = (a, t, e = [], i = Te(/* @__PURE__ */ new Date())) => ({
+}, y2 = (a, t, e = [], i = Te(/* @__PURE__ */ new Date())) => ({
   v: 1,
   d: i,
   jar: Ui(a, so),
@@ -14883,7 +14887,7 @@ const rc = () => Bs && Date.now() < Bs.until ? Bs : null, qr = (a) => {
     return !!this._draft && (!Ys(this._draft, this.config) || this._pinDirty);
   }
   get _osk() {
-    return this.forceKeys || vt() !== "phone" && typeof matchMedia == "function" && matchMedia("(pointer: coarse)").matches;
+    return this.forceKeys || yt() !== "phone" && typeof matchMedia == "function" && matchMedia("(pointer: coarse)").matches;
   }
   _edit(t) {
     const e = we(this._draft);
@@ -15171,42 +15175,42 @@ const rc = () => Bs && Date.now() < Bs.until ? Bs : null, qr = (a) => {
     const i = J(this.config.kids?.[this._kid] ?? t).chores, s = this._lists[i], o = this.hass?.states[i];
     if (s === "fail") return l`<div class="snote ro" role="note"><span><b>${t.name}’s job list could not be read.</b> Home Assistant has ${o ? "not answered for" : "no to-do list called"} <code>${i}</code>. ${o ? "Try again in a moment." : "Make a to-do list with that name in Home Assistant (Settings, Devices and services, Helpers, To-do list), then come back."}</span></div>`;
     if (!s) return l`<span class="shint" role="status">Reading ${t.name}’s list…</span>`;
-    const r = Number(o?.attributes.supported_features ?? 0), n = (r & 8) === 8 && !e, p = this._ro, c = vt() === "phone", d = [["am", "Morning"], ["after", "After school"], ["bed", "Bedtime"], ["any", "Any time"]], h = { routine: "Routine", job: "Job", grow: "Practice" }, g = (w) => {
-      const v = w.form, U = (y) => {
-        this._job = { ...w, form: { ...v, ...y } };
+    const r = Number(o?.attributes.supported_features ?? 0), n = (r & 8) === 8 && !e, p = this._ro, c = yt() === "phone", d = [["am", "Morning"], ["after", "After school"], ["bed", "Bedtime"], ["any", "Any time"]], h = { routine: "Routine", job: "Job", grow: "Practice" }, g = (w) => {
+      const y = w.form, U = (v) => {
+        this._job = { ...w, form: { ...y, ...v } };
       };
-      return l`<div class="sform" role="group" aria-label=${w.uid ? `Change ${v.name}` : "New job"}>
-        ${this._row("Name", "", l`${this._txt("job.pic", "Picture (an emoji)", v.pic, (y) => U({ pic: y }), { cls: "pic", ph: "🙂", pic: !0, max: 16 })}${this._txt("job.name", "Job name", v.name, (y) => U({ name: y }), { ph: "e.g. Feed the fish" })}`, !0)}
-        ${this._row("Kind", v.lane === "routine" ? "Part of the day’s routine." : v.lane === "job" ? "Earns points." : "Practice: earns a growth mark, not points.", this._seg("Kind", v.lane, [["routine", "Routine"], ["job", "Job"], ["grow", "Practice"]], (y) => U({ lane: y })))}
-        ${e ? u : this._row("When", "", this._seg("When", v.slot, d, (y) => U({ slot: y })))}
-        ${v.lane === "grow" ? u : this._row("Points", "", this._step("Points", v.pts, (y) => U({ pts: y }), { max: 500, step: 5 }))}
-        ${this._row("Timer", "A timed job shows a start button.", this._step("Timer minutes", v.minutes, (y) => U({ minutes: y, song: y ? v.song : !1 }), { max: 120, step: 5, say: (y) => y ? `${y} min` : "None" }))}
-        ${v.minutes ? this._row("Music while the timer runs", "The music stops when time is up.", this._sw("Music while the timer runs", v.song, () => U({ song: !v.song }))) : u}
+      return l`<div class="sform" role="group" aria-label=${w.uid ? `Change ${y.name}` : "New job"}>
+        ${this._row("Name", "", l`${this._txt("job.pic", "Picture (an emoji)", y.pic, (v) => U({ pic: v }), { cls: "pic", ph: "🙂", pic: !0, max: 16 })}${this._txt("job.name", "Job name", y.name, (v) => U({ name: v }), { ph: "e.g. Feed the fish" })}`, !0)}
+        ${this._row("Kind", y.lane === "routine" ? "Part of the day’s routine." : y.lane === "job" ? "Earns points." : "Practice: earns a growth mark, not points.", this._seg("Kind", y.lane, [["routine", "Routine"], ["job", "Job"], ["grow", "Practice"]], (v) => U({ lane: v })))}
+        ${e ? u : this._row("When", "", this._seg("When", y.slot, d, (v) => U({ slot: v })))}
+        ${y.lane === "grow" ? u : this._row("Points", "", this._step("Points", y.pts, (v) => U({ pts: v }), { max: 500, step: 5 }))}
+        ${this._row("Timer", "A timed job shows a start button.", this._step("Timer minutes", y.minutes, (v) => U({ minutes: v, song: v ? y.song : !1 }), { max: 120, step: 5, say: (v) => v ? `${v} min` : "None" }))}
+        ${y.minutes ? this._row("Music while the timer runs", "The music stops when time is up.", this._sw("Music while the timer runs", y.song, () => U({ song: !y.song }))) : u}
         ${w.uid && n && c ? (() => {
-        const y = s, A = y.findIndex((T) => T.uid === w.uid);
-        return l`<div class="sbtns" style="justify-content:flex-start"><button class="pill tap" ?disabled=${A <= 0 || !!this._busy} @click=${() => void this._moveJob(i, y, A, A - 1)}>Move up</button><button class="pill tap" ?disabled=${A >= y.length - 1 || !!this._busy} @click=${() => void this._moveJob(i, y, A, A + 1)}>Move down</button></div>`;
+        const v = s, A = v.findIndex((T) => T.uid === w.uid);
+        return l`<div class="sbtns" style="justify-content:flex-start"><button class="pill tap" ?disabled=${A <= 0 || !!this._busy} @click=${() => void this._moveJob(i, v, A, A - 1)}>Move up</button><button class="pill tap" ?disabled=${A >= v.length - 1 || !!this._busy} @click=${() => void this._moveJob(i, v, A, A + 1)}>Move down</button></div>`;
       })() : u}
         <div class="sbtns">${w.uid ? l`<button class="pill tap danger" data-act="job-remove" ?disabled=${!!this._busy} @click=${() => {
-        const y = s.find((A) => A.uid === w.uid);
-        y && this._removeJob(i, y);
+        const v = s.find((A) => A.uid === w.uid);
+        v && this._removeJob(i, v);
       }}>${K("bin", 18)}Remove</button>` : u}
           <span style="flex:1"></span><button class="pill tap" @click=${() => {
         this._job = null;
       }}>Cancel</button>
           <button class="pill tap primary" data-act="job-save" ?data-busy=${this._busy === "job"} ?disabled=${!!this._busy} @click=${() => void this._saveJob()}>${w.uid ? "Save this job" : "Add this job"}</button></div></div>`;
-    }, m = (w, v) => {
+    }, m = (w, y) => {
       const U = nc(w);
       return this._job?.uid === w.uid && this._job.entity === i ? g(this._job) : l`<div class="sitem" style="border:0;padding:0"><button class="sjob tap sgrow" ?disabled=${p} aria-label=${`Change ${U.name}`} @click=${() => {
         this._job = { entity: i, uid: w.uid, form: U };
       }}>
         <span class="spic" aria-hidden="true">${U.pic || "•"}</span><span class="sname sgrow">${U.name}</span>
         ${U.minutes ? l`<span class="stag">${U.minutes} min${U.song ? " ♪" : ""}</span>` : u}<span class="stag">${h[U.lane]}</span>${U.pts ? l`<span class="stag">+${U.pts}</span>` : u}</button>
-        ${n && !p && !c ? this._move(U.name, v, s.length, (y) => void this._moveJob(i, s, v, y)) : u}</div>`;
-    }, f = s.map((w, v) => ({ c: w, i: v, f: nc(w) })), k = e ? f.filter((w) => w.f.slot === e) : f, b = this._job && this._job.uid === null && this._job.entity === i ? g(this._job) : u;
+        ${n && !p && !c ? this._move(U.name, y, s.length, (v) => void this._moveJob(i, s, y, v)) : u}</div>`;
+    }, f = s.map((w, y) => ({ c: w, i: y, f: nc(w) })), k = e ? f.filter((w) => w.f.slot === e) : f, b = this._job && this._job.uid === null && this._job.entity === i ? g(this._job) : u;
     return l`<div class="sjobs">
-      ${e ? k.map((w) => m(w.c, w.i)) : d.map(([w, v]) => {
-      const U = k.filter((y) => y.f.slot === w);
-      return U.length ? l`<span class="label">${v}</span>${U.map((y) => m(y.c, y.i))}` : u;
+      ${e ? k.map((w) => m(w.c, w.i)) : d.map(([w, y]) => {
+      const U = k.filter((v) => v.f.slot === w);
+      return U.length ? l`<span class="label">${y}</span>${U.map((v) => m(v.c, v.i))}` : u;
     })}
       ${k.length ? u : l`<span class="shint">Nothing here yet.</span>`}
       ${b}
@@ -15681,122 +15685,122 @@ const rc = () => Bs && Date.now() < Bs.until ? Bs : null, qr = (a) => {
     }
   }
   _pictures() {
-    const t = this._draft, e = t.art ?? {}, i = (Zp() ?? this.hass)?.states ?? {}, s = (y) => this._edit((A) => {
+    const t = this._draft, e = t.art ?? {}, i = (Zp() ?? this.hass)?.states ?? {}, s = (v) => this._edit((A) => {
       const T = { ...A.art ?? {} };
-      y(T), Object.keys(T).length ? A.art = T : delete A.art;
+      v(T), Object.keys(T).length ? A.art = T : delete A.art;
     }), o = e.idle_minutes ?? et.idle, r = e.interval_minutes ?? et.interval, n = e.presence ?? "none", p = ia(t), c = !!i[p], d = ti(this.hass, e.painter);
     this._lib === void 0 && c && (this._lib = null, this._loadLib());
-    const h = this._lib ?? [], g = wh(h, e.cost ?? et.cost), m = e.cap ?? et.cap, f = Object.keys(i).find((y) => y.startsWith("automation.") && /family hub.*art/i.test(String(i[y].attributes.friendly_name ?? ""))), k = (t.kids ?? []).map((y) => y.bedtime ?? "20:00").sort()[0], b = {
+    const h = this._lib ?? [], g = wh(h, e.cost ?? et.cost), m = e.cap ?? et.cap, f = Object.keys(i).find((v) => v.startsWith("automation.") && /family hub.*art/i.test(String(i[v].attributes.friendly_name ?? ""))), k = (t.kids ?? []).map((v) => v.bedtime ?? "20:00").sort()[0], b = {
       insecure: l`<b>This screen cannot use its camera yet,</b> because the page is not a secure one (its address starts with http). Either open Home Assistant over https, or, on the kiosk PC, set the Edge policies <i>OverrideSecurityRestrictionsOnInsecureOrigin</i> and <i>VideoCaptureAllowedUrls</i> to this address. Until then the panel wakes by touch.`,
       nocamera: l`<b>No camera was found on this screen.</b> The panel wakes by touch.`,
       denied: l`<b>The browser has not allowed the camera.</b> Allow it for this address in the browser’s site settings, then test again.`,
       busy: l`<b>The camera could not be opened.</b> Something else may be using it.`
-    }, w = this._camFault || (n === "camera" ? Bh() : ""), v = h.filter((y) => y.kind === this._libShow).sort((y, A) => y.d < A.d ? 1 : y.d > A.d ? -1 : 0), U = async (y, A) => {
+    }, w = this._camFault || (n === "camera" ? Bh() : ""), y = h.filter((v) => v.kind === this._libShow).sort((v, A) => v.d < A.d ? 1 : v.d > A.d ? -1 : 0), U = async (v, A) => {
       if (!this.hass || this._libBusy) return;
-      if (A === "del" && this._zap !== y.uid) {
-        this._zap = y.uid;
+      if (A === "del" && this._zap !== v.uid) {
+        this._zap = v.uid;
         return;
       }
-      this._libBusy = y.uid, this._zap = "";
-      const T = A === "del" ? await kg(this.hass, p, y) : await wg(this.hass, p, y, A === "fav" ? { fav: !y.fav } : { hidden: !y.hidden });
+      this._libBusy = v.uid, this._zap = "";
+      const T = A === "del" ? await kg(this.hass, p, v) : await wg(this.hass, p, v, A === "fav" ? { fav: !v.fav } : { hidden: !v.hidden });
       this._libBusy = "", T || this._say("Home Assistant did not answer. Try again."), await this._loadLib();
     };
     return l`
       <div class="scard"><h3>${K("moon", 20)}Screensaver</h3>
         <p class="sintro">After a while with nobody using it, the panel fades into the artwork with a clock. A touch brings it straight back, and that touch presses nothing else.</p>
-        ${this._row("Show the artwork after", "With no touch, and nobody near.", this._seg("Show the artwork after", o, [[0, "Never"], [1, "1 min"], [3, "3 min"], [5, "5 min"], [10, "10 min"], [15, "15 min"]], (y) => s((A) => {
-      A.idle_minutes = y;
+        ${this._row("Show the artwork after", "With no touch, and nobody near.", this._seg("Show the artwork after", o, [[0, "Never"], [1, "1 min"], [3, "3 min"], [5, "5 min"], [10, "10 min"], [15, "15 min"]], (v) => s((A) => {
+      A.idle_minutes = v;
     })))}
-        ${o ? this._row("Each picture stays", "", this._seg("Each picture stays", r, [[1, "1 min"], [3, "3 min"], [5, "5 min"], [10, "10 min"], [30, "30 min"]], (y) => s((A) => {
-      A.interval_minutes = y;
+        ${o ? this._row("Each picture stays", "", this._seg("Each picture stays", r, [[1, "1 min"], [3, "3 min"], [5, "5 min"], [10, "10 min"], [30, "30 min"]], (v) => s((A) => {
+      A.interval_minutes = v;
     }))) : u}
         <span class="shint">${k ? `From ${qi(k)} (the earliest bedtime) until morning, a dim clock shows instead of the artwork.` : ""} It never comes up over a timer, an alarm, a call, an open sheet or the keyboard.</span>
       </div>
       <div class="scard"><h3>${K("home", 20)}Wake when someone walks up</h3>
-        ${this._row("The panel knows someone is there from", "", this._seg("Presence source", n, [["none", "Touch only"], ["sensor", "A sensor"], ["camera", "This screen’s camera"]], (y) => {
+        ${this._row("The panel knows someone is there from", "", this._seg("Presence source", n, [["none", "Touch only"], ["sensor", "A sensor"], ["camera", "This screen’s camera"]], (v) => {
       this._camStop(), s((A) => {
-        y === "none" ? delete A.presence : A.presence = y;
+        v === "none" ? delete A.presence : A.presence = v;
       });
     }))}
         ${n === "sensor" ? l`<span class="shint">Any occupancy, motion or presence sensor that Home Assistant has. Pair it in Home Assistant, then choose it here.</span>
-          ${this._picker("presence", "sensors", e.presence_entity ? [e.presence_entity] : [], ["binary_sensor"], (y) => s((A) => {
-      const T = y.filter((F) => F !== e.presence_entity).pop() ?? (y.includes(e.presence_entity ?? "") ? e.presence_entity : void 0);
+          ${this._picker("presence", "sensors", e.presence_entity ? [e.presence_entity] : [], ["binary_sensor"], (v) => s((A) => {
+      const T = v.filter((F) => F !== e.presence_entity).pop() ?? (v.includes(e.presence_entity ?? "") ? e.presence_entity : void 0);
       T ? A.presence_entity = T : delete A.presence_entity;
     }))}
           ${e.presence_entity && i[e.presence_entity] ? l`<span class="stag" role="status">Right now: ${i[e.presence_entity].state === "on" ? "someone is there" : "nobody there"}</span>` : u}` : u}
         ${n === "camera" ? l`
           <span class="shint">The picture is looked at in this browser only, twice a second, for movement. Nothing is recorded or sent anywhere. The camera’s light will stay on.</span>
           ${w ? l`<div class="snote" role="note"><span>${b[w]}</span></div>` : u}
-          ${this._row("How little movement counts", "Higher notices smaller movements.", this._step("Camera sensitivity", e.camera_sensitivity ?? et.sensitivity, (y) => s((A) => {
-      A.camera_sensitivity = y;
+          ${this._row("How little movement counts", "Higher notices smaller movements.", this._step("Camera sensitivity", e.camera_sensitivity ?? et.sensitivity, (v) => s((A) => {
+      A.camera_sensitivity = v;
     }), { min: 1, max: 10 }))}
-          ${this._row("Ignore the edges", "So a doorway or a window at the side does not wake it.", this._step("Ignore the edges", e.camera_margin ?? et.margin, (y) => s((A) => {
-      A.camera_margin = y;
+          ${this._row("Ignore the edges", "So a doorway or a window at the side does not wake it.", this._step("Ignore the edges", e.camera_margin ?? et.margin, (v) => s((A) => {
+      A.camera_margin = v;
     }), { min: 0, max: 40, step: 5, unit: "%" }))}
           ${this._row("Try it", "Shows what the camera sees, on this screen only.", l`<button class="pill tap" data-act="cam-test" @click=${() => void this._camTest()}>${this._cam ? "Stop" : "Test the camera"}</button>`)}
           ${this._cam ? l`<div class="scam" style="--m:${e.camera_margin ?? et.margin}%"><i class="sarea" aria-hidden="true"></i><span class="smeter" role="status" data-on=${String(Date.now() - this._camSeen < 1500)}>${Date.now() - this._camSeen < 1500 ? "Movement seen" : "Still"} · ${(this._cam.level * 100).toFixed(1)}% (wakes at ${(Yh(e.camera_sensitivity) * 100).toFixed(1)}%)</span></div>` : u}` : u}
       </div>
       <div class="scard"><h3>${K("bulb", 20)}Screen brightness <span class="muted">optional</span></h3>
         <span class="shint">A light or number in Home Assistant that sets this screen’s backlight. Leave it empty until there is one: nothing happens without it. The screen is never switched off.</span>
-        ${this._picker("backlight", "lights and numbers", e.backlight ? [e.backlight] : [], ["light", "number", "input_number"], (y) => s((A) => {
-      const T = y.filter((F) => F !== e.backlight).pop();
+        ${this._picker("backlight", "lights and numbers", e.backlight ? [e.backlight] : [], ["light", "number", "input_number"], (v) => s((A) => {
+      const T = v.filter((F) => F !== e.backlight).pop();
       T ? A.backlight = T : delete A.backlight;
     }))}
-        ${e.backlight ? l`${this._row("While the artwork shows", "", this._step("Brightness with the artwork", e.backlight_art ?? et.dimArt, (y) => s((A) => {
-      A.backlight_art = y;
+        ${e.backlight ? l`${this._row("While the artwork shows", "", this._step("Brightness with the artwork", e.backlight_art ?? et.dimArt, (v) => s((A) => {
+      A.backlight_art = v;
     }), { min: 5, max: 100, step: 5, unit: "%" }))}
-          ${this._row("At night", "", this._step("Brightness at night", e.backlight_night ?? et.dimNight, (y) => s((A) => {
-      A.backlight_night = y;
+          ${this._row("At night", "", this._step("Brightness at night", e.backlight_night ?? et.dimNight, (v) => s((A) => {
+      A.backlight_night = v;
     }), { min: 1, max: 100, step: 1, unit: "%" }))}` : u}
       </div>
       <div class="scard"><h3>${K("palette", 20)}The painter</h3>
         ${d ? l`<span class="shint">Pictures are painted by <b>${this._name(d)}</b>, in Home Assistant. The key stays there.</span>` : l`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
         ${c ? u : l`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${p}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
-        ${this._row("Stop at", `This month: ${g.n} picture${g.n === 1 ? "" : "s"}, about US$${g.usd.toFixed(2)}.`, this._step("Monthly limit", m, (y) => s((A) => {
-      A.cap = y;
-    }), { min: 0, max: 200, step: 5, say: (y) => `US$${y} a month` }))}
-        ${this._row("A picture is reckoned at", "An estimate: check it against your OpenAI bill.", this._step("Cost of one picture", Math.round((e.cost ?? et.cost) * 100), (y) => s((A) => {
-      A.cost = y / 100;
-    }), { min: 1, max: 200, step: 1, say: (y) => `US$${(y / 100).toFixed(2)}` }))}
-        ${this._row("New looks a day, each child", "In the style studio. Looks made before are free.", this._step("New looks a day", e.looks_per_day ?? et.looks, (y) => s((A) => {
-      A.looks_per_day = y;
+        ${this._row("Stop at", `This month: ${g.n} picture${g.n === 1 ? "" : "s"}, about US$${g.usd.toFixed(2)}.`, this._step("Monthly limit", m, (v) => s((A) => {
+      A.cap = v;
+    }), { min: 0, max: 200, step: 5, say: (v) => `US$${v} a month` }))}
+        ${this._row("A picture is reckoned at", "An estimate: check it against your OpenAI bill.", this._step("Cost of one picture", Math.round((e.cost ?? et.cost) * 100), (v) => s((A) => {
+      A.cost = v / 100;
+    }), { min: 1, max: 200, step: 1, say: (v) => `US$${(v / 100).toFixed(2)}` }))}
+        ${this._row("New looks a day, each child", "In the style studio. Looks made before are free.", this._step("New looks a day", e.looks_per_day ?? et.looks, (v) => s((A) => {
+      A.looks_per_day = v;
     }), { min: 0, max: 10 }))}
         ${f ? l`${this._row("Three new artworks every night", `At 2 am, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. ${i[f].attributes.last_triggered ? `Last ran ${new Date(String(i[f].attributes.last_triggered)).toLocaleString("en-AU", { weekday: "short", hour: "numeric", minute: "2-digit" })}.` : "Has not run yet."}${this._night?.d ? ` ${this._night.made ?? 0} painted on ${this._night.d}. ${this._night.note ?? ""}` : ""}`, this._sw("Nightly artwork", i[f].state === "on", () => {
       Promise.resolve(this.hass?.callService("automation", i[f].state === "on" ? "turn_off" : "turn_on", {}, { entity_id: f })).then(() => window.setTimeout(() => this.requestUpdate(), 600));
     }))}
           ${this._row("After changing the children, their sheets or their calendars", "Save first, then rewrite the nightly automation from what is saved.", l`<button class="pill tap" data-act="night-update" ?disabled=${!!this._libBusy || !!Ar(this.hass, this.config)} @click=${() => void this._setUpNightly(f)}>Update it</button>`)}` : this._row("Three new artworks every night", Ar(this.hass, this.config) || `Painted in Home Assistant at 2 am from the saved character sheets, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. It is set up switched off.`, l`<button class="pill tap" data-act="night-setup" ?disabled=${!!this._libBusy || !!Ar(this.hass, this.config)} @click=${() => void this._setUpNightly()}>Set it up</button>`)}
-        ${f ? this._row("The artwork is painted", "", this._seg("Artwork style", e.style ?? "look", [["look", "In the panel’s look"], ["house", "In the house style"]], (y) => s((A) => {
-      y === "look" ? delete A.style : A.style = y;
+        ${f ? this._row("The artwork is painted", "", this._seg("Artwork style", e.style ?? "look", [["look", "In the panel’s look"], ["house", "In the house style"]], (v) => s((A) => {
+      v === "look" ? delete A.style : A.style = v;
     }))) : u}
       </div>
       <div class="scard"><h3>${lc("kid", 20)}The children’s characters</h3>
         <span class="shint">A child with a character sheet has a painted character, and his studio paints his looks from it. The sheet and the words stay in Home Assistant.</span>
-        ${(t.kids ?? []).map((y, A) => l`<div class="sitem" style="align-items:flex-start;flex-wrap:wrap">
-          <span class="spic">${dt(i[J(y).avatar]?.state, y.look ? dt(y.look) : {}).img ? l`<fh-pic .media=${dt(i[J(y).avatar]?.state, y.look ? dt(y.look) : {}).img}></fh-pic>` : y.name[0]}</span>
-          <span style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px"><b>${y.name}</b>
-            ${this._txt(`sheet.${A}`, `${y.name}’s character sheet, a file in Home Assistant’s media`, y.sheet ?? "", (T) => this._edit((F) => {
+        ${(t.kids ?? []).map((v, A) => l`<div class="sitem" style="align-items:flex-start;flex-wrap:wrap">
+          <span class="spic">${dt(i[J(v).avatar]?.state, v.look ? dt(v.look) : {}).img ? l`<fh-pic .media=${dt(i[J(v).avatar]?.state, v.look ? dt(v.look) : {}).img}></fh-pic>` : v.name[0]}</span>
+          <span style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px"><b>${v.name}</b>
+            ${this._txt(`sheet.${A}`, `${v.name}’s character sheet, a file in Home Assistant’s media`, v.sheet ?? "", (T) => this._edit((F) => {
       const V = F.kids[A];
       T.trim() ? V.sheet = T.trim() : delete V.sheet;
     }), { ph: "Character sheet file, e.g. sheet.png", cls: "sgrow", pic: !0 })}
-            ${this._txt(`about.${A}`, `A few words about ${y.name} for the painter`, y.about ?? "", (T) => this._edit((F) => {
+            ${this._txt(`about.${A}`, `A few words about ${v.name} for the painter`, v.about ?? "", (T) => this._edit((F) => {
       const V = F.kids[A];
       T ? V.about = T : delete V.about;
     }), { ph: "A few words for the painter: age, hair, eyes, build", cls: "sgrow", max: 400 })}
-            ${this._txt(`likes.${A}`, `What ${y.name} likes, for the nightly artwork`, y.likes ?? "", (T) => this._edit((F) => {
+            ${this._txt(`likes.${A}`, `What ${v.name} likes, for the nightly artwork`, v.likes ?? "", (T) => this._edit((F) => {
       const V = F.kids[A];
       T ? V.likes = T : delete V.likes;
     }), { ph: "What he likes: swimming, dragons, trucks…", cls: "sgrow", max: 200 })}</span></div>`)}
       </div>
       <div class="scard"><h3>Every picture <span class="muted">${h.length}</span></h3>
-        ${this._seg("Which pictures", this._libShow, [["art", `Artwork (${h.filter((y) => y.kind === "art").length})`], ["look", `Looks (${h.filter((y) => y.kind === "look").length})`]], (y) => {
-      this._libShow = y, this._zap = "";
+        ${this._seg("Which pictures", this._libShow, [["art", `Artwork (${h.filter((v) => v.kind === "art").length})`], ["look", `Looks (${h.filter((v) => v.kind === "look").length})`]], (v) => {
+      this._libShow = v, this._zap = "";
     })}
-        ${v.length ? l`<div class="slib" role="list">${v.slice(0, 60).map((y) => l`<div class="sart" role="listitem" ?data-hidden=${y.hidden}>
-          <fh-pic .media=${y.file} .label=${`${y.theme ?? (y.kind === "look" ? "A look" : "Artwork")}, ${y.who.join(" and ")}`}></fh-pic>
-          <span class="scap">${y.theme ?? y.who.join(", ")}<small>${y.d}${y.who.length && y.theme ? ` · ${y.who.join(", ")}` : ""}</small></span>
-          <span class="sacts">${y.kind === "art" ? l`<button class="sico tap" aria-pressed=${String(!!y.fav)} aria-label=${y.fav ? "A favourite. Tap to undo" : "Make it a favourite"} @click=${() => void U(y, "fav")}>${K("star", 20)}</button>
-            <button class="sico tap" aria-pressed=${String(y.hidden)} aria-label=${y.hidden ? "Hidden. Tap to show it again" : "Hide it from the screensaver"} @click=${() => void U(y, "hide")}>${K("moon", 20)}</button>` : u}
-            <button class="sico tap bad" data-sure=${String(this._zap === y.uid)} aria-label=${this._zap === y.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void U(y, "del")}>${this._zap === y.uid ? "Sure?" : K("bin", 20)}</button></span></div>`)}</div>` : l`<span class="shint">${c ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
+        ${y.length ? l`<div class="slib" role="list">${y.slice(0, 60).map((v) => l`<div class="sart" role="listitem" ?data-hidden=${v.hidden}>
+          <fh-pic .media=${v.file} .label=${`${v.theme ?? (v.kind === "look" ? "A look" : "Artwork")}, ${v.who.join(" and ")}`}></fh-pic>
+          <span class="scap">${v.theme ?? v.who.join(", ")}<small>${v.d}${v.who.length && v.theme ? ` · ${v.who.join(", ")}` : ""}</small></span>
+          <span class="sacts">${v.kind === "art" ? l`<button class="sico tap" aria-pressed=${String(!!v.fav)} aria-label=${v.fav ? "A favourite. Tap to undo" : "Make it a favourite"} @click=${() => void U(v, "fav")}>${K("star", 20)}</button>
+            <button class="sico tap" aria-pressed=${String(v.hidden)} aria-label=${v.hidden ? "Hidden. Tap to show it again" : "Hide it from the screensaver"} @click=${() => void U(v, "hide")}>${K("moon", 20)}</button>` : u}
+            <button class="sico tap bad" data-sure=${String(this._zap === v.uid)} aria-label=${this._zap === v.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void U(v, "del")}>${this._zap === v.uid ? "Sure?" : K("bin", 20)}</button></span></div>`)}</div>` : l`<span class="shint">${c ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
       </div>`;
   }
   _speakers() {
@@ -16072,12 +16076,12 @@ wo.styles = [Qt, ii, H`
     .sheet.sbox, :host([data-phone]) .sheet.sbox { width: min(1240px, 100%); height: 100%; max-height: none; padding: 0; gap: 0; overflow: visible; display: grid; grid-template-columns: 264px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
     .shd { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px 24px; }
     .shd h2 { display: flex; align-items: center; gap: 10px; }
-    .shd .muted { font-size: 15px; font-weight: var(--w-semi, 600); }
+    .shd .muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .shd .xbtn { margin-left: auto; width: 52px; height: 52px; flex-shrink: 0; }
     /* the list of sections */
     .snav { grid-row: 2 / 4; display: flex; flex-direction: column; gap: 4px; padding: 4px 12px 16px 16px; overflow-y: auto; scrollbar-width: none; min-height: 0; }
     .snav::-webkit-scrollbar { display: none; }
-    .snav button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 16px; text-align: left; font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); }
+    .snav button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 16px; text-align: left; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); }
     .snav button > span { flex: 1; min-width: 0; }
     .snav button[aria-current='page'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .snav button[aria-disabled='true'] { opacity: .5; }
@@ -16093,34 +16097,34 @@ wo.styles = [Qt, ii, H`
     :host([data-phone]) .seg, :host([data-shape='tall']) .seg { flex-wrap: wrap; }
     :host([data-phone]) .seg button, :host([data-shape='tall']) .seg button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 6px 12px; line-height: 1.15; }
     .spane:focus { outline: none; }
-    .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
+    .sintro { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-    .scard > h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; }
-    .scard > h3 > span.muted { font-size: 14px; font-weight: var(--w-semi, 600); }
-    .shint { font-size: 14px; font-weight: 500; color: var(--ink2); line-height: 1.35; }
+    .scard > h3 { margin: 0; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; }
+    .scard > h3 > span.muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .shint { font-size: var(--fs-2); font-weight: 500; color: var(--ink2); line-height: 1.35; }
     .srow { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; min-height: 52px; flex-wrap: wrap; }
-    .srow > .slabel { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .srow > .slabel > span { font-size: 14px; font-weight: 500; color: var(--ink2); }
+    .srow > .slabel { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .srow > .slabel > span { font-size: var(--fs-2); font-weight: 500; color: var(--ink2); }
     .srow > .sctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
     .srow.wide > .sctl { flex: 1 1 320px; justify-content: stretch; }
     .srow.wide > .sctl > .sin { flex: 1; }
     .srow.wide > .sctl > .sin.pic { flex: 0 0 60px; }
     .srow + .srow, .sitem + .sitem { border-top: 1px solid color-mix(in srgb, var(--ink2) 18%, transparent); padding-top: 10px; }
     /* text boxes */
-    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
+    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
     .sin.on { box-shadow: inset 0 0 0 3px var(--primary); }
-    .sin.short { width: 96px; text-align: center; } .sin.pic { width: 60px; text-align: center; padding: 0 4px; font-size: 22px; } .sin.long { width: 100%; }
+    .sin.short { width: 96px; text-align: center; } .sin.pic { width: 60px; text-align: center; padding: 0 4px; font-size: var(--fs-4); } .sin.long { width: 100%; }
     .sin[type='date'] { width: 176px; }
     .sin[aria-invalid='true'] { box-shadow: inset 0 0 0 3px var(--danger, #c62828); }
     /* chips that choose, the time button, steppers, switches */
     .schips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
+    .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
     .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .schips > button .sw6 { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
-    .stime { font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
+    .stime { font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
     .sstep { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); padding: 2px; }
-    .sstep button { width: 44px; height: 44px; border-radius: 50%; font-size: 24px; font-weight: var(--w-bold, 700); line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
-    .sstep output { min-width: 64px; text-align: center; font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; white-space: nowrap; padding: 0 2px; }
+    .sstep button { width: 44px; height: 44px; border-radius: 50%; font-size: var(--fs-5); font-weight: var(--w-bold, 700); line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+    .sstep output { min-width: 64px; text-align: center; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; white-space: nowrap; padding: 0 2px; }
     .sswitch { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .sswitch > i { width: 50px; height: 30px; border-radius: 15px; background: var(--track); box-shadow: inset 0 0 0 1.5px var(--ink3); position: relative; flex-shrink: 0; transition: background-color var(--m-2, 160ms); }
     .sswitch > i::after { content: ''; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.25); transition: transform var(--mt-2, 160ms) var(--e-spring, ease); }
@@ -16128,59 +16132,59 @@ wo.styles = [Qt, ii, H`
     .sswitch[aria-checked='true'] > i::after { transform: translateX(20px); }
     .srange { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
     .srange input { width: 220px; max-width: 46vw; height: 44px; margin: 0; accent-color: var(--primary); background: transparent; }
-    .srange output { min-width: 52px; text-align: right; font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+    .srange output { min-width: 52px; text-align: right; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     /* lists that are edited a row at a time */
     .sitem { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 52px; }
     .sitem > .sgrow { flex: 1 1 120px; min-width: 0; }
     .sitem > .sin.sgrow { width: auto; }
-    .sitem .sname { font-size: 16px; font-weight: var(--w-bold, 700); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sico { width: 44px; height: 44px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; line-height: 1; }
+    .sitem .sname { font-size: var(--fs-3); font-weight: var(--w-bold, 700); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sico { width: 44px; height: 44px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: var(--fs-4); line-height: 1; }
     .sico.bad { color: var(--danger, #c62828); }
-    .stag { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--chip-strong); font-size: 14px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .stag { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .sjob { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 4px 6px 4px 10px; border-radius: 14px; background: var(--chip); text-align: left; }
-    .sjob .spic { width: 32px; text-align: center; font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .sjob .spic { width: 32px; text-align: center; font-size: var(--fs-4); line-height: 1; flex-shrink: 0; }
     .sjobs { display: flex; flex-direction: column; gap: 6px; }
     .sjobs > .label { margin-top: 6px; }
     .sform { border-radius: 18px; padding: 12px 14px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.5px var(--primary); display: flex; flex-direction: column; gap: 8px; animation: fadeIn var(--m-3, 240ms) var(--e-out, ease); }
     .sform .srow { min-height: 48px; }
     .sbtns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
     .pill.danger { color: var(--danger, #c62828); }
-    .snote { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 16%, var(--chip-strong)); color: var(--ink); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.4; display: flex; flex-direction: column; gap: 8px; }
+    .snote { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 16%, var(--chip-strong)); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.4; display: flex; flex-direction: column; gap: 8px; }
     .snote b { font-weight: var(--w-heavy, 800); }
     /* Pictures: a child's character, the camera's test picture, and the grid of every picture */
-    .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 26px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-5); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .spic fh-pic { width: 100%; height: 100%; }
     .sitem .sin.sgrow { width: 100%; box-sizing: border-box; }
     .scam { position: relative; width: min(100%, 320px); aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: #111; }
     .scam video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
     .scam .sarea { position: absolute; inset: var(--m, 10%); border: 2px dashed #fff; border-radius: 6px; box-shadow: 0 0 0 999px rgba(0,0,0,.45); pointer-events: none; }
-    .scam .smeter { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,.7); color: #fff; font-size: 14px; font-weight: var(--w-bold, 700); }
+    .scam .smeter { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,.7); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .scam .smeter[data-on='true'] { background: #15803d; }
     .slib { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
     .sart { display: flex; flex-direction: column; gap: 6px; border-radius: 16px; background: var(--chip); padding: 8px; min-width: 0; }
     .sart fh-pic { width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; }
     .sart[data-hidden] fh-pic { opacity: .35; filter: grayscale(1); }
-    .scap { display: flex; flex-direction: column; font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; overflow-wrap: anywhere; } .scap small { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .scap { display: flex; flex-direction: column; font-size: var(--fs-2); font-weight: var(--w-bold, 700); min-width: 0; overflow-wrap: anywhere; } .scap small { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .sacts { display: flex; gap: 6px; justify-content: flex-end; } .sacts .sico[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); }
-    .sacts .sico[data-sure='true'] { width: auto; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: var(--w-heavy, 800); }
-    .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
+    .sacts .sico[data-sure='true'] { width: auto; padding: 0 12px; border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
+    .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: var(--fs-2); overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
     /* a tile has room for a name on two lines and the room it is in; a longer name ends in “…” (search finds it by any word) */
-    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); min-width: 0; }
     .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
-    .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
+    .spick button small { font-size: var(--fs-1); font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
     .spick button b { font-weight: inherit; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
     .spick button small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .spick button[aria-pressed='true'] small { color: inherit; }
     .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
     [aria-pressed='true'] > .sbox2 { background: var(--primary); color: var(--on-primary); box-shadow: none; }
-    .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: 15px; }
+    .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: var(--fs-2); }
     .sadv > b { font-weight: var(--w-bold, 700); } .sadv > span { color: var(--ink2); font-weight: 500; overflow-wrap: anywhere; }
     /* the foot: where the pane stands, and its one Save */
     .sft { grid-column: 2; display: flex; align-items: center; gap: 12px; padding: 12px 24px 16px 12px; border-top: 1px solid color-mix(in srgb, var(--ink2) 20%, transparent); min-height: 82px; }
-    .sft .sstate { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.3; display: flex; align-items: center; gap: 10px; }
+    .sft .sstate { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.3; display: flex; align-items: center; gap: 10px; }
     .sft .sstate.bad { color: var(--danger, #c62828); font-weight: var(--w-bold, 700); }
     .sft .lead { min-width: 132px; }
     .sft .lead[disabled] { background: var(--chip-strong); color: var(--ink2); opacity: 1; box-shadow: inset 0 0 0 1.5px var(--ink3) !important; }
@@ -16195,19 +16199,19 @@ wo.styles = [Qt, ii, H`
     /* the time dial: the same two drums as the add-event sheet */
     .sveil { position: absolute; inset: 0; z-index: 5; border-radius: inherit; background: rgba(0,0,0,.28); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     .sdial { position: absolute; z-index: 6; left: 50%; top: 50%; translate: -50% -50%; width: 340px; max-width: 94%; border-radius: 26px; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; background: var(--sheet-bg, var(--chip-strong)); color: var(--ink); box-shadow: 0 20px 50px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
-    .sdial h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); align-self: flex-start; }
+    .sdial h3 { margin: 0; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); align-self: flex-start; }
     .sdial .sdrow { display: flex; align-items: center; gap: 12px; }
     .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${fa * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14), inset 0 0 0 1.5px var(--ink3); }
     .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${fa}px; height: ${fa}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 3px var(--primary); border-radius: 10px; outline: none; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${fa}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${fa}px; scroll-snap-align: center; font-style: normal; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
     .drum::before, .drum::after { content: ''; display: block; height: ${fa}px; }
-    .scolon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
+    .scolon { font-size: var(--fs-6); font-weight: 800; padding-bottom: 4px; }
     .sampm { display: flex; flex-direction: column; gap: 6px; }
-    .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .sampm button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sdial .lead { align-self: stretch; }
     :host(:not(family-hub-card)) .sbox .toast { z-index: 8; bottom: 96px; }
@@ -16215,7 +16219,7 @@ wo.styles = [Qt, ii, H`
     .sbox[data-kb] .sft, .sbox[data-kb] .shd .muted { display: none; }
     /* a narrower tablet: a slimmer list */
     :host([data-n2]) .sheet.sbox { grid-template-columns: 216px minmax(0, 1fr); }
-    :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: 15px; }
+    :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: var(--fs-2); }
     /* a portrait tablet and a phone: the sections become a row of tabs across the top */
     :host([data-shape='tall']) .sheet.sbox, :host([data-phone]) .sheet.sbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
     :host([data-shape='tall']) .snav, :host([data-phone]) .snav { grid-row: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }
@@ -16334,7 +16338,7 @@ class tb {
         }), e) {
           this.items = e;
           const i = this._order[this._i]?.file;
-          this._order = vg(e, /* @__PURE__ */ new Date(), t);
+          this._order = yg(e, /* @__PURE__ */ new Date(), t);
           const s = this._order.findIndex((o) => o.file === i);
           this._i = s >= 0 ? s : -1;
         }
@@ -16429,9 +16433,9 @@ const eb = (a, t) => {
   .awords { display: flex; flex-direction: column; min-width: 0; }
   .atime { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
   .atime .big { font-size: 148px; font-weight: 500; line-height: .92; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
-  .aampm { font-size: 40px; font-weight: 600; opacity: .85; }
-  .adate { font-size: 30px; font-weight: 600; margin-top: 8px; opacity: .92; }
-  .ainfo { font-size: 28px; font-weight: 600; margin-top: 10px; opacity: .95; max-width: 20em; text-wrap: balance; }
+  .aampm { font-size: var(--fs-d1); font-weight: 600; opacity: .85; }
+  .adate { font-size: var(--fs-6); font-weight: 600; margin-top: 8px; opacity: .92; }
+  .ainfo { font-size: var(--fs-5); font-weight: 600; margin-top: 10px; opacity: .95; max-width: 20em; text-wrap: balance; }
   .ainfo + .ainfo { margin-top: 4px; opacity: .8; }
   /* night: the artwork rests; a dim amber clock, as on the night screen */
   .artm[data-night] { background: #000; --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; color: #ffb26b; }
@@ -16441,12 +16445,12 @@ const eb = (a, t) => {
   :host([data-phone]) .adrift { inset: 24px 18px; }
   :host([data-phone]) .aplate { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; border-radius: 28px; }
   :host([data-phone]) .aplate .nart { display: none; }
-  :host([data-phone]) .atime .big { font-size: 84px; } :host([data-phone]) .aampm { font-size: 26px; }
-  :host([data-phone]) .adate { font-size: 20px; } :host([data-phone]) .ainfo { font-size: 18px; }
+  :host([data-phone]) .atime .big { font-size: var(--fs-d5); } :host([data-phone]) .aampm { font-size: var(--fs-5); }
+  :host([data-phone]) .adate { font-size: var(--fs-4); } :host([data-phone]) .ainfo { font-size: var(--fs-3); }
 `, ib = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, t0 = "0.33.3", cc = "family-hub-theme", hc = "family-hub-sounds", fc = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, t0 = "0.33.4", cc = "family-hub-theme", hc = "family-hub-sounds", fc = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -16468,9 +16472,9 @@ const eb = (a, t) => {
       document.visibilityState === "hidden" && this._use.flush(this.hass, this._config?.health?.use_log);
     }, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._asker = "", this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._onResize = () => {
       const t = Number(this._config?.scale), e = parseFloat(getComputedStyle(this).getPropertyValue("--header-height")) || 0, i = this.getBoundingClientRect().width || window.innerWidth, s = window.innerHeight - e, o = i < 600 || window.innerHeight < 500 && i < 1e3 ? "phone" : s > i * 1.15 ? "tall" : "wide";
-      o === "phone" && vt() !== "phone" && this._view === "week" ? (this._view = "day", this._viewWas = "week") : o !== "phone" && vt() === "phone" && this._viewWas && (this._view === "day" && (this._view = this._viewWas), this._viewWas = ""), h1(o);
+      o === "phone" && yt() !== "phone" && this._view === "week" ? (this._view = "day", this._viewWas = "week") : o !== "phone" && yt() === "phone" && this._viewWas && (this._view === "day" && (this._view = this._viewWas), this._viewWas = ""), ff(o);
       const [r, n] = o === "tall" ? [900, 1280] : [1280, 800], p = i / r, c = s / n, d = t > 0 ? Math.max(1, t) : o === "phone" ? Math.min(1.25, Math.max(1, i / 430)) : Math.min(1.6, Math.max(1, Math.min(p, c))), h = o !== "phone" && (i / d < r - 4 || s / d < n - 4);
-      f1(o === "phone" ? 0 : i / d < 900 ? 3 : i / d < 1100 ? 2 : i / d < 1240 ? 1 : 0), Math.abs(d - this._z) > 0.01 || h !== this._compact ? (this._z = Math.round(d * 100) / 100, this._compact = h, this.requestUpdate()) : this.hasUpdated && this._fitFrame();
+      mf(o === "phone" ? 0 : i / d < 900 ? 3 : i / d < 1100 ? 2 : i / d < 1240 ? 1 : 0), Math.abs(d - this._z) > 0.01 || h !== this._compact ? (this._z = Math.round(d * 100) / 100, this._compact = h, this.requestUpdate()) : this.hasUpdated && this._fitFrame();
     }, this._z = 1, this._viewWas = "", this._touched = () => {
       this._lastTouch = Date.now(), this._idle && (this._idle = !1), this._use.tap(this._sheet ? `s-${this._sheet}` : this._page), this._page === "music" && (this._musicAt = Date.now()), this._art.on && (this._wakeDown = !0, this._art.wake());
     }, this._art = new tb(this, () => this._config, () => {
@@ -16545,7 +16549,7 @@ const eb = (a, t) => {
   }
   _setKidPref(t) {
     const e = this._kidOn;
-    e && (u1(e.name, t), this._prefTick++, S("tap"));
+    e && (bf(e.name, t), this._prefTick++, S("tap"));
   }
   /** Looks and settings are for grown-ups when a PIN is set. */
   _openLooks() {
@@ -16568,7 +16572,7 @@ const eb = (a, t) => {
   setConfig(t) {
     const e = Al(t);
     if (e) throw new Error(e);
-    this._page === "kid" && !(t.kids ?? [])[this._kid] && (this._page = "planner"), c1(t.bedtime_weekend_extra), i1(t.voice, () => this.hass), p1(), qg(t.pin_shuffle !== !1), this._config = t;
+    this._page === "kid" && !(t.kids ?? [])[this._kid] && (this._page = "planner"), hf(t.bedtime_weekend_extra), sf(t.voice, () => this.hass), df(), qg(t.pin_shuffle !== !1), this._config = t;
     let i = null;
     try {
       i = localStorage.getItem(hc);
@@ -16666,7 +16670,7 @@ const eb = (a, t) => {
       const e = t.get("hass");
       return this.renderRoot?.querySelectorAll(sb).forEach((i) => {
         i.hass = this.hass;
-      }), vo(e, this.hass, this._watch());
+      }), yo(e, this.hass, this._watch());
     }
     return !0;
   }
@@ -16743,7 +16747,7 @@ const eb = (a, t) => {
   _fitFrame() {
     const t = this.renderRoot, e = t.querySelector(".fh"), i = t.querySelector("header");
     if (!e || !i) return;
-    if (this._fitHeader(i), vt() !== "phone") {
+    if (this._fitHeader(i), yt() !== "phone") {
       const r = t.querySelector("nav.dock"), n = t.querySelector(".fh > .body"), p = parseFloat(getComputedStyle(e).rowGap) || 16, c = n && n.offsetTop - (i.offsetTop + i.offsetHeight) < 2 ? 8 : p, d = Math.round(i.offsetTop + i.offsetHeight + c), h = r ? Math.round(e.clientHeight - r.offsetTop + c) : this._bot;
       Math.abs(d - this._top) > 1 && (this._top = d), Math.abs(h - this._bot) > 1 && (this._bot = h);
     }
@@ -16751,7 +16755,7 @@ const eb = (a, t) => {
     if (s) {
       const r = this._reminders.length;
       let n = r;
-      vt() !== "phone" && r * 44 > s.clientHeight + 1 && (n = Math.max(1, Math.floor((s.clientHeight - 16) / 44))), n !== this._remShow && (this._remShow = n);
+      yt() !== "phone" && r * 44 > s.clientHeight + 1 && (n = Math.max(1, Math.floor((s.clientHeight - 16) / 44))), n !== this._remShow && (this._remShow = n);
     }
     const o = t.querySelector(".month .cell");
     if (o) {
@@ -16767,7 +16771,7 @@ const eb = (a, t) => {
   _fitHeader(t) {
     const e = t.querySelector(".capsule");
     if (!e) return;
-    const i = [...e.querySelectorAll(".cap")], s = i.find((c) => c.dataset.kind === "med"), o = vt() === "wide", r = vt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, p = (c) => {
+    const i = [...e.querySelectorAll(".cap")], s = i.find((c) => c.dataset.kind === "med"), o = yt() === "wide", r = yt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, p = (c) => {
       for (const m of i) m.hidden = !1;
       if (e.removeAttribute("data-one"), t.removeAttribute("data-fit"), t.toggleAttribute("data-medchip", c), r) return;
       const d = [], h = (m) => {
@@ -16817,8 +16821,8 @@ const eb = (a, t) => {
       let h = s.map((k) => k.offsetHeight);
       const g = s.map(() => !0), m = () => {
         let k = 0, b = 0;
-        return g.forEach((w, v) => {
-          w && (k += h[v], b++);
+        return g.forEach((w, y) => {
+          w && (k += h[y], b++);
         }), k + Math.max(0, b - 1) * p;
       };
       if (m() > d + 1)
@@ -16856,7 +16860,7 @@ const eb = (a, t) => {
   }
   /** How many days the week view shows: all seven where they fit, five or three on a narrower tablet (then starting from the chosen day, not from Monday). */
   get _span() {
-    const t = Ha(), e = vt();
+    const t = Ha(), e = yt();
     return e === "phone" ? 7 : e === "tall" ? t >= 3 ? 5 : 7 : t >= 3 ? 3 : t >= 2 ? 5 : 7;
   }
   _refresh() {
@@ -17409,7 +17413,7 @@ const eb = (a, t) => {
   }
   /** A timed job tagged @song: play the tidy-up song on the child's speaker for that long, then fade it out. */
   _tidySong(t, e) {
-    const i = this.hass, s = i ? vh(i, this._config.music_players ?? []) : [], o = i && (kn(i, t, s) ?? Fe(i, s, this._config.music_player) ?? s[0]);
+    const i = this.hass, s = i ? yh(i, this._config.music_players ?? []) : [], o = i && (kn(i, t, s) ?? Fe(i, s, this._config.music_player) ?? s[0]);
     if (!i || !o) return;
     if (!e) {
       this._call("media_player", "media_pause", { entity_id: o.entity_id });
@@ -17420,7 +17424,7 @@ const eb = (a, t) => {
       this._say("Set tidy_song in the card settings to add music to this job");
       return;
     }
-    Ni(i, o.entity_id, r, "play").then(() => yn(i, o.entity_id, e)).catch(() => this._say(`${o.attributes.friendly_name} couldn’t play the tidy-up song`));
+    Ni(i, o.entity_id, r, "play").then(() => vn(i, o.entity_id, e)).catch(() => this._say(`${o.attributes.friendly_name} couldn’t play the tidy-up song`));
   }
   _dinnerStart() {
     if (Date.now() < this._dinnerCooldown) {
@@ -17468,10 +17472,10 @@ const eb = (a, t) => {
   // ---------- render ----------
   render() {
     if (!this._config) return u;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = Ei(t?.theme ?? this._theme), i = this._isNight(), o = Ot(this._lk).themed ? `${ts(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, c = this._page === "music" && this._musicKid ? this._config.kids?.find((A) => A.name === this._musicKid) : void 0, d = this._config.calm === !0 || (p ? p.calm : c ? To(c).calm : !1), h = this._now.getHours(), g = h < 5 || h >= 21 ? "rgba(10,20,60,.28)" : h < 7 ? "rgba(255,170,150,.16)" : h >= 17 && h < 19 ? "rgba(255,150,60,.14)" : h >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [f, k] = $e(this, "sheet", this._sheet), [b, w] = $e(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, v] = $e(this, "night", i, 400), [U, y] = $e(this, "art", this._art.on, 250);
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = Ei(t?.theme ?? this._theme), i = this._isNight(), o = Ot(this._lk).themed ? `${ts(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", p = this._kp, c = this._page === "music" && this._musicKid ? this._config.kids?.find((A) => A.name === this._musicKid) : void 0, d = this._config.calm === !0 || (p ? p.calm : c ? To(c).calm : !1), h = this._now.getHours(), g = h < 5 || h >= 21 ? "rgba(10,20,60,.28)" : h < 7 ? "rgba(255,170,150,.16)" : h >= 17 && h < 19 ? "rgba(255,150,60,.14)" : h >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [f, k] = $e(this, "sheet", this._sheet), [b, w] = $e(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [, y] = $e(this, "night", i, 400), [U, v] = $e(this, "art", this._art.on, 250);
     return i ? l`<div class="fh" lang="en-AU" data-tod="night" data-dow=${this._now.getDay()} ?data-calm=${d} style=${`${o}--z:${this._z}`}>${this._night()}</div>` : l`
       <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${m ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${d} ?data-compact=${this._compact} style=${`${o}--tod:${g};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === !1 || this._photo ? u : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || v || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
+        ${this._config.ambient === !1 || this._photo ? u : l`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || y || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${d} .hold=${!!(f || y || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -17482,8 +17486,8 @@ const eb = (a, t) => {
       const A = this._toastAct;
       this._toast = "", this._toastAct = null, clearTimeout(this._toastTimer), S("undo"), A?.run();
     }}>${b.act.label}</button>` : u}</div>` : u}</div>
-        ${v ? this._night(!0) : u}
-        ${U ? this._artView(y, d, e.id, n) : u}
+        ${y ? this._night(!0) : u}
+        ${U ? this._artView(v, d, e.id, n) : u}
         ${this._alarm ? this._alarmView() : u}
         ${this._pinAsk ? l`<fh-pin .pin=${String(this._config.parent_pin ?? "")} reason=${this._pinAsk.reason} @ok=${() => {
       const A = this._pinAsk.run;
@@ -17564,8 +17568,8 @@ const eb = (a, t) => {
         this._sheet = "meds", this._loadMedLog();
       };
       if (g.length && Date.now() >= this._medLater) {
-        const b = g.some((U) => U.s.late && !U.s.stale), w = m ? "overdue" : "due", v = b ? 0 : m ? 1.5 : 2;
-        e.push([v, l`<button class="cap tap ${b ? "hot" : ""}" ?data-warm=${m && !b} data-kind="med" data-p=${b ? 0 : 2} aria-label=${`Medicine: ${g.length} ${w}`} @click=${k}>${Me("pill", 22)}<span style="white-space:nowrap">${g.length} ${w}</span></button>`]);
+        const b = g.some((U) => U.s.late && !U.s.stale), w = m ? "overdue" : "due", y = b ? 0 : m ? 1.5 : 2;
+        e.push([y, l`<button class="cap tap ${b ? "hot" : ""}" ?data-warm=${m && !b} data-kind="med" data-p=${b ? 0 : 2} aria-label=${`Medicine: ${g.length} ${w}`} @click=${k}>${Me("pill", 22)}<span style="white-space:nowrap">${g.length} ${w}</span></button>`]);
       } else !g.length && f.length && this._now.getHours() < 12 && e.push([5, l`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${f.length === 1 ? ` at ${ft(f[0].s.given)}` : `: ${f.length}`}`} @click=${k}>${Me("pill", 22)}${K("check", 18)}<span>${f.length === 1 ? ft(f[0].s.given) : `${f.length} given`}</span></button>`]);
     }
     if (this._page !== "kid") for (const h of this._wantsChat) e.push([0.5, l`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${h} would like a chat. Tap to dismiss`} @click=${() => {
@@ -17607,8 +17611,8 @@ const eb = (a, t) => {
       <header>
         <div class="clock">
           ${It(this._lk, "clock", { now: i, arcs: this._arcs(this._eventsOn(i, this._soon)) })}
-          <span style="font-size:16px;font-weight:var(--w-semi, 600)" class="muted greet">${tg(i)}${p ? `, ${p.name}` : t.family_name ? `, ${t.family_name}` : ""}</span>
-          <span style="display:flex;align-items:baseline;gap:10px"><span class="display hm">${s.hm}</span><span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${s.ampm} · ${$i(i)}</span></span>
+          <span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted greet">${tg(i)}${p ? `, ${p.name}` : t.family_name ? `, ${t.family_name}` : ""}</span>
+          <span style="display:flex;align-items:baseline;gap:10px"><span class="display hm">${s.hm}</span><span class="muted" style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">${s.ampm} · ${$i(i)}</span></span>
         </div>
         ${p ? this._kidCapsule(p) : this._capsule()}
         <div class="right" @click=${this._btnJust}>
@@ -17618,8 +17622,8 @@ const eb = (a, t) => {
     }}>
               ${Me("cloud", 34, this._artData(!1))}
               <span style="display:flex;flex-direction:column;line-height:1.15">
-                <span style="font-weight:var(--w-bold, 700);font-size:20px">${r !== void 0 ? `${Math.round(r)}°` : "–"}${n.max !== void 0 ? l`<span class="muted wtop" style="font-size:13px;font-weight:var(--w-semi, 600)"> · top ${Math.round(n.max)}°</span>` : u}</span>
-                <span class="muted wsub" style="font-size:13px;font-weight:var(--w-semi, 600)">${fc[o.state] ?? (["unavailable", "unknown", ""].includes(o.state) ? "No weather" : o.state)}${n.rain ? ` · ${n.rain} mm` : ""}</span>
+                <span style="font-weight:var(--w-bold, 700);font-size:var(--fs-4)">${r !== void 0 ? `${Math.round(r)}°` : "–"}${n.max !== void 0 ? l`<span class="muted wtop" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)"> · top ${Math.round(n.max)}°</span>` : u}</span>
+                <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${fc[o.state] ?? (["unavailable", "unknown", ""].includes(o.state) ? "No weather" : o.state)}${n.rain ? ` · ${n.rain} mm` : ""}</span>
               </span>
               ${It(this._lk, "wx", { wx: { state: o.state, uv: n.uv, rain: n.rain, max: n.max } })}
               ${(n.uv ?? 0) >= 3 ? l`<span class="badge" title="UV ${n.uv}">${K("sun", 14)}UV ${Math.round(n.uv)}</span>` : u}
@@ -17641,7 +17645,7 @@ const eb = (a, t) => {
         <div class="bar">
           <div style="display:flex;flex-direction:column;line-height:1.15;min-width:190px">
             <h1 class="t-title">${s[0]}</h1>
-            <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${s[1]}</span>
+            <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${s[1]}</span>
           </div>
           <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${K("left", 20)}</button>
           <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${K("right", 20)}</button>
@@ -17663,7 +17667,7 @@ const eb = (a, t) => {
       return l`<span style="display:flex;align-items:center;gap:6px">${this._chip(n, r.colour)}${n}</span>`;
     })}${this._calNote()}</div>` : u}
         ${o.length ? this._calError ? l`<div class="empty calfail" role="alert"><span class="pic">${K("calendar", 44)}</span><h2 class="t-sub">Can’t reach the calendars.</h2>
-            <button class="pill tap" style="height:52px;padding:0 24px;font-size:16px" @click=${() => {
+            <button class="pill tap" style="height:52px;padding:0 24px;font-size:var(--fs-3)" @click=${() => {
       this._fetchedKey = "", this._refresh(), this._loadSoon();
     }}>Try again</button></div>` : t === "week" ? this._week(e) : t === "day" ? this._day(e) : this._month() : l`<div class="empty"><span style="color:var(--accent)">${K("calendar", 40)}</span><h2 class="t-sub">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
       </section>`;
@@ -17709,7 +17713,7 @@ const eb = (a, t) => {
       ${i.map((n) => {
       const p = this._eventsOn(n), c = gt(n, e), d = p.filter((f) => !this._private(f.title)), h = p.filter((f) => this._private(f.title)), g = Te(n), m = this._clip[g] ?? 0;
       return l`<div class="col ${c ? "today" : ""}">
-          <div class="dayhead"><span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700)">${Li(n)}</span><span class="num">${n.getDate()}</span>${It(this._lk, "day", { now: n, arcs: this._arcs(d) })}${h.length ? l`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${K("lock", 15)}</span>` : u}</div>
+          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${Li(n)}</span><span class="num">${n.getDate()}</span>${It(this._lk, "day", { now: n, arcs: this._arcs(d) })}${h.length ? l`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${K("lock", 15)}</span>` : u}</div>
           <div class="evs" data-day=${g}>${d.map((f) => this._evCard(f, n))}</div>
           ${m ? l`<button class="more tap" aria-label="${m} more on ${Ta(n)}" @click=${() => {
         this._anchor = n, this._view = "day";
@@ -17720,13 +17724,13 @@ const eb = (a, t) => {
   }
   _day(t) {
     const e = this._eventsOn(t), i = gt(t, /* @__PURE__ */ new Date()), s = l`<div class="daylist scrolly" data-fits @scroll=${Kt}>
-      ${e.length ? e.map((r) => this._private(r.title) ? l`<div class="dayrow"><span style="width:90px;font-size:16px;font-weight:var(--w-semi, 600)" class="muted">${fe(r, t).label}</span><span class="muted" style="font-size:18px;display:inline-flex;align-items:center;gap:8px">${K("lock", 18)}Private</span></div>` : l`
+      ${e.length ? e.map((r) => this._private(r.title) ? l`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${fe(r, t).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${K("lock", 18)}Private</span></div>` : l`
         <button class="dayrow tap ${this._evState(r)}" style="--c:${B(r.colour)}" aria-label=${this._evName(r, t)} @click=${() => this._openEvent(r, t)}>
-          <span style="width:90px;font-size:16px;font-weight:var(--w-bold, 700)" class="muted dwhen">${fe(r, t).label}</span>
-          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:20px;font-weight:var(--w-bold, 700)">${r.title}</span>
-          <span class="muted evwho" style="font-size:14px;font-weight:var(--w-semi, 600);display:flex;align-items:center;gap:6px">${this._chip(r.who, r.colour, !0)}${r.who}</span>
+          <span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-bold, 700)" class="muted dwhen">${fe(r, t).label}</span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:var(--fs-4);font-weight:var(--w-bold, 700)">${r.title}</span>
+          <span class="muted evwho" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);display:flex;align-items:center;gap:6px">${this._chip(r.who, r.colour, !0)}${r.who}</span>
           ${r.location ? l`<span class="muted loc">${K("pin", 16)}<span class="ell">${r.location}</span></span>` : u}</span>
-        </button>`) : this._evKey !== this._fetchedKey ? u : l`<div class="empty freeday"><span class="pic">${ib}</span><h2 class="t-sub">Nothing on.</h2><span style="font-size:17px">A free day!</span></div>`}
+        </button>`) : this._evKey !== this._fetchedKey ? u : l`<div class="empty freeday"><span class="pic">${ib}</span><h2 class="t-sub">Nothing on.</h2><span style="font-size:var(--fs-3)">A free day!</span></div>`}
     </div>`, o = It(this._lk, "dayview", { arcs: this._arcs(e), now: i ? this._now : void 0, size: 340 });
     return o === u ? s : l`<div class="dayview"><div class="dayart">${o}</div>${s}</div>`;
   }
@@ -17755,8 +17759,8 @@ const eb = (a, t) => {
         <div class="np-main" style="display:flex;align-items:center;gap:10px">
           <div class="art" style=${e.attributes.entity_picture ? `--pic:url(${e.attributes.entity_picture})` : ""}></div>
           <div class="np-row" style="display:flex;flex-direction:column;gap:1px;min-width:0;flex:1">
-            <span style="font-size:15px;font-weight:var(--w-bold, 700);line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere">${e.attributes.media_title ?? (e.state === "off" ? "Off" : "Nothing playing")}</span>
-            <span class="muted" style="font-size:13px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;overflow-wrap:anywhere">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
+            <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere">${e.attributes.media_title ?? (e.state === "off" ? "Off" : "Nothing playing")}</span>
+            <span class="muted" style="font-size:var(--fs-1);line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;overflow-wrap:anywhere">${[e.attributes.media_artist, e.attributes.friendly_name].filter(Boolean).join(" · ")}</span>
           </div>
         </div>
         <div class="ctl">
@@ -17776,16 +17780,16 @@ const eb = (a, t) => {
       this._cancelTimer();
     }}>Cancel</button>` : u}</div>
         <div class="grid3">${[1, 5, 10].map((h) => l`<button class="tap quick" aria-label=${`Add ${h} minute${h > 1 ? "s" : ""}`} @click=${() => this._addTimer(h)}>+${h} min</button>`)}</div>
-        ${s === null ? l`<span class="muted hint" style="font-size:13px;white-space:nowrap">Tap +1, +5 or +10 to start</span>` : u}` : l`<span class="label">Kitchen timer</span><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">Kitchen timer is not set up</span>`}
+        ${s === null ? l`<span class="muted hint" style="font-size:var(--fs-1);white-space:nowrap">Tap +1, +5 or +10 to start</span>` : u}` : l`<span class="label">Kitchen timer</span><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Kitchen timer is not set up</span>`}
       </section>
 
       ${this.hass?.states["input_number.family_jar"] ? l`<section class="glass card jar" aria-label=${`Family jar: ${n >= p ? "full" : `${n} of ${p}`}`}><span class="jarpic" style="line-height:0;color:var(--accent)">${K("jar", 24)}</span>
-          <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:14px;font-weight:var(--w-bold, 700)">Family jar · ${n >= p ? "full! 🎉" : `${n}/${p}`}</span>
+          <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">Family jar · ${n >= p ? "full! 🎉" : `${n}/${p}`}</span>
           <div class="xpbar meter"><div style="width:${Math.min(100, n / p * 100)}%"></div></div></span></section>` : u}
 
       <section class="glass card rems" aria-label="Reminders">
         <span class="label">Reminders</span>
-        ${this._remState !== "ok" ? l`<span class="muted remfail" role="alert" style="font-size:15px;font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === "missing" ? "The reminders list is not in Home Assistant. Check the card settings." : "Can’t load the reminders."}</span>
+        ${this._remState !== "ok" ? l`<span class="muted remfail" role="alert" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === "missing" ? "The reminders list is not in Home Assistant. Check the card settings." : "Can’t load the reminders."}</span>
           ${this._remState === "failed" ? l`<button class="pill tap" style="align-self:flex-start" @click=${() => {
       this._loadReminders();
     }}>Try again</button>` : u}` : l`<div class="remlist">${this._remList(d)}</div>`}
@@ -17797,7 +17801,7 @@ const eb = (a, t) => {
     return l`${this._reminders.length ? this._reminders.slice(0, this._remShow).map((i) => {
       const s = i.uid in this._remTk;
       return l`<button class="rem tap ${s ? "done" : ""}" ?data-just=${this._remJust === i.uid} aria-pressed=${String(s)} @click=${() => this._tickReminder(i)}><span class="ring check">${s ? l`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : u}</span><span class="content"><span class="strike">${i.summary}</span></span></button>`;
-    }) : l`<span class="muted" style="font-size:15px;line-height:1.3">${e.reminders ? "Nothing to remember" : "Pick a to-do list for reminders in the card settings."}</span>`}
+    }) : l`<span class="muted" style="font-size:var(--fs-2);line-height:1.3">${e.reminders ? "Nothing to remember" : "Pick a to-do list for reminders in the card settings."}</span>`}
       ${t ? l`<span class="remmore">+${t} more</span>` : u}`;
   }
   /** What the dock's drawings show of this house, now: only things the card already knows. */
@@ -17875,20 +17879,20 @@ const eb = (a, t) => {
     return l`<div class="scrim"><section class="glass sheet" data-w="s" style="width:min(520px,100%);align-items:center;text-align:center" role="alertdialog" aria-modal="true" aria-label="Calling dinner">
       <span style="color:var(--accent);line-height:0">${K("megaphone", 56)}</span><h2 class="t-head">Calling everyone in ${t}…</h2>
       <span class="muted">${Ts(this._now, "19:30", "07:00") ? "Quiet hours: kitchen and lounge only" : "Lounge, kitchen and bedrooms"}</span>
-      <button class="pill tap" style="height:60px;padding:0 28px;font-size:17px" @click=${() => this._dinnerCancel()}>Cancel</button></section></div>`;
+      <button class="pill tap" style="height:60px;padding:0 28px;font-size:var(--fs-3)" @click=${() => this._dinnerCancel()}>Cancel</button></section></div>`;
   }
   _offView() {
     const t = Math.max(1, Math.ceil(((this._off?.at ?? 0) - Date.now()) / 1e3));
     return l`<div class="scrim"><section class="glass sheet" data-w="s" data-offwait style="width:min(520px,100%);align-items:center;text-align:center" role="alertdialog" aria-modal="true" aria-label="Turning the lights off">
       <span style="color:var(--accent);line-height:0">${K("bulbOff", 56)}</span><h2 class="t-head">Lights off in ${t}…</h2>
       <span class="muted">Every light in the house${(this._config.keep_on ?? []).length ? ", except the ones kept on" : ""}</span>
-      <button class="pill tap" style="height:60px;padding:0 28px;font-size:17px" @click=${() => this._offCancel()}>Cancel</button></section></div>`;
+      <button class="pill tap" style="height:60px;padding:0 28px;font-size:var(--fs-3)" @click=${() => this._offCancel()}>Cancel</button></section></div>`;
   }
   _alarmView() {
     return l`<button class="alarm" @click=${() => {
       this._alarm = 0, this._call("input_text", "set_value", { entity_id: "input_text.fh_panel_message", value: "" });
     }}>
-      <span style="line-height:0">${K("timer", 96)}</span><span class="display" style="font-size:64px;font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${No(this.hass)?.t || "Timer’s done!"}</span><span style="font-size:20px;font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
+      <span style="line-height:0">${K("timer", 96)}</span><span class="display" style="font-size:var(--fs-d3);font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${No(this.hass)?.t || "Timer’s done!"}</span><span style="font-size:var(--fs-4);font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
   }
   /** Settings is for grown-ups: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
   _openSettings() {
@@ -17918,7 +17922,7 @@ const eb = (a, t) => {
         return l`<button class="whobtn tap" data-who=${k.slug} style="--kidc:${B(f.colour)}" @click=${() => {
           S("tap"), this._asker = f.name;
         }}>
-              <span class="avatar" style="width:104px;height:104px;background:${B(f.colour)};font-size:44px">${w ? Xt(w, { size: 104, crop: "head", still: !0, label: f.name, age: f.age, ring: B(f.colour) }) : f.name[0]}</span><span class="wn">${f.name}</span></button>`;
+              <span class="avatar" style="width:104px;height:104px;background:${B(f.colour)};font-size:var(--fs-d1)">${w ? Xt(w, { size: 104, crop: "head", still: !0, label: f.name, age: f.age, ring: B(f.colour) }) : f.name[0]}</span><span class="wn">${f.name}</span></button>`;
       })}
           <button class="whobtn tap" data-who="grown-up" @click=${() => {
         const f = () => {
@@ -17964,7 +17968,7 @@ const eb = (a, t) => {
     })}
       </div>
       ${i.length ? l`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
-        <span class="phome" aria-hidden="true">${K("home", 18)}</span>${i.map((o) => this._face(o, e?.states[o.entity]?.state === "home"))}<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : u}`;
+        <span class="phome" aria-hidden="true">${K("home", 18)}</span>${i.map((o) => this._face(o, e?.states[o.entity]?.state === "home"))}<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : u}`;
   }
   _sheetHead(t, e = "", i = "", s = u) {
     return l`<div class="shead">
@@ -17979,7 +17983,7 @@ const eb = (a, t) => {
       <div class="themes looks">
         ${ea.map((t) => l`<button class="tcard tap" aria-pressed=${String(t.id === this._look)} @click=${() => this._setLook(t.id)}>
           ${ap(t, 96, ts(Ei(this._theme)))}
-          <span style="font-size:16px;font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:13px">${t.tagline}</span>
+          <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:var(--fs-1)">${t.tagline}</span>
         </button>`)}
       </div>
       ${(Ot(this._look).options ?? []).map((t) => this._optRow(t, !!this._opts[t.id], () => this._toggleOpt(t.id)))}
@@ -17989,15 +17993,15 @@ const eb = (a, t) => {
       <div class="themes">
         ${Xa.map((t) => l`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
           <span class="tprev" style=${ts(t)}>${[1, 2, 3, 4, 5].map((e) => l`<span style="background:var(--p-${e})"></span>`)}</span>
-          <span style="font-size:16px;font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:13px">${t.tagline}</span>
+          <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:var(--fs-1)">${t.tagline}</span>
         </button>`)}
       </div>` : u}
       <div style="display:flex;justify-content:space-between;align-items:center">
-        ${Ot(this._look).themed ? l`<button class="pill tap" style="height:52px;padding:0 22px;font-size:16px" @click=${() => {
+        ${Ot(this._look).themed ? l`<button class="pill tap" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => {
       const t = Xa.filter((e) => e.id !== this._theme);
       this._setTheme(t[Math.floor(Math.random() * t.length)].id);
     }}>${K("shuffle", 20)}Surprise me</button>` : l`<span></span>`}
-        <span class="muted" style="font-size:12px">Family Hub v${t0}</span>
+        <span class="muted" style="font-size:var(--fs-1)">Family Hub v${t0}</span>
       </div>`;
   }
   /** A look's switch: a two-way toggle when it names both sides (Print | Handwriting), otherwise an on/off switch. */
@@ -18024,7 +18028,7 @@ const eb = (a, t) => {
       <div class="themes kidlooks">
         ${o.map(([r, n, p]) => l`<button class="tcard tap" aria-pressed=${String(e.look === r)} @click=${() => this._setKidPref({ look: r })}>
           ${r === "panel" ? l`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${K("home", 30)}</span>` : ap(Ot(r), 84, ts(Ei(this._theme)))}
-          <span style="font-size:16px;font-weight:var(--w-bold, 700)">${n}</span><span class="muted" style="font-size:13px">${p}</span></button>`)}
+          <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${n}</span><span class="muted" style="font-size:var(--fs-1)">${p}</span></button>`)}
       </div>
       ${s ? this._optRow(s, e.font === "hand", () => this._setKidPref({ font: e.font === "hand" ? "print" : "hand" })) : u}
       ${this._switchRow("One job at a time", "Shows Now and Next, with “Show all” one tap away. Off shows the whole list.", e.focus, () => this._setKidPref({ focus: !e.focus }))}
@@ -18040,26 +18044,26 @@ const eb = (a, t) => {
     const t = this._config, e = t.parents ?? (t.people ?? []).map((w) => w.name), i = (t.kids ?? []).map((w) => w.name), s = this._mx, o = t.med_extras ?? ["Paracetamol", "Ibuprofen"], r = this._now, n = (w) => {
       this._mx = { ...s, ...w };
     }, p = new Date(r.getTime() - s.ago * 6e4), c = this._medLog.filter((w) => r.getTime() - w.at.getTime() < 48 * 36e5), d = (w) => {
-      const v = Math.max(0, Math.round((r.getTime() - w.getTime()) / 6e4));
-      return v < 60 ? `${v} min ago` : v < 2880 ? `${Math.floor(v / 60)} h ${v % 60} min ago` : "";
+      const y = Math.max(0, Math.round((r.getTime() - w.getTime()) / 6e4));
+      return y < 60 ? `${y} min ago` : y < 2880 ? `${Math.floor(y / 60)} h ${y % 60} min ago` : "";
     }, h = (w) => {
-      const [v, U] = w.split(":").map(Number);
-      return `${v % 12 || 12}:${String(U).padStart(2, "0")} ${v < 12 ? "am" : "pm"}`;
-    }, g = (w, v, U) => l`<button class="tap mchip" aria-pressed=${String(w)} @click=${U}>${v}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), f = (t.meds ?? []).some((w) => {
-      const v = this._medStatus(w.id, w.time);
-      return v.due && !v.missing;
-    }), k = Date.now() < this._medLater, b = f ? k ? l`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${`The reminder is put away until ${ft(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${ft(new Date(this._medLater))} · </span>show now</span></button>` : l`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : u;
+      const [y, U] = w.split(":").map(Number);
+      return `${y % 12 || 12}:${String(U).padStart(2, "0")} ${y < 12 ? "am" : "pm"}`;
+    }, g = (w, y, U) => l`<button class="tap mchip" aria-pressed=${String(w)} @click=${U}>${y}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), f = (t.meds ?? []).some((w) => {
+      const y = this._medStatus(w.id, w.time);
+      return y.due && !y.missing;
+    }), k = Date.now() < this._medLater, b = f ? k ? l`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${`The reminder is put away until ${ft(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${ft(new Date(this._medLater))} · </span>show now</span></button>` : l`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : u;
     return l`${this._sheetHead("Medication", "Kept off the kids’ pages and the night screen.", "pill", b)}
       <div class="med2">
         <div class="icol">
           <span class="label">Every day</span>
           ${(t.meds ?? []).map((w) => {
-      const v = this._medStatus(w.id, w.time);
+      const y = this._medStatus(w.id, w.time);
       return l`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
               <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${K("pill", 24)}</span>
-                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:17px">${w.who ? `${w.who} – ` : ""}${w.label}</b><span class="muted">Due ${h(w.time)}</span></span>
-                ${this._medBusy === w.id ? l`<b style="font-size:15px;color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:15px;color:${v.given ? "var(--ok)" : v.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${v.given ? `✓ ${ft(v.given)}${v.by ? ` · ${v.by}` : ""}` : v.missing ? "Not set up" : v.late ? "Overdue" : "Not yet"}</b>`}</div>
-              ${v.missing ? l`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A grown-up can finish setting it up in Settings, under Medicines.</span>` : v.given && this._medBusy !== w.id ? u : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((U) => l`<button class="pill tap ${v.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:15px" ?disabled=${this._medBusy === w.id} @click=${() => this._medGuard("Record this medicine?", () => {
+                <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:var(--fs-3)">${w.who ? `${w.who} – ` : ""}${w.label}</b><span class="muted">Due ${h(w.time)}</span></span>
+                ${this._medBusy === w.id ? l`<b style="font-size:var(--fs-2);color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : l`<b style="font-size:var(--fs-2);color:${y.given ? "var(--ok)" : y.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${y.given ? `✓ ${ft(y.given)}${y.by ? ` · ${y.by}` : ""}` : y.missing ? "Not set up" : y.late ? "Overdue" : "Not yet"}</b>`}</div>
+              ${y.missing ? l`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A grown-up can finish setting it up in Settings, under Medicines.</span>` : y.given && this._medBusy !== w.id ? u : l`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((U) => l`<button class="pill tap ${y.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:var(--fs-2)" ?disabled=${this._medBusy === w.id} @click=${() => this._medGuard("Record this medicine?", () => {
         this._giveMed(w.id, U);
       })}>Given by ${U}</button>`)}</div>`}
             </div>`;
@@ -18073,26 +18077,26 @@ const eb = (a, t) => {
         <div class="icol">
           <span class="label">Something else given</span>
           <div class="mrow">${o.map((w) => g(s.what === w, w, () => n({ what: w })))}${g(s.what === "other", "Other…", () => n({ what: "other" }))}</div>
-          ${s.what === "other" ? l`<input class="field" style="height:48px;font-size:18px" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${s.other} @input=${(w) => n({ other: w.target.value })}>
+          ${s.what === "other" ? l`<input class="field" style="height:48px;font-size:var(--fs-3)" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${s.other} @input=${(w) => n({ other: w.target.value })}>
             ${Sa((w) => {
-      const [v, U] = We(s.other, w, s.caps);
-      n({ other: v, caps: U });
+      const [y, U] = We(s.other, w, s.caps);
+      n({ other: y, caps: U });
     }, s.caps, () => n({ caps: !s.caps }), !0)}` : u}
           <span class="label">For</span>
           <div class="mrow">${i.map((w) => g(s.who === w, w, () => n({ who: w })))}</div>
           <span class="label">When</span>
           <div class="mrow" style="align-items:center">
             <button class="tap mchip" aria-label="Five minutes earlier" @click=${() => n({ ago: Math.min(1440, s.ago + 5) })}>− 5 min</button>
-            <b class="display" style="font-size:24px;min-width:104px;text-align:center;font-variant-numeric:tabular-nums" aria-live="polite">${s.ago ? ft(p) : "Now"}</b>
+            <b class="display" style="font-size:var(--fs-5);min-width:104px;text-align:center;font-variant-numeric:tabular-nums" aria-live="polite">${s.ago ? ft(p) : "Now"}</b>
             <button class="tap mchip" aria-label="Five minutes later" ?disabled=${s.ago === 0} @click=${() => n({ ago: Math.max(0, s.ago - 5) })}>+ 5 min</button>
-            ${s.ago ? l`<span class="muted" style="font-size:13px;font-weight:var(--w-semi, 600)">${s.ago} min ago</span>` : u}
+            ${s.ago ? l`<span class="muted" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${s.ago} min ago</span>` : u}
           </div>
           ${e.length ? l`<span class="label">Given by</span><div class="mrow">${e.map((w) => g(s.by === w, w, () => n({ by: w })))}</div>` : u}
         </div>
       </div>
       <div class="sfoot">
         <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${m ? l` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it until a shared list is connected to the panel.</span>` : u}</span>
-        <button class="tap ${(s.what === "other" ? s.other.trim() : s.what) ? "lead" : "ghost"}" data-act="log" style="height:60px;padding:0 26px;font-size:17px;border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard("Add to the medicine record?", () => {
+        <button class="tap ${(s.what === "other" ? s.other.trim() : s.what) ? "lead" : "ghost"}" data-act="log" style="height:60px;padding:0 26px;font-size:var(--fs-3);border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard("Add to the medicine record?", () => {
       this._logMed();
     })}>Add to the record</button>
       </div>`;
@@ -18101,11 +18105,11 @@ const eb = (a, t) => {
     const t = this._timerLeft() !== null, e = this._timerLeft() ?? 0, i = Math.floor(e / 6e4), s = Math.floor(e % 6e4 / 1e3);
     return this.hass?.states["timer.kitchen"] ? l`${this._sheetHead("Kitchen timer", t ? "Beeps everywhere when it finishes." : "Tap +1, +5 or +10 to start", "timer")}
       <div ?data-bump=${!!this._bump} style="display:flex;align-items:center;justify-content:center;gap:24px"><span style="line-height:0">${It(this._lk, "timer", { frac: this._timerFrac(this._timerLeft()), size: 130 })}</span>
-      <span class="display" role="timer" aria-label=${`${i} minutes ${s} seconds left`} style="font-size:88px;line-height:1;font-weight:var(--w-bold, 700);text-align:center;font-variant-numeric:tabular-nums">${this._roll(`${i}:${String(s).padStart(2, "0")}`)}</span></div>
-      <div class="grid3" style="gap:12px">${[1, 5, 10].map((o) => l`<button class="tap ${o === 5 ? "lead" : "quick"}" data-act="plus" style="height:60px;font-size:18px;white-space:nowrap;${o === 5 ? "" : "border-radius:999px;font-weight:var(--w-bold, 700)"}" aria-label=${`Add ${o} minute${o > 1 ? "s" : ""}`} @click=${() => this._addTimer(o)}>+${o} min</button>`)}</div>
-      <button class="pill tap" style="height:52px;justify-content:center;font-size:16px;background:transparent" aria-label="Cancel the kitchen timer" ?disabled=${!t} @click=${() => {
+      <span class="display" role="timer" aria-label=${`${i} minutes ${s} seconds left`} style="font-size:var(--fs-d5);line-height:1;font-weight:var(--w-bold, 700);text-align:center;font-variant-numeric:tabular-nums">${this._roll(`${i}:${String(s).padStart(2, "0")}`)}</span></div>
+      <div class="grid3" style="gap:12px">${[1, 5, 10].map((o) => l`<button class="tap ${o === 5 ? "lead" : "quick"}" data-act="plus" style="height:60px;font-size:var(--fs-3);white-space:nowrap;${o === 5 ? "" : "border-radius:999px;font-weight:var(--w-bold, 700)"}" aria-label=${`Add ${o} minute${o > 1 ? "s" : ""}`} @click=${() => this._addTimer(o)}>+${o} min</button>`)}</div>
+      <button class="pill tap" style="height:52px;justify-content:center;font-size:var(--fs-3);background:transparent" aria-label="Cancel the kitchen timer" ?disabled=${!t} @click=${() => {
       this._cancelTimer();
-    }}>Cancel</button>` : l`${this._sheetHead("Kitchen timer", "", "timer")}<span class="muted" style="font-size:17px;font-weight:var(--w-semi, 600)">Kitchen timer is not set up</span>
+    }}>Cancel</button>` : l`${this._sheetHead("Kitchen timer", "", "timer")}<span class="muted" style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Kitchen timer is not set up</span>
       <span class="muted">Add a timer helper called <b>timer.kitchen</b> in Home Assistant and it will appear here.</span>`;
   }
   /** In words, who is home and who is away. */
@@ -18143,10 +18147,10 @@ const eb = (a, t) => {
   }
   _sitterBody() {
     const t = this._config, e = t.babysitter ?? {}, i = t.emergency, s = this._now, o = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/, r = [...e.contacts ?? [], ...(e.lines ?? []).map((b) => o.exec(b)).filter((b) => !!b).map((b) => ({ name: b[1], phone: b[2].trim() }))], n = [...(e.lines ?? []).filter((b) => !o.test(b)), ...e.notes ?? []], p = (t.kids ?? []).filter((b) => b.bedtime).map((b) => ({ name: b.name, at: Ne(b.bedtime, s) })), c = this._eventsOn(s, this._soon).filter((b) => !b.allDay && b.end > s && !this._private(b.title)).slice(0, 4), d = (b) => {
-      const [w, v] = b.split(":").map(Number);
-      return `${w % 12 || 12}:${String(v).padStart(2, "0")} ${w < 12 ? "am" : "pm"}`;
+      const [w, y] = b.split(":").map(Number);
+      return `${w % 12 || 12}:${String(y).padStart(2, "0")} ${w < 12 ? "am" : "pm"}`;
     }, h = (b) => l`<span class="label">${b}</span>`, g = this._bins(s), m = (t.people ?? []).some((b) => b.entity), f = [];
-    r.length && f.push(l`${h("Who to ring")}${r.map((b) => l`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:20px;font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), p.length && f.push(l`${h("Bedtimes tonight")}${p.map((b) => l`<div class="irow"><b>${b.name}</b><span>${d(b.at)}</span></div>`)}`), c.length && f.push(l`${h("Still on today")}${c.map((b) => l`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${fe(b, s).label}</span></div>`)}`), g && f.push(l`${h("Bin night")}<div class="irow"><b>${gt(g.night, s) ? "Tonight" : `${g.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(g.bins)}${g.bins.join(" + ")}</span></div>`), e.wifi && f.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? l`<b>${e.wifi.password}</b>` : l`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the grown-ups’ PIN" @click=${() => this._wifiAsk()}>${K("lock", 16)}Show</button>`}</div>` : u}`), m && f.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && f.push(l`${h("Good to know")}${n.map((b) => l`<div class="iline">${b}</div>`)}`);
+    r.length && f.push(l`${h("Who to ring")}${r.map((b) => l`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), p.length && f.push(l`${h("Bedtimes tonight")}${p.map((b) => l`<div class="irow"><b>${b.name}</b><span>${d(b.at)}</span></div>`)}`), c.length && f.push(l`${h("Still on today")}${c.map((b) => l`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${fe(b, s).label}</span></div>`)}`), g && f.push(l`${h("Bin night")}<div class="irow"><b>${gt(g.night, s) ? "Tonight" : `${g.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(g.bins)}${g.bins.join(" + ")}</span></div>`), e.wifi && f.push(l`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? l`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? l`<b>${e.wifi.password}</b>` : l`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the grown-ups’ PIN" @click=${() => this._wifiAsk()}>${K("lock", 16)}Show</button>`}</div>` : u}`), m && f.push(l`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && f.push(l`${h("Good to know")}${n.map((b) => l`<div class="iline">${b}</div>`)}`);
     const k = l`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${K("cog", 22)}</button>`;
     return l`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", k)}
       <div class="sos">
@@ -18173,10 +18177,10 @@ const eb = (a, t) => {
       <div class="nclock">${h === u ? u : l`<span class="nart">${h}</span>`}<div><span class="display big">${i.hm}</span><div class="ndate">${Ta(e)}</div></div></div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
         ${r.length ? l`<div class="dglass" style="width:460px;border-radius:28px;padding:22px 24px;display:flex;flex-direction:column;gap:12px">
-          <span style="font-size:13px;font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${s ? "Today" : "Tomorrow"}</span>
-          ${r.map((g) => l`<div style="display:flex;align-items:center;gap:12px;font-size:18px"><span style="width:80px;opacity:.8">${fe(g, o).label}</span>${g.title}</div>`)}
+          <span style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);text-transform:uppercase;letter-spacing:.06em;opacity:.8">${s ? "Today" : "Tomorrow"}</span>
+          ${r.map((g) => l`<div style="display:flex;align-items:center;gap:12px;font-size:var(--fs-3)"><span style="width:80px;opacity:.8">${fe(g, o).label}</span>${g.title}</div>`)}
         </div>` : l`<span></span>`}
-        <span class="breathe" style="font-size:16px;opacity:.7">Tap anywhere to wake</span>
+        <span class="breathe" style="font-size:var(--fs-3);opacity:.7">Tap anywhere to wake</span>
       </div>
       </div>
     </button>`;
@@ -18232,7 +18236,7 @@ ae.styles = [Qt, ii, H`${_t(si)}`, H`${_t(ab)}`], ae.properties = {
   _compact: { state: !0 },
   _top: { state: !0 },
   _bot: { state: !0 }
-}, ae.trust = { snapshotOf: v2, snapText: K2, snapParse: U2, restoreCalls: A2, useTotals: y2, haTrust: tc }, ae.MED_KEY = "family-hub-med-log";
+}, ae.trust = { snapshotOf: y2, snapText: K2, snapParse: U2, restoreCalls: A2, useTotals: v2, haTrust: tc }, ae.MED_KEY = "family-hub-med-log";
 let Dn = ae;
 customElements.get("family-hub-card") || customElements.define("family-hub-card", Dn);
 const In = window;

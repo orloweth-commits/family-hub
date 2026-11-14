@@ -29,8 +29,8 @@ export class FhPin extends LitElement {
     .dots span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink2); transition: background var(--m-2, 160ms); }
     .dots span.on { background: var(--ink); border-color: var(--ink); }
     .grid { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
-    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: 28px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; }
-    .what { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); align-self: flex-start; margin-top: -8px; }
+    .grid button { height: 76px; border-radius: 50%; background: var(--chip-strong); font-size: var(--fs-5); font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; }
+    .what { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); align-self: flex-start; margin-top: -8px; }
     @media (max-height: 640px) { .grid { grid-template-columns: repeat(3, 64px); gap: 8px; } .grid button { height: 64px; } .pad { gap: 10px; } }
     /* the pad fits the space it is given (a page's own pad has only that page's height, and the line that says why can run to four lines): smaller keys first, then the words beside the keys */
     :host { container-type: size; }
@@ -39,9 +39,9 @@ export class FhPin extends LitElement {
       .pad { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto 1fr; column-gap: 28px; align-items: start; justify-items: start; width: 640px; }
       .grid { grid-column: 2; grid-row: 1 / 5; } .note { text-align: left; }
     }
-    @container (max-height: 400px) { .grid { grid-template-columns: repeat(3, 56px); gap: 6px; } .grid button { height: 56px; font-size: 24px; } }
+    @container (max-height: 400px) { .grid { grid-template-columns: repeat(3, 56px); gap: 6px; } .grid button { height: 56px; font-size: var(--fs-5); } }
     .bad { animation: shake var(--m-4, 400ms); }
-    .note { min-height: 20px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--danger, #c62a22); text-align: center; }
+    .note { min-height: 20px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--danger, #c62a22); text-align: center; }
     .grid button[disabled] { opacity: .4; }
     @keyframes shake { 20%, 60% { transform: translateX(calc(-10px * var(--m-d, 1))); } 40%, 80% { transform: translateX(calc(10px * var(--m-d, 1))); } }
   `];

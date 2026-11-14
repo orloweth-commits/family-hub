@@ -31,15 +31,15 @@ export const keyboard = (type: (k: string) => void, caps: boolean, flipCaps: () 
 export const keysCss = css`
   .keys { display: flex; flex-direction: column; gap: 8px; }
   .krow { display: flex; gap: 8px; justify-content: center; }
-  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: 24px; font-weight: 500; transition: transform var(--mt-1, 80ms) ease; }
+  .key { width: 64px; height: 64px; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 2px 0 rgba(0,0,0,.12); font-size: var(--fs-5); font-weight: 500; transition: transform var(--mt-1, 80ms) ease; }
   .key:active { transform: scale(.92); background: var(--chip); }
-  .key.wide { width: 96px; font-size: 20px; }
+  .key.wide { width: 96px; font-size: var(--fs-4); }
   .key.wide[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-  .key.space { width: 420px; font-size: 17px; }
+  .key.space { width: 420px; font-size: var(--fs-3); }
   .keys.compact, .keys.compact .krow { gap: 6px; }
-  .keys.compact .key { width: 56px; height: 48px; border-radius: 12px; font-size: 22px; }
-  .keys.compact .key.wide { width: 84px; font-size: 18px; }
-  .keys.compact .key.space { width: 420px; font-size: 16px; }
+  .keys.compact .key { width: 56px; height: 48px; border-radius: 12px; font-size: var(--fs-4); }
+  .keys.compact .key.wide { width: 84px; font-size: var(--fs-3); }
+  .keys.compact .key.space { width: 420px; font-size: var(--fs-3); }
   .keys .krow.pk .key.space, .keys.compact .krow.pk .key.space { width: 240px; }
   /* in a box narrower than the row, the keys give way together (never under a 44 px target) rather than running off the edge */
   .keys, .krow { min-width: 0; }

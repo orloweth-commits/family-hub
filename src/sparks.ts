@@ -192,8 +192,8 @@ const FX: Record<SparkKind, (e: E) => void> = {
 
   points(e) {
     const look = e.look, css = look === 'glass' ? `font:800 15px/1 ${e.font};padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.94);color:var(--ok);box-shadow:0 2px 6px rgba(0,0,0,.16)`
-      : look === 'fridge' ? "font:700 28px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)"
-        : "font:600 14px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)";
+      : look === 'fridge' ? "font:700 26px/1 'Caveat','Fredoka',cursive;color:var(--ok);rotate:-6deg;text-shadow:0 0 2px var(--pp),0 0 3px var(--pp),0 1px 3px var(--pp)"
+        : "font:600 15px/1 'Outfit',sans-serif;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);background:var(--gd)";
     const p = el(e, `left:${e.W / 2}px;top:-3px`), s = document.createElement('span');
     s.style.cssText = `position:absolute;left:0;bottom:0;translate:-50% 0;white-space:nowrap;${css}`; s.textContent = (e.o.text ?? '+10').slice(0, 24); p.appendChild(s);
     if (e.calm) A(e, p, blink(), 900);

@@ -42,7 +42,7 @@ export class FhHome extends LitElement {
     .rgrid[data-fit] { gap: 10px; }
     .rgrid[data-fit] .rcol { gap: 10px; }
     .rgrid[data-fit] .room { padding: 10px; gap: 4px; border-radius: 18px; }
-    .rgrid[data-fit] .rh h2 { font-size: 17px; }
+    .rgrid[data-fit] .rh h2 { font-size: var(--fs-3); }
     .rgrid[data-fit='2'] .dev, .rgrid[data-fit='3'] .dev { padding: 2px 8px; }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .side { width: auto; flex-direction: row; flex-shrink: 0; }
@@ -64,13 +64,13 @@ export class FhHome extends LitElement {
     /* a lit room glows at its edge; its background stays the theme's own, so the words on it keep their contrast in dark themes too */
     .room.lit { box-shadow: 0 0 0 2px color-mix(in srgb, #ffb703 75%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-    .rh h2 { flex: 1; min-width: 0; font-size: 19px; font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
+    .rh h2 { flex: 1; min-width: 0; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
     .dev { display: flex; align-items: center; gap: 10px; min-height: 52px; /* token */ padding: 4px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
     .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: background-color var(--m-3, 240ms), color var(--m-3, 240ms), box-shadow var(--m-3, 240ms); }
     .dev.on .dicon { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
     .dev .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
-    .dev .n { font-size: 15px; font-weight: var(--w-semi, 600); overflow-wrap: anywhere; }
-    .dev .s { font-size: 13px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .dev .n { font-size: var(--fs-2); font-weight: var(--w-semi, 600); overflow-wrap: anywhere; }
+    .dev .s { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .dev.gone { cursor: default; }
     .dev.gone .dicon { opacity: .55; }
     .dev .pinned { color: var(--ink2); display: flex; flex-shrink: 0; }
@@ -78,31 +78,31 @@ export class FhHome extends LitElement {
     [data-busy] .dicon, .scene[data-busy] { animation: busy 1s ease-in-out infinite; }
     @keyframes busy { 50% { opacity: .35; } }
     .side { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
-    .side .label { font-size: 13px; }
+    .side .label { font-size: var(--fs-1); }
     .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .scene { min-height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-size: 15px; font-weight: var(--w-bold, 700); text-align: left; line-height: 1.2; }
+    .scene { min-height: 64px; border-radius: 16px; background: var(--chip); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.2; }
     .scene.go { animation: go var(--m-5, 900ms) ease; }
     @keyframes go { 30% { background: var(--primary); color: var(--on-primary); transform: scale(calc(1 + .04 * var(--m-d, 1))); } }
-    .auto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 4px; border-radius: 12px; font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.25; }
+    .auto { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 4px; border-radius: 12px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.25; }
     .auto > span:first-child { flex: 1; min-width: 0; }
     /* the switch: a 56 by 32 track inside a control at least 44 high (the row, or the room's "Lights" button) */
-    .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
+    .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
     .toggle { display: block; width: 56px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-3, 240ms); }
     .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
-    .grown { height: 44px; /* token */ font-size: 15px; }
+    .grown { height: 44px; /* token */ font-size: var(--fs-2); }
     /* while the PIN window is open the page says so, counts it down and offers to close it */
-    .unl { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-size: 15px; font-weight: var(--w-semi, 600); }
+    .unl { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .unl .ut { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; line-height: 1; }
     .unl b { font-variant-numeric: tabular-nums; font-weight: var(--w-heavy, 800); }
-    .unl .pill { height: 44px; /* token */ font-size: 15px; white-space: nowrap; }
+    .unl .pill { height: 44px; /* token */ font-size: var(--fs-2); white-space: nowrap; }
     :host([data-phone]) .unl .ut > span { white-space: normal; }
     .none { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; color: var(--ink2); }
-    .none b { font-size: 22px; font-weight: var(--w-heavy, 800); color: var(--ink); }
-    .none span { font-size: 16px; line-height: 1.4; max-width: 460px; }
-    .tipline { font-size: 15px; line-height: 1.35; }
+    .none b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .none span { font-size: var(--fs-3); line-height: 1.4; max-width: 460px; }
+    .tipline { font-size: var(--fs-2); line-height: 1.35; }
   `];
 
   static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
@@ -247,7 +247,7 @@ export class FhHome extends LitElement {
     return html`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
-          ${rooms.length ? html`<span class="muted" style="font-size:15px">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div>
+          ${rooms.length ? html`<span class="muted" style="font-size:var(--fs-2)">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div>
           ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'}"><span class="ut">${DRAWN.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'} · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {

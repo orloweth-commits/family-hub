@@ -444,14 +444,14 @@ export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: ()
 
 export const viewsCss = css`
   /* Switcheroo: the one button that changes how the rooms are shown. Same name, same pinwheel, on every view. */
-  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
+  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
   .pinw { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(#ff5d5d 0 60deg, #ffb13d 0 120deg, #ffe14a 0 180deg, #4fd27a 0 240deg, #45b7f5 0 300deg, #a877f2 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.75), 0 1px 3px rgba(0,0,0,.3); position: relative; animation: pinw 9s linear infinite; animation-play-state: var(--motion, running); }
   .pinw::after { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
   .viewbtn:active .pinw { animation-duration: var(--m-4, 400ms); }
   @keyframes pinw { to { transform: rotate(360deg); } }
   .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .vcard { min-height: 112px; padding: 12px 10px; border-radius: 20px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
-  .vcard b { font-size: 16px; font-weight: var(--w-bold, 700); } .vcard span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .vcard b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .vcard span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .vcard[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: translateY(calc(-3px * var(--m-d, 1))); } .vcard[aria-pressed='true'] span { color: inherit; }
   :host([data-phone]) .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* ---- one family of volume controls: 44 px to touch, a fill up to the value (--v), a 32 px thumb, the number, quieter and louder at the ends ---- */
@@ -464,10 +464,10 @@ export const viewsCss = css`
   .vfill { position: absolute; left: 4px; top: calc(50% - var(--rail-w) / 2); width: calc(12px + (100% - 32px) * var(--v) / 100); height: var(--rail-w); border-radius: 99px; background: var(--vc); transition: width var(--m-3, 240ms) var(--e-out, ease), height var(--m-3, 240ms) var(--e-out, ease); }
   .vs .fcap { position: absolute; left: calc((100% - 32px) * var(--v) / 100); top: 6px; width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--vc), 0 2px 5px rgba(0,0,0,.3);
     transition: left var(--m-3, 240ms) var(--e-out, ease), bottom var(--m-3, 240ms) var(--e-out, ease), transform var(--m-2, 160ms) var(--e-spring, ease); }
-  .fcap b { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); padding: 2px 9px; border-radius: 10px; background: rgba(15,15,20,.9); color: #fff; font-size: 18px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; opacity: 0; pointer-events: none; transition: opacity var(--m-2, 160ms); z-index: 4; }
+  .fcap b { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); padding: 2px 9px; border-radius: 10px; background: rgba(15,15,20,.9); color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; opacity: 0; pointer-events: none; transition: opacity var(--m-2, 160ms); z-index: 4; }
   .vs[data-held] .fcap { transform: scale(1.15); transition: transform var(--m-2, 160ms) var(--e-spring, ease); } .vs[data-held] .vfill { transition: none; } .vs[data-held] .fcap b { opacity: 1; }
   .vs[data-idle] .vfill { display: none; } .vs[data-idle] .fcap { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); }
-  .vnum { display: inline-block; min-width: 2ch; font-size: 18px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; text-align: center; color: var(--ink); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
+  .vnum { display: inline-block; min-width: 2ch; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; text-align: center; color: var(--ink); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
   .vs > .vnum { min-width: 32px; text-align: right; }
   /* standing up (a fader): louder at the top, quieter at the bottom, the number underneath */
   .vs[data-vert] { flex-direction: column-reverse; min-height: 0; } .vs[data-vert] > .vnum { order: -1; text-align: center; min-height: 22px; }
@@ -493,25 +493,25 @@ export const viewsCss = css`
   /* the dial is as big as its row allows less 20 px above and below, and never over 520 px; the cards beside it share one height and one centre line */
   .bigdial { height: min(100% - 40px, 520px); aspect-ratio: 1; flex-shrink: 0; position: relative; user-select: none; -webkit-user-select: none; }
   .dcard { grid-row: 1; align-self: center; box-sizing: border-box; height: min(100% - 40px, 330px); min-width: 0; border-radius: 24px; background: var(--chip); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-  .dcard h3 { margin: 0; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dcard h3 { margin: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
   .dnext { grid-column: 1; justify-self: end; width: min(100%, 270px); } .dturn { grid-column: 3; justify-self: start; width: min(100%, 270px); }
   .dn { display: flex; align-items: center; gap: 12px; min-width: 0; } .dn .puck.onshelf { width: 46px; flex: 0 0 46px; border-width: 2.5px; }
   .dn > span { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .dn b, .dn span span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dn b { font-size: 15px; font-weight: var(--w-bold, 700); } .dn span span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-  .dnone { margin: 0; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
+  .dn b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .dn span span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dnone { margin: 0; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.3; }
   .dcoins { display: flex; flex-wrap: nowrap; gap: 3px; align-items: center; margin: 0 -8px; padding: 7px 6px; overflow-x: auto; scrollbar-width: none; }
-  .dcoin { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
+  .dcoin { flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .dcoin[data-now] { box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); margin: 0 4px; }
-  .dwho { margin: 0; font-size: 15px; font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
+  .dwho { margin: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); } .dwho b { font-weight: var(--w-heavy, 800); }
   .dsleep { min-height: 52px; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 16px; padding: 4px 8px 4px 4px; }
   .dsleep svg { width: 48px; height: 48px; flex-shrink: 0; } .swt { fill: var(--track); stroke: var(--ink2); stroke-width: 1.5; } .sww { fill: var(--accent); }
-  .dsleep > span { display: flex; flex-direction: column; line-height: 1.2; } .dsleep b { font-size: 15px; font-weight: var(--w-bold, 700); } .dsleep span span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dsleep > span { display: flex; flex-direction: column; line-height: 1.2; } .dsleep b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .dsleep span span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dsleep[data-on] { background: var(--chip-strong); }
   /* the tuner: ticks like a radio dial, a stop for each favourite and station, and a needle to slide */
   .tuner { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 720px); height: 62px; position: relative; border-radius: 20px; background: var(--chip); touch-action: none; cursor: ew-resize; outline: none; user-select: none; -webkit-user-select: none; }
   .tuner:focus-visible { box-shadow: 0 0 0 3px var(--ink); }
   .tticks { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink2) 0 1.5px, transparent 1.5px 14.4px); opacity: .7; -webkit-mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); -webkit-mask-composite: source-over; mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); }
-  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: 15px; line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
+  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: var(--fs-2); line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
   .tstop[data-on] { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .tstop:only-of-type { max-width: 90%; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left var(--mt-4, 400ms) cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
@@ -544,7 +544,7 @@ export const viewsCss = css`
   .dlabel { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1.15; white-space: nowrap; }
   .dlabel[data-side='r'] { align-items: flex-start; text-align: left; } .dlabel[data-side='l'] { align-items: flex-end; text-align: right; }
   .dname { min-width: 44px; min-height: 44px; padding: 2px 8px; display: flex; flex-direction: column; justify-content: center; align-items: inherit; text-align: inherit; border-radius: 12px; }
-  .dname b { font-size: clamp(16px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; } .dname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .dname b { font-size: clamp(16px, 4.2cqh, 19px); font-weight: var(--w-bold, 700); display: inline-flex; align-items: center; } .dname span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .dname[aria-pressed='true'] b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .dstep { display: inline-flex; align-items: center; } .dlabel[data-held] .vnum { transform: scale(1.3); }
   :host([data-shape='tall']:not([data-phone])) .dialwrap { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) auto auto; }
@@ -562,7 +562,7 @@ export const viewsCss = css`
   :host([data-phone]) .bigdial { height: auto; aspect-ratio: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; } :host([data-phone]) .bigdial > svg { position: static; width: 250px; height: 250px; }
   :host([data-phone]) .dcover { left: calc(50% - 60px); top: 65px; width: 120px; height: 120px; }
   :host([data-phone]) .dlabels { position: static; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } :host([data-phone]) .dlabel { position: static; transform: none !important; align-items: center; text-align: center; }
-  :host([data-phone]) .dcard { width: auto; height: auto; align-self: stretch; } :host([data-phone]) .tuner { order: -1; width: 100%; } :host([data-phone]) .tstop { font-size: 13px; }
+  :host([data-phone]) .dcard { width: auto; height: auto; align-self: stretch; } :host([data-phone]) .tuner { order: -1; width: 100%; } :host([data-phone]) .tstop { font-size: var(--fs-1); }
 
   /* ---- desk ---- */
   /* three rows that always fit: what is playing, the keys, then the wheel and the pads (the pads are never cut by the edge) */
@@ -573,9 +573,9 @@ export const viewsCss = css`
   .dart i { width: 22%; height: 22%; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 0 2px rgba(0,0,0,.15); opacity: 0; }
   .dart[data-playing] i { opacity: 1; animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .dtx { min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.15; }
-  .dtx i { font-style: normal; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
+  .dtx i { font-style: normal; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); }
   .dtx b { font-size: clamp(17px, 6cqh, 26px); font-weight: var(--w-heavy, 800); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .dtx span { font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dtx span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .desk .tkeys { flex: none; min-height: 0; }
   .dplay { min-height: 0; display: flex; align-items: center; gap: 12px; }
   .jog { height: 100%; max-height: 136px; aspect-ratio: 1; flex-shrink: 0; position: relative; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track), 0 6px 0 rgba(0,0,0,.16); touch-action: none; cursor: grab; outline: none; display: flex; align-items: center; justify-content: center; }
@@ -586,7 +586,7 @@ export const viewsCss = css`
   .jring i { position: absolute; right: 8%; top: 8%; width: 20%; height: 20%; border-radius: 50%; background: var(--track); box-shadow: inset 0 2px 3px rgba(0,0,0,.2); }
   .jog b { position: relative; font-size: clamp(15px, 5cqh, 20px); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
   .pads { flex: 1; min-width: 0; min-height: 0; align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(44px, 1fr); gap: 8px; padding-bottom: 6px; }
-  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.05; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
+  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.05; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
   .mpad span { font-size: clamp(16px, 4.4cqh, 24px); line-height: 1; }
   .mpad:active, .mpad[data-busy] { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
   .mpad[data-on] { box-shadow: 0 6px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -596,13 +596,13 @@ export const viewsCss = css`
   .strip[data-focus] { background: var(--chip-strong); }
   .strip[data-hot] { box-shadow: inset 0 0 0 3px var(--c); }
   .strip.master { background: var(--chip-soft); --c: var(--accent); margin-left: 4px; }
-  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 4px 6px; border-radius: 8px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
-  .lamp { width: 48px; height: 48px; border-radius: 50%; background: #5b6472; color: #fff; font-size: 15px; font-weight: var(--w-heavy, 800); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background var(--m-2, 160ms), box-shadow var(--m-2, 160ms); } .lamp[disabled] { opacity: .5; }
+  .sname { width: 100%; min-height: 44px; box-sizing: border-box; padding: 4px 6px; border-radius: 8px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; overflow-wrap: anywhere; }
+  .lamp { width: 48px; height: 48px; border-radius: 50%; background: #5b6472; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); transition: background var(--m-2, 160ms), box-shadow var(--m-2, 160ms); } .lamp[disabled] { opacity: .5; }
   .lamp[aria-pressed='true'] { background: #15803d; color: #fff; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
   .strip[data-playing] .lamp[aria-pressed='true'] { animation: lamp 1.4s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp { to { box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 0 0 8px color-mix(in srgb, var(--ok) 12%, transparent); } }
   /* a room with other music says so in a word, on a lamp wide enough to hold it */
-  .lamp[data-other] { background: var(--c); font-size: 13px; width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
+  .lamp[data-other] { background: var(--c); font-size: var(--fs-1); width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
   .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 2px; }
@@ -612,7 +612,7 @@ export const viewsCss = css`
   .strip[data-playing] .vu i[data-peak] { animation: vu .45s steps(2, jump-none) infinite alternate; animation-iteration-count: var(--loops, infinite); }
   .strip[data-playing] .vu i[data-peak] + i[data-peak] { animation-delay: -.2s; }
   @keyframes vu { to { opacity: .3; } }
-  .sval { align-self: center; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .sval { align-self: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); }
   .desk[data-fit] .vu { display: none; }
   :host([data-shape='tall']:not([data-phone])) .desk { flex-direction: column; gap: 12px; }
   :host([data-shape='tall']:not([data-phone])) .dside { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 130px 64px; gap: 12px 16px; padding: 4px; }
@@ -630,7 +630,7 @@ export const viewsCss = css`
   /* the crate: dividers behind, sleeves fanned in the box */
   .cratecol { position: absolute; left: 0; top: 0; bottom: 0; width: 31%; }
   .ctabs { position: absolute; left: 4%; right: 4%; top: 0; height: 27%; display: flex; gap: 5px; align-items: flex-start; }
-  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: 14px; font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .ctab { flex: 1 1 0; min-width: 0; max-width: 96px; height: 100%; margin-top: 5%; padding: 9px 5px 0; border-radius: 10px 10px 0 0; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-bold, 700); display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: margin-top var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
   .ctab[aria-pressed='true'] { margin-top: 0; box-shadow: 0 -3px 0 var(--chip-strong); }
   .sleeves { position: absolute; z-index: 1; left: 7%; right: 7%; top: 26%; height: var(--S); }
@@ -643,10 +643,10 @@ export const viewsCss = css`
   .cbox { position: absolute; left: 0; right: 0; top: calc(26% + var(--S) - 12px); bottom: 0; z-index: 2; border-radius: 14px; background: var(--chip-strong); box-shadow: 0 8px 0 rgba(0,0,0,.14), inset 0 0 0 1.5px rgba(255,255,255,.6); padding: 10px 14px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 4px; overflow: hidden;
     background-image: linear-gradient(var(--track), var(--track)), linear-gradient(var(--track), var(--track)); background-size: calc(100% - 28px) 2px; background-repeat: no-repeat; background-position: 14px 8px, 14px calc(100% - 8px); }
   .clabel { display: flex; align-items: center; gap: 8px; max-width: 100%; }
-  .clabel b { min-width: 0; padding: 6px 14px; border-radius: 6px; background: #fff; color: #17140f; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .clabel b { min-width: 0; padding: 6px 14px; border-radius: 6px; background: #fff; color: #17140f; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .cnav { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--chip); display: flex; align-items: center; justify-content: center; } .cnav[disabled] { opacity: .35; }
   .cpick { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-  .cpick b { max-width: 100%; font-size: 16px; font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cpick span { font-size: 12.5px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .cpick b { max-width: 100%; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cpick span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .rig[data-fit] .cpick span { display: none; }
   /* the turntable */
   .tdeck { position: absolute; left: 34%; width: 30.6%; top: 0; bottom: 0; display: flex; flex-direction: column; gap: 3.5%; }
@@ -662,7 +662,7 @@ export const viewsCss = css`
   .tarm::before { content: ''; position: absolute; left: calc(var(--P) * -.017); top: 0; width: calc(var(--P) * .034); height: calc(var(--P) * .6); border-radius: 4px; background: #8b8477; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
   .tarm i { position: absolute; left: calc(var(--P) * -.048); top: calc(var(--P) * .56); width: calc(var(--P) * .096); height: calc(var(--P) * .13); border-radius: 5px; background: #26272b; box-shadow: 2px 3px 4px rgba(0,0,0,.3); }
   .ttitle { max-width: 100%; display: flex; flex-direction: column; align-items: center; line-height: 1.2; text-align: center; }
-  .ttitle b { max-width: 100%; font-size: clamp(15px, 5.4cqh, 22px); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ttitle span { max-width: 100%; min-height: 1.2em; font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ttitle b { max-width: 100%; font-size: clamp(15px, 5.4cqh, 22px); font-weight: var(--w-heavy, 800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ttitle span { max-width: 100%; min-height: 1.2em; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .jack { position: absolute; right: -9px; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: var(--stream, var(--primary)); box-shadow: 0 0 0 3px var(--chip-strong); z-index: 2; }
   .tkeys { flex: 0 0 clamp(56px, 17cqh, 76px); display: flex; gap: 8px; }
   .tkey { flex: 1 1 0; border-radius: 20px; background: var(--chip-strong); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,.2); margin-bottom: 6px; transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
@@ -677,7 +677,7 @@ export const viewsCss = css`
   .cab[data-playing] .cone i { animation: thump .5s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes thump { from { transform: scale(.82); } to { transform: scale(1.14); } }
   .ctext { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
-  .ctext b, .ctext > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext > b { font-size: 16px; font-weight: 700; } .ctext > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); } .ctext .vnum { min-width: 0; } .cab[data-held] .vnum { transform: scale(1.3); }
+  .ctext b, .ctext > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ctext > b { font-size: var(--fs-3); font-weight: 700; } .ctext > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); } .ctext .vnum { min-width: 0; } .cab[data-held] .vnum { transform: scale(1.3); }
   .cvol { display: inline-flex; align-items: center; flex-shrink: 0; }
   .cknob { width: 44px; height: 44px; border-radius: 50%; position: relative; flex-shrink: 0; touch-action: none; cursor: ns-resize; outline: none; background: conic-gradient(from -135deg, var(--c) calc(var(--v) * 2.7deg), var(--track) 0 270deg, transparent 0); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
   .cknob::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 1.5px var(--ink3), 0 2px 4px rgba(0,0,0,.25); }
@@ -686,12 +686,12 @@ export const viewsCss = css`
   .cknob[data-idle] { background: conic-gradient(from -135deg, var(--track) 0 270deg, transparent 0); } .cknob[data-idle]::before { background: transparent; box-shadow: inset 0 0 0 3px var(--ink3); } .cknob[data-idle] i::after { background: var(--ink3); }
   .cab[data-held] .cknob { transform: scale(1.15); }
   .sock[disabled] { opacity: .4; }
-  .sock { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); z-index: 2; }
+  .sock { position: absolute; top: 50%; left: -22px; width: 44px; height: 44px; margin-top: -22px; border-radius: 50%; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); font-weight: 800; box-shadow: inset 0 0 0 3px var(--ink3); z-index: 2; }
   .sock[aria-pressed='true'] { background: var(--c); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
   :host([data-phone]) .rig { flex: none; display: flex; flex-direction: column; gap: 14px; container-type: normal; --S: 138px; --P: 200px; }
   :host([data-phone]) .cratecol { position: relative; width: auto; height: 330px; }
   :host([data-phone]) .tdeck { position: relative; left: auto; width: auto; height: 400px; gap: 12px; }
-  :host([data-phone]) .tkeys { flex-basis: 64px; } :host([data-phone]) .ttitle b { font-size: 19px; }
+  :host([data-phone]) .tkeys { flex-basis: 64px; } :host([data-phone]) .ttitle b { font-size: var(--fs-4); }
   :host([data-phone]) .cab { position: relative; top: auto; width: auto; height: 64px; transform: none; padding: 0 52px 0 8px; }
   :host([data-phone]) .sock { left: auto; right: 6px; } :host([data-phone]) .wires, :host([data-phone]) .jack { display: none; }
 
@@ -710,7 +710,7 @@ export const viewsCss = css`
   .sun { position: absolute; left: 14px; top: 10px; max-width: 29%; display: flex; align-items: center; gap: 12px; z-index: 2; } .vscene[data-narrow] .sun { max-width: none; }
   .puck.spot { position: static; margin: 0; width: clamp(64px, 18cqh, 96px); height: clamp(64px, 18cqh, 96px); flex-shrink: 0; }
   .puck.spot[data-playing] { animation: puck 8s linear infinite; animation-iteration-count: var(--loops, infinite); }
-  .suntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: 17px; font-weight: var(--w-heavy, 800); } .suntx span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+  .suntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; } .suntx b { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); } .suntx span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
   .actor { width: var(--aw); display: flex; flex-direction: column; align-items: center; gap: 0; border-radius: 18px; touch-action: none; cursor: grab; --c: var(--stream, var(--primary)); }
   /* a free room stands where it is told, but whole: never cut by the edge of the scene, never on the shelf */
   .actor.free { position: absolute; --half: calc(max(var(--aw), 180px) / 2 + 6px); --halfh: calc(var(--aw) * .43 + 28px); left: clamp(var(--half), var(--x), 100% - var(--half)); top: clamp(var(--halfh), var(--y), 100% - var(--halfh) - var(--shelf-h)); transform: translate(-50%, -50%); transition: left var(--mt-5, 900ms) cubic-bezier(.3,1.3,.5,1), top var(--mt-5, 900ms) cubic-bezier(.3,1.3,.5,1); }
@@ -729,7 +729,7 @@ export const viewsCss = css`
   .aname { position: relative; z-index: 1; max-width: 200px; min-height: 44px; border-radius: 14px; display: flex; align-items: center; line-height: 1.15; background: var(--chip-strong); background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
   .vscene[data-kind='space'] .aname { background: #1b1e45; background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); }
   .atx { min-width: 60px; min-height: 44px; padding: 4px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .atx > b { font-size: 16px; font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+  .atx > b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   /* the shelf in the world */
   .skeys { display: flex; gap: 6px; margin-top: 6px; } .suntx .mkeys { margin-top: 6px; }
   .puck.spot[data-hot] { box-shadow: 0 0 0 5px var(--accent), 0 8px 20px -6px rgba(0,0,0,.55); transform: scale(1.08); }
@@ -744,7 +744,7 @@ export const viewsCss = css`
   .sitem:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   .sdeco { display: none; }
   .slabel { min-height: 44px; flex-shrink: 0; max-width: 46%; padding: 4px 14px; border-radius: 14px; background: var(--chip-strong); display: flex; flex-direction: column; justify-content: center; text-align: left; line-height: 1.15; }
-  .slabel b { font-size: 16px; font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .slabel span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slabel b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .slabel span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* sea: buoys, each with a little flag, bobbing on the swell */
   .sshelf[data-kind='sea'] .sitems { padding-top: 14px; }
   .sshelf[data-kind='sea'] .sitem { animation: abob 3s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -797,7 +797,7 @@ export const viewsCss = css`
   @keyframes aglow { from { transform: scale(.9); } to { transform: scale(1.2); opacity: .12; } }
   .aorbit { display: none; }
   .alog { fill: #6b4a2b; stroke: #3d2a18; stroke-width: 1.5; } .aflame { fill: var(--c); } .aflame.in { fill: #ffd166; } .aember { fill: #b45309; opacity: .8; }
-  .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: 20px; font-weight: 700; text-anchor: middle; }
+  .ashade { fill: rgba(0,0,0,.2); } .ainit { fill: #fff; font-size: var(--fs-4); font-weight: 700; text-anchor: middle; }
   .bob, .swim, .flick, .sway, .jig { transform-box: fill-box; transform-origin: 50% 100%; }
   .actor[data-playing] .bob { animation: abob 2.6s ease-in-out infinite alternate; animation-delay: inherit; animation-iteration-count: var(--loops, infinite); }
   @keyframes abob { from { transform: translateY(-3px) rotate(-3deg); } to { transform: translateY(3px) rotate(3deg); } }
@@ -819,7 +819,7 @@ export const viewsCss = css`
   .vscene[data-kind='sports'] .aidle { fill: var(--panel, #fff); opacity: 1; }
   .vscene[data-kind='sports'] .actor:not([data-live]) .pring { fill: var(--panel, #fff); stroke: var(--ink3); stroke-dasharray: 5 4; }
   .vscene[data-kind='sports'] .actor:not([data-live]) .ainit { fill: var(--ink2); }
-  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; }
+  .vscene[data-kind='sports'] .ainit { font-family: 'Outfit', sans-serif; font-size: var(--fs-5); font-weight: 800; }
   .vscene[data-kind='sports'] .pball { display: block; } .pball circle { fill: #fff; stroke: #14201a; stroke-width: 2; } .pball path { fill: #14201a; }
   .vscene[data-kind='sports'] .actor:not([data-playing]) .pball { opacity: .55; }
   .vscene[data-kind='sports'] .tie { stroke: var(--ink); stroke-width: 3px; stroke-dasharray: 2 10; opacity: 1; }

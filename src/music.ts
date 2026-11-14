@@ -60,12 +60,12 @@ export class FhMusic extends LitElement {
     .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
     .bar > i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width calc(1s * var(--m-d, 1)) linear; }
     .ctl { display: flex; align-items: center; justify-content: space-between; }
-    .ctl button { color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .ctl button { color: #fff; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); }
     .ctl button[aria-pressed='true'] { background: rgba(255,255,255,.22); }
     .ctl .go { width: 66px; height: 66px; background: #fff; color: #111; }
-    .upnext { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; }
+    .upnext { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; }
     .mini { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; }
-    .mini .tog { height: 44px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .mini .tog { height: 44px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .mini .tog[aria-pressed='true'] { background: #fff; color: #111; }
     .stage .vs { --vc: #fff; --rail: rgba(255,255,255,.3); } .stage .vstep, .stage .vnum { color: #fff; } .stage .vrail:focus-visible, .stage .vstep:focus-visible { outline-color: #fff; }
     .panel { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
@@ -75,11 +75,11 @@ export class FhMusic extends LitElement {
     .mhead[data-one] { gap: 8px; } .mhead[data-one] h1 { display: none; } /* the section is named "Music" for assistive technology instead */
     .mhead[data-one] .finder { height: 48px; padding: 0 16px; flex: 1 1 120px; } .mhead[data-one] .nowbar { max-width: 28%; flex: 0 1 auto; }
     .mhead[data-one] .pill, .mhead[data-one] .viewbtn, .mhead[data-one] .offnote { flex-shrink: 0; }
-    .helpb, .peekb { width: 48px; height: 48px; flex-shrink: 0; font-size: 20px; font-weight: var(--w-heavy, 800); }
+    .helpb, .peekb { width: 48px; height: 48px; flex-shrink: 0; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .helpb { color: var(--ink); }
     .body { position: relative; }
     /* the hint: one quiet line in the toolbar beside "?", shown for four seconds the first time a view is opened and whenever "?" is tapped. It is never laid over the view. On a wide screen it borrows the search field's place while it shows. */
-    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: 15px; line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
+    .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: var(--fs-2); line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
     /* the hint is never cut, and never takes a row of its own on a wide screen (a tap takes the hint away, and a row that vanished under the finger would lose the tap):
@@ -94,11 +94,11 @@ export class FhMusic extends LitElement {
     .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
     .nthumb[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
     .ntx { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; padding-right: 4px; } .ntx b, .ntx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ntx b { font-size: 14px; font-weight: var(--w-bold, 700); } .ntx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .ntx b { font-size: 15px; } .ntx span { font-size: 14px; }
+    .ntx b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); } .ntx span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .ntx b { font-size: var(--fs-2); } .ntx span { font-size: var(--fs-2); }
     .acts .hint { flex: 1 1 0; min-width: 0; } .acts .hint:not([data-on]) { display: none; } :host([data-phone]) .acts .hint { flex: 1 1 100%; order: 9; }
     /* a home speaker that cannot be reached keeps its place, greyed, and the page says how many */
-    .offnote { height: 44px; padding: 0 14px 0 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; background: color-mix(in srgb, var(--accent) 26%, var(--chip-strong)); box-shadow: inset 0 0 0 2px var(--accent); }
+    .offnote { height: 44px; padding: 0 14px 0 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; background: color-mix(in srgb, var(--accent) 26%, var(--chip-strong)); box-shadow: inset 0 0 0 2px var(--accent); }
     /* offline: the picture fades, the words stay readable */
     [data-offline] { filter: grayscale(1); }
     [data-offline] :is(svg, .puck, .thumb, .cone, .well, .dtrack, .dfill, .dknob, .vs, .cvol) { opacity: .45; }
@@ -107,7 +107,7 @@ export class FhMusic extends LitElement {
     .panel { position: relative; }
     .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
     /* search is a field, not a tab: it is always in the same place and looks like somewhere to type */
-    .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink2);
+    .finder { flex: 1; min-width: 0; height: 54px; padding: 0 22px; border-radius: 27px; display: flex; align-items: center; gap: 12px; text-align: left; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink2);
       background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent), 0 6px 14px -8px rgba(0,0,0,.35); transition: box-shadow var(--m-2, 160ms); }
     .finder:active { box-shadow: inset 0 0 0 3px var(--primary); }
     .finder span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -117,18 +117,18 @@ export class FhMusic extends LitElement {
     .callrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
     .callside, .dropside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
-    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: 16px; font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
+    .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: var(--fs-3); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
     .bubble[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: scale(1.03); }
-    .sayit { height: 52px; padding: 0 24px; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
+    .sayit { height: 52px; padding: 0 24px; font-size: var(--fs-3); display: inline-flex; align-items: center; gap: 8px; }
     .map.snug { flex: none; }
     .map.snug .floor { flex: none; height: 100px; min-height: 0; }
     .map.snug .mstairs { flex-basis: 36px; }
     /* the little house: each room is a button, so the room leaves space for its focus ring */
     .map.snug .mroom { overflow: visible; } .map.snug .mz:first-child { border-radius: 16px 0 0 16px; } .map.snug .mz:last-child { border-radius: 0 16px 16px 0; } .map.snug .mz:only-child { border-radius: 16px; }
-    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 15px; position: relative; transition: background var(--m-2, 160ms); }
+    .mz { flex: 1 1 0; min-width: 0; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: var(--fs-2); position: relative; transition: background var(--m-2, 160ms); }
     .mz + .mz { border-left: 2px dashed var(--track); }
-    .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: 16px; font-weight: var(--w-bold, 700); }
+    .mz b { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; line-height: 1.1; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .mz[data-live] { background: linear-gradient(to top, color-mix(in srgb, var(--mark, var(--primary)) 30%, transparent) 28%, transparent 28%); }
     .mz[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .mz[data-hot] { background: var(--chip-strong); box-shadow: inset 0 0 0 4px var(--primary); color: var(--ink); }
@@ -172,7 +172,7 @@ export class FhMusic extends LitElement {
     :host([data-phone]) .msgs { grid-template-columns: 1fr 1fr; }
     /* the places on the page: a picture each, and the one you are in stands up */
     .tabs { display: flex; gap: 8px; }
-    .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+    .tabs button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0 10px; border-radius: 18px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
       transition: background var(--m-2, 160ms), color var(--m-2, 160ms); }
     /* the selected tab changes colour and ring only: it never moves, so the row keeps one line */
     :host([data-phone]) .tabs:not(.inline) button { padding: 0 6px; gap: 4px; }
@@ -186,18 +186,18 @@ export class FhMusic extends LitElement {
     .spk { border-radius: 20px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; --rail: var(--track); }
     .spk.focus { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--primary); }
     .spk.inmix { box-shadow: 0 0 0 3px var(--ok); }
-    .spk .sn2 { font-size: 16px; line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .spk .sn2 { font-size: var(--fs-3); line-height: 1.15; font-weight: var(--w-bold, 700); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
     .spk .top { display: flex; align-items: center; gap: 10px; }
     .spk .rsel { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; min-height: 44px; }
-    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: 15px; color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .moveb { height: 44px; font-size: 15px; align-self: flex-start; }
+    .rtx { display: flex; flex-direction: column; min-width: 0; gap: 2px; } .rst { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .moveb { height: 44px; font-size: var(--fs-2); align-self: flex-start; }
     .thumb { width: 44px; height: 44px; border-radius: 12px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: 7px; }
     .eq i { width: 4px; border-radius: 2px; background: #fff; animation: eq .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); box-shadow: 0 0 4px rgba(0,0,0,.4); }
     .eq i:nth-child(2) { animation-delay: .3s; } .eq i:nth-child(3) { animation-delay: .6s; }
     @keyframes eq { from { height: 4px; } to { height: 20px; } }
-    .join { width: 44px; height: 44px; border-radius: 50%; background: var(--track); font-size: 20px; font-weight: var(--w-heavy, 800); flex-shrink: 0; }
+    .join { width: 44px; height: 44px; border-radius: 50%; background: var(--track); font-size: var(--fs-4); font-weight: var(--w-heavy, 800); flex-shrink: 0; }
     .join[aria-pressed='true'] { background: var(--ok); color: var(--on-ok, #fff); }
-    .field { flex: 1; min-width: 0; height: 52px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: 20px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    .field { flex: 1; min-width: 0; height: 52px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: var(--fs-4); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .hits { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; align-content: start; }
     .hits[data-fit] { gap: 3px 10px; }
     .hit { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; min-height: 52px; border-radius: 14px; background: var(--chip); text-align: left; min-width: 0; }
@@ -206,22 +206,22 @@ export class FhMusic extends LitElement {
     .hit .art, .pickrow .art { width: 40px; height: 40px; border-radius: 9px; background: var(--art, var(--track)) center / cover; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--ink2); }
     .hit .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
     .hit .tx b, .hit .tx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hit .tx b { font-size: 15px; font-weight: var(--w-bold, 700); }
-    .hit .tx span { font-size: 12px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .kind { font-size: 12px; font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
+    .hit .tx b { font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .hit .tx span { font-size: var(--fs-1); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .kind { font-size: var(--fs-1); font-weight: var(--w-heavy, 800); padding: 3px 8px; border-radius: 999px; background: var(--track); color: var(--ink); flex-shrink: 0; }
     .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .covers { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; align-content: start; }
     .crate .covers { gap: 14px 6px; padding: 6px; }
     .covers[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px; font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
-    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: var(--w-heavy, 800); color: #fff; }
+    .st { border-radius: 20px; background: var(--chip); padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: var(--fs-2); font-weight: var(--w-bold, 700); position: relative; min-width: 0; }
+    .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); color: #fff; }
     .st .lbl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
-    .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 18px; font-weight: var(--w-heavy, 800); }
+    .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .pchip[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--c, var(--primary)); }
-    .pchip .avatar { width: 32px; height: 32px; font-size: 13px; background: var(--c); overflow: hidden; }
+    .pchip .avatar { width: 32px; height: 32px; font-size: var(--fs-1); background: var(--c); overflow: hidden; }
     /* jukebox: a coin each, and the night's picks as a line of records */
     .coins { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; }
     .coins .soft { align-self: center; margin-right: 6px; }
@@ -236,15 +236,15 @@ export class FhMusic extends LitElement {
       :host(:not([data-phone]):not([data-shape='tall'])) .picks.jlow .when { align-self: start; justify-self: start; }
     }
     .coin { min-width: 66px; padding: 6px 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 16px; }
-    .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: 19px; font-weight: var(--w-heavy, 800);
+    .coin .face { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-4); font-weight: var(--w-heavy, 800);
       box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.22); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1), box-shadow var(--m-2, 160ms); }
     .coin[aria-pressed='true'] .face { transform: translateY(-5px) scale(1.1); box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c), 0 10px 14px -6px rgba(0,0,0,.4); }
-    .coin .cname { font-size: 14px; font-weight: var(--w-bold, 700); }
+    .coin .cname { font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .coin[aria-pressed='true'] .cname { text-decoration: underline; text-underline-offset: 3px; }
     .coin .face { position: relative; } .fpic { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     /* someone with a song waiting wears its cover, not a tick */
     .coin .has { position: absolute; right: -6px; bottom: -6px; width: 26px; height: 26px; border-radius: 7px; background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--chip-strong), 0 2px 4px rgba(0,0,0,.3); }
-    .coin .cnext { height: 16px; font-size: 14px; font-weight: var(--w-heavy, 800); color: var(--ink); }
+    .coin .cnext { height: 16px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); color: var(--ink); }
     .coin[data-next] .face { box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--ink); }
     .jcovers { flex: 1; min-height: 0; }
     /* a portrait tablet: while someone picks a picture for the jukebox, the search box and the tabs step aside (Back and Search are on the yellow bar), so the pictures get a whole row instead of a sliver */
@@ -253,14 +253,14 @@ export class FhMusic extends LitElement {
     .jcovers .st { --st-pr: 20px; padding-right: 20px; } .jcovers .st .img { position: relative; z-index: 1; box-shadow: 0 8px 16px -8px rgba(0,0,0,.5); } .jcovers .st .disc { z-index: 0; top: 10px; right: 20px; width: calc(100% - 30px); }
     .jcovers .st:active .disc { transform: translateX(15%) scale(.94) rotate(40deg); }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .jsw { height: 48px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .jsw i { width: 50px; height: 30px; border-radius: 15px; background: var(--ink3); position: relative; transition: background var(--m-2, 160ms); flex-shrink: 0; }
     .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .jsw[aria-checked='true'] i { background: var(--ok); }
     .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
-    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
+    .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
     .pickrow[data-next] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); animation: nextup 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
@@ -270,21 +270,21 @@ export class FhMusic extends LitElement {
     .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }
     .pickrow[data-next] .disc { transform: translateX(13%) scale(.94); animation: puck 6s linear infinite; animation-iteration-count: var(--loops, infinite); }
     .pickrow .pcover .art { position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; box-shadow: 0 8px 14px -8px rgba(0,0,0,.5); background: var(--art, linear-gradient(135deg, var(--p-1), var(--p-5))) center / cover; color: #fff; }
-    .pcover .init { position: absolute; left: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); font-size: 13px; box-shadow: 0 0 0 2.5px var(--chip-strong); }
+    .pcover .init { position: absolute; left: -4px; top: -4px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--c); font-size: var(--fs-1); box-shadow: 0 0 0 2.5px var(--chip-strong); }
     .pickrow .nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
-    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: 14px; font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
+    .when { align-self: flex-start; min-height: 24px; padding: 2px 10px 2px 7px; border-radius: 999px; background: var(--track); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); display: inline-flex; align-items: center; gap: 5px; }
     .when i { font-style: normal; display: inline-flex; }
     .pickrow[data-next] .when { background: var(--mark, var(--primary)); color: var(--on-mark, var(--on-primary)); }
-    .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: 15px; font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
+    .banner { padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 24%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-bold, 700); display: flex; align-items: center; gap: 10px; }
     .msgs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); text-align: left; }
+    .msgs button { min-height: 52px; padding: 6px 12px; border-radius: 16px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: left; }
     .msgs button[aria-pressed='true'] { background: var(--chip-strong); box-shadow: 0 0 0 3px var(--mark, var(--primary)); }
-    .soft { color: var(--ink2); font-size: 14px; font-weight: var(--w-semi, 600); }
+    .soft { color: var(--ink2); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
 
     /* ---- the house: rooms you can see, music you can pick up ---- */
     .map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; position: relative; user-select: none; -webkit-user-select: none; }
     .floor { flex: 1 1 0; min-height: 96px; display: flex; gap: 8px; }
-    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+    .flabel { flex: 0 0 22px; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
     .mroom { flex: var(--size, 1) 1 0; min-width: 0; display: flex; border-radius: 20px; background: var(--chip-soft); overflow: hidden; }
     /* the stairs: treads seen from above between two rails (level lines, so they never look like the slanted hatch of a speaker that is offline) */
     .mstairs { flex: 0 0 54px; border-radius: 10px; background: repeating-linear-gradient(to bottom, var(--ink3) 0 2.5px, transparent 2.5px 16px) 9px 0 / calc(100% - 18px) 100% no-repeat, var(--chip-soft); box-shadow: inset 5px 0 0 var(--ink3), inset -5px 0 0 var(--ink3); }
@@ -326,8 +326,8 @@ export class FhMusic extends LitElement {
     /* a room's name is never cut: a long one takes a second line */
     .zname b { white-space: normal; overflow-wrap: anywhere; line-height: 1.1; }
     .zname span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .zname b { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .zname span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .zname b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .zname span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .mzone > .join { position: absolute; right: 12px; top: 6px; }
     .grab { position: absolute; right: 6px; bottom: var(--lvl); width: 56px; height: 44px; margin-bottom: -22px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: ns-resize; outline: none; border-radius: 12px; transition: bottom var(--mt-2, 160ms) ease-out; z-index: 1; }
     .grab i { display: block; width: 52px; height: 14px; box-sizing: border-box; border-radius: 7px; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--c), 0 2px 5px rgba(0,0,0,.3); transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
@@ -350,9 +350,9 @@ export class FhMusic extends LitElement {
     .maprow > .map { min-width: 0; }
     .mshelf { flex: 0 0 clamp(236px, 25%, 310px); min-width: 0; border-radius: 22px; background: var(--chip); padding: 12px; display: flex; flex-direction: column; gap: 10px; user-select: none; -webkit-user-select: none; }
     .shead { display: flex; align-items: center; justify-content: flex-start; gap: 4px; flex-wrap: wrap; }
-    .shead b { flex: 1 1 100%; min-width: 0; font-size: 14px; font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shead b { flex: 1 1 100%; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); letter-spacing: .09em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .swho { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: 13px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
+    .swho i { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); font-style: normal; font-size: var(--fs-1); font-weight: var(--w-heavy, 800); display: flex; align-items: center; justify-content: center; transform: scale(.88); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .swho[aria-pressed='true'] i { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--chip-strong), 0 0 0 5px var(--c); }
     .srecs { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; align-content: start; justify-items: center; --row: calc((100cqh - (var(--rows) - 1) * 8px) / var(--rows)); }
     /* the label has the whole column (the record alone is sized by the row), so a long name is not cut */
@@ -361,11 +361,11 @@ export class FhMusic extends LitElement {
     .puck.onshelf { position: static; margin: 0; width: 100%; height: auto; aspect-ratio: 1; display: block; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
-    .srec span { max-width: 100%; height: 45px; font-size: 14px; line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .srec span { max-width: 100%; height: 45px; font-size: var(--fs-2); line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
-    .wholeh b { display: block; font-size: 16px; font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wholeh b { display: block; font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .wholeh span span { display: block; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wholeh[data-joined] { border-style: solid; border-color: var(--ink2); background: var(--sel-bg); color: var(--sel-ink); } .wholeh[data-joined] span span { color: inherit; }
     .wholeb[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .wholeh[data-open] { border-color: var(--primary); animation: landp 1.1s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
@@ -413,22 +413,22 @@ export class FhMusic extends LitElement {
     .panel { container: panel / inline-size; }
     .tabs.inline[data-words] button { flex: 0 0 auto; padding: 0 12px; gap: 6px; } :host([data-phone]) .tabs.inline[data-words] button { padding: 0 8px; gap: 4px; } .tabs.inline[data-words] button span { display: inline; }
     /* Whole house is a plain button: play is the one filled key in the toolbar */
-    .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: 15px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .wholeb { background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track); font-size: var(--fs-2); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .acts .pill[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     /* the house: a room's volume is a level you can see, with its number inside and a bar to hold. The level runs between the quieter button at the bottom and the louder button under the ＋. */
     .pool, .grab, .zvol, .mzone::after { --r0: 56px; --r1: 104px; --lvl: calc(var(--r0) + (100% - var(--r0) - var(--r1)) * var(--v, 0) / 100); }
     @container zone (max-height: 219px) { .pool, .grab, .zvol, .mzone::after { --r0: 14px; --r1: 58px; } .mzone > .vstep { display: none; } }
     @container zone (max-width: 139px) { .puck { left: 44%; } }
-    .zvol { position: absolute; left: 12px; bottom: 8px; font-size: 20px; line-height: 1; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; pointer-events: none; transform-origin: left bottom; transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
+    .zvol { position: absolute; left: 12px; bottom: 8px; font-size: var(--fs-4); line-height: 1; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; pointer-events: none; transform-origin: left bottom; transition: transform var(--m-2, 160ms) var(--e-spring, ease); }
     .mzone:not([data-live]) .zvol { color: var(--ink2); }
     .mzone[data-held] .zvol { transform: scale(1.4); } .mzone[data-held] .grab i { transform: scale(1.15); }
     .mzone > .vstep { position: absolute; right: 12px; z-index: 1; } .mzone > .vstep[data-step='up'] { top: 54px; } .mzone > .vstep[data-step='down'] { bottom: 6px; }
     .zname b { display: flex; flex-wrap: wrap; align-items: center; } .zname b .linkd { flex-shrink: 0; }
     /* calling: a picture on every ready message; with the keyboard up the rooms and the messages stay in reach */
-    .bpic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .bpic { font-size: var(--fs-5); line-height: 1; flex-shrink: 0; }
     .sayrow { display: flex; gap: 10px; align-items: center; } .qpics { display: flex; gap: 4px; flex-shrink: 0; }
-    .qpic { width: 44px; height: 44px; border-radius: 12px; background: var(--chip); font-size: 22px; display: inline-flex; align-items: center; justify-content: center; } .qpic[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring); }
-    .rchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .rchip { font-size: 15px; } .rchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
+    .qpic { width: 44px; height: 44px; border-radius: 12px; background: var(--chip); font-size: var(--fs-4); display: inline-flex; align-items: center; justify-content: center; } .qpic[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring); }
+    .rchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .rchip { font-size: var(--fs-2); } .rchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
     :host([data-phone]) .sayrow { flex-wrap: wrap; } :host([data-phone]) .qpics { flex: 1 1 100%; justify-content: space-between; }
     /* calm mode and "reduce motion": nothing on the Music page moves by itself, not even once */
     :host([data-still]) *, :host([data-still]) *::before, :host([data-still]) *::after { animation: none !important; }
@@ -1198,11 +1198,11 @@ export class FhMusic extends LitElement {
     return html`<section class="glass stage" style=${art ? `--art:${art}` : ''} aria-label="Now playing">
       <div class="bg"></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${playing ? '' : 'animation:none;background:rgba(255,255,255,.5)'}"></span>
-        <span style="font-size:13px;font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${playing ? 'Playing in' : 'Ready in'} ${this._name(p)}${mix ? ` + ${mix} more` : ''}</span></div>
+        <span style="font-size:var(--fs-1);font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${playing ? 'Playing in' : 'Ready in'} ${this._name(p)}${mix ? ` + ${mix} more` : ''}</span></div>
       <div class="deck">${deck === nothing ? html`<div class="cover ${playing ? '' : 'paused'}"></div>` : deck}</div>
       <div class="titles" style="display:flex;flex-direction:column;gap:2px;min-width:0">
-        <span class="display" style="font-size:24px;font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_title ?? (p.state === 'off' ? 'Off' : 'Nothing playing')}</span>
-        <span style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_artist ?? a.media_album_name ?? 'Search, pick from a shelf or tap a station'}</span>
+        <span class="display" style="font-size:var(--fs-5);font-weight:var(--w-heavy, 800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_title ?? (p.state === 'off' ? 'Off' : 'Nothing playing')}</span>
+        <span style="font-size:var(--fs-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.media_artist ?? a.media_album_name ?? 'Search, pick from a shelf or tap a station'}</span>
       </div>
       ${dur ? html`<div class="bar" role="progressbar" aria-label="Track progress" aria-valuenow=${Math.round(frac * 100)} aria-valuemin="0" aria-valuemax="100"><i style="width:${frac * 100}%"></i></div>` : nothing}
       <div class="ctl">
@@ -1230,7 +1230,7 @@ export class FhMusic extends LitElement {
     return html`
         <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change the view" @click=${() => { sfx('tap'); this._viewAsk = true; }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${this._allJoined ? icon('check', 20) : icon('home', 20)}Whole house</button>`}
-        ${mine && this._mix(mine).length ? html`<button class="pill tap" style="font-size:15px" @click=${() => this._everywhere(false, mine)}>Just ${this._name(mine)}</button>` : nothing}
+        ${mine && this._mix(mine).length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => this._everywhere(false, mine)}>Just ${this._name(mine)}</button>` : nothing}
         ${off.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${off.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${off.length === this._list.length ? 'Every speaker is offline' : `${off.length} ${off.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(true)}>?</button>
         <span class="hint" role="note" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>`;
@@ -1256,7 +1256,7 @@ export class FhMusic extends LitElement {
     const sw = (re: RegExp, label: string): TemplateResult | typeof nothing => {
       const id = tv && sibling(this.hass!, tv, re); if (!id) return nothing;
       const on = this.hass!.states[id].state === 'on';
-      return html`<button class="pill tap" style="font-size:15px" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
+      return html`<button class="pill tap" style="font-size:var(--fs-2)" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
     };
     const mode = this._mode;
     return html`${this._viewAsk ? viewPicker(mode, (v) => { const was = this._view; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v !== was) { clearTimeout(this._coachT); this._coach = false; this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b, { burst: true }); sfx('done');
@@ -1285,14 +1285,14 @@ export class FhMusic extends LitElement {
     const hits = this._hits;
     return html`<div class="sbar"><input class="field" inputmode=${shp() === 'phone' ? 'text' : 'none'} aria-label="Search for music" placeholder="A song, an album, a story…" .value=${this._text}
           @focus=${() => { this._keys = true; }} @input=${(e: Event) => { this._text = (e.target as HTMLInputElement).value; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._search(); }}>
-        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
-        ${hits ? html`<button class="pill tap" style="height:52px;padding:0 16px;font-size:15px;flex-shrink:0" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>` : nothing}
+        <button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._search()}>${this._busy ? 'Looking…' : 'Search'}</button>
+        ${hits ? html`<button class="pill tap" style="height:52px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${this._keys ? 'Hide the keyboard' : 'Show the keyboard'} aria-pressed=${String(this._keys)} @click=${() => { this._keys = !this._keys; }}>Keyboard</button>` : nothing}
         <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => { this._tab = this._adding ? 'juke' : this._prev; this._adding = false; }}>${icon('close', 22)}</button></div>`;
   }
 
   private _searchTab(): TemplateResult {
     const hits = this._hits, sel = hits?.find((h) => h.uri === this._sel);
-    return html`${this._adding ? html`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || 'everyone'}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._adding = false; this._tab = 'juke'; }}>Back</button></div>` : nothing}
+    return html`${this._adding ? html`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || 'everyone'}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => { this._adding = false; this._tab = 'juke'; }}>Back</button></div>` : nothing}
       ${this._keys && !hits ? html`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${icon('search', 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : nothing}
       ${this._keys ? html`<div style="margin:auto 0">${keyboard((k) => { [this._text, this._caps] = typeKey(this._text, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>` : nothing}
       ${hits && !this._keys ? (hits.length ? html`<div class="hits scrolly" data-fits @scroll=${scrollCue}>${hits.map((h) => html`<button class="hit tap" aria-pressed=${String(h.uri === this._sel)} @click=${() => { this._sel = h.uri; }}>
@@ -1312,7 +1312,7 @@ export class FhMusic extends LitElement {
     return html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) this._pinTo = null; }}>
       <section class="glass sheet" role="dialog" aria-modal="true" aria-label="Pin to a shelf" style="width:min(560px,92%);gap:12px">
         <h2 class="t-head">Pin “${m.name}”</h2><span class="soft">Whose shelf? Calm picks are the only ones offered at wind-down.</span>
-        ${this._shelfNames.map((n) => html`<div class="setrow"><b style="font-size:17px">${n === 'Family' ? 'Family shelf' : `${n}’s shelf`}</b><span style="display:flex;gap:8px">
+        ${this._shelfNames.map((n) => html`<div class="setrow"><b style="font-size:var(--fs-3)">${n === 'Family' ? 'Family shelf' : `${n}’s shelf`}</b><span style="display:flex;gap:8px">
           <button class="pill tap primary" @click=${() => this._pin(n, false)}>Pin</button><button class="pill tap" @click=${() => this._pin(n, true)}>🌙 Pin as calm</button></span></div>`)}
         <span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
         <div class="acts">${this._pads.map((p) => { const on = this._padSet[p.name]; return html`<button class="pill tap" style="height:44px" aria-label="Put it on the ${p.name} pad${on ? `, which now plays ${on.title}` : ''}" @click=${() => { this._padPut(p.name, m); this._pinTo = null; }}>${p.name}</button>
@@ -1334,12 +1334,12 @@ export class FhMusic extends LitElement {
       ${list.length ? html`<div class="covers scrolly" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" ?data-lifted=${this._carry?.item === m} @pointerdown=${(e: PointerEvent) => { if (!this._edit) this._carryDown(e, { item: m }); }} @click=${() => { if (!this._edit && Date.now() - this._carried > 400) this._shelfPlay(m); }}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.calm ? '🌙 ' : ''}${m.name}</span>
           ${this._edit ? html`<span class="x tap" role="button" tabindex="0" aria-label="Remove ${m.name}" @click=${(e: Event) => { e.stopPropagation(); this._unpin(m); }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._unpin(m); } }}>✕</span>` : nothing}</button>`)}</div>`
-        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">${wind ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</h2>
+        : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">${wind ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</h2>
           <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}</div>
-      <div class="dropside"><span class="soft" style="font-size:14px">Drag a record to a room, or tap it to play in <b>${this._name(room)}</b>.</span>
+      <div class="dropside"><span class="soft" style="font-size:var(--fs-2)">Drag a record to a room, or tap it to play in <b>${this._name(room)}</b>.</span>
         ${this._mini((id) => id === room?.entity_id, (id) => { this._shelfTo = id; })}
         <span style="flex:1"></span><span style="align-self:flex-end">
-        ${all.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</span></div></div>`;
+        ${all.length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</span></div></div>`;
   }
 
   private _jukeTab(): TemplateResult {
@@ -1352,12 +1352,12 @@ export class FhMusic extends LitElement {
       // a turn starts with pictures: that person's own shelf, then the family's. No reading, no typing.
       const seen = new Set<string>(), list = [...(this._items[j.who] ?? []), ...(this._items.Family ?? [])].filter((m) => !seen.has(m.uri) && !!seen.add(m.uri));
       const low = this.kids.find((k) => k.name === j.who)?.mode === 'picture';
-      const banner = html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:15px" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:15px" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>`;
+      const banner = html`<div class="banner">🎶 ${j.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${search}>${icon('search', 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => { this._jpick = false; if (this._prev === 'rooms') this._tab = 'rooms'; }}>Back</button></div>`;
       // on the youngest's turn the pictures sit low, with the words and the way back under them
       return html`${low ? nothing : banner}
         ${list.length ? html`<div class="covers scrolly jcovers ${low ? 'low' : ''}" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.name}</span></button>`)}</div>`
-        : html`<div class="empty"><span style="font-size:40px">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
+        : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
     }
     const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
     // each state has its own picture as well as its word: a play mark for the next one, an hourglass for waiting, a tick for played
@@ -1371,19 +1371,19 @@ export class FhMusic extends LitElement {
     const theirs = (n: string): Pick | undefined => waiting.find((p) => p.who === n);
     const jlow = this.kids.some((k) => k.mode === 'picture') ? 'jlow' : '';
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
-      <div class="coins ${jlow}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:14px">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
+      <div class="coins ${jlow}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
         <span class="face"><span class="fpic">${this._face(p.name, 50)}</span>${w ? html`<i class="has" style=${w.img ? `--art:url(${w.img})` : ''}>${w.img ? nothing : solid('play', 12)}</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Next' : ''}</span></button>`; })}</div>
-      <div class="acts ${jlow}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:15px" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
-        <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:15px" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
-        <span class="soft" style="flex:1;font-size:14px">Everyone gets a turn.</span>
-        ${j.picks.length ? html`<button class="pill tap" style="font-size:15px" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
+      <div class="acts ${jlow}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
+        <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:var(--fs-2)" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
+        <span class="soft" style="flex:1;font-size:var(--fs-2)">Everyone gets a turn.</span>
+        ${j.picks.length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => { const was = j.picks; this._saveJuke({ picks: [] }); this._say('Jukebox cleared', () => this._saveJuke({ picks: was })); }}>Clear</button>` : nothing}</div>
       ${j.picks.length ? html`<div class="picks scrolly ${jlow}" data-fits @scroll=${scrollCue}>${waiting.map(card)}${played.map(card)}</div>`
         : html`<div class="empty"><span style="color:var(--ink2)">${icon('jukebox', 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
 
   private _radio(): TemplateResult {
     const cur = this._cur, playingName = cur && cur.state === 'playing' ? LAST[cur.entity_id] : '';
-    return html`<span class="muted" style="font-size:14px">Tap a station to play it in <b>${this._name(cur)}</b>. Pick a different room in the Rooms tab.</span>
+    return html`<span class="muted" style="font-size:var(--fs-2)">Tap a station to play it in <b>${this._name(cur)}</b>. Pick a different room in the Rooms tab.</span>
       <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr));padding:6px;margin:-6px">${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
@@ -1399,7 +1399,7 @@ export class FhMusic extends LitElement {
     const pick = (m: string): void => { this._callMsg = m; if (!this._callTo.length) this._say('Choose a room first'); };
     const everyone = html`<button class="pill tap rchip" aria-pressed=${String(every)} @click=${() => { this._callTo = every ? [] : all; }}>Everyone</button>`;
     return html`${this._ckeys ? html`<div class="rchips" role="group" aria-label="Rooms to call">${this._list.map((p) => html`<button class="pill tap rchip" ?disabled=${this._off(p)} aria-pressed=${String(this._callTo.includes(p.entity_id))} @click=${() => flip(p.entity_id)}>${this._abed(p.entity_id) ? '☾ ' : ''}${this._name(p)}</button>`)}${everyone}</div>` : html`<div class="callrow">
-        <div class="callside"><span class="soft" style="font-size:14px">Tap the rooms to call</span>
+        <div class="callside"><span class="soft" style="font-size:var(--fs-2)">Tap the rooms to call</span>
           ${this._mini((id) => this._callTo.includes(id), flip, true)}
           <span style="align-self:flex-start">${everyone}</span></div>
         <div class="bubbles">${CALLS.map((m, i) => html`<button class="bubble tap" aria-pressed=${String(this._callMsg === m)} @click=${() => pick(m)}><span class="bpic" aria-hidden="true">${CALL_PIC[i]}</span>${m}</button>`)}</div></div>`}
@@ -1408,7 +1408,7 @@ export class FhMusic extends LitElement {
         <button class="pill tap primary sayit" ?disabled=${this._calling} ?data-busy=${this._calling} aria-busy=${this._calling ? 'true' : nothing} @click=${() => void this._call()}>${icon('megaphone', 22)} Say it</button>
         ${this._ckeys ? html`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" aria-label="Hide the keyboard" @click=${() => { this._ckeys = false; }}>${icon('close', 22)}</button>` : nothing}</div>
       ${this._ckeys ? html`<div style="margin:auto 0 0">${keyboard((k) => { [this._callMsg, this._caps] = typeKey(this._callMsg, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>`
-        : html`<span class="soft" style="font-size:14px">It is spoken over the music in that room, then the music carries on.</span>`}`;
+        : html`<span class="soft" style="font-size:var(--fs-2)">It is spoken over the music in that room, then the music carries on.</span>`}`;
   }
 }
 if (!customElements.get('fh-music')) customElements.define('fh-music', FhMusic);

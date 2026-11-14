@@ -73,12 +73,12 @@ export class FhSettings extends LitElement {
     .sheet.sbox, :host([data-phone]) .sheet.sbox { width: min(1240px, 100%); height: 100%; max-height: none; padding: 0; gap: 0; overflow: visible; display: grid; grid-template-columns: 264px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
     .shd { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 16px 18px 12px 24px; }
     .shd h2 { display: flex; align-items: center; gap: 10px; }
-    .shd .muted { font-size: 15px; font-weight: var(--w-semi, 600); }
+    .shd .muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .shd .xbtn { margin-left: auto; width: 52px; height: 52px; flex-shrink: 0; }
     /* the list of sections */
     .snav { grid-row: 2 / 4; display: flex; flex-direction: column; gap: 4px; padding: 4px 12px 16px 16px; overflow-y: auto; scrollbar-width: none; min-height: 0; }
     .snav::-webkit-scrollbar { display: none; }
-    .snav button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 16px; text-align: left; font-size: 16px; font-weight: var(--w-semi, 600); color: var(--ink); }
+    .snav button { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; border-radius: 16px; text-align: left; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); }
     .snav button > span { flex: 1; min-width: 0; }
     .snav button[aria-current='page'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .snav button[aria-disabled='true'] { opacity: .5; }
@@ -94,34 +94,34 @@ export class FhSettings extends LitElement {
     :host([data-phone]) .seg, :host([data-shape='tall']) .seg { flex-wrap: wrap; }
     :host([data-phone]) .seg button, :host([data-shape='tall']) .seg button { flex: 1 1 auto; height: auto; min-height: 44px; padding: 6px 12px; line-height: 1.15; }
     .spane:focus { outline: none; }
-    .sintro { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
+    .sintro { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.4; max-width: 70ch; }
     .scard { border-radius: 20px; background: var(--chip-soft, rgba(255,255,255,.3)); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-    .scard > h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; }
-    .scard > h3 > span.muted { font-size: 14px; font-weight: var(--w-semi, 600); }
-    .shint { font-size: 14px; font-weight: 500; color: var(--ink2); line-height: 1.35; }
+    .scard > h3 { margin: 0; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; }
+    .scard > h3 > span.muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .shint { font-size: var(--fs-2); font-weight: 500; color: var(--ink2); line-height: 1.35; }
     .srow { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; min-height: 52px; flex-wrap: wrap; }
-    .srow > .slabel { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .srow > .slabel > span { font-size: 14px; font-weight: 500; color: var(--ink2); }
+    .srow > .slabel { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .srow > .slabel > span { font-size: var(--fs-2); font-weight: 500; color: var(--ink2); }
     .srow > .sctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
     .srow.wide > .sctl { flex: 1 1 320px; justify-content: stretch; }
     .srow.wide > .sctl > .sin { flex: 1; }
     .srow.wide > .sctl > .sin.pic { flex: 0 0 60px; }
     .srow + .srow, .sitem + .sitem { border-top: 1px solid color-mix(in srgb, var(--ink2) 18%, transparent); padding-top: 10px; }
     /* text boxes */
-    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: 17px; font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
+    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
     .sin.on { box-shadow: inset 0 0 0 3px var(--primary); }
-    .sin.short { width: 96px; text-align: center; } .sin.pic { width: 60px; text-align: center; padding: 0 4px; font-size: 22px; } .sin.long { width: 100%; }
+    .sin.short { width: 96px; text-align: center; } .sin.pic { width: 60px; text-align: center; padding: 0 4px; font-size: var(--fs-4); } .sin.long { width: 100%; }
     .sin[type='date'] { width: 176px; }
     .sin[aria-invalid='true'] { box-shadow: inset 0 0 0 3px var(--danger, #c62828); }
     /* chips that choose, the time button, steppers, switches */
     .schips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
+    .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
     .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .schips > button .sw6 { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
-    .stime { font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
+    .stime { font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
     .sstep { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); padding: 2px; }
-    .sstep button { width: 44px; height: 44px; border-radius: 50%; font-size: 24px; font-weight: var(--w-bold, 700); line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
-    .sstep output { min-width: 64px; text-align: center; font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; white-space: nowrap; padding: 0 2px; }
+    .sstep button { width: 44px; height: 44px; border-radius: 50%; font-size: var(--fs-5); font-weight: var(--w-bold, 700); line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+    .sstep output { min-width: 64px; text-align: center; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; white-space: nowrap; padding: 0 2px; }
     .sswitch { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .sswitch > i { width: 50px; height: 30px; border-radius: 15px; background: var(--track); box-shadow: inset 0 0 0 1.5px var(--ink3); position: relative; flex-shrink: 0; transition: background-color var(--m-2, 160ms); }
     .sswitch > i::after { content: ''; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.25); transition: transform var(--mt-2, 160ms) var(--e-spring, ease); }
@@ -129,59 +129,59 @@ export class FhSettings extends LitElement {
     .sswitch[aria-checked='true'] > i::after { transform: translateX(20px); }
     .srange { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
     .srange input { width: 220px; max-width: 46vw; height: 44px; margin: 0; accent-color: var(--primary); background: transparent; }
-    .srange output { min-width: 52px; text-align: right; font-size: 17px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+    .srange output { min-width: 52px; text-align: right; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     /* lists that are edited a row at a time */
     .sitem { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 52px; }
     .sitem > .sgrow { flex: 1 1 120px; min-width: 0; }
     .sitem > .sin.sgrow { width: auto; }
-    .sitem .sname { font-size: 16px; font-weight: var(--w-bold, 700); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sico { width: 44px; height: 44px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; line-height: 1; }
+    .sitem .sname { font-size: var(--fs-3); font-weight: var(--w-bold, 700); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sico { width: 44px; height: 44px; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: var(--fs-4); line-height: 1; }
     .sico.bad { color: var(--danger, #c62828); }
-    .stag { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--chip-strong); font-size: 14px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .stag { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .sjob { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 4px 6px 4px 10px; border-radius: 14px; background: var(--chip); text-align: left; }
-    .sjob .spic { width: 32px; text-align: center; font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .sjob .spic { width: 32px; text-align: center; font-size: var(--fs-4); line-height: 1; flex-shrink: 0; }
     .sjobs { display: flex; flex-direction: column; gap: 6px; }
     .sjobs > .label { margin-top: 6px; }
     .sform { border-radius: 18px; padding: 12px 14px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.5px var(--primary); display: flex; flex-direction: column; gap: 8px; animation: fadeIn var(--m-3, 240ms) var(--e-out, ease); }
     .sform .srow { min-height: 48px; }
     .sbtns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
     .pill.danger { color: var(--danger, #c62828); }
-    .snote { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 16%, var(--chip-strong)); color: var(--ink); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.4; display: flex; flex-direction: column; gap: 8px; }
+    .snote { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 16%, var(--chip-strong)); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.4; display: flex; flex-direction: column; gap: 8px; }
     .snote b { font-weight: var(--w-heavy, 800); }
     /* Pictures: a child's character, the camera's test picture, and the grid of every picture */
-    .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 26px; font-weight: var(--w-bold, 700); flex-shrink: 0; }
+    .spic { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-5); font-weight: var(--w-bold, 700); flex-shrink: 0; }
     .spic fh-pic { width: 100%; height: 100%; }
     .sitem .sin.sgrow { width: 100%; box-sizing: border-box; }
     .scam { position: relative; width: min(100%, 320px); aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: #111; }
     .scam video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
     .scam .sarea { position: absolute; inset: var(--m, 10%); border: 2px dashed #fff; border-radius: 6px; box-shadow: 0 0 0 999px rgba(0,0,0,.45); pointer-events: none; }
-    .scam .smeter { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,.7); color: #fff; font-size: 14px; font-weight: var(--w-bold, 700); }
+    .scam .smeter { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,.7); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .scam .smeter[data-on='true'] { background: #15803d; }
     .slib { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
     .sart { display: flex; flex-direction: column; gap: 6px; border-radius: 16px; background: var(--chip); padding: 8px; min-width: 0; }
     .sart fh-pic { width: 100%; aspect-ratio: 16 / 10; border-radius: 10px; }
     .sart[data-hidden] fh-pic { opacity: .35; filter: grayscale(1); }
-    .scap { display: flex; flex-direction: column; font-size: 15px; font-weight: var(--w-bold, 700); min-width: 0; overflow-wrap: anywhere; } .scap small { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .scap { display: flex; flex-direction: column; font-size: var(--fs-2); font-weight: var(--w-bold, 700); min-width: 0; overflow-wrap: anywhere; } .scap small { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .sacts { display: flex; gap: 6px; justify-content: flex-end; } .sacts .sico[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); }
-    .sacts .sico[data-sure='true'] { width: auto; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: var(--w-heavy, 800); }
-    .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; overflow-wrap: anywhere; }
+    .sacts .sico[data-sure='true'] { width: auto; padding: 0 12px; border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
+    .snote code, .sadv code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: var(--fs-2); overflow-wrap: anywhere; }
     .snote.ro { background: color-mix(in srgb, var(--ink2) 14%, var(--chip-strong)); }
     .spick { max-height: 232px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; padding: 3px; margin: -3px; }
     /* a tile has room for a name on two lines and the room it is in; a longer name ends in “…” (search finds it by any word) */
-    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15px; font-weight: var(--w-semi, 600); min-width: 0; }
+    .spick button { min-height: 64px; padding: 6px 12px; border-radius: 14px; background: var(--chip); text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); min-width: 0; }
     .spick button > span:not(.sbox2) { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; overflow-wrap: anywhere; }
-    .spick button small { font-size: 13px; font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
+    .spick button small { font-size: var(--fs-1); font-weight: 500; color: var(--ink2); overflow-wrap: anywhere; }
     .spick button b { font-weight: inherit; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
     .spick button small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .spick button[aria-pressed='true'] small { color: inherit; }
     .spick button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sbox2 { width: 22px; height: 22px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--ink2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
     [aria-pressed='true'] > .sbox2 { background: var(--primary); color: var(--on-primary); box-shadow: none; }
-    .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: 15px; }
+    .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: var(--fs-2); }
     .sadv > b { font-weight: var(--w-bold, 700); } .sadv > span { color: var(--ink2); font-weight: 500; overflow-wrap: anywhere; }
     /* the foot: where the pane stands, and its one Save */
     .sft { grid-column: 2; display: flex; align-items: center; gap: 12px; padding: 12px 24px 16px 12px; border-top: 1px solid color-mix(in srgb, var(--ink2) 20%, transparent); min-height: 82px; }
-    .sft .sstate { flex: 1; min-width: 0; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.3; display: flex; align-items: center; gap: 10px; }
+    .sft .sstate { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.3; display: flex; align-items: center; gap: 10px; }
     .sft .sstate.bad { color: var(--danger, #c62828); font-weight: var(--w-bold, 700); }
     .sft .lead { min-width: 132px; }
     .sft .lead[disabled] { background: var(--chip-strong); color: var(--ink2); opacity: 1; box-shadow: inset 0 0 0 1.5px var(--ink3) !important; }
@@ -196,19 +196,19 @@ export class FhSettings extends LitElement {
     /* the time dial: the same two drums as the add-event sheet */
     .sveil { position: absolute; inset: 0; z-index: 5; border-radius: inherit; background: rgba(0,0,0,.28); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     .sdial { position: absolute; z-index: 6; left: 50%; top: 50%; translate: -50% -50%; width: 340px; max-width: 94%; border-radius: 26px; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; background: var(--sheet-bg, var(--chip-strong)); color: var(--ink); box-shadow: 0 20px 50px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
-    .sdial h3 { margin: 0; font-size: 17px; font-weight: var(--w-heavy, 800); align-self: flex-start; }
+    .sdial h3 { margin: 0; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); align-self: flex-start; }
     .sdial .sdrow { display: flex; align-items: center; gap: 12px; }
     .drums { position: relative; display: flex; align-items: center; gap: 2px; height: ${ROW * 3}px; border-radius: 16px; background: var(--chip-strong); padding: 0 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,.14), inset 0 0 0 1.5px var(--ink3); }
     .drums::before { content: ''; position: absolute; left: 6px; right: 6px; top: ${ROW}px; height: ${ROW}px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 16%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); pointer-events: none; }
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 3px var(--primary); border-radius: 10px; outline: none; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${ROW}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${ROW}px; scroll-snap-align: center; font-style: normal; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
     .drum::before, .drum::after { content: ''; display: block; height: ${ROW}px; }
-    .scolon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
+    .scolon { font-size: var(--fs-6); font-weight: 800; padding-bottom: 4px; }
     .sampm { display: flex; flex-direction: column; gap: 6px; }
-    .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .sampm button { width: 64px; height: 48px; border-radius: 12px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .sampm button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .sdial .lead { align-self: stretch; }
     :host(:not(family-hub-card)) .sbox .toast { z-index: 8; bottom: 96px; }
@@ -216,7 +216,7 @@ export class FhSettings extends LitElement {
     .sbox[data-kb] .sft, .sbox[data-kb] .shd .muted { display: none; }
     /* a narrower tablet: a slimmer list */
     :host([data-n2]) .sheet.sbox { grid-template-columns: 216px minmax(0, 1fr); }
-    :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: 15px; }
+    :host([data-n2]) .snav button { padding: 6px 10px; gap: 10px; font-size: var(--fs-2); }
     /* a portrait tablet and a phone: the sections become a row of tabs across the top */
     :host([data-shape='tall']) .sheet.sbox, :host([data-phone]) .sheet.sbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
     :host([data-shape='tall']) .snav, :host([data-phone]) .snav { grid-row: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }

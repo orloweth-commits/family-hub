@@ -54,14 +54,14 @@ export class FhStudio extends LitElement {
     .shelf { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
     /* eight tabs in two even rows of four (the picture tabs of a child who cannot read stay in one row) */
     .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .tabs.pics { display: flex; flex-wrap: wrap; }
-    .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
-    .pill { font-size: 15px; }
+    .tabs button { height: 44px; /* token */ padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .pill { font-size: var(--fs-2); }
     .sfoot { display: flex; gap: 10px; width: 100%; margin-top: auto; z-index: 1; }
     /* a sheet's footer stacks and sticks on a phone; the studio's two buttons stay side by side under the picture */
     :host([data-phone]) .mirror > .sfoot { position: static; flex-direction: row; align-items: stretch; margin: 0; padding: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; flex: 1 1 100%; gap: 10px; }
     /* four tabs across a phone: the picture sits over the word, so no word is cut */
-    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: 13px; line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
-    :host([data-phone]) .tabs:not(.pics) .te { font-size: 18px; line-height: 1; }
+    :host([data-phone]) .tabs:not(.pics) button { height: 54px; padding: 4px 2px; font-size: var(--fs-1); line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 16px; }
+    :host([data-phone]) .tabs:not(.pics) .te { font-size: var(--fs-3); line-height: 1; }
     /* the youngest reaches the lower half of a wall panel only: in his studio the way back sits under his picture, just above Done, and the rows of things to choose (and of colours) go under the tiles */
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .shead { order: 2; margin-top: auto; }
     :host(:not([data-phone]):not([data-shape='tall'])) .mirror.low > .sfoot { order: 3; margin-top: 0; }
@@ -90,44 +90,44 @@ export class FhStudio extends LitElement {
     .pill[disabled] { opacity: 1; background: var(--chip-soft); color: var(--ink2); }
     /* "Undo all" with nothing to undo is only resting: no padlock and no dashed edge in any look (those mean "locked") */
     :host([data-look]) .sfoot .pill[disabled] { outline: none; background: var(--chip-soft); color: var(--ink2); } :host([data-look]) .sfoot .pill[disabled]::before { content: none; }
-    .label { font-size: 14px; }
+    .label { font-size: var(--fs-2); }
     /* what the studio says sits over the mirror, above its two buttons: never over the things to choose from */
     :host(:not([data-shape='tall'])) .toast { left: 18px; right: auto; margin: 0; max-width: 344px; bottom: 84px; }
     .tabs button[aria-selected='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+    .heart { position: absolute; bottom: 30px; right: 2px; width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); font-size: var(--fs-4); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
     .grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; align-content: start; grid-auto-rows: max-content; padding: 6px 6px 18px; }
     .lock { display: inline-flex; align-items: center; gap: 3px; }
     .lock svg { flex-shrink: 0; }
     .cell { position: relative; display: flex; } .cell > .tile { flex: 1; min-width: 0; }
-    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: 15px; font-weight: var(--w-bold, 700); text-align: center; }
+    .tile { border-radius: 20px; background: var(--chip); padding: 8px 6px 9px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; font-size: var(--fs-2); font-weight: var(--w-bold, 700); text-align: center; }
     .tile[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--chip-strong); }
     .tile.locked .av { filter: grayscale(1) brightness(.85); opacity: .55; }
-    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); z-index: 2; }
+    .lock { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 999px; background: #16161c; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); z-index: 2; }
     .cell > .heart { z-index: 2; }
     .sw { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .sw button { width: 44px; height: 44px; /* token */ border-radius: 50%; position: relative; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
     .sw button[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink), inset 0 0 0 2px rgba(255,255,255,.8); }
-    .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(0,0,0,.35); border-radius: 50%; }
+    .sw button.locked::after { content: '🔒'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); background: rgba(0,0,0,.35); border-radius: 50%; }
     /* "more to come": not a button, so it has no fill and no outline */
-    .cell.more { align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 96px; padding: 8px; border-radius: 20px; border: 2px dashed var(--track); color: var(--ink2); font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; }
-    .cell.more .e { font-size: 30px; line-height: 1; }
-    .swmore { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
+    .cell.more { align-items: center; justify-content: center; flex-direction: column; gap: 4px; min-height: 96px; padding: 8px; border-radius: 20px; border: 2px dashed var(--track); color: var(--ink2); font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; }
+    .cell.more .e { font-size: var(--fs-6); line-height: 1; }
+    .swmore { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     /* his rank lives here, where it pays off, under the studio's title */
-    .rankline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 4px; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
-    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); }
+    .rankline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 4px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
+    .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     /* a painted character: his picture, and what he has chosen that is not painted yet */
-    .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: 50px; line-height: 1; }
+    .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: var(--fs-d2); line-height: 1; }
     .tile.locked .emo { filter: grayscale(1); opacity: .5; }
     .easel { position: relative; z-index: 1; width: 300px; height: 300px; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
     .easel fh-pic { width: 100%; height: 100%; }
     .easel[data-old] fh-pic { filter: saturate(.55) brightness(.92); }
-    .easel .blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 96px; background: var(--chip); }
+    .easel .blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-d5); background: var(--chip); }
     .parts { z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
-    .parts span { width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; }
-    .pnote { z-index: 1; font-size: 15px; font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; min-height: 20px; }
-    .wet { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: color-mix(in srgb, var(--kid) 34%, rgba(20,20,26,.72)); color: #fff; text-align: center; padding: 18px; font-size: 18px; font-weight: var(--w-bold, 700); }
-    .wet .brush { font-size: 64px; animation: brush 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
+    .parts span { width: 44px; height: 44px; /* token */ border-radius: 50%; background: var(--chip-strong); display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-5); line-height: 1; }
+    .pnote { z-index: 1; font-size: var(--fs-2); font-weight: var(--w-semi, 600); text-align: center; text-wrap: balance; min-height: 20px; }
+    .wet { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: color-mix(in srgb, var(--kid) 34%, rgba(20,20,26,.72)); color: #fff; text-align: center; padding: 18px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .wet .brush { font-size: var(--fs-d3); animation: brush 1.6s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
     @keyframes brush { from { transform: translate(calc(-26px * var(--m-d, 1)), 0) rotate(-14deg); } to { transform: translate(calc(26px * var(--m-d, 1)), calc(-8px * var(--m-d, 1))) rotate(12deg); } }
     .wet .bar { width: 76%; height: 10px; border-radius: 999px; background: rgba(255,255,255,.28); overflow: hidden; } .wet .bar i { display: block; height: 100%; border-radius: inherit; background: #fff; transition: width 1s linear; }
     ${unsafeCSS(avatarCss)}
@@ -301,16 +301,16 @@ export class FhStudio extends LitElement {
           <span class="pnote" role="status">${wet ? 'You can keep watching, or go back: it will be ready soon.' : cannot ? cannot : dirty && !have ? `Tap Paint it to see your new look. ${this._paints}` : dirty ? 'You’ve had this look before.' : this._paints}</span>`
         : html`<button class="tap" data-avpop style="z-index:1" aria-label="Jump" @click=${() => { this._jump++; }}>${renderAvatar(this.d, { size: 240, jump: this._jump, age: this.kid.age })}</button>`}
         ${nx && !this._picMode ? html`<div style="width:100%;z-index:1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:15px;font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
+          <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${this._goal === nx.id ? '♥ Saving for' : 'Next unlock'}: ${nx.label} <span class="muted">· ${nx.req - this.life} to go</span></span>
           <div class="xp"><div style="width:${Math.round(((this.life - from) / (nx.req - from)) * 100)}%"></div></div></div>` : nothing}
         <div class="sfoot">
           <button class="pill tap" style="flex:1;height:50px;justify-content:center" ?disabled=${!dirty || wet} @click=${() => { this._draft = undefined; this._jump++; }}>Undo all</button>
-          ${painted ? html`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:16px" ?disabled=${wet || (dirty && !have && !!cannot)} aria-busy=${wet ? 'true' : nothing} @click=${() => { if (dirty) void this._wear(); else leave(); }}>${wet ? 'Painting…' : !dirty ? 'Done' : have ? 'Wear this look' : html`🖌️ Paint it!`}</button>`
-          : html`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:16px" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>`}
+          ${painted ? html`<button class="pill tap primary" data-act="paint" style="flex:1.4;height:50px;justify-content:center;font-size:var(--fs-3)" ?disabled=${wet || (dirty && !have && !!cannot)} aria-busy=${wet ? 'true' : nothing} @click=${() => { if (dirty) void this._wear(); else leave(); }}>${wet ? 'Painting…' : !dirty ? 'Done' : have ? 'Wear this look' : html`🖌️ Paint it!`}</button>`
+          : html`<button class="pill tap primary" style="flex:1.4;height:50px;justify-content:center;font-size:var(--fs-3)" @click=${() => this._save()}>${dirty ? 'Save my look' : 'Done'}</button>`}
         </div>
       </section>
       <section class="glass shelf ${this._picMode ? 'low' : ''}">
-        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:26px;width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`<span class="te" aria-hidden="true">${c.emoji}</span> ${c.label}`}</button>`)}</div>
+        <div class="tabs ${this._picMode ? 'pics' : ''}" role="tablist">${cats.map((c) => html`<button class="tap" role="tab" aria-label=${c.label} aria-selected=${String(c.id === this._tab)} style=${this._picMode ? 'font-size:var(--fs-5);width:58px;height:52px;padding:0' : ''} @click=${() => { this._tab = c.id; sfx('tap'); if (this._picMode) say(c.label); }}>${this._picMode ? c.emoji : html`<span class="te" aria-hidden="true">${c.emoji}</span> ${c.label}`}</button>`)}</div>
         ${cat.swatch ? html`<div class="sw"><span class="label" style="min-width:60px;margin-right:6px;flex-shrink:0">${cat.swatch.label}</span>
           ${sw!.show.map((s) => { const locked = !isUnlocked(s, this.life, this.grow); return html`<button class="tap ${locked ? 'locked' : ''} ${this._shake === `${cat.id}:${s[0]}` ? 'shake' : ''}"
             title=${s[1]} aria-label=${`${s[1]}${locked ? `, unlocks at ${s[2]} points` : ''}`} aria-pressed=${String(this.d[cat.swatch!.key] === s[0])}
@@ -319,7 +319,7 @@ export class FhStudio extends LitElement {
           ${items.show.map((it) => {
             const locked = !isUnlocked(it, this.life, this.grow), worn = isWorn(this.d, cat, it[0]), surprise = !!it[3];
             return html`<div class="cell"><button class="tile tap ${locked ? 'locked shimmer' : ''} ${this._shake === `${cat.id}:${it[0]}` ? 'shake' : ''}" aria-pressed=${String(worn)} @click=${() => this._pick(cat, it)}>
-              <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${painted ? 76 : cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:44px">🎁</span>` : painted ? html`<span class="emo" aria-hidden="true">${itemEmoji(cat, it[0])}</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
+              <span class="av">${locked && surprise ? html`<span style="display:flex;width:92px;height:${painted ? 76 : cat.crop === 'head' ? 92 : 110}px;align-items:center;justify-content:center;font-size:var(--fs-d1)">🎁</span>` : painted ? html`<span class="emo" aria-hidden="true">${itemEmoji(cat, it[0])}</span>` : renderAvatar(applyItem(this.d, cat, it[0]), { size: 92, crop: cat.crop, still: true, age: this.kid.age })}</span>${locked && surprise ? 'Surprise' : it[1]}
               ${locked ? html`<span class="lock">${surprise ? '🌱' : html`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? html`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : it[2]}`}</span>` : recent(it[2]) ? html`<span class="new">NEW</span>` : nothing}
             </button>
               ${locked && !surprise && !this._picMode ? html`<button class="heart tap" aria-pressed=${String(this._goal === it[0])} aria-label=${this._goal === it[0] ? `${it[1]} is my goal` : `Make ${it[1]} my goal`} @click=${() => this._setGoal(it)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === it[0] ? '#e11d48' : 'none'} stroke=${this._goal === it[0] ? '#9f1239' : 'currentColor'} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : nothing}</div>`;

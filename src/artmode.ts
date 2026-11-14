@@ -187,9 +187,9 @@ export const artCss = `
   .awords { display: flex; flex-direction: column; min-width: 0; }
   .atime { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
   .atime .big { font-size: 148px; font-weight: 500; line-height: .92; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
-  .aampm { font-size: 40px; font-weight: 600; opacity: .85; }
-  .adate { font-size: 30px; font-weight: 600; margin-top: 8px; opacity: .92; }
-  .ainfo { font-size: 28px; font-weight: 600; margin-top: 10px; opacity: .95; max-width: 20em; text-wrap: balance; }
+  .aampm { font-size: var(--fs-d1); font-weight: 600; opacity: .85; }
+  .adate { font-size: var(--fs-6); font-weight: 600; margin-top: 8px; opacity: .92; }
+  .ainfo { font-size: var(--fs-5); font-weight: 600; margin-top: 10px; opacity: .95; max-width: 20em; text-wrap: balance; }
   .ainfo + .ainfo { margin-top: 4px; opacity: .8; }
   /* night: the artwork rests; a dim amber clock, as on the night screen */
   .artm[data-night] { background: #000; --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; color: #ffb26b; }
@@ -199,6 +199,6 @@ export const artCss = `
   :host([data-phone]) .adrift { inset: 24px 18px; }
   :host([data-phone]) .aplate { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; border-radius: 28px; }
   :host([data-phone]) .aplate .nart { display: none; }
-  :host([data-phone]) .atime .big { font-size: 84px; } :host([data-phone]) .aampm { font-size: 26px; }
-  :host([data-phone]) .adate { font-size: 20px; } :host([data-phone]) .ainfo { font-size: 18px; }
+  :host([data-phone]) .atime .big { font-size: var(--fs-d5); } :host([data-phone]) .aampm { font-size: var(--fs-5); }
+  :host([data-phone]) .adate { font-size: var(--fs-4); } :host([data-phone]) .ainfo { font-size: var(--fs-3); }
 `;
