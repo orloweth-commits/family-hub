@@ -32,6 +32,8 @@ const rich = (page) => page.evaluate(async () => { const c = document.querySelec
 const answer = (page, verdict) => page.evaluate(async (v) => { const c = document.querySelector('family-hub-card'), h = c.hass, items = (await h.callWS({ type: 'todo/item/list', entity_id: 'todo.family_hub_asks' })).items, it = items.find((x) => x.status === 'needs_action');
   await h.callService('todo', 'update_item', { item: it.uid, status: 'completed', description: it.description.replace(/^ask /, v + ' ') }, { entity_id: 'todo.family_hub_asks' }); }, verdict);
 
+// an answer reaches the page through Home Assistant: wait for the words, not for a fixed time (a busy machine is slow)
+const told = (page, re) => page.waitForFunction((src) => new RegExp(src).test(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid')._msg ?? ''), re.source, { timeout: 8000 }).then(() => page.waitForTimeout(250)).catch(() => {});
 // 1. the child's page
 { const page = await open('look=glass&page=kid&kid=0&approve=1&shuffle=0'); await rich(page); await page.waitForTimeout(300);
   const big = row(page, 'Pick the family movie'), small = row(page, 'Extra screen time');
@@ -55,17 +57,17 @@ const answer = (page, verdict) => page.evaluate(async (v) => { const c = documen
   await big.click(); await page.waitForTimeout(250);
   ok('asking again for the same thing does not send a second notice', (await calls(page, /^notify\./)).length === 1 && (await list(page, ASKS)).length === 1 && /^Asked\. Waiting for a grown-up/.test(await msg(page)), await msg(page));
   // not yet
-  await answer(page, 'no'); await page.waitForTimeout(600);
+  await answer(page, 'no'); await told(page, /^Not yet/);
   ok('“Not yet” is told kindly, costs nothing, and clears the waiting line', /^Not yet for Pick the family movie\. Your points are safe\.$/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0 && await state(page, PTS) === '300', await msg(page));
   ok('the answered line is cleared from the list', (await list(page, ASKS)).length === 0, await list(page, ASKS));
   // approve
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-send"]').click(); await page.waitForTimeout(500);
-  await answer(page, 'ok'); await page.waitForTimeout(600);
+  await answer(page, 'ok'); await told(page, /said yes/);
   ok('“Approve” is told as a yes', /^A grown-up said yes: Pick the family movie\.$/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0, await msg(page));
   ok('the page itself spends nothing for a yes (Home Assistant has already taken the points)', (await calls(page, /fh_add_points/)).length === 0);
   // short
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-send"]').click(); await page.waitForTimeout(500);
-  await answer(page, 'short'); await page.waitForTimeout(600);
+  await answer(page, 'short'); await told(page, /^Not enough/);
   ok('a yes that came after the points were gone is said plainly', /^Not enough points for Pick the family movie now\. Nothing was spent\.$/.test(await msg(page)), await msg(page));
   // a grown-up at the wall
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-here"]').click(); await page.waitForTimeout(300);
