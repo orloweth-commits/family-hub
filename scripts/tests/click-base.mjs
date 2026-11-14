@@ -477,7 +477,7 @@ await page.close();
     console.log(`press feedback (${look}): idle ${idle} | held 300 ms: scale ${held.scale.toFixed(3)} opacity ${held.opacity.toFixed(2)} (expect < 1 and < 1)`); await p.close(); }
   // page change: at most two animations per navigation (the page wrapper's fade and rise), none on the panels inside
   for (const look of ['glass', 'fridge', 'orbit']) { const p = await open(`look=${look}&page=planner`); await p.evaluate(deep); const out = [];
-    for (const nav of ['Groceries', 'Music', 'Home', 'Planner', 'Riley']) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim() === n).click(), nav); await p.waitForTimeout(40); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`); await p.waitForTimeout(700); }
+    for (const nav of ['Groceries', 'Music', 'Home', 'Planner', 'Riley']) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim().endsWith(n)).click(), nav); await p.waitForTimeout(40); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`); await p.waitForTimeout(700); }
     console.log(`animations per navigation (${look}; expect the page’s two, plus since 0.32.1 the one movement of the dock button whose page opened: Music’s has two parts):`, out.join(' | '), '| page wrapper at rest: transform', await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform)); await p.close(); }
   // exits: a sheet, the PIN pad, a toast and the night screen fade out before they go
   { const p = await open('look=glass&page=planner&sheet=timer'); await p.evaluate(deep); const at = async (sel, ms) => { await p.waitForTimeout(ms); return p.locator(sel).count(); };
@@ -494,7 +494,7 @@ await page.close();
     console.log('night wake: black layer fading at 60 ms', n80, '| animations started:', started.join(',') || 'none', '(expect fhout only) | gone at 620 ms', n600 === 0); await p.close(); }
   // calm mode: nothing travels on a page change, and looks' loops are stopped
   { const p = await open('look=fridge&page=planner&calm=1'); await p.evaluate(deep);
-    await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim() === 'Groceries').click()); await p.waitForTimeout(40);
+    await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim().endsWith('Groceries')).click()); await p.waitForTimeout(40);
     const tf = await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform);
     console.log('calm page change: wrapper transform mid-entrance', tf, '(expect none or identity) | looping animations:', await p.evaluate(() => { const out = new Set(); const walk = (r) => { for (const a of r.getAnimations()) out.add(a); r.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return [...out].filter((a) => a.playState === 'running' && a.effect.getComputedTiming().iterations === Infinity).length; })); await p.close(); }
   // slow and failing calls: the control shows it is waiting after 250 ms, holds what was asked, and a failure puts it back with a calm line
