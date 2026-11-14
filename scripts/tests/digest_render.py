@@ -44,18 +44,32 @@ def run(auto, sc):
         except Exception: pass
         return out
     def deep(x, v): return {k: deep(y, v) for k, y in x.items()} if isinstance(x, dict) else [deep(y, v) for y in x] if isinstance(x, list) else render(x, v)
-    v, sent, asked = {}, [], []
-    for a in auto['actions']:
-        if 'variables' in a:
-            v.update({k: render(t, v) for k, t in a['variables'].items()})
-        elif 'response_variable' in a:
-            asked.append({'action': a['action'], 'target': a.get('target'), 'data': deep(a.get('data', {}), v)})
-            r = (sc.get('responses') or {}).get(a['response_variable'])
-            if r is not None: v[a['response_variable']] = r
-            elif not a.get('continue_on_error'): raise RuntimeError('a failed call would stop the automation: ' + a['action'])
-        else:
-            sent.append({'to': a['action'], **deep(a.get('data', {}), v)})
-    return {'name': sc['name'], 'title': v.get('title'), 'message': v.get('message'), 'sent': sent, 'asked': asked}
+    import re
+    env.tests.update(match=lambda v, pat: re.match(pat, str(v)) is not None, search=lambda v, pat: re.search(pat, str(v)) is not None)
+    v, sent, asked = dict(sc.get('vars') or {}), [], []
+    class Stop(Exception): pass
+    def truth(conds):
+        return all(render(c['value_template'], v) is True for c in conds)
+    def go(actions):
+        for a in actions:
+            if 'variables' in a:
+                v.update({k: render(t, v) for k, t in a['variables'].items()})
+            elif 'if' in a:
+                go(a['then'] if truth(a['if']) else a.get('else', []))
+            elif 'stop' in a:
+                raise Stop(a['stop'])
+            elif 'response_variable' in a:
+                asked.append({'action': a['action'], 'target': a.get('target'), 'data': deep(a.get('data', {}), v)})
+                r = (sc.get('responses') or {}).get(a['response_variable'])
+                if r is not None: v[a['response_variable']] = r
+                elif not a.get('continue_on_error'): raise RuntimeError('a failed call would stop the automation: ' + a['action'])
+            else:
+                sent.append({'to': a['action'], 'target': a.get('target'), **deep(a.get('data', {}), v)})
+    stopped = None
+    if not truth(auto.get('conditions') or []): return {'name': sc['name'], 'skipped': True, 'sent': [], 'asked': []}
+    try: go(auto['actions'])
+    except Stop as e: stopped = str(e)
+    return {'name': sc['name'], 'title': v.get('title'), 'message': v.get('message'), 'sent': sent, 'asked': asked, 'stopped': stopped, 'vars': {k: v[k] for k in ('verdict', 'can', 'aid') if k in v}}
 
 job = json.load(sys.stdin)
 out = []

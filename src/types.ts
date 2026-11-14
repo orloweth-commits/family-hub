@@ -206,6 +206,8 @@ export interface FamilyHubConfig {
   voice?: import('./voice').VoiceConfig;
   /** the evening digest: one read-only message a night to the parents' phones (digest.ts). `notify` names the phones; `time` is when (default 19:30) */
   digest?: import('./digest').DigestConfig;
+  /** approve from a phone: a reward that needs a grown-up asks these phones, with Approve and Not yet (approve.ts). `notify` names the phones; `list` is the to-do list of what is waiting (default todo.family_hub_asks) */
+  approve?: import('./approve').ApproveConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */

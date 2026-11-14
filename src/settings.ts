@@ -6,6 +6,7 @@ import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
+import { APPROVE_ID, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
@@ -37,7 +38,7 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'house', name: 'House', sub: 'Night screen, bins, lights, look and sounds', ic: 'home' },
   { id: 'pictures', name: 'Pictures', sub: 'The screensaver, the artwork and the children’s characters', ic: 'palette' },
   { id: 'music', name: 'Music', sub: 'Views, moments, the sleep timer and calls', ic: 'music' },
-  { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page, alerts and the evening digest', ic: 'info' },
+  { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page, alerts, the evening digest and approvals', ic: 'info' },
   { id: 'advanced', name: 'Advanced', sub: 'What is wired up, and earlier versions', ic: 'cog' }
 ];
 const KID_IC = svg`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`;
@@ -396,6 +397,7 @@ export class FhSettings extends LitElement {
     this.dispatchEvent(new CustomEvent('fh-config', { detail: next, bubbles: true, composed: true }));
     // the evening digest is an automation written from these settings: a save that changes what it would say rewrites it
     if (JSON.stringify(haDigest(from)) !== JSON.stringify(haDigest(next))) void this._digestSync(next, true);
+    if (JSON.stringify(haApprove(from)) !== JSON.stringify(haApprove(next))) void this._approveSync(next, true);
   }
   /* ---------------- the evening digest (digest.ts) ---------------- */
   /** what Home Assistant holds for the digest: undefined before asking, null when it has none or will not say */
@@ -420,6 +422,39 @@ export class FhSettings extends LitElement {
     try { await inTime(this.hass.callService('automation', 'trigger', { skip_condition: true }, { entity_id: ent })); this._say('Sent. It should be on the phone in a few seconds.'); }
     catch { this._say('Home Assistant did not send it. Try again.', { bad: true }); }
     finally { this._dgBusy = ''; this._tick++; }
+  }
+  /* ---------------- approve from a phone (approve.ts) ---------------- */
+  private _apHeld: Record<string, unknown> | null | undefined; private _apBusy = false;
+  private async _approveLoad(): Promise<void> {
+    if (!this.hass) return;
+    try { this._apHeld = await this.hass.callApi<Record<string, unknown>>('GET', `config/automation/config/${APPROVE_ID}`) ?? null; } catch { this._apHeld = null; }
+    this._tick++;
+  }
+  private async _approveSync(cfg: Cfg, quiet = false): Promise<void> {
+    if (!this.hass || this._apBusy) return; this._apBusy = true; this._tick++;
+    try {
+      const did = await syncApprove(mediaHass() ?? this.hass, cfg);
+      this._apHeld = haApprove(cfg);
+      if (!quiet) this._say(did === 'made' ? 'Set up. The next big reward a child asks for comes to the phone.' : did === 'updated' ? 'Approving from a phone has been updated.' : did === 'off' ? 'Approving from a phone is switched off.' : 'Choose a phone first.');
+    } catch { this._say(quiet ? 'Saved, but Home Assistant would not set up approving from a phone. Under People and safety, press “Set it up”.' : 'Home Assistant would not set it up. It needs an administrator.', { bad: true }); }
+    finally { this._apBusy = false; this._tick++; }
+  }
+  private _approveCard(svcs: string[]): TemplateResult {
+    const d = this._draft, to = d.approve?.notify ?? [], H = mediaHass() ?? this.hass, S = H?.states ?? {}, ent = approveEntity(H), saved = approveOn(this.config), want = haApprove(this.config);
+    if (this._apHeld === undefined && ent) { this._apHeld = null; void this._approveLoad(); }
+    const setA = (fn: (g: NonNullable<Cfg['approve']>) => void): void => this._edit((x) => { x.approve = x.approve ?? {}; fn(x.approve); if (!x.approve.notify?.length) delete x.approve.notify; if (!Object.keys(x.approve).length) delete x.approve; });
+    const stale = !!ent && !!this._apHeld && !!want && !sameDigest(this._apHeld, want), noList = saved && !S[askList(this.config)];
+    return html`<div class="scard" data-card="approve"><h3>${icon('check', 20)}Approve from a phone</h3>
+        <span class="shint">When a child asks for a big reward (one that needs a grown-up), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A grown-up at the wall can still use the PIN.</span>
+        <span class="label">Phones that are asked</span>
+        <div class="spick" role="group" aria-label="Phones that are asked to approve">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-ap=${id} aria-pressed=${String(to.includes(id))} @click=${() => setA((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
+        ${this._dirty ? (to.length || saved ? html`<span class="shint" data-ap-state="unsaved">Save, and Home Assistant ${to.length ? 'is set up to hear the answer' : 'stops asking'}.</span>` : nothing)
+          : !saved ? (ent && S[ent]?.state === 'on' ? this._row('No phone is chosen, but Home Assistant is still listening', '', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Switch it off</button>`) : nothing)
+          : !ent || noList ? this._row('Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: approve from a phone”, and one list, “Family Hub asks”.', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Set it up</button>`)
+          : this._row(S[ent].state === 'on' ? 'On' : 'Switched off in Home Assistant', `${S[ent].attributes.last_triggered ? `Last answered ${new Date(String(S[ent].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Nothing answered yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
+              html`${S[ent].state === 'on' ? nothing : html`<button class="pill tap" data-act="ap-on" ?disabled=${this._apBusy} @click=${() => { void Promise.resolve(this.hass?.callService('automation', 'turn_on', {}, { entity_id: ent })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }}>Switch it on</button>`}
+                ${stale ? html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Update it</button>` : nothing}`)}
+      </div>`;
   }
   private _digestCard(svcs: string[]): TemplateResult {
     const d = this._draft, to = d.digest?.notify ?? [], S = (mediaHass() ?? this.hass)?.states ?? {}, ent = digestEntity(mediaHass() ?? this.hass), saved = digestOn(this.config), want = haDigest(this.config);
@@ -1072,6 +1107,7 @@ export class FhSettings extends LitElement {
           : html`<div><button class="pill tap" data-act="test" ?disabled=${!!this._busy || this._dirty} @click=${() => { this._sure = 'test'; }}>Send a test…</button>${this._dirty ? html` <span class="shint">Save first.</span>` : nothing}</div>` : nothing}
       </div>
       ${this._digestCard(svcs)}
+      ${this._approveCard(svcs)}
       <div class="scard"><h3>${icon('ask', 20)}Ask and the internet</h3>
         ${d.chat?.agent ? this._row('The helper is called', 'The name on the speech-bubble button.', this._txt('chat.name', 'What the helper is called', d.chat.name ?? '', (v) => this._edit((x) => { if (v) x.chat!.name = v; else delete x.chat!.name; }), { ph: 'Ask' }), true) : html`<span class="shint">Ask (the children’s AI helper) is not set up. It is added in YAML, with a conversation agent from Home Assistant.</span>`}
         ${d.chat?.agent ? html`<span class="shint">What the helper may talk about is set in Home Assistant, on the agent itself. Whether it needs the PIN after bedtime is under PIN.</span>` : nothing}
