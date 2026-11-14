@@ -15521,7 +15521,7 @@ const nc = () => Zs && Date.now() < Zs.until ? Zs : null, qr = (a) => {
     }), n = Object.keys(Li), p = [...new Set([...s?.always ?? [], ...s?.alternate ?? []].map((f) => f.toLowerCase()).filter((f) => !Ya(f)))], c = t.health, d = (f) => f[0].toUpperCase() + f.slice(1), h = (f) => `Out on ${Mr[f]} night, collected ${Mr[(f + 1) % 7]} morning.`, g = (f, m, k) => l`<div class="schips" role="group" aria-label=${f}>${n.map((b) => l`<button class="tap" aria-pressed=${String(m.map((w) => w.toLowerCase()).includes(b))} @click=${() => k(m.map((w) => w.toLowerCase()).includes(b) ? m.filter((w) => w.toLowerCase() !== b) : [...m, b])}><i class="sw6" style="background:${Li[b].col}" aria-hidden="true"></i>${d(b)}<span class="muted" style="font-weight:500">${Li[b].what}</span></button>`)}</div>`;
     return l`
       <div class="scard"><h3>${U("moon", 20)}Night</h3>
-        ${this._row("Night screen", "The panel goes dark between these times, and wakes for ten minutes when touched.", l`${this._sw("Night screen", !!e, () => this._edit((f) => {
+        ${this._row("Night screen", "Between these times the screensaver’s pictures are dimmer and warmer, and the screen is at its lowest. A touch wakes it as usual.", l`${this._sw("Night screen", !!e, () => this._edit((f) => {
       f.night ? delete f.night : f.night = { start: "21:00", end: "06:00" };
     }))}
           ${e ? l`${this._tm("Night screen starts", () => this._draft.night?.start, (f) => this._edit((m) => {
@@ -16435,7 +16435,7 @@ const rb = (a, t) => {
 `, lb = l`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, a0 = "0.33.4", hc = "family-hub-theme", fc = "family-hub-sounds", mc = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, a0 = "0.33.5", hc = "family-hub-theme", fc = "family-hub-sounds", mc = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

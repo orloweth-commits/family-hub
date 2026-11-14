@@ -104,13 +104,13 @@ const shut = (page) => page.context().close();
   // on the card: the first reading as it is, then slowly; the artwork and night at once
   const sun = (e) => card(page, `(c) => { c.hass = { ...c.hass, states: { ...c.hass.states, 'sun.sun': { entity_id: 'sun.sun', state: ${e} > 0 ? 'above_horizon' : 'below_horizon', attributes: { elevation: ${e} } } } }; }`);
   const last = async () => { const all = await calls(page, 'light.turn_on light.panel_backlight'); return all.length ? Number(/"brightness_pct":(\d+)/.exec(all[all.length - 1])[1]) : null; };
-  await sun(40); await page.mouse.click(960, 500); await ahead(page, '00:03');
+  await sun(40); await page.keyboard.press('Shift'); await ahead(page, '00:03');
   const start = await last(); ok('in use under a high sun: full', start === 100, start);
   await sun(-10); await ahead(page, '00:30'); ok('the sun goes: nothing moves inside a minute', await last() === 100, await last());
-  await page.mouse.click(960, 500); await ahead(page, '00:35'); { const v = await last(); ok('after a minute, one small step', v !== null && v < 100 && 100 - v <= 6, v); }
-  for (let i = 0; i < 4; i++) { await page.mouse.click(960, 500); await ahead(page, '00:55'); }
+  await page.keyboard.press('Shift'); await ahead(page, '00:35'); { const v = await last(); ok('after a minute, one small step', v !== null && v < 100 && 100 - v <= 6, v); }
+  for (let i = 0; i < 4; i++) { await page.keyboard.press('Shift'); await ahead(page, '00:55'); }
   { const v = await last(); ok('and on down, a step a minute, never a jump', v !== null && v < 94 && v >= 100 - 6 * 6, v); }
-  const hub = await last(), n0 = (await calls(page, 'panel_backlight')).length; await page.mouse.click(960, 500); await ahead(page, '00:20');
+  const hub = await last(), n0 = (await calls(page, 'panel_backlight')).length; await page.keyboard.press('Shift'); await ahead(page, '00:20');
   ok('never more than one change in a minute', (await calls(page, 'panel_backlight')).length - n0 <= 1);
   await ahead(page, '01:10');
   { const v = await last(); ok('the artwork is a share of it (seven tenths), at once', await up(page) === 1 && v !== null && v <= Math.round(hub * 0.7) && v >= Math.round((hub - 18) * 0.7) - 1, [hub, v]); }
