@@ -45,6 +45,7 @@ def run(auto, sc):
         return out
     def deep(x, v): return {k: deep(y, v) for k, y in x.items()} if isinstance(x, dict) else [deep(y, v) for y in x] if isinstance(x, list) else render(x, v)
     import re
+    env.filters.update(regex_findall_index=lambda v, pat, index=0: re.findall(pat, str(v))[index])
     env.tests.update(match=lambda v, pat: re.match(pat, str(v)) is not None, search=lambda v, pat: re.search(pat, str(v)) is not None)
     v, sent, asked = dict(sc.get('vars') or {}), [], []
     class Stop(Exception): pass
@@ -59,12 +60,12 @@ def run(auto, sc):
             elif 'stop' in a:
                 raise Stop(a['stop'])
             elif 'response_variable' in a:
-                asked.append({'action': a['action'], 'target': a.get('target'), 'data': deep(a.get('data', {}), v)})
+                asked.append({'action': a['action'], 'target': deep(a.get('target') or {}, v), 'data': deep(a.get('data', {}), v)})
                 r = (sc.get('responses') or {}).get(a['response_variable'])
                 if r is not None: v[a['response_variable']] = r
                 elif not a.get('continue_on_error'): raise RuntimeError('a failed call would stop the automation: ' + a['action'])
             else:
-                sent.append({'to': a['action'], 'target': a.get('target'), **deep(a.get('data', {}), v)})
+                sent.append({'to': a['action'], 'target': deep(a.get('target') or {}, v), **deep(a.get('data', {}), v)})
     stopped = None
     if not truth(auto.get('conditions') or []): return {'name': sc['name'], 'skipped': True, 'sent': [], 'asked': []}
     try: go(auto['actions'])

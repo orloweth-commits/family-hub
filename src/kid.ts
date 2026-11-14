@@ -14,7 +14,7 @@ import './studio';
 import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
 import type { ArtConfig } from './artlib';
 import './pin';
-import { askParse, askReady, newAskId, sendAsk, type Ask } from './approve';
+import { askParse, askReady, jobsFrom, newAskId, sendAsk, type Ask } from './approve';
 
 interface KEvent { title: string; start: Date; end?: Date; allDay: boolean; family: boolean }
 
@@ -327,7 +327,7 @@ export class FhKid extends LitElement {
   pin = '';
   owed = 'todo.rewards_owed';
   /** approve from a phone (approve.ts): the phones and the list of what is waiting; without it a big reward asks for the PIN here, as before */
-  asks?: { notify?: string[]; list?: string };
+  asks?: { notify?: string[]; list?: string; jobs_from?: number };
   jarTarget = 120;
   jarReward = 'a family treat';
   privateWords: string[] = [];
@@ -399,6 +399,13 @@ export class FhKid extends LitElement {
     } catch (e) { console.warn('Family Hub: asks not read', e); }
   }
   private _told(a: Ask, v: 'ok' | 'no' | 'short'): void {
+    if (a.k === 'job') {
+      // (Home Assistant has ticked the job and given the points: the list and the numbers arrive by themselves)
+      if (v === 'ok') { this._jump++; this._sound('coin'); if (a.uid) { const t = lsGet<Record<string, number>>('fh-ticks', {}); t[a.uid] = Date.now(); lsSet('fh-ticks', t); } }
+      else this._sound('tap');
+      const m = v === 'ok' ? `A parent said yes: ${a.name}.` : v === 'no' ? `Not yet for ${a.name}. Have another go, then tick it again.` : `${a.name} could not be ticked. Ask a parent.`;
+      if (this._picMode) say(m); this._say(m); return;
+    }
     if (v === 'ok') {
       const r = (this.kid.rewards ?? DEFAULT_REWARDS).find((x) => x.name === a.name);
       if (r?.weekly) { noteSpend(this._e.slug, a.name); this._spentN++; }
@@ -416,7 +423,7 @@ export class FhKid extends LitElement {
   private async _askFor(r: RewardConfig): Promise<void> {
     this._spend = '';
     if (this._asking || !this.hass || !this._askOn) return;
-    if (this._asked.some((a) => a.name === r.name)) { this._say(`Asked. Waiting for a parent: ${r.name}.`); return; }
+    if (this._asked.some((a) => a.k === 'reward' && a.name === r.name)) { this._say(`Asked. Waiting for a parent: ${r.name}.`); return; }
     const have = num(this.hass, this._e.points), ask: Ask = { v: 1, id: newAskId(), k: 'reward', kid: this._e.slug, who: this.kid.name, name: r.name, cost: r.cost, t: Date.now() };
     this._asking = true; this._asked = [...this._asked, ask];
     try {
@@ -426,6 +433,28 @@ export class FhKid extends LitElement {
       if (this._picMode) say(n ? `${r.name}. I have asked a parent.` : 'Find a parent.'); this._say(m);
     } catch (err) { this._asked = this._asked.filter((a) => a.id !== ask.id); this._say(err instanceof SlowError ? SLOW_SAY : 'That did not send. Try again, or find a parent.'); }
     finally { this._asking = false; }
+  }
+  /** A job worth enough points waits for a parent (approve.jobs_from, 15 unless set): ticking it asks; the tick and the points come with the yes. */
+  private _jobWaits(c: ParsedChore): boolean { return this._askOn && c.lane !== 'grow' && c.pts >= jobsFrom(this.asks); }
+  private _jobAsked(c: ParsedChore): boolean { return this._asked.some((a) => a.k === 'job' && a.uid === c.uid); }
+  private async _askJob(c: ParsedChore): Promise<void> {
+    if (this._asking || !this.hass) return;
+    const ask: Ask = { v: 1, id: newAskId(), k: 'job', kid: this._e.slug, who: this.kid.name, name: c.summary, cost: c.pts, t: Date.now(), list: this._e.chores, uid: c.uid };
+    this._asking = true; this._asked = [...this._asked, ask];
+    try {
+      const n = await inTime(sendAsk(this.hass, this.asks!, ask));
+      this._sound('tap');
+      const m = n ? `Asked a parent to check: ${c.summary}.` : 'It is on the list, but no phone took the message. Find a parent.';
+      if (this._picMode) say(n ? `${c.summary}. I have asked a parent to check.` : 'Find a parent.'); this._say(m);
+    } catch (err) { this._asked = this._asked.filter((a) => a.id !== ask.id); this._say(err instanceof SlowError ? SLOW_SAY : 'That did not send. Try again, or find a parent.'); }
+    finally { this._asking = false; }
+  }
+  /** A parent standing there ticks a waiting job with the PIN: the ask is taken off the list and the tick goes through as usual. */
+  private _tickHere(c: ParsedChore): void {
+    const a = this._asked.find((x) => x.k === 'job' && x.uid === c.uid), id = this.asks?.list ?? 'todo.family_hub_asks';
+    if (a) { this._asked = this._asked.filter((x) => x.id !== a.id);
+      void this.hass!.callWS<{ items: { uid?: string; description?: string | null }[] }>({ type: 'todo/item/list', entity_id: id }).then((r) => { const it = r.items.find((i) => (i.description ?? '').includes(`"id":"${a.id}"`)); if (it?.uid) return this.hass!.callService('todo', 'remove_item', { item: it.uid }, { entity_id: id }); return undefined; }).catch(() => undefined); }
+    void this._doToggle(c, false, lsGet<Record<string, number>>('fh-ticks', {}));
   }
   private _needsAdult(name: string): boolean { const r = (this.kid.rewards ?? DEFAULT_REWARDS).find((x) => x.name === name); return !r || (r.approve ?? r.cost >= 60); }
   private _msg = '';
@@ -597,6 +626,11 @@ export class FhKid extends LitElement {
       else this._say('Need to change that? Ask a parent.');
       return;
     }
+    if (!done && !viaPin && this._jobWaits(c)) {
+      // asked already: a second tap is for a parent who is standing there
+      if (this._jobAsked(c)) { if (this.pin) this._pinAsk = { reason: `A parent is here: tick “${c.summary}”?`, run: () => this._tickHere(c) }; else this._say(`Asked. Waiting for a parent: ${c.summary}.`); return; }
+      void this._askJob(c); return;
+    }
     this._doToggle(c, done, ticks);
   }
 
@@ -698,7 +732,7 @@ export class FhKid extends LitElement {
     this._sound('tap');
     // a big reward: with approvals on, the row offers to ask a parent's phone (or the PIN, if one is standing here); otherwise the PIN, as before
     if ((r.approve ?? r.cost >= 60) && this._askOn) {
-      if (this._asked.some((a) => a.name === r.name)) { const m = `Asked. Waiting for a parent: ${r.name}.`; if (this._picMode) say(m); this._say(m); return; }
+      if (this._asked.some((a) => a.k === 'reward' && a.name === r.name)) { const m = `Asked. Waiting for a parent: ${r.name}.`; if (this._picMode) say(m); this._say(m); return; }
       this._spend = r.name; if (this._picMode) say(`${r.name}. Ask a parent? Yes, or not now.`); return;
     }
     if ((r.approve ?? r.cost >= 60) && this.pin) { if (this._picMode) say(`${r.name}. Ask a parent.`); this._redeem(r); return; }
@@ -911,6 +945,7 @@ export class FhKid extends LitElement {
         <span class="t content">${c.summary}</span></button>
       ${(c.lane === 'grow' || c.song) && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
         : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
+      ${!d && this._jobAsked(c) ? html`<span class="plus" data-asked role="status">⏳ Asked</span>` : nothing}
       ${c.lane === 'job' ? html`<span class="mb" role="img" aria-label="Adds one marble to the family jar"><i class="marble" aria-hidden="true"></i>+1</span>${c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing}` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;
   }
@@ -919,7 +954,7 @@ export class FhKid extends LitElement {
     const d = c.status === 'completed', stars = Math.max(1, Math.round(c.pts / this._star));
     return html`<button class="pic tap ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${size}" data-uid=${c.uid} aria-pressed=${String(d)} @pointerdown=${this._press} @click=${() => this._toggle(c)}>
       <span class="e" aria-hidden="true">${picFor(c)}</span><span class="pt">${c.summary}</span>
-      ${c.pts && size !== 'small' && !this._wind ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${d ? html`<span class="tick">${tickSvg(22)}</span>` : nothing}</button>`;
+      ${c.pts && size !== 'small' && !this._wind ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${d ? html`<span class="tick">${tickSvg(22)}</span>` : !d && this._jobAsked(c) ? html`<span class="tick" data-asked role="status" aria-label="Asked a parent">⏳</span>` : nothing}</button>`;
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   private _reader(): TemplateResult {
@@ -933,11 +968,11 @@ export class FhKid extends LitElement {
         <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
         <span>${Math.floor(have / st)} stars in my jar</span></span></div>`
       : html`<div class="ptsline" role="group" aria-label=${have ? `${have} points to spend` : 'No points to spend yet'}>${have ? html`<b>${have}</b><span>${have === 1 ? 'point' : 'points'} to spend</span>` : html`<span>${this.kid.older ? 'No points to spend yet' : '✨ Ready to start'}</span>`}</div>`;
-    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.length ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
+    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.some((a) => a.k !== 'job') ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.filter((a) => a.k !== 'job').map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
         const saving = this._saving === r.name, held = this._held === r.name || saving, capped = this._capped(r), back = backDay(this._now);
-        const asked = this._asked.some((a) => a.name === r.name);
+        const asked = this._asked.some((a) => a.k === 'reward' && a.name === r.name);
         if (this._spend === r.name && ok && !held && (r.approve ?? r.cost >= 60) && this._askOn) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" data-ask role="group" aria-label="Ask a parent for ${r.name}?">
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Ask a parent?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${r.name} · ${words}</span></span>
           <button class="tap" data-act="ask-send" @click=${() => { this._heldAt = Date.now(); void this._askFor(r); }}>${tickSvg(18)}Ask</button>${this.pin ? html`<button class="tap save" data-act="ask-here" aria-label="A parent is here: use the PIN" @click=${() => { this._spend = ''; void this._redeem(r); }}>PIN</button>` : nothing}<button class="tap save" data-act="ask-no" @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;

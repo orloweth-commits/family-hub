@@ -6,7 +6,7 @@ import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
-import { APPROVE_ID, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
+import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
@@ -448,6 +448,7 @@ export class FhSettings extends LitElement {
         <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
         <div class="spick" role="group" aria-label="Phones that are asked to approve">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-ap=${id} aria-pressed=${String(to.includes(id))} @click=${() => setA((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
+        ${to.length ? this._row('Jobs that wait for a parent', 'A job worth this many points or more asks a parent when it is ticked; the tick and the points come with the yes. Smaller jobs are ticked as before.', this._step('Points from which a job waits for a parent', d.approve?.jobs_from ?? JOBS_FROM, (v) => setA((x) => { if (v === JOBS_FROM) delete x.jobs_from; else x.jobs_from = v; }), { min: 0, max: 100, step: 5, say: (v) => (v ? `${v} points and over` : 'No job waits') })) : nothing}
         ${this._dirty ? (to.length || saved ? html`<span class="shint" data-ap-state="unsaved">Save, and Home Assistant ${to.length ? 'is set up to hear the answer' : 'stops asking'}.</span>` : nothing)
           : !saved ? (ent && S[ent]?.state === 'on' ? this._row('No phone is chosen, but Home Assistant is still listening', '', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Switch it off</button>`) : nothing)
           : !ent || noList ? this._row('Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: approve from a phone”, and one list, “Family Hub asks”.', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Set it up</button>`)
