@@ -47,7 +47,8 @@ const STYLES: Record<string, string> = {
   glass: `${CARTOON}, in bright, warm colours`,
   fridge: `${CARTOON}, drawn as if with felt pens and cut paper`,
   orbit: `${CARTOON}, in deep blues with warm highlights, like a retro space-age poster`,
-  sports: `${CARTOON}, in bold floodlit colours, like a vintage sports poster`
+  sports: `${CARTOON}, in bold floodlit colours, like a vintage sports poster`,
+  obsidian: `${CARTOON}, set at night in deep blacks with soft champagne light and a cool rim light`
 };
 
 const firstName = (k: KidConfig): string => k.name;

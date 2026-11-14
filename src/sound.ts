@@ -349,7 +349,7 @@ export const setSounds = (m: boolean | 'quiet' | undefined): void => { mode = m 
 export const setSoundLook = (id: string): void => { soundLook = id; };
 export const setSoundTheme = (id: string): void => { soundTheme = id; };
 /** The palette in use: a Glass theme's own, or the look's. */
-export const soundPalette = (): PaletteId => { const f = forced(); if (isPalette(f)) return f; const l = soundLook || 'glass'; return isPalette(l) ? l : isPalette(soundTheme) ? soundTheme : 'sea'; };
+export const soundPalette = (): PaletteId => { const f = forced(); if (isPalette(f)) return f; const l = soundLook === 'obsidian' ? 'orbit' : soundLook || 'glass'; return isPalette(l) ? l : isPalette(soundTheme) ? soundTheme : 'sea'; };
 /** How many sounds have been asked for so far (whether or not they were allowed to play): lets the card add a plain tap only where nothing else spoke. */
 export const sfxAsked = (): number => asks;
 /** The audition page's volume. The card leaves it at 1. */

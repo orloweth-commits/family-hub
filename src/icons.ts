@@ -55,6 +55,7 @@ const F: Record<string, string> = {
   next: 'M16 6h2v12h-2zM4 6v12l10.5-6z'
 };
 
+export const hasIcon = (name: string): boolean => !!P[name];
 export const icon = (name: string, size = 22): TemplateResult =>
   html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${svg`<path d=${P[name] ?? ''}></path>`}</svg>`;
 export const solid = (name: string, size = 22): TemplateResult =>

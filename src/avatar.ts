@@ -1,5 +1,6 @@
 import { svg, html, nothing, type SVGTemplateResult, type TemplateResult } from 'lit';
 import './media';
+import { plainLook } from './looks';
 
 /* ------------------------------------------------------------------ *
  * Avatar model, catalogue and renderer.
@@ -247,13 +248,17 @@ const HATS: Record<string, L> = {
   helmet: () => svg`<g class="av-pop d5"><circle cx="100" cy="98" r="62" fill="rgba(186,230,253,.28)" stroke="#e5e7eb" stroke-width="7"></circle><path d="M62 72 Q76 50 100 46" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"></path></g>`
 };
 
-export interface AvatarOpts { size?: number; crop?: 'full' | 'head'; still?: boolean; label?: string; jump?: number; age?: 'kid' | 'mid' | 'teen'; ring?: string }
+export interface AvatarOpts { size?: number; crop?: 'full' | 'head'; still?: boolean; label?: string; jump?: number; age?: 'kid' | 'mid' | 'teen'; ring?: string; /** whose it is, for a look that shows a letter in place of a face */ name?: string; /** the dress-up studio: always the character, whatever the look */ real?: boolean }
 
 /** Render an avatar as inline SVG. Each item is its own template, so swapping an item re-mounts it and replays its pop-in. */
 export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   const size = o.size ?? 200, head = o.crop === 'head';
   const w = size, h = head ? size : Math.round(size * 1.2);
   const jumpCls = o.jump ? (o.jump % 2 ? 'av-jump-a' : 'av-jump-b') : '';
+  // a look with no faces (Obsidian): on a chip a person is the first letter of the name on a disc of their colour, as on the planner's legend;
+  // the full figure is not drawn at all
+  if (plainLook() && !o.real) { const nm = (o.name ?? o.label ?? '').trim();
+    return head ? html`<span class="avwrap avmono" role="img" aria-label=${o.label ?? o.name ?? 'Avatar'} style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${w}px;height:${w}px;border-radius:50%;background:${o.ring ?? 'var(--chip-strong)'};color:${o.ring ? 'var(--on-person, #000)' : 'inherit'};font-family:'Cormorant Garamond','Jost',serif;font-weight:600;line-height:1;font-size:${Math.round(size * 0.52)}px">${nm.slice(0, 1).toUpperCase()}</span>` : html``; }
   // a painted character: his picture, framed on his face for a round chip. The painter puts his eyes a third of the way down and his face in the middle;
   // the chip shows the middle three quarters of the picture, from 6 % to 83 % of its height: a cartoon head is big, and its hair and chin stay in
   if (look.img) return html`<span class="avwrap avpic ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">

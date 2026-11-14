@@ -579,7 +579,7 @@ const forcedLook = (): string => { try { return String((globalThis as { __fhScen
 const lookOf = (n: Element): SparkLook => {
   if (forcedLook() === 'sports') return 'sports';
   let c: Element | null = n;
-  while (c) { const h: Element | null = c.closest('[data-look]'); if (h) { const l = h.getAttribute('data-look'); return l === 'fridge' || l === 'orbit' || l === 'sports' ? l : 'glass'; } const r = c.getRootNode(); c = r instanceof ShadowRoot ? r.host : null; }
+  while (c) { const h: Element | null = c.closest('[data-look]'); if (h) { const l = h.getAttribute('data-look'); return l === 'obsidian' ? 'orbit' : l === 'fridge' || l === 'orbit' || l === 'sports' ? l : 'glass'; } const r = c.getRootNode(); c = r instanceof ShadowRoot ? r.host : null; }
   return 'glass';
 };
 const layerFor = (root: Node): HTMLElement => {
