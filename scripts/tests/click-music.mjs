@@ -10,8 +10,10 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME || un
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 const errs = [];
 const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
-  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs + ALLV(qs)); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const calls = (page, re) => page.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).slice(-3).join(' || '), re.source);
+// this suite walks all six room views: the four that Settings switches on (0.34.0) are switched on for it
+function ALLV(qs) { return /page=music/.test(qs) && !/mviews=/.test(qs) ? '&mviews=all' : ''; }
 const M = (page) => page.locator('fh-music');
 // ONLY=polish runs just the polish-pass tests at the end of this file
 if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs.length ? errs.join('\n') : 'none'); await browser.close(); srv.close(); process.exit(0); }
@@ -313,7 +315,7 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
 // ---- owner's decisions of 13 November (0.27.0) ----
 { const okk = (b) => (b ? 'ok' : 'FAIL');
   const atv = async (w, h, qs, time = '16:20') => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: w < 500, isMobile: w < 500 }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
-    await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+    await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs + ALLV(qs)); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
   const pin = async (p) => { for (const d of '1234') await M(p).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await p.waitForTimeout(700); };
   const pad = (p) => p.evaluate(() => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('fh-pin'); return f ? `${f.getAttribute('reason')} / ${f.shadowRoot.querySelector('.what')?.textContent.trim()}` : ''; });
   const said = (p, re) => p.evaluate((s) => (window.__calls || []).filter((c) => new RegExp(s).test(c)).length, re.source);
@@ -380,7 +382,7 @@ await browser.close(); srv.close();
 // ---- polish pass (review findings 1 to 12). Run alone with ONLY=polish. ----
 // Round 5: hints whole in three looks, the Dial's 44 px arcs, one call per tap on a slow link, plain words on the search and the Desk
 async function round5() {
-  const at = async (w, h, qs) => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e))); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
+  const at = async (w, h, qs) => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e))); await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + '/?' + qs + ALLV(qs)); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
   const ok = (b) => (b ? 'ok' : 'FAIL');
   for (const look of ['glass', 'fridge', 'orbit']) { const out = []; for (const v of ['scene', 'dial', 'desk', 'cables', 'list']) { const p = await at(1280, 800, `look=${look}&page=music&mview=${v}`);
       const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, h = m.querySelector('.hint[data-on]'); if (!h) return null; const rg = document.createRange(); rg.selectNodeContents(h); const rr = rg.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { lines: Math.round(hb.height / parseFloat(getComputedStyle(h).lineHeight)), cut: h.scrollHeight > h.clientHeight + 1 || rr.bottom > hb.bottom + 1 || rr.right > hb.right + 1, ends: /[.!?]$/.test(h.textContent.trim()) }; });

@@ -47,6 +47,7 @@ const RULES = [
   // the two long ones are the broad safety net over every page. A change to the shell alone (family-hub.ts is touched by nearly every
   // phase) does not call them: the suites above cover what a phase adds, --broad adds these, and the release candidate runs everything
   { suite: 'click-base', long: true, when: src(`${LOOKS}|kid|groceries|doodle|weather|home|morning|keys|pin|avatar|studio|wardrobe|sparks|fx|ambient|radar|sound|icons|art`) },
+  { suite: 'music-f2', when: src('music|musicviews|ma|media|settings') },
   { suite: 'click-music', long: true, when: src(`music|musicviews|ma|media|${LOOKS}`) },
   { suite: 'settings', when: src('settings|settings-store|validate|types') },
   { suite: 'art', when: src('artmode|artlib|nightly|presence|studio|avatar') },
@@ -64,7 +65,7 @@ const PAGES = [
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }
@@ -103,7 +104,8 @@ function judge(p, out, code) {
   for (const l of lines) if (/\bFAIL\b/.test(l)) bad.push(l.trim().slice(0, 220));
   // page errors are printed as a block after "errors:". A 404 there is the preview having no such picture (radar tiles, a sound made to fail on purpose): not an error
   const at = lines.findIndex((l) => /^(errors|page errors):/.test(l));
-  if (at >= 0) for (const l of [lines[at].replace(/^(errors|page errors):\s*/, ''), ...lines.slice(at + 1, lines.findIndex((l, i) => i > at && !l.trim()) < 0 ? undefined : lines.findIndex((l, i) => i > at && !l.trim()))]) { const t = l.replace(/^ - /, '').trim(); if (t && t !== 'none' && !/^404 |status of 404/.test(t)) bad.push(`page error: ${t.slice(0, 200)}`); }
+  // (a suite that prints "errors: none" and then carries on has no block to read: the lines after it are its next results)
+  if (at >= 0 && !/:\s*none\s*$/.test(lines[at])) for (const l of [lines[at].replace(/^(errors|page errors):\s*/, ''), ...lines.slice(at + 1, lines.findIndex((l, i) => i > at && !l.trim()) < 0 ? undefined : lines.findIndex((l, i) => i > at && !l.trim()))]) { const t = l.replace(/^ - /, '').trim(); if (t && t !== 'none' && !/^404 |status of 404/.test(t)) bad.push(`page error: ${t.slice(0, 200)}`); }
   if (p.fit && !/nothing found/.test(out)) bad.push(...lines.filter((l) => /^(Ordinary|Long) words:/.test(l)));
   const isKnown = (l) => known.find((k) => (!k.suite || k.suite === p.file) && k.re.test(l));
   const real = bad.filter((l) => !isKnown(l)), set = bad.filter(isKnown);

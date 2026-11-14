@@ -436,10 +436,10 @@ const orbitScene = (c: Ctx, kind: string): TemplateResult => {
 export const sceneView = (c: Ctx): TemplateResult => { const kind = sceneKind(c.look, c.theme); return kind === 'space' || kind === 'orbit' ? orbitScene(c, kind) : swimScene(c, kind); };
 
 /** The picker: a card for each way of seeing the rooms. */
-export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: () => void): TemplateResult => html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
+export const viewPicker = (current: ViewId, pick: (v: ViewId) => void, close: () => void, offered: ViewId[] = VIEWS.map((v) => v.id)): TemplateResult => html`<div class="scrim" style="border-radius:28px" @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
   <section class="glass sheet" role="dialog" aria-modal="true" aria-label="Switcheroo: change the view" style="width:min(640px,94%);gap:14px">
     <h2 class="t-head" style="display:flex;align-items:center;gap:12px"><i class="pinw" aria-hidden="true"></i>Switcheroo!</h2><span class="muted" style="margin-top:-8px">Pick a way to see the rooms.</span>
-    <div class="vgrid">${VIEWS.map((v) => html`<button class="vcard tap" aria-pressed=${String(v.id === current)} @click=${() => pick(v.id)}>${icon(v.icon, 34)}<b>${v.name}</b><span>${v.about}</span></button>`)}</div>
+    <div class="vgrid">${VIEWS.filter((v) => offered.includes(v.id)).map((v) => html`<button class="vcard tap" aria-pressed=${String(v.id === current)} @click=${() => pick(v.id)}>${icon(v.icon, 34)}<b>${v.name}</b><span>${v.about}</span></button>`)}</div>
     <button class="pill tap" style="align-self:flex-end" @click=${close}>Close</button></section></div>`;
 
 export const viewsCss = css`
