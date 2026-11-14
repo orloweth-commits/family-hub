@@ -217,6 +217,15 @@ export class FhMusic extends LitElement {
     .st .img { aspect-ratio: 1; border-radius: 14px; background: var(--art, linear-gradient(135deg, color-mix(in srgb, var(--p-1) 62%, #000), color-mix(in srgb, var(--p-3) 62%, #000))) center / cover no-repeat, #3b3f58; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); color: #fff; }
     .st .lbl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
     .st.on { box-shadow: 0 0 0 3px var(--ok); }
+    .st .pinx { right: auto; left: 4px; background: var(--chip-strong); font-size: var(--fs-2); box-shadow: 0 0 0 2px var(--primary); }
+    .hits .hit { touch-action: pan-y; } .hit[data-lifted] { opacity: .5; }
+    .pinb { width: 44px; height: 44px; flex-shrink: 0; font-size: var(--fs-3); }
+    /* while something is carried: every shelf by name, to let go on */
+    .pinstrip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 26px; background: rgba(15,15,20,.92); color: #fff; box-shadow: 0 12px 30px -8px rgba(0,0,0,.55); font-size: var(--fs-2); font-weight: var(--w-bold, 700); pointer-events: none; white-space: nowrap; max-width: calc(100% - 20px); }
+    .pinto { display: flex; align-items: center; gap: 8px; min-height: 60px; padding: 4px 14px 4px 6px; border-radius: 20px; background: rgba(255,255,255,.14); }
+    .pinto i { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); display: flex; align-items: center; justify-content: center; font-style: normal; flex-shrink: 0; }
+    .pinto[data-hot] { background: #fff; color: #111; } .pchip[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 4px var(--primary); } .swho[data-hot] i { transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); }
+    :host([data-phone]) .pinto b { display: none; } :host([data-phone]) .pinto { padding: 4px 6px; }
     .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
@@ -962,6 +971,9 @@ export class FhMusic extends LitElement {
     const art = String(lead?.attributes.entity_picture ?? item?.img ?? '');
     const under = (x: number, y: number): string => {
       const inside = (n: Element): boolean => { const r = n.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
+      // a name is a shelf: letting go on one pins what is being carried there
+      const name = [...this.renderRoot.querySelectorAll<HTMLElement>('[data-pin]')].find(inside)?.dataset.pin;
+      if (name) return `pin:${name}`;
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(inside)) return 'all';
       const deck = item ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
       if (deck && inside(deck)) return 'deck';
@@ -987,6 +999,7 @@ export class FhMusic extends LitElement {
       if (d && far < 40 && (!d.over || d.over === lead?.entity_id)) d = null;
       if (!d) { if (lead) { this._focus = lead.entity_id; this._svc('media_play_pause', {}, lead.entity_id); } return; } // a record that was only tapped is played by its click
       this._carried = Date.now();
+      if (d.over.startsWith('pin:')) { this._pinDrop(d.over.slice(4), item ?? this._nowHit(lead)); return; }
       const to = d.over && d.over !== 'all' ? this._list.find((x) => x.entity_id === d!.over) ?? this.hass!.states[d.over] : undefined;
       if (lead && d.over === 'all') this._wholeHouse(() => { this._focus = lead.entity_id; this._everywhere(true, lead); });
       else if (item && d.over === 'all') this._wholeHouse(() => { const room = this._off(this._cur) ? this._list.find((x) => !this._off(x)) : this._cur; if (room) { this._shelfPlay(item, room); this._everywhere(true, room); } });
@@ -1043,7 +1056,7 @@ export class FhMusic extends LitElement {
     const tap = (m: ShelfItem): void => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); };
     return html`<div class="mshelf" role="group" aria-label="Shelf">
       ${ma ? html`<div class="shead"><b>${wind ? '🌙 ' : ''}${this._shelf === 'Family' ? 'Family shelf' : `${this._shelf}’s shelf`}</b>
-          ${this._shelfNames.map((n) => html`<button class="swho tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} aria-label=${n === 'Family' ? 'Family shelf' : `${n}’s shelf`} @click=${() => { this._shelf = n; }}><i>${n === 'Family' ? icon('home', 20) : this._face(n, 36)}</i></button>`)}</div>
+          ${this._shelfNames.map((n) => html`<button class="swho tap" data-pin=${n} ?data-hot=${drag?.over === `pin:${n}`} style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} aria-label=${n === 'Family' ? 'Family shelf' : `${n}’s shelf`} @click=${() => { this._shelf = n; }}><i>${n === 'Family' ? icon('home', 20) : this._face(n, 36)}</i></button>`)}</div>
         ${show.length ? html`<div class="srecs" style="--cols:${cols};--rows:${Math.ceil(Math.min(list.length, MAX) / cols)}">${show.map((m, i) => html`<button class="srec tap" ?data-lifted=${drag?.item === m} aria-label="${m.name}. Tap to play in ${this._name(cur)}, or drag it onto a room."
               @pointerdown=${(e: PointerEvent) => this._carryDown(e, { item: m })} @click=${() => tap(m)}>
               <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`}"></i><span>${m.name}</span></button>`)}
@@ -1082,12 +1095,37 @@ export class FhMusic extends LitElement {
       if (kid && windDown(kid.bedtime)) { if (sleepIn(this._h, room.entity_id, this.sleepMinutes)) { this._sleepAt = { id: room.entity_id, until: Date.now() + this.sleepMinutes * 60_000 }; window.setTimeout(() => this._say(`Fading out in ${this.sleepMinutes} minutes. Sleep well.`), 3400); } }
     });
   }
-  private _pin(to: string, calm: boolean): void {
-    const m = this._pinTo, e = shelfEntity(to); if (!m) return;
-    this._pinTo = null;
+  private _pin(to: string, calm: boolean): void { const m = this._pinTo; this._pinTo = null; if (m) this._pinNow(to, m, calm); }
+  /** Pin something to a shelf. The toast offers Undo, which takes it off again. */
+  private _pinNow(to: string, m: MediaHit, calm: boolean): void {
+    const e = shelfEntity(to), whose = to === 'Family' ? 'the family shelf' : `${to}’s shelf`;
     if (!this.hass!.states[e]) { this._say(`Create the to-do list ${e} in Home Assistant first`); return; }
-    pinToShelf(this._h, e, m, calm).then(() => { this._say(`Pinned to ${to === 'Family' ? 'the family shelf' : `${to}’s shelf`}`); this._loadShelves(); }).catch((err: unknown) => this._oops('Couldn’t pin that', err));
+    pinToShelf(this._h, e, m, calm).then(async () => {
+      await this._loadShelves();
+      const put = [...(this._items[to] ?? [])].reverse().find((x) => x.uri === m.uri);
+      this._say(`Pinned to ${whose}`, put ? () => { this._h.callService('todo', 'remove_item', { item: put.uid }, { entity_id: e }).then(() => { this._loadShelves(); this._say(`${m.name} taken off ${whose}`); }).catch((err: unknown) => this._oops('Couldn’t take it off', err)); } : undefined);
+    }).catch((err: unknown) => this._oops('Couldn’t pin that', err));
   }
+  /** What is playing, as something a shelf can hold. Null when the speaker does not say what it is playing. */
+  private _nowHit(p: HassEntity | undefined = this._cur && this._leader(this._cur)): MediaHit | null {
+    if (!p) return null;
+    const a = p.attributes, cur = this._cur, q = cur && this._leader(cur)?.entity_id === p.entity_id ? this._q?.current : undefined;
+    const uri = q?.uri || String(a.media_content_id ?? ''), pic = q?.img ?? (/^https?:/.test(String(a.entity_picture ?? '')) ? String(a.entity_picture) : undefined);
+    return uri ? { name: q?.name || String(a.media_title ?? 'Music'), uri, type: q?.type ?? 'track', img: pic, sub: a.media_artist ? String(a.media_artist) : undefined } : null;
+  }
+  /** Something was let go on a name: pin it to that shelf (a grown-up's call when a PIN is set). */
+  private _pinDrop(to: string, m: MediaHit | null): void {
+    const whose = to === 'Family' ? 'the family shelf' : `${to}’s shelf`;
+    if (!m?.uri) { this._say('That can’t be pinned from here. Search for it, then tap Pin.'); return; }
+    if ((this._items[to] ?? []).some((x) => x.uri === m.uri)) { this._say(`${m.name} is already on ${whose}`); return; }
+    this._guard(`Pin “${m.name}” to ${whose}?`, () => this._pinNow(to, m, false));
+  }
+  /** The tap for the same thing: what is playing, then whose shelf. */
+  private _pinPlaying(): void { const m = this._nowHit(); if (!m) { this._say('Nothing playing to pin'); return; } this._guard('Pin to a shelf?', () => { this._pinTo = m; }); }
+  /** A search result as something to carry: onto a name pins it. */
+  private _hitItems = new WeakMap<MediaHit, ShelfItem>();
+  private _asItem(h: MediaHit): ShelfItem { let i = this._hitItems.get(h); if (!i) { i = { ...h, uid: '', calm: false }; this._hitItems.set(h, i); } return i; }
+  private _shelfColour(n: string): string { return slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family'); }
   /** Take a record off a shelf. The toast offers Undo, which pins it again. */
   private _unpin(m: ShelfItem): void {
     const e = shelfEntity(this._shelf), whose = this._shelf === 'Family' ? 'the family shelf' : `${this._shelf}’s shelf`;
@@ -1197,6 +1235,7 @@ export class FhMusic extends LitElement {
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
+        ${c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span>📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing}
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
@@ -1240,11 +1279,15 @@ export class FhMusic extends LitElement {
   private _coach = false; private _coachT = 0;
   /** The view's own tools, the same on every layout: Switcheroo, Whole house, "Just this room", the offline note, "?" and the hint beside it. */
   private _tools(): TemplateResult {
-    const cur = this._cur, mine = cur && this._leader(cur), mode = this._mode, off = this._offline;
+    const cur = this._cur, mine = cur && this._leader(cur), mode = this._mode, off = this._offline, ma = hasMa(this.hass!);
+    // the room in focus is quiet and music is playing somewhere else: one tap brings it here (the same as carrying it)
+    const from = !mine && cur && !this._off(cur) && ma ? this._source() : undefined;
     return html`
         <button class="viewbtn tap" aria-haspopup=${this._offered.length > 2 ? 'dialog' : nothing} aria-label="Change the view" data-to=${this._offered.length > 2 ? nothing : this._offered.find((v) => v !== mode) ?? nothing} @click=${() => this._switch()}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${this._allJoined ? icon('check', 20) : icon('home', 20)}Whole house</button>`}
         ${mine && this._mix(mine).length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => this._everywhere(false, mine)}>Just ${this._name(mine)}</button>` : nothing}
+        ${from && cur ? html`<button class="pill tap moveh" style="font-size:var(--fs-2)" @click=${() => this._move(cur, from)}>Move the music to ${this._name(cur)}</button>` : nothing}
+        ${mine && ma && mode !== 'list' ? html`<button class="round tap pinb" aria-label="Pin what is playing to a shelf" @click=${() => this._pinPlaying()}>📌</button>` : nothing}
         ${off.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${off.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${off.length === this._list.length ? 'Every speaker is offline' : `${off.length} ${off.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(true)}>?</button>
         <span class="hint" role="note" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>`;
@@ -1307,7 +1350,7 @@ export class FhMusic extends LitElement {
     return html`${this._adding ? html`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || 'everyone'}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => { this._adding = false; this._tab = 'juke'; }}>Back</button></div>` : nothing}
       ${this._keys && !hits ? html`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${icon('search', 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : nothing}
       ${this._keys ? html`<div style="margin:auto 0">${keyboard((k) => { [this._text, this._caps] = typeKey(this._text, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true)}</div>` : nothing}
-      ${hits && !this._keys ? (hits.length ? html`<div class="hits scrolly" data-fits @scroll=${scrollCue}>${hits.map((h) => html`<button class="hit tap" aria-pressed=${String(h.uri === this._sel)} @click=${() => { this._sel = h.uri; }}>
+      ${hits && !this._keys ? (hits.length ? html`<div class="hits scrolly" data-fits @scroll=${scrollCue}>${hits.map((h) => html`<button class="hit tap" aria-pressed=${String(h.uri === this._sel)} ?data-lifted=${this._carry?.item === this._hitItems.get(h)} @pointerdown=${(e: PointerEvent) => { if (!this._adding) this._carryDown(e, { item: this._asItem(h) }); }} @click=${() => { if (Date.now() - this._carried > 400) this._sel = h.uri; }}>
           <span class="art" style=${h.img ? `--art:url(${h.img})` : ''}>${h.img ? '' : icon('music', 18)}</span>
           <span class="tx"><b>${h.name}</b><span>${h.sub ?? ''}</span></span><span class="kind">${TYPE_LABEL[h.type] ?? h.type}</span></button>`)}</div>
         <div class="acts">${sel ? (this._adding ? html`<button class="pill tap primary" style="height:48px;padding:0 20px" @click=${() => this._addPick(sel)}>＋ Add to the jukebox</button>`
@@ -1315,7 +1358,7 @@ export class FhMusic extends LitElement {
             <button class="pill tap" style="height:48px" @click=${() => this._start(sel, 'next')}>Play next</button>
             <button class="pill tap" style="height:48px" @click=${() => this._start(sel, 'add')}>＋ Queue</button>
             <button class="pill tap" style="height:48px" @click=${() => this._start(sel, 'play', true)}>∞ Radio from this</button>
-            <button class="pill tap" style="height:48px" @click=${() => this._guard('Pin to a shelf?', () => { this._pinTo = sel; })}>📌 Pin</button>`) : html`<span class="soft">Tap a result to play it, queue it or pin it to a shelf.</span>`}</div>`
+            <button class="pill tap" style="height:48px" @click=${() => this._guard('Pin to a shelf?', () => { this._pinTo = sel; })}>📌 Pin</button>`) : html`<span class="soft">Tap a result to play it, queue it or pin it to a shelf. Or drag it onto a name.</span>`}</div>`
         : html`<div class="empty"><span>Nothing found for “${this._text}”. Try fewer words.</span></div>`) : nothing}`;
   }
 
@@ -1326,9 +1369,9 @@ export class FhMusic extends LitElement {
         <h2 class="t-head">Pin “${m.name}”</h2><span class="soft">Whose shelf? Calm picks are the only ones offered at wind-down.</span>
         ${this._shelfNames.map((n) => html`<div class="setrow"><b style="font-size:var(--fs-3)">${n === 'Family' ? 'Family shelf' : `${n}’s shelf`}</b><span style="display:flex;gap:8px">
           <button class="pill tap primary" @click=${() => this._pin(n, false)}>Pin</button><button class="pill tap" @click=${() => this._pin(n, true)}>🌙 Pin as calm</button></span></div>`)}
-        <span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
+        ${this._offered.includes('desk') ? html`<span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
         <div class="acts">${this._pads.map((p) => { const on = this._padSet[p.name]; return html`<button class="pill tap" style="height:44px" aria-label="Put it on the ${p.name} pad${on ? `, which now plays ${on.title}` : ''}" @click=${() => { this._padPut(p.name, m); this._pinTo = null; }}>${p.name}</button>
-          ${on ? html`<button class="pill tap" style="height:44px" aria-label="Put the ${p.name} pad back to its own music instead of ${on.title}" @click=${() => this._padPut(p.name, null)}>↺</button>` : nothing}`; })}</div>
+          ${on ? html`<button class="pill tap" style="height:44px" aria-label="Put the ${p.name} pad back to its own music instead of ${on.title}" @click=${() => this._padPut(p.name, null)}>↺</button>` : nothing}`; })}</div>` : nothing}
         <button class="pill tap" style="align-self:flex-end" @click=${() => { this._pinTo = null; }}>Cancel</button></section></div>`;
   }
 
@@ -1339,16 +1382,17 @@ export class FhMusic extends LitElement {
     const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
     // the youngest reaches the lower half of a wall panel only: on his shelf the records sit low and the row of faces goes under them
     return html`<div class="shelfrow"><div class="crate ${kid?.mode === 'picture' ? 'low' : ''}">
-      <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
+      <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" data-pin=${n} ?data-hot=${this._carry?.over === `pin:${n}`} style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
         <span class="avatar" aria-hidden="true">${n === 'Family' ? icon('home', 18) : this._face(n, 32)}</span>${n}</button>`)}
 </div>
       ${wind ? html`<div class="banner">🌙 Wind-down: calm picks only, fading out after ${this.sleepMinutes} minutes.</div>` : nothing}
       ${list.length ? html`<div class="covers scrolly" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" ?data-lifted=${this._carry?.item === m} @pointerdown=${(e: PointerEvent) => { if (!this._edit) this._carryDown(e, { item: m }); }} @click=${() => { if (!this._edit && Date.now() - this._carried > 400) this._shelfPlay(m); }}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.calm ? '🌙 ' : ''}${m.name}</span>
-          ${this._edit ? html`<span class="x tap" role="button" tabindex="0" aria-label="Remove ${m.name}" @click=${(e: Event) => { e.stopPropagation(); this._unpin(m); }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._unpin(m); } }}>✕</span>` : nothing}</button>`)}</div>`
+          ${this._edit ? html`<span class="x tap" role="button" tabindex="0" aria-label="Remove ${m.name}" @click=${(e: Event) => { e.stopPropagation(); this._unpin(m); }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._unpin(m); } }}>✕</span>
+            <span class="x pinx tap" role="button" tabindex="0" aria-label="Pin ${m.name} to another shelf" @click=${(e: Event) => { e.stopPropagation(); this._pinTo = m; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._pinTo = m; } }}>📌</span>` : nothing}</button>`)}</div>`
         : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">${wind ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</h2>
           <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}</div>
-      <div class="dropside"><span class="soft" style="font-size:var(--fs-2)">Drag a record to a room, or tap it to play in <b>${this._name(room)}</b>.</span>
+      <div class="dropside"><span class="soft" style="font-size:var(--fs-2)">Tap a record to play it in <b>${this._name(room)}</b>, or drag it to a room. Drag it onto a name to pin it there.</span>
         ${this._mini((id) => id === room?.entity_id, (id) => { this._shelfTo = id; })}
         <span style="flex:1"></span><span style="align-self:flex-end">
         ${all.length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</span></div></div>`;

@@ -34,7 +34,7 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'pin', name: 'PIN', sub: 'The parent PIN and what it guards', ic: 'lock' },
   { id: 'house', name: 'House', sub: 'Night screen, bins, lights, look and sounds', ic: 'home' },
   { id: 'pictures', name: 'Pictures', sub: 'The screensaver, the artwork and the children’s characters', ic: 'palette' },
-  { id: 'music', name: 'Music', sub: 'Moments, the sleep timer and calls', ic: 'music' },
+  { id: 'music', name: 'Music', sub: 'Views, moments, the sleep timer and calls', ic: 'music' },
   { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page and alerts', ic: 'info' },
   { id: 'advanced', name: 'Advanced', sub: 'What is wired up, and earlier versions', ic: 'cog' }
 ];
@@ -49,7 +49,7 @@ const when = (iso: string): string => { const d = new Date(iso), n = new Date(),
 const cut = (s: string, n = 80): string => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 /** The parts of the card configuration that are wiring: shown in Advanced, changed in YAML. */
 const WIRING: [string, string][] = [['weather', 'Weather'], ['weather_page', 'Weather page'], ['calendars', 'Calendars'], ['add_calendar', 'Calendar for new events'], ['people', 'People and who is home'], ['reminders', 'Reminders list'], ['groceries', 'Shopping list'],
-  ['grocery_recipients', 'Who the shopping list is sent to'], ['music_player', 'Main speaker'], ['music_players', 'Speakers'], ['music_map', 'Music house map'], ['music_hide', 'Speakers left out'], ['music_lock', 'Only speakers on the map'], ['radio', 'Radio stations'],
+  ['grocery_recipients', 'Who the shopping list is sent to'], ['music_player', 'Main speaker'], ['music_players', 'Speakers'], ['music_map', 'Music house map'], ['music_hide', 'Speakers left out'], ['music_lock', 'Only speakers on the map'], ['music_views', 'Music views'], ['radio', 'Radio stations'],
   ['radio_source', 'Radio source'], ['announce_script', 'Dinner announcement script'], ['med_log', 'Record of other medicines'], ['photos', 'Photo frame'], ['photo_minutes', 'Minutes per photo'], ['idle_seconds', 'Seconds until the panel goes home'],
   ['chat', 'Ask: helper and voice'], ['bring_rules', 'What to bring, by calendar'], ['home_hide', 'Hidden on the Home page'], ['call_language', 'Call language'], ['call_voice', 'Call voice'], ['scale', 'Screen scale']];
 const BLOCKED: Record<Blocked, [string, string]> = {
@@ -936,7 +936,7 @@ export class FhSettings extends LitElement {
     const d = this._draft, DEFAULTS: MomentConfig[] = [{ name: 'Dinner', find: 'dinner' }, { name: 'Dance', find: 'dance hits' }, { name: 'Tidy-up', find: 'motivation' }, { name: 'Wind down', find: 'sleep sounds' }];
     const list = d.music_moments, shown = list?.length ? list : DEFAULTS, spk = this._speakers();
     const set = (fn: (l: MomentConfig[]) => void): void => this._edit((x) => { if (!x.music_moments?.length) x.music_moments = clone(DEFAULTS); fn(x.music_moments); });
-    return html`<p class="sintro">A moment is one press on the mixing desk that plays something for an occasion.</p>
+    return html`<p class="sintro">A moment is one press on the mixing desk that plays something for an occasion.${(d.music_views ?? []).includes('desk') ? '' : ' The pads are on the Desk view: switch it on under “Ways to see the rooms”.'}</p>
       <div class="scard"><h3>Moments ${list?.length ? nothing : html`<span class="muted">the four starters, until you change them</span>`}</h3>
         ${shown.slice(0, 4).map((m, n, all) => { const where = m.rooms === 'all' ? 'all' : Array.isArray(m.rooms) && m.rooms.length ? 'some' : 'focus', rooms = Array.isArray(m.rooms) ? m.rooms : [], open = this._open === n;
           const sum = [m.find || (m.uri ? 'One exact thing' : 'Nothing to play yet'), where === 'all' ? 'every room' : where === 'some' ? rooms.map((r) => this._name(r)).join(' and ') : 'the room in focus', m.volume === undefined ? '' : `${m.volume}%`].filter(Boolean).join(' · ');
@@ -955,6 +955,11 @@ export class FhSettings extends LitElement {
           </div>`; })}
         ${shown.length < 4 ? html`<div><button class="pill tap" data-act="moment-add" @click=${() => { const n = shown.length; set((l) => { l.push({ name: '', find: '' }); }); this._open = n; this._focusSoon(`mo.${n}.name`); }}>${icon('plus', 18)}Add a moment</button></div>` : html`<span class="shint">The desk has room for four moments.</span>`}
         <span class="shint">A pad that was given different music on a screen’s own Music page keeps that music on that screen.</span>
+      </div>
+      <div class="scard" data-views><h3>Ways to see the rooms</h3>
+        <span class="shint">House and Scene are always on the Music page, and its view button swaps between them. Switch on any of these and the button offers them too.</span>
+        ${([['dial', 'Dial', 'One big knob and a tuner.'], ['desk', 'Desk', 'Faders, a jog wheel and the four moment pads.'], ['cables', 'Crate', 'Records, a turntable and cables.'], ['list', 'List', 'Plain tiles.']] as const).map(([id, name, about]) =>
+          this._row(name, about, this._sw(`${name} view`, (d.music_views ?? []).includes(id), () => this._edit((x) => { const on = new Set(x.music_views ?? []); if (on.has(id)) on.delete(id); else on.add(id); const next = ['dial', 'desk', 'cables', 'list'].filter((v) => on.has(v)); if (next.length) x.music_views = next; else delete x.music_views; }))))}
       </div>
       <div class="scard"><h3>Timers and calls</h3>
         ${this._row('Sleep timer', 'How long the Music page’s sleep timer runs.', this._step('Sleep timer', d.music_sleep_minutes ?? 30, (v) => this._edit((x) => { x.music_sleep_minutes = v; }), { min: 5, max: 180, step: 5, unit: 'min' }))}
