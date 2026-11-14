@@ -256,6 +256,12 @@ export class FhKid extends LitElement {
     .jar { display: flex; align-items: center; gap: 12px; }
     .jarwhy { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
+    /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
+    .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }
+    .jarhead > * { line-height: 18px; white-space: nowrap; }
+    /* the rule in words belongs to the wall panel, where the card has the room; smaller screens keep the lane heading, the marble on each job and today's count */
+    .jarwhy.rule { display: none; }
+    @media (min-height: 900px) and (orientation: landscape) { .jarwhy.rule { display: block; } }
     /* a marble: the same small glass ball on a family-job row, in flight and in the jar */
     .marble { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, transparent 42%), var(--accent); box-shadow: inset 0 -2px 3px rgba(0,0,0,.22); }
     .marble.fly { position: fixed; left: 0; top: 0; width: 16px; height: 16px; z-index: 60; pointer-events: none; }
@@ -907,11 +913,9 @@ export class FhKid extends LitElement {
         <path d="M6 12 H42 V52 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="var(--chip-strong)" stroke="var(--ink3)" stroke-width="2"></path>
         <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
         <rect clip-path="url(#jc)" x="6" y=${58 - 44 * f} width="36" height=${44 * f} fill="var(--accent)" style="transition:y var(--mt-5, 900ms) var(--e-out, ease), height var(--mt-5, 900ms) var(--e-out, ease)"></rect></svg>
-      <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span class="label">Family jar</span>
+      <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="jarhead"><span class="label">Family jar</span>${added > 0 && !this._wind ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}</span>
         <span style="font-size:15px;font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
-        <span class="jarwhy" data-act="jar-why">Every family job adds a marble.</span>
-        ${added > 0 ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}
-        ${this._jarTold ? nothing : html`<span class="jarwhy" data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}
+        ${this._wind ? nothing : html`<span class="jarwhy rule" data-act="jar-why">Every family job adds a marble.${this._jarTold ? nothing : html` <span data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}</span>`}
       </span></div></section>`;
   }
 

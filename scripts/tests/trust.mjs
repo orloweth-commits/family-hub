@@ -153,7 +153,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok(`${look}: routines and growing carry no marble`, routine?.mb === '' && grow?.mb === '', [routine, grow]);
   ok(`${look}: the lane says where marbles come from`, (await kid.locator('.sec', { hasText: 'Family jobs' }).innerText()).replace(/\s+/g, ' ').trim() === 'Family jobs each one adds a marble to the jar');
   const jar = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-  ok(`${look}: the jar card says it in marbles, with one family total for today`, /36 marbles to .+ Every family job adds a marble\. 3 added today Routines and growing add none\.$/.test(jar), jar);
+  ok(`${look}: the jar card says it in marbles, with one family total for today`, /^Family jar 3 added today 36 marbles to .+ Every family job adds a marble\. Routines and growing add none\.$/i.test(jar), jar);
   if (look === 'glass') {
     await kid.locator('.job.row', { hasText: 'Homework' }).click(); await page.waitForTimeout(500);
     ok('ticking a routine adds no marble', (await calls(page, /script\.fh_add_points/)).length === 0 && await state(page, 'input_number.family_jar') === '84' && await kid.locator('.marble.fly').count() === 0);
@@ -166,7 +166,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     ok('and adds exactly one marble', adds.length === 1 && await state(page, 'input_number.family_jar') === '85', adds);
     ok('the marble lands and is cleared away', await kid.locator('.marble.fly').count() === 0);
     const jar2 = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-    ok('the jar card counts it: one fewer to go, one more today, and the first-use line has done its job', /35 marbles to .+ Every family job adds a marble\. 4 added today$/.test(jar2), jar2);
+    ok('the jar card counts it: one fewer to go, one more today, and the first-use line has done its job', /^Family jar 4 added today 35 marbles to .+ Every family job adds a marble\.$/i.test(jar2), jar2);
     ok('the points still go to the child who did it', await state(page, 'input_number.riley_points') === '130');
   }
   await page.context().close(); }
@@ -183,7 +183,14 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   await older.context().close();
   const all = await open('look=glass&page=kid&kid=1'); const t = await all.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; return r.querySelector('section[aria-label="Family jar"]').textContent; });
   ok('the total is the family’s: no name beside it', /3 added today/.test(t) && !/Riley|Charlie|Max/.test(t), t.replace(/\s+/g, ' ').trim());
-  await all.context().close(); }
+  await all.context().close();
+  const small = await open('look=glass&page=kid&kid=0', '16:20', { w: 1312, h: 668 }); const sj = (await K(small).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
+  ok('on a smaller screen the jar card stays as short as it was: today’s count, no extra line', /^Family jar 3 added today 36 marbles to [^.]+$/i.test(sj), sj);
+  ok('and the rule is still on the lane and on each job', (await K(small).locator('.sec', { hasText: 'Family jobs' }).innerText()).includes('each one adds a marble to the jar') && await K(small).locator('.job.row .mb').count() >= 2);
+  await small.context().close();
+  const wind = await open('look=glass&page=kid&kid=0', '19:20'); const w = (await K(wind).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
+  ok('near bedtime the jar card is its short self: nothing to earn, nothing to count', /^Family jar 36 marbles to [^.]+$/i.test(w), w);
+  await wind.context().close(); }
 { const page = await open('look=glass&page=planner&sheet=settings&pane=rewards'); const txt = await page.locator('fh-settings').evaluate((e) => e.shadowRoot.textContent);
   ok('Settings says marbles too', /Marbles to fill the jar/.test(txt) && /\d+ marbles/.test(txt) && !/Points to fill the jar/.test(txt));
   await page.context().close(); }
