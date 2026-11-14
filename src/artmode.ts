@@ -9,15 +9,15 @@ import { hm, minsNow, bedtimeFor } from './util';
 /* ------------------------------------------------------------------ *
  * Art mode: the panel's screensaver. After a while with nobody using it
  * the page fades (slowly) into tonight's artwork with a clock; a touch,
- * or someone walking up, brings the hub straight back. After the
- * youngest child's bedtime the artwork gives way to a dim clock.
+ * or someone walking up, brings the hub straight back. At night the
+ * same pictures stay up, dimmer and warmer, and the screen is at its lowest.
  *
  * The screen itself never sleeps: art mode is a state of the page, so a
  * kiosk never loses its display. Dimming the backlight is optional, and
  * only through an entity Home Assistant already has.
  * ------------------------------------------------------------------ */
 
-/** From the earliest bedtime among the children until the household's morning (the end of quiet hours, never before 5 am): the artwork rests and a dim clock keeps watch. */
+/** From the earliest bedtime among the children until the household's morning (the end of quiet hours, never before 5 am): the artwork is at its night level. */
 export const artNight = (kids: { bedtime?: string }[] = [], quiet: { start?: string; end?: string } = {}, d = new Date()): boolean => {
   if (!kids.length) return false;
   const n = minsNow(d), wake = Math.max(5 * 60, hm(quiet.end ?? '06:30'));
@@ -33,6 +33,27 @@ export const drift = (d: Date): [number, number] => {
 interface Shown { url: string; n: number; file: string }
 export interface ArtHost { hass?: Hass; requestUpdate(): void }
 
+/** how long the panel waits at night when the screensaver has been switched off by day: the night level still needs it */
+const NIGHT_IDLE_MS = 3 * 60_000;
+/** the screen's brightness follows the light no faster than this, and by no more than this many points at a time */
+export const BRIGHT_EVERY_MS = 60_000, BRIGHT_STEP = 6;
+export interface BrightIn { /** the sun's height above the horizon, degrees (below it is negative); undefined when Home Assistant has no sun */ elevation?: number; /** the room's light in lux, when there is a reading */ lux?: number; floor?: number; ceiling?: number }
+/**
+ * How bright the screen should be while the hub is in use, 1 to 100: a curve on the sun's height for this house (the floor from
+ * six degrees below the horizon, the ceiling from thirty above), moved up or down by as much as twenty points by the room's own light
+ * when there is a reading (a dark room at noon, lamps on after dusk). With neither a sun nor a reading it is the ceiling, as before.
+ */
+export const brightTarget = (i: BrightIn): number => {
+  const lo = Math.max(1, Math.min(100, i.floor ?? ART_DEFAULTS.brightFloor)), hi = Math.max(lo, Math.min(100, i.ceiling ?? 100));
+  const hasSun = Number.isFinite(i.elevation), hasLux = Number.isFinite(i.lux) && (i.lux as number) >= 0;
+  if (!hasSun && !hasLux) return hi;
+  const sun = hasSun ? Math.max(0, Math.min(1, ((i.elevation as number) + 6) / 36)) : 0.5;
+  // lux is felt on a log scale: about 1 lux is a dark room, 30 a lamp-lit one, 1000 a bright day indoors
+  const room = hasLux ? Math.max(0, Math.min(1, Math.log10((i.lux as number) + 1) / 3)) : sun;
+  // the sun leads; the room moves it. With no sun to go by, the room's light is all there is
+  return Math.round(Math.max(lo, Math.min(hi, lo + (hi - lo) * (hasSun ? sun : room) + (hasSun && hasLux ? (room - 0.5) * 40 : 0))));
+};
+
 export class ArtMode {
   /** the artwork is up */
   on = false;
@@ -43,7 +64,7 @@ export class ArtMode {
   /** why the camera cannot watch, if it cannot */
   camFault: CamFault = '';
   private _order: ArtItem[] = []; private _i = 0; private _n = 0; private _shownAt = 0; private _loadedAt = 0; private _loading = false;
-  private _cam: CameraWatch | null = null; private _level = -1;
+  private _cam: CameraWatch | null = null; private _level = -1; private _hub = -1; private _hubAt = 0; private _state = '';
   constructor(private host: ArtHost, private cfg: () => FamilyHubConfig | undefined, private touched: () => void) {}
 
   private get a() { return artOf(this.cfg()); }
@@ -54,10 +75,11 @@ export class ArtMode {
    * Once a second. `idleFor` is how long since the last touch or presence; `blocked` is true while something must not be covered
    * (a timer, an alarm, a call, a sheet, a keyboard, a music session); `todays` are today's event titles, for choosing pictures.
    */
-  tick(idleFor: number, blocked: boolean, todays: string[] = []): void {
+  tick(idleFor: number, blocked: boolean, todays: string[] = [], night = false): void {
     if (this._presence()) return;
     if (this.on && blocked) { this.wake(); return; }
-    if (!this.on && this.idleMs && idleFor >= this.idleMs && !blocked && !document.hidden) this.enter(todays);
+    const idle = this.idleMs || (night ? NIGHT_IDLE_MS : 0);
+    if (!this.on && idle && idleFor >= idle && !blocked && !document.hidden) this.enter(todays);
     if (this.on && Date.now() - this._shownAt >= this.intervalMs) void this._next();
     if (this.on && Date.now() - this._loadedAt > 10 * 60_000) void this._load(todays);
   }
@@ -115,13 +137,24 @@ export class ArtMode {
   }
 
   /**
-   * The screen's brightness, when the family has named an entity for it: full while the hub is in use, lower while the artwork shows,
-   * lowest at night. Does nothing at all when the entity is not there (the kiosk PC that provides it may not be installed yet).
+   * The screen's brightness, when the family has named an entity for it. While the hub is in use it follows the sun and the room
+   * (brightTarget), creeping there a few points a minute so nobody sees it move; the artwork is a share of that, and night is the
+   * lowest. Going to the artwork, to night or back to the hub is done at once. Does nothing at all when the entity is not there
+   * (the kiosk PC that provides it may not be installed yet).
    */
-  backlight(state: 'hub' | 'art' | 'night'): void {
+  backlight(state: 'hub' | 'art' | 'night', t = Date.now()): void {
     const a = this.a, id = a.backlight, h = this.host.hass, st = id ? h?.states[id] : undefined;
-    const pct = Math.max(1, Math.min(100, state === 'hub' ? 100 : state === 'art' ? a.backlight_art ?? ART_DEFAULTS.dimArt : a.backlight_night ?? ART_DEFAULTS.dimNight));
-    if (!id || !h || !st || st.state === 'unavailable' || pct === this._level) { if (!id) this._level = -1; return; }
+    if (!id || !h || !st || st.state === 'unavailable') { if (!id) { this._level = -1; this._hub = -1; this._state = ''; } return; }
+    const sun = Number(h.states['sun.sun']?.attributes.elevation), room = a.backlight_room ? Number(h.states[a.backlight_room]?.state) : NaN;
+    const want = a.backlight_auto === false ? Math.max(1, Math.min(100, a.backlight_max ?? 100)) : brightTarget({ elevation: h.states['sun.sun'] ? sun : undefined, lux: Number.isFinite(room) ? room : undefined, floor: a.backlight_min, ceiling: a.backlight_max });
+    // the light outside and in the room changes slowly: follow it slowly. The first reading is taken as it is.
+    if (this._hub < 0) { this._hub = want; this._hubAt = t; }
+    else if (want !== this._hub && t - this._hubAt >= BRIGHT_EVERY_MS) { this._hub += Math.max(-BRIGHT_STEP, Math.min(BRIGHT_STEP, want - this._hub)); this._hubAt = t; }
+    const art = Math.round((this._hub * Math.max(1, Math.min(100, a.backlight_art ?? ART_DEFAULTS.dimArt))) / 100), night = Math.min(art, Math.max(1, Math.min(100, a.backlight_night ?? ART_DEFAULTS.dimNight)));
+    const pct = Math.max(1, Math.min(100, state === 'hub' ? this._hub : state === 'art' ? art : night));
+    if (pct === this._level && state === this._state) return;
+    this._state = state;
+    if (pct === this._level) return;
     this._level = pct;
     const dom = id.split('.')[0];
     try {
@@ -143,17 +176,18 @@ export interface ArtView {
 /** The artwork, its clock and a line or two of news. Drawn by the card, inside its frame, so every look can dress it. */
 export const artView = (m: ArtMode, v: ArtView): TemplateResult => {
   const [fx, fy] = drift(v.now), at = `left:${(fx * 100).toFixed(2)}%;top:${(fy * 100).toFixed(2)}%;transform:translate(${(-fx * 100).toFixed(2)}%, ${(-fy * 100).toFixed(2)}%)`;
-  const pic = (s: Shown, out: boolean): TemplateResult => html`<img class="aimg" alt="" draggable="false" ?data-out=${out} data-kb=${s.n % 4} src=${s.url} style="--kb:${Math.round(m.intervalMs / 1000) + 4}s">`;
-  const pics = !v.night && m.cur;
+  // a picture is still: it arrives by a slow cross-fade over the one before, and never zooms or pans
+  const pic = (s: Shown, out: boolean): TemplateResult => html`<img class="aimg" alt="" draggable="false" ?data-out=${out} src=${s.url}>`;
+  const pics = m.cur;
   return html`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${v.night} ?data-closing=${v.closing} ?data-bare=${!pics}
       @pointerdown=${v.onWake} @keydown=${v.onWake}>
-    ${v.night ? nothing : pics ? html`${m.prev ? keyed(m.prev.n, pic(m.prev, true)) : nothing}${keyed(m.cur!.n, pic(m.cur!, false))}<span class="ashade" aria-hidden="true"></span>`
-      : html`<fh-ambient .look=${v.look} .theme=${v.theme} .tod=${v.tod} .calm=${v.calm}></fh-ambient>`}
+    ${pics ? html`${m.prev ? keyed(m.prev.n, pic(m.prev, true)) : nothing}${keyed(m.cur!.n, pic(m.cur!, false))}<span class="ashade" aria-hidden="true"></span>`
+      : v.night ? nothing : html`<fh-ambient .look=${v.look} .theme=${v.theme} .tod=${v.tod} .calm=${v.calm}></fh-ambient>`}
     <div class="adrift"><div class="aplate" style=${at}>
       ${v.art && v.art !== nothing ? html`<span class="nart">${v.art}</span>` : nothing}
       <div class="awords"><span class="atime"><span class="display big">${v.hm}</span><span class="aampm">${v.ampm}</span></span>
         <span class="adate">${v.date}</span>
-        ${v.night ? nothing : v.lines.map((l) => html`<span class="ainfo">${l}</span>`)}</div>
+        ${v.lines.map((l) => html`<span class="ainfo">${l}</span>`)}</div>
     </div></div>
   </div>`;
 };
@@ -170,14 +204,8 @@ export const artCss = `
   .artm[data-bare]:not([data-night])::after { content: ''; position: absolute; inset: 0; z-index: 0; background: rgba(8,10,16,.18); pointer-events: none; }
   .adrift { z-index: 1; }
   .artm fh-ambient { z-index: 0; }
-  .aimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: afade 2.5s linear backwards, akb0 var(--kb, 300s) linear both; will-change: transform, opacity; }
-  .aimg[data-kb='1'] { animation-name: afade, akb1; } .aimg[data-kb='2'] { animation-name: afade, akb2; } .aimg[data-kb='3'] { animation-name: afade, akb3; }
-  .fh[data-calm] .aimg { animation: afade 2.5s linear backwards; }
-  @media (prefers-reduced-motion: reduce) { .aimg { animation: afade 2.5s linear backwards; } }
-  @keyframes akb0 { from { transform: scale(1.03) translate(-1%, -0.6%); } to { transform: scale(1.13) translate(1.6%, 1%); } }
-  @keyframes akb1 { from { transform: scale(1.13) translate(1.6%, -1%); } to { transform: scale(1.03) translate(-1%, 0.6%); } }
-  @keyframes akb2 { from { transform: scale(1.04) translate(1.2%, 1%); } to { transform: scale(1.12) translate(-1.6%, -1%); } }
-  @keyframes akb3 { from { transform: scale(1.12) translate(-1.4%, 1%); } to { transform: scale(1.04) translate(0.8%, -0.8%); } }
+  /* the painter's pictures are 3:2 and the screen is 16:9: what is cut comes mostly from the bottom, because heads are near the top */
+  .aimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; animation: afade 2.5s linear backwards; will-change: opacity; }
   .ashade { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.34)); pointer-events: none; }
   .adrift { position: absolute; inset: 44px 52px; pointer-events: none; }
   .aplate { position: absolute; display: flex; align-items: center; gap: 28px; padding: 24px 34px 26px; border-radius: 40px; max-width: 100%;
@@ -191,9 +219,12 @@ export const artCss = `
   .adate { font-size: var(--fs-6); font-weight: 600; margin-top: 8px; opacity: .92; }
   .ainfo { font-size: var(--fs-5); font-weight: 600; margin-top: 10px; opacity: .95; max-width: 20em; text-wrap: balance; }
   .ainfo + .ainfo { margin-top: 4px; opacity: .8; }
-  /* night: the artwork rests; a dim amber clock, as on the night screen */
+  /* night: the same pictures, dimmer and warmer, never a black screen; the clock and its lines in dim amber */
   .artm[data-night] { background: #000; --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; color: #ffb26b; }
-  .artm[data-night] .aplate { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; opacity: .72; }
+  .artm[data-night] .aimg { filter: brightness(.42) sepia(.45) saturate(.75); }
+  .artm[data-night] .aplate { background: rgba(0,0,0,.5); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; opacity: .8; }
+  /* with no picture to show at night there is only the clock, on black */
+  .artm[data-night][data-bare] .aplate { background: none; opacity: .72; }
   .artm[data-night] .atime .big { font-weight: 300; }
   :host([data-phone]) .artm { position: fixed; }
   :host([data-phone]) .adrift { inset: 24px 18px; }

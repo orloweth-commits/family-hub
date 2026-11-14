@@ -267,7 +267,7 @@ if (q.get('faces')) el.hass = { ...hass };
 if (q.get('bins') === 'old') el.setConfig({ ...el._config, bins: { day: 1, always: ['green', 'blue'], alternate: ['yellow', 'red', 'purple'], anchor: '2026-11-09' } });
 if (q.get('nopin')) { const { parent_pin, ...rest } = el._config; el.setConfig(rest); }
 if (q.get('sheet') && q.get('sheet') !== 'settings') el._sheet = q.get('sheet');
-if (q.get('night')) el._nightManual = true;
+if (q.get('night')) { await el.updateComplete; el._nightManual = true; el._art.enter(); }
 if (q.get('mhide')) { el.setConfig({ ...el._config, music_hide: q.get('mhide').split(',') }); }
 // &keep=1 gives "All off" a keep_on list (Max's night light); &keep=group names a group instead (two night lights), with a second group that has a kept light inside it
 if (q.get('keep')) {

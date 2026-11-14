@@ -57,9 +57,8 @@ export const styles = css`
   @keyframes pgfade { from { opacity: 0; } }
   @keyframes pgmove { from { transform: var(--pg-from, translateY(calc(8px * var(--m-d, 1)))); } }
   @keyframes rise { from { opacity: 0; transform: translateY(calc(14px * var(--m-d, 1))); } }
-  /* leaving: sheets (with their scrim), the PIN pad, toasts and the night screen fade out before they go */
-  .scrim[data-closing], .toast[data-closing], .night[data-closing], .sheetwrap[data-closing] { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
-  .night[data-closing] { animation-duration: var(--m-4, 400ms); }
+  /* leaving: sheets (with their scrim), the PIN pad, toasts fade out before they go */
+  .scrim[data-closing], .toast[data-closing], .sheetwrap[data-closing] { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
   @keyframes fhout { to { opacity: 0; } }
   /* waiting for Home Assistant: a control whose call is still out after 250 ms dims until the answer comes */
   [data-busy] { opacity: .6; cursor: progress; }
@@ -486,18 +485,6 @@ export const styles = css`
   .toast button:focus-visible { outline-color: #fff; }
   .flash { position: absolute; inset: 0; z-index: 30; background: var(--chip-strong); pointer-events: none; animation: flash var(--m-5) ease forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
-  .night { position: absolute; inset: 0; z-index: 40; padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between; color: #ffb26b; text-align: left;
-    background: #000; animation: scrimin var(--m-4, 400ms) ease backwards;
-    /* drawings a look adds here are redrawn in the same dim amber as the digits */
-    --ink: #ffb26b; --ink2: rgba(255,178,107,.75); --ink3: rgba(255,178,107,.5); --paper: transparent; --track: rgba(255,178,107,.2); --accent: #ffb26b; --danger: #ffb26b; --ground: #000; }
-  .night .nwander { flex: 1; display: flex; flex-direction: column; justify-content: space-between; transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: transform calc(55s * var(--m-d, 1)) linear; }
-  /* a phone has little margin to wander in: the clock keeps inside it */
-  :host([data-phone]) .night .nwander { transform: translate(calc(var(--dx, 0px) * .3), calc(var(--dy, 0px) * .5)); }
-  .night .nclock { display: flex; align-items: center; gap: 40px; }
-  .night .nart { line-height: 0; opacity: .8; }
-  .night .big { font-size: 168px; font-weight: 300; line-height: .9; font-variant-numeric: tabular-nums; opacity: .78; }
-  .night .ndate { font-size: var(--fs-5); font-weight: 500; margin-top: 10px; opacity: .6; }
-  .night .dglass { background: rgba(255,178,107,.06); border: 1px solid rgba(255,178,107,.18); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .alarm { position: absolute; inset: 0; z-index: 45; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #fff;
     background: radial-gradient(circle, #f97316, #b91c1c); animation: alarmbg 1s ease-in-out infinite alternate !important; animation-play-state: running !important; }
   @keyframes alarmbg { from { filter: brightness(.9); } to { filter: brightness(1.15); } }
@@ -588,7 +575,7 @@ export const styles = css`
   :host([data-phone]) nav.dock[data-more] { -webkit-mask-image: linear-gradient(to left, transparent, #000 36px); mask-image: linear-gradient(to left, transparent, #000 36px); }
   :host([data-phone]) .dock .kidbtn .avatar { width: 34px !important; height: 34px !important; }
 
-  :host([data-phone]) .scrim, :host([data-phone]) .night, :host([data-phone]) .alarm { position: fixed; }
+  :host([data-phone]) .scrim, :host([data-phone]) .alarm { position: fixed; }
   :host([data-phone]) .scrim { padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px)); }
   :host([data-phone]) .sheet, :host([data-phone]) .sheet[data-w] { width: 100%; max-height: 100%; padding: 18px 16px; border-radius: 24px; }
   :host([data-phone]) .sfoot { position: sticky; bottom: -18px; z-index: 2; flex-direction: column; align-items: stretch; gap: 6px; margin: 0 -16px -18px; padding: 10px 16px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
@@ -598,9 +585,6 @@ export const styles = css`
   :host([data-phone]) .themes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :host([data-phone]) .toasts { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); padding: 0 10px; }
   :host([data-phone]) .toast { border-radius: 20px; }
-  :host([data-phone]) .night { padding: 32px 24px; }
-  :host([data-phone]) .night .big { font-size: var(--fs-d5); }
-  :host([data-phone]) .night .nclock { flex-direction: column; align-items: flex-start; gap: 16px; }
   :host([data-phone]) .keys { display: none; }
 
   ${lookCss}

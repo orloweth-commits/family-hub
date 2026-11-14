@@ -40,12 +40,14 @@ export const ADVENTURES = [
   'a skate park on the rings of Saturn', 'a quokka tea party on an island', 'racing paper planes as big as gliders', 'a lighthouse rescue in a little red boat', 'inventors flying pedal-powered machines', 'a band playing on a floating stage at sunset',
   'a cricket match against kangaroos', 'gold prospecting in the outback with a wombat', 'a paddle down a river among black swans', 'a fossil dig that finds a whole dinosaur', 'kite flying on a windy headland with enormous kites', 'a treehouse city joined by zip-lines'
 ];
+/** Every look is a flat cartoon (Oliver, 14 Nov 2026: the polished, half-real pictures sat in the uncanny valley); a look only changes its colours and line. */
+const CARTOON = 'a flat 2D cartoon: simple shapes, clean outlines and flat colour, like a children’s animated series. Never photographic, never 3D-rendered, never semi-realistic, no realistic skin or lighting';
 const STYLES: Record<string, string> = {
-  house: 'a warm, polished animated-film style with soft light and rich colour',
-  glass: 'a warm, polished animated-film style with soft light and rich colour',
-  fridge: 'a hand-made picture-book style, like crayon, gouache and cut paper',
-  orbit: 'a clean retro space-age poster style with deep blues and warm highlights',
-  sports: 'a bold vintage sports-poster style with warm floodlit colour'
+  house: `${CARTOON}, in bright, warm colours`,
+  glass: `${CARTOON}, in bright, warm colours`,
+  fridge: `${CARTOON}, drawn as if with felt pens and cut paper`,
+  orbit: `${CARTOON}, in deep blues with warm highlights, like a retro space-age poster`,
+  sports: `${CARTOON}, in bold floodlit colours, like a vintage sports poster`
 };
 
 const firstName = (k: KidConfig): string => k.name;
@@ -83,7 +85,7 @@ export const nightlyAutomation = (hass: Hass | undefined, c: FamilyHubConfig): R
     'Rules: picture 1 is about something real from today’s calendar or the boys’ interests, the weather or the season (if the calendar is empty, use an interest). Picture 2 is one of tonight’s adventures. Picture 3 is your choice of either.',
     'Across the three pictures use one boy, two boys and all three boys at least once where you can, and give each boy a fair turn.',
     'Everything must be gentle, funny and safe for a four-year-old: nothing frightening, no danger that looks real, no weapons, no injuries, nothing rude. If a calendar entry is about anything medical, private, sad or adult, ignore it and use an interest instead.',
-    'Give each boy only his own interests: never hand one boy another boy’s instrument, sport or toy.',
+    'Give each boy only his own interests: never hand one boy another boy’s instrument, sport or toy. In each scene say by name who is holding or doing what (“Sam holds the trumpet; Riley rides the scooter”), so the painter cannot swap them.',
     'Describe each scene in your own words. Never copy a calendar entry as it is written, and never include a surname, an address, a school name, a brand or a licensed character.'
   ].join('\n');
   const paintWords = [
@@ -91,7 +93,7 @@ export const nightlyAutomation = (hass: Hass | undefined, c: FamilyHubConfig): R
     'The boys in it are exactly the boys on the attached character sheets, one sheet each, in this order: {{ sc.cast | map(attribute="name") | join(", ") }}. Keep each one’s face, hair, skin, build and age true to his sheet, so his family knows him at once.',
     '{% for b in sc.cast %}{{ b.name }}: {{ b.about }} {% endfor %}',
     'Style: {{ style }}. The boys stay recognisable in that style.',
-    'Composition: a wide landscape picture with the boys in the middle of it, whole heads inside the picture, and calm, uncluttered space towards the edges.',
+    'Composition: a wide landscape picture. Every boy’s whole head sits inside the middle 70 per cent of the picture, well clear of the top and of both sides, because the edges are trimmed to fit the screen; calm, uncluttered space towards the edges.',
     'Bright, warm, kind and funny. Nothing frightening. No other people in the foreground.',
     'No text, letters, numbers, logos, brand names, flags or licensed characters anywhere in the picture. Books, signs, clothes and packets show pictures or plain colour only, never words.'
   ].join('\n');

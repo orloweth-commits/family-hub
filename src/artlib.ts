@@ -25,6 +25,8 @@ export interface ArtConfig {
   camera_sensitivity?: number; camera_margin?: number;
   /** a light or number entity that sets the screen's brightness, and the brightness (per cent) while the artwork shows and at night */
   backlight?: string; backlight_art?: number; backlight_night?: number;
+  /** while the hub is in use the brightness follows the sun's height and, when `backlight_room` names an illuminance sensor (lux), the room's light: between `backlight_min` (default 30) and `backlight_max` (default 100). `backlight_auto: false` keeps it at the maximum. */
+  backlight_auto?: boolean; backlight_min?: number; backlight_max?: number; backlight_room?: string;
   /** the to-do list that records the pictures (default todo.family_hub_art) and the AI Task entity that paints them (default: the first there is) */
   list?: string; painter?: string;
   /** stop painting when this month's estimated spend reaches this many US dollars (default 40); what one picture is reckoned to cost (default 0.30) */
@@ -36,7 +38,7 @@ export interface ArtConfig {
 }
 export const artOf = (c: FamilyHubConfig | undefined): ArtConfig => (c as { art?: ArtConfig } | undefined)?.art ?? {};
 export const artListOf = (c: FamilyHubConfig | undefined): string => artOf(c).list || 'todo.family_hub_art';
-export const ART_DEFAULTS = { idle: 3, interval: 5, cap: 40, cost: 0.3, looks: 3, sensitivity: 5, margin: 10, dimArt: 70, dimNight: 12 };
+export const ART_DEFAULTS = { idle: 3, interval: 5, cap: 40, cost: 0.3, looks: 3, sensitivity: 5, margin: 10, dimArt: 70, dimNight: 12, brightFloor: 30 };
 
 export interface ArtItem {
   uid: string; file: string; hidden: boolean;
