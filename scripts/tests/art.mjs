@@ -169,7 +169,7 @@ await page.close();
 // no painter set up: the studio says so and paints nothing
 page = await open('painted=1&nopainter=1&page=kid&kid=0&studio=1');
 await page.locator('fh-studio .tile', { hasText: 'Party hat' }).first().click(); await page.waitForTimeout(300);
-ok('with no painter the child is told to ask a grown-up', /Ask a grown-up/.test(await page.locator('fh-studio .pnote').innerText()) && await page.locator('fh-studio [data-act="paint"]').isDisabled());
+ok('with no painter the child is told to ask a parent', /Ask a parent/.test(await page.locator('fh-studio .pnote').innerText()) && await page.locator('fh-studio [data-act="paint"]').isDisabled());
 await page.close();
 // a child with a drawn avatar keeps the drawn studio
 page = await open('page=kid&kid=0&studio=1');

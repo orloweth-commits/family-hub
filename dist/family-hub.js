@@ -4064,7 +4064,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
   .sheet.chatsheet > fh-chat { flex-shrink: 1; }
   /* the note about the helper sits directly under the subtitle, so it is read before anything is asked */
-  /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a grown-up's way in */
+  /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a parent's way in */
   .askwho { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; align-content: center; gap: 18px; }
   .whobtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-width: 168px; min-height: 176px; padding: 16px 14px; border-radius: 28px; background: var(--chip); font-size: var(--fs-4); font-weight: var(--w-bold, 700); color: var(--ink); }
   .whobtn .avatar { overflow: hidden; flex-shrink: 0; }
@@ -8453,7 +8453,7 @@ const gu = (a) => {
   }
 }, Mo = class Mo extends bt {
   constructor() {
-    super(...arguments), this.lookCtl = new te(this), this.pin = "", this.reason = "Grown-ups only", this._typed = "", this._bad = !1, this._note = "", this._wait = 0, this._from = null, this._tick = 0, this._digits = Es, this._keys = (t) => {
+    super(...arguments), this.lookCtl = new te(this), this.pin = "", this.reason = "Parents only", this._typed = "", this._bad = !1, this._note = "", this._wait = 0, this._from = null, this._tick = 0, this._digits = Es, this._keys = (t) => {
       if (!(t.ctrlKey || t.metaKey || t.altKey)) {
         if (t.key === "Escape") this._leave("cancel");
         else if (/^[0-9]$/.test(t.key)) this._key(t.key);
@@ -8488,7 +8488,7 @@ const gu = (a) => {
         this._typed && S("del"), this._typed = this._typed.slice(0, -1);
         return;
       }
-      this._bad || (this._typed += t, this._note = "", this._typed.length < this.pin.length && S("pin"), this._typed.length >= this.pin.length && (this._typed === this.pin ? (ma.misses = 0, S("pinok"), this._leave("ok")) : (ma.misses += 1, this._bad = !0, S("pinno"), ma.misses >= 3 ? (ma.misses = 0, ma.until = Date.now() + 6e4, this._wait = 60, this._note = "Too many tries. Ask a grown-up to help.") : this._note = "Not that one. Try again.", setTimeout(() => {
+      this._bad || (this._typed += t, this._note = "", this._typed.length < this.pin.length && S("pin"), this._typed.length >= this.pin.length && (this._typed === this.pin ? (ma.misses = 0, S("pinok"), this._leave("ok")) : (ma.misses += 1, this._bad = !0, S("pinno"), ma.misses >= 3 ? (ma.misses = 0, ma.until = Date.now() + 6e4, this._wait = 60, this._note = "Too many tries. Ask a parent to help.") : this._note = "Not that one. Try again.", setTimeout(() => {
         this._bad = !1, this._typed = "";
       }, 420))));
     }
@@ -8509,7 +8509,7 @@ const gu = (a) => {
         <button class="round tap" style="width:52px;height:52px;margin-right:-10px" aria-label="Cancel" @click=${() => this._leave("cancel")}>${U("close", 20)}</button></div>
       <span class="what">Enter the parent PIN to go on.</span>
       <div class="dots" role="img" aria-label="${this._typed.length} of ${this.pin.length} digits entered">${Array.from({ length: this.pin.length }, (t, e) => p`<span class=${e < this._typed.length ? "on" : ""}></span>`)}</div>
-      <div class="note" role="alert">${this._wait ? `Too many tries. Ask a grown-up to help. (${this._wait} s)` : this._note}</div>
+      <div class="note" role="alert">${this._wait ? `Too many tries. Ask a parent to help. (${this._wait} s)` : this._note}</div>
       <div class="grid">
         ${[...this._digits.slice(0, 9), "", this._digits[9], "del"].map((t) => t ? p`<button class="tap" ?disabled=${!!this._wait} aria-label=${t === "del" ? "Delete" : t} @click=${() => this._key(t)}>${t === "del" ? U("backspace", 28) : t}</button>` : p`<span></span>`)}
       </div>
@@ -8730,11 +8730,11 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
       this._picMode && I(i), this._say(i);
     }
   }
-  /** Sends one reward to the grown-ups' phones. Nothing is spent until one of them says yes. */
+  /** Sends one reward to the parents' phones. Nothing is spent until one of them says yes. */
   async _askFor(t) {
     if (this._spend = "", this._asking || !this.hass || !this._askOn) return;
     if (this._asked.some((s) => s.name === t.name)) {
-      this._say(`Asked. Waiting for a grown-up: ${t.name}.`);
+      this._say(`Asked. Waiting for a parent: ${t.name}.`);
       return;
     }
     const e = Re(this.hass, this._e.points), i = { v: 1, id: xu(), k: "reward", kid: this._e.slug, who: this.kid.name, name: t.name, cost: t.cost, t: Date.now() };
@@ -8742,8 +8742,8 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
     try {
       const s = await nt(ku(this.hass, this.asks, i, e));
       this._sound("tap");
-      const o = s ? "Asked! A grown-up will answer on their phone." : "It is on the list, but no phone took the message. Find a grown-up.";
-      this._picMode && I(s ? `${t.name}. I have asked a grown-up.` : "Find a grown-up."), this._say(o);
+      const o = s ? "Asked! A parent will answer on their phone." : "It is on the list, but no phone took the message. Find a parent.";
+      this._picMode && I(s ? `${t.name}. I have asked a parent.` : "Find a parent."), this._say(o);
     } catch (s) {
       this._asked = this._asked.filter((o) => o.id !== i.id), this._say(s instanceof zt ? Rt : "That did not send. Try again, or find a grown-up.");
     } finally {
@@ -9018,15 +9018,15 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
     }
     if (this._sound("tap"), (t.approve ?? t.cost >= 60) && this._askOn) {
       if (this._asked.some((i) => i.name === t.name)) {
-        const i = `Asked. Waiting for a grown-up: ${t.name}.`;
+        const i = `Asked. Waiting for a parent: ${t.name}.`;
         this._picMode && I(i), this._say(i);
         return;
       }
-      this._spend = t.name, this._picMode && I(`${t.name}. Ask a grown-up? Yes, or not now.`);
+      this._spend = t.name, this._picMode && I(`${t.name}. Ask a parent? Yes, or not now.`);
       return;
     }
     if ((t.approve ?? t.cost >= 60) && this.pin) {
-      this._picMode && I(`${t.name}. Ask a grown-up.`), this._redeem(t);
+      this._picMode && I(`${t.name}. Ask a parent.`), this._redeem(t);
       return;
     }
     this._spend = t.name, this._picMode && I(`${t.name}. Spend ${this._costWords(t)}? Yes, or not now.`);
@@ -9066,14 +9066,14 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
     const e = this.kid.name;
     (t === "chat" || t === "share") && (Promise.resolve(this.hass?.callService("persistent_notification", "create", {
       title: t === "share" ? `${e} has something good to share` : `${e} would like a chat`,
-      message: this._feel ? `${e} is feeling ${this._feel} and would like ${t === "share" ? "to tell a grown-up about it" : "a chat later"}.` : `${e} would like a chat with a grown-up${this._wind ? " before bed" : ""}.`,
+      message: this._feel ? `${e} is feeling ${this._feel} and would like ${t === "share" ? "to tell a parent about it" : "a chat later"}.` : `${e} would like a chat with a parent${this._wind ? " before bed" : ""}.`,
       notification_id: `fh_chat_${this._e.slug}`
     })).catch(() => {
     }), this.kid.older || this.dispatchEvent(new CustomEvent("fh-kid-wants-chat", { bubbles: !0, composed: !0, detail: { name: e, kind: t, feeling: this._feel } })));
-    const i = t === "hug" ? "Go find a grown-up for a big hug 🤗" : t === "ok" ? "Good to know. Thanks for sharing." : this.kid.older ? "Sent. Nothing shows on the wall." : "I’ve left a note for a grown-up.";
+    const i = t === "hug" ? "Go find a parent for a big hug 🤗" : t === "ok" ? "Good to know. Thanks for sharing." : this.kid.older ? "Sent. Nothing shows on the wall." : "I’ve left a note for a parent.";
     this._say(i), this._picMode && I(i.replace(" 🤗", "")), this._feel = "";
   }
-  /** Days off are a grown-up's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
+  /** Days off are a parent's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
   openDays() {
     this._days = !0;
   }
@@ -9264,7 +9264,7 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
           <span class="rpic" aria-hidden="true">${l}</span><span class="q">Ask a grown-up?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name} · ${c}</span></span>
           <button class="tap" data-act="ask-send" @click=${() => {
         this._heldAt = Date.now(), this._askFor(o);
-      }}>${$s(18)}Ask</button>${this.pin ? p`<button class="tap save" data-act="ask-here" aria-label="A grown-up is here: use the PIN" @click=${() => {
+      }}>${$s(18)}Ask</button>${this.pin ? p`<button class="tap save" data-act="ask-here" aria-label="A parent is here: use the PIN" @click=${() => {
         this._spend = "", this._redeem(o);
       }}>PIN</button>` : u}<button class="tap save" data-act="ask-no" @click=${() => {
         this._spend = "", this._sound("tap");
@@ -9318,17 +9318,17 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
           <div class="feel ${this._picMode ? "three" : ""}">${t.map(([o, r]) => p`<button class="tap" aria-label=${r} @click=${() => this._feelPick(r)}>${o}</button>`)}</div>`}
     </section>`;
   }
-  /** Older mode: no faces on a shared wall. One quiet button leaves a note for a grown-up; nothing about it appears on the panel. */
+  /** Older mode: no faces on a shared wall. One quiet button leaves a note for a parent; nothing about it appears on the panel. */
   _chatCard() {
     return p`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
       <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => {
       this._feel = "", this._feelReply("chat");
     }}>${U("ask", 20)}Ask for a chat</button>
-      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
+      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a parent. Nothing shows on the wall.</span></section>`;
   }
-  /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
+  /** Worries often come up at bedtime: a quiet way to ask for a parent during wind-down. */
   _windChat() {
-    return p`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
+    return p`<section class="glass card" aria-label="Ask for a parent"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => {
       this._feel = "", this._feelReply("chat");
     }}>💬 Ask for a chat</button></section>`;
@@ -9602,7 +9602,7 @@ So.styles = [Yt, X`
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
-    /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
+    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
     .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
@@ -9793,7 +9793,7 @@ const Ru = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   _dev(t, e) {
     const i = Ui(t), s = this._on(t), o = Ga(t), r = this._name(t, e), n = Qd.includes(i) && !o, l = i === "lock" || i === "cover";
     return p`<button class="dev tap ${s && i === "light" ? "on" : ""} ${o ? "gone" : ""}" role=${n ? "switch" : u} aria-checked=${n ? String(s) : u} aria-disabled=${o ? "true" : u}
-      aria-label=${n ? r : `${r}: ${this._state(t, s)}${l && !o ? ". Needs the grown-ups’ PIN" : ""}`} ?data-busy=${this._busy.includes(t.entity_id)} aria-busy=${this._busy.includes(t.entity_id) ? "true" : u} @click=${() => this._toggle(t, e)}>
+      aria-label=${n ? r : `${r}: ${this._state(t, s)}${l && !o ? ". Needs the parents’ PIN" : ""}`} ?data-busy=${this._busy.includes(t.entity_id)} aria-busy=${this._busy.includes(t.entity_id) ? "true" : u} @click=${() => this._toggle(t, e)}>
       <span class="dicon">${this._ic(t)}</span><span class="nm"><span class="n">${r}</span><span class="s">${this._state(t, s)}</span></span>
       ${n ? p`<span class="toggle"></span>` : l && !o ? p`<span class="pinned">${It.locked}</span>` : u}</button>`;
   }
@@ -9842,11 +9842,11 @@ const Ru = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
                 @click=${() => this._guard(() => {
         this._call(h.entity_id, f, () => this.hass.callService("automation", g ? "turn_off" : "turn_on", { entity_id: h.entity_id }), `${f} ${g ? "off" : "on"}`);
       })}><span>${f}</span><span class="toggle"></span></button>`;
-    }) : p`<span class="muted tipline">Household automations are in the grown-ups section.</span>`}
+    }) : p`<span class="muted tipline">Household automations are in the parents section.</span>`}
           </div>
         </section>
       </div>
-      ${this._askPin ? p`<fh-pin .pin=${String(this.pin)} reason=${this._askWhy || "Grown-ups only"} @ok=${() => {
+      ${this._askPin ? p`<fh-pin .pin=${String(this.pin)} reason=${this._askWhy || "Parents only"} @ok=${() => {
       const h = this._askPin;
       this._askPin = null, this._open(this._askFor), h();
     }} @cancel=${() => {
@@ -10966,7 +10966,7 @@ const Eh = async (a) => {
     }
   }
   /* ---------------- transport ---------------- */
-  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a grown-up first. Pausing, turning down and leaving never ask. */
+  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a parent first. Pausing, turning down and leaving never ask. */
   _svc(t, e = {}, i = this._cur?.entity_id) {
     if (!i) return;
     const s = this._list.find((l) => l.entity_id === i) ?? this.hass.states[i], o = s?.state, r = t === "media_play" || t === "media_play_pause" && o !== "playing" && o !== "buffering";
@@ -11059,7 +11059,7 @@ const Eh = async (a) => {
   get _late() {
     return pn(this.kids, this.quiet);
   }
-  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a grown-up (when a PIN is set). */
+  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a parent (when a PIN is set). */
   _wholeHouse(t) {
     this._late ? this._guard("It is after bedtime. Whole-house music plays in the bedrooms too.", () => {
       this._cleared = "*";
@@ -11416,7 +11416,7 @@ const Eh = async (a) => {
   _asleep(t) {
     return this._floors.some((e) => e.rooms.some((i) => i.asleep && i.zones.some((s) => s.p.entity_id === t)));
   }
-  /** Bedrooms after bedtime need a grown-up (when a PIN is set) before music goes there. */
+  /** Bedrooms after bedtime need a parent (when a PIN is set) before music goes there. */
   _gentle(t, e) {
     if (this._off(this._list.find((i) => i.entity_id === t) ?? this.hass.states[t])) {
       this._say(`${this._name(this._list.find((i) => i.entity_id === t))} is offline`);
@@ -11640,7 +11640,7 @@ const Eh = async (a) => {
     const e = t.attributes, i = this._cur, s = i && this._leader(i)?.entity_id === t.entity_id ? this._q?.current : void 0, o = s?.uri || String(e.media_content_id ?? ""), r = s?.img ?? (/^https?:/.test(String(e.entity_picture ?? "")) ? String(e.entity_picture) : void 0);
     return o ? { name: s?.name || String(e.media_title ?? "Music"), uri: o, type: s?.type ?? "track", img: r, sub: e.media_artist ? String(e.media_artist) : void 0 } : null;
   }
-  /** Something was let go on a name: pin it to that shelf (a grown-up's call when a PIN is set). */
+  /** Something was let go on a name: pin it to that shelf (a parent's call when a PIN is set). */
   _pinDrop(t, e) {
     const i = t === "Family" ? "the family shelf" : `${t}’s shelf`;
     if (!e?.uri) {
@@ -11734,7 +11734,7 @@ const Eh = async (a) => {
     }
     const n = this._late, l = i.filter((R) => this._abed(R)), c = r < 0;
     if (!t && this.pin && (n || l.length || c)) {
-      this._pinAsk = { reason: l.length ? `It is after bedtime. ${this._name(this.hass.states[l[0]])} is asleep.` : n ? "It is after bedtime. A call now could wake someone." : "A typed message is spoken out loud. That needs a grown-up.", run: () => void this._call(!0) };
+      this._pinAsk = { reason: l.length ? `It is after bedtime. ${this._name(this.hass.states[l[0]])} is asleep.` : n ? "It is after bedtime. A call now could wake someone." : "A typed message is spoken out loud. That needs a parent.", run: () => void this._call(!0) };
       return;
     }
     this._lastCall = Date.now(), this._calling = !0;
@@ -11989,7 +11989,7 @@ const Eh = async (a) => {
       }}>Back</button></div>`;
       return p`${b ? u : x}
         ${k.length ? p`<div class="covers scrolly jcovers ${b ? "low" : ""}" data-fits @scroll=${Ut}>${k.map((y) => p`<button class="st tap" aria-label="Add ${y.name}" @click=${() => this._addPick(y)}>
-          <i class="disc"></i><span class="img" style=${y.img ? `--art:url(${y.img})` : ""}>${y.img ? "" : y.name[0]}</span><span class="lbl">${y.name}</span></button>`)}</div>` : p`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${b ? x : u}`;
+          <i class="disc"></i><span class="img" style=${y.img ? `--art:url(${y.img})` : ""}>${y.img ? "" : y.name[0]}</span><span class="lbl">${y.name}</span></button>`)}</div>` : p`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A parent can pin music from Search. Until then, use Search instead.</span></div>`}${b ? x : u}`;
     }
     const l = t.picks.filter((m) => !m.done).sort((m, k) => +(k === i) - +(m === i) || m.t - k.t), c = t.picks.filter((m) => m.done).sort((m, k) => k.t - m.t), d = (m) => m.done ? this._q?.next?.name === m.name ? p`<i aria-hidden="true">${ht("next", 14)}</i>Up next` : p`<i aria-hidden="true">✓</i>Played` : m === i ? p`<i aria-hidden="true">${ht("play", 14)}</i>Next` : p`<i aria-hidden="true">⏳</i>Waiting`, h = (m) => p`<div class="pickrow ${m.done ? "played" : ""}" ?data-next=${m === i}>
       <span class="pcover"><i class="disc"></i><span class="art" style=${m.img ? `--art:url(${m.img})` : ""}>${m.img ? "" : U("music", 26)}</span>
@@ -13242,7 +13242,7 @@ const Ls = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
     }
     S("stick"), this._say(o ? "Stuck on the fridge!" : "Stuck on this panel’s fridge"), this._clear(), this._strokes = [], this._loadFridge();
   }
-  /** Taking drawings down is a grown-up's job: the PIN first, then each drawing shows a cross, and there is one button for the lot. */
+  /** Taking drawings down is a parent's job: the PIN first, then each drawing shows a cross, and there is one button for the lot. */
   _tidyStart() {
     if (this._tidy) {
       this._tidy = !1;
@@ -14743,7 +14743,7 @@ const O2 = [
       }), t.heard && uc(t.heard, t.reply ?? "");
     }
   }
-  // ---------- the grown-ups' record ----------
+  // ---------- the parents' record ----------
   _openLog() {
     const t = () => {
       this._log = x0().reverse(), this._grown = !0;
@@ -14800,7 +14800,7 @@ const O2 = [
     }}>Start again</button>
           <button class="pill tap opt" aria-pressed=${String(this._grown)} @click=${() => {
       this._grown ? this._grown = !1 : this._openLog();
-    }}>For grown-ups</button>
+    }}>For parents</button>
         </div>
       </div>`;
   }
@@ -15792,7 +15792,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
   _go(t) {
     if (t !== this._pane) {
       if (!this.config.parent_pin && !this._ro && t !== "advanced" && t !== "pin") {
-        this._say("Set a parent PIN first: Settings is for grown-ups.");
+        this._say("Set a parent PIN first: Settings is for parents.");
         return;
       }
       this._guard(() => {
@@ -15929,7 +15929,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
       g.approve = g.approve ?? {}, f(g.approve), g.approve.notify?.length || delete g.approve.notify, Object.keys(g.approve).length || delete g.approve;
     }), d = !!r && !!this._apHeld && !!l && !Uc(this._apHeld, l), h = n && !o[Ta(this.config)];
     return p`<div class="scard" data-card="approve"><h3>${U("check", 20)}Approve from a phone</h3>
-        <span class="shint">When a child asks for a big reward (one that needs a grown-up), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A grown-up at the wall can still use the PIN.</span>
+        <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
         <div class="spick" role="group" aria-label="Phones that are asked to approve">${[.../* @__PURE__ */ new Set([...t, ...i])].map((f) => p`<button class="tap" data-ap=${f} aria-pressed=${String(i.includes(f))} @click=${() => c((g) => {
       const m = g.notify ?? [];
@@ -16274,7 +16274,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
         ${Ee(i).mode === "off" ? u : this._row("Ask time a day", "Counted while his Ask is open, on this screen. When it runs out, Ask says so kindly and waits for tomorrow.", this._step("Ask time a day", Ee(i).minutes, (c) => o((d) => {
       d.ask_minutes = c;
     }), { max: 120, step: 5, say: (c) => c ? `${c} min` : "No limit" }))}
-        <span class="shint">${Xs(t.kids) ? "Ask is set by child: opened from a shared page, it first asks who is asking. A grown-up gets in with the PIN." : "Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a grown-up gets in with the PIN."}</span>
+        <span class="shint">${Xs(t.kids) ? "Ask is set by child: opened from a shared page, it first asks who is asking. A parent gets in with the PIN." : "Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a parent gets in with the PIN."}</span>
       </div>`;
     return p`<p class="sintro">One child at a time. Pick who, then change what you need.</p>
       ${this._kidChips("Which child")}
@@ -16303,7 +16303,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
       const m = g.kids[s];
       m[l] = m[l] ?? we(o), f(m[l]);
     }), h = t.jar ?? {};
-    return p`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a grown-up first.</p>
+    return p`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a parent first.</p>
       ${i ? p`${this._kidChips("Whose rewards")}
       ${r ? p`<div class="scard" data-card="rewards-draft"><h3>A drafted list is waiting <span class="muted">not live yet</span></h3>
         <span class="shint">${i.name} still sees the live list. Change the draft as you like, then put it live and save.</span>
@@ -16333,7 +16333,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
           ${this._step(`Cost of ${f.name || "this reward"}`, f.cost, (k) => d((b) => {
       b[g].cost = k;
     }), { max: 5e3, step: 5, unit: "pts" })}
-          <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a grown-up’s PIN`} @click=${() => d((k) => {
+          <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a parent’s PIN`} @click=${() => d((k) => {
       k[g].approve = !(k[g].approve ?? k[g].cost >= 60);
     })}><span class="sbox2" aria-hidden="true">${f.approve ?? f.cost >= 60 ? U("check", 16) : u}</span>Needs PIN</button>
             <button class="tap" data-act="weekly" aria-pressed=${String(!!f.weekly)} aria-label=${`${f.name || "This reward"} can be had once a week`} @click=${() => d((k) => {
@@ -16491,7 +16491,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
     }}>${U("plus", 18)}Add a medicine</button></div>
       </div>
       <div class="scard"><h3>Something else given</h3>
-        <span class="shint">The names offered when a grown-up records another medicine. Names only.</span>
+        <span class="shint">The names offered when a parent records another medicine. Names only.</span>
         ${this._strs("extra", "medicine name", s, (l) => this._edit((c) => {
       c.med_extras = l;
     }))}
@@ -16502,7 +16502,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
       this._pin = { ...i, [r]: n.slice(0, 8) }, this._err = "";
     }, o = { digits: !0, secret: !0, cls: "short", max: 8 };
     return p`
-      ${e ? p`<p class="sintro">The parent PIN opens Settings and guards the grown-ups’ jobs on the panel.</p>` : p`<div class="snote" role="note"><span><b>First, set a parent PIN.</b> Settings is for grown-ups, and the PIN is what keeps it that way. Choose 4 to 8 digits, then press Set the PIN. The other sections open once it is set.</span></div>`}
+      ${e ? p`<p class="sintro">The parent PIN opens Settings and guards the parents’ jobs on the panel.</p>` : p`<div class="snote" role="note"><span><b>First, set a parent PIN.</b> Settings is for parents, and the PIN is what keeps it that way. Choose 4 to 8 digits, then press Set the PIN. The other sections open once it is set.</span></div>`}
       <div class="scard"><h3>${e ? "Change the PIN" : "Set a parent PIN"}</h3>
         ${e ? this._row("Current PIN", "", this._txt("pin.cur", "Current PIN", i.cur, s("cur"), o)) : u}
         ${this._row("New PIN", "4 to 8 digits.", this._txt("pin.next", "New PIN", i.next, s("next"), { ...o, bad: !!i.next && !yo(i.next) }))}
@@ -16925,7 +16925,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
     });
     return p`
       <div class="scard"><h3>Parents</h3>
-        <span class="shint">The grown-ups whose names are offered when a medicine is recorded.</span>
+        <span class="shint">The parents whose names are offered when a medicine is recorded.</span>
         ${this._strs("parent", "parent", t.parents ?? [], (c) => this._edit((d) => {
       d.parents = c;
     }))}
@@ -16954,7 +16954,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
         ${this._row("Network", "", this._txt("sit.wifi", "Wi-Fi network", e.wifi?.name ?? "", (c) => l((d) => {
       c ? d.wifi = { ...d.wifi ?? {}, name: c } : delete d.wifi;
     })), !0)}
-        ${e.wifi ? this._row("Password", "On the house-info page it sits behind the grown-ups’ PIN: “Show”, then the PIN.", this._txt("sit.wifipw", "Wi-Fi password", e.wifi.password ?? "", (c) => l((d) => {
+        ${e.wifi ? this._row("Password", "On the house-info page it sits behind the parents’ PIN: “Show”, then the PIN.", this._txt("sit.wifipw", "Wi-Fi password", e.wifi.password ?? "", (c) => l((d) => {
       c ? d.wifi.password = c : delete d.wifi.password;
     })), !0) : u}
         <span class="label">Good to know</span>
@@ -17064,7 +17064,7 @@ const Fc = () => ao && Date.now() < ao.until ? ao : null, Yr = (a) => {
     this._tick;
     const n = this._dirty;
     return p`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(l) => l.stopPropagation()}>
-      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${U("cog", 26)}</span>Settings</h2><span class="muted">For grown-ups. ${t.sub}.</span></div>
+      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${U("cog", 26)}</span>Settings</h2><span class="muted">For parents. ${t.sub}.</span></div>
         <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${U("close", 20)}</button></div>
       <nav class="snav" aria-label="Sections">${zi.map((l) => {
       const c = s && l.id !== "pin" && l.id !== "advanced";
@@ -17551,7 +17551,7 @@ const Eb = (a, t) => {
       }, 0);
     }, this._sceneBusy = !1, this._off = null, this._sosT = 0, this._sos = "", this._sosNote = "";
   }
-  /** The child whose page is open, and his settings (config defaults + what a grown-up changed on the panel). */
+  /** The child whose page is open, and his settings (config defaults + what a parent changed on the panel). */
   get _kidOn() {
     return this._page === "kid" ? this._config?.kids?.[this._kid] : void 0;
   }
@@ -17571,7 +17571,7 @@ const Eb = (a, t) => {
     const e = this._kidOn;
     e && (Ef(e.name, t), this._prefTick++, S("tap"));
   }
-  /** Looks and settings are for grown-ups when a PIN is set. */
+  /** Looks and settings are for parents when a PIN is set. */
   _openLooks() {
     const t = this._kidOn, e = () => {
       this._sheet = t ? "kidprefs" : "themes";
@@ -18043,7 +18043,7 @@ const Eb = (a, t) => {
     const e = Number(this.hass?.states[t.entity ?? ""]?.attributes.supported_features ?? 0), i = !!t.uid && !!t.entity;
     return { del: i && !!(e & 2), edit: i && (!t.repeats || !!t.recurrenceId) && (!!(e & 4) || (e & 3) === 3) };
   }
-  /** Changing or deleting an event is a grown-up's job: with a PIN set, it is asked first. */
+  /** Changing or deleting an event is a parent's job: with a PIN set, it is asked first. */
   _evGuard(t, e) {
     this._config.parent_pin ? this._pinAsk = { reason: t, sheet: "event", run: e } : e();
   }
@@ -18482,7 +18482,7 @@ const Eb = (a, t) => {
     const e = this._config.music_player;
     e && this._call("media_player", t, { entity_id: e });
   }
-  /** Ask, the children's chat. After any child's bedtime, and in quiet hours, it is for grown-ups to open. */
+  /** Ask, the children's chat. After any child's bedtime, and in quiet hours, it is for parents to open. */
   _chatLate(t = /* @__PURE__ */ new Date()) {
     const e = this._config;
     return pn(e.kids, e.quiet, t);
@@ -18574,7 +18574,7 @@ const Eb = (a, t) => {
       }
     });
   }
-  /** Night: a grown-up chose "Night", or it is the night window, or a child's bedtime has passed. The screensaver then shows its pictures dimmer and warmer, and the screen is at its lowest. */
+  /** Night: a parent chose "Night", or it is the night window, or a child's bedtime has passed. The screensaver then shows its pictures dimmer and warmer, and the screen is at its lowest. */
   _isNight() {
     const t = this._config.night;
     return this._nightManual || !!t && _d(this._now, t.start, t.end) || Ib(this._config.kids, this._config.quiet, this._now);
@@ -18921,7 +18921,7 @@ const Eb = (a, t) => {
     }}>
       <span style="line-height:0">${U("timer", 96)}</span><span class="display" style="font-size:var(--fs-d3);font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${Ho(this.hass)?.t || "Timer’s done!"}</span><span style="font-size:var(--fs-4);font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
   }
-  /** Settings is for grown-ups: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
+  /** Settings is for parents: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
   _openSettings() {
     const t = () => {
       this._sheet = "settings";
@@ -18951,13 +18951,13 @@ const Eb = (a, t) => {
         }}>
               <span class="avatar" style="width:104px;height:104px;background:${Y(m.colour)};font-size:var(--fs-d1)">${x ? Et(x, { size: 104, crop: "head", still: !0, label: m.name, age: m.age, ring: Y(m.colour) }) : m.name[0]}</span><span class="wn">${m.name}</span></button>`;
       })}
-          <button class="whobtn tap" data-who="grown-up" @click=${() => {
+          <button class="whobtn tap" data-who="parent" @click=${() => {
         const m = () => {
           this._asker = "";
         };
-        S("tap"), this._config.parent_pin ? this._pinAsk = { reason: "Ask as a grown-up?", run: m, sheet: "chat" } : m();
+        S("tap"), this._config.parent_pin ? this._pinAsk = { reason: "Ask as a parent?", run: m, sheet: "chat" } : m();
       }}>
-            <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${U("lock", 40)}</span><span class="wn">A grown-up</span></button>
+            <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${U("lock", 40)}</span><span class="wn">A parent</span></button>
         </div>` : u;
       return p`<div class="scrim" ?data-closing=${e} @click=${(m) => {
         m.target === m.currentTarget && i();
@@ -19090,7 +19090,7 @@ const Eb = (a, t) => {
               <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${U("pill", 24)}</span>
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:var(--fs-3)">${x.who ? `${x.who} – ` : ""}${x.label}</b><span class="muted">Due ${h(x.time)}</span></span>
                 ${this._medBusy === x.id ? p`<b style="font-size:var(--fs-2);color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : p`<b style="font-size:var(--fs-2);color:${y.given ? "var(--ok)" : y.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${y.given ? `✓ ${mt(y.given)}${y.by ? ` · ${y.by}` : ""}` : y.missing ? "Not set up" : y.late ? "Overdue" : "Not yet"}</b>`}</div>
-              ${y.missing ? p`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A grown-up can finish setting it up in Settings, under Medicines.</span>` : y.given && this._medBusy !== x.id ? u : p`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((K) => p`<button class="pill tap ${y.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:var(--fs-2)" ?disabled=${this._medBusy === x.id} @click=${() => this._medGuard("Record this medicine?", () => {
+              ${y.missing ? p`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A parent can finish setting it up in Settings, under Medicines.</span>` : y.given && this._medBusy !== x.id ? u : p`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((K) => p`<button class="pill tap ${y.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:var(--fs-2)" ?disabled=${this._medBusy === x.id} @click=${() => this._medGuard("Record this medicine?", () => {
         this._giveMed(x.id, K);
       })}>Given by ${K}</button>`)}</div>`}
             </div>`;
@@ -19177,8 +19177,8 @@ const Eb = (a, t) => {
       const [x, y] = b.split(":").map(Number);
       return `${x % 12 || 12}:${String(y).padStart(2, "0")} ${x < 12 ? "am" : "pm"}`;
     }, h = (b) => p`<span class="label">${b}</span>`, f = this._bins(s), g = (t.people ?? []).some((b) => b.entity), m = [];
-    r.length && m.push(p`${h("Who to ring")}${r.map((b) => p`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && m.push(p`${h("Bedtimes tonight")}${l.map((b) => p`<div class="irow"><b>${b.name}</b><span>${d(b.at)}</span></div>`)}`), c.length && m.push(p`${h("Still on today")}${c.map((b) => p`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${ye(b, s).label}</span></div>`)}`), f && m.push(p`${h("Bin night")}<div class="irow"><b>${gt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(p`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? p`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? p`<b>${e.wifi.password}</b>` : p`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the grown-ups’ PIN" @click=${() => this._wifiAsk()}>${U("lock", 16)}Show</button>`}</div>` : u}`), g && m.push(p`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(p`${h("Good to know")}${n.map((b) => p`<div class="iline">${b}</div>`)}`);
-    const k = p`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for grown-ups" @click=${() => this._openSettings()}>${U("cog", 22)}</button>`;
+    r.length && m.push(p`${h("Who to ring")}${r.map((b) => p`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && m.push(p`${h("Bedtimes tonight")}${l.map((b) => p`<div class="irow"><b>${b.name}</b><span>${d(b.at)}</span></div>`)}`), c.length && m.push(p`${h("Still on today")}${c.map((b) => p`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${ye(b, s).label}</span></div>`)}`), f && m.push(p`${h("Bin night")}<div class="irow"><b>${gt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(p`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? p`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? p`<b>${e.wifi.password}</b>` : p`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${U("lock", 16)}Show</button>`}</div>` : u}`), g && m.push(p`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(p`${h("Good to know")}${n.map((b) => p`<div class="iline">${b}</div>`)}`);
+    const k = p`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for parents" @click=${() => this._openSettings()}>${U("cog", 22)}</button>`;
     return p`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", k)}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>

@@ -26,7 +26,7 @@ const STARTERS: [string, string][] = [
   ['🚀', 'Tell me a space fact'], ['🎲', 'Play a guessing game'], ['🌤️', 'Why is the sky blue?']
 ];
 /** What every child is told about the helper: shown on the sheet, and read aloud the first time it is used each day. */
-export const AI_NOTE = 'Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.';
+export const AI_NOTE = 'Answers come from an AI helper on the internet. It can be wrong. Ask a parent about anything important.';
 const TIME_UP = 'That is all the Ask time for today. There is more tomorrow!';
 
 /* ---------------- a child's Ask time for the day, and whether he has heard the note today: kept on this screen ---------------- */
@@ -45,7 +45,7 @@ const NOT_HEARD = 'I did not hear anything. Tap and try again.';
 const NO_MIC = 'I cannot use the microphone on this screen. You can still type.';
 const MAX_CHARS = 300, ANSWER_MS = 20_000, LISTEN_MS = 15_000, IDLE_MS = 180_000;
 
-/* ---------------- the grown-ups' record: the last 30 questions and answers, on this panel only ---------------- */
+/* ---------------- the parents' record: the last 30 questions and answers, on this panel only ---------------- */
 const LOG_KEY = 'fh-chat-log', LOG_MAX = 30;
 const readLog = (): LogEntry[] => { try { const l = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } };
 const addLog = (q: string, a: string): void => { try { localStorage.setItem(LOG_KEY, JSON.stringify([...readLog(), { q, a, t: Date.now() }].slice(-LOG_MAX))); } catch { /* storage unavailable */ } };
@@ -225,7 +225,7 @@ export class FhChat extends LitElement {
   private _convo = false;
   private _again = 0;
   helper = 'Ask';
-  /** true when the panel has a parent PIN: the grown-ups' record then sits behind it */
+  /** true when the panel has a parent PIN: the parents' record then sits behind it */
   pin = false;
   /** `pictures`: picture prompts only, no typing and no talking (a small child). Anything else is the full helper. */
   mode: 'full' | 'pictures' = 'full';
@@ -258,7 +258,7 @@ export class FhChat extends LitElement {
     super.connectedCallback();
     this.addEventListener('pointerdown', this._poke, { capture: true }); this.addEventListener('keydown', this._poke, { capture: true });
     this._poke();
-    // a child's Ask time runs while his sheet is open; the grown-ups' record does not use it up
+    // a child's Ask time runs while his sheet is open; the parents' record does not use it up
     this._clock = window.setInterval(() => { if (!this._timed || this._over || this._grown) return; addUsed(this.who, 1); this._tally(); }, 1000);
   }
   /** Works out the time left; when it has just run out, says so once (kindly, and aloud) and stops the asking. */
@@ -445,7 +445,7 @@ export class FhChat extends LitElement {
     if (v.heard) addLog(v.heard, v.reply ?? '');
   }
 
-  // ---------- the grown-ups' record ----------
+  // ---------- the parents' record ----------
   private _openLog(): void {
     const run = (): void => { this._log = readLog().reverse(); this._grown = true; };
     if (this.pin) this.dispatchEvent(new CustomEvent('pin', { detail: { reason: 'See what was asked?', run } })); else run();
@@ -484,7 +484,7 @@ export class FhChat extends LitElement {
         <div class="opts">
           <button class="pill tap opt" aria-pressed=${String(this._read)} @click=${() => { this._read = !this._read; if (!this._read) this._quiet(); }}>${this._read ? '🔊' : '🔇'} Read it to me</button>
           <button class="pill tap" @click=${() => { this._reset(); this._grown = false; }}>Start again</button>
-          <button class="pill tap opt" aria-pressed=${String(this._grown)} @click=${() => { if (this._grown) this._grown = false; else this._openLog(); }}>For grown-ups</button>
+          <button class="pill tap opt" aria-pressed=${String(this._grown)} @click=${() => { if (this._grown) this._grown = false; else this._openLog(); }}>For parents</button>
         </div>
       </div>`;
   }

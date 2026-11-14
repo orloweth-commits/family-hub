@@ -229,7 +229,7 @@ export const lookKey = (l: Look): string => {
   for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 0x01000193); b = Math.imul(b ^ c, 0x85ebca6b) + a; }
   return ((a >>> 0).toString(36) + (b >>> 0).toString(36)).slice(0, 10);
 };
-/** The file a look is kept in. `who` is the child's helper name, or a code a grown-up has set for him. */
+/** The file a look is kept in. `who` is the child's helper name, or a code a parent has set for him. */
 export const lookFile = (who: string, l: Look): string => `fhlook-${who.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'kid'}-${lookKey(l)}.jpg`;
 
 /** The words for the painter. `about` is the family's own description of the child (kept in the dashboard, never in the repository). */

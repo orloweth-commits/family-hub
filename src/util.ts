@@ -122,7 +122,7 @@ export const isQuiet = (d = new Date(), start = '19:30', end = '07:00'): boolean
   return a <= b ? n >= a && n < b : n >= a || n < b;
 };
 /**
- * "After bedtime": the one test for everything that is a grown-up's call at night (Ask, All on, music in the whole house, calling a room).
+ * "After bedtime": the one test for everything that is a parent's call at night (Ask, All on, music in the whole house, calling a room).
  * True in the household's quiet hours, and from any child's bedtime until the quiet hours end (never before 5 am).
  */
 export const afterBedtime = (kids: { bedtime?: string }[] = [], quiet: { start?: string; end?: string } = {}, d = new Date()): boolean => {
@@ -199,7 +199,7 @@ export const panelMsg = (hass: Hass | undefined): PanelMsg | null => {
   } catch { return null; }
 };
 
-/* ---------------- per-child settings: card config sets the defaults, a grown-up can change them on the panel ---------------- */
+/* ---------------- per-child settings: card config sets the defaults, a parent can change them on the panel ---------------- */
 export interface KidPrefs {
   /** 'panel' follows whatever the panel is set to */
   look: string;

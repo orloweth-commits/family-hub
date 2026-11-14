@@ -35,7 +35,7 @@ const dial = async (page, button, dh = 0, dm = 0, half = '') => { await button.c
 // 1. the PIN gate: the cog on the house-info sheet asks for the PIN every time, except within a minute of the last time
 let page = await open('look=glass');
 await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300);
-const cog = page.getByRole('button', { name: 'Settings, for grown-ups' });
+const cog = page.getByRole('button', { name: 'Settings, for parents' });
 ok('the house-info sheet has a cog', await cog.count() === 1);
 { const b = await cog.boundingBox(); ok('the cog is a full-size target', b.width >= 44 && b.height >= 44, `${Math.round(b.width)}x${Math.round(b.height)}`); }
 await cog.click(); await page.waitForTimeout(300);
@@ -128,7 +128,7 @@ await page.keyboard.type('Ice cream'); await S(page).getByRole('button', { name:
 await S(page).getByLabel('Picture for Ice cream (an emoji)').fill('🍦 yum');
 await save(page);
 ok('reward added', await cfg(page, '(c) => JSON.stringify(c.kids[0].rewards[3])') === '{"name":"Ice cream","cost":60,"icon":"🍦"}', await cfg(page, '(c) => JSON.stringify(c.kids[0].rewards[3])'));
-await S(page).getByLabel('Reward 1 name').fill('More screen time'); await S(page).getByRole('button', { name: 'More screen time needs a grown-up’s PIN' }).click();
+await S(page).getByLabel('Reward 1 name').fill('More screen time'); await S(page).getByRole('button', { name: 'More screen time needs a parent’s PIN' }).click();
 await save(page);
 ok('reward edited (name and PIN flag)', await cfg(page, '(c) => c.kids[0].rewards[0].name + c.kids[0].rewards[0].approve') === 'More screen timetrue');
 await S(page).getByRole('button', { name: 'Remove Pick the family movie' }).click(); await S(page).getByRole('button', { name: 'Move Ice cream up' }).click(); await page.waitForTimeout(150);
@@ -192,7 +192,7 @@ ok('the PIN is in no earlier version', await page.evaluate(() => !localStorage.g
 await S(page).getByRole('switch', { name: 'PIN for recording medicine' }).click(); await S(page).getByRole('switch', { name: 'PIN for Ask after bedtime' }).click(); await save(page);
 ok('PIN switches saved', await cfg(page, '(c) => `${c.meds_pin} ${c.chat.pin_after_bedtime}`') === 'false false');
 await S(page).getByRole('button', { name: 'Close settings' }).click(); await page.waitForTimeout(400); await page.clock.fastForward(61_000);
-await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300); await page.getByRole('button', { name: 'Settings, for grown-ups' }).click(); await page.waitForTimeout(300);
+await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300); await page.getByRole('button', { name: 'Settings, for parents' }).click(); await page.waitForTimeout(300);
 await pin(page, '1234');
 ok('the old PIN no longer opens Settings', await S(page).count() === 0 && await page.locator('fh-pin').count() === 1);
 await page.waitForTimeout(500); await pin(page, '4321');
@@ -270,7 +270,7 @@ for (const [q, why] of [['admin=0', /administrator/], ['yaml=1', /YAML file/], [
 
 // 15. no PIN yet: Settings opens on its first step
 page = await open('look=glass&nopin=1');
-await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300); await page.getByRole('button', { name: 'Settings, for grown-ups' }).click(); await page.waitForTimeout(500);
+await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300); await page.getByRole('button', { name: 'Settings, for parents' }).click(); await page.waitForTimeout(500);
 ok('with no PIN, Settings opens on “Set a parent PIN”', await page.locator('fh-pin').count() === 0 && await S(page).locator('.snav [aria-current="page"]').getAttribute('data-pane') === 'pin' && /First, set a parent PIN/.test(await S(page).locator('.spane').innerText()));
 await S(page).locator('.snav button[data-pane="children"]').click({ force: true }); await page.waitForTimeout(200);
 ok('the other sections wait for a PIN', await S(page).locator('.snav [aria-current="page"]').getAttribute('data-pane') === 'pin' && /Set a parent PIN first/.test(await toast(page)));

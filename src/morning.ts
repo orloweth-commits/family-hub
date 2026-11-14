@@ -248,7 +248,7 @@ export class FhMorning extends LitElement {
       await inTime(this.hass.callService('todo', 'update_item', { item: c.uid, status: to }, { entity_id: e.chores }));
       this._pending.delete(c.uid);
       if (c.pts) await inTime(this.hass.callService('script', 'fh_add_points', { kid: e.slug, points: (done ? -1 : 1) * c.pts, lifetime: true, jar: 0, grow: 0, reason: `${done ? 'un-ticked ' : ''}${c.summary}` }));
-      // his own page reads this to know how fresh a tick is (a fresh one can be undone there without a grown-up)
+      // his own page reads this to know how fresh a tick is (a fresh one can be undone there without a parent)
       try { const ticks = JSON.parse(localStorage.getItem('fh-ticks') || '{}') as Record<string, number>; if (done) delete ticks[c.uid]; else ticks[c.uid] = Date.now(); localStorage.setItem('fh-ticks', JSON.stringify(ticks)); } catch { /* storage unavailable */ }
       if (!done && k.mode === 'picture') say(`${c.summary}. Done!`);
     } catch (err) {
