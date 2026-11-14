@@ -434,7 +434,7 @@ export class FhMusic extends LitElement {
     :host([data-still]) *, :host([data-still]) *::before, :host([data-still]) *::after { animation: none !important; }
   `];
 
-  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _held: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
+  static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, views: { attribute: false }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _held: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
     _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true } };
   hass?: Hass;
@@ -451,6 +451,8 @@ export class FhMusic extends LitElement {
   hide: string[] = [];
   /** with a house map: only the speakers it names, and the ones that cannot be reached stay in place, offline */
   lock = true;
+  /** the extra room views a grown-up has switched on in Settings (dial, desk, cables, list); House and Scene are always offered */
+  views: string[] = [];
   moments: MomentConfig[] = [];
   /** how loud a call to a room is spoken (0–100), and in which language and voice */
   callVolume = 70;
@@ -768,7 +770,19 @@ export class FhMusic extends LitElement {
 
 
   /* ---------------- the house ---------------- */
-  private get _mode(): ViewId { return VIEWS.some((v) => v.id === this._view) ? this._view as ViewId : this.map.length ? 'house' : 'list'; }
+  /** The room views this screen offers: House and Scene, then whichever of the other four Settings has switched on. A house with no map is a list, so List is offered there too. */
+  private get _offered(): ViewId[] { const extra = new Set<string>([...(this.views ?? []), ...(this.map.length ? [] : ['list'])]); return VIEWS.map((v) => v.id).filter((id) => id === 'house' || id === 'scene' || extra.has(id)); }
+  private get _mode(): ViewId { return this._offered.includes(this._view as ViewId) ? this._view as ViewId : this.map.length ? 'house' : 'list'; }
+  /** Change the view, with the small celebration on the view button and a cross-fade of the stage. */
+  private _setView(v: ViewId): void {
+    const was = this._mode; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v === was) return;
+    clearTimeout(this._coachT); this._coach = false;
+    this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b, { burst: true }); sfx('done');
+      // the stage cross-fades to the new view (opacity only, --m-3)
+      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: motion(this, '--m-3').ms || 240, easing: 'ease-out' }); });
+  }
+  /** The view button: with two views one tap swaps them; with more it opens the picker. */
+  private _switch(): void { const o = this._offered; sfx('tap'); if (o.length > 2) { this._viewAsk = true; return; } const next = o.find((v) => v !== this._mode); if (next) this._setView(next); }
   /** A room's volume as shown: the one being dragged or just sent, else what Home Assistant reports. */
   private _volOf(p?: HassEntity): number | null { if (!p) return null; const id = p.entity_id; return id in this._dv ? this._dv[id] : typeof p.attributes.volume_level === 'number' ? Math.round(p.attributes.volume_level * 100) : null; }
   /** Show a volume while it is dragged; on `commit` send it. If Home Assistant refuses, the thumb glides back to what the speaker really has and the page says so. */
@@ -1228,7 +1242,7 @@ export class FhMusic extends LitElement {
   private _tools(): TemplateResult {
     const cur = this._cur, mine = cur && this._leader(cur), mode = this._mode, off = this._offline;
     return html`
-        <button class="viewbtn tap" aria-haspopup="dialog" aria-label="Change the view" @click=${() => { sfx('tap'); this._viewAsk = true; }}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
+        <button class="viewbtn tap" aria-haspopup=${this._offered.length > 2 ? 'dialog' : nothing} aria-label="Change the view" data-to=${this._offered.length > 2 ? nothing : this._offered.find((v) => v !== mode) ?? nothing} @click=${() => this._switch()}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${this._allJoined ? icon('check', 20) : icon('home', 20)}Whole house</button>`}
         ${mine && this._mix(mine).length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => this._everywhere(false, mine)}>Just ${this._name(mine)}</button>` : nothing}
         ${off.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${off.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${off.length === this._list.length ? 'Every speaker is offline' : `${off.length} ${off.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
@@ -1259,9 +1273,7 @@ export class FhMusic extends LitElement {
       return html`<button class="pill tap" style="font-size:var(--fs-2)" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
     };
     const mode = this._mode;
-    return html`${this._viewAsk ? viewPicker(mode, (v) => { const was = this._view; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v !== was) { clearTimeout(this._coachT); this._coach = false; this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b, { burst: true }); sfx('done');
-      // the stage cross-fades to the new view (opacity only, --m-3)
-      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: motion(this, '--m-3').ms || 240, easing: 'ease-out' }); }); } }, () => { this._viewAsk = false; }) : nothing}${this._one ? nothing : html`<div class="acts">
+    return html`${this._viewAsk ? viewPicker(mode, (v) => this._setView(v), () => { this._viewAsk = false; }, this._offered) : nothing}${this._one ? nothing : html`<div class="acts">
         ${this._tools()}
         ${mode === 'house' && cur ? this._nowbar(cur) : mode !== 'list' && cur ? this._oneNow() : nothing}
         ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}

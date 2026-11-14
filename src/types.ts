@@ -144,6 +144,8 @@ export interface FamilyHubConfig {
   music_hide?: string[];
   /** with a music_map, show only the speakers it names (so speakers discovered elsewhere never appear) and keep one that cannot be reached in its place, marked offline. On unless set to false. */
   music_lock?: boolean;
+  /** the extra ways of seeing the rooms offered by the Music page's view button, beside House and Scene which are always there: any of dial, desk, cables (the Crate) and list. None unless named. */
+  music_views?: string[];
   /** touch sounds from the panel's own speaker (taps, ticks, keys): true (default), 'quiet' (softer) or false. The kitchen timer's alarm always sounds. Each screen can also choose in the look sheet. */
   sounds?: boolean | 'quiet';
   /** quiet life behind the page (twinkling stars, glints on the water, now and then a visitor); false turns it off. Calm mode and the device's "reduce motion" setting always turn it off. */
