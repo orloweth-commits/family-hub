@@ -292,7 +292,7 @@ export class FhDoodle extends LitElement {
     this._loadFridge();
   }
 
-  /** Taking drawings down is a grown-up's job: the PIN first, then each drawing shows a cross, and there is one button for the lot. */
+  /** Taking drawings down is a parent's job: the PIN first, then each drawing shows a cross, and there is one button for the lot. */
   private _tidyStart(): void {
     if (this._tidy) { this._tidy = false; return; }
     if (this.pin) this._askPin = true; else this._tidy = true;

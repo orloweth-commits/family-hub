@@ -10,7 +10,7 @@ const CONTROL = ['light', 'switch', 'fan', 'cover', 'lock', 'climate', 'media_pl
 const ON = new Set(['on', 'open', 'playing', 'unlocked', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'paused', 'idle']);
 
 interface Room { id: string; name: string; ents: HassEntity[] }
-/** domains a tap switches on and off (drawn with a switch); the rest open something or need a grown-up */
+/** domains a tap switches on and off (drawn with a switch); the rest open something or need a parent */
 const SWITCHED = ['light', 'switch', 'fan', 'input_boolean', 'climate'];
 const dom = (e: HassEntity | string): string => (typeof e === 'string' ? e : e.entity_id).split('.')[0];
 const gone = (e: HassEntity): boolean => e.state === 'unavailable' || e.state === 'unknown';
@@ -181,7 +181,7 @@ export class FhHome extends LitElement {
     const d = dom(e), id = e.entity_id, name = this._name(e, room);
     if (gone(e)) { this._tell(`${name} is not responding`); return; }
     if (d === 'media_player') this.dispatchEvent(new CustomEvent('music', { detail: id }));
-    // doors are a grown-up's job: the lock and the garage (any cover) both ask for the PIN
+    // doors are a parent's job: the lock and the garage (any cover) both ask for the PIN
     else if (d === 'lock') { const un = e.state === 'locked'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('lock', un ? 'unlock' : 'lock', { entity_id: id }), `${name} ${un ? 'unlocked' : 'locked'}`); }, id, `${un ? 'Unlock' : 'Lock'} ${name}?`); }
     else if (d === 'cover') { const shut = e.state === 'closed' || e.state === 'closing'; this._guard(() => { void this._call(id, name, () => this.hass!.callService('cover', shut ? 'open_cover' : 'close_cover', { entity_id: id }), `${name} ${shut ? 'opening' : 'closing'}`); }, id, `${shut ? 'Open' : 'Close'} ${name}?`); }
     else { const to = !this._on(e); void this._call(id, name, () => this.hass!.callService('homeassistant', 'toggle', { entity_id: id }), undefined, SWITCHED.includes(d) ? { [id]: to } : undefined); }
@@ -195,7 +195,7 @@ export class FhHome extends LitElement {
     this._went = ''; requestAnimationFrame(() => { this._went = s.entity_id; });
     void this._call(s.entity_id, name, () => this.hass!.callService('script', 'turn_on', { entity_id: s.entity_id }), `${name} started`);
   }
-  /** Grown-ups only. One PIN opens a short window for the quiet things (automations); a door or a cover always asks again unless the window was opened for that same one. */
+  /** Parents only. One PIN opens a short window for the quiet things (automations); a door or a cover always asks again unless the window was opened for that same one. */
   private _askWhy = '';
   private _guard(fn: () => void, device = '', why = ''): void {
     if (!this.pin) { this._tell('Set a parent PIN to change this from the panel.'); return; }
@@ -229,7 +229,7 @@ export class FhHome extends LitElement {
   private _dev(e: HassEntity, room: string): TemplateResult {
     const d = dom(e), on = this._on(e), off = gone(e), name = this._name(e, room), sw = SWITCHED.includes(d) && !off, pinned = d === 'lock' || d === 'cover';
     return html`<button class="dev tap ${on && d === 'light' ? 'on' : ''} ${off ? 'gone' : ''}" role=${sw ? 'switch' : nothing} aria-checked=${sw ? String(on) : nothing} aria-disabled=${off ? 'true' : nothing}
-      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the grown-ups’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} @click=${() => this._toggle(e, room)}>
+      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the parents’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} @click=${() => this._toggle(e, room)}>
       <span class="dicon">${this._ic(e)}</span><span class="nm"><span class="n">${name}</span><span class="s">${this._state(e, on)}</span></span>
       ${sw ? html`<span class="toggle"></span>` : pinned && !off ? html`<span class="pinned">${DRAWN.locked}</span>` : nothing}</button>`;
   }
@@ -248,7 +248,7 @@ export class FhHome extends LitElement {
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           ${rooms.length ? html`<span class="muted" style="font-size:var(--fs-2)">${litCount ? `${litCount} light${litCount > 1 ? 's' : ''} on` : 'All lights off'} · ${rooms.length} room${rooms.length === 1 ? '' : 's'}${lost ? ` · ${lost} not responding` : ''}</span>` : nothing}</div>
-          ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'}"><span class="ut">${DRAWN.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'} · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
+          ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for parents: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'}"><span class="ut">${DRAWN.unlocked}<span>Unlocked for parents: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'} · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e));
@@ -269,15 +269,15 @@ export class FhHome extends LitElement {
         </section>
         <section class="glass card" style="flex:1;min-height:0" aria-label="Automations">
           <div style="display:flex;align-items:center"><span class="label" style="flex:1">Automations</span>
-            <button class="pill tap grown" @click=${() => { if (this._all) { this._all = false; return; } this._guard(() => { this._all = true; }); }}>${this._all ? 'Hide' : html`${DRAWN.locked}Grown-ups`}</button></div>
+            <button class="pill tap grown" @click=${() => { if (this._all) { this._all = false; return; } this._guard(() => { this._all = true; }); }}>${this._all ? 'Hide' : html`${DRAWN.locked}Parents`}</button></div>
           <div class="alist">
             ${autos.length ? autos.map((a) => { const name: string = a.attributes.friendly_name ?? a.entity_id, on = a.state === 'on'; return html`<button class="auto tap" role="switch" aria-checked=${String(on)} ?data-busy=${this._busy.includes(a.entity_id)}
                 @click=${() => this._guard(() => { void this._call(a.entity_id, name, () => this.hass!.callService('automation', on ? 'turn_off' : 'turn_on', { entity_id: a.entity_id }), `${name} ${on ? 'off' : 'on'}`); })}><span>${name}</span><span class="toggle"></span></button>`; })
-              : html`<span class="muted tipline">Household automations are in the grown-ups section.</span>`}
+              : html`<span class="muted tipline">Household automations are in the parents section.</span>`}
           </div>
         </section>
       </div>
-      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} reason=${this._askWhy || 'Grown-ups only'} @ok=${() => { const f = this._askPin!; this._askPin = null; this._open(this._askFor); f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
+      ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} reason=${this._askWhy || 'Parents only'} @ok=${() => { const f = this._askPin!; this._askPin = null; this._open(this._askFor); f(); }} @cancel=${() => { this._askPin = null; }}></fh-pin>` : nothing}`;
   }
 }
 if (!customElements.get('fh-home')) customElements.define('fh-home', FhHome);

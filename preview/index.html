@@ -226,7 +226,7 @@ el.setConfig({
   people: [{ name: 'Alex', entity: 'person.alex', colour: 1 }, { name: 'Sam', entity: 'person.sam', colour: 2 }, { name: 'Riley', colour: 3 }, { name: 'Charlie', colour: 4 }, { name: 'Max', colour: 5 }],
   kids: [
     { name: 'Riley', colour: 3, mode: 'text', age: 'teen', ...(PAINTED ? { sheet: 'sheet-riley.png', about: 'A tall twelve-year-old.', look: 'img=fhlook-riley-base.jpg' } : { look: 'h=quiff;hc=2f2118;t=hoodie;tc=0d9488' }), bedtime: '20:00', rewards: [{ name: 'Extra screen time', cost: 50, icon: '🎮', ...(q.get('weekly') ? { weekly: 1 } : {}) }, { name: 'Pick the family movie', cost: 100, icon: '🎬' }, { name: 'Warhammer paint pot', cost: 200, icon: '🎨' }],
-      // the eldest's page shows the whole list unless &nownext=1 (a grown-up's choice here, so the list view stays tested now that Now / Next is every child's default); &older=1 is older mode
+      // the eldest's page shows the whole list unless &nownext=1 (a parent's choice here, so the list view stays tested now that Now / Next is every child's default); &older=1 is older mode
       ...(q.get('nownext') ? {} : { focus: false }), ...(q.get('older') ? { older: true } : {}), ...(q.get('ask') ? { ask: 'full', ...(q.get('askmin') ? { ask_minutes: Number(q.get('askmin')) } : {}) } : {}),
       ...(q.get('rwdraft') ? { rewards_draft: [{ name: 'Choose the bedtime story', cost: 30, icon: '📖' }, { name: 'Screen time, 20 minutes', cost: 60, icon: '🎮', weekly: 1 }] } : {}) },
     { name: 'Charlie', colour: 4, mode: 'mixed', age: 'mid', ...(PAINTED ? { sheet: 'sheet-charlie.png', look: 'img=fhlook-charlie-base.jpg' } : { look: 'h=styled;hc=e3b85c' }), bedtime: '20:00', ...(q.get('ask') ? { ask: 'full' } : {}) },

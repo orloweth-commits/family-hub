@@ -211,7 +211,7 @@ page = await open('look=fridge&page=music&mtab=shelves&shelf=Max', '19:10'); awa
 console.log('wind-down shelf items:', await M(page).locator('.st').count(), '| banner:', await M(page).locator('.banner').innerText());
 await M(page).locator('.st').first().click(); await page.waitForTimeout(300); console.log('bedtime play:', await calls(page, /play_media|fh_music_sleep/));
 await page.screenshot({ path: path.join(PREV, 'shots', 'c-shelf-fridge.png') }); await page.close();
-// after bedtime every way of starting music in a sleeping bedroom asks a grown-up first (not only "add this room")
+// after bedtime every way of starting music in a sleeping bedroom asks a parent first (not only "add this room")
 { const pinUp = async (pg) => await M(pg).locator('fh-pin').count() === 1, shut = async (pg) => { await M(pg).locator('fh-pin button[aria-label="Cancel"]').click().catch(() => {}); await pg.waitForTimeout(200); };
   const quiet = async (pg) => !(await calls(pg, /media_play|play_media|media_player\.join|transfer_queue/));
   const b = await open('page=music&look=glass&mview=house', '20:30');
@@ -371,7 +371,7 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
     for (const v of ['scene', 'dial', 'desk', 'cables']) { await M(p).evaluate((m, v) => { m._view = v; }, v); await p.waitForTimeout(1300); const r = await loops(p); fromKid.loops += r.loops; }
     await M(p).evaluate((m) => { m._tab = 'juke'; }); await p.waitForTimeout(1300); fromKid.loops += (await loops(p)).loops;
     await go(p, 'Planner'); await go(p, 'Music'); await M(p).evaluate((m) => { m._view = 'house'; m._tab = 'rooms'; }); await p.waitForTimeout(1500); const fromPlanner = await loops(p); await p.context().close();
-    // a child whose calm mode a grown-up has turned off
+    // a child whose calm mode a parent has turned off
     const q = await atv(1280, 800, 'look=glass&page=planner'); await q.evaluate(() => { localStorage.setItem('family-hub-kid-charlie', JSON.stringify({ calm: false })); const c = document.querySelector('family-hub-card'); c._kid = 1; c._page = 'kid'; }); await q.waitForTimeout(600);
     await go(q, 'Music'); await M(q).evaluate((m) => { m._view = 'house'; }); await q.waitForTimeout(1500); const notCalm = await loops(q); await q.evaluate(() => localStorage.removeItem('family-hub-kid-charlie')); await q.context().close();
     console.log('D12 Music opened from a calm child’s page:', JSON.stringify(fromKid), okk(fromKid.page === 'music' && fromKid.calm && fromKid.still && fromKid.loops === 0), '| then from the Planner:', JSON.stringify(fromPlanner), okk(!fromPlanner.calm && !fromPlanner.still && fromPlanner.loops > 0),

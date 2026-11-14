@@ -3,7 +3,7 @@ import { kidEntities } from './types';
 
 /* ------------------------------------------------------------------ *
  * Approve from a phone (F3, the parents' loop). A reward that needs a
- * grown-up no longer needs the grown-up at the wall:
+ * parent no longer needs the parent at the wall:
  *
  *   the child asks      his page writes one line to the "asks" list and sends the phones a notice
  *                       with two buttons, Approve and Not yet

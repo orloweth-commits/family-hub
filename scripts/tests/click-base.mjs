@@ -194,7 +194,7 @@ await CH('.field').pressSequentially('moons'); await CH('.field').press('Enter')
 const sent = await page.evaluate(() => (window.__calls || []).filter((c) => c.startsWith('ws.conversation')).map((c) => JSON.parse(c.slice(c.indexOf('{')))));
 console.log('chat: Enter on a real keyboard:', (await bubbles()).slice(-2)[0], '| calls:', sent.length, '| only these go to Home Assistant:', Object.keys(sent[2]).sort().join(','), '| thread kept:', sent[2].conversation_id, '| one call for two quick taps:', sent.filter((c) => /animal|joke/.test(c.text)).length === 1);
 await shot(page, 'c-chat');
-await page.getByRole('button', { name: 'For grown-ups' }).click(); await page.waitForTimeout(300); console.log('chat: grown-ups record asks for the PIN:', await page.getByRole('dialog', { name: 'Parent PIN' }).count());
+await page.getByRole('button', { name: 'For parents' }).click(); await page.waitForTimeout(300); console.log('chat: parents record asks for the PIN:', await page.getByRole('dialog', { name: 'Parent PIN' }).count());
 for (const d of '1234') await page.locator('family-hub-card fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(400);
 console.log('chat: record rows:', await CH('.rec').count(), '| stored keys:', await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('fh-chat-log'))[0]).join(',')));
 await CH('.pill', { hasText: 'Clear' }).click(); await page.waitForTimeout(200); console.log('chat: after Clear:', await CH('.rec').count(), '| stored:', await page.evaluate(() => localStorage.getItem('fh-chat-log')));
@@ -489,7 +489,7 @@ await page.close();
     r = await timed(`deepAll('fh-pin')[0].shadowRoot.querySelector('.grid button').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }))`, 'fh-pin'); console.log('PIN pad exit: open', pad, '| there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
     await p.evaluate(() => document.querySelector('family-hub-card')._say('Test line')); await p.waitForTimeout(300);
     r = await timed(`(() => { const c = document.querySelector('family-hub-card'); c._toast = ''; })()`, '.toasts .toast'); console.log('toast exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
-    await MORE(p); await p.locator('family-hub-card .sheet [data-act="night"]').click(); await p.waitForTimeout(600); await p.evaluate(deep); await p.locator('family-hub-card .artm').click();
+    await MORE(p); await p.locator('family-hub-card .sheet [data-act="night"]').click(); await p.waitForTimeout(600); await p.evaluate(deep); await p.locator('family-hub-card .artm').click({ timeout: 4000 }).catch(() => console.log('FAIL NIGHT-WAKE: “Night” did not bring up the screensaver here, so its wake was not tried (this line was edited for 0.33.5 and first run on 15 Nov)'));
     await p.waitForTimeout(60); const started = await p.evaluate(() => cssAnims()); const n80 = await p.locator('family-hub-card .artm[data-closing]').count(), n600 = await at('family-hub-card .artm', 560);
     console.log('night wake: the screensaver fading at 60 ms', n80, '| animations started:', started.join(',') || 'none', '(expect fhout only) | gone at 620 ms', n600 === 0); await p.close(); }
   // calm mode: nothing travels on a page change, and looks' loops are stopped
@@ -523,7 +523,7 @@ await page.close();
     p = await open('look=glass&page=home&slow=400&fail=1'); const sw2 = p.locator('fh-home .dev[role="switch"]').first(), was2 = await sw2.getAttribute('aria-checked'); await sw2.click(); await p.waitForTimeout(150); const flipped = (await sw2.getAttribute('aria-checked')) !== was2; await p.waitForTimeout(700);
     console.log('fail=1 Home switch: flipped while out', flipped, '| put back', (await sw2.getAttribute('aria-checked')) === was2); await p.close(); }
 }
-// ---- a child asks for a chat: a chip for the grown-ups on the shared pages (polish round 2) ----
+// ---- a child asks for a chat: a chip for the parents on the shared pages (polish round 2) ----
 { const p = await open('look=glass&page=kid&kid=0');
   await p.locator('fh-kid').getByRole('button', { name: 'sad' }).click(); await p.waitForTimeout(200); await p.getByRole('button', { name: /Chat later/ }).click(); await p.waitForTimeout(400);
   const chip = p.locator('family-hub-card .capsule [data-kind="chat"]'), onKid = await chip.count();
@@ -649,7 +649,7 @@ await page.close(); page = await open('look=glass&page=home', '19:45');
   for (const d of '1234') await page.locator('family-hub-card fh-pin').first().getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
   console.log('R3c after the PIN:', /light\.turn_on/.test(await calls(page)), '|', await toastOf(page, 'family-hub-card')); }
 await page.close();
-// R4. rewards: after Yes the row keeps its place and a second tap in the list does nothing for 600 ms; a spend that needs a grown-up leaves a line
+// R4. rewards: after Yes the row keeps its place and a second tap in the list does nothing for 600 ms; a spend that needs a parent leaves a line
 page = await open('look=glass&page=kid&kid=0');
 { const K = (s) => page.locator('fh-kid ' + s), spends = async () => ((await calls(page)).match(/fh_add_points[^\n]*"points":-/g) || []).length;
   await page.getByRole('button', { name: /Extra screen time/ }).click(); await page.waitForTimeout(300);
@@ -660,7 +660,7 @@ page = await open('look=glass&page=kid&kid=0');
   await page.waitForTimeout(1900); console.log('R4 after 600 ms the row is back to one line:', Math.round((await K('.rw').first().boundingBox()).height) < Math.round(ask.height), '| waiting line for a small reward:', await K('.owedline').count());
   await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass, id = Object.keys(h.states).find((k) => /riley.*points$/.test(k) && !/life|total/.test(k)); c.hass = { ...h, states: { ...h.states, [id]: { ...h.states[id], state: '300' } } }; }); await page.waitForTimeout(300);
   await page.getByRole('button', { name: /Pick the family movie/ }).click(); await page.waitForTimeout(300); for (const d of '1234') await page.locator('fh-pin').first().getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(700);
-  console.log('R4 a reward that needs a grown-up:', (await K('.owedline').innerText().catch(() => 'NO LINE')).replace(/\s+/g, ' ').trim()); }
+  console.log('R4 a reward that needs a parent:', (await K('.owedline').innerText().catch(() => 'NO LINE')).replace(/\s+/g, ' ').trim()); }
 await page.close();
 // R5. Home: one PIN does not open the front door; the window shows, counts down and can be closed
 page = await open('look=glass&page=home');
@@ -672,7 +672,7 @@ page = await open('look=glass&page=home');
   await H.locator('fh-pin').getByRole('button', { name: /Cancel|Close/ }).first().click().catch(() => page.keyboard.press('Escape')); await page.waitForTimeout(300);
   await H.getByRole('button', { name: /Garage door/ }).click(); await page.waitForTimeout(300);
   console.log('R5 the same garage door again inside the window: PIN asked', await pad(), '| cover called:', /cover\./.test(await calls(page)));
-  await H.getByRole('button', { name: /Grown-ups/ }).click(); await page.waitForTimeout(300); console.log('R5 automations inside the window: PIN asked', await pad(), '| list open:', await H.getByRole('button', { name: 'Hide' }).count());
+  await H.getByRole('button', { name: /Parents/ }).click(); await page.waitForTimeout(300); console.log('R5 automations inside the window: PIN asked', await pad(), '| list open:', await H.getByRole('button', { name: 'Hide' }).count());
   await page.clock.fastForward(20_000); await page.waitForTimeout(1200); const t1 = (await H.locator('.unl b').innerText()).trim();
   await H.locator('.unl').getByRole('button', { name: 'Lock now' }).click(); await page.waitForTimeout(300);
   console.log('R5 countdown after 20 s:', t1, '| Lock now: chip gone', await H.locator('.unl').count() === 0);
@@ -870,7 +870,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
     const seen = new Set(); for (let i = 0; i < 16; i++) { await p.keyboard.press('Tab'); seen.add(await deepFocus(p)); }
     const inert = await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => x.inert)`);
     await p.keyboard.press('Escape'); await p.waitForTimeout(500);
-    console.log('R5-7 Ask by keyboard: focus on open "' + first + '"', ok(first === 'Your question'), '| typed and sent with Enter:', ok(bub.some((b) => /why is the sky blue/.test(b)) && open1 === 'chat'), '| Tab reaches', seen.size, 'controls incl. Close, a starter and Send/Keyboard:', ok(seen.has('Close') && [...seen].some((x) => /Tell me a joke/.test(x)) && seen.has('Keyboard') && seen.has('For grown-ups')), '| page behind is inert:', ok(inert), '| Escape closes, focus back on:', await deepFocus(p), ok((await p.evaluate(`document.querySelector('family-hub-card')._sheet`)) === '' && (await deepFocus(p)) === 'Ask a question'));
+    console.log('R5-7 Ask by keyboard: focus on open "' + first + '"', ok(first === 'Your question'), '| typed and sent with Enter:', ok(bub.some((b) => /why is the sky blue/.test(b)) && open1 === 'chat'), '| Tab reaches', seen.size, 'controls incl. Close, a starter and Send/Keyboard:', ok(seen.has('Close') && [...seen].some((x) => /Tell me a joke/.test(x)) && seen.has('Keyboard') && seen.has('For parents')), '| page behind is inert:', ok(inert), '| Escape closes, focus back on:', await deepFocus(p), ok((await p.evaluate(`document.querySelector('family-hub-card')._sheet`)) === '' && (await deepFocus(p)) === 'Ask a question'));
     console.log('R5-15 page no longer inert once the sheet has gone:', ok(await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => !x.inert)`))); await p.context().close(); }
   { const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); await p.goto('http://localhost:' + PORT + '/?look=glass&page=planner&sheet=chat'); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900);
     console.log('R5-7 on a touch screen the field is not focused (no system keyboard):', ok(await p.evaluate(() => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.tagName !== 'INPUT'; }))); await c.close(); }

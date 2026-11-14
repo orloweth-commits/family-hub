@@ -30,7 +30,7 @@ export interface Hass {
 export type ColourSlot = 1 | 2 | 3 | 4 | 5 | 'family';
 
 export interface PersonConfig { name: string; entity?: string; colour: ColourSlot }
-export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a grown-up; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean;
+export interface RewardConfig { name: string; cost: number; icon?: string; /** needs a parent; defaults to true when cost >= 60 */ approve?: boolean; /** makes the child tonight's DJ on the Music page (default: any reward named like "DJ" or "dinner music") */ dj?: boolean;
   /** a limit: at most this many times a week, Monday to Sunday (e.g. `weekly: 1` on a screen-time reward). When it is used up the row says when it comes back. */ weekly?: number }
 /** A speaker's patch of an open-plan room. */
 export interface MapZoneConfig { name?: string; player: string }
@@ -73,7 +73,7 @@ export interface KidConfig {
   leave_by?: string;
   /** points per star for pre-readers (stars = points / star) */
   star?: number;
-  /* The next five are defaults; a grown-up can change each one on the panel (palette button on the child's page, behind the PIN). */
+  /* The next five are defaults; a parent can change each one on the panel (palette button on the child's page, behind the PIN). */
   /** this child's own look for his page: glass | fridge | orbit | sports (default: same as the panel) */
   look_id?: LookId;
   /** print (default) or hand, where the look offers handwriting */
@@ -116,7 +116,7 @@ export interface FamilyHubConfig {
   type: string;
   family_name?: string;
   theme?: ThemeId;
-  /** calm mode (no looping motion, no tilt): true = everywhere. Otherwise each child's page follows his own choice (animated unless he, or a grown-up, has chosen calm) and the shared pages move */
+  /** calm mode (no looping motion, no tilt): true = everywhere. Otherwise each child's page follows his own choice (animated unless he, or a parent, has chosen calm) and the shared pages move */
   calm?: boolean;
   /** whole design language: glass (default), fridge, orbit or sports (Home Ground); the panel's palette button changes it */
   look?: LookId;
@@ -133,7 +133,7 @@ export interface FamilyHubConfig {
   grocery_usuals?: string[];
   grocery_recipients?: GroceryRecipient[];
   night?: { start: string; end: string };
-  /** the grown-ups' PIN, 4–8 digits in quotes. It opens Settings (the cog on the house-info sheet), where it can also be changed. */
+  /** the parents' PIN, 4–8 digits in quotes. It opens Settings (the cog on the house-info sheet), where it can also be changed. */
   parent_pin?: string;
   /** how many minutes later every child's bedtime is on Friday and Saturday nights (default 30; 0 keeps the same time all week) */
   bedtime_weekend_extra?: number;
@@ -174,7 +174,7 @@ export interface FamilyHubConfig {
   med_extras?: string[];
   /** bin night: `day` is the NIGHT the bins go out, 0 (Sunday) to 6, which is the evening before the truck comes (a Tuesday-morning collection is `day: 1`, Monday); bins that go out every week, bins that take turns, and a date on which the first of `alternate` went out */
   bins?: { day: number; always?: string[]; alternate?: string[]; anchor?: string };
-  /** grown-ups who can give meds / approve */
+  /** parents who can give meds / approve */
   parents?: string[];
   school_terms?: [string, string][];
   public_holidays?: string[];
@@ -206,7 +206,7 @@ export interface FamilyHubConfig {
   voice?: import('./voice').VoiceConfig;
   /** the evening digest: one read-only message a night to the parents' phones (digest.ts). `notify` names the phones; `time` is when (default 19:30) */
   digest?: import('./digest').DigestConfig;
-  /** approve from a phone: a reward that needs a grown-up asks these phones, with Approve and Not yet (approve.ts). `notify` names the phones; `list` is the to-do list of what is waiting (default todo.family_hub_asks) */
+  /** approve from a phone: a reward that needs a parent asks these phones, with Approve and Not yet (approve.ts). `notify` names the phones; `list` is the to-do list of what is waiting (default todo.family_hub_asks) */
   approve?: import('./approve').ApproveConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
