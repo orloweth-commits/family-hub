@@ -49,6 +49,7 @@ const RULES = [
   { suite: 'click-base', long: true, when: src(`${LOOKS}|kid|groceries|doodle|weather|home|morning|keys|pin|avatar|studio|wardrobe|sparks|fx|ambient|radar|sound|icons|art`) },
   { suite: 'music-f2', when: src('music|musicviews|ma|media|settings') },
   { suite: 'click-music', long: true, when: src(`music|musicviews|ma|media|${LOOKS}`) },
+  { suite: 'digest', when: src('digest|settings|trust|validate') },
   { suite: 'settings', when: src('settings|settings-store|validate|types') },
   { suite: 'art', when: src('artmode|artlib|nightly|presence|studio|avatar') },
   { suite: 'screensaver', when: src(`artmode|artlib|${SHELL}`) },
@@ -61,11 +62,11 @@ const PAGES = [
   [src(SHELL), ['planner', 'planner&view=day', 'planner&view=month', 'planner&events=many', 'planner&sheet=themes', 'planner&sheet=meds', 'planner&sheet=sitter', 'planner&sheet=timer', 'planner&art=1&artn=3', 'planner&night=1@22:30']],
   [src('kid|avatar|studio|wardrobe|rewards|util'), ['kid&kid=0', 'kid&kid=1', 'kid&kid=2', 'kid&kid=0&studio=1', 'kid&kid=0&painted=1&studio=1', 'kid&kid=2&painted=1']],
   [src('music|musicviews|ma'), ['music', 'music&mview=scene', 'music&mview=dial', 'music&mview=desk', 'music&mview=cables', 'music&mview=list', 'music&mtab=shelves', 'music&mtab=juke&juke=1', 'music&mtab=radio', 'music&mtab=call']],
-  [src('settings'), ['planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house', 'planner&sheet=settings&pane=pictures&artn=3']],
+  [src('settings'), ['planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house', 'planner&sheet=settings&pane=pictures&artn=3', 'planner&sheet=settings&pane=people']],
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }

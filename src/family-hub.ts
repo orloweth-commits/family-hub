@@ -180,6 +180,8 @@ export class FamilyHubCard extends LitElement {
   /** the brightness the screen should have for a given sun and room light (artmode.ts), for the tests and for calibrating at the wall */
   static bright = brightTarget;
   static trust = { snapshotOf, snapText, snapParse, restoreCalls, useTotals, haTrust };
+  /** the digest's automation for any configuration, for the tests: `customElements.get('family-hub-card').digest` */
+  static digest = { haDigest };
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
   private _alarm = 0;
