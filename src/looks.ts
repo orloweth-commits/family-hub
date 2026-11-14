@@ -516,9 +516,9 @@ const FRIDGE = `
   @F .num { font-weight: 700; }
   @F .today .num { background: var(--ink); color: var(--note-today); }
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
-  @F .ev .t { font-size: var(--fs-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+  @F .ev .t { font-size: var(--fs-1); font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 4; } @F .col[data-tight] .ev .content { -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: var(--fs-2); font-weight: 500; }
+  @F .ev .w { font-size: var(--fs-1); font-weight: 500; }
   @F .ev.next { box-shadow: none; }
   /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
   @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -808,7 +808,7 @@ const ORBIT = `
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: var(--fs-2); }
+  @O .ev .w { font-weight: 400; font-size: var(--fs-1); }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
   /* what is over keeps its outline and loses its fill; the words stay readable */
   @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }

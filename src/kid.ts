@@ -254,7 +254,7 @@ export class FhKid extends LitElement {
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .jarwhy { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    .jarwhy { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
     .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }

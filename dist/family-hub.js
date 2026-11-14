@@ -2126,9 +2126,9 @@ const Vf = `
   @F .num { font-weight: 700; }
   @F .today .num { background: var(--ink); color: var(--note-today); }
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
-  @F .ev .t { font-size: var(--fs-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+  @F .ev .t { font-size: var(--fs-1); font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 4; } @F .col[data-tight] .ev .content { -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: var(--fs-2); font-weight: 500; }
+  @F .ev .w { font-size: var(--fs-1); font-weight: 500; }
   @F .ev.next { box-shadow: none; }
   /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
   @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -2416,7 +2416,7 @@ const Vf = `
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: var(--fs-2); }
+  @O .ev .w { font-weight: 400; font-size: var(--fs-1); }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
   /* what is over keeps its outline and loses its fill; the words stay readable */
   @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }
@@ -3276,12 +3276,12 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* one row that never wraps: a chip that does not fit is taken out whole (lowest priority first), never cut through its words */
   .capsule { flex: 1; min-width: 0; display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 12px; height: 68px; padding: 8px; margin: -8px; overflow: hidden; }
   .cap { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 16px; border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-line); font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
+    border: 1px solid var(--glass-line); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; max-width: 380px; min-width: 0; }
   .cap[hidden] { display: none; }
   /* the names on a medication chip never shrink away (a look may cap the chip at the row's width): the row then counts as too full, and lesser things step aside first */
   .capsule[data-one] .cap { flex-shrink: 1; overflow: hidden; }
   .capsule[data-one] .cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-  .cap b { font-variant-numeric: tabular-nums; font-size: var(--fs-3); }
+  .cap b { font-variant-numeric: tabular-nums; font-size: var(--fs-3); } /* the chip's words are a step under its number: the header is the tightest row on the panel */
   /* urgent: the chip keeps its full colour (the words stay AA) and a soft ring breathes round it */
   .cap.hot { background: #c81e1e; color: #fff; border-color: #c81e1e; animation: hotring 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes hotring { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, #c81e1e 38%, transparent); } }
@@ -3342,7 +3342,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .seg { display: flex; padding: 3px; border-radius: 12px; background: var(--track); }
   .seg button { height: 44px; min-width: 56px; padding: 0 16px; border-radius: 9px; font-size: var(--fs-2); font-weight: 500; color: var(--ink2); }
   .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--fs-2); line-height: 1.2; font-weight: var(--w-semi, 600); color: var(--ink2); }
   /* how fresh the calendars are: a quiet word at the end of the legend, or a plain warning on a line of its own */
   .calnote { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .calnote[data-warn] { flex: 1 1 100%; margin-left: 0; white-space: normal; color: var(--ink); background: var(--chip-strong); border-radius: 12px; padding: 6px 6px 6px 12px; }
@@ -3380,13 +3380,13 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* the calendar's notes: plain text under a small label, line breaks kept; a long note scrolls inside its own box so the sheet keeps its shape */
   .evnotebox { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; } .evnotebox .label { font-size: var(--fs-1); }
   .evnotes { margin: 0; padding: 12px 14px; border-radius: 16px; background: var(--chip); font-size: var(--fs-3); line-height: 1.4; font-weight: 500; white-space: pre-line; overflow-wrap: anywhere; max-height: min(260px, 34vh); overflow-y: auto; overscroll-behavior: contain; }
-  .ev .t { font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); }
+  .ev .t { font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink2); }
   .ev .n { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; hyphens: manual; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .evs { position: relative; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; padding: 3px; margin: -3px; }
   .evs > .ev { flex-shrink: 0; }
   .ell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .evcap { min-width: 0; max-width: 100%; }
-  .ev .w { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+  .ev .w { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); }
   .ev.priv { flex-direction: row; align-items: center; gap: 6px; background: transparent; border-left: 0; padding: 2px 6px; color: var(--ink2); }
   /* finished: paler card, quieter words, still readable */
   .ev.past { background: color-mix(in srgb, var(--c) 8%, var(--chip-soft)); border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -3397,7 +3397,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* "+N more": a small pill directly under the last event shown; the button around it is a full 44 px target that reaches into the column's padding */
   .more { height: 44px; margin-bottom: -14px; flex-shrink: 0; padding: 0; background: transparent; text-align: left; display: flex; align-items: flex-start; }
   .more .mpill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
-  .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
+  .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
   .ev .loc svg, .dayrow .loc svg { flex: 0 0 auto; }
   .col[data-tight] .ev .loc { display: none; }
   .col[data-wrap] .ev .loc { align-items: flex-start; } .col[data-wrap] .ev .loc svg { margin-top: 1px; }
@@ -3421,18 +3421,18 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .dayrow { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--c, transparent) 22%, transparent); border-left: 6px solid var(--c, transparent); }
 
   .month { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px; }
-  .mhead { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); padding: 0 6px; }
+  .mhead { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: var(--fs-2); line-height: 17px; font-weight: var(--w-semi, 600); color: var(--ink2); padding: 0 6px; }
   .cell { display: flex; flex-direction: column; gap: 3px; padding: 6px 7px; border-radius: 12px; background: var(--chip-soft); min-width: 0; overflow: hidden; }
   .cell.out { background: var(--chip-faint); color: var(--ink3); }
   .cell.today { background: var(--chip-strong); }
-  .cell .mev { display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 0; height: 18px; line-height: 18px; font-size: var(--fs-2); font-weight: 500; white-space: nowrap; }
+  .cell .mev { display: flex; align-items: center; gap: 5px; flex-shrink: 0; min-width: 0; height: 18px; line-height: 18px; font-size: var(--fs-1); font-weight: 500; white-space: nowrap; }
   /* a cell with lines to spare lets a title run to a second line instead of cutting it */
   .cell .mev.two { height: auto; max-height: 39px; align-items: flex-start; white-space: normal; }
   .cell .mev.two > .ell { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .cell .mev.two > .init { margin-top: 1.5px; }
   .cell .mev > .ell { flex: 1; }
-  .cell .mtop { display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 20px; flex-shrink: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
-  .cell .mmore { padding: 0 7px; height: 20px; line-height: 20px; border-radius: 999px; background: var(--ink); color: var(--ring-halo, #fff); font-size: var(--fs-2); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+  .cell .mtop { display: flex; align-items: center; justify-content: space-between; gap: 4px; height: 20px; flex-shrink: 0; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+  .cell .mmore { padding: 0 7px; height: 20px; line-height: 20px; border-radius: 999px; background: var(--ink); color: var(--ring-halo, #fff); font-size: var(--fs-1); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
 
   .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
   .empty .pic { color: var(--accent); line-height: 0; }
@@ -8897,7 +8897,7 @@ ho.styles = [Qt, H`
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .jarwhy { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    .jarwhy { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
     .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }
@@ -9721,7 +9721,7 @@ const Kh = async (a) => {
     <div class="vgrid">${ul.map((i) => l`<button class="vcard tap" aria-pressed=${String(i.id === a)} @click=${() => t(i.id)}>${K(i.icon, 34)}<b>${i.name}</b><span>${i.about}</span></button>`)}</div>
     <button class="pill tap" style="align-self:flex-end" @click=${e}>Close</button></section></div>`, su = H`
   /* Switcheroo: the one button that changes how the rooms are shown. Same name, same pinwheel, on every view. */
-  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
+  .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
   .pinw { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(#ff5d5d 0 60deg, #ffb13d 0 120deg, #ffe14a 0 180deg, #4fd27a 0 240deg, #45b7f5 0 300deg, #a877f2 0); box-shadow: inset 0 0 0 2px rgba(255,255,255,.75), 0 1px 3px rgba(0,0,0,.3); position: relative; animation: pinw 9s linear infinite; animation-play-state: var(--motion, running); }
   .pinw::after { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
   .viewbtn:active .pinw { animation-duration: var(--m-4, 400ms); }
