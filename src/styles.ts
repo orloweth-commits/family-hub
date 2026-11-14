@@ -330,12 +330,12 @@ export const styles = css`
   .dock .item > span:not(.lb):not(.avatar) { display: flex; line-height: 0; }
   .grid3 button { white-space: nowrap; padding: 0 2px; }
   .fh[data-compact] .grid3 button:not(.lead) { font-size: 14px; }
-  /* ---- the header's and the dock's buttons: a drawing each, one hue each, a small movement each ----
-     Each button names its hue once: --bt (a pale tile), --bl (the same hue, deep, for the line) and --bo (the hue as light, for a dark sky).
-     Four hue families across the seven places (warm, blue, green, violet), placed so that no two neighbours share one, without seven colours in a row; the three
-     house actions are yellow, dark and the one red; in the header only Ask and Night carry a hue. Medicine, Looks and House info stay plain.
-     What a look does with the hue (a tile, a ring, a magnet) is the look's own rule. */
-  svg.i.pic2 { --ic-a: color-mix(in srgb, currentColor 14%, transparent); --ic-b: color-mix(in srgb, currentColor 55%, transparent); overflow: visible; box-sizing: border-box; }
+  /* ---- the header's and the dock's buttons: a filled drawing each, and where the card knows something true, the drawing shows it ----
+     (today's date, today's sky, the record playing, how much is on the list, lights on, tonight's moon: see art.ts).
+     Each button still names its hue once: --bt (a pale tint), --bl (the same hue, deep) and --bo (the hue as light, for a dark sky);
+     a look may use it for a magnet or a ring. The drawings carry their own colours and need no tile. */
+  svg.i.pic2 { stroke: none; fill: none; overflow: visible; box-sizing: border-box; font-family: inherit; }
+  svg.pic2 text { font-family: inherit; font-variant-numeric: tabular-nums; }
   .dock .item:is([data-nav='sun'], [data-nav='home']) { --bt: #ffe7c2; --bl: #7a3a06; --bo: #ffcf9a; }
   .dock .item:is([data-nav='calendar'], [data-nav='cloud']) { --bt: #d6e4ff; --bl: #1d3f8f; --bo: #a9c1ff; }
   .dock .item:is([data-nav='cart'], [data-nav='music']) { --bt: #d3efdb; --bl: #14592c; --bo: #9be3b1; }
@@ -344,55 +344,43 @@ export const styles = css`
   .dock .item[data-nav='lights-off'] { --bt: #3a4250; --bl: #ffffff; --bo: #e8ecf7; }
   .dock .item[data-nav='dinner'] { --bt: #c62828; --bl: #ffffff; --bo: #ff8a7a; }
   .right > .hb[data-act='ask'] { --bt: #d9f2ef; --bl: #0c5a52; --bo: #6ee7c0; }
-  .right > .hb[data-act='night'] { --bt: #2b3147; --bl: #ffd75a; --bo: #ffe08a; }
-  /* the parts of a drawing turn and grow about their own place in the drawing */
-  svg.pic2 .fa { fill: var(--ic-a); } svg.pic2 .fb { fill: var(--ic-b); } svg.pic2 .sb { stroke: var(--ic-b); }
-  svg.pic2 [class^='p-'], svg.pic2 [class*=' p-'] { transform-box: view-box; transform-origin: 12px 12px; }
-  svg.pic2[data-ic='ask'] .p-star { transform-origin: 12px 10.5px; } svg.pic2[data-ic='night'] .p-star { transform-origin: 16.8px 5.7px; }
-  svg.pic2[data-ic='looks'] .d1 { transform-origin: 7.6px 11.4px; } svg.pic2[data-ic='looks'] .d2 { transform-origin: 10.6px 7.4px; } svg.pic2[data-ic='looks'] .d3 { transform-origin: 15.4px 7.8px; }
-  svg.pic2[data-ic='morning'] :is(.p-ray, .p-sun) { transform-origin: 12px 18px; } svg.pic2[data-ic='planner'] .p-day { transform-origin: 14.9px 14.7px; } svg.pic2[data-ic='planner'] .p-band { transform-origin: 12px 5px; }
-  svg.pic2[data-ic='doodle'] :is(.p-pencil, .p-tip) { transform-origin: 4px 20px; } svg.pic2[data-ic='music'] :is(.p-note, .p-beam) { transform-origin: 12px 20px; }
-  svg.pic2[data-ic='home'] .p-door { transform-origin: 10px 20px; } svg.pic2[data-ic='home'] .p-roof { transform-origin: 12px 4px; }
-  svg.pic2[data-ic='allon'] .p-ray { transform-origin: 12px 10.5px; } svg.pic2[data-ic='dinner'] :is(.p-lid, .p-knob) { transform-origin: 4.3px 17px; } svg.pic2[data-ic='dinner'] .p-ring { transform-origin: 12px 17px; }
-  @keyframes bPop { 45% { transform: scale(calc(1 + .3 * var(--m-d, 1))); } }
-  @keyframes bTwinkle { 45% { transform: scale(calc(1 + .35 * var(--m-d, 1))) rotate(calc(20deg * var(--m-d, 1))); } }
-  @keyframes bHop { 40% { transform: translateY(calc(-2.5px * var(--m-d, 1))); } }
+  /* the parts of a drawing turn and grow about their own middle, unless they hang from an edge */
+  svg.pic2 [class^='p-'], svg.pic2 [class*=' p-'] { transform-box: fill-box; transform-origin: center; }
+  svg.pic2 .p-band { transform-origin: center top; } svg.pic2 .p-fork, svg.pic2 .p-knife { transform-origin: center bottom; } svg.pic2 .p-door { transform-origin: left center; } svg.pic2 .p-pencil { transform-origin: center bottom; }
+  svg.pic2 .p-ray { transform-box: view-box; transform-origin: 20px 18px; } svg.pic2[data-ic='weather'] .p-ray { transform-box: fill-box; transform-origin: center; }
+  @keyframes bPop { 45% { transform: scale(calc(1 + .22 * var(--m-d, 1))); } }
+  @keyframes bTwinkle { 45% { transform: scale(calc(1 + .3 * var(--m-d, 1))) rotate(calc(20deg * var(--m-d, 1))); } }
+  @keyframes bHop { 40% { transform: translateY(calc(-3px * var(--m-d, 1))); } }
   @keyframes bRock { 50% { transform: rotate(calc(-14deg * var(--m-d, 1))); } }
-  @keyframes bRise { from { transform: translateY(calc(3px * var(--m-d, 1))); } }
-  @keyframes bFlip { 50% { transform: scaleY(calc(1 - .6 * var(--m-d, 1))); } }
-  @keyframes bDropIn { from { transform: translateY(calc(-4px * var(--m-d, 1))); opacity: 0; } }
-  @keyframes bWig { 30% { transform: rotate(calc(-8deg * var(--m-d, 1))); } 70% { transform: rotate(calc(8deg * var(--m-d, 1))); } }
+  @keyframes bRise { from { transform: translateY(calc(5px * var(--m-d, 1))); } }
+  @keyframes bFlip { 50% { transform: scaleY(calc(1 - .5 * var(--m-d, 1))); } }
+  @keyframes bDropIn { from { transform: translateY(calc(-6px * var(--m-d, 1))); opacity: 0; } }
+  @keyframes bWig { 30% { transform: rotate(calc(-9deg * var(--m-d, 1))); } 70% { transform: rotate(calc(7deg * var(--m-d, 1))); } }
   @keyframes bDraw { from { stroke-dashoffset: 1; } }
-  @keyframes bDrift { 50% { transform: translateX(calc(1.5px * var(--m-d, 1))); } }
+  @keyframes bDrift { 50% { transform: translateX(calc(2.5px * var(--m-d, 1))); } }
   @keyframes bDoor { 50% { transform: scaleX(calc(1 - .7 * var(--m-d, 1))); } }
-  @keyframes bDim { 50% { opacity: .3; } }
-  @keyframes bLid { 45% { transform: rotate(calc(-14deg * var(--m-d, 1))); } }
-  @keyframes bSway { 50% { transform: rotate(calc(5deg * var(--m-d, 1))) translateY(calc(-1px * var(--m-d, 1))); } }
+  @keyframes bDim { 50% { opacity: .35; } }
+  @keyframes bTurn { to { transform: rotate(calc(360deg * var(--m-d, 1))); } }
   /* pressed (data-just): the drawing answers the finger once. Medicine has no moving part */
-  .hb[data-just] [data-ic='ask'] .p-star, .hb[data-just] [data-ic='night'] .p-star { animation: bTwinkle var(--mt-3) var(--e-spring); }
-  .hb[data-just] [data-ic='night'] .p-moon { animation: bRock var(--mt-4) var(--e-spring); }
-  .hb[data-just] [data-ic='looks'] .p-dot { animation: bPop var(--mt-3) var(--e-spring) backwards; }
-  .hb[data-just] [data-ic='looks'] .d2 { animation-delay: 40ms; } .hb[data-just] [data-ic='looks'] .d3 { animation-delay: 80ms; }
-  .hb[data-just] [data-ic='info'] .p-dot { animation: bHop var(--mt-3) var(--e-spring); }
+  .hb[data-just] [data-ic='ask'] .p-star, .morebtn[data-just] [data-ic='night'] .p-star { animation: bTwinkle var(--mt-3) var(--e-spring); }
   .item[data-just] [data-ic='morning'] .p-ray { animation: bPop var(--mt-3) var(--e-spring); }
   .item[data-just] [data-ic='planner'] .p-day { animation: bPop var(--mt-3) var(--e-spring); }
   .item:is([data-just], [data-arrive]) [data-ic='groceries'] .p-item { animation: bDropIn var(--mt-4) var(--e-out); }
-  .item[data-just] [data-ic='doodle'] :is(.p-pencil, .p-tip) { animation: bWig var(--mt-4) var(--e-out); }
-  .item:is([data-just], [data-arrive]) [data-ic='music'] :is(.p-note, .p-beam) { animation: bHop var(--mt-3) var(--e-spring); }
+  .item[data-just] [data-ic='doodle'] .p-pencil { animation: bWig var(--mt-4) var(--e-out); }
+  .item:is([data-just], [data-arrive]) [data-ic='music'] .p-disc { animation: bTurn var(--mt-5) var(--e-out); }
   .item:is([data-just], [data-arrive]) [data-ic='weather'] .p-cloud { animation: bDrift var(--mt-4) var(--e-out); }
   .item[data-just] [data-ic='home'] .p-door { animation: bDoor var(--mt-4) var(--e-out); }
   .item[data-just] [data-ic='allon'] .p-ray { animation: bPop var(--mt-4) var(--e-spring); }
-  .item[data-just] [data-ic='alloff'] .p-slash { stroke-dasharray: 1; animation: bDraw var(--mt-4) var(--e-out); }
   .item[data-just] [data-ic='alloff'] .p-bulb { animation: bDim var(--mt-4) var(--e-out); }
-  .item[data-just] [data-ic='dinner'] :is(.p-lid, .p-knob) { animation: bLid var(--mt-4) var(--e-spring); }
+  .item[data-just] [data-ic='dinner'] .p-fork { animation: bWig var(--mt-4) var(--e-out); } .item[data-just] [data-ic='dinner'] .p-knife { animation: bWig var(--mt-4) var(--e-out) reverse; }
   .item[data-just] [data-ic='dinner'] .p-ring { animation: bPop var(--mt-4) var(--e-out); }
   /* arrived (data-arrive): the place whose page has just opened */
   .item[data-arrive] [data-ic='morning'] .p-sun { animation: bRise var(--mt-4) var(--e-out); }
   .item[data-arrive] [data-ic='planner'] .p-band { animation: bFlip var(--mt-4) var(--e-out); }
   .item[data-arrive] [data-ic='doodle'] .p-squiggle { stroke-dasharray: 1; animation: bDraw var(--mt-4) var(--e-out); }
   .item[data-arrive] [data-ic='home'] .p-roof { animation: bHop var(--mt-3) var(--e-spring); }
-  /* the one thing that keeps moving, and only while music is playing: the notes sway (calm mode and reduce-motion stop it) */
-  .item[data-playing]:not([data-just]):not([data-arrive]) [data-ic='music'] :is(.p-note, .p-beam) { animation: bSway 2.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
+  /* the one thing that keeps moving, and only while music is playing: the record turns (calm mode and reduce-motion stop it; the little bars beside it say "playing" without moving) */
+  .item[data-playing]:not([data-just]):not([data-arrive]) [data-ic='music'] .p-disc { animation: bTurn 6s linear infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
   .dock .item .lb { display: inline-flex; flex-direction: column; align-items: center; max-width: 100%; }
   .dock .item .lb::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--w-heavy, 800); pointer-events: none; }
   /* a child's button: his picture is taller than an icon, so it sits closer to his name; a long name widens the button before it is cut.

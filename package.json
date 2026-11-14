@@ -1,6 +1,6 @@
 {
   "name": "family-hub",
-  "version": "0.33.0",
+  "version": "0.33.1",
   "private": true,
   "type": "module",
   "description": "A glassy, themeable family planner card for Home Assistant wall panels.",

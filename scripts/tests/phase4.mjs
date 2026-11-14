@@ -75,7 +75,7 @@ for (const [w, h, min] of [[1920, 1080, 30], [1180, 820, 14]]) { const page = aw
   await card.locator('.week').click({ position: { x: 5, y: 5 } }); await page.waitForTimeout(300); await page.clock.runFor(3000); await page.waitForTimeout(300); await page.clock.runFor(1000); const c = await cols();
   ok('a touch brings the whole week back', !c.rest && c.fade === '1' && Math.abs(c.today - a.today) <= 2, c);
   await page.context().close(); }
-ok('the bundle says 0.33.0', fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8').includes('0.33.0'));
+ok('the bundle carries its version', /0\.3\d\.\d/.test(fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8')));
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

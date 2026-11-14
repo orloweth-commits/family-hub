@@ -12,7 +12,7 @@ import './music';
 import './weather';
 import './doodle';
 import './morning';
-import { art } from './art';
+import { art, moonAge, type ArtData } from './art';
 import './addevent';
 import { setPinShuffle } from './pin';
 import './chat';
@@ -45,7 +45,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.33.0';
+const VERSION = '0.33.1';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -411,7 +411,9 @@ export class FamilyHubCard extends LitElement {
     if (!fh || !hd) return;
     this._fitHeader(hd);
     if (getShape() !== 'phone') {
-      const dock = root.querySelector<HTMLElement>('nav.dock'), gap = parseFloat(getComputedStyle(fh).rowGap) || 16;
+      const dock = root.querySelector<HTMLElement>('nav.dock'), body = root.querySelector<HTMLElement>('.fh > .body'), row = parseFloat(getComputedStyle(fh).rowGap) || 16;
+      // where the bars are joined to the page (the Glass frame) a sheet needs only a small step in from them, not a whole row gap
+      const gap = body && body.offsetTop - (hd.offsetTop + hd.offsetHeight) < 2 ? 8 : row;
       const top = Math.round(hd.offsetTop + hd.offsetHeight + gap), bot = dock ? Math.round(fh.clientHeight - dock.offsetTop + gap) : this._bot;
       if (Math.abs(top - this._top) > 1) this._top = top;
       if (Math.abs(bot - this._bot) > 1) this._bot = bot;
@@ -1148,9 +1150,9 @@ export class FamilyHubCard extends LitElement {
       // a shared wall: the chip says how many, never who (names are inside the sheet). "Later" in the sheet puts it away for half an hour.
       if (due.length && Date.now() >= this._medLater) {
         const red = due.some((x) => x.s.late && !x.s.stale), word = late ? 'overdue' : 'due', p = red ? 0 : late ? 1.5 : 2;
-        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${icon('pill', 20)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
+        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
       }
-      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${icon('pill', 20)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
+      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${art('pill', 22)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
     }
     // a child tapped "Chat with a grown-up": shown to the grown-ups on the shared pages (never on a child's page), until one of them taps it away
     if (this._page !== 'kid') for (const n of this._wantsChat) chips.push([0.5, html`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${n} would like a chat. Tap to dismiss`} @click=${() => { this._wantsChat = this._wantsChat.filter((x) => x !== n); }}>${icon('ask', 20)}<span>${n} would like a chat</span></button>`]);
@@ -1203,7 +1205,7 @@ export class FamilyHubCard extends LitElement {
         <div class="right" @click=${this._btnJust}>
           ${w && !kid ? html`
             <button class="glass weather tap" aria-label="Weather" @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
-              <span style="color:var(--accent)">${icon(weatherIcon(w.state), 28)}</span>
+              ${art('cloud', 34, this._artData(false))}
               <span style="display:flex;flex-direction:column;line-height:1.15">
                 <span style="font-weight:var(--w-bold, 700);font-size:20px">${temp !== undefined ? `${Math.round(temp)}°` : '–'}${wx.max !== undefined ? html`<span class="muted wtop" style="font-size:13px;font-weight:var(--w-semi, 600)"> · top ${Math.round(wx.max)}°</span>` : nothing}</span>
                 <span class="muted wsub" style="font-size:13px;font-weight:var(--w-semi, 600)">${COND[w.state] ?? (['unavailable', 'unknown', ''].includes(w.state) ? 'No weather' : w.state)}${wx.rain ? ` · ${wx.rain} mm` : ''}</span>
@@ -1377,10 +1379,24 @@ export class FamilyHubCard extends LitElement {
       ${cut ? html`<span class="remmore">+${cut} more</span>` : nothing}`;
   }
 
+  /** What the dock's drawings show of this house, now: only things the card already knows. */
+  private _artData(playing: boolean): ArtData {
+    const c = this._config, st = this.hass?.states ?? {}, now = this._now, mins = now.getHours() * 60 + now.getMinutes();
+    const w = c.weather ? st[c.weather] : undefined, mpS = c.music_player ? st[c.music_player] : undefined;
+    const sunUp = st['sun.sun'] ? st['sun.sun'].state === 'above_horizon' : now.getHours() >= 6 && now.getHours() < 19;
+    const pic = playing ? (mpS?.attributes.entity_picture as string | undefined) : undefined;
+    const g = c.groceries ? Number(st[c.groceries]?.state) : NaN;
+    const m0 = hm(c.morning?.start ?? '06:30'), m1 = hm(c.morning?.end ?? '08:45');
+    return { day: now.getDate(), dow: now.toLocaleDateString('en-AU', { weekday: 'short' }), cond: w?.state, dark: !sunUp, playing,
+      cover: pic ? (/^(https?:|data:)/.test(pic) ? pic : this.hass?.hassUrl ? this.hass.hassUrl(pic) : pic) : undefined,
+      count: Number.isFinite(g) ? g : undefined, lit: Object.values(st).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length,
+      frac: (mins - m0) / Math.max(1, m1 - m0), moon: moonAge(now), south: (this.hass?.config?.latitude ?? -32) < 0 };
+  }
   private _dock(): TemplateResult {
     const mp = this._config.music_player, playing = !!mp && this.hass?.states[mp]?.state === 'playing';
+    const live = this._artData(playing);
     const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26)}<span class="lb" data-t=${label}>${label}</span></button>`;
+      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26, live)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
     // on a child's page the dock is his face and the way home: nothing else to look at or press
     if (this._page === 'kid' && kids[this._kid]) { const k = kids[this._kid], e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
@@ -1406,8 +1422,8 @@ export class FamilyHubCard extends LitElement {
       ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep wide" aria-hidden="true"></span>
-      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26)}All on</button>
-      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26)}All off</button>
+      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26, live)}All on</button>
+      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26, live)}All off</button>
       ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${art('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
     </nav>`;
   }
@@ -1470,7 +1486,7 @@ export class FamilyHubCard extends LitElement {
   private _moreBody(): TemplateResult {
     const c = this._config, h = this.hass, tracked = (c.people ?? []).filter((p) => p.entity);
     const go = (act: string, ic: string, label: string, sub: string, run: () => void): TemplateResult =>
-      html`<button class="morebtn tap" data-act=${act} @click=${run}>${art(ic, 30)}<span><b>${label}</b><span class="muted">${sub}</span></span></button>`;
+      html`<button class="morebtn tap" data-act=${act} @click=${run}>${art(ic, 36, { moon: moonAge(this._now), south: (this.hass?.config?.latitude ?? -32) < 0 })}<span><b>${label}</b><span class="muted">${sub}</span></span></button>`;
     return html`${this._sheetHead('More', '', '')}
       <div class="moregrid">
         ${go('looks', 'palette', 'Looks', 'Change how the panel looks', () => { this._sheet = ''; this._openLooks(); })}
