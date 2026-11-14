@@ -45,6 +45,7 @@ def run(auto, sc):
         return out
     def deep(x, v): return {k: deep(y, v) for k, y in x.items()} if isinstance(x, dict) else [deep(y, v) for y in x] if isinstance(x, list) else render(x, v)
     import re
+    env.filters.update(regex_findall_index=lambda v, pat, index=0: re.findall(pat, str(v))[index])
     env.tests.update(match=lambda v, pat: re.match(pat, str(v)) is not None, search=lambda v, pat: re.search(pat, str(v)) is not None)
     v, sent, asked = dict(sc.get('vars') or {}), [], []
     class Stop(Exception): pass

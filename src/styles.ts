@@ -408,6 +408,11 @@ export const styles = css`
   .hb[data-act='more'] svg.i { stroke-width: 3.4; }
   /* the More sheet: what left the header, as big named buttons */
   .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* the bell's sheet: what is waiting for a parent, one row each */
+  .waitlist { display: flex; flex-direction: column; gap: 10px; }
+  .waitrow { display: flex; align-items: center; gap: 10px; min-height: 56px; flex-wrap: wrap; }
+  .waitrow .wt { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-3); overflow-wrap: anywhere; }
+  .waitrow .wt span { font-size: var(--fs-2); color: var(--ink2); }
   .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
   .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .morebtn svg.i { flex-shrink: 0; }

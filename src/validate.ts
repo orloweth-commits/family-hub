@@ -67,6 +67,7 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
   if (ap !== undefined) {
     if (!ap || typeof ap !== 'object' || Array.isArray(ap)) return 'Family Hub: approve should be a group of options, e.g. approve: { notify: [notify.mobile_app_my_phone] }';
     if (ap.notify !== undefined && !(Array.isArray(ap.notify) && ap.notify.every((x) => /^notify\.[a-z0-9_]+$/.test(String(x))))) return 'Family Hub: approve.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]';
+    if (ap.jobs_from !== undefined && !(typeof ap.jobs_from === 'number' && Number.isFinite(ap.jobs_from) && ap.jobs_from >= 0)) return 'Family Hub: approve.jobs_from should be a number of points, 0 or more (0 = no job waits for a parent)';
     if (ap.list !== undefined && !/^todo\.[a-z0-9_]+$/.test(String(ap.list))) return 'Family Hub: approve.list should be a to-do list, e.g. todo.family_hub_asks';
   }
   return null;
