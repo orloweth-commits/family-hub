@@ -1,0 +1,114 @@
+import type { Hass } from './types';
+
+/* ------------------------------------------------------------------ *
+ * The house voice: one voice for everything the house says aloud.
+ *
+ *   voice: { tts, voice, language }   a Home Assistant text-to-speech engine, one of its voices, its language
+ *   voice.files                       where the recorded fixed lines live: a media id with {line} in it
+ *   voice.daily_chars                 how many NEW characters a day may be sent to the engine (default 1500)
+ *   voice.count                       an input_number that holds today's count, so every screen shares one allowance
+ *
+ * Every paid voice call has a cap and a fallback. A phrase this screen has heard before costs nothing (Home Assistant
+ * keeps the sound), so it is always allowed; a new phrase is allowed while the day's allowance lasts. Past that, or
+ * when the engine does not answer, the caller falls back: the screen's own voice on the panel, the built-in voice on a speaker.
+ * ------------------------------------------------------------------ */
+export interface VoiceConfig { tts: string; voice?: string; language?: string; daily_chars?: number; count?: string; files?: string }
+/** One engine and voice to speak in: the house voice, or Ask's own when it is set differently. */
+export interface Engine { tts: string; voice?: string; language?: string }
+
+/** The six ready phrases of Call a room, in the order of `CALLS` in music.ts; `dinner` is also the dinner call. */
+export const LINES = ['dinner', 'getready', 'kitchen', 'bedtime5', 'leave', 'loveyou'] as const;
+export type Line = (typeof LINES)[number];
+export const DAILY_CHARS = 1500;
+
+let cfg: VoiceConfig | null = null;
+let hassOf: () => Hass | undefined = () => undefined;
+export const setVoice = (c: VoiceConfig | null | undefined, h: () => Hass | undefined): void => { cfg = c && typeof c.tts === 'string' && c.tts.startsWith('tts.') ? c : null; hassOf = h; };
+export const houseVoice = (): VoiceConfig | null => cfg;
+
+/* ---------------- the daily allowance ---------------- */
+const DAY = 'fh-voice-day', KNOWN = 'fh-voice-known', KEEP = 400;
+const today = (): string => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const read = <T>(k: string, d: T): T => { try { return (JSON.parse(localStorage.getItem(k) || 'null') as T) ?? d; } catch { return d; } };
+const write = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage unavailable */ } };
+const hash = (s: string): string => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+const key = (text: string, e: Engine): string => hash(`${e.tts}|${e.voice ?? ''}|${e.language ?? ''}|${text.trim()}`);
+const known = (text: string, e: Engine): boolean => read<string[]>(KNOWN, []).includes(key(text, e));
+/** Characters sent to the engine today: this screen's own count, or the shared helper's when that is higher. */
+export const voiceUsed = (): number => {
+  const own = read<{ d?: string; n?: number }>(DAY, {}), mine = own.d === today() ? Number(own.n) || 0 : 0;
+  const st = cfg?.count ? hassOf()?.states[cfg.count] as { state: string; last_changed?: string } | undefined : undefined;
+  const changed = st?.last_changed ? new Date(st.last_changed) : null;
+  const shared = st && changed && changed.toDateString() === new Date().toDateString() ? Number(st.state) || 0 : 0;
+  return Math.max(mine, shared);
+};
+export const voiceCap = (): number => { const n = Number(cfg?.daily_chars); return Number.isFinite(n) && n >= 0 ? n : DAILY_CHARS; };
+/** May this be spoken in the paid voice? Yes if it has been heard before (it costs nothing), or if today's allowance covers it. */
+export const voiceAllowed = (text: string, e: Engine | null = cfg): boolean => !!e && (known(text, e) || voiceUsed() + text.trim().length <= voiceCap());
+/** Counts a phrase that was just made. A phrase heard before is not counted again. */
+export const voiceSpent = (text: string, e: Engine | null = cfg): void => {
+  if (!e || known(text, e)) return;
+  const n = voiceUsed() + text.trim().length;
+  write(DAY, { d: today(), n });
+  write(KNOWN, [...read<string[]>(KNOWN, []), key(text, e)].slice(-KEEP));
+  const h = hassOf();
+  if (cfg?.count && h?.states[cfg.count]) void Promise.resolve(h.callService('input_number', 'set_value', { value: n }, { entity_id: cfg.count })).catch(() => { /* the screen's own count still holds */ });
+};
+
+/* ---------------- speaking ---------------- */
+const within = <T>(p: Promise<T>, ms: number): Promise<T> => new Promise<T>((ok, no) => { const t = window.setTimeout(() => no(new Error('timeout')), ms); p.then((v) => { clearTimeout(t); ok(v); }, (x) => { clearTimeout(t); no(x); }); });
+const full = (h: Hass, u: string): string => /^(https?|data|blob):/.test(u) ? u : h.hassUrl ? h.hassUrl(u) : u;
+/** What Home Assistant is asked for when it makes speech. */
+export const speechBody = (text: string, e: Engine): Record<string, unknown> => ({ engine_id: e.tts, message: text, cache: true, ...(e.language ? { language: e.language } : {}), ...(e.voice ? { options: { voice: e.voice } } : {}) });
+/**
+ * The address of `text` spoken in the house voice (or in `e`), or '' when there is no such voice, today's allowance
+ * is used up, or Home Assistant does not answer in time. `url` is for this screen; `abs` is the full address a speaker can fetch.
+ */
+export async function voiceUrl(text: string, e: Engine | null = cfg, ms = 8000): Promise<{ url: string; abs: string }> {
+  const h = hassOf(), none = { url: '', abs: '' };
+  if (!e?.tts || !h?.callApi || !text.trim() || !voiceAllowed(text, e)) return none;
+  try {
+    const r = await within(Promise.resolve(h.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', speechBody(text, e))), ms);
+    const url = r?.path ?? r?.url;
+    if (!url) return none;
+    return { url: full(h, String(url)), abs: String(r?.url ?? full(h, String(url))) };
+  } catch { return none; }
+}
+/**
+ * For a speaker, which cannot tell us that the sound never came: make the speech and fetch it here first. Only a sound
+ * that really arrived is counted and handed on; anything else (no credit left, the engine down) returns '' so the caller
+ * can use the built-in voice instead.
+ */
+export async function voiceReady(text: string, e: Engine | null = cfg, ms = 9000): Promise<string> {
+  const u = await voiceUrl(text, e, ms);
+  if (!u.url) return '';
+  try {
+    const r = await within(fetch(u.url), ms);
+    if (!r.ok || !(await within(r.blob(), ms)).size) return '';
+    voiceSpent(text, e);
+    return u.abs;
+  } catch { return ''; }
+}
+
+/* ---------------- recorded lines ---------------- */
+/** The media id of a recorded line, or '' when no recordings are set. */
+export const lineFile = (line: Line): string => cfg?.files && cfg.files.includes('{line}') ? cfg.files.replace('{line}', line) : '';
+const fileSeen = new Map<string, { at: number; ok: boolean }>();
+/** The recorded line's media id if the file is really there (asked of Home Assistant, remembered for ten minutes), otherwise ''. */
+export async function lineReady(line: Line): Promise<string> {
+  const id = lineFile(line), h = hassOf();
+  if (!id || !h?.callWS) return '';
+  const was = fileSeen.get(id);
+  if (was && Date.now() - was.at < 600_000) return was.ok ? id : '';
+  let ok = false;
+  try {
+    const r = await within(h.callWS<{ url?: string }>({ type: 'media_source/resolve_media', media_content_id: id }), 6000);
+    // Home Assistant gives an address for a file that is not there, and answers HEAD with 200 for it (seen on the real system, 14 Nov 2026):
+    // only asking for the first few bytes tells a real recording from a missing one
+    if (r?.url) { const res = await within(fetch(full(h, r.url), { headers: { Range: 'bytes=0-15' } }), 6000); ok = res.ok && (await within(res.blob(), 6000)).size > 0; }
+  } catch { ok = false; }
+  fileSeen.set(id, { at: Date.now(), ok });
+  return ok ? id : '';
+}
+/** Forget what is known about the recordings (after a settings change, and in tests). */
+export const forgetLines = (): void => fileSeen.clear();

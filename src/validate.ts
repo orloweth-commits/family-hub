@@ -42,5 +42,12 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
     if (art.presence !== undefined && !['none', 'sensor', 'camera'].includes(String(art.presence))) return 'Family Hub: art.presence should be none, sensor or camera';
     for (const k of ['presence_entity', 'backlight', 'list', 'painter']) if (art[k] !== undefined && !/^[a-z_]+\.[a-z0-9_]+$/.test(String(art[k]))) return `Family Hub: art.${k} should be an entity id, e.g. binary_sensor.kitchen_presence`;
   }
+  const voice = (config as { voice?: Record<string, unknown> }).voice;
+  if (voice !== undefined) {
+    if (!voice || typeof voice !== 'object' || Array.isArray(voice) || !/^tts\.[a-z0-9_]+$/.test(String(voice.tts ?? ''))) return 'Family Hub: voice needs a text-to-speech entity, e.g. voice: { tts: tts.home_assistant_cloud }';
+    if (voice.daily_chars !== undefined && !(typeof voice.daily_chars === 'number' && Number.isFinite(voice.daily_chars) && voice.daily_chars >= 0)) return 'Family Hub: voice.daily_chars should be a number of characters a day, 0 or more';
+    if (voice.count !== undefined && !/^input_number\.[a-z0-9_]+$/.test(String(voice.count))) return 'Family Hub: voice.count should be an input_number, e.g. input_number.fh_voice_chars';
+    if (voice.files !== undefined && !String(voice.files).includes('{line}')) return 'Family Hub: voice.files should be a media id with {line} in it, e.g. media-source://media_source/local/line-{line}.mp3';
+  }
   return null;
 };

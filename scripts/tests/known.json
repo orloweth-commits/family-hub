@@ -1,0 +1,5 @@
+[
+  { "name": "click-base R6-G3 reads a colour mid-transition (backlog 32)", "suite": "click-base", "match": "R6-G3" },
+  { "name": "click-music D12 expects calm to follow a child into Music (backlog 21, 30)", "suite": "click-music", "match": "D12 " },
+  { "name": "buttons: the empty grocery list, when another suite runs beside it (backlog 39)", "suite": "buttons", "match": "empty grocery list is an empty basket" }
+]

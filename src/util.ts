@@ -132,15 +132,18 @@ export const afterBedtime = (kids: { bedtime?: string }[] = [], quiet: { start?:
 
 /* ---------------- sound: the palettes live in sound.ts; this keeps the old imports working ---------------- */
 import { isMuted } from './sound';
+import { houseVoice, voiceAllowed, voiceSpent, voiceUrl } from './voice';
 export { sfx, sfxAsked, setVolume, setMuted, setSounds, setSoundLook, setSoundTheme, type Sfx } from './sound';
 
-/* ---------------- speech: on-device, Australian English where available ---------------- */
+/* ---------------- speech: the house voice when one is set (voice.ts), otherwise the screen's own, Australian English where available ---------------- */
 let voice: SpeechSynthesisVoice | null | undefined;
 /** `by` is the read-aloud button that was pressed: it shows that it is speaking (data-speaking) until the words end or something else is read. */
 let speaker: Element | null = null;
-export const say = (text: string, by?: Element | null): void => {
-  speaker?.removeAttribute('data-speaking'); speaker = null;
-  if (isMuted() || !('speechSynthesis' in window)) return;
+let saying = 0, sound: HTMLAudioElement | null = null;
+const stopSound = (): void => { try { sound?.pause(); } catch { /* not playing */ } sound = null; };
+/** The screen's own voice: what everything falls back to. */
+const sayOwn = (text: string, by?: Element | null): void => {
+  if (!('speechSynthesis' in window)) { if (speaker === by) { by?.removeAttribute('data-speaking'); speaker = null; } return; }
   try {
     if (voice === undefined) {
       const vs = speechSynthesis.getVoices();
@@ -155,9 +158,34 @@ export const say = (text: string, by?: Element | null): void => {
     speechSynthesis.speak(u);
   } catch { /* speech unavailable */ }
 };
+/**
+ * Says something aloud on this screen. With a house voice set it is spoken in that voice, through Home Assistant; if that
+ * voice is over its daily allowance, slow or failing, the screen's own voice says it instead, so nothing is ever left unsaid.
+ */
+export const say = (text: string, by?: Element | null): void => {
+  speaker?.removeAttribute('data-speaking'); speaker = null;
+  const n = ++saying; stopSound();
+  if (isMuted()) return;
+  if (!houseVoice() || !voiceAllowed(text)) { sayOwn(text, by); return; }
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ }
+  if (by) { speaker = by; by.setAttribute('data-speaking', ''); }
+  const end = (): void => { if (by && speaker === by) { by.removeAttribute('data-speaking'); speaker = null; } };
+  const own = (): void => { if (n !== saying) return; sound = null; sayOwn(text, by); };
+  void voiceUrl(text, houseVoice(), 6000).then((u) => {
+    if (n !== saying) return;
+    if (!u.url) { own(); return; }
+    try {
+      const a = new Audio(u.url); sound = a;
+      a.addEventListener('playing', () => voiceSpent(text), { once: true });
+      a.addEventListener('ended', () => { if (sound === a) { sound = null; end(); } });
+      a.addEventListener('error', () => { if (sound === a) own(); });
+      a.play().catch(() => { if (sound === a) own(); });
+    } catch { own(); }
+  });
+};
 
 /** Stops whatever `say` is reading out. */
-export const hush = (): void => { speaker?.removeAttribute('data-speaking'); speaker = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
+export const hush = (): void => { saying++; stopSound(); speaker?.removeAttribute('data-speaking'); speaker = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch { /* speech unavailable */ } };
 
 /** Read a JSON panel message from input_text.fh_panel_message. */
 export interface PanelMsg { t: string; ttl?: number; ts?: number; alarm?: number; parent?: number }
@@ -183,7 +211,7 @@ export interface KidPrefs {
 }
 const prefKey = (name: string): string => `family-hub-kid-${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
 export const kidPrefs = (k: { name: string; mode?: string; look_id?: string; font?: 'print' | 'hand'; calm?: boolean; sound_level?: 'full' | 'soft' | 'off'; focus?: boolean }): KidPrefs => {
-  const base: KidPrefs = { look: k.look_id ?? 'panel', font: k.font ?? 'print', calm: k.calm ?? true, sound: k.sound_level ?? 'full', focus: k.focus ?? true };
+  const base: KidPrefs = { look: k.look_id ?? 'panel', font: k.font ?? 'print', calm: k.calm ?? false, sound: k.sound_level ?? 'full', focus: k.focus ?? true };
   try { return { ...base, ...(JSON.parse(localStorage.getItem(prefKey(k.name)) || '{}') as Partial<KidPrefs>) }; } catch { return base; }
 };
 export const saveKidPrefs = (name: string, patch: Partial<KidPrefs>): void => {

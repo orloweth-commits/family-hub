@@ -81,7 +81,7 @@ ok('PIN: the medicine switch is on', await S(page).getByRole('switch', { name: '
 ok('PIN: Ask after bedtime switch is there', await S(page).getByRole('switch', { name: 'PIN for Ask after bedtime' }).count() === 1);
 ok('PIN: the PIN itself is never shown', !(await S(page).locator('.sheet').innerText()).includes('1234') && (await S(page).locator('input[type="password"]').count()) === 3);
 await go(page, 'house');
-ok('House: bin day', (await S(page).getByRole('group', { name: 'Collection day' }).locator('[aria-pressed="true"]').innerText()).trim() === 'Mon');
+ok('House: bin day', (await S(page).getByRole('group', { name: 'Night the bins go out' }).locator('[aria-pressed="true"]').innerText()).trim() === 'Mon');
 ok('House: night screen is off (none set)', await S(page).getByRole('switch', { name: 'Night screen' }).getAttribute('aria-checked') === 'false');
 await go(page, 'music');
 ok('Music: starter moments shown', (await S(page).locator('[data-moment] .sname').allInnerTexts()).join() === 'Dinner,Dance,Tidy-up,Wind down');
@@ -211,7 +211,7 @@ await S(page).locator('.spick [data-e="light.patio"]').click(); await S(page).ge
 await save(page);
 ok('keep_on saved', await cfg(page, '(c) => (c.keep_on || []).join()') === 'light.patio,switch.sonos_night_sound');
 await S(page).getByRole('group', { name: 'Look' }).getByRole('button', { name: /Orbit/i }).click(); await S(page).getByRole('group', { name: 'Touch sounds' }).getByRole('button', { name: 'Soft' }).click(); await S(page).getByRole('switch', { name: 'Life behind the page' }).click();
-await S(page).getByRole('group', { name: 'Collection day' }).getByRole('button', { name: 'Thu' }).click();
+await S(page).getByRole('group', { name: 'Night the bins go out' }).getByRole('button', { name: 'Thu' }).click();
 await save(page);
 ok('look, sounds, ambient and bin day saved', await cfg(page, '(c) => `${c.look} ${c.sounds} ${c.ambient} ${c.bins.day}`') === 'orbit quiet false 4');
 ok('this screen follows the new look at once', await page.evaluate(() => document.querySelector('family-hub-card')._look) === 'orbit' && await S(page).getAttribute('data-look') === 'orbit');

@@ -78,7 +78,7 @@ export interface KidConfig {
   look_id?: LookId;
   /** print (default) or hand, where the look offers handwriting */
   font?: 'print' | 'hand';
-  /** calm mode on his page (default true) */
+  /** calm mode on his page: no looping motion and nothing travels (default false: his page is animated until calm is chosen, here or in his own settings) */
   calm?: boolean;
   /** interface sounds on his page: full (default) | soft | off */
   sound_level?: 'full' | 'soft' | 'off';
@@ -116,7 +116,7 @@ export interface FamilyHubConfig {
   type: string;
   family_name?: string;
   theme?: ThemeId;
-  /** calm mode (no looping motion, no tilt): true = everywhere, false = never; default is on for the kids' pages only */
+  /** calm mode (no looping motion, no tilt): true = everywhere. Otherwise each child's page follows his own choice (animated unless he, or a grown-up, has chosen calm) and the shared pages move */
   calm?: boolean;
   /** whole design language: glass (default), fridge, orbit or sports (Home Ground); the panel's palette button changes it */
   look?: LookId;
@@ -170,7 +170,7 @@ export interface FamilyHubConfig {
   med_log?: string;
   /** the medicines offered when logging something else; Paracetamol and Ibuprofen unless set */
   med_extras?: string[];
-  /** bin night: `day` 0 (Sunday) to 6, bins that go out every week, bins that take turns, and a date on which the first of `alternate` went out */
+  /** bin night: `day` is the NIGHT the bins go out, 0 (Sunday) to 6, which is the evening before the truck comes (a Tuesday-morning collection is `day: 1`, Monday); bins that go out every week, bins that take turns, and a date on which the first of `alternate` went out */
   bins?: { day: number; always?: string[]; alternate?: string[]; anchor?: string };
   /** grown-ups who can give meds / approve */
   parents?: string[];
@@ -200,6 +200,8 @@ export interface FamilyHubConfig {
   art?: import('./artlib').ArtConfig;
   /** trust guards: calendar freshness, the wall panel's heartbeat, the nightly snapshot and the private use counts (trust.ts) */
   health?: import('./trust').HealthConfig;
+  /** the house voice: one Home Assistant text-to-speech engine and voice for everything said aloud (read-aloud on the children's pages, Ask unless `chat.tts` says otherwise, Call a room, the dinner call). `files` is where the recorded fixed lines live, a media id with {line} in it; `daily_chars` caps the new characters a day (default 1500); `count` is an input_number holding today's count, shared by every screen. See voice.ts */
+  voice?: import('./voice').VoiceConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */
