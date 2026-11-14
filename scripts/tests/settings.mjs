@@ -52,7 +52,7 @@ ok('what is behind Settings is out of reach', await page.evaluate(() => document
 { for (let i = 0; i < 60; i++) await page.keyboard.press('Tab'); ok('Tab stays inside Settings', await page.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot; return c.activeElement?.localName === 'fh-settings'; })); }
 await page.keyboard.press('Escape'); await page.waitForTimeout(400);
 ok('Escape closes Settings when nothing is unsaved', await S(page).count() === 0);
-ok('focus goes back to the info button', await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.activeElement?.getAttribute('data-act')) === 'info');
+ok('focus goes back to the More button in the header, where the way in began (since 0.33.0)', await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.activeElement?.getAttribute('data-act')) === 'more', await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.activeElement?.getAttribute('data-act') ?? 'nothing'));
 await page.locator('family-hub-card header [data-act="more"]').click(); await page.waitForTimeout(350); await page.locator('family-hub-card .sheet [data-act="info"]').click(); await page.waitForTimeout(300); await cog.click(); await page.waitForTimeout(400);
 ok('inside the PIN window Settings opens without asking', await page.locator('fh-pin').count() === 0 && await S(page).count() === 1);
 await S(page).getByRole('button', { name: 'Close settings' }).click(); await page.waitForTimeout(400);
