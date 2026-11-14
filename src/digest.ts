@@ -69,7 +69,8 @@ const messageTemplate = (cfg: FamilyHubConfig, owedEntity: string): string => {
   );
   if (h.heartbeat) T.push(
     `{%- set hb = state_attr(${j(h.heartbeat)}, 'timestamp') | float(0) -%}`,
-    `{%- if hb > 0 and now().timestamp() - hb > ${Math.max(10, h.heartbeat_minutes ?? 20) * 60} -%}${say(`'Check: the wall panel hasn’t checked in since ' ~ ('' if (hb | timestamp_custom('%Y-%m-%d')) == today else ((hb | timestamp_custom('%A')) ~ ' at ')) ~ (hb | timestamp_custom('%-I:%M %p') | lower) ~ '.'`)}{%- endif -%}`
+    // (a helper no screen has ever stamped reads as midnight today: no wall panel has been named yet, which is not a panel that has stopped)
+    `{%- if hb > 0 and (hb | timestamp_custom('%H:%M:%S')) != '00:00:00' and now().timestamp() - hb > ${Math.max(10, h.heartbeat_minutes ?? 20) * 60} -%}${say(`'Check: the wall panel hasn’t checked in since ' ~ ('' if (hb | timestamp_custom('%Y-%m-%d')) == today else ((hb | timestamp_custom('%A')) ~ ' at ')) ~ (hb | timestamp_custom('%-I:%M %p') | lower) ~ '.'`)}{%- endif -%}`
   );
   // tomorrow's events: each calendar's own word filter, the same event in two calendars once, private ones without their words
   T.push(

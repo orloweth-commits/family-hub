@@ -85,7 +85,7 @@ const scenarios = [
   { name: 'busy', now: '2026-11-11T19:30:00+08:00', states: { ...calStates, 'input_datetime.fh_panel_seen': st('x', { timestamp: ts('2026-11-09T08:00:00+08:00') }) },
     responses: { cal: { 'calendar.family': { events: Array.from({ length: 11 }, (_, i) => ev(`Thing ${String.fromCharCode(65 + i)}`, `2026-11-12T${String(8 + i).padStart(2, '0')}:00:00+08:00`)) } }, owed: { [OWED]: { items: Array.from({ length: 6 }, (_, i) => ({ summary: `Riley: reward ${i + 1}` })) } } } },
   { name: 'unread', now: '2026-11-10T19:30:00+08:00', states: { ...calStates }, responses: { cal: null, owed: null, had: null } },
-  { name: 'holiday', now: '2026-11-17T19:30:00+08:00', states: { ...calStates }, responses: { cal: { 'calendar.family': { events: [] } } } },
+  { name: 'holiday', now: '2026-11-17T19:30:00+08:00', states: { ...calStates, 'input_datetime.fh_panel_seen': st('2026-11-17 00:00:00', { timestamp: ts('2026-11-17T00:00:00+08:00') }) }, responses: { cal: { 'calendar.family': { events: [] } } } },
   { name: 'out-of-term', now: '2026-12-14T19:30:00+08:00', states: { ...calStates }, responses: { cal: { 'calendar.family': { events: [] } } } },
   { name: 'together', now: '2026-11-11T19:30:00+08:00', states: { ...calStates }, responses: { cal: { 'calendar.family': { events: [ev('Charlie excursion', '2026-11-12T10:30:00+08:00')] } } }, automation: built.same },
   { name: 'bare', now: '2026-11-10T19:30:00+08:00', states: {}, responses: {}, automation: built.bare }
@@ -125,6 +125,7 @@ else {
   ok('a full day is cut at eight events with a count of the rest', busy.filter((l) => /Thing/.test(l)).length === 8 && busy.includes('+3 more'), busy.filter((l) => /more/.test(l)));
   ok('a long ledger is cut at four', busy.includes('Rewards waiting: Riley: reward 1; Riley: reward 2; Riley: reward 3; Riley: reward 4 (+2 more).'));
   ok('a panel last seen on another day is given its day', busy.includes('Check: the wall panel hasn’t checked in since Monday at 8:00 am.'), busy.find((l) => /wall panel/.test(l)));
+  ok('a heartbeat no screen has ever stamped (it reads as midnight today) is not a panel that has stopped', !has('holiday', /wall panel/), L('holiday'));
   ok('calendars that could not be read at all are said so, not shown as an empty day', L('unread')[0] === 'Check: the calendars could not be read tonight.' && !has('unread', /Nothing in the calendars/), L('unread'));
   ok('no leaving times before a public holiday or out of term', !has('holiday', /leave/i) && !has('out-of-term', /leave/i) && has('holiday', /^Nothing in the calendars\.$/), [L('holiday'), L('out-of-term')]);
   ok('everyone leaving together is one plain line', L('together').includes('Everyone leaves by 7:50 am.') && !has('together', /^Bins|^Medicine/), L('together'));

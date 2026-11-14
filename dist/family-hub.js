@@ -14506,7 +14506,8 @@ const nc = 10 * 6e4, W2 = (a, t) => {
     `{%- elif CALS and not read -%}${c("'Check: the calendars could not be read tonight.'")}{%- endif -%}`
   ), r.heartbeat && l.push(
     `{%- set hb = state_attr(${Ut(r.heartbeat)}, 'timestamp') | float(0) -%}`,
-    `{%- if hb > 0 and now().timestamp() - hb > ${Math.max(10, r.heartbeat_minutes ?? 20) * 60} -%}${c("'Check: the wall panel hasn’t checked in since ' ~ ('' if (hb | timestamp_custom('%Y-%m-%d')) == today else ((hb | timestamp_custom('%A')) ~ ' at ')) ~ (hb | timestamp_custom('%-I:%M %p') | lower) ~ '.'")}{%- endif -%}`
+    // (a helper no screen has ever stamped reads as midnight today: no wall panel has been named yet, which is not a panel that has stopped)
+    `{%- if hb > 0 and (hb | timestamp_custom('%H:%M:%S')) != '00:00:00' and now().timestamp() - hb > ${Math.max(10, r.heartbeat_minutes ?? 20) * 60} -%}${c("'Check: the wall panel hasn’t checked in since ' ~ ('' if (hb | timestamp_custom('%Y-%m-%d')) == today else ((hb | timestamp_custom('%A')) ~ ' at ')) ~ (hb | timestamp_custom('%-I:%M %p') | lower) ~ '.'")}{%- endif -%}`
   ), l.push(
     "{%- for c in CALS -%}{%- for e in (cal[c.e].events if (read and c.e in cal) else []) -%}",
     "{%- set t = (e.summary | default('', true) | string | trim) -%}{%- set tl = t | lower -%}{%- set s = e.start | string -%}{%- set key = tl ~ '|' ~ s -%}",
@@ -16748,7 +16749,7 @@ const Kb = (a, t) => {
 `, Ab = p`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, m0 = "0.35.0", kc = "family-hub-theme", vc = "family-hub-sounds", yc = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, m0 = "0.35.1", kc = "family-hub-theme", vc = "family-hub-sounds", yc = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
