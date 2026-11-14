@@ -8038,7 +8038,8 @@ const mo = "family_hub_approve", Yo = "todo.family_hub_asks", Tn = "ask ", Yh = 
   }
 }, ru = async (a, t, e, i) => (await a.callService("todo", "add_item", { item: `${e.who}: ${e.name}`, description: ou(e) }, { entity_id: t.list ?? Yo }), (await Promise.allSettled((t.notify ?? []).filter((o) => Yh.test(o)).map((o) => a.callService("notify", o.slice(7), {
   title: `${e.who} would like a reward`,
-  message: `${e.name}, for ${e.cost} points. ${e.who} has ${Math.round(i)}.`,
+  message: `${e.name}, for ${e.cost} points. ${e.who} has ${Math.round(i)}. Press and hold for Approve or Not yet.`,
+  // (an iPhone hides a notice's buttons until it is held)
   data: { tag: `fh-ask-${e.id}`, group: "family-hub", actions: [{ action: `FH_OK_${e.id}`, title: "Approve" }, { action: `FH_NO_${e.id}`, title: "Not yet" }] }
 })))).filter((o) => o.status === "fulfilled").length), Sr = (a) => JSON.stringify(a), Aa = (a, t = "todo.rewards_owed") => {
   if (!a || !ls(a)) return null;
@@ -16945,7 +16946,7 @@ const Cb = (a, t) => {
 `, Qb = p`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, S0 = "0.35.3", Rc = "family-hub-theme", $c = "family-hub-sounds", Vc = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, S0 = "0.35.4", Rc = "family-hub-theme", $c = "family-hub-sounds", Vc = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
