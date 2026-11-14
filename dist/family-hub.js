@@ -8140,7 +8140,7 @@ const hu = async (a, t, e) => {
   }
   /** Why a new look cannot be painted just now, in words for the child; empty when it can. */
   get _cannot() {
-    return !this.hass || !li(this.hass, this.art.painter) || !this.hass.states[this._list] || this._record === null ? "The painter isn’t set up yet. Ask a grown-up." : this._record === void 0 ? " " : Oh(this._record, this.art.cost ?? tt.cost).usd >= (this.art.cap ?? tt.cap) ? "The painter is having a rest until next month." : this._left <= 0 ? "That’s all the new looks for today. Come back tomorrow!" : "";
+    return !this.hass || !li(this.hass, this.art.painter) || !this.hass.states[this._list] || this._record === null ? "The painter isn’t set up yet. Ask a parent." : this._record === void 0 ? " " : Oh(this._record, this.art.cost ?? tt.cost).usd >= (this.art.cap ?? tt.cap) ? "The painter is having a rest until next month." : this._left <= 0 ? "That’s all the new looks for today. Come back tomorrow!" : "";
   }
   /** The day's limit as a rule of the game, always in view: "2 paints left today". Empty until the record has loaded, or with no painter. */
   get _paints() {
@@ -8723,7 +8723,7 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
   _told(t, e) {
     if (e === "ok") {
       const i = (this.kid.rewards ?? _r).find((s) => s.name === t.name);
-      i?.weekly && (Rd(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), i && (i.dj ?? /\bdj\b|dinner music/i.test(i.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && I(`Yes! ${t.name}!`), this._say(`A grown-up said yes: ${t.name}.`);
+      i?.weekly && (Rd(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), i && (i.dj ?? /\bdj\b|dinner music/i.test(i.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && I(`Yes! ${t.name}!`), this._say(`A parent said yes: ${t.name}.`);
     } else {
       this._sound("tap");
       const i = e === "no" ? `Not yet for ${t.name}. Your ${this._picMode ? "stars" : "points"} are safe.` : `Not enough ${this._picMode ? "stars" : "points"} for ${t.name} now. Nothing was spent.`;
@@ -8745,7 +8745,7 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
       const o = s ? "Asked! A parent will answer on their phone." : "It is on the list, but no phone took the message. Find a parent.";
       this._picMode && I(s ? `${t.name}. I have asked a parent.` : "Find a parent."), this._say(o);
     } catch (s) {
-      this._asked = this._asked.filter((o) => o.id !== i.id), this._say(s instanceof zt ? Rt : "That did not send. Try again, or find a grown-up.");
+      this._asked = this._asked.filter((o) => o.id !== i.id), this._say(s instanceof zt ? Rt : "That did not send. Try again, or find a parent.");
     } finally {
       this._asking = !1;
     }
@@ -8932,7 +8932,7 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
       return;
     }
     if (i && !e && Date.now() - (s[t.uid] ?? 0) > Mu) {
-      this.pin ? this._pinAsk = { reason: `Untick “${t.summary}”?`, run: () => this._toggle(t, !0) } : this._say("Need to change that? Ask a grown-up.");
+      this.pin ? this._pinAsk = { reason: `Untick “${t.summary}”?`, run: () => this._toggle(t, !0) } : this._say("Need to change that? Ask a parent.");
       return;
     }
     this._doToggle(t, i, s);
@@ -9056,8 +9056,8 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
         this._redeeming = !1;
       }, 1500);
     }
-    this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${s && !this.pin ? " · needs a grown-up OK" : ""}` }, { entity_id: this.owed }).catch(() => {
-    }), t.weekly && (Rd(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && I(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
+    this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${s && !this.pin ? " · needs a parent OK" : ""}` }, { entity_id: this.owed }).catch(() => {
+    }), t.weekly && (Rd(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && I(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A parent will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
   }
   _feelPick(t) {
     this._feel = t, this._sound("tap"), this._picMode && I(Cd[zd(t)]);
@@ -9258,10 +9258,10 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
       return o > 10 ? p`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${Ba(!0, 30)} ${o}</b>` : o ? p`<span class="starjar">${Array.from({ length: o }, () => Ba(!0, 24))}</span>` : Ba(!1, 28);
     })()}
         <span>${Math.floor(t / i)} stars in my jar</span></span></div>` : p`<div class="ptsline" role="group" aria-label=${t ? `${t} points to spend` : "No points to spend yet"}>${t ? p`<b>${t}</b><span>${t === 1 ? "point" : "points"} to spend</span>` : p`<span>${this.kid.older ? "No points to spend yet" : "✨ Ready to start"}</span>`}</div>`;
-    return p`${s}${this._owed.length ? p`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(", ")}</span></div>` : u}${this._asked.length ? p`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a grown-up: ${this._asked.map((o) => o.name).join(", ")}</span></div>` : u}${e.map((o, r) => {
+    return p`${s}${this._owed.length ? p`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(", ")}</span></div>` : u}${this._asked.length ? p`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.map((o) => o.name).join(", ")}</span></div>` : u}${e.map((o, r) => {
       const n = t >= o.cost, l = o.icon ?? (this._picMode ? Wd[r % Wd.length] : "🎁"), c = this._costWords(o), d = Math.max(1, Math.round(o.cost / i)), h = Math.min(d, Math.floor(t / i)), f = this._saving === o.name, g = this._held === o.name || f, m = this._capped(o), k = Fd(this._now), b = this._asked.some((x) => x.name === o.name);
-      return this._spend === o.name && n && !g && (o.approve ?? o.cost >= 60) && this._askOn ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" data-ask role="group" aria-label="Ask a grown-up for ${o.name}?">
-          <span class="rpic" aria-hidden="true">${l}</span><span class="q">Ask a grown-up?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name} · ${c}</span></span>
+      return this._spend === o.name && n && !g && (o.approve ?? o.cost >= 60) && this._askOn ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" data-ask role="group" aria-label="Ask a parent for ${o.name}?">
+          <span class="rpic" aria-hidden="true">${l}</span><span class="q">Ask a parent?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name} · ${c}</span></span>
           <button class="tap" data-act="ask-send" @click=${() => {
         this._heldAt = Date.now(), this._askFor(o);
       }}>${$s(18)}Ask</button>${this.pin ? p`<button class="tap save" data-act="ask-here" aria-label="A parent is here: use the PIN" @click=${() => {
@@ -9276,7 +9276,7 @@ const mo = "family_hub_approve", Go = "todo.family_hub_asks", zn = "ask ", Ih = 
         }, 600), this._redeem(o);
       }}>${f ? "Saving…" : p`${$s(18)}Yes`}</button><button class="tap save" ?disabled=${g} @click=${() => {
         this._spend = "", this._sound("tap");
-      }}>${jd}Not now</button></div>` : p`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${m} aria-label="${o.name}: ${b ? "asked, waiting for a grown-up" : m ? `had this week. Back on ${k}` : n ? `spend ${c}` : this._picMode ? `${h} of ${d} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
+      }}>${jd}Not now</button></div>` : p`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${m} aria-label="${o.name}: ${b ? "asked, waiting for a parent" : m ? `had this week. Back on ${k}` : n ? `spend ${c}` : this._picMode ? `${h} of ${d} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
           <span class="rpic" aria-hidden="true">${l}</span>
           <span class="n">${o.name}${this._picMode ? p`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${d > 12 ? p`${Ba(n, 20)}<b style="font-size:var(--fs-2);line-height:20px;margin-left:4px">${h} / ${d}</b>` : Array.from({ length: d }, (x, y) => Ba(y < h, 18))}</span>` : u}</span>
           ${b ? p`<span class="cost notyet" data-asked style="margin-left:auto">⏳ Asked</span>` : m ? p`<span class="cost notyet" style="margin-left:auto">Back ${k}</span>` : this._picMode ? u : p`<span class="cost ${n ? "" : "notyet"}" style="margin-left:auto">${n ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
@@ -9804,7 +9804,7 @@ const Ru = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
           ${e.length ? p`<span class="muted" style="font-size:var(--fs-2)">${n ? `${n} light${n > 1 ? "s" : ""} on` : "All lights off"} · ${e.length} room${e.length === 1 ? "" : "s"}${l ? ` · ${l} not responding` : ""}</span>` : u}</div>
-          ${c > 0 ? p`<div class="unl" role="group" aria-label="Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${It.unlocked}<span>Unlocked for grown-ups: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(c / 60)}:${String(c % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : u}</div>
+          ${c > 0 ? p`<div class="unl" role="group" aria-label="Unlocked for parents: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${It.unlocked}<span>Unlocked for parents: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(c / 60)}:${String(c % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : u}</div>
         ${e.length ? p`<div class="rgrid" data-fits>
           ${d.map((h) => p`<div class="rcol">${h.map((f) => {
       const g = f.ents.filter((k) => k.entity_id.startsWith("light.") && !Ga(k)), m = g.some((k) => this._on(k));
@@ -9834,7 +9834,7 @@ const Ru = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
       this._guard(() => {
         this._all = !0;
       });
-    }}>${this._all ? "Hide" : p`${It.locked}Grown-ups`}</button></div>
+    }}>${this._all ? "Hide" : p`${It.locked}Parents`}</button></div>
           <div class="alist">
             ${r.length ? r.map((h) => {
       const f = h.attributes.friendly_name ?? h.entity_id, g = h.state === "on";
@@ -14406,7 +14406,7 @@ const O2 = [
   ["🚀", "Tell me a space fact"],
   ["🎲", "Play a guessing game"],
   ["🌤️", "Why is the sky blue?"]
-], m0 = "Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.", fc = "That is all the Ask time for today. There is more tomorrow!", el = "fh-ask-used", mc = "fh-ask-told", g0 = () => {
+], m0 = "Answers come from an AI helper on the internet. It can be wrong. Ask a parent about anything important.", fc = "That is all the Ask time for today. There is more tomorrow!", el = "fh-ask-used", mc = "fh-ask-told", g0 = () => {
   const a = /* @__PURE__ */ new Date();
   return `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()}`;
 }, Ql = (a) => {
@@ -17470,7 +17470,7 @@ const Eb = (a, t) => {
 `, ex = p`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, N0 = "0.35.4", Tc = "family-hub-theme", zc = "family-hub-sounds", Wc = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, N0 = "0.35.5", Tc = "family-hub-theme", zc = "family-hub-sounds", Wc = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

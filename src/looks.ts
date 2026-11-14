@@ -22,7 +22,7 @@ import { getNarrow, getShape, onShape, setSoundLook } from './util';
  *     if a hook no longer exists in the base.
  *  5. Glass has a few hook rules of its own too (GLASS): the pane behind the clock, the chosen-card ring and tick,
  *     past events told by ink instead of fading. They are checked like the other two.
- *  5b. Obsidian (@B) is the grown-ups' look: black glass, hairlines and light. It has no hook rules beyond the contract.
+ *  5b. Obsidian (@B) is the parents' look: black glass, hairlines and light. It has no hook rules beyond the contract.
  *  6. A rule's tag may carry host state or a width limit: `@O[data-phone] .dock` (phones), `@O<700 .dayview` (under 700 px).
  *
  * State the base exposes on the root `.fh` for looks to react to:
