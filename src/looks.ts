@@ -275,7 +275,7 @@ export const LOOKS: LookDef[] = [
     art: { clock: (c) => wallClock(c.now ?? new Date()), timer: (c) => timerFace(c.frac ?? 0, c.size), night: (c) => wallClock(c.now ?? new Date(), c.size ?? 230),
       player: (c) => turntable(c.img, !!c.playing, c.size) },
     preview: () => html`<span class="lp-note"></span><span class="lp-note lp-today"><i></i></span><span class="lp-note"></span>`,
-    options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:21px;font-weight:700", hint: 'Print is easier to read from across the room.' }],
+    options: [{ id: 'hand', label: 'Writing on notes and lists', off: 'Print', on: 'Handwriting', onStyle: "font-family:'Caveat','Fredoka',sans-serif;font-size:var(--fs-4);font-weight:700", hint: 'Print is easier to read from across the room.' }],
     vars: {
       ...PEOPLE,
       '--ink': '#26272b', '--ink2': '#4c4a45', '--ink3': '#66625b', '--ground': '#e4eaec', '--paper': '#ffffff', '--note': '#fff6c4', '--note-today': '#ffe45c',
@@ -284,8 +284,8 @@ export const LOOKS: LookDef[] = [
       '--chip': 'rgba(38,39,43,.07)', '--chip-strong': 'var(--paper)', '--chip-soft': 'rgba(38,39,43,.045)', '--chip-faint': 'rgba(38,39,43,.02)', '--track': 'rgba(38,39,43,.16)',
       '--sel-bg': 'var(--ink)', '--sel-ink': 'var(--paper)', '--sel-ring': 'none', '--primary': '#24408e', '--on-primary': '#ffffff', '--primary-edge': '#162a63', '--accent': '#a85200', '--ok': '#17703d',
       '--timer': '#c62a22', '--timer-face': 'var(--paper)', '--timer-rim': 'var(--ink)',
-      '--t-hero': '46px', '--t-title': '42px', '--t-head': '30px', '--t-sub': '26px', '--w-title': '700', '--w-sub': '700', '--w-heavy': '700', '--w-bold': '600', '--w-semi': '500',
-      '--font-content': "'Fredoka', sans-serif", '--content-weight': '500', '--content-size': '17px', '--content-size-lg': '21px', '--content-ink': 'var(--ink)', '--bg': 'none'
+      '--t-hero': 'var(--fs-d1)', '--t-title': 'var(--fs-d1)', '--t-head': 'var(--fs-6)', '--t-sub': 'var(--fs-5)', '--w-title': '700', '--w-sub': '700', '--w-heavy': '700', '--w-bold': '600', '--w-semi': '500',
+      '--font-content': "'Fredoka', sans-serif", '--content-weight': '500', '--content-size': 'var(--fs-3)', '--content-size-lg': 'var(--fs-4)', '--content-ink': 'var(--ink)', '--bg': 'none'
     },
     evening: {
       '--ground': '#9d927b', '--paper': '#eadfc6', '--note': '#e3d39b', '--note-today': '#e7c651', '--rule': '#cbbe9f', '--margin': '#d6a391', '--magnet': '#e6dcc6',
@@ -445,12 +445,12 @@ const GLASS = `
   @G .field { min-width: 0; }
   @G .tcard { position: relative; }
   @G .tcard[aria-pressed='true'] { background: var(--chip); color: var(--ink); box-shadow: 0 0 0 3px var(--primary); }
-  @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: 17px; font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
+  @G .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -9px; right: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: var(--fs-3); font-weight: 800; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--chip-strong); }
 `;
 
 const FRIDGE = `
   /* materials: paper = content (pinned, slightly tilted) · magnet = navigation · plastic key = input · dashed = "add" */
-  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: 16px; background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
+  @F .fh { --pg-from: rotate(calc(.4deg * var(--m-d, 1))); font-family: 'Fredoka', 'Trebuchet MS', sans-serif; font-size: var(--fs-3); background: var(--ground) radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.5px) 0 0 / 14px 14px; transition: background-color var(--m-5, 900ms) ease, color var(--m-4, 400ms) ease; }
   @F .fh::before { display: none; }
   @F .fh:not([data-calm]):not([data-tod='night']) { animation: fjig 37s linear infinite; }
   @F .fh[data-opt-hand] { --font-content: 'Caveat', 'Fredoka', sans-serif; --content-weight: 700; --content-size: 24px; --content-size-lg: 27px; }
@@ -460,7 +460,7 @@ const FRIDGE = `
   @F .display { font-family: 'Fredoka', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   @F .glass { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 4px; box-shadow: var(--shadow); transition: background-color var(--m-5, 900ms) ease; }
   @F .glass.round { border-radius: 50%; }
-  @F .label { letter-spacing: .05em; font-size: 14px; }
+  @F .label { letter-spacing: .05em; font-size: var(--fs-2); }
   @F .pill, @F .round { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; }
   @F .pill.primary, @F .primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
   /* the lead action is a chunky plastic push-button; pressing any plastic button sends it down onto its edge */
@@ -487,14 +487,14 @@ const FRIDGE = `
   /* header */
   @F .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @F .clock .aclock { grid-row: 1 / span 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
-  @F .clock .hm { font-weight: 700; font-size: 50px; }
+  @F .clock .hm { font-weight: 700; font-size: var(--fs-d2); }
   @F .cap { background: var(--paper); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -1.2deg); font-weight: 600; }
   @F .cap.hot { background: var(--danger); color: #fff; animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @F .cap[data-warm] { background: #f5b301; color: #2a1a00; }
   @F .weather { border-radius: 4px; rotate: calc(var(--tilt, 1) * -1deg); }
   @F .presence { background: transparent; box-shadow: none; gap: 2px; padding: 0 4px; }
   @F .presence { gap: 10px; }
-  @F .presence .avatar { background: transparent; color: var(--c); font-weight: 700; font-size: 34px; width: auto; min-width: 26px; height: 44px; border-radius: 0; letter-spacing: -.04em; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
+  @F .presence .avatar { background: transparent; color: var(--c); font-weight: 700; font-size: var(--fs-6); width: auto; min-width: 26px; height: 44px; border-radius: 0; letter-spacing: -.04em; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
   @F .presence .avatar.away { color: transparent; -webkit-text-stroke: 2px var(--c); opacity: 1; rotate: 14deg; text-shadow: none; }
   @F .right > button.round { background: var(--magnet); color: var(--ink); box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .right > button.round[data-act='night'] { background: #33363b; color: #ffd75a; }
@@ -503,9 +503,9 @@ const FRIDGE = `
   @F .planner { background: transparent; box-shadow: none; padding: 4px 0 0; animation: none; }
   @F .planner h1 { background: linear-gradient(transparent 62%, var(--note-today) 62%, var(--note-today) 92%, transparent 92%); align-self: flex-start; padding: 0 6px 0 2px; }
   @F .seg { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); border-radius: 26px; padding: 4px; }
-  @F .seg button { border-radius: 22px; color: var(--ink); font-size: 16px; font-weight: 500; }
+  @F .seg button { border-radius: 22px; color: var(--ink); font-size: var(--fs-3); font-weight: 500; }
   @F .seg button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
-  @F .legend { font-size: 15px; font-weight: 500; }
+  @F .legend { font-size: var(--fs-2); font-weight: 500; }
   @F .week { gap: 10px; padding: 4px 4px 8px; }
   @F .col { position: relative; border-radius: 2px; padding: 24px 8px 8px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); rotate: calc(var(--tilt, 1) * -.7deg); transition: background-color var(--m-5, 900ms) ease; }
   @F .col:nth-child(even) { rotate: calc(var(--tilt, 1) * .8deg); }
@@ -516,9 +516,9 @@ const FRIDGE = `
   @F .num { font-weight: 700; }
   @F .today .num { background: var(--ink); color: var(--note-today); }
   @F .ev { background: transparent; border-left: 5px solid var(--c); border-radius: 0; padding: 1px 2px 3px 8px; gap: 1px; }
-  @F .ev .t { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  @F .ev .t { font-size: var(--fs-2); font-weight: 600; font-variant-numeric: tabular-nums; }
   @F .ev .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size); line-height: 1.12; color: var(--content-ink); hyphens: none; -webkit-line-clamp: 4; } @F .col[data-tight] .ev .content { -webkit-line-clamp: 2; }
-  @F .ev .w { font-size: 14px; font-weight: 500; }
+  @F .ev .w { font-size: var(--fs-2); font-weight: 500; }
   @F .ev.next { box-shadow: none; }
   /* what is over is written in pencil: paler ink and a paler stripe, never a faded note */
   @F .ev.past, @F .dayrow.past { opacity: 1; border-left-color: color-mix(in srgb, var(--c) 45%, transparent); }
@@ -547,15 +547,15 @@ const FRIDGE = `
   @F .playing .art { animation: fhSpin 4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @F .timerrow { align-items: center; }
   @F .timerrow.on .hint { display: none; }
-  @F .quick { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; min-height: 44px; font-size: 16px; font-weight: 500; }
-  @F .rem { font-weight: 500; font-size: 16px; line-height: 1.15; }
+  @F .quick { background: transparent; border: 2px dashed var(--ink); border-radius: 22px; min-height: 44px; font-size: var(--fs-3); font-weight: 500; }
+  @F .rem { font-weight: 500; font-size: var(--fs-3); line-height: 1.15; }
   @F .rem .check { width: 20px; height: 20px; border-width: 2px; }
   @F .meter { border: 2px solid var(--ink); background: var(--paper); height: 12px; border-radius: 8px; }
   @F .meter > div { background: #f5b301; border-radius: 0; }
 
   /* dock: a row of fridge magnets */
   @F .dock { background: transparent; box-shadow: none; gap: 8px; padding: 0; animation: none; }
-  @F .dock .item { font-weight: 600; font-size: 15px; height: 80px; gap: 7px; border-radius: 0; }
+  @F .dock .item { font-weight: 600; font-size: var(--fs-2); height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item svg.i { padding: 8px; background: var(--bt, var(--magnet)); }
   @F .dock .item[data-nav='lights-on'] svg.i { background: #fff3c4; }
@@ -569,25 +569,25 @@ const FRIDGE = `
   @F .dock .sep { background: transparent; margin: 0 2px; }
   /* a portrait tablet with all thirteen magnets (the morning): smaller words and tighter gaps, so the row fits and no two labels touch */
   @F[data-n3] .dock { gap: 4px; }
-  @F[data-n3] .dock .item { font-size: 14px; }
+  @F[data-n3] .dock .item { font-size: var(--fs-2); }
   @F .tcard { position: relative; border-radius: 4px; background: var(--paper); box-shadow: 0 3px 5px rgba(0,0,0,.14); }
   /* the chosen look: a ring and a tick, never a fill */
   @F .tcard[aria-pressed='true'] { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 3px var(--ink), 0 5px 8px rgba(0,0,0,.2); }
-  @F .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--paper); }
+  @F .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: var(--fs-3); font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px var(--paper); }
 
   /* lists: lined paper, a tick box you could draw, print by default */
   @F .row { background: transparent; border-radius: 0; border-bottom: 1.5px solid var(--rule); min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
   @F .check { width: 32px; height: 32px; border-radius: 5px 9px 6px 10px; border: 2.5px solid var(--ink); background: var(--paper); }
-  @F .done .check { background: var(--paper); border-color: var(--ink); color: var(--ok); transform: none; font-size: 34px; font-weight: 700; overflow: visible; }
+  @F .done .check { background: var(--paper); border-color: var(--ink); color: var(--ok); transform: none; font-size: var(--fs-6); font-weight: 700; overflow: visible; }
   @F .done .check svg { width: 28px; height: 28px; stroke-width: 4; }
   @F .row .content { font-family: var(--font-content); font-weight: var(--content-weight); font-size: var(--content-size-lg); line-height: 1.1; }
   @F .row.now { background: transparent; }
   @F .row.now .content { text-decoration: underline var(--note-today); text-decoration-thickness: .5em; text-underline-offset: -.34em; text-decoration-skip-ink: none; }
   @F .big .check { width: 48px; height: 48px; }
-  @F .big.done .check { font-size: 50px; }
-  @F .row.big .content { font-size: 30px; }
+  @F .big.done .check { font-size: var(--fs-d2); }
+  @F .row.big .content { font-size: var(--fs-6); }
   @F .row.big { background: var(--note); padding-left: 12px; }
-  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: 28px; padding: 0 6px; min-width: 0; }
+  @F .field { background: transparent; box-shadow: none; border-bottom: 3px dashed var(--ink); border-radius: 0; font-weight: 600; font-size: var(--fs-5); padding: 0 6px; min-width: 0; }
   /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
   @F .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @F .key { font-weight: 600; background: #f7f4ec; color: #26272b; border-radius: 8px 8px 14px 14px; box-shadow: 0 4px 0 #b9b2a2, 0 6px 6px rgba(0,0,0,.2); }
@@ -597,17 +597,17 @@ const FRIDGE = `
   /* kid page */
   @F .hero { overflow: visible; rotate: calc(var(--tilt, 1) * -.6deg); }
   @F .hero::before { inset: -10px auto auto 50%; width: 96px; height: 24px; margin-left: -48px; background: color-mix(in srgb, var(--kid) 50%, #fff); opacity: .85; transform: rotate(-3deg); }
-  @F .name { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 46px; color: color-mix(in srgb, var(--kid) 72%, #000); }
+  @F .name { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-d1); color: color-mix(in srgb, var(--kid) 72%, #000); }
   @F .rank { font-weight: 600; background: color-mix(in srgb, var(--kid) 72%, #000); }
   @F .stat { background: var(--chip-soft); border-radius: 8px; }
   @F .stat b { font-family: 'Fredoka', sans-serif; font-weight: 700; }
-  @F .stat span { font-weight: 500; font-size: 14px; }
+  @F .stat span { font-weight: 500; font-size: var(--fs-2); }
   @F .dots i.g { background: #f5b301; border-color: #8a5f00; }
   @F .nextup { background: var(--chip-soft); border-radius: 8px; }
   /* the red margin runs down the edge of the page, clear of every word */
   @F .jobs { background: linear-gradient(90deg, transparent 0 8px, var(--margin) 8px 10px, transparent 10px) 0 0 / 100% 100% no-repeat, var(--glass); }
-  @F .sec h2 { font-size: 30px; line-height: 1; padding: 0 4px; }
-  @F .sec span { font-weight: 500; font-size: 14px; }
+  @F .sec h2 { font-size: var(--fs-6); line-height: 1; padding: 0 4px; }
+  @F .sec span { font-weight: 500; font-size: var(--fs-2); }
   @F .plus { font-weight: 600; }
   @F .play { box-shadow: 0 3px 0 var(--primary-edge); }
   @F .later { background: var(--chip-soft); border-radius: 8px; font-weight: 500; }
@@ -615,24 +615,24 @@ const FRIDGE = `
   @F .side > .card { rotate: calc(var(--tilt, 1) * .6deg); }
   @F .tabs { background: transparent; border-radius: 0; padding: 0; }
   @F .rw { background: var(--chip-soft); color: var(--ink); border-radius: 8px; }
-  @F .rw .n { font-weight: 500; font-size: 16px; }
+  @F .rw .n { font-weight: 500; font-size: var(--fs-3); }
   @F .rw button { font-weight: 600; background: #f5b301; color: #26272b; box-shadow: 0 3px 0 #a87400; }
   @F .rw button.save { background: var(--chip); color: var(--ink2); box-shadow: none; }
   @F .pic { border-radius: 3px; background: var(--paper); box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -1deg); }
   @F .pic:nth-child(even) { rotate: calc(var(--tilt, 1) * 1.2deg); }
   @F .pic.done { background: color-mix(in srgb, var(--ok) 24%, var(--paper)); }
-  @F .wk { font-size: 15px; }
+  @F .wk { font-size: var(--fs-2); }
 
   /* groceries: a shopping-list pad and chunky keys */
   @F .list.glass { background: linear-gradient(90deg, transparent 0 10px, var(--margin) 10px 12px, transparent 12px) 0 0 / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .items { gap: 0; }
   /* lists that have tightened to fit keep their ruled lines, just closer together */
   @F .items[data-fit] .row { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
-  @F .items[data-fit] .row .content { font-size: 17px; }
+  @F .items[data-fit] .row .content { font-size: var(--fs-3); }
   @F .items[data-fit] .check { width: 24px; height: 24px; }
   @F .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
-  @F .jobs [data-fit] .row .content { font-size: 18px; }
-  @F .tag { font-weight: 600; font-size: 12px; }
+  @F .jobs [data-fit] .row .content { font-size: var(--fs-3); }
+  @F .tag { font-weight: 600; font-size: var(--fs-1); }
   @F .who.glass { border-radius: 4px; }
 
   /* music: the player is a dark deck */
@@ -692,7 +692,7 @@ const FRIDGE = `
   @F .rooms { background: transparent; box-shadow: none; padding-left: 4px; padding-right: 4px; }
   @F .room { background: var(--note); border-radius: 2px; box-shadow: 0 4px 6px rgba(0,0,0,.16); rotate: calc(var(--tilt, 1) * -.5deg); }
   @F .room.lit { background: var(--note-today); box-shadow: 0 7px 10px rgba(0,0,0,.2); rotate: calc(var(--tilt, 1) * .5deg); }
-  @F .rh h2 { font-size: 28px; line-height: 1; }
+  @F .rh h2 { font-size: var(--fs-5); line-height: 1; }
   @F .dev { background: transparent; border-radius: 0; border-bottom: 1.5px solid color-mix(in srgb, var(--ink) 18%, transparent); padding-left: 2px; padding-right: 2px; }
   @F .dicon { background: var(--magnet); color: var(--ink); box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.12); }
   @F .dev.on .dicon { background: #ffd23f; color: #5b3a00; box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 0 rgba(0,0,0,.14), 0 0 0 4px rgba(255,210,63,.4); }
@@ -708,7 +708,7 @@ const FRIDGE = `
   @F .snaps { gap: 26px 12px; padding: 12px 6px; }
   @F .snap { aspect-ratio: auto; height: 108px; border-radius: 2px; border: 7px solid #fff; border-bottom-width: 26px; background-color: #fff; box-shadow: 0 5px 8px rgba(0,0,0,.26); }
   @F .snap::before { top: -16px; width: 46px; height: 16px; margin-left: -23px; border-radius: 1px; background: color-mix(in srgb, var(--note-today) 82%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.12); rotate: -4deg; }
-  @F .by { left: 0; right: 0; bottom: -25px; padding: 0; background: transparent; border-radius: 0; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.2; text-align: center; color: #26272b; }
+  @F .by { left: 0; right: 0; bottom: -25px; padding: 0; background: transparent; border-radius: 0; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-3); font-weight: 700; line-height: 1.2; text-align: center; color: #26272b; }
 
   /* avatar studio: the mirror is a taped photo, the shelf is a sheet of stickers */
   @F .mirror { overflow: visible; rotate: calc(var(--tilt, 1) * -.5deg); }
@@ -719,7 +719,7 @@ const FRIDGE = `
   /* morning board: one note per child under a magnet in their colour */
   @F .kcol { position: relative; overflow: visible; border-top: 0; border-radius: 2px; padding-top: 30px; background: var(--note); box-shadow: 0 6px 8px rgba(0,0,0,.18); }
   @F .kcol::before { content: ''; position: absolute; top: 6px; left: 50%; margin-left: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--kid); box-shadow: 0 2px 3px rgba(0,0,0,.3), inset 0 -3px 0 rgba(0,0,0,.18); }
-  @F .khead h2 { font-size: 36px; }
+  @F .khead h2 { font-size: var(--fs-6); }
   @F .nextstep { background: var(--paper); border-radius: 3px; box-shadow: 0 3px 5px rgba(0,0,0,.14); font-weight: 600; }
   @F .nextstep.set { background: color-mix(in srgb, var(--ok) 22%, var(--paper)); }
   @F .lchip { background: transparent; border-radius: 0; border-bottom: 2px dashed var(--ink); padding-left: 2px; padding-right: 2px; font-weight: 600; }
@@ -737,8 +737,8 @@ const FRIDGE = `
   @F .wweek { rotate: calc(var(--tilt, 1) * .5deg); background: var(--paper); }
   @F .wmaps { background: #fff; padding: 12px 12px 8px; }
   @F .wmaps .mbox { border-radius: 2px; }
-  @F .wtemp { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 86px; font-weight: 700; }
-  @F .wtip { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); border-radius: 3px 14px 3px 12px; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: 21px; font-weight: 700; line-height: 1.1; }
+  @F .wtemp { font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-d5); font-weight: 700; }
+  @F .wtip { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); border-radius: 3px 14px 3px 12px; font-family: 'Caveat', 'Fredoka', sans-serif; font-size: var(--fs-4); font-weight: 700; line-height: 1.1; }
   @F .wfact { background: transparent; border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 28%, transparent); padding: 4px 2px 6px; }
   @F .wday { border-radius: 0; border-bottom: 2px dashed color-mix(in srgb, var(--ink) 22%, transparent); }
   @F .wday.today { background: transparent; box-shadow: inset 0 0 0 2.5px var(--primary); border-radius: 14px 18px 12px 20px; rotate: calc(var(--tilt, 1) * -.6deg); border-bottom-color: transparent; }
@@ -753,7 +753,7 @@ const FRIDGE = `
   @F[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
   @F[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: var(--paper); border-top: 2px solid var(--ink); box-shadow: 0 -6px 14px rgba(0,0,0,.14); }
   @F[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, var(--paper) 85%); pointer-events: none; }
-  @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @F[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: var(--fs-2); }
   @F[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 10px; }
 `;
 
@@ -767,7 +767,7 @@ const ORBIT = `
   @O .lead:active { transform: scale(calc(1 - .02 * var(--m-d, 1))); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent); }
   @O h1, @O h2, @O .display { font-family: 'Outfit', sans-serif; letter-spacing: -.01em; }
   @O .glass { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
-  @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 14px; }
+  @O .label { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: var(--fs-2); }
   @O .pill, @O .round { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
   @O .pill.primary, @O .primary { background: var(--primary); color: var(--on-primary); box-shadow: none; font-weight: 600; }
   @O .toast { background: var(--primary); color: var(--on-primary); font-weight: 500; }
@@ -783,7 +783,7 @@ const ORBIT = `
   /* header */
   @O .clock { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
   @O .clock .dial { grid-row: 1 / span 2; }
-  @O .clock .hm { font-weight: 400; font-size: 52px; letter-spacing: -.02em; }
+  @O .clock .hm { font-weight: 400; font-size: var(--fs-d2); letter-spacing: -.02em; }
   /* the header is drawn a little tighter than the base (smaller rings, closer avatars) so an alert chip has room for all of its words */
   @O .cap { background: var(--glass); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 500; max-width: 100%; }
   @O .cap.hot { background: var(--danger); color: #0a0f1e; border-color: var(--danger); animation: fhHot 1.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
@@ -803,12 +803,12 @@ const ORBIT = `
   @O .col { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 22px; padding: 10px 8px; }
   @O .col.today { background: color-mix(in srgb, var(--accent) 13%, var(--glass)); border: 2px solid var(--accent); }
   @O .dayhead { padding: 2px 4px 6px 6px; }
-  @O .num { font-weight: 400; font-size: 22px; }
-  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; font-size: 15px; }
+  @O .num { font-weight: 400; font-size: var(--fs-4); }
+  @O .today .num { background: var(--accent); color: #0a0f1e; font-weight: 600; font-size: var(--fs-2); }
   @O .ev { background: color-mix(in srgb, var(--c) 15%, transparent); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 9px 8px 10px; }
   @O .ev .t { font-weight: 500; }
   @O .ev .content { font-weight: 500; }
-  @O .ev .w { font-weight: 400; font-size: 14px; }
+  @O .ev .w { font-weight: 400; font-size: var(--fs-2); }
   @O .ev.next { box-shadow: 0 0 0 1.5px var(--accent); }
   /* what is over keeps its outline and loses its fill; the words stay readable */
   @O .ev.past, @O .dayrow.past { opacity: 1; background: transparent; border-left-color: color-mix(in srgb, var(--c) 50%, transparent); }
@@ -832,7 +832,7 @@ const ORBIT = `
 
   /* dock: a line of rings */
   @O .dock { background: transparent; border-color: transparent; gap: 6px; padding: 0; }
-  @O .dock .item { font-size: 15px; font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
+  @O .dock .item { font-size: var(--fs-2); font-weight: 500; color: var(--ink); height: 78px; gap: 5px; border-radius: 0; }
   @O .dock .item svg.i { width: 52px; height: 52px; padding: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ctl-line); color: var(--ink); stroke-width: 1.6; }
   @O .dock .item[aria-current='page'] { background: transparent; color: var(--ink); font-weight: 600; }
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
@@ -844,7 +844,7 @@ const ORBIT = `
   @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
   @O .dock .sep { background: rgba(255,255,255,.18); }
   @O[data-n3] .dock { gap: 4px; }
-  @O[data-n3] .dock .item { font-size: 14px; }
+  @O[data-n3] .dock .item { font-size: var(--fs-2); }
 
   /* lists */
   @O .row { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
@@ -853,7 +853,7 @@ const ORBIT = `
   @O .row .content { font-weight: 400; }
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
-  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: 28px; padding: 0 4px; min-width: 0; }
+  @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: var(--fs-5); padding: 0 4px; min-width: 0; }
   /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
   @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
@@ -868,17 +868,17 @@ const ORBIT = `
 
   /* kid page */
   @O .hero::before { inset: 0; height: auto; background: repeating-radial-gradient(circle at 50% 26%, transparent 0 43px, color-mix(in srgb, var(--kid) 34%, transparent) 43px 44px); -webkit-mask-image: radial-gradient(circle at 50% 26%, #000 22%, transparent 70%); mask-image: radial-gradient(circle at 50% 26%, #000 22%, transparent 70%); }
-  @O .name { font-weight: 500; font-size: 38px; }
+  @O .name { font-weight: 500; font-size: var(--fs-6); }
   @O .rank { background: color-mix(in srgb, var(--kid) 20%, transparent); color: var(--kid); font-weight: 600; }
   @O .stat { background: var(--chip-soft); }
-  @O .stat b { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 34px; }
+  @O .stat b { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-6); }
   @O .stat span { font-weight: 400; }
   @O .dots i.t { box-shadow: 0 0 0 2px #121a31, 0 0 0 4px var(--kid); }
   @O .nextup { background: var(--chip-soft); }
   @O .jobs .done .check { border-color: var(--ok); }
   @O .pic.now { box-shadow: 0 0 0 3px var(--accent); }
   @O .sec { margin-top: 12px; }
-  @O .sec h2 { font-size: 17px; font-weight: 600; color: var(--ink); }
+  @O .sec h2 { font-size: var(--fs-3); font-weight: 600; color: var(--ink); }
   @O .sec span { font-weight: 400; }
   @O .plus { background: var(--track); color: var(--ink); box-shadow: none; font-weight: 600; }
   @O .later { background: var(--chip-soft); font-weight: 400; }
@@ -898,7 +898,7 @@ const ORBIT = `
   /* home: rooms are outlined cells; a room with a light on carries the 'now' yellow */
   @O .room { background: transparent; border-radius: 26px; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .room.lit { background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
-  @O .rh h2 { font-size: 20px; font-weight: 500; }
+  @O .rh h2 { font-size: var(--fs-4); font-weight: 500; }
   @O .dev { background: transparent; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.12); padding-left: 2px; padding-right: 2px; }
   @O .dicon { background: transparent; color: var(--ink2); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .dev.on .dicon { background: var(--accent); color: #0a0f1e; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
@@ -988,7 +988,7 @@ const ORBIT = `
   @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
   @O .artm .atime .big { font-weight: 300; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
-  @O .wtemp { font-weight: 300; font-size: 76px; letter-spacing: -.04em; }
+  @O .wtemp { font-weight: 300; font-size: var(--fs-d4); letter-spacing: -.04em; }
   @O .wtip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 500; }
   @O .wfact { background: transparent; }
   @O .wday.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); }
@@ -1008,7 +1008,7 @@ const ORBIT = `
   /* the chosen look: a ring and a tick, never a fill */
   @O .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   @O .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 3px var(--accent); }
-  @O .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #0a0f1e; font-size: 17px; font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px #172039; }
+  @O .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #0a0f1e; font-size: var(--fs-3); font-weight: 700; line-height: 30px; text-align: center; box-shadow: 0 0 0 3px #172039; }
   /* sheets: chips are rings, the chosen one is yellow; who gave a medicine is a ring too, so adding to the record is the one filled action */
   @O .mchip, @O .chips button, @O .durs button, @O .ampm button, @O .allday { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); font-weight: 500; }
   @O .mchip[aria-pressed='true'], @O .chips button[aria-pressed='true'], @O .durs button[aria-pressed='true'], @O .ampm button[aria-pressed='true'], @O .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: none; font-weight: 600; }
@@ -1024,7 +1024,7 @@ const ORBIT = `
   @O[data-phone] .fh { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
   @O[data-phone] .dock { left: 0; right: 0; bottom: 0; gap: 4px; padding: 8px 34px calc(8px + env(safe-area-inset-bottom, 0px)) 10px; border-radius: 0; background: rgba(10,15,30,.92); border: 0; border-top: 1px solid var(--glass-line); }
   @O[data-phone] .dock::after { content: ''; position: fixed; right: 0; bottom: 0; width: 40px; height: calc(84px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to right, transparent, #0a0f1e 85%); pointer-events: none; }
-  @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: 14px; }
+  @O[data-phone] .dock .item { min-width: 64px; height: 68px; font-size: var(--fs-2); }
   @O[data-phone] .dock .item svg.i { width: 44px; height: 44px; padding: 11px; }
 `;
 
@@ -1037,16 +1037,16 @@ const SPORTS = `
   @S .fh[data-calm] { --mow1: var(--mow2); }
   @S h1, @S h2 { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; letter-spacing: -.015em; }
   @S .display { font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-  @S .label { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .09em; color: var(--ink2); }
+  @S .label { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; font-weight: 700; font-size: var(--fs-2); letter-spacing: .09em; color: var(--ink2); }
   /* windows: boards on the clubhouse wall, with one chalk corner arc */
   @S .glass { background: radial-gradient(circle at 100% 100%, transparent 0 21px, var(--track) 21.5px 23.5px, transparent 24px) right bottom / 26px 26px no-repeat, var(--panel); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1.5px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
   @S .card { border-radius: 14px; }
   /* actions */
-  @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: 16px; }
+  @S .pill, @S .round, @S .quick { background: var(--panel); color: var(--ink); border: 0; box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-weight: 700; font-size: var(--fs-3); }
   @S .round { border-radius: 50%; }
-  @S .quick { border-radius: 999px; min-height: 44px; font-size: 15px; white-space: nowrap; }
+  @S .quick { border-radius: 999px; min-height: 44px; font-size: var(--fs-2); white-space: nowrap; }
   @S .pill.primary, @S .primary, @S .lead { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
-  @S .lead { font-size: 18px; padding: 0 24px; }
+  @S .lead { font-size: var(--fs-3); padding: 0 24px; }
   @S .tap:active { opacity: 1; }
   @S .pill.tap:active, @S .round.tap:active, @S .quick.tap:active { transform: translateY(calc(2px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .lead.tap:active, @S .primary.tap:active { transform: translateY(calc(4px * var(--m-d, 1))) scale(calc(1 + .02 * var(--m-d, 1)), calc(1 - .04 * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); opacity: 1; }
@@ -1060,12 +1060,12 @@ const SPORTS = `
   @S .remfail { padding: 8px 10px 8px 38px; border-radius: 10px; background: var(--s-cone) 9px 9px / 22px 22px no-repeat, var(--danger-wash); box-shadow: inset 0 0 0 2px var(--danger); }
   /* choices: flat, no step; the chosen one is inverted with a hi-vis bar */
   @S .seg { height: 52px; padding: 3px; border-radius: 28px; background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink); gap: 2px; }
-  @S .seg button { height: 46px; border-radius: 24px; font-weight: 600; font-size: 16px; color: var(--ink); }
+  @S .seg button { height: 46px; border-radius: 24px; font-weight: 600; font-size: var(--fs-3); color: var(--ink); }
   @S .seg button[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
-  @S .mchip, @S .chips button, @S .durs button, @S .ampm button, @S .allday { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .mchip, @S .chips button, @S .durs button, @S .ampm button, @S .allday { background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: var(--fs-3); }
   @S .mchip[aria-pressed='true'], @S .chips button[aria-pressed='true'], @S .durs button[aria-pressed='true'], @S .ampm button[aria-pressed='true'], @S .allday[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
   @S .tabs { background: transparent; border-radius: 0; gap: 8px; padding: 0; }
-  @S .tab { border-radius: 10px 10px 4px 4px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: 16px; }
+  @S .tab { border-radius: 10px 10px 4px 4px; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; font-size: var(--fs-3); }
   @S .tab[aria-pressed='true'], @S .tab[aria-selected='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; font-weight: 700; }
   /* lists: a tick box; done is green and struck through; the current row carries the pennant */
   @S .row { border-radius: 10px; }
@@ -1083,12 +1083,12 @@ const SPORTS = `
   @S .meter > div { position: relative; height: 5px; min-width: 1px; background: var(--ink); border-radius: 3px; }
   @S .meter > div::after { content: ''; position: absolute; right: -10px; top: -8px; width: 20px; height: 20px; background: var(--s-ball) center / contain no-repeat; }
   /* bibs: a person's colour is always worn with their initial; under lights the bib gets a chalk outline */
-  @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
+  @S .init:not(.avatar) { position: relative; z-index: 0; min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: var(--fs-1); font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .init:not(.avatar)::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
   /* the small bib is the full 22 px one: its initial is never under 12 px */
-  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: 12px; }
-  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;
+  @S .init.sm:not(.avatar) { min-width: 22px; width: 22px; height: 22px; padding: 0 0 2px; font-size: var(--fs-1); }
+  @S .presence .avatar { position: relative; z-index: 0; width: 28px; height: 28px; padding: 0 0 2px; align-items: flex-end; border-radius: 0; background: transparent; font-family: 'Outfit', sans-serif; font-size: var(--fs-2); font-weight: 800;
     filter: drop-shadow(.8px 0 0 var(--bib-edge)) drop-shadow(-.8px 0 0 var(--bib-edge)) drop-shadow(0 .8px 0 var(--bib-edge)) drop-shadow(0 -.8px 0 var(--bib-edge)); }
   @S .presence .avatar::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; }
   @S .presence .avatar.away { background: var(--s-away) center / contain no-repeat; color: var(--ink); filter: none; outline: 0; opacity: 1; }
@@ -1119,9 +1119,9 @@ const SPORTS = `
   @S .cap.ok { background: var(--ok-wash); color: var(--ok); }
   /* the weather chip is the pitch report */
   @S .weather { border-radius: 12px; height: 56px; padding: 0 12px; gap: 10px; background: var(--panel); }
-  @S .badge { border-radius: 6px; background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .badge { border-radius: 6px; background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
   @S .badge.hot { background: var(--danger); color: var(--on-danger); box-shadow: none; }
-  @S .verdict { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border-radius: 6px; background: var(--ok-wash); color: var(--ok); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .02em; white-space: nowrap; flex-shrink: 0; }
+  @S .verdict { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border-radius: 6px; background: var(--ok-wash); color: var(--ok); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); letter-spacing: .02em; white-space: nowrap; flex-shrink: 0; }
   @S .verdict[data-v='hat'] { background: var(--panel2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
   @S .verdict[data-v='wet'] { background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); }
   @S .presence { background: transparent; border: 0; box-shadow: none; gap: 5px; padding: 0 2px; }
@@ -1130,7 +1130,7 @@ const SPORTS = `
 
   /* planner: the week is seven mown lanes with chalk between them */
   @S .planner { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 0; gap: 10px; }
-  @S .legend { font-size: 15px; font-weight: 600; color: var(--ink); gap: 16px; }
+  @S .legend { font-size: var(--fs-2); font-weight: 600; color: var(--ink); gap: 16px; }
   @S .week { gap: 0; border-radius: 14px; border: 1.5px solid var(--line); background: var(--mow2); overflow: hidden; }
   @S .col { border-radius: 0; background: transparent; border-left: 2px solid var(--chalk); padding: 0 6px 6px; box-shadow: none; }
   @S .col:nth-child(odd) { background: var(--mow1); }
@@ -1138,18 +1138,18 @@ const SPORTS = `
   @S .col.today { background: var(--panel); box-shadow: inset 0 0 0 3px var(--ink); }
   @S .dayhead { height: 46px; flex-shrink: 0; margin: 0 -6px; padding: 0 8px; gap: 4px; border-bottom: 2px solid var(--chalk); }
   @S .dayhead .dball { margin-left: auto; }
-  @S .num { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 700; }
-  @S .today .num { width: auto; height: 28px; padding: 0 6px; border-radius: 6px; background: var(--sel); color: var(--on-sel); box-shadow: none; font-size: 19px; }
+  @S .num { font-family: 'Outfit', sans-serif; font-size: var(--fs-4); font-weight: 700; }
+  @S .today .num { width: auto; height: 28px; padding: 0 6px; border-radius: 6px; background: var(--sel); color: var(--on-sel); box-shadow: none; font-size: var(--fs-4); }
   @S .col.today .dayhead::before { content: ''; width: 20px; height: 20px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; }
   /* events are fixture cards: the person's colour down the edge, the time on the scoreboard face */
   @S .ev { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: 8px; padding: 6px 5px 7px 7px; }
-  @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink2); }
-  @S .ev .content { font-size: 16px; font-weight: 600; }
+  @S .ev .t { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: var(--fs-2); color: var(--ink2); }
+  @S .ev .content { font-size: var(--fs-3); font-weight: 600; }
   /* who it is for: their bib in the corner of the card, with their initial (the name itself stays for screen readers) */
   @S .ev { position: relative; }
   @S .ev .t { padding-right: 26px; }
-  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 8px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 12px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
-  @S .ev .w::first-letter { font-size: 12px; }
+  @S .ev .w { position: absolute; right: 5px; top: 5px; width: 22px; height: 22px; padding-top: 7px; overflow: hidden; background: var(--c, var(--p-family)); -webkit-mask: var(--s-bib) center / contain no-repeat; mask: var(--s-bib) center / contain no-repeat; color: var(--on-person); font-family: 'Outfit', sans-serif; font-size: 0; font-weight: 800; line-height: 13px; text-align: center; overflow-wrap: normal; white-space: nowrap; }
+  @S .ev .w::first-letter { font-size: var(--fs-1); }
   @S .col.today .ev.past .w { display: block; }
   @S .ev.next { box-shadow: 0 0 0 2px var(--ink); border-color: var(--ink); border-left-color: var(--c); background: var(--s-flag) right 30px top 6px / 18px 18px no-repeat, var(--evcard); }
   @S .ev.past, @S .dayrow.past { opacity: 1; background: transparent; border-style: dashed; border-left-style: solid; border-left-color: color-mix(in srgb, var(--c) 55%, transparent); }
@@ -1161,7 +1161,7 @@ const SPORTS = `
   @S .cell.out { background: transparent; border-style: dashed; color: var(--ink3); }
   @S .cell.today { background: var(--panel); border: 3px solid var(--ink); }
   @S .cell.today .mtop > span:first-child { font-weight: 800; text-decoration: underline; text-decoration-color: var(--ink); text-decoration-thickness: 3px; text-underline-offset: 3px; }
-  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: 15px; }
+  @S .cell .mtop { font-family: 'Outfit', sans-serif; font-size: var(--fs-2); }
   /* day: the match-day programme, one lane */
   @S .dayrow { background: var(--evcard); border: 1px solid var(--line); border-left: 6px solid var(--c, var(--line)); border-radius: 8px; }
   @S .daylist { background: var(--mow1); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px; }
@@ -1171,7 +1171,7 @@ const SPORTS = `
   @S .freeday > span:first-child { width: 150px; height: 60px; border-bottom: 3px solid var(--ink); background: var(--s-ball) center bottom / 54px 54px no-repeat; }
   @S .freeday > span:first-child svg { display: none; }
   @S .freeday h2 { font-size: 0; }
-  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, 22px); }
+  @S .freeday h2::after { content: 'No fixtures today'; font-size: var(--t-sub, var(--fs-4)); }
   /* the rail: now playing sits on a scoreboard; the kitchen timer is the match clock; the family jar is the ball bag */
   @S .np { background: var(--board); color: var(--board-ink); border-color: var(--board-line); }
   @S .np .muted { color: var(--board-ink2); }
@@ -1180,16 +1180,16 @@ const SPORTS = `
   @S .timerrow { flex-wrap: wrap; row-gap: 6px; }
   @S .timerrow .tmeter { order: 3; flex: 0 0 100%; width: 100%; height: auto; }
   @S .tmeter { max-width: 100%; }
-  @S .tread { margin: 0; padding: 0 12px; border-radius: 8px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-size: 30px; font-weight: 700; }
+  @S .tread { margin: 0; padding: 0 12px; border-radius: 8px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-size: var(--fs-6); font-weight: 700; }
   @S .timerrow .tcancel { color: var(--ink2); text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 5px; }
   @S .timerrow.on .hint { display: none; }
   @S .jarpic { width: 34px; height: 34px; flex-shrink: 0; background: var(--s-bag) center / contain no-repeat; }
   @S .jarpic svg { display: none; }
-  @S .rem { font-weight: 500; font-size: 16px; }
+  @S .rem { font-weight: 500; font-size: var(--fs-3); }
 
   /* dock: the touchline. Mown turf with a chalk line; places to go are white balls standing on it */
   @S .dock { align-self: stretch; margin: 0 calc(-1 * var(--pad-x)) calc(-1 * var(--pad-y)); padding: 9px 12px 9px; gap: 10px; justify-content: center; border: 0; border-top: 3px solid var(--chalk); border-radius: 0; box-shadow: none; background: repeating-linear-gradient(90deg, var(--turf) 0 80px, var(--turf2) 80px 160px); }
-  @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; }
+  @S .dock .item { min-width: 78px; height: 84px; gap: 6px; padding: 0 2px; border-radius: 12px; color: #fff; font-size: var(--fs-2); font-weight: 700; }
   @S .dock .item svg.i { width: 54px; height: 54px; padding: 14px; border-radius: 50%; background: #fff; color: #14201a; box-shadow: inset 0 0 0 2px #14201a, 0 3px 0 rgba(8,24,14,.55); stroke-width: 2; }
   @S .dock .item svg.i { padding: 9px; }
   @S .dock .item.tap:active svg.i { transform: translateY(calc(3px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px #14201a; }
@@ -1216,7 +1216,7 @@ const SPORTS = `
   @S .what ~ [role='img'] { align-items: center; height: 24px; gap: 10px; }
   @S .what ~ [role='img'] span { width: 18px; height: 18px; border: 2px solid var(--ink); background: var(--panel); }
   @S .what ~ [role='img'] span.on { background: var(--ink); border-color: var(--ink); }
-  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: 15px; font-weight: 600; color: var(--ink2); white-space: nowrap; }
+  @S .what ~ [role='img']::after { content: attr(aria-label); margin-left: 4px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); white-space: nowrap; }
   /* toasts: the linesman's flag */
   @S .toast { background: var(--panel); color: var(--ink); border-radius: 12px; box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 rgba(20,32,26,.18); text-align: left; padding: 12px 18px 12px 14px; gap: 10px; }
   @S .toast::before { content: ''; width: 22px; height: 22px; flex-shrink: 0; background: var(--s-flag) center / contain no-repeat; transform-origin: 25% 90%; animation: sFlag var(--mt-4, 400ms) var(--e-spring, ease) both; }
@@ -1225,9 +1225,9 @@ const SPORTS = `
   /* the look picker: the chosen card is a ring and a tick, never a fill */
   @S .tcard { position: relative; background: var(--panel2); box-shadow: inset 0 0 0 1.5px var(--line); border-radius: 14px; }
   @S .tcard[aria-pressed='true'] { background: var(--panel2); color: var(--ink); box-shadow: 0 0 0 3px var(--ink); }
-  @S .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 8px; background: var(--sel); color: var(--on-sel); font-size: 17px; font-weight: 800; line-height: 27px; text-align: center; box-shadow: 0 0 0 3px var(--panel); }
+  @S .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 8px; background: var(--sel); color: var(--on-sel); font-size: var(--fs-3); font-weight: 800; line-height: 27px; text-align: center; box-shadow: 0 0 0 3px var(--panel); }
   /* the floodlight switch, with its word */
-  @S .opt { gap: 8px; font-weight: 700; font-size: 16px; }
+  @S .opt { gap: 8px; font-weight: 700; font-size: var(--fs-3); }
   @S .opt::after { content: 'Off'; min-width: 28px; text-align: left; }
   @S .opt[aria-checked='true']::after { content: 'On'; }
   @S .opt .sw { width: 68px; height: 36px; border-radius: 18px; background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink3); }
@@ -1241,7 +1241,7 @@ const SPORTS = `
   @S .hero::before { display: none; }
   /* the name is as big as its length allows (--nl, its letters, comes from the page), so a seven-letter name stays on one line beside the rank and is never broken mid-word */
   @S .name { font-size: clamp(30px, calc(300px / var(--nl, 6)), 44px); font-weight: 800; color: color-mix(in srgb, var(--kid) var(--kid-mix, 100%), var(--ink)); }
-  @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
+  @S .rank { border-radius: 6px; background: var(--board); color: var(--board-ink); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
   @S .stat { background: var(--panel2); border-radius: 10px; }
   @S .stat b { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .dots i.g { background: var(--ok); border-color: var(--ok); }
@@ -1250,12 +1250,12 @@ const SPORTS = `
   @S .nextup .meter { margin: 8px 0 6px; }
   @S .jobs .ring { width: auto; height: 36px; padding: 0 10px; border-radius: 8px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); display: flex; align-items: center; }
   @S .jobs .ring svg { display: none; }
-  @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
+  @S .jobs .ring b { position: static; color: var(--board-ink); font-family: 'Outfit', sans-serif; font-size: var(--fs-3); font-weight: 700; }
   @S .job { border-radius: 10px; background: var(--panel2); }
   @S .row.now { padding-left: 38px; background: var(--s-flag) 10px center / 22px 22px no-repeat, var(--panel); box-shadow: inset 0 0 0 3px var(--ink); }
   @S .job.done .check { background: var(--ok); border-color: var(--ok); }
-  @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; }
-  @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: 16px; }
+  @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
+  @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: var(--fs-3); }
   @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
@@ -1276,17 +1276,17 @@ const SPORTS = `
   @S .pic.big { padding-top: calc(12px - 6px * var(--fit, 0)); padding-bottom: calc(16px - 8px * var(--fit, 0)); row-gap: calc(6px - 4px * var(--fit, 0)); }
   @S .pic.big .e { font-size: calc(112px - 28px * var(--fit, 0)); }
   @S .pic.big .pt { font-size: calc(32px - 6px * var(--fit, 0)); }
-  @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 800; line-height: 1.05; text-align: left; }
+  @S .pic.big .pt { grid-area: 1 / 2; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: 800; line-height: 1.05; text-align: left; }
   @S .pic.big .stars { grid-area: 2 / 2; justify-content: flex-start; }
-  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: 22px; font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
+  @S .pic.big::after { content: '✓  I did it!'; grid-area: 3 / 2; justify-self: stretch; height: calc(60px - 12px * var(--fit, 0)); margin-top: 4px; border-radius: 30px; background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-size: var(--fs-4); font-weight: 800; line-height: calc(60px - 12px * var(--fit, 0)); text-align: center; white-space: nowrap; transition: transform var(--m-1, 80ms) ease, box-shadow var(--m-1, 80ms) ease; }
   @S .pic.big:active::after { transform: translateY(calc(4px * var(--m-d, 1))); box-shadow: inset 0 0 0 2px var(--edge); }
-  @S .pic.small .e { font-size: 48px; }
+  @S .pic.small .e { font-size: var(--fs-d2); }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
   @S .pic.big.done::after { display: none; }
   @S .readme, @S .seedone { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
   @S .studio[data-locked] { background: transparent; color: var(--ink3); box-shadow: none; outline: 2px dashed var(--ink3); outline-offset: -2px; }
-  @S .sec h2 { font-size: 18px; }
-  @S .wk { font-size: 15px; }
+  @S .sec h2 { font-size: var(--fs-3); }
+  @S .wk { font-size: var(--fs-2); }
 
   /* groceries: the canteen docket */
   /* the dark docket bar is painted inside the card, so the card's own corners clip it */
@@ -1319,7 +1319,7 @@ const SPORTS = `
   @S .snap { border-radius: 8px; box-shadow: 0 0 0 1.5px var(--line); }
   /* who drew it: a caption under the tile, so it never covers the drawing or hangs off the corner */
   @S .snaps { row-gap: 30px; padding-bottom: 32px; }
-  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: 18px; line-height: 1.2; font-weight: 700; }
+  @S .by { top: calc(100% + 3px); bottom: auto; left: 0; right: 0; padding: 0 2px; border-radius: 0; background: transparent; color: var(--ink); box-shadow: none; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Caveat', 'Inter', sans-serif; font-size: var(--fs-3); line-height: 1.2; font-weight: 700; }
 
   /* style studio: kit laid out on the bench */
   @S .tile { background: var(--panel2); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 600; }
@@ -1334,8 +1334,8 @@ const SPORTS = `
   @S .leave { font-family: 'Outfit', sans-serif; font-weight: 700; }
 
   /* weather: the pitch report. The verdict comes first, then the readings */
-  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: 20px; gap: 8px; align-self: flex-start; flex-shrink: 0; }
-  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: 17px; }
+  @S .verdict[data-big] { height: 44px; padding: 0 14px; border-radius: 8px; font-size: var(--fs-4); gap: 8px; align-self: flex-start; flex-shrink: 0; }
+  @S .wnow[data-fit] .verdict[data-big] { height: 36px; font-size: var(--fs-3); }
   @S .wtemp { font-family: 'Outfit', sans-serif; font-weight: 700; }
   @S .wtip { background: var(--panel2); border-radius: 10px; }
   @S .wfact { background: var(--panel2); border-radius: 10px; padding: 6px 10px; }
@@ -1355,8 +1355,8 @@ const SPORTS = `
   @S .talk { box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); }
 
   /* add an event: the time is picked on a scoreboard drum */
-  @S .chips button { font-size: 15px; gap: 5px; }
-  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: 12px; }
+  @S .chips button { font-size: var(--fs-2); gap: 5px; }
+  @S .chips .init:not(.avatar) { min-width: 20px; width: 20px; height: 20px; padding: 0 0 2px; font-size: var(--fs-1); }
   @S .dialbox { border-radius: 12px; background: var(--panel2); }
   @S .drums { --ink: var(--board-ink); --ink2: #8a978f; color: var(--board-ink); border-radius: 12px; background: var(--board); box-shadow: 0 0 0 1.5px var(--board-line); font-family: 'Outfit', sans-serif; }
   @S .drums::before { left: 0; right: 0; border-radius: 0; background: rgba(255,255,255,.09); box-shadow: inset 5px 0 0 var(--board-ink), inset -5px 0 0 var(--board-ink); }
@@ -1392,7 +1392,7 @@ const SPORTS = `
   @S .sname { background: var(--board); color: var(--board-ink); border-radius: 6px; box-shadow: 0 0 0 1.5px var(--board-line); font-weight: 700; }
   @S .lamp { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); }
   @S .lamp[aria-pressed='true'] { background: var(--sel); color: var(--on-sel); box-shadow: none; }
-  @S .lamp[data-other] { font-size: 15px; padding: 0 7px; }
+  @S .lamp[data-other] { font-size: var(--fs-2); padding: 0 7px; }
   @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
   @S .slot { --rail-w: 5px; }
   @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }
@@ -1429,7 +1429,7 @@ const SPORTS = `
   /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
   @S .artm .atime { display: none; }
   @S .artm .aplate { border-radius: 22px; }
-  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: 26px; }
+  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
   @S .night .nart { opacity: 1; }
   @S .night .dball { opacity: .4; }
   @S .night .breathe { animation: none; opacity: .7; }
@@ -1445,12 +1445,12 @@ const SPORTS = `
   /* the kitchen timer's quick pills in the narrow rail (under 1240 px): “+10 min” stays on one line at the full 15 px, drawn a touch tighter and in a slightly wider pill, so the words keep 6 px clear of the pill's ring */
   @S[data-n1] .tmr .quick { white-space: nowrap; padding: 0; margin: 0 -3px; letter-spacing: -.04em; word-spacing: -.03em; }
   /* a compact screen (1024 x 768) drops the other looks' timer pills to 14 px; these keep the look's 15 px, which the tighter drawing above leaves room for */
-  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: 15px; }
+  @S .fh[data-compact] .tmr .quick:not(.lead) { font-size: var(--fs-2); }
   /* a choice of several on a phone wraps to as many rows as its words need */
   @S[data-phone] .seg { height: auto; border-radius: 26px; }
   /* under 900 px: smaller balls, each place as wide as its own word, so a morning's extra place still fits and no two labels touch */
   @S[data-n3] .dock { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
-  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: 14px; }
+  @S[data-n3] .dock .item { min-width: 48px; padding: 0 3px; font-size: var(--fs-2); }
   @S[data-n3] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-n3] .dock .sep { margin: 0 2px 20px; }
   @S[data-n3] .dock .kidbtn .avatar { scale: 1.08; }
@@ -1460,7 +1460,7 @@ const SPORTS = `
   @S[data-phone] .night .sboard { --u: 84px; }
   @S[data-phone] .fh { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
   @S[data-phone] .dock { left: 0; right: 0; bottom: 0; margin: 0; gap: 2px; justify-content: flex-start; padding: 7px 30px calc(6px + env(safe-area-inset-bottom, 0px)) 8px; border-radius: 0; }
-  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: 14px; gap: 5px; }
+  @S[data-phone] .dock .item { min-width: 64px; height: 74px; padding: 0 2px; font-size: var(--fs-2); gap: 5px; }
   @S[data-phone] .dock .item svg.i { width: 46px; height: 46px; padding: 11px; }
   @S[data-phone] .dock .sep { height: 44px; margin: 0 4px 20px; }
   @S[data-phone] .dock .kidbtn .avatar { scale: 1.25; margin: 5px 0 6px; }
@@ -1471,8 +1471,8 @@ const SPORTS = `
   @S[data-phone] .week { overflow-x: auto; }
   /* phone: the picture job stacks, and its button runs along the bottom beside the speaker */
   @S[data-phone] .pic.big { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 14px 14px 16px; text-align: center; }
-  @S[data-phone] .pic.big .e { grid-area: auto; font-size: 96px; }
-  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: 28px; }
+  @S[data-phone] .pic.big .e { grid-area: auto; font-size: var(--fs-d5); }
+  @S[data-phone] .pic.big .pt { grid-area: auto; text-align: center; font-size: var(--fs-5); }
   @S[data-phone] .pic.big .stars { grid-area: auto; justify-content: center; }
   @S[data-phone] .pic.big::after { grid-area: auto; margin: 6px 86px 0 0; }
   @S[data-phone] .planner { padding: 0; }

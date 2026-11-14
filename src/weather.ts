@@ -107,7 +107,7 @@ export class FhWeather extends LitElement {
   static styles = [styles, css`
     :host { display: grid; flex: 1; min-height: 0; gap: 16px; grid-template-columns: 330px minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr) auto; }
     section { border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
-    h2 { font-size: 19px; font-weight: var(--w-heavy, 800); }
+    h2 { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .wnow { grid-area: 1 / 1 / 3 / 2; overflow: auto; }
     .wmaps { grid-area: 1 / 2; padding: 12px; }
     .wweek { grid-area: 1 / 3 / 3 / 4; }
@@ -133,16 +133,16 @@ export class FhWeather extends LitElement {
 
     /* now */
     .top { display: flex; align-items: center; gap: 12px; }
-    .wtemp { font-size: 62px; line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+    .wtemp { font-size: var(--fs-d3); line-height: .95; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
     .wtemp sup { font-size: .45em; vertical-align: top; position: relative; top: .1em; }
-    .cond { font-size: 17px; font-weight: var(--w-bold, 700); }
+    .cond { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     /* advice a child can act on: up to three pictures of what to wear or take, and a button that says it aloud */
     .wtip { display: flex; gap: 8px; align-items: center; padding: 8px 8px 8px 10px; border-radius: 16px; background: var(--chip); }
     .tips { flex: 1; min-width: 0; display: flex; gap: 6px; justify-content: space-around; }
-    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .tipone { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; }
     .tipone svg { width: 64px; height: 64px; flex-shrink: 0; }
     .speak { width: 52px; height: 52px; /* token */ border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .said { font-size: 15px; line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
+    .said { font-size: var(--fs-2); line-height: 1.4; color: var(--ink2); font-weight: var(--w-semi, 600); margin: 0; }
     .facts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 12px; }
     .wfact { grid-column: span 2; }
     .wfact.half { grid-column: span 3; }
@@ -150,8 +150,8 @@ export class FhWeather extends LitElement {
     .wfact { border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); padding: 6px 2px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .wfact.wide { grid-column: span 6; flex-direction: row; align-items: center; gap: 12px; }
     .wfact.stack { flex-direction: column; align-items: flex-start; gap: 1px; }
-    .wfact b { font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
-    .wfact small { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
+    .wfact b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.2; overflow-wrap: break-word; }
+    .wfact small { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); line-height: 1.25; }
     /* the card tightens in steps until it fits: the Bureau's paragraph goes first, then the least urgent readings */
     .wnow[data-fit] { gap: 8px; }
     .wnow[data-fit] .said { display: none; }
@@ -159,12 +159,12 @@ export class FhWeather extends LitElement {
     .wnow[data-fit='2'] .wtip, .wnow[data-fit='3'] .wtip { padding: 4px 6px 4px 10px; }
     .wnow[data-fit='2'] .tipone, .wnow[data-fit='3'] .tipone { flex-direction: row; justify-content: center; gap: 6px; }
     .wnow[data-fit='3'] .x3 { display: none; }
-    .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: 50px; }
+    .wnow[data-fit='2'] .wtemp, .wnow[data-fit='3'] .wtemp { font-size: var(--fs-d2); }
     .wnow[data-fit='3'] { gap: 6px; padding-top: 12px; padding-bottom: 12px; }
-    .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .wwarn { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--danger, #dc2626); color: #fff; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; }
     .wcomp { flex-shrink: 0; }
     .wcomp .ring { fill: none; stroke: var(--ink2); stroke-width: 1.5; opacity: .5; }
-    .wcomp text { font-size: 14px; font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
+    .wcomp text { font-size: var(--fs-2); font-weight: 800; fill: var(--ink2); text-anchor: middle; dominant-baseline: central; }
     .wcomp .needle { fill: var(--accent); transform-origin: 32px 32px; }
     .wcomp .sway { transform-origin: 32px 32px; animation: sway 3.600s ease-in-out infinite; animation-play-state: var(--motion, running); }
     @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
@@ -178,42 +178,42 @@ export class FhWeather extends LitElement {
     .hhead h2 { flex: 0 1 auto; min-width: 0; }
     .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .hchart { display: block; }
-    .hchart text { font-size: 14px; font-weight: 600; fill: var(--ink2); text-anchor: middle; }
-    .hchart .wind { font-size: 14px; }
+    .hchart text { font-size: var(--fs-2); font-weight: 600; fill: var(--ink2); text-anchor: middle; }
+    .hchart .wind { font-size: var(--fs-2); }
     /* the unit is said once, here, so the hours below carry the number alone */
-    .hkey { flex: 1 1 0; min-width: 0; font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .hchart .tv { font-size: 14px; font-weight: 800; fill: var(--ink); }
+    .hkey { flex: 1 1 0; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hchart .tv { font-size: var(--fs-2); font-weight: 800; fill: var(--ink); }
     .hchart .line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .hchart .area { opacity: .16; }
     .hchart .rainbar { fill: #3b9ae1; }
-    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: 14px; font-weight: 700; }
-    .hchart .day { font-size: 14px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
+    .hchart .raintxt { fill: color-mix(in srgb, #2b84c8 50%, var(--ink)); font-size: var(--fs-2); font-weight: 700; }
+    .hchart .day { font-size: var(--fs-2); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; fill: var(--ink); }
     .hchart .split { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .5; }
 
     /* week */
     .days { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; overflow: auto; }
     .wday { display: grid; grid-template-columns: 52px 40px 1fr; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 14px; min-height: 52px; }
     .wday.today { background: var(--chip); }
-    .wday .dn { font-size: 16px; font-weight: var(--w-bold, 700); }
-    .wday .dn small { display: block; font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
-    .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+    .wday .dn { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .wday .dn small { display: block; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
     .wday .lo { color: var(--ink2); text-align: right; }
-    .wday .wet { grid-column: 1 / -1; font-size: 14px; font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
+    .wday .wet { grid-column: 1 / -1; font-size: var(--fs-2); font-weight: 700; color: var(--wet, color-mix(in srgb, #2b84c8 50%, var(--ink))); margin-top: -2px; }
     .track { height: 8px; border-radius: 4px; background: var(--track); position: relative; }
     .wbar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 8px; }
 
     /* maps */
     .mhead { display: flex; align-items: center; gap: 10px; padding: 2px 6px 0; }
     .mhead h2 { flex: 1; }
-    .mhead .seg button { font-size: 15px; }
+    .mhead .seg button { font-size: var(--fs-2); }
     .mhead .seg button[aria-pressed='false'] { color: var(--ink); }
     .mbox { flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; position: relative; background: var(--chip-soft); }
     .mbox iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: 15px; line-height: 1.4; max-width: 340px; }
-    .credit { font-size: 14px; color: var(--ink2); padding: 0 6px; }
+    .none { margin: auto; padding: 20px; text-align: center; color: var(--ink2); font-weight: var(--w-semi, 600); font-size: var(--fs-2); line-height: 1.4; max-width: 340px; }
+    .credit { font-size: var(--fs-2); color: var(--ink2); padding: 0 6px; }
     .off { grid-column: 1 / -1; align-items: center; justify-content: center; text-align: center; gap: 8px; }
-    .off p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 520px; }
-    .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); margin-top: 6px; }
+    .off p { margin: 0; font-size: var(--fs-3); line-height: 1.4; max-width: 520px; }
+    .off .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: var(--fs-3); font-weight: var(--w-bold, 700); margin-top: 6px; }
 
     /* the drawn sky */
     .sky { flex-shrink: 0; overflow: visible; }
@@ -405,7 +405,7 @@ export class FhWeather extends LitElement {
           <div class="cond">${COND[w?.state ?? ''] ?? w?.state ?? ''}</div>
         </div>
       </div>
-      <div class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">
+      <div class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">
         ${feels !== undefined ? html`Feels like ${Math.round(feels)}°` : nothing}${t?.temperature !== undefined ? html`${feels !== undefined ? ' · ' : ''}Top ${Math.round(t.temperature)}°` : nothing}${t?.templow !== undefined && t.templow !== t.temperature ? html` · Low ${Math.round(t.templow)}°` : nothing}
       </div>
       <div class="wtip" role="group" aria-label="What to wear today">
@@ -428,7 +428,7 @@ export class FhWeather extends LitElement {
   private _hoursChart(): TemplateResult {
     const now = Date.now() - 30 * 60000;
     const hs = this._hours.filter((h) => new Date(h.datetime).getTime() >= now).slice(0, 24);
-    if (hs.length < 2) return html`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:15px;margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
+    if (hs.length < 2) return html`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:var(--fs-2);margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
     const W = this._hw, H = 158, n = hs.length, temps = hs.map((h) => h.temperature ?? 0);
     const lo = Math.min(...temps), hi = Math.max(...temps), y = (t: number) => 98 - ((t - lo) / Math.max(1, hi - lo)) * 24;
     const x = (i: number) => i * W + W / 2;
@@ -464,7 +464,7 @@ export class FhWeather extends LitElement {
     const lo = Math.min(...lows), hi = Math.max(...highs), span = Math.max(1, hi - lo);
     return html`<section class="glass wweek">
       <h2>${this._titles()[2]}</h2>
-      ${!days.length ? html`<p class="muted" style="font-size:15px;margin:0">${this._failed ? 'The forecast could not be loaded. It will try again shortly.' : 'Loading the forecast…'}</p>` : html`
+      ${!days.length ? html`<p class="muted" style="font-size:var(--fs-2);margin:0">${this._failed ? 'The forecast could not be loaded. It will try again shortly.' : 'Loading the forecast…'}</p>` : html`
       <div class="days" role="list">
         ${days.map((d, i) => {
           const dt = new Date(d.datetime), isToday = dt.toDateString() === today, p = d.precipitation_probability ?? 0;

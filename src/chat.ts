@@ -105,7 +105,7 @@ export class FhChat extends LitElement {
     .conv { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
     .thread { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 24px; background: var(--chip-soft, var(--chip)); overscroll-behavior: contain; }
     .thread > :first-child { margin-top: auto; }
-    .bubble { max-width: 80%; padding: 13px 18px; border-radius: 24px; border-bottom-left-radius: 8px; align-self: flex-start; background: var(--chip-strong); color: var(--ink); font-size: 20px; line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; animation: fhc-in var(--m-3, 240ms) var(--e-out, ease) both; }
+    .bubble { max-width: 80%; padding: 13px 18px; border-radius: 24px; border-bottom-left-radius: 8px; align-self: flex-start; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-4); line-height: 1.4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; animation: fhc-in var(--m-3, 240ms) var(--e-out, ease) both; }
     .bubble.asker { align-self: flex-end; border-radius: 24px; border-bottom-right-radius: 8px; background: var(--primary); color: var(--on-primary); }
     .bubble.wait { display: inline-flex; gap: 8px; align-items: center; min-height: 28px; padding: 18px 20px; }
     .bubble.wait i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; opacity: .7; animation: fhc-bounce 1.1s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
@@ -114,9 +114,9 @@ export class FhChat extends LitElement {
     @keyframes fhc-bounce { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-7px); } }
     @keyframes fhc-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 55%, transparent); } 50% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--danger) 0%, transparent); } }
     .send { display: flex; gap: 10px; align-items: center; }
-    .field { flex: 1; min-width: 0; height: 56px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 22px; font-weight: var(--w-semi, 600); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    .field { flex: 1; min-width: 0; height: 56px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-4); font-weight: var(--w-semi, 600); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
-    .send .lead { height: 56px; padding: 0 26px; font-size: 18px; }
+    .send .lead { height: 56px; padding: 0 26px; font-size: var(--fs-3); }
     button[disabled] { opacity: .45; }
     /* Send with nothing to send: an outline that still reads, not a faded fill */
     .send .lead[disabled] { opacity: 1; background: transparent; color: var(--ink2); border: 2px solid var(--ink2); }
@@ -126,32 +126,32 @@ export class FhChat extends LitElement {
     .voice { display: flex; align-items: center; gap: 16px; min-height: 100px; }
     .talk { width: 96px; height: 96px; border-radius: 50%; flex-shrink: 0; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; }
     .talk[aria-pressed='true'] { background: var(--danger); color: #fff; animation: fhc-pulse 1.4s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); animation-play-state: var(--motion, running); }
-    .voice b { font-size: 20px; font-weight: var(--w-bold, 700); line-height: 1.25; }
-    .voice .convo { height: 52px; padding: 0 16px; font-size: 15px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+    .voice b { font-size: var(--fs-4); font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .voice .convo { height: 52px; padding: 0 16px; font-size: var(--fs-2); white-space: nowrap; flex-shrink: 0; margin-left: auto; }
     :host([low]) .voice .convo { margin-left: 0; }
-    .nomic { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
+    .nomic { font-size: var(--fs-2); font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
     .starters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: 15px; line-height: 1.2; font-weight: var(--w-semi, 600); }
-    .starter span { font-size: 40px; line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
+    .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: var(--fs-2); line-height: 1.2; font-weight: var(--w-semi, 600); }
+    .starter span { font-size: var(--fs-d1); line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
     /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
-    :host([data-look]) .opts .pill { font-size: 15px; }
-    .opts .pill { font-size: 15px; flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
-    .small { font-size: 14px; line-height: 1.35; color: var(--ink2); }
+    :host([data-look]) .opts .pill { font-size: var(--fs-2); }
+    .opts .pill { font-size: var(--fs-2); flex: 1 1 auto; min-width: 0; padding: 0 10px; justify-content: center; white-space: nowrap; gap: 4px; }
+    .small { font-size: var(--fs-2); line-height: 1.35; color: var(--ink2); }
     /* on a short screen the things to ask scroll; the talk button, the options and the note about the helper stay in view */
     :host(:not([data-phone])) .ctl { min-height: 0; }
     :host(:not([data-phone])) .ctl > * { flex-shrink: 0; }
     :host(:not([data-phone])) .ctl > .starters { flex-shrink: 1; min-height: 80px; overflow-y: auto; overscroll-behavior: contain; padding: 6px; margin: -6px; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-    .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: 16px; line-height: 1.35; }
+    .rec { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; border-radius: 16px; background: var(--chip-strong); font-size: var(--fs-3); line-height: 1.35; }
     .rec .small { font-weight: var(--w-semi, 600); }
-    .send .kb { font-size: 15px; }
+    .send .kb { font-size: var(--fs-2); }
     /* opened from the page of a child who cannot read: the talk button and the six pictures sit in the lower half, where he can reach; the conversation is above */
     :host([low]) { flex-direction: column; gap: 12px; }
     :host([low]) .conv { flex: 1 1 0; min-height: 0; }
     :host([low]) .ctl { flex: 0 0 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; align-items: center; }
     :host([low]) .voice { flex-direction: column; gap: 6px; min-height: 0; text-align: center; max-width: 150px; }
-    :host([low]) .voice b { font-size: 16px; }
+    :host([low]) .voice b { font-size: var(--fs-3); }
     :host([low]) .ctl > .starters { grid-template-columns: repeat(3, 1fr); overflow: visible; }
     :host([low]) .ctl > .nomic { max-width: 220px; }
     :host([low]) .opts { grid-column: 1 / -1; margin-top: 0; }
@@ -179,16 +179,16 @@ export class FhChat extends LitElement {
     :host([kb][low][data-shape='wide']:not([data-phone])) .conv { flex: 2 1 0; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl { flex: 1 1 0; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .voice { flex-direction: row; gap: 16px; min-height: 100px; max-width: none; text-align: left; }
-    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: 20px; }
+    :host([kb][low][data-shape='wide']:not([data-phone])) .voice b { font-size: var(--fs-4); }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr 1fr; overflow-y: auto; }
     :host([kb][low][data-shape='wide'][data-n3]:not([data-phone])) .ctl > .starters { grid-template-columns: 1fr; flex-shrink: 0; overflow: visible; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .ctl > .nomic { max-width: none; }
     :host([kb][low][data-shape='wide']:not([data-phone])) .opts { margin-top: auto; }
     /* pictures only (a child who cannot read): no field, no keys, no microphone. The pictures take the whole row and grow */
     :host([pics]) .ctl > .starters { grid-column: 1 / -1; }
-    :host([pics]) .starter { min-height: 88px; font-size: 17px; }
-    :host([pics]) .starter span { font-size: 48px; width: 54px; }
-    .left { font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); flex-shrink: 0; }
+    :host([pics]) .starter { min-height: 88px; font-size: var(--fs-3); }
+    :host([pics]) .starter span { font-size: var(--fs-d2); width: 54px; }
+    .left { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); flex-shrink: 0; }
     :host([low]) .left { grid-column: 1 / -1; }
     :host([data-phone]) { flex: none; gap: 14px; }
     :host([data-phone]) .conv { flex: none; }
@@ -493,7 +493,7 @@ export class FhChat extends LitElement {
     const when = (t: number): string => new Date(t).toLocaleString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
     return html`<div class="thread" role="region" aria-label="What was asked" tabindex="0" style="gap:8px">
       <div style="display:flex;align-items:center;gap:10px;margin-top:0">
-        <div style="flex:1"><b style="font-size:18px">What was asked</b><div class="small">The last ${LOG_MAX} questions and answers, kept on this screen only.</div></div>
+        <div style="flex:1"><b style="font-size:var(--fs-3)">What was asked</b><div class="small">The last ${LOG_MAX} questions and answers, kept on this screen only.</div></div>
         <button class="pill tap" ?disabled=${!this._log.length} @click=${() => { clearLog(); this._log = []; }}>Clear</button>
         <button class="pill tap" @click=${() => { this._grown = false; }}>Back</button>
       </div>

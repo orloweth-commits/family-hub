@@ -70,20 +70,20 @@ export class FhKid extends LitElement {
     /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
     @media (max-height: 700px) { :host([data-shape='wide']:not([data-n3])) .hero { gap: 6px; padding-top: 10px; padding-bottom: 10px; } }
     .hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 70%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 45%, transparent), transparent); pointer-events: none; }
-    .name { font-size: 34px; font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
-    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
+    .name { font-size: var(--fs-6); font-weight: var(--w-heavy, 800); line-height: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; text-wrap: balance; }
+    .rank { padding: 6px 12px; border-radius: 999px; background: var(--kid); color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
     .stat { border-radius: 18px; background: var(--chip); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
-    .stat b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .stat span { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .stat b { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-5); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     /* good days: one filled dot for each day earned, and nothing drawn for the days that were not */
     .dots { display: flex; gap: 5px; min-height: 14px; }
     .dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink2); }
     .dots i.g { background: var(--ok); border-color: var(--ok); }
     .daybtns { display: grid; grid-template-columns: repeat(7, 76px); gap: 10px; }
-    .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 15px; font-weight: var(--w-bold, 700); }
+    .daybtns button { height: 84px; border-radius: 18px; background: var(--chip); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .daybtns button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .daybtns button span { font-size: 14px; font-weight: var(--w-semi, 600); }
+    .daybtns button span { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .nextup { width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 18px; background: var(--chip); padding: 8px 12px 8px 8px; }
     .jobs { flex: 1; min-width: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
     .list { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
@@ -92,9 +92,9 @@ export class FhKid extends LitElement {
     .list[data-fit] .sec { margin-top: 1px; }
     .list[data-fit] .job { min-height: 46px; padding-top: 4px; padding-bottom: 4px; }
     .list[data-fit] .job .box { width: 28px; height: 28px; }
-    .list[data-fit] .job .t { font-size: 16px; }
+    .list[data-fit] .job .t { font-size: var(--fs-3); }
     .list[data-fit] .pic { min-height: 148px; }
-    .list[data-fit] .pic .e { font-size: 72px; }
+    .list[data-fit] .pic .e { font-size: var(--fs-d4); }
     .list[data-fit='2'], .list[data-fit='3'] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; align-content: start; }
     .list[data-fit='2'] > :not(.job), .list[data-fit='3'] > :not(.job), .list[data-fit='2'] > .job:has(.play), .list[data-fit='3'] > .job:has(.play) { grid-column: 1 / -1; }
     :host([data-shape='tall']) { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr); }
@@ -130,8 +130,8 @@ export class FhKid extends LitElement {
     :host([data-phone]) .celebrate { position: fixed; border-radius: 0; }
     :host([data-phone]) .daybtns { grid-template-columns: repeat(4, 1fr); }
     .sec { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
-    .sec h2 { font-size: 18px; font-weight: var(--w-heavy, 800); }
-    .sec span { font-size: 14px; color: var(--ink2); font-weight: var(--w-semi, 600); }
+    .sec h2 { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
+    .sec span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .job { display: flex; align-items: center; gap: 14px; padding: 10px 14px; min-height: 54px; flex-shrink: 0; border-radius: 18px; background: var(--chip); text-align: left; width: 100%; position: relative; }
     /* the touch is answered on the way down, before Home Assistant or even the click: the tile lights and the check pops */
     .job[data-just], .pic[data-just] { background: var(--chip-strong); }
@@ -146,21 +146,21 @@ export class FhKid extends LitElement {
     .job.now { box-shadow: inset 0 0 0 2.5px var(--kid); }
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
-    .focus .label { font-size: 14px; margin-top: 4px; }
+    .focus .label { font-size: var(--fs-2); margin-top: 4px; }
     /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */
     .focus[data-fit] { gap: 6px; --fit: 1; }
     .focus[data-fit] .label { margin-top: 0; }
     .focus[data-fit] .picwrap { min-height: 132px; }
     .focus[data-fit] .pic.big { flex-direction: row; gap: 18px; padding: 8px 96px 8px 18px; }
-    .focus[data-fit] .pic.big .e { font-size: 88px; line-height: 1.1; }
+    .focus[data-fit] .pic.big .e { font-size: var(--fs-d5); line-height: 1.1; }
     .focus[data-fit] .pic.small { flex-basis: 76px; padding-top: 4px; padding-bottom: 4px; }
-    .focus[data-fit] .pic.small .e { font-size: 52px; line-height: 1.1; }
+    .focus[data-fit] .pic.small .e { font-size: var(--fs-d2); line-height: 1.1; }
     .focus[data-fit='2'] .job.big, .focus[data-fit='3'] .job.big { min-height: 72px; padding-top: 10px; padding-bottom: 10px; }
-    .label { font-size: 14px; }
-    .pill { font-size: 15px; }
+    .label { font-size: var(--fs-2); }
+    .pill { font-size: var(--fs-2); }
     .job.big { min-height: 96px; padding: 16px 18px; }
-    .job.big .box { width: 52px; height: 52px; font-size: 26px; }
-    .job.big .t { font-size: 28px; font-weight: var(--w-bold, 700); }
+    .job.big .box { width: 52px; height: 52px; font-size: var(--fs-5); }
+    .job.big .t { font-size: var(--fs-5); font-weight: var(--w-bold, 700); }
     .job.soonjob { opacity: .82; }
     /* the current picture job, with its "read it to me" button in the lower corner where a small child can reach it */
     .picwrap { position: relative; display: flex; flex: 4 1 0; min-height: 204px; max-height: 300px; }
@@ -169,43 +169,43 @@ export class FhKid extends LitElement {
     .readrow { display: flex; justify-content: flex-end; }
     .readrow .readme { position: static; }
     .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
-    .pic.big .pt { font-size: 28px; }
+    .pic.big .pt { font-size: var(--fs-5); }
     .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
-    .pic.small .e { font-size: 72px; }
-    .pic.small .pt { font-size: 20px; }
+    .pic.small .e { font-size: var(--fs-d4); }
+    .pic.small .pt { font-size: var(--fs-4); }
     .allset { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
-    .allset .big-e { font-size: 72px; animation: hooray var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1) both; }
+    .allset .big-e { font-size: var(--fs-d4); animation: hooray var(--m-5, 900ms) cubic-bezier(.3,1.6,.5,1) both; }
     @keyframes hooray { from { transform: scale(calc(1 - .7 * var(--m-d, 1))) rotate(calc(-20deg * var(--m-d, 1))); opacity: 0; } }
-    button.later { width: 100%; min-height: 48px; align-items: center; text-align: left; font-size: 15px; }
+    button.later { width: 100%; min-height: 48px; align-items: center; text-align: left; font-size: var(--fs-2); }
     /* all done, in pictures: the child's own character celebrating, and one big button to look back at the day */
     .party { position: relative; display: flex; align-items: center; justify-content: center; line-height: 0; }
     .party .burstart { position: absolute; inset: -18px -70px; width: calc(100% + 140px); height: calc(100% + 36px); }
-    .seedone { display: flex; align-items: center; gap: 14px; min-height: 96px; padding: 12px 28px 12px 18px; border-radius: 26px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink2); font-size: 22px; font-weight: var(--w-heavy, 800); }
+    .seedone { display: flex; align-items: center; gap: 14px; min-height: 96px; padding: 12px 28px 12px 18px; border-radius: 26px; background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink2); font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
     .feel.three { justify-content: space-around; }
-    .feel.three button { font-size: 46px; width: 72px; height: 72px; }
+    .feel.three button { font-size: var(--fs-d1); width: 72px; height: 72px; }
     .job.done .box { background: var(--ok); border-color: var(--ok); transform: scale(1.08); }
     .job.done .t { color: var(--ink-done, var(--ink3)); text-decoration: line-through; }
-    .job .t { flex: 1; font-size: 18px; font-weight: var(--w-semi, 600); }
-    .plus { font-size: 14px; font-weight: var(--w-heavy, 800); padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--kid) 22%, transparent); white-space: nowrap; }
+    .job .t { flex: 1; font-size: var(--fs-3); font-weight: var(--w-semi, 600); }
+    .plus { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--kid) 22%, transparent); white-space: nowrap; }
     .grow { background: color-mix(in srgb, var(--ok) 18%, transparent); }
     /* one filled button on the page: the timer of the job to do now. Any other timer is an outlined one. */
-    .play { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px var(--primary); font-weight: var(--w-bold, 700); font-size: 15px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .play { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px var(--primary); font-weight: var(--w-bold, 700); font-size: var(--fs-2); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
     .now .play:not(.going) { background: var(--primary); color: var(--on-primary); box-shadow: none; }
-    .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: 16px; }
-    .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
+    .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: var(--fs-3); }
+    .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
     .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
     .pic { border-radius: 24px; background: var(--chip); padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; min-height: 190px; justify-content: center; }
-    .pic .pt { font-size: 17px; font-weight: var(--w-bold, 700); text-align: center; }
-    .pic .e { font-size: 96px; line-height: 1.1; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.6,.4,1); }
+    .pic .pt { font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: center; }
+    .pic .e { font-size: var(--fs-d5); line-height: 1.1; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.6,.4,1); }
     .pic.done { background: color-mix(in srgb, var(--ok) 25%, var(--chip)); }
     .pic.done .e { transform: scale(.85) rotate(-8deg); opacity: .6; }
-    .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
+    .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
     .stars { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px; line-height: 0; }
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
     .avph { display: block; width: 186px; max-width: 100%; aspect-ratio: 200 / 240; border-radius: 22px; background: var(--chip-soft); }
     .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
-    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 22px; font-weight: var(--w-heavy, 800); z-index: 1; }
+    .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
     /* the card holds his picture, his name and the way into his studio: nothing to count, so the picture takes the room */
     .avbtn { position: relative; flex: 0 1 300px; min-height: 110px; display: flex; justify-content: center; }
@@ -238,23 +238,23 @@ export class FhKid extends LitElement {
     /* a reward: the whole row is the button. Its cost is an outlined chip, and spending always takes a second, deliberate tap. */
     /* a long reward name keeps a readable line: what it costs drops under it instead of squeezing it */
     .rw { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; min-height: 56px; padding: 6px 8px 6px 10px; flex-shrink: 0; border-radius: 14px; background: var(--chip); text-align: left; }
-    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
-    .rw .rpic { font-size: 24px; flex-shrink: 0; }
-    .rw.picrow .rpic { font-size: 40px; }
+    .rw .n { flex: 1 1 96px; min-width: 0; overflow-wrap: anywhere; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.2; display: flex; flex-direction: column; gap: 4px; }
+    .rw .rpic { font-size: var(--fs-5); flex-shrink: 0; }
+    .rw.picrow .rpic { font-size: var(--fs-d1); }
     .rw .stars { max-width: 100px; }
-    .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
+    .rw .cost { min-height: 32px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--ink); }
     /* "80 to go" is a status, not something to press: a flat tile with no outline */
     .rw .cost.notyet { box-shadow: none; background: var(--track); color: var(--ink); font-weight: var(--w-semi, 600); }
-    .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
+    .owedline { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 6px 12px; border-radius: 14px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line, color-mix(in srgb, var(--ink) 30%, transparent)); overflow-wrap: anywhere; }
     .rw.ask[data-held] { pointer-events: none; }
     @keyframes lockwig { 0%, 100% { rotate: 0deg; } 25% { rotate: calc(-16deg * var(--m-d, 1)); } 60% { rotate: calc(12deg * var(--m-d, 1)); } 82% { rotate: calc(-6deg * var(--m-d, 1)); } }
     .studio[data-nudge] svg { transform-origin: 50% 20%; animation: lockwig var(--m-4, 400ms) var(--e-out, ease) 1; }
     .rw.ask { flex-wrap: wrap; box-shadow: var(--sel-ring); background: var(--sel-bg); color: var(--sel-ink); } .rw.ask button { color: var(--ink); } .rw.ask .q .muted { color: inherit; /* the row's own selected ink: the muted ink vanished on the pale selected fill in Space */ }
-    .rw.ask .q { flex: 1 1 100%; font-size: 16px; font-weight: var(--w-bold, 700); line-height: 1.25; }
-    .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: 16px; font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .rw.ask .q { flex: 1 1 100%; font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     .jar { display: flex; align-items: center; gap: 12px; }
-    .jarwhy { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    .jarwhy { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
     .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }
@@ -265,43 +265,43 @@ export class FhKid extends LitElement {
     /* a marble: the same small glass ball on a family-job row, in flight and in the jar */
     .marble { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, transparent 42%), var(--accent); box-shadow: inset 0 -2px 3px rgba(0,0,0,.22); }
     .marble.fly { position: fixed; left: 0; top: 0; width: 16px; height: 16px; z-index: 60; pointer-events: none; }
-    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: var(--w-heavy, 800); white-space: nowrap; }
-    .wk { display: flex; gap: 10px; font-size: 14px; align-items: baseline; min-width: 0; }
+    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); white-space: nowrap; }
+    .wk { display: flex; gap: 10px; font-size: var(--fs-2); align-items: baseline; min-width: 0; }
     .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
-    .wk .init { min-width: 22px; height: 22px; font-size: 14px; }
-    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: 14px; }
+    .wk .init { min-width: 22px; height: 22px; font-size: var(--fs-2); }
+    .wk .d { width: 78px; flex-shrink: 0; font-weight: var(--w-bold, 700); color: var(--ink2); font-size: var(--fs-2); }
     .bedclock { display: inline-flex; align-items: center; gap: 8px; line-height: 0; }
-    .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: 20px; font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
-    .bedclock b span { font-size: 14px; font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
+    .bedclock b { display: flex; flex-direction: column; align-items: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); line-height: 1; font-variant-numeric: tabular-nums; }
+    .bedclock b span { font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); margin-top: 2px; }
     .ring { position: relative; width: 52px; height: 52px; }
     .ring svg { transform: rotate(-90deg); }
-    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: var(--w-heavy, 800); }
+    .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     .feel { display: flex; justify-content: space-between; }
     .tabs { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--chip-soft); }
-    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: 14px; letter-spacing: -.01em; }
-    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: 15px; font-weight: var(--w-bold, 700); color: var(--ink); }
+    :host([data-n1]) .tab, :host([data-n2]) .tab, :host([data-n3]) .tab { font-size: var(--fs-2); letter-spacing: -.01em; }
+    .tab { flex: 1; min-width: 0; height: 44px; /* token */ border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink); }
     /* the page's messages sit at the top here, clear of the buttons a child is reaching for */
     :host(:not([data-phone])) .toast { bottom: auto; top: 4px; }
     .tab[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .feel button { font-size: 30px; width: 46px; height: 46px; border-radius: 50%; }
+    .feel button { font-size: var(--fs-6); width: 46px; height: 46px; border-radius: 50%; }
     .feel button:active { background: var(--chip-strong); }
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
     .unl { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
+    .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))); } }
     /* points live where they are spent: one line at the top of the rewards */
-    .ptsline { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; padding: 2px 6px; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .ptsline b { font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: var(--w-heavy, 800); line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .ptsline { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; padding: 2px 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .ptsline b { font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-5); font-weight: var(--w-heavy, 800); line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
     .tabbody > .stat { flex-shrink: 0; }
     /* coming up, for a child who cannot read: three pictures side by side, each with one moon for every sleep until it. A tap reads it out */
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
-    .soonpic .e { font-size: 40px; line-height: 1.1; }
+    .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
     /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
-    .soonpic .pt { font-size: 14px; font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
-    .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: 14px; line-height: 1.1; margin-top: auto; }
-    .soonpic .sl { font-size: 14px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
+    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
+    .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
+    .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
@@ -705,9 +705,9 @@ export class FhKid extends LitElement {
     return html`<div class="celebrate" @click=${(e: Event) => { if (e.target === e.currentTarget) this._days = false; }}>
       <div class="glass cbox" role="dialog" aria-modal="true" aria-label="Days off">
         <h2 class="t-head">Days off this week</h2>
-        <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);text-align:center">A day off never counts against ${this.kid.name}’s week.</span>
+        <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);text-align:center">A day off never counts against ${this.kid.name}’s week.</span>
         <div class="daybtns">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => html`<button class="tap" aria-pressed=${String(w[i] === 'O')} @click=${() => this._dayOff(i)}>${d}<span>${w[i] === 'O' ? 'Day off' : w[i] === 'G' ? 'Good day' : '–'}</span></button>`)}</div>
-        <button class="pill tap primary" style="height:52px;padding:0 28px;font-size:16px" @click=${() => { this._days = false; }}>Done</button>
+        <button class="pill tap primary" style="height:52px;padding:0 28px;font-size:var(--fs-3)" @click=${() => { this._days = false; }}>Done</button>
       </div></div>`;
   }
 
@@ -751,16 +751,16 @@ export class FhKid extends LitElement {
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
         ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
       <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1></div>
-      ${this._wind ? html`<div class="nextup"><span style="font-size:14px;font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : nothing}
-      ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
+      ${this._wind ? html`<div class="nextup"><span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : nothing}
+      ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind && this._picMode && this.ask ? html`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button></div>` : nothing /* in the evening the studio is shut, but his Ask button stays where he can reach it */}
       ${this._wind ? nothing : (() => {
         const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
         // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
         const askOn = this._picMode && this.ask;
-        return html`${wait ? html`<span class="muted" style="font-size:14px;font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
+        return html`${wait ? html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}
           <div class="lowrow" style=${wait ? '' : 'margin-top:auto'}>${askOn ? html`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button>` : nothing}
-          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:16px;flex-shrink:0" @click=${(e: Event) => {
+          <button class="pill tap studio" ?data-locked=${wait} aria-label=${wait ? `${this._picMode ? 'My look' : 'Style studio'}: ${left} job${left === 1 ? '' : 's'} to go first` : nothing} style="height:${askOn ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:var(--fs-3);flex-shrink:0" @click=${(e: Event) => {
             // the words above the button are a promise, so the button keeps it: jobs first. Nothing pops up; a child who cannot read hears it once.
             // not yet: the padlock gives a small wiggle and, for a child who cannot read, the reason is spoken. Nothing red, no error message.
             if (wait) { this._sound('locked'); const b = e.currentTarget as HTMLElement; b.removeAttribute('data-nudge'); void b.offsetWidth; b.setAttribute('data-nudge', ''); if (this._picMode) say(left === 1 ? 'One more job, then your look.' : `${left} jobs to go.`); return; }
@@ -797,7 +797,7 @@ export class FhKid extends LitElement {
     return html`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._night ? 'Night time' : this._wind ? 'Wind down' : this._picMode ? (slot === 'am' ? 'My morning' : slot === 'bed' ? 'My bedtime' : 'My jobs') : 'Today'}</h1>
-          <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">${sub}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${sub}</span></div>
         ${this.oneAtATime && this._showAll ? html`<button class="pill tap" @click=${() => { this._showAll = false; }}>One at a time</button>` : nothing}
 
         ${this._wind && toBed > 0 ? html`<span class="bedclock" role="img" aria-label="${toBed} minutes until bed">${lookArt(getLook(), 'timer', { frac: toBed / 60, size: 52 })}<b>${toBed}<span>min</span></b></span>` : nothing}
@@ -812,7 +812,7 @@ export class FhKid extends LitElement {
             ${jobs.length ? html`<div class="sec"><h2>Family jobs</h2><span data-act="jar-rule">each one adds a marble to the jar</span></div>${jobs.map((c) => this._row(c))}` : nothing}
             ${grow.length ? html`<div class="sec"><h2>${plain ? 'Practice and reading' : 'Growing'}</h2>${plain ? nothing : html`<span>for you – surprises along the way</span>`}</div>${grow.map((c) => this._row(c))}` : nothing}`}
         ${later.length && !this._wind ? html`<div class="later"><span>Later: ${SLOT_NAME[later[0].slot]} (${later.length})</span><span>${later.map((c) => this._picMode ? picFor(c) : '').join(' ')}</span></div>` : nothing}
-        ${!visible.length ? html`<div class="wind"><span style="font-size:44px">${this._night ? '🌙' : '🌤️'}</span><span>${this._night ? 'Sleep time. See you in the morning.' : 'Nothing right now. Enjoy!'}</span></div>` : nothing}
+        ${!visible.length ? html`<div class="wind"><span style="font-size:var(--fs-d1)">${this._night ? '🌙' : '🌤️'}</span><span>${this._night ? 'Sleep time. See you in the morning.' : 'Nothing right now. Enjoy!'}</span></div>` : nothing}
       </div>`}
     </section>`;
   }
@@ -828,7 +828,7 @@ export class FhKid extends LitElement {
       <button class="seedone tap" @click=${() => { this._showAll = true; this._sound('tap'); say('Here is everything you did.'); }}>${listSvg}<span>See what I did</span></button></div></div>`;
     if (!now) return html`<div class="focus"><div class="allset"><span class="big-e">${this._wind ? '🌙' : '🎉'}</span>
       <h2 class="t-head">${this._night ? 'Sleep time' : this._wind ? 'All set for bed' : done ? 'All done!' : 'Nothing right now'}</h2>
-      <span class="muted" style="font-size:16px;font-weight:var(--w-semi, 600)">${this._night ? 'See you in the morning.' : this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
+      <span class="muted" style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">${this._night ? 'See you in the morning.' : this._wind ? 'Sleep well.' : done ? (laterToday ? 'More later. Enjoy your free time!' : 'Great work today.') : 'Enjoy!'}</span>
       ${done ? html`<button class="pill tap" @click=${() => { this._showAll = true; }}>See what I did</button>` : nothing}</div></div>`;
     const more = rest.length;
     return html`<div class="focus" data-fits>
@@ -869,8 +869,8 @@ export class FhKid extends LitElement {
   private _rewards(): TemplateResult {
     const have = num(this.hass, this._e.points), list = this.kid.rewards ?? DEFAULT_REWARDS, st = this._star;
     // what he has to spend is said here, where it is spent (and nowhere else on the page)
-    const purse = this._picMode ? html`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:40px">🫙</span>
-        <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:30px">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
+    const purse = this._picMode ? html`<div class="stat" style="width:100%;align-items:center;flex-direction:row;gap:12px"><span style="font-size:var(--fs-d1)">🫙</span>
+        <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
         <span>${Math.floor(have / st)} stars in my jar</span></span></div>`
       : html`<div class="ptsline" role="group" aria-label=${have ? `${have} points to spend` : 'No points to spend yet'}>${have ? html`<b>${have}</b><span>${have === 1 ? 'point' : 'points'} to spend</span>` : html`<span>${this.kid.older ? 'No points to spend yet' : '✨ Ready to start'}</span>`}</div>`;
     return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${list.map((r, i) => {
@@ -878,12 +878,12 @@ export class FhKid extends LitElement {
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
         const saving = this._saving === r.name, held = this._held === r.name || saving, capped = this._capped(r), back = backDay(this._now);
         if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held} aria-busy=${saving ? 'true' : nothing}>
-          <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${r.name}</span></span>
+          <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${r.name}</span></span>
           <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${saving ? 'Saving…' : html`${tickSvg(18)}Yes`}</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
         return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" ?data-capped=${capped} aria-label="${r.name}: ${capped ? `had this week. Back on ${back}` : ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
-          <span class="n">${r.name}${this._picMode ? html`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${total > 12 ? html`${starSvg(ok, 20)}<b style="font-size:15px;line-height:20px;margin-left:4px">${got} / ${total}</b>` : Array.from({ length: total }, (_, k) => starSvg(k < got, 18))}</span>` : nothing}</span>
+          <span class="n">${r.name}${this._picMode ? html`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${total > 12 ? html`${starSvg(ok, 20)}<b style="font-size:var(--fs-2);line-height:20px;margin-left:4px">${got} / ${total}</b>` : Array.from({ length: total }, (_, k) => starSvg(k < got, 18))}</span>` : nothing}</span>
           ${capped ? html`<span class="cost notyet" style="margin-left:auto">Back ${back}</span>` : this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}" style="margin-left:auto">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
       })}`;
   }
@@ -899,8 +899,8 @@ export class FhKid extends LitElement {
   }
 
   private _windCard(): TemplateResult {
-    return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:15px;font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
-      ${this._night ? nothing : html`<span class="muted wbed" style="font-size:14px">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span>`}</section>`;
+    return html`<section class="glass card"><span class="label">Rewards</span><span style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">The shop opens again in the morning 🌙</span>
+      ${this._night ? nothing : html`<span class="muted wbed" style="font-size:var(--fs-2)">Bedtime ${t12(bedtimeFor(this.kid.bedtime, this._now))}</span>`}</section>`;
   }
 
   private _jar(): TemplateResult {
@@ -914,23 +914,23 @@ export class FhKid extends LitElement {
         <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
         <rect clip-path="url(#jc)" x="6" y=${58 - 44 * f} width="36" height=${44 * f} fill="var(--accent)" style="transition:y var(--mt-5, 900ms) var(--e-out, ease), height var(--mt-5, 900ms) var(--e-out, ease)"></rect></svg>
       <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="jarhead"><span class="label">Family jar</span>${added > 0 && !this._wind ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}</span>
-        <span style="font-size:15px;font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
+        <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
         ${this._wind ? nothing : html`<span class="jarwhy rule" data-act="jar-why">Every family job adds a marble.${this._jarTold ? nothing : html` <span data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}</span>`}
       </span></div></section>`;
   }
 
   private _feelCard(): TemplateResult {
     const faces = this._picMode ? FEELINGS_3 : FEELINGS, kind = this._feel ? FEEL_KIND(this._feel) : 'mid';
-    const big = this._picMode ? 'height:56px;font-size:18px' : '';
+    const big = this._picMode ? 'height:56px;font-size:var(--fs-3)' : '';
     const ask = FEEL_ASK[kind];
     return html`<section class="glass card feelcard" aria-label="How are you feeling">
-      ${this._feel ? html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:15px;font-weight:var(--w-semi, 600)">${ask}</span>
-            ${this._picMode ? html`<button class="round tap" style="font-size:20px;flex-shrink:0" aria-label="Read the question" @click=${(e: Event) => say(ask, e.currentTarget as Element)}>🔊</button>` : nothing}</div>
+      ${this._feel ? html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${ask}</span>
+            ${this._picMode ? html`<button class="round tap" style="font-size:var(--fs-4);flex-shrink:0" aria-label="Read the question" @click=${(e: Event) => say(ask, e.currentTarget as Element)}>🔊</button>` : nothing}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${kind === 'up'
           ? html`<button class="pill tap" style=${big} @click=${() => this._feelReply('share')}>💬 Leave a note</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>👍 All good</button>`
           : html`<button class="pill tap" style=${big} @click=${() => this._feelReply('hug')}>🤗 Hug</button><button class="pill tap" style=${big} @click=${() => this._feelReply('chat')}>💬 Chat later</button><button class="pill tap" style=${big} @click=${() => this._feelReply('ok')}>I’m OK</button>`}</div>`
         : html`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="label">How are you feeling?</span>
-            ${this._picMode ? html`<button class="round tap" style="font-size:20px" aria-label="Read the question" @click=${(e: Event) => say('How are you feeling?', e.currentTarget as Element)}>🔊</button>` : nothing}</div>
+            ${this._picMode ? html`<button class="round tap" style="font-size:var(--fs-4)" aria-label="Read the question" @click=${(e: Event) => say('How are you feeling?', e.currentTarget as Element)}>🔊</button>` : nothing}</div>
           <div class="feel ${this._picMode ? 'three' : ''}">${faces.map(([e, w]) => html`<button class="tap" aria-label=${w} @click=${() => this._feelPick(w)}>${e}</button>`)}</div>`}
     </section>`;
   }
@@ -938,14 +938,14 @@ export class FhKid extends LitElement {
   /** Older mode: no faces on a shared wall. One quiet button leaves a note for a grown-up; nothing about it appears on the panel. */
   private _chatCard(): TemplateResult {
     return html`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
-      <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:16px" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>${icon('ask', 20)}Ask for a chat</button>
-      <span class="muted" style="font-size:14px;font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
+      <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>${icon('ask', 20)}Ask for a chat</button>
+      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
   }
 
   /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
   private _windChat(): TemplateResult {
-    return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:15px;font-weight:var(--w-semi, 600)">Something on your mind?</span>
-      <button class="pill tap" style="height:52px;justify-content:center;font-size:16px" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>💬 Ask for a chat</button></section>`;
+    return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
+      <button class="pill tap" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>💬 Ask for a chat</button></section>`;
   }
 
   private _weekBody(): TemplateResult {
@@ -965,25 +965,25 @@ export class FhKid extends LitElement {
         ${evs.length ? html`<div class="soon">${evs.slice(0, 3).map((e) => { const n = sleeps(e.start); return html`<button class="soonpic tap" aria-label="${e.title}: ${words(n)}" @click=${(x: Event) => { this._sound('tap'); say(`${e.title}. ${n === 0 ? 'Today!' : words(n) + '.'}`, x.currentTarget as Element); }}>
           <span class="e" aria-hidden="true">${eventPic(e.title)}</span><span class="pt">${e.title}</span>
           <span class="moons" aria-hidden="true">${n === 0 ? '☀️' : n <= 7 ? Array.from({ length: n }, () => html`<span>🌙</span>`) : '🌙'}</span><span class="sl">${words(n)}</span></button>`; })}</div>`
-          : html`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+          : html`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
     }
     return html`${this._wind ? html`<span class="label">${`${this.kid.name}’s week`}</span>` : nothing}
       ${evs.length ? evs.map((e, i) => html`<div class="wk"><span class="d">${i && label(evs[i - 1].start) === label(e.start) ? '' : label(e.start)}</span>
         <span style="flex:1;font-weight:var(--w-semi, 600);display:flex;gap:6px;align-items:baseline"><span class="init sm" style="--c:${e.family ? 'var(--p-family)' : 'var(--kid)'};align-self:center" role="img" aria-label=${e.family ? 'Family' : this.kid.name}>${e.family ? 'F' : this.kid.name[0]}</span>
           <span>${e.title}${e.allDay ? '' : html` <span class="muted" style="font-weight:500">· ${fmtTime(e.start)}</span>`}</span></span></div>`)
-        : html`<span class="muted" style="font-size:15px">Nothing on this week.</span>`}`;
+        : html`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
   }
 
   private _celebration(): TemplateResult {
     const items = this._celebrate!, look = this._look;
     return html`<div class="celebrate" @click=${(e: Event) => { if (e.target === e.currentTarget) this._closeCelebrate(false); }}>
       <div class="glass cbox" role="dialog" aria-label="New unlocks">
-        <span class="rank" style="font-size:14px">${items.some((u) => GROW_IDS.has(u.id)) ? 'SURPRISE!' : `NEW UNLOCK${items.length > 1 ? 'S' : ''}`}</span>
+        <span class="rank" style="font-size:var(--fs-2)">${items.some((u) => GROW_IDS.has(u.id)) ? 'SURPRISE!' : `NEW UNLOCK${items.length > 1 ? 'S' : ''}`}</span>
         <h1 class="t-hero" style="text-align:center">${this.kid.name}, you unlocked ${items.length > 1 ? `${items.length} things` : items[0].label}!</h1>
         <div class="unl">${items.slice(0, 8).map((u, i) => html`<div style="animation-delay:${0.15 + i * 0.12}s">
           ${this._itemPic(look, u, 96, u.cat.crop)}${u.label}</div>`)}</div>
         <div style="display:flex;gap:12px"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => this._closeCelebrate(false)}>Later</button>
-          ${this._wind ? nothing : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:16px" @click=${() => this._closeCelebrate(true)}>${icon('star', 18)}Try it on</button>`}</div>
+          ${this._wind ? nothing : html`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => this._closeCelebrate(true)}>${icon('star', 18)}Try it on</button>`}</div>
       </div>
     </div>`;
   }

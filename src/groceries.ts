@@ -43,14 +43,14 @@ export class FhGroceries extends LitElement {
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
     .done .strike { color: var(--ink2); }
-    .txt { flex: 1; min-width: 0; font-size: 16px; font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
-    .tag { font-size: 13px; font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
-    .label { font-size: 13px; }
-    .note { font-size: 13px; }
+    .txt { flex: 1; min-width: 0; font-size: var(--fs-3); font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
+    .tag { font-size: var(--fs-1); font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .label { font-size: var(--fs-1); }
+    .note { font-size: var(--fs-1); }
     .trolley { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
-    .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
-    .failed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; font-size: 17px; font-weight: var(--w-semi, 600); padding: 16px; }
-    .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .failed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; font-size: var(--fs-3); font-weight: var(--w-semi, 600); padding: 16px; }
+    .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     /* two columns leave no room for the aisle chip; the list is still sorted by aisle. Phones show it. */
     :host(:not([data-phone])) .tag { display: none; }
     :host([data-shape='tall']) .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -67,7 +67,7 @@ export class FhGroceries extends LitElement {
     :host([data-phone]) .items { overflow: visible; flex: none; grid-template-columns: minmax(0, 1fr); padding: 0; margin: 0; }
     :host([data-phone]) .keys { display: none; }
     :host([data-phone]) .entry { flex-wrap: wrap; }
-    :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: 20px; }
+    :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: var(--fs-4); }
     :host([data-phone]) .entry .lead { height: 52px; flex: 0 0 auto; }
     /* tablets narrower than the canvas: the list narrows so the keyboard keeps whole keys; under 900 px the two stack and the page scrolls */
     :host([data-shape='wide'][data-n1]) .list { width: 440px; }
@@ -82,23 +82,23 @@ export class FhGroceries extends LitElement {
     :host([data-shape='tall'][data-n3]) .add .key.space { width: 380px; }
     .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .entry { display: flex; gap: 10px; align-items: center; min-width: 0; }
-    .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink);
+    .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
-    .entry .lead { height: 60px; padding: 0 26px; font-size: 18px; flex-shrink: 0; }
+    .entry .lead { height: 60px; padding: 0 26px; font-size: var(--fs-3); flex-shrink: 0; }
     .usuals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .usuals > span { font-size: 13px; font-weight: var(--w-bold, 700); margin-right: 4px; }
+    .usuals > span { font-size: var(--fs-1); font-weight: var(--w-bold, 700); margin-right: 4px; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
     .keys { flex: 1; min-height: 0; justify-content: center; }
     :host(:not([data-shape='tall']):not([data-phone])) .krow { flex: 1 1 52px; max-height: 78px; min-height: 44px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key { height: 100%; width: 56px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.wide { width: 86px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.space { width: 380px; }
-    .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); }
-    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: var(--w-semi, 600); }
+    .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .toast.act { display: flex; align-items: center; gap: 14px; pointer-events: auto; padding: 8px 8px 8px 22px; }
-    .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: 15px; font-weight: var(--w-heavy, 800); }
+    .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     .toast .undo:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   `];
 
@@ -253,7 +253,7 @@ export class FhGroceries extends LitElement {
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
           <h1 class="t-title">Groceries</h1>
-          ${this._failed ? nothing : html`<span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600)">${open.length} to buy</span>`}
+          ${this._failed ? nothing : html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${open.length} to buy</span>`}
         </div>
         ${this._failed ? html`<div class="failed" role="alert"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span>Can’t reach the shopping list.</span>
           <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
@@ -264,17 +264,17 @@ export class FhGroceries extends LitElement {
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>
             ${done.map((i) => this._row(i))}` : nothing}
-          ${!open.length && !done.length && !adding.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:17px;font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:15px">Type an item or tap a usual to add it.</span></div>` : nothing}
+          ${!open.length && !done.length && !adding.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:var(--fs-2)">Type an item or tap a usual to add it.</span></div>` : nothing}
         </div>`}
         <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:15px;font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((r) => html`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === r.name} aria-busy=${this._sending === r.name ? 'true' : nothing} @click=${() => void this._send(r)}>
-            <span class="avatar" style="width:34px;height:34px;font-size:14px;background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
-          ${!this.recipients.length ? html`<span class="muted" style="font-size:13px">(add phones in the card settings)</span>` : nothing}
+            <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
+          ${!this.recipients.length ? html`<span class="muted" style="font-size:var(--fs-1)">(add phones in the card settings)</span>` : nothing}
         </div>
         <div class="entry">
           <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"

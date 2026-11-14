@@ -35,20 +35,20 @@ export class FhRadar extends LitElement {
     :host([dark]) .bar, :host([dark]) .zoom { --rbar: rgba(16,24,44,.86); --rink: #eef3ff; }
     .bar button, .zoom button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: inherit; flex-shrink: 0; }
     .bar button { background: var(--primary); color: var(--on-primary); }
-    .when { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 66px; }
-    .ago { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .when { font-size: var(--fs-2); font-weight: 800; font-variant-numeric: tabular-nums; min-width: 66px; }
+    .ago { font-size: var(--fs-1); font-weight: 600; white-space: nowrap; }
     .ticks { flex: 1; display: flex; gap: 3px; align-items: center; min-width: 0; }
     .ticks i { flex: 1; height: 6px; border-radius: 3px; background: currentColor; opacity: .2; }
     .ticks i.seen { opacity: .55; }
     .ticks i.cur { opacity: 1; height: 10px; background: var(--accent); }
     .zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; border-radius: 22px; background: var(--rbar, rgba(255,255,255,.88)); color: var(--rink, #14202e); box-shadow: 0 4px 14px rgba(0,0,0,.22); cursor: default; }
     .zoom button:disabled { opacity: .3; }
-    .zoom b { font-size: 24px; line-height: 1; font-weight: 600; }
-    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: 13px; font-weight: 700; pointer-events: none; }
+    .zoom b { font-size: var(--fs-5); line-height: 1; font-weight: 600; }
+    .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: var(--fs-1); font-weight: 700; pointer-events: none; }
     :host([dark]) .key { --rkey: #10182c; --rink: #eef3ff; }
     .key b { font-weight: inherit; }
     .key span { width: 74px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #9ad7f5, #3b8fe0, #1f4fc4, #f7e33c, #f39a1e, #e0261c, #a31278); }
-    .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 15px; font-weight: 600; color: var(--ink2); pointer-events: none; }
+    .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); pointer-events: none; }
   `];
   static properties = { lat: { type: Number }, lon: { type: Number }, zoom: { type: Number }, dark: { type: Boolean, reflect: true }, _z: { state: true }, _frames: { state: true }, _i: { state: true }, _play: { state: true }, _size: { state: true }, _pan: { state: true }, _err: { state: true } };
   lat = 0;

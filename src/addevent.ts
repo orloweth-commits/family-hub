@@ -32,7 +32,7 @@ export class FhAddEvent extends LitElement {
     :host([data-phone]) .dialbox { flex-wrap: wrap; justify-content: center; }
     :host([data-phone]) .side { flex: 1 1 100%; flex-direction: row; }
     :host([data-phone]) .durs { flex: 1; grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)); }
-    :host([data-phone]) .durs button { min-width: 0; font-size: 13px; padding: 0 2px; }
+    :host([data-phone]) .durs button { min-width: 0; font-size: var(--fs-1); padding: 0 2px; }
     :host([data-phone]) .sum { display: none; }
     :host([data-phone]) .afoot { position: sticky; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; margin: 0 -14px; padding: 10px 14px 14px; background: var(--foot-bg, var(--chip-strong)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 -8px 18px rgba(0,0,0,.14); }
     :host([data-phone]) .afoot .sum { display: block; text-align: left; white-space: normal; }
@@ -40,33 +40,33 @@ export class FhAddEvent extends LitElement {
     :host { animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     .box > * { flex-shrink: 0; }
-    .sum { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .err { color: var(--danger, #dc2626); font-size: 15px; font-weight: var(--w-semi, 600); } .err:empty { display: none; }
+    .sum { flex: 1; min-width: 0; text-align: right; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .err { color: var(--danger, #dc2626); font-size: var(--fs-2); font-weight: var(--w-semi, 600); } .err:empty { display: none; }
     /* the keyboard is as wide as the sheet (up to 900 px), so the keys are as big as the sheet allows */
     .box .keys { width: 100%; max-width: 900px; align-self: center; }
     .box .keys .key, .box .keys.compact .key { flex: 1 1 0; width: auto; min-width: 0; }
     .box .keys .key.wide, .box .keys.compact .key.wide { flex: 1.5 1 0; width: auto; }
     .box .keys .key.space, .box .keys.compact .key.space { flex: 0 1 62%; width: auto; }
-    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: 24px; font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
     .field { text-overflow: ellipsis; }
     .box .xbtn { margin-left: auto; }
     .field.on { box-shadow: inset 0 0 0 3px var(--primary); }
     .box .field:focus-visible { outline: none; }
-    .field.where { height: 48px; font-size: 19px; }
+    .field.where { height: 48px; font-size: var(--fs-4); }
     /* what and where share a row, with Add at its end */
     .what { display: flex; gap: 10px; align-items: center; }
     .what > .field { flex: 1.5 1 0; height: 60px; }
     .wherebox { position: relative; flex: 1 1 0; display: flex; align-items: center; gap: 6px; min-width: 0; }
-    .wherebox .field.where { height: 60px; font-size: 18px; padding: 0 14px; }
+    .wherebox .field.where { height: 60px; font-size: var(--fs-3); padding: 0 14px; }
     :host([data-phone]) .what { flex-direction: column; align-items: stretch; }
     :host([data-phone]) .what > .field, :host([data-phone]) .wherebox { flex: none; }
     .wherebox > .pin { line-height: 0; width: 30px; display: flex; justify-content: center; color: var(--accent); }
     .places { position: absolute; left: 0; right: 0; top: 64px; min-width: 320px; z-index: 5; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; gap: 2px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 14px 34px rgba(0,0,0,.28); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
-    .places button { min-height: 44px; padding: 5px 12px; border-radius: 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: var(--w-bold, 700); }
-    .places button small { font-size: 13px; font-weight: var(--w-semi, 600); color: var(--ink2); }
-    .places .note { font-size: 12px; color: var(--ink2); padding: 2px 12px 4px; }
+    .places button { min-height: 44px; padding: 5px 12px; border-radius: 12px; text-align: left; display: flex; flex-direction: column; justify-content: center; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+    .places button small { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); }
+    .places .note { font-size: var(--fs-1); color: var(--ink2); padding: 2px 12px 4px; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
+    .chips button { height: 44px; padding: 0 13px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 6px; }
     .chips button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     /* each set of chips is one row: seven days in a grid, and the calendars side by side (a long name is cut, never wrapped under the others) */
     .chips.days { display: grid; grid-template-columns: 1.15fr 1.5fr repeat(5, 1fr); gap: 6px; }
@@ -75,7 +75,7 @@ export class FhAddEvent extends LitElement {
     .chips.cals button { min-width: 0; padding: 0 11px 0 9px; }
     .rowhead { display: flex; align-items: center; gap: 8px; min-height: 44px; }
     .rowhead .sub { flex: 1; }
-    .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
+    .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     .rowhead .calbtn { background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
     .rowhead .farchip { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     :host([data-phone]) .chips.days, :host([data-phone]) .chips.cals { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
@@ -86,7 +86,7 @@ export class FhAddEvent extends LitElement {
     :host([data-n3]:not([data-phone])) .dialbox { justify-content: center; }
     :host([data-n3]:not([data-phone])) .chips.cals { display: flex; flex-wrap: wrap; }
     .when > .left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
-    .sub { font-size: 14px; font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+    .sub { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
 
     /* the time dial: two drums that spin, and am / pm beside them */
     .dialbox { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 22px; background: var(--chip); }
@@ -96,44 +96,44 @@ export class FhAddEvent extends LitElement {
     .drum { position: relative; width: 64px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; touch-action: pan-y; -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); outline: none; }
     .drum::-webkit-scrollbar { display: none; }
     .drum:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); border-radius: 10px; }
-    .drum i { display: flex; align-items: center; justify-content: center; height: ${ROW}px; scroll-snap-align: center; font-style: normal; font-size: 30px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .drum i { display: flex; align-items: center; justify-content: center; height: ${ROW}px; scroll-snap-align: center; font-style: normal; font-size: var(--fs-6); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; color: var(--ink2); }
     .drum i[data-on] { color: var(--ink); }
     .drum::before, .drum::after { content: ''; display: block; height: ${ROW}px; }
-    .colon { font-size: 30px; font-weight: 800; padding-bottom: 4px; }
+    .colon { font-size: var(--fs-6); font-weight: 800; padding-bottom: 4px; }
     .ampm { display: flex; flex-direction: column; gap: 6px; }
-    .ampm button { width: 60px; height: 44px; border-radius: 12px; background: var(--chip-strong); font-size: 16px; font-weight: var(--w-bold, 700); }
+    .ampm button { width: 60px; height: 44px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .ampm button[aria-pressed='true'], .allday[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .side { display: flex; flex-direction: column; gap: 6px; }
-    .allday { height: 44px; padding: 0 14px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-bold, 700); white-space: nowrap; }
+    .allday { height: 44px; padding: 0 14px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
     .durs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .durs button { height: 44px; min-width: 66px; border-radius: 12px; background: var(--chip-strong); font-size: 15px; font-weight: var(--w-semi, 600); white-space: nowrap; }
+    .durs button { height: 44px; min-width: 66px; border-radius: 12px; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     .durs button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
 
     /* the calendar that opens from the end of the day row */
     .month { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 430px; max-width: 94%; border-radius: 24px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--sheet-bg, var(--chip-strong)); box-shadow: 0 20px 50px rgba(0,0,0,.35); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
     .mnav { display: flex; align-items: center; gap: 6px; }
-    .mnav b { flex: 1; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); }
-    .mnav button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+    .mnav b { flex: 1; text-align: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
+    .mnav button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; font-size: var(--fs-2); font-weight: 800; }
     .mgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-    .mgrid span { font-size: 13px; font-weight: 800; color: var(--ink2); padding: 2px 0; }
-    .mgrid button { height: 44px; border-radius: 12px; font-size: 16px; font-weight: var(--w-semi, 600); font-variant-numeric: tabular-nums; }
+    .mgrid span { font-size: var(--fs-1); font-weight: 800; color: var(--ink2); padding: 2px 0; }
+    .mgrid button { height: 44px; border-radius: 12px; font-size: var(--fs-3); font-weight: var(--w-semi, 600); font-variant-numeric: tabular-nums; }
     .mgrid button.td { box-shadow: inset 0 0 0 2px var(--accent); }
     .mgrid button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     .mgrid button:disabled { opacity: .3; }
     .veil.top { z-index: 7; } .month.top { z-index: 8; }
     .month.rep { width: 600px; max-height: 96%; overflow-y: auto; gap: 12px; padding: 16px; }
-    .rhead { display: flex; align-items: baseline; gap: 12px; } .rhead b { font-size: 20px; font-weight: var(--w-heavy, 800); } .rhead .muted { flex: 1; min-width: 0; font-size: 15px; text-align: right; }
+    .rhead { display: flex; align-items: baseline; gap: 12px; } .rhead b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); } .rhead .muted { flex: 1; min-width: 0; font-size: var(--fs-2); text-align: right; }
     .rlist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .rlist button, .rseg button { min-height: 44px; padding: 6px 12px; border-radius: 14px; background: var(--chip); font-size: 15px; font-weight: var(--w-semi, 600); line-height: 1.15; text-align: left; overflow-wrap: anywhere; }
+    .rlist button, .rseg button { min-height: 44px; padding: 6px 12px; border-radius: 14px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.15; text-align: left; overflow-wrap: anywhere; }
     .rseg button { text-align: center; flex: 1 1 auto; } .rseg { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 200px; }
     .rlist button[aria-checked='true'], .rseg button[aria-checked='true'], .rdays button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .rrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .rrow > .sub { flex: 0 0 56px; } .rrow > .muted { font-size: 15px; }
-    .rrow .calbtn { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: var(--w-semi, 600); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
-    .rstep { display: inline-flex; align-items: center; gap: 4px; } .rstep button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 22px; font-weight: 800; } .rstep button:disabled { opacity: .35; } .rstep b { min-width: 34px; text-align: center; font-size: 19px; font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
-    .rdays { display: flex; gap: 6px; flex-wrap: wrap; } .rdays button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: 15px; font-weight: var(--w-bold, 700); }
-    .rfoot { display: flex; justify-content: flex-end; } .rfoot .lead { height: 48px; padding: 0 26px; font-size: 17px; }
+    .rrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .rrow > .sub { flex: 0 0 56px; } .rrow > .muted { font-size: var(--fs-2); }
+    .rrow .calbtn { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    .rstep { display: inline-flex; align-items: center; gap: 4px; } .rstep button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: var(--fs-4); font-weight: 800; } .rstep button:disabled { opacity: .35; } .rstep b { min-width: 34px; text-align: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
+    .rdays { display: flex; gap: 6px; flex-wrap: wrap; } .rdays button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
+    .rfoot { display: flex; justify-content: flex-end; } .rfoot .lead { height: 48px; padding: 0 26px; font-size: var(--fs-3); }
     .rowhead .repbtn { min-width: 0; flex: 0 1 auto; } .rowhead .repbtn span { overflow: hidden; text-overflow: ellipsis; max-width: 200px; } .rowhead .repbtn[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
-    .what > .field.notes { flex: 1 1 0; font-size: 18px; padding: 0 14px; min-width: 0; }
+    .what > .field.notes { flex: 1 1 0; font-size: var(--fs-3); padding: 0 14px; min-width: 0; }
     :host([data-phone]) .rlist { grid-template-columns: 1fr; } :host([data-phone]) .month.rep { width: 100%; }
     .veil { position: absolute; inset: 0; z-index: 5; border-radius: inherit; background: rgba(0,0,0,.18); }
   `];
@@ -425,7 +425,7 @@ export class FhAddEvent extends LitElement {
     const phone = getShape() === 'phone', far = !Array.from({ length: 7 }, (_, i) => addDays(today, i)).some((d) => same(d, this._date));
     const list = this._in === 'where' ? (this._found ?? (this._loc.trim().length < 3 ? this._zones() : [])) : [];
     const sum = this._summary(), soft = phone || this._hardKeys;
-    const add = html`<button class="tap lead" style="height:60px;padding:0 26px;font-size:18px" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? (this.edit ? 'Saving…' : 'Adding…') : this.edit ? 'Save' : 'Add'}</button>`;
+    const add = html`<button class="tap lead" style="height:60px;padding:0 26px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? (this.edit ? 'Saving…' : 'Adding…') : this.edit ? 'Save' : 'Add'}</button>`;
     return html`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? 'Change this event' : 'Add to the calendar'} @click=${(e: Event) => e.stopPropagation()} @keydown=${this._onKey}>
       <div style="display:flex;gap:12px;align-items:center">
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? 'Change this event' : 'Add to the calendar'}</h2>

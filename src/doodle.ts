@@ -67,7 +67,7 @@ export class FhDoodle extends LitElement {
     :host([low][data-shape='tall']:not([data-phone])) .brushes, :host([low][data-n3]:not([data-phone])) .brushes { grid-area: 3 / 1; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .easel { min-height: 440px; }
-    :host([data-phone]) .hint { font-size: 22px; text-align: center; padding: 0 20px; }
+    :host([data-phone]) .hint { font-size: var(--fs-4); text-align: center; padding: 0 20px; }
     :host([data-phone]) .acts { flex-wrap: wrap; }
     :host([data-phone]) .view { position: fixed; border-radius: 0; }
     .brushes .rule { grid-column: 1 / -1; height: 1px; width: 90px; background: var(--track); }
@@ -87,26 +87,26 @@ export class FhDoodle extends LitElement {
     .pad { flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; position: relative; background: #fffdf7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background var(--m-4, 400ms); }
     .pad.chalk { background: #23332b; }
     canvas { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
-    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: var(--w-bold, 700); color: #6b6a66; }
+    .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Bricolage Grotesque', sans-serif; font-size: var(--fs-6); font-weight: var(--w-bold, 700); color: #6b6a66; }
     .chalk .hint { color: #c9d3cd; }
     /* the bar wraps rather than squeezing anything: the hero keeps its words on one line */
     .acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .acts .pill { font-size: 15px; white-space: nowrap; }
+    .acts .pill { font-size: var(--fs-2); white-space: nowrap; }
     /* who drew it and the hero travel together: on a narrow easel they drop to a second row, still at the right */
     .sign { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 14px; margin-left: auto; }
     .artists { display: flex; align-items: center; gap: 6px; }
-    .artists > .muted { font-size: 14px; font-weight: var(--w-bold, 700); margin-right: 2px; }
-    .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: 15px; font-weight: var(--w-bold, 700); line-height: 1.15; }
-    .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: 24px; }
+    .artists > .muted { font-size: var(--fs-2); font-weight: var(--w-bold, 700); margin-right: 2px; }
+    .artist { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; padding: 4px 6px 5px; border-radius: 18px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; }
+    .artist .avatar { width: 56px; height: 56px; overflow: hidden; font-size: var(--fs-5); }
     .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
-    .stickup { height: 52px; /* token */ padding: 0 22px; font-size: 17px; white-space: nowrap; flex-shrink: 0; }
-    .stampbtn { font-size: 26px; }
+    .stickup { height: 52px; /* token */ padding: 0 22px; font-size: var(--fs-3); white-space: nowrap; flex-shrink: 0; }
+    .stampbtn { font-size: var(--fs-5); }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
     .ghead { display: flex; align-items: center; gap: 8px; }
-    .tidy { height: 44px; padding: 0 14px; font-size: 15px; }
-    .gallery .label { font-size: 13px; }
-    .clearall { font-size: 15px; }
+    .tidy { height: 44px; padding: 0 14px; font-size: var(--fs-2); }
+    .gallery .label { font-size: var(--fs-1); }
+    .clearall { font-size: var(--fs-2); }
     .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .clearall { height: 44px; background: var(--danger, #dc2626); color: var(--on-danger, #fff); justify-content: center; }
     .snapbox { position: relative; display: block; }
@@ -116,7 +116,7 @@ export class FhDoodle extends LitElement {
     .snap { aspect-ratio: 4/3; border-radius: 10px; background: #fff center / cover; box-shadow: 0 6px 14px -6px rgba(0,0,0,.35); position: relative; }
     .snap:nth-child(odd) { transform: rotate(-2.5deg); } .snap:nth-child(even) { transform: rotate(2deg); }
     .snap::before { content: ''; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 3px rgba(0,0,0,.3); }
-    .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: 13px; font-weight: var(--w-heavy, 800); text-transform: capitalize; }
+    .snap .by { position: absolute; bottom: -8px; right: -4px; background: #fff; color: #1d1d1f; box-shadow: 0 1px 3px rgba(0,0,0,.3); border-radius: 999px; padding: 2px 8px; font-size: var(--fs-1); font-weight: var(--w-heavy, 800); text-transform: capitalize; }
     .stick { animation: stick var(--m-5, 900ms) cubic-bezier(.2,1.3,.4,1); }
     @keyframes stick { 40% { transform: scale(calc(1 - .6 * var(--m-d, 1))) translate(calc(60% * var(--m-d, 1)), calc(-10% * var(--m-d, 1))) rotate(calc(8deg * var(--m-d, 1))); opacity: .6; } }
     .view { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; border-radius: 28px; }
@@ -368,7 +368,7 @@ export class FhDoodle extends LitElement {
           ${this._pics.length ? html`<button class="pill tap tidy" aria-pressed=${String(this._tidy)} @click=${() => this._tidyStart()}>${this._tidy ? 'Done' : 'Tidy up'}</button>` : nothing}</div>
         ${this._tidy ? html`<button class="pill tap clearall" @click=${() => this._takeDown(this._pics)}>${icon('close', 16)}Take them all down</button>` : nothing}
         ${this._pics.length ? html`<div class="snaps">${this._pics.map((p) => { const by = /-(\d{6})-([a-z]+)/.exec(p.title)?.[2]; return html`<span class="snapbox"><button class="snap tap" aria-label="View doodle${by ? ` by ${by}` : ''}" style="background-image:url('${p.url}')" @click=${() => { this._view = p.url; }}>${by ? html`<span class="by">${by}</span>` : ''}</button>${this._tidy ? html`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([p])}>${icon('close', 18)}</button>` : nothing}</span>`; })}</div>`
-          : html`<span class="muted" style="font-size:15px;line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
+          : html`<span class="muted" style="font-size:var(--fs-2);line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._askPin ? html`<fh-pin .pin=${String(this.pin)} @ok=${() => { this._askPin = false; this._tidy = true; }} @cancel=${() => { this._askPin = false; }}></fh-pin>` : nothing}
       ${this._askWho ? html`<div class="view" @click=${(e: Event) => { if (e.target === e.currentTarget) this._askWho = false; }}><section class="glass sheet whobox" role="dialog" aria-modal="true" aria-label="Who drew it?">
