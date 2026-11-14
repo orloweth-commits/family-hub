@@ -1,3 +1,4 @@
+import { askReady, jobsFrom, newAskId, openAsks, sendAsk } from './approve';
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
@@ -139,12 +140,14 @@ export class FhMorning extends LitElement {
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
-  static properties = { hass: { attribute: false }, kids: { attribute: false }, events: { attribute: false }, leaveBy: {}, rules: { attribute: false },
+  static properties = { hass: { attribute: false }, kids: { attribute: false }, events: { attribute: false }, leaveBy: {}, asks: { attribute: false }, rules: { attribute: false },
     privateWords: { attribute: false }, uv: { type: Number }, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true }, _cheer: { state: true }, _just: { state: true }, _msg: { state: true } };
   hass?: Hass;
   kids: KidConfig[] = [];
   events: CalEvent[] = [];
   leaveBy = '08:15';
+  /** approve from a phone (approve.ts): a job worth enough points asks a parent here too */
+  asks?: { notify?: string[]; list?: string; jobs_from?: number };
   rules: BringRule[] = [];
   privateWords: string[] = [];
   uv = 0;
@@ -236,6 +239,18 @@ export class FhMorning extends LitElement {
     if (!this.hass || this._busy.has(c.uid)) return;
     const el = ev.currentTarget as HTMLElement, done = c.status === 'completed', j = this._just[k.name];
     if (done && (!j || j.uid !== c.uid || Date.now() - j.at < DOUBLE_MS)) return;
+    // a job worth enough points waits for a parent, as on his own page: the tick and the points come with the yes
+    if (!done && askReady(this.hass, this.asks) && c.lane !== 'grow' && c.pts >= jobsFrom(this.asks)) {
+      const e = kidEntities(k), tell = (m: string): void => { this._msg = { ...this._msg, [k.name]: m }; window.setTimeout(() => { this._msg = { ...this._msg, [k.name]: '' }; }, 4000); };
+      this._busy.add(c.uid);
+      try {
+        if ((await openAsks(this.hass, this.asks!.list ?? 'todo.family_hub_asks')).some((a) => a.k === 'job' && a.uid === c.uid)) { tell('Asked. Waiting for a parent'); return; }
+        await inTime(sendAsk(this.hass, this.asks!, { v: 1, id: newAskId(), k: 'job', kid: e.slug, who: k.name, name: c.summary, cost: c.pts, t: Date.now(), list: e.chores, uid: c.uid }));
+        sfx('tap'); tell('Asked a parent to check');
+      } catch (err) { tell(err instanceof SlowError ? SLOW_SAY : 'That did not send – find a parent'); }
+      finally { this._busy.delete(c.uid); }
+      return;
+    }
     this._busy.add(c.uid);
     const to: Chore['status'] = done ? 'needs_action' : 'completed', e = kidEntities(k);
     this._pending.set(c.uid, to); this._setStatus(k, c.uid, to);

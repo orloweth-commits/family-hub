@@ -32,7 +32,7 @@ import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
 import { haDigest } from './digest';
-import { approveOn, askList, askPhones, askParse, haApprove } from './approve';
+import { answerAsk, approveOn, askList, askPhones, askParse, askReady, haApprove, openAsks, type Ask } from './approve';
 import { BEAT_MS, USE_FLUSH_MS, UseLog, agoWords, calHealth, calWarning, haTrust, isWall, restoreCalls, snapParse, snapText, snapshotOf, useTotals, type HaTrust } from './trust';
 import { BINS, isBin, askByChild, askFor, calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
 import {
@@ -48,8 +48,8 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.35.5';
+type Sheet = '' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
+const VERSION = '0.35.6';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -68,7 +68,7 @@ export class FamilyHubCard extends LitElement {
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
     _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
-    _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true }, _wifiUntil: { state: true }, _calTick: { state: true },
+    _waiting: { state: true }, _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true }, _wifiUntil: { state: true }, _calTick: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
   };
 
@@ -104,6 +104,8 @@ export class FamilyHubCard extends LitElement {
     if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
   }
   protected willUpdate(ch: PropertyValues): void {
+    // the bell: read the asks list again whenever Home Assistant says it has changed
+    if (this.hass && this._config) { const a = this._asksCfg(), l = a ? this.hass.states[a.list] : undefined, key = `${!!a}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}`; if (key !== this._waitSeen) { this._waitSeen = key; void this._loadWaiting(); } }
     // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
     if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
     // a child who cannot read yet gets Doodle's tools along the bottom. Since his page's dock is only his face and Home, "from his page" means Doodle is the first place he goes after Home, within two minutes of leaving it
@@ -186,6 +188,41 @@ export class FamilyHubCard extends LitElement {
   /** the automation that hears a phone's Approve or Not yet (approve.ts), built from this configuration; null when no phone is named */
   approveSetup(): Record<string, unknown> | null { return haApprove(this._config); }
   static approve = { haApprove, askParse };
+  /* ---------------- approvals: what the children's pages need, and the bell (approve.ts) ---------------- */
+  private _asksFor?: FamilyHubConfig; private _asksObj?: { notify: string[]; list: string; jobs_from?: number };
+  /** one object for as long as the configuration stands, so a child's page is not redrawn for it */
+  private _asksCfg(): { notify: string[]; list: string; jobs_from?: number } | undefined {
+    const c = this._config;
+    if (this._asksFor !== c) { this._asksFor = c; this._asksObj = approveOn(c) ? { notify: askPhones(c), list: askList(c), jobs_from: c.approve?.jobs_from } : undefined; }
+    return this._asksObj;
+  }
+  /** everything waiting for a parent, for the bell in the header */
+  private _waiting: Ask[] = []; private _waitSeen = ''; private _waitBusy = '';
+  private async _loadWaiting(): Promise<void> {
+    const a = this._asksCfg();
+    if (!this.hass || !askReady(this.hass, a)) { if (this._waiting.length) this._waiting = []; return; }
+    try { this._waiting = await openAsks(this.hass, a!.list); } catch { /* left as it was */ }
+    if (!this._waiting.length && this._sheet === 'waiting') this._sheet = '';
+  }
+  private _openWaiting(): void {
+    const open = (): void => { this._sheet = 'waiting'; };
+    if (this._config.parent_pin) this._pinAsk = { reason: 'Parents: what is waiting?', run: open }; else open();
+  }
+  private async _answer(a: Ask, yes: boolean): Promise<void> {
+    if (!this.hass || this._waitBusy) return;
+    this._waitBusy = a.id; this.requestUpdate();
+    try { await inTime(answerAsk(this.hass, a.id, yes)); this._waiting = this._waiting.filter((x) => x.id !== a.id); this._say(`${yes ? 'Approved' : 'Not yet'}: ${a.who}, ${a.name}.`); if (!this._waiting.length) this._sheet = ''; }
+    catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'Home Assistant did not take that. It needs an administrator’s screen.'); }
+    finally { this._waitBusy = ''; this.requestUpdate(); }
+  }
+  private _waitingBody(): TemplateResult {
+    return html`${this._sheetHead('Waiting for a parent', 'Approve takes or gives the points. Not yet changes nothing.', '')}
+      <div class="waitlist">${this._waiting.map((a) => html`<div class="waitrow" data-ask=${a.id}>
+        <span class="wt"><b>${a.who}</b><span>${a.k === 'job' ? `says “${a.name}” is done · ${a.cost} points` : `would like ${a.name} · ${a.cost} points`}</span></span>
+        <button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
+        <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button></div>`)}
+        ${this._waiting.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
+  }
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
   private _alarm = 0;
@@ -1147,7 +1184,7 @@ export class FamilyHubCard extends LitElement {
         const k = c.kids?.[this._kid];
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
-        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${approveOn(c) ? { notify: askPhones(c), list: askList(c) } : undefined}
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${this._asksCfg()}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
@@ -1156,7 +1193,7 @@ export class FamilyHubCard extends LitElement {
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .views=${c.music_views ?? []} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
       case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass} ?low=${this._doodleLow} .artists=${(c.kids ?? []).map((k) => k.name)} .kids=${c.kids ?? []} .pin=${String(c.parent_pin ?? '')}></fh-doodle>`;
-      case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
+      case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .asks=${this._asksCfg()} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
         .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
     }
@@ -1257,6 +1294,7 @@ export class FamilyHubCard extends LitElement {
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${icon('sun', 14)}UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
             </button>` : nothing}
+          ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${icon('bell')}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
           ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`
             : html`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${c.meds?.length || c.med_log ? 'medicine, ' : ''}house info, night${tracked.length ? ' and who is home' : ''}" aria-haspopup="dialog" @click=${() => { this._sheet = 'more'; }}>${icon('more')}<span class="rl" aria-hidden="true">More</span></button>`}
@@ -1532,9 +1570,9 @@ export class FamilyHubCard extends LitElement {
           <p class="ainote">${AI_NOTE}</p>
           ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? hv?.tts ?? ''} .ttsVoice=${ch.tts ? ch.tts_voice ?? '' : hv?.voice ?? ''} .ttsLanguage=${ch.tts ? ch.tts_language ?? '' : hv?.language ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
-    const body = s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
+    const body = s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' || s === 'more' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
   /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */

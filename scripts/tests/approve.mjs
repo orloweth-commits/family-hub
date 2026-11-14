@@ -104,6 +104,7 @@ ok('one automation, triggered by a button on a phone’s notice, and only by thi
 ok('with no phone named there is nothing to set up', built.none === null && built.own?.alias === AU.alias);
 ok('an approve setting that is not a list of notify services, or not a to-do list, is refused in words', built.bad.every((m) => /^Family Hub: approve/.test(m)), built.bad);
 const line = (id, extra = {}) => ({ uid: 'u-' + id, summary: 'Riley: Pick the family movie', status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k: 'reward', kid: 'riley', who: 'Riley', name: 'Pick the family movie', cost: 100, t: 1, ...extra }) });
+const jline = (id, extra = {}) => ({ uid: 'u-' + id, summary: 'Riley: Mow the lawn', status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k: 'job', kid: 'riley', who: 'Riley', name: 'Mow the lawn', cost: 20, t: 1, list: 'todo.riley_chores', uid: 'c-9', ...extra }) });
 const st = (state) => ({ state, attributes: {} });
 const sc = (name, action, items, states = { 'input_number.riley_points': st('300'), 'input_number.maxs_stars': st('40') }) => ({ name, now: '2026-11-10T17:00:00+08:00', states, vars: { trigger: { event: { data: { action } } } }, responses: { asks: { [ASKS]: { items } } } });
 const scenarios = [
@@ -116,6 +117,12 @@ const scenarios = [
   sc('stranger', 'FH_OK_aabc123', [line('aabc123', { kid: 'nobody' })]),
   sc('negative', 'FH_OK_aabc123', [line('aabc123', { cost: -500 })]),
   sc('other-entity', 'FH_OK_aabc123', [{ ...line('aabc123', { kid: 'max', who: 'Max', cost: 30 }), summary: 'Max: Pick which park' }]),
+  { ...sc('job-yes', 'FH_OK_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @job @after' }, { uid: 'c-1', summary: 'Other', status: 'needs_action', description: '+5' }] } } } },
+  { ...sc('job-inflated', 'FH_OK_ajob111', [jline('ajob111', { cost: 9999 })]), responses: { asks: { [ASKS]: { items: [jline('ajob111', { cost: 9999 })] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '20' }] } } } },
+  { ...sc('job-no', 'FH_NO_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @job' }] } } } },
+  { ...sc('job-gone', 'FH_OK_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [] } } } },
+  { ...sc('job-other-list', 'FH_OK_ajob111', [jline('ajob111', { list: 'todo.shopping_list' })]), responses: { asks: { [ASKS]: { items: [jline('ajob111', { list: 'todo.shopping_list' })] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @job' }] } } } },
+  { ...sc('job-routine', 'FH_OK_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @routine' }] } } } },
   { name: 'digest', now: '2026-11-13T19:30:00+08:00', states: {}, responses: { waiting: { [ASKS]: { items: [line('aabc123'), { summary: 'junk', description: 'not an ask' }] } } }, automation: built.digest }
 ];
 const py = spawnSync('python3', [path.join(ROOT, 'scripts/tests/digest_render.py')], { input: JSON.stringify({ automation: AU, scenarios }), encoding: 'utf8' });
@@ -136,9 +143,60 @@ else {
   ok('an ask naming a child the card does not have spends nothing', to('stranger', 'script.fh_add_points').length === 0 && /^short /.test(to('stranger', 'todo.update_item')[0]?.description ?? ''), R.stranger?.sent);
   ok('an ask with a negative cost cannot add points', to('negative', 'script.fh_add_points').length === 0, R.negative?.sent);
   ok('a child whose points live in a differently named helper is read from that helper', to('other-entity', 'script.fh_add_points')[0]?.points === -30 && to('other-entity', 'script.fh_add_points')[0]?.kid === 'max', R['other-entity']?.sent);
+  const jy = to('job-yes', 'script.fh_add_points')[0], ju = to('job-yes', 'todo.update_item');
+  ok('Approve for a job ticks that job on the child’s own list', ju.some((u) => u.target.entity_id === 'todo.riley_chores' && u.item === 'c-9' && u.status === 'completed'), ju);
+  ok('and gives its points, with a marble, as a tick does', jy?.kid === 'riley' && jy.points === 20 && jy.lifetime === true && jy.jar === 1, jy);
+  ok('the points come from the job itself, not from what the ask claims', to('job-inflated', 'script.fh_add_points')[0]?.points === 20, to('job-inflated', 'script.fh_add_points'));
+  ok('the phone is told what was given', /20 points given/.test(to('job-yes', 'notify.mobile_app_alex')[0]?.message ?? '') && to('job-yes', 'notify.mobile_app_alex')[0]?.title === 'Approved', to('job-yes', 'notify.mobile_app_alex'));
+  ok('Not yet leaves the job unticked and gives nothing', to('job-no', 'script.fh_add_points').length === 0 && !to('job-no', 'todo.update_item').some((u) => u.target.entity_id === 'todo.riley_chores') && /^no \{/.test(to('job-no', 'todo.update_item')[0]?.description ?? '') && /stays unticked/.test(to('job-no', 'notify.mobile_app_alex')[0]?.message ?? ''), R['job-no']?.sent);
+  ok('a job that has gone, or is already ticked, gives nothing', to('job-gone', 'script.fh_add_points').length === 0 && /^short /.test(to('job-gone', 'todo.update_item')[0]?.description ?? ''), R['job-gone']?.sent);
+  ok('an ask that names a list which is not that child’s job list touches nothing', to('job-other-list', 'script.fh_add_points').length === 0 && to('job-other-list', 'todo.update_item').every((u) => u.target.entity_id === ASKS), R['job-other-list']?.sent);
+  ok('a routine with points gives the points and no marble', to('job-routine', 'script.fh_add_points')[0]?.jar === 0 && to('job-routine', 'script.fh_add_points')[0]?.points === 20, to('job-routine', 'script.fh_add_points'));
+  ok('a reward’s answer is unchanged by the job branch', to('yes', 'script.fh_add_points').length === 1 && !to('yes', 'todo.update_item').some((u) => u.target.entity_id !== ASKS));
   ok('the evening digest lists what is still waiting for an answer, and only real asks', String(R.digest?.message ?? '').split('\n').includes('Waiting for your answer: Riley: Pick the family movie.'), R.digest?.message);
   ok('without approvals the digest does not ask for that list', built.digestOff.actions.filter((a) => a.response_variable === 'waiting').length === 0 && built.digest.actions.filter((a) => a.response_variable === 'waiting').length === 1);
 }
+
+// 2b. jobs worth enough points wait for a parent, and the bell
+{ const page = await open('look=glass&page=kid&kid=0&approve=1&jobsfrom=10&shuffle=0'); const before = Number(await state(page, PTS));
+  const job = K(page).locator('.job.row').filter({ hasText: 'Set the table' }), small = K(page).locator('.job.row').filter({ hasText: 'Homework' });
+  await job.locator('.hit').click(); await page.waitForTimeout(600);
+  const items = await list(page, ASKS), rec = JSON.parse((items[0]?.description ?? 'ask {}').slice(4));
+  ok('ticking a job worth 10 or more asks a parent: one line, one notice, no tick, no points', items.length === 1 && rec.k === 'job' && rec.list === 'todo.riley_chores' && !!rec.uid && rec.cost === 10 && (await calls(page, /^notify\.mobile_app_alex.*says a job is done/)).length === 1 && Number(await state(page, PTS)) === before && await job.locator('.hit').getAttribute('aria-pressed') === 'false' && (await calls(page, /fh_add_points/)).length === 0, [items, await calls(page, /^notify\./)]);
+  ok('the row says it has asked, and the page says so', await job.locator('[data-asked]').count() === 1 && /^Asked a parent to check: Set the table\.$/.test(await msg(page)), await msg(page));
+  await job.locator('.hit').click(); await page.waitForTimeout(400);
+  ok('a second tap is for a parent standing there: the PIN, not a second notice', await K(page).locator('fh-pin').count() === 1 && (await calls(page, /^notify\./)).length === 1);
+  await K(page).locator('fh-pin').getByRole('button', { name: /cancel|close/i }).first().click().catch(() => page.keyboard.press('Escape')); await page.waitForTimeout(400);
+  await small.locator('.hit').click(); await page.waitForTimeout(500);
+  ok('a job with no points is ticked at once, as before', await small.locator('.hit').getAttribute('aria-pressed') === 'true' && (await list(page, ASKS)).length === 1);
+  // the bell, on the shared pages
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  const C = page.locator('family-hub-card'), bell = C.locator('header [data-act="bell"]');
+  ok('the header has a bell that says how many are waiting', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''), await bell.getAttribute('aria-label').catch(() => ''));
+  await bell.click(); await page.waitForTimeout(400);
+  ok('the bell opens behind the PIN', await C.locator('fh-pin').count() === 1 && await C.locator('.sheet[data-sheet="waiting"]').count() === 0);
+  for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
+  const rowW = C.locator('.sheet[data-sheet="waiting"] .waitrow');
+  ok('it lists what is waiting, with Approve and Not yet', await rowW.count() === 1 && /Riley/.test(await rowW.innerText()) && /Set the table/.test(await rowW.innerText()) && await rowW.locator('button').count() === 2, await rowW.innerText().catch(() => ''));
+  await rowW.locator('[data-act="wait-ok"]').click(); await page.waitForTimeout(900);
+  ok('Approve on the panel sends the same answer a phone’s button does', (await calls(page, /^api\.event FH_OK_a[a-z0-9]+$/)).length === 1, await calls(page, /api\.event/));
+  ok('the job is ticked, the points are given, the sheet closes and the bell goes', Number(await state(page, PTS)) === before + 10 && await C.locator('.sheet[data-sheet="waiting"]').count() === 0 && await bell.count() === 0 && (await list(page, 'todo.riley_chores')).find((x) => x.summary === 'Set the table')?.status === 'completed', [await state(page, PTS)]);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&approve=1');
+  ok('no bell when nothing is waiting', await page.locator('family-hub-card header [data-act="bell"]').count() === 0);
+  await page.evaluate(async () => { const h = document.querySelector('family-hub-card').hass; await h.callService('todo', 'add_item', { item: 'Riley: Pick the family movie', description: 'ask {"v":1,"id":"abell01","k":"reward","kid":"riley","who":"Riley","name":"Pick the family movie","cost":100,"t":1}' }, { entity_id: 'todo.family_hub_asks' }); }); await page.waitForTimeout(600);
+  const C = page.locator('family-hub-card'), bell = C.locator('header [data-act="bell"]');
+  ok('an ask made on another screen brings the bell up here', await bell.count() === 1);
+  await bell.click(); await page.waitForTimeout(300); for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
+  await page.evaluate(() => { window.__eventFail = true; }); await C.locator('[data-act="wait-no"]').click(); await page.waitForTimeout(600);
+  ok('if Home Assistant will not take the answer the row stays and the panel says so', await C.locator('.waitrow').count() === 1 && /did not take that/.test(await page.evaluate(() => document.querySelector('family-hub-card')._toast ?? '')), await page.evaluate(() => document.querySelector('family-hub-card')._toast ?? ''));
+  await page.evaluate(() => { window.__eventFail = false; }); await C.locator('[data-act="wait-no"]').click(); await page.waitForTimeout(800);
+  ok('Not yet on the panel answers it and spends nothing', (await calls(page, /^api\.event FH_NO_abell01$/)).length === 2 && await bell.count() === 0 && (await list(page, ASKS))[0]?.description.startsWith('no '), await list(page, ASKS));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=0&approve=1&shuffle=0'); 
+  await K(page).locator('.job.row').filter({ hasText: 'Set the table' }).locator('.hit').click(); await page.waitForTimeout(500);
+  ok('with the usual 15 points, a 10-point job is ticked at once', (await list(page, ASKS)).length === 0 && await K(page).locator('.job.row').filter({ hasText: 'Set the table' }).locator('.hit').getAttribute('aria-pressed') === 'true');
+  await page.context().close(); }
 
 // 3. Settings
 { const page = await open('look=glass&page=planner&sheet=settings&pane=people');
