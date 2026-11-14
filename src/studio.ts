@@ -173,7 +173,7 @@ export class FhStudio extends LitElement {
   }
   /** Why a new look cannot be painted just now, in words for the child; empty when it can. */
   private get _cannot(): string {
-    if (!this.hass || !painter(this.hass, this.art.painter) || !this.hass.states[this._list] || this._record === null) return 'The painter isn’t set up yet. Ask a grown-up.';
+    if (!this.hass || !painter(this.hass, this.art.painter) || !this.hass.states[this._list] || this._record === null) return 'The painter isn’t set up yet. Ask a parent.';
     if (this._record === undefined) return ' ';
     if (monthSpend(this._record, this.art.cost ?? ART_DEFAULTS.cost).usd >= (this.art.cap ?? ART_DEFAULTS.cap)) return 'The painter is having a rest until next month.';
     if (this._left <= 0) return 'That’s all the new looks for today. Come back tomorrow!';

@@ -299,7 +299,7 @@ export class FhKid extends LitElement {
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
-    /* the words are for a grown-up glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
+    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
     .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
@@ -359,7 +359,7 @@ export class FhKid extends LitElement {
   /** the reward whose "Yes" was just tapped: its row keeps its place for a moment, so a second tap cannot land on the row below */
   private _held = '';
   private _heldAt = 0;
-  /** rewards this child has spent on that still wait for a grown-up */
+  /** rewards this child has spent on that still wait for a parent */
   private _owed: string[] = [];
   private _owedSeen = '';
   /** his lines in the rewards list (each carries its date), for rewards with a weekly limit; and a count that redraws the rows when this screen notes a spend */
@@ -376,7 +376,7 @@ export class FhKid extends LitElement {
       this._owed = [...new Set(mine)].filter((n) => this._needsAdult(n));
     } catch { /* the line is simply left as it was */ }
   }
-  /** what he has asked a grown-up's phone for and not yet heard about */
+  /** what he has asked a parent's phone for and not yet heard about */
   private _asked: Ask[] = [];
   private _asksSeen = ''; private _asking = false;
   private get _askOn(): boolean { return askReady(this.hass, this.asks); }
@@ -405,26 +405,26 @@ export class FhKid extends LitElement {
       this._confetti++; this._jump++; this._sound('unlock');
       if (r && (r.dj ?? /\bdj\b|dinner music/i.test(r.name))) lsSet('fh-dj', { kid: this.kid.name, day: new Date().toDateString() });
       if (this._picMode) say(`Yes! ${a.name}!`);
-      this._say(`A grown-up said yes: ${a.name}.`);
+      this._say(`A parent said yes: ${a.name}.`);
     } else {
       this._sound('tap');
       const m = v === 'no' ? `Not yet for ${a.name}. Your ${this._picMode ? 'stars' : 'points'} are safe.` : `Not enough ${this._picMode ? 'stars' : 'points'} for ${a.name} now. Nothing was spent.`;
       if (this._picMode) say(m); this._say(m);
     }
   }
-  /** Sends one reward to the grown-ups' phones. Nothing is spent until one of them says yes. */
+  /** Sends one reward to the parents' phones. Nothing is spent until one of them says yes. */
   private async _askFor(r: RewardConfig): Promise<void> {
     this._spend = '';
     if (this._asking || !this.hass || !this._askOn) return;
-    if (this._asked.some((a) => a.name === r.name)) { this._say(`Asked. Waiting for a grown-up: ${r.name}.`); return; }
+    if (this._asked.some((a) => a.name === r.name)) { this._say(`Asked. Waiting for a parent: ${r.name}.`); return; }
     const have = num(this.hass, this._e.points), ask: Ask = { v: 1, id: newAskId(), k: 'reward', kid: this._e.slug, who: this.kid.name, name: r.name, cost: r.cost, t: Date.now() };
     this._asking = true; this._asked = [...this._asked, ask];
     try {
       const n = await inTime(sendAsk(this.hass, this.asks!, ask, have));
       this._sound('tap');
-      const m = n ? `Asked! A grown-up will answer on their phone.` : `It is on the list, but no phone took the message. Find a grown-up.`;
-      if (this._picMode) say(n ? `${r.name}. I have asked a grown-up.` : 'Find a grown-up.'); this._say(m);
-    } catch (err) { this._asked = this._asked.filter((a) => a.id !== ask.id); this._say(err instanceof SlowError ? SLOW_SAY : 'That did not send. Try again, or find a grown-up.'); }
+      const m = n ? `Asked! A parent will answer on their phone.` : `It is on the list, but no phone took the message. Find a parent.`;
+      if (this._picMode) say(n ? `${r.name}. I have asked a parent.` : 'Find a parent.'); this._say(m);
+    } catch (err) { this._asked = this._asked.filter((a) => a.id !== ask.id); this._say(err instanceof SlowError ? SLOW_SAY : 'That did not send. Try again, or find a parent.'); }
     finally { this._asking = false; }
   }
   private _needsAdult(name: string): boolean { const r = (this.kid.rewards ?? DEFAULT_REWARDS).find((x) => x.name === name); return !r || (r.approve ?? r.cost >= 60); }
@@ -594,7 +594,7 @@ export class FhKid extends LitElement {
     if (done && Date.now() - (ticks[c.uid] ?? 0) < 2000) { this._nope(c.uid); return; } // double-tap guard: a fresh tick can't be undone by the same flurry, but the tap still gets an answer
     if (done && !viaPin && Date.now() - (ticks[c.uid] ?? 0) > UNDO_MS) {
       if (this.pin) this._pinAsk = { reason: `Untick “${c.summary}”?`, run: () => this._toggle(c, true) };
-      else this._say('Need to change that? Ask a grown-up.');
+      else this._say('Need to change that? Ask a parent.');
       return;
     }
     this._doToggle(c, done, ticks);
@@ -696,12 +696,12 @@ export class FhKid extends LitElement {
       return;
     }
     this._sound('tap');
-    // a big reward: with approvals on, the row offers to ask a grown-up's phone (or the PIN, if one is standing here); otherwise the PIN, as before
+    // a big reward: with approvals on, the row offers to ask a parent's phone (or the PIN, if one is standing here); otherwise the PIN, as before
     if ((r.approve ?? r.cost >= 60) && this._askOn) {
-      if (this._asked.some((a) => a.name === r.name)) { const m = `Asked. Waiting for a grown-up: ${r.name}.`; if (this._picMode) say(m); this._say(m); return; }
-      this._spend = r.name; if (this._picMode) say(`${r.name}. Ask a grown-up? Yes, or not now.`); return;
+      if (this._asked.some((a) => a.name === r.name)) { const m = `Asked. Waiting for a parent: ${r.name}.`; if (this._picMode) say(m); this._say(m); return; }
+      this._spend = r.name; if (this._picMode) say(`${r.name}. Ask a parent? Yes, or not now.`); return;
     }
-    if ((r.approve ?? r.cost >= 60) && this.pin) { if (this._picMode) say(`${r.name}. Ask a grown-up.`); this._redeem(r); return; }
+    if ((r.approve ?? r.cost >= 60) && this.pin) { if (this._picMode) say(`${r.name}. Ask a parent.`); this._redeem(r); return; }
     this._spend = r.name;
     if (this._picMode) say(`${r.name}. Spend ${this._costWords(r)}? Yes, or not now.`);
   }
@@ -722,14 +722,14 @@ export class FhKid extends LitElement {
       await inTime(this.hass!.callService('script', 'fh_add_points', { kid: this._e.slug, points: -r.cost, lifetime: false, reason: `reward: ${r.name}` }));
     } catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'That did not go through, so no points were spent. Try again in a moment.'); return; } finally { this._saving = ''; window.setTimeout(() => { this._redeeming = false; }, 1500); }
     if (this.owed && this.hass!.states[this.owed]) {
-      this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a grown-up OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
+      this.hass!.callService('todo', 'add_item', { item: `${this.kid.name}: ${r.name}`, description: `${new Date().toLocaleDateString('en-AU')} · ${r.cost} pts${needs && !this.pin ? ' · needs a parent OK' : ''}` }, { entity_id: this.owed }).catch(() => undefined);
     }
     if (r.weekly) { noteSpend(this._e.slug, r.name); this._spentN++; }
     this._confetti++; this._jump++; this._sound('unlock');
     // a DJ reward hands tonight's jukebox to this child (the Music page reads this)
     if (r.dj ?? /\bdj\b|dinner music/i.test(r.name)) lsSet('fh-dj', { kid: this.kid.name, day: new Date().toDateString() });
     if (this._picMode) say(`Yay! ${r.name}!`);
-    this._say(needs ? `Nice saving, ${this.kid.name}. A grown-up will sort out: ${r.name}.` : `Nice saving, ${this.kid.name}! ${r.name} – your pick.`);
+    this._say(needs ? `Nice saving, ${this.kid.name}. A parent will sort out: ${r.name}.` : `Nice saving, ${this.kid.name}! ${r.name} – your pick.`);
     if (needs && !this._owed.includes(r.name)) this._owed = [...this._owed, r.name];
   }
 
@@ -743,16 +743,16 @@ export class FhKid extends LitElement {
     if (kind === 'chat' || kind === 'share') {
       // the note is real: a notification in Home Assistant, and an event the card can turn into a chip for the parents. Nothing here promises that someone is on the way.
       Promise.resolve(this.hass?.callService('persistent_notification', 'create', { title: kind === 'share' ? `${n} has something good to share` : `${n} would like a chat`,
-        message: this._feel ? `${n} is feeling ${this._feel} and would like ${kind === 'share' ? 'to tell a grown-up about it' : 'a chat later'}.` : `${n} would like a chat with a grown-up${this._wind ? ' before bed' : ''}.`, notification_id: `fh_chat_${this._e.slug}` })).catch(() => { /* the event below still reaches the card */ });
+        message: this._feel ? `${n} is feeling ${this._feel} and would like ${kind === 'share' ? 'to tell a parent about it' : 'a chat later'}.` : `${n} would like a chat with a parent${this._wind ? ' before bed' : ''}.`, notification_id: `fh_chat_${this._e.slug}` })).catch(() => { /* the event below still reaches the card */ });
       // older mode: the note is private. It goes to Home Assistant's notifications only; no chip with his name appears on the shared pages
       if (!this.kid.older) this.dispatchEvent(new CustomEvent('fh-kid-wants-chat', { bubbles: true, composed: true, detail: { name: n, kind, feeling: this._feel } }));
     }
-    const msg = kind === 'hug' ? 'Go find a grown-up for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : this.kid.older ? 'Sent. Nothing shows on the wall.' : 'I’ve left a note for a grown-up.';
+    const msg = kind === 'hug' ? 'Go find a parent for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : this.kid.older ? 'Sent. Nothing shows on the wall.' : 'I’ve left a note for a parent.';
     this._say(msg); if (this._picMode) say(msg.replace(' 🤗', ''));
     this._feel = '';
   }
 
-  /** Days off are a grown-up's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
+  /** Days off are a parent's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
   openDays(): void { this._days = true; }
   private _dayOff(i: number): void {
     const w = (this.hass?.states[this._e.week]?.state ?? '-------').padEnd(7, '-').slice(0, 7);
@@ -933,19 +933,19 @@ export class FhKid extends LitElement {
         <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
         <span>${Math.floor(have / st)} stars in my jar</span></span></div>`
       : html`<div class="ptsline" role="group" aria-label=${have ? `${have} points to spend` : 'No points to spend yet'}>${have ? html`<b>${have}</b><span>${have === 1 ? 'point' : 'points'} to spend</span>` : html`<span>${this.kid.older ? 'No points to spend yet' : '✨ Ready to start'}</span>`}</div>`;
-    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a grown-up: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.length ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a grown-up: ${this._asked.map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
+    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.length ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
         const saving = this._saving === r.name, held = this._held === r.name || saving, capped = this._capped(r), back = backDay(this._now);
         const asked = this._asked.some((a) => a.name === r.name);
-        if (this._spend === r.name && ok && !held && (r.approve ?? r.cost >= 60) && this._askOn) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" data-ask role="group" aria-label="Ask a grown-up for ${r.name}?">
-          <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Ask a grown-up?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${r.name} · ${words}</span></span>
-          <button class="tap" data-act="ask-send" @click=${() => { this._heldAt = Date.now(); void this._askFor(r); }}>${tickSvg(18)}Ask</button>${this.pin ? html`<button class="tap save" data-act="ask-here" aria-label="A grown-up is here: use the PIN" @click=${() => { this._spend = ''; void this._redeem(r); }}>PIN</button>` : nothing}<button class="tap save" data-act="ask-no" @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
+        if (this._spend === r.name && ok && !held && (r.approve ?? r.cost >= 60) && this._askOn) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" data-ask role="group" aria-label="Ask a parent for ${r.name}?">
+          <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Ask a parent?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${r.name} · ${words}</span></span>
+          <button class="tap" data-act="ask-send" @click=${() => { this._heldAt = Date.now(); void this._askFor(r); }}>${tickSvg(18)}Ask</button>${this.pin ? html`<button class="tap save" data-act="ask-here" aria-label="A parent is here: use the PIN" @click=${() => { this._spend = ''; void this._redeem(r); }}>PIN</button>` : nothing}<button class="tap save" data-act="ask-no" @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         if ((this._spend === r.name && ok) || held) return html`<div class="rw ask ${this._picMode ? 'picrow' : ''}" role="group" aria-label="Spend ${words} on ${r.name}?" ?data-held=${held} aria-busy=${saving ? 'true' : nothing}>
           <span class="rpic" aria-hidden="true">${pic}</span><span class="q">Spend ${words}?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${r.name}</span></span>
           <button class="tap" ?disabled=${held} @click=${() => { this._held = r.name; this._heldAt = Date.now(); window.setTimeout(() => { if (this._held === r.name) this._held = ''; }, 600); void this._redeem(r); }}>${saving ? 'Saving…' : html`${tickSvg(18)}Yes`}</button><button class="tap save" ?disabled=${held} @click=${() => { this._spend = ''; this._sound('tap'); }}>${crossSvg}Not now</button></div>`;
         // for a child who cannot read: a different picture on every row, and the cost as stars: filled for the ones already saved, empty for the ones still to earn
-        return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" ?data-capped=${capped} aria-label="${r.name}: ${asked ? 'asked, waiting for a grown-up' : capped ? `had this week. Back on ${back}` : ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
+        return html`<button class="rw tap ${this._picMode ? 'picrow' : ''}" ?data-capped=${capped} aria-label="${r.name}: ${asked ? 'asked, waiting for a parent' : capped ? `had this week. Back on ${back}` : ok ? `spend ${words}` : this._picMode ? `${got} of ${total} stars saved` : `${r.cost - have} points to go`}" @click=${() => this._rewardTap(r)}>
           <span class="rpic" aria-hidden="true">${pic}</span>
           <span class="n">${r.name}${this._picMode ? html`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${total > 12 ? html`${starSvg(ok, 20)}<b style="font-size:var(--fs-2);line-height:20px;margin-left:4px">${got} / ${total}</b>` : Array.from({ length: total }, (_, k) => starSvg(k < got, 18))}</span>` : nothing}</span>
           ${asked ? html`<span class="cost notyet" data-asked style="margin-left:auto">⏳ Asked</span>` : capped ? html`<span class="cost notyet" style="margin-left:auto">Back ${back}</span>` : this._picMode ? nothing : html`<span class="cost ${ok ? '' : 'notyet'}" style="margin-left:auto">${ok ? `Spend ${r.cost}` : `${r.cost - have} to go`}</span>`}</button>`;
@@ -999,16 +999,16 @@ export class FhKid extends LitElement {
     </section>`;
   }
 
-  /** Older mode: no faces on a shared wall. One quiet button leaves a note for a grown-up; nothing about it appears on the panel. */
+  /** Older mode: no faces on a shared wall. One quiet button leaves a note for a parent; nothing about it appears on the panel. */
   private _chatCard(): TemplateResult {
     return html`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
       <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>${icon('ask', 20)}Ask for a chat</button>
-      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a grown-up. Nothing shows on the wall.</span></section>`;
+      <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a parent. Nothing shows on the wall.</span></section>`;
   }
 
-  /** Worries often come up at bedtime: a quiet way to ask for a grown-up during wind-down. */
+  /** Worries often come up at bedtime: a quiet way to ask for a parent during wind-down. */
   private _windChat(): TemplateResult {
-    return html`<section class="glass card" aria-label="Ask for a grown-up"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
+    return html`<section class="glass card" aria-label="Ask for a parent"><span class="wq" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">Something on your mind?</span>
       <button class="pill tap" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => { this._feel = ''; this._feelReply('chat'); }}>💬 Ask for a chat</button></section>`;
   }
 

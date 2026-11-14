@@ -85,7 +85,7 @@ for (const [vf, why] of [['missing', 'the recording is not there'], ['none', 'no
   ok(`when ${why}, the house voice says the line live`, all.some((c) => /tts_get_url/.test(c) && /tts.demo_voice/.test(c)) && all.some((c) => /play_announcement|tts\.speak tts\.demo_voice|tts\.speak .*demo/.test(c)) && !all.some((c) => /play_media/.test(c)) && !all.some((c) => /home_assistant_cloud/.test(c)), all);
   await page.context().close(); }
 { const page = await open('look=glass&page=music&voice=1'); await room(page, 'Uncle Kit is at the door', true);
-  ok('a typed message still asks a grown-up first', await M(page).locator('fh-pin').count() === 1 && (await calls(page, /tts|play_/)).length === 0);
+  ok('a typed message still asks a parent first', await M(page).locator('fh-pin').count() === 1 && (await calls(page, /tts|play_/)).length === 0);
   await pin(page, M(page)); await page.waitForTimeout(500);
   const all = await calls(page, /media_player\.play_media|play_announcement|tts\.speak|tts_get_url/);
   ok('then it is spoken live in the house voice, and counted', all.some((c) => /tts_get_url/.test(c) && /tts.demo_voice/.test(c)) && !all.some((c) => /home_assistant_cloud/.test(c)) && await used(page) === 'Uncle Kit is at the door'.length, [all, await used(page)]);

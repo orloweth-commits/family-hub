@@ -20,7 +20,7 @@ import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNot
   type Access, type Blocked, type Cfg, type ChoreForm, type Version } from './settings-store';
 
 /* ------------------------------------------------------------------ *
- * Settings: the grown-ups' page behind the cog on the house-info sheet.
+ * Settings: the parents' page behind the cog on the house-info sheet.
  * A list of sections on the left (a row of tabs on a phone), one pane on the
  * right, and one Save per pane. What it edits is the card's own configuration,
  * saved back into the dashboard that hosts the card (settings-store.ts); job
@@ -290,7 +290,7 @@ export class FhSettings extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener('keydown', this._keys, true); clearInterval(this._noteT); this._camStop();
-    // closed by a grown-up: the PIN window starts now. Taken away by the dashboard drawing itself again: Settings comes back on the same pane.
+    // closed by a parent: the PIN window starts now. Taken away by the dashboard drawing itself again: Settings comes back on the same pane.
     pinMark(); wantPane(this._closed ? '' : this._pane); if (!this._closed) resumeSoon();
   }
   protected willUpdate(ch: PropertyValues): void {
@@ -338,7 +338,7 @@ export class FhSettings extends LitElement {
   private _guard(run: () => void): void { if (this._dirty && !this._ro) { this._ask = run; sfx('locked'); } else run(); }
   private _go(p: PaneId): void {
     if (p === this._pane) return;
-    if (!this.config.parent_pin && !this._ro && p !== 'advanced' && p !== 'pin') { this._say('Set a parent PIN first: Settings is for grown-ups.'); return; }
+    if (!this.config.parent_pin && !this._ro && p !== 'advanced' && p !== 'pin') { this._say('Set a parent PIN first: Settings is for parents.'); return; }
     this._guard(() => { this._pane = p; this._job = null; this._err = ''; this._kb = ''; this._sure = ''; this._find = ''; this._open = -1; sfx('nav'); });
   }
   private _close(): void { this._guard(() => { this._closed = true; this.dispatchEvent(new CustomEvent('close')); }); }
@@ -445,7 +445,7 @@ export class FhSettings extends LitElement {
     const setA = (fn: (g: NonNullable<Cfg['approve']>) => void): void => this._edit((x) => { x.approve = x.approve ?? {}; fn(x.approve); if (!x.approve.notify?.length) delete x.approve.notify; if (!Object.keys(x.approve).length) delete x.approve; });
     const stale = !!ent && !!this._apHeld && !!want && !sameDigest(this._apHeld, want), noList = saved && !S[askList(this.config)];
     return html`<div class="scard" data-card="approve"><h3>${icon('check', 20)}Approve from a phone</h3>
-        <span class="shint">When a child asks for a big reward (one that needs a grown-up), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A grown-up at the wall can still use the PIN.</span>
+        <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
         <div class="spick" role="group" aria-label="Phones that are asked to approve">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-ap=${id} aria-pressed=${String(to.includes(id))} @click=${() => setA((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
         ${this._dirty ? (to.length || saved ? html`<span class="shint" data-ap-state="unsaved">Save, and Home Assistant ${to.length ? 'is set up to hear the answer' : 'stops asking'}.</span>` : nothing)
@@ -683,7 +683,7 @@ export class FhSettings extends LitElement {
       <div class="scard" data-card="ask"><h3>Ask <span class="muted">the AI helper</span></h3>
         ${this._row('What Ask is for ' + (k.name || 'this child'), 'Pictures only: six things to tap, no typing and no talking. Full: typing, talking and the pictures.', this._seg('Ask', askFor(k).mode, [['off', 'Off'], ['pictures', 'Pictures only'], ['full', 'Full']], (v) => set((x) => { x.ask = v; })))}
         ${askFor(k).mode === 'off' ? nothing : this._row('Ask time a day', 'Counted while his Ask is open, on this screen. When it runs out, Ask says so kindly and waits for tomorrow.', this._step('Ask time a day', askFor(k).minutes, (v) => set((x) => { x.ask_minutes = v; }), { max: 120, step: 5, say: (v) => (v ? `${v} min` : 'No limit') }))}
-        <span class="shint">${askByChild(d.kids) ? 'Ask is set by child: opened from a shared page, it first asks who is asking. A grown-up gets in with the PIN.' : 'Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a grown-up gets in with the PIN.'}</span>
+        <span class="shint">${askByChild(d.kids) ? 'Ask is set by child: opened from a shared page, it first asks who is asking. A parent gets in with the PIN.' : 'Until you set this for one child, Ask opens the same way for everyone. Once it is set, a shared page first asks who is asking, and a parent gets in with the PIN.'}</span>
       </div>`;
     return html`<p class="sintro">One child at a time. Pick who, then change what you need.</p>
       ${this._kidChips('Which child')}
@@ -711,7 +711,7 @@ export class FhSettings extends LitElement {
     const hasDraft = !!k?.rewards_draft, draft = hasDraft && this._rwLive !== i, key = draft ? 'rewards_draft' : 'rewards';
     const list = k?.[key], set = (fn: (l: RewardConfig[]) => void): void => this._edit((x) => { const kk = x.kids![i]; kk[key] = kk[key] ?? clone(DEFAULTS); fn(kk[key]!); });
     const jar = d.jar ?? {};
-    return html`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a grown-up first.</p>
+    return html`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a parent first.</p>
       ${k ? html`${this._kidChips('Whose rewards')}
       ${hasDraft ? html`<div class="scard" data-card="rewards-draft"><h3>A drafted list is waiting <span class="muted">not live yet</span></h3>
         <span class="shint">${k.name} still sees the live list. Change the draft as you like, then put it live and save.</span>
@@ -724,7 +724,7 @@ export class FhSettings extends LitElement {
           ${this._txt(`rw.${i}.${n}.icon`, `Picture for ${r.name || 'this reward'} (an emoji)`, r.icon ?? '', (v) => set((l) => { if (v) l[n].icon = v; else delete l[n].icon; }), { cls: 'pic', ph: '🎁', pic: true, max: 16 })}
           ${this._txt(`rw.${i}.${n}.name`, `Reward ${n + 1} name`, r.name, (v) => set((l) => { l[n].name = v; }), { cls: 'sgrow sfull2', ph: 'Name of the reward', bad: !r.name.trim() })}
           ${this._step(`Cost of ${r.name || 'this reward'}`, r.cost, (v) => set((l) => { l[n].cost = v; }), { max: 5000, step: 5, unit: 'pts' })}
-          <span class="schips"><button class="tap" aria-pressed=${String(r.approve ?? r.cost >= 60)} aria-label=${`${r.name || 'This reward'} needs a grown-up’s PIN`} @click=${() => set((l) => { l[n].approve = !(l[n].approve ?? l[n].cost >= 60); })}><span class="sbox2" aria-hidden="true">${(r.approve ?? r.cost >= 60) ? icon('check', 16) : nothing}</span>Needs PIN</button>
+          <span class="schips"><button class="tap" aria-pressed=${String(r.approve ?? r.cost >= 60)} aria-label=${`${r.name || 'This reward'} needs a parent’s PIN`} @click=${() => set((l) => { l[n].approve = !(l[n].approve ?? l[n].cost >= 60); })}><span class="sbox2" aria-hidden="true">${(r.approve ?? r.cost >= 60) ? icon('check', 16) : nothing}</span>Needs PIN</button>
             <button class="tap" data-act="weekly" aria-pressed=${String(!!r.weekly)} aria-label=${`${r.name || 'This reward'} can be had once a week`} @click=${() => set((l) => { if (l[n].weekly) delete l[n].weekly; else l[n].weekly = 1; })}><span class="sbox2" aria-hidden="true">${r.weekly ? icon('check', 16) : nothing}</span>${r.weekly && r.weekly > 1 ? `${r.weekly} a week` : 'Once a week'}</button></span>
           ${this._move(r.name || 'reward', n, all.length, (to) => set((l) => { const [x] = l.splice(n, 1); l.splice(to, 0, x); }))}
           ${this._del(`Remove ${r.name || 'this reward'}`, () => set((l) => { l.splice(n, 1); }))}</div>`)}
@@ -805,7 +805,7 @@ export class FhSettings extends LitElement {
         <div><button class="pill tap" data-act="med-add" @click=${() => { const who = kids[0]?.name ?? ''; set((l) => { l.push({ id: medId(who, `med ${l.length + 1}`, l.map((x) => x.id)), label: '', time: '07:00', ...(who ? { who } : {}) }); }); this._focusSoon(`med.${meds.length}.label`); }}>${icon('plus', 18)}Add a medicine</button></div>
       </div>
       <div class="scard"><h3>Something else given</h3>
-        <span class="shint">The names offered when a grown-up records another medicine. Names only.</span>
+        <span class="shint">The names offered when a parent records another medicine. Names only.</span>
         ${this._strs('extra', 'medicine name', extras, (l) => this._edit((x) => { x.med_extras = l; }))}
       </div>`;
   }
@@ -814,7 +814,7 @@ export class FhSettings extends LitElement {
     const d = this._draft, has = !!this.config.parent_pin, p = this._pin, set = (k: 'cur' | 'next' | 'again') => (v: string): void => { this._pin = { ...p, [k]: v.slice(0, 8) }; this._err = ''; };
     const o = { digits: true, secret: true, cls: 'short', max: 8 } as const;
     return html`
-      ${has ? html`<p class="sintro">The parent PIN opens Settings and guards the grown-ups’ jobs on the panel.</p>` : html`<div class="snote" role="note"><span><b>First, set a parent PIN.</b> Settings is for grown-ups, and the PIN is what keeps it that way. Choose 4 to 8 digits, then press Set the PIN. The other sections open once it is set.</span></div>`}
+      ${has ? html`<p class="sintro">The parent PIN opens Settings and guards the parents’ jobs on the panel.</p>` : html`<div class="snote" role="note"><span><b>First, set a parent PIN.</b> Settings is for parents, and the PIN is what keeps it that way. Choose 4 to 8 digits, then press Set the PIN. The other sections open once it is set.</span></div>`}
       <div class="scard"><h3>${has ? 'Change the PIN' : 'Set a parent PIN'}</h3>
         ${has ? this._row('Current PIN', '', this._txt('pin.cur', 'Current PIN', p.cur, set('cur'), o)) : nothing}
         ${this._row('New PIN', '4 to 8 digits.', this._txt('pin.next', 'New PIN', p.next, set('next'), { ...o, bad: !!p.next && !isPin(p.next) }))}
@@ -1081,7 +1081,7 @@ export class FhSettings extends LitElement {
     const setB = (fn: (b: NonNullable<Cfg['babysitter']>) => void): void => this._edit((x) => { fn(x.babysitter = x.babysitter ?? {}); });
     return html`
       <div class="scard"><h3>Parents</h3>
-        <span class="shint">The grown-ups whose names are offered when a medicine is recorded.</span>
+        <span class="shint">The parents whose names are offered when a medicine is recorded.</span>
         ${this._strs('parent', 'parent', d.parents ?? [], (l) => this._edit((x) => { x.parents = l; }))}
       </div>
       <div class="scard"><h3>${icon('info', 20)}The house-info page <span class="muted">for babysitters and visitors</span></h3>
@@ -1092,7 +1092,7 @@ export class FhSettings extends LitElement {
         <div><button class="pill tap" @click=${() => { this._setSitter((x) => { x.contacts.push({ name: '', phone: '' }); }); this._focusSoon(`sit.c.${s.contacts.length}.name`); }}>${icon('plus', 18)}Add a contact</button></div>
         <span class="label">Wi-Fi for visitors</span>
         ${this._row('Network', '', this._txt('sit.wifi', 'Wi-Fi network', b.wifi?.name ?? '', (v) => setB((x) => { if (v) x.wifi = { ...(x.wifi ?? {}), name: v }; else delete x.wifi; })), true)}
-        ${b.wifi ? this._row('Password', 'On the house-info page it sits behind the grown-ups’ PIN: “Show”, then the PIN.', this._txt('sit.wifipw', 'Wi-Fi password', b.wifi.password ?? '', (v) => setB((x) => { if (v) x.wifi!.password = v; else delete x.wifi!.password; })), true) : nothing}
+        ${b.wifi ? this._row('Password', 'On the house-info page it sits behind the parents’ PIN: “Show”, then the PIN.', this._txt('sit.wifipw', 'Wi-Fi password', b.wifi.password ?? '', (v) => setB((x) => { if (v) x.wifi!.password = v; else delete x.wifi!.password; })), true) : nothing}
         <span class="label">Good to know</span>
         ${this._strs('sit.note', 'note', s.notes, (l) => this._setSitter((x) => { x.notes = l; }))}
       </div>
@@ -1168,7 +1168,7 @@ export class FhSettings extends LitElement {
     const note = getNote(); void this._tick;
     const dirty = this._dirty;
     return html`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(e: Event) => e.stopPropagation()}>
-      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${icon('cog', 26)}</span>Settings</h2><span class="muted">For grown-ups. ${p.sub}.</span></div>
+      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${icon('cog', 26)}</span>Settings</h2><span class="muted">For parents. ${p.sub}.</span></div>
         <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${icon('close', 20)}</button></div>
       <nav class="snav" aria-label="Sections">${PANES.map((x) => { const off = locked && x.id !== 'pin' && x.id !== 'advanced';
         return html`<button class="tap" data-pane=${x.id} aria-current=${x.id === this._pane ? 'page' : 'false'} aria-disabled=${off ? 'true' : 'false'} aria-label=${`${x.name}${off ? ' (set a PIN first)' : x.id === this._pane && dirty ? ', unsaved changes' : ''}`} @click=${() => this._go(x.id)}>${paneIcon(x.ic)}<span>${x.name}</span>${x.id === this._pane && dirty && !ro ? html`<i class="sdot" aria-hidden="true"></i>` : nothing}</button>`; })}</nav>

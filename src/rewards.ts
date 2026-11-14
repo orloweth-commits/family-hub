@@ -5,7 +5,7 @@ import { addDays, startOfDay } from './dates';
  * since Monday. The count comes from the rewards list in Home Assistant
  * (every reward spent is written there with its date), so every screen
  * agrees; this screen's own note covers a list that is missing or that a
- * grown-up has cleared.
+ * parent has cleared.
  * ------------------------------------------------------------------ */
 
 /** Monday 00:00 of the week `d` is in. */

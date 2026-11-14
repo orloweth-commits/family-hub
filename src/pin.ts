@@ -47,7 +47,7 @@ export class FhPin extends LitElement {
   `];
   static properties = { pin: {}, reason: {}, _typed: { state: true }, _bad: { state: true }, _note: { state: true }, _wait: { state: true } };
   pin = '';
-  reason = 'Grown-ups only';
+  reason = 'Parents only';
   private _typed = '';
   private _bad = false;
   private _note = '';
@@ -81,7 +81,7 @@ export class FhPin extends LitElement {
       else {
         LOCK.misses += 1; this._bad = true; sfx('pinno');
         // three wrong tries: the pad rests for a minute, so it cannot be guessed by mashing
-        if (LOCK.misses >= 3) { LOCK.misses = 0; LOCK.until = Date.now() + 60_000; this._wait = 60; this._note = 'Too many tries. Ask a grown-up to help.'; } else this._note = 'Not that one. Try again.';
+        if (LOCK.misses >= 3) { LOCK.misses = 0; LOCK.until = Date.now() + 60_000; this._wait = 60; this._note = 'Too many tries. Ask a parent to help.'; } else this._note = 'Not that one. Try again.';
         setTimeout(() => { this._bad = false; this._typed = ''; }, 420);
       }
     }
@@ -111,7 +111,7 @@ export class FhPin extends LitElement {
         <button class="round tap" style="width:52px;height:52px;margin-right:-10px" aria-label="Cancel" @click=${() => this._leave('cancel')}>${icon('close', 20)}</button></div>
       <span class="what">Enter the parent PIN to go on.</span>
       <div class="dots" role="img" aria-label="${this._typed.length} of ${this.pin.length} digits entered">${Array.from({ length: this.pin.length }, (_, i) => html`<span class=${i < this._typed.length ? 'on' : ''}></span>`)}</div>
-      <div class="note" role="alert">${this._wait ? `Too many tries. Ask a grown-up to help. (${this._wait} s)` : this._note}</div>
+      <div class="note" role="alert">${this._wait ? `Too many tries. Ask a parent to help. (${this._wait} s)` : this._note}</div>
       <div class="grid">
         ${[...this._digits.slice(0, 9), '', this._digits[9], 'del'].map((k) => k ? html`<button class="tap" ?disabled=${!!this._wait} aria-label=${k === 'del' ? 'Delete' : k} @click=${() => this._key(k)}>${k === 'del' ? icon('backspace', 28) : k}</button>` : html`<span></span>`)}
       </div>

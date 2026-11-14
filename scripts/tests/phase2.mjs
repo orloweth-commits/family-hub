@@ -26,7 +26,7 @@ const said = (page) => page.evaluate(() => window.__said ?? []);
 const pin = async (page) => { for (const d of '1234') await C(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(500); };
 const kidEl = 'document.querySelector("family-hub-card").shadowRoot.querySelector("fh-kid")';
 const tab = async (page, id) => { await K(page).locator(`.tab[data-tab="${id}"]`).click(); await page.waitForTimeout(250); };
-const NOTE = 'Answers come from an AI helper on the internet. It can be wrong. Ask a grown-up about anything important.';
+const NOTE = 'Answers come from an AI helper on the internet. It can be wrong. Ask a parent about anything important.';
 
 // 1. two measures on the page: today's ring and the family jar. Nothing else is counted there
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const kid of [0, 1, 2]) {
@@ -116,7 +116,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   // set by child: a shared page asks who is asking
   page = await open('look=glass&page=planner&ask=1'); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
   let who = await C(page).locator('.askwho .whobtn').evaluateAll((l) => l.map((b) => b.innerText.trim()));
-  ok('set by child, shared page: "Who is asking?" with each child and a grown-up', JSON.stringify(who) === JSON.stringify(['Riley', 'Charlie', 'Max', 'A grown-up']) && (await C(page).locator('fh-chat').count()) === 0, who);
+  ok('set by child, shared page: "Who is asking?" with each child and a parent', JSON.stringify(who) === JSON.stringify(['Riley', 'Charlie', 'Max', 'A parent']) && (await C(page).locator('fh-chat').count()) === 0, who);
   ok('the note about the helper is on the sheet from the start', (await C(page).locator('.chatsheet .ainote').innerText()).trim() === NOTE);
   const sz = await C(page).locator('.askwho .whobtn').evaluateAll((l) => l.map((b) => { const r = b.getBoundingClientRect(); return Math.min(r.width, r.height); }));
   ok('each face is a big target', sz.every((x) => x >= 120), sz);
@@ -128,10 +128,10 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   await chat.locator('.starter').first().click(); await page.waitForTimeout(1200);
   ok('a picture still asks the helper', (await calls(page, 'ws.conversation/process')).length === 1 && (await chat.locator('.bubble').count()) >= 2);
   await page.context().close();
-  // a grown-up goes through the PIN and has no clock
+  // a parent goes through the PIN and has no clock
   page = await open('look=glass&page=planner&ask=1'); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
-  await C(page).locator('.askwho .whobtn', { hasText: 'A grown-up' }).click(); await page.waitForTimeout(400);
-  ok('a grown-up is asked for the PIN', (await C(page).locator('fh-pin').count()) === 1 && (await C(page).locator('fh-chat').count()) === 0);
+  await C(page).locator('.askwho .whobtn', { hasText: 'A parent' }).click(); await page.waitForTimeout(400);
+  ok('a parent is asked for the PIN', (await C(page).locator('fh-pin').count()) === 1 && (await C(page).locator('fh-chat').count()) === 0);
   await pin(page); chat = C(page).locator('fh-chat'); await chat.locator('.send').waitFor({ timeout: 5000 }).catch(() => {});
   ok('then gets the full helper with no clock', (await chat.locator('.send').count()) === 1 && (await chat.locator('.left').count()) === 0 && (await chat.getAttribute('pics')) === null);
   await page.context().close();
@@ -147,7 +147,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   ok('Ask off for a child: no Ask button on his page, in the card or the header', (await K(page).locator('[data-act="ask"]').count()) === 0 && (await C(page).locator('header [data-act="ask"]').count()) === 0);
   await C(page).locator('nav.dock [data-nav="home"]').click(); await page.waitForTimeout(400); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(500);
   who = await C(page).locator('.askwho .whobtn').evaluateAll((l) => l.map((b) => b.innerText.trim()));
-  ok('Ask off for a child: he is not among the faces', JSON.stringify(who) === JSON.stringify(['Riley', 'Charlie', 'A grown-up']), who);
+  ok('Ask off for a child: he is not among the faces', JSON.stringify(who) === JSON.stringify(['Riley', 'Charlie', 'A parent']), who);
   await page.context().close();
   // the day's time: it counts down while his Ask is open, runs out kindly, and stays out until tomorrow
   page = await open('look=glass&page=kid&kid=0&ask=1&askmin=1'); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600); chat = C(page).locator('fh-chat');

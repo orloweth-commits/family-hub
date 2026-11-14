@@ -460,7 +460,7 @@ export class FhMusic extends LitElement {
   hide: string[] = [];
   /** with a house map: only the speakers it names, and the ones that cannot be reached stay in place, offline */
   lock = true;
-  /** the extra room views a grown-up has switched on in Settings (dial, desk, cables, list); House and Scene are always offered */
+  /** the extra room views a parent has switched on in Settings (dial, desk, cables, list); House and Scene are always offered */
   views: string[] = [];
   moments: MomentConfig[] = [];
   /** how loud a call to a room is spoken (0–100), and in which language and voice */
@@ -501,7 +501,7 @@ export class FhMusic extends LitElement {
   private _shelfTo = '';
   private _tab: Tab = 'rooms';
   private _focus = '';
-  /** The bedroom a grown-up has just allowed (set only while that one action runs). */
+  /** The bedroom a parent has just allowed (set only while that one action runs). */
   private _cleared = '';
   private _thumbs: Record<string, string> = {};
   private _resolved: Record<string, string> = {};
@@ -677,7 +677,7 @@ export class FhMusic extends LitElement {
   }
 
   /* ---------------- transport ---------------- */
-  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a grown-up first. Pausing, turning down and leaving never ask. */
+  /** Every way music can start goes through _gentle, so a bedroom after bedtime always asks a parent first. Pausing, turning down and leaving never ask. */
   private _svc(service: string, data: Record<string, unknown> = {}, id = this._cur?.entity_id): void {
     if (!id) return;
     const p = this._list.find((x) => x.entity_id === id) ?? this.hass!.states[id], st = p?.state, starts = service === 'media_play' || (service === 'media_play_pause' && st !== 'playing' && st !== 'buffering');
@@ -727,7 +727,7 @@ export class FhMusic extends LitElement {
   }
   /** After bedtime: the same test the card uses for Ask and All on (quiet hours, or any child's bedtime has passed). */
   private get _late(): boolean { return afterBedtime(this.kids, this.quiet); }
-  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a grown-up (when a PIN is set). */
+  /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a parent (when a PIN is set). */
   private _wholeHouse(run: () => void): void { if (this._late) this._guard('It is after bedtime. Whole-house music plays in the bedrooms too.', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The Whole house button, wherever it is: spread the music that is playing, whichever room is selected. */
   /** True when the music that is playing is already in every room that can be reached. */
@@ -896,7 +896,7 @@ export class FhMusic extends LitElement {
       } catch (e: unknown) { this._oops(`${m.name} couldn’t start`, e); }
       finally { this._momentBusy = ''; }
     };
-    // an all-rooms pad is whole-house music: free by day, a grown-up's call after bedtime. A pad for named rooms asks only when one of them is a bedroom after its bedtime.
+    // an all-rooms pad is whole-house music: free by day, a parent's call after bedtime. A pad for named rooms asks only when one of them is a bedroom after its bedtime.
     if (all) this._wholeHouse(() => { void run(); });
     else if (rooms.some((r) => this._asleep(r.entity_id))) this._guard(`It is after bedtime. ${m.name} plays in a bedroom.`, () => { void run(); }); else void run();
   }
@@ -937,7 +937,7 @@ export class FhMusic extends LitElement {
     return floors;
   }
   private _asleep(id: string): boolean { return this._floors.some((f) => f.rooms.some((r) => r.asleep && r.zones.some((z) => z.p.entity_id === id))); }
-  /** Bedrooms after bedtime need a grown-up (when a PIN is set) before music goes there. */
+  /** Bedrooms after bedtime need a parent (when a PIN is set) before music goes there. */
   private _gentle(id: string, run: () => void): void { if (this._off(this._list.find((p) => p.entity_id === id) ?? this.hass!.states[id])) { this._say(`${this._name(this._list.find((p) => p.entity_id === id))} is offline`); return; } if (this._asleep(id) && this._cleared !== id && this._cleared !== '*') this._guard(`${this._name(this.hass!.states[id])} is in a bedroom after bedtime. Play there anyway?`, () => { this._cleared = id; try { run(); } finally { this._cleared = ''; } }); else run(); }
   /** The house: slide up or down anywhere in a room for its volume. Nothing changes until the finger has gone 10 px up or down (a sideways start is not a volume change); on a phone only the bar itself slides, so the page can scroll. */
   private _volDown(e: PointerEvent, p: HassEntity): void {
@@ -1113,7 +1113,7 @@ export class FhMusic extends LitElement {
     const uri = q?.uri || String(a.media_content_id ?? ''), pic = q?.img ?? (/^https?:/.test(String(a.entity_picture ?? '')) ? String(a.entity_picture) : undefined);
     return uri ? { name: q?.name || String(a.media_title ?? 'Music'), uri, type: q?.type ?? 'track', img: pic, sub: a.media_artist ? String(a.media_artist) : undefined } : null;
   }
-  /** Something was let go on a name: pin it to that shelf (a grown-up's call when a PIN is set). */
+  /** Something was let go on a name: pin it to that shelf (a parent's call when a PIN is set). */
   private _pinDrop(to: string, m: MediaHit | null): void {
     const whose = to === 'Family' ? 'the family shelf' : `${to}’s shelf`;
     if (!m?.uri) { this._say('That can’t be pinned from here. Search for it, then tap Pin.'); return; }
@@ -1184,9 +1184,9 @@ export class FhMusic extends LitElement {
     if (!tts && !hv) { this._say('Home Assistant has no voice set up for speaking'); return; }
     if (Date.now() - this._lastCall < 15_000) { this._say('Give it a moment before calling again'); return; }
     // each room's own bedtime comes first; the household's quiet time covers the rest
-    // by day anyone may call any room (the parents' room too) with a ready message. After bedtime a call wakes people, so it asks a grown-up. A message typed in is always a grown-up's.
+    // by day anyone may call any room (the parents' room too) with a ready message. After bedtime a call wakes people, so it asks a parent. A message typed in is always a parent's.
     const late = this._late, abed = to.filter((id) => this._abed(id)), typed = line < 0;
-    if (!checked && this.pin && (late || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `It is after bedtime. ${this._name(this.hass!.states[abed[0]])} is asleep.` : late ? 'It is after bedtime. A call now could wake someone.' : 'A typed message is spoken out loud. That needs a grown-up.', run: () => void this._call(true) }; return; }
+    if (!checked && this.pin && (late || abed.length || typed)) { this._pinAsk = { reason: abed.length ? `It is after bedtime. ${this._name(this.hass!.states[abed[0]])} is asleep.` : late ? 'It is after bedtime. A call now could wake someone.' : 'A typed message is spoken out loud. That needs a parent.', run: () => void this._call(true) }; return; }
     this._lastCall = Date.now(); this._calling = true;
     const h = this._h, lang = this.callLanguage, voice = this.callVoice ? { options: { voice: this.callVoice } } : {}, vol = Math.max(0, Math.min(100, Math.round(this.callVolume)));
     // The house voice (voice.ts), in this order: a ready message is played from its recording when the file is there; otherwise the house
@@ -1413,7 +1413,7 @@ export class FhMusic extends LitElement {
       return html`${low ? nothing : banner}
         ${list.length ? html`<div class="covers scrolly jcovers ${low ? 'low' : ''}" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" aria-label="Add ${m.name}" @click=${() => this._addPick(m)}>
           <i class="disc"></i><span class="img" style=${m.img ? `--art:url(${m.img})` : ''}>${m.img ? '' : m.name[0]}</span><span class="lbl">${m.name}</span></button>`)}</div>`
-        : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A grown-up can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
+        : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A parent can pin music from Search. Until then, use Search instead.</span></div>`}${low ? banner : nothing}`;
     }
     const waiting = j.picks.filter((p) => !p.done).sort((a, b) => Number(b === next) - Number(a === next) || a.t - b.t), played = j.picks.filter((p) => p.done).sort((a, b) => b.t - a.t);
     // each state has its own picture as well as its word: a play mark for the next one, an hourglass for waiting, a tick for played

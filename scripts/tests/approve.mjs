@@ -1,4 +1,4 @@
-// F3 item 2, approve from a phone: a reward that needs a grown-up can be sent to a parent's phone from the child's page; nothing is
+// F3 item 2, approve from a phone: a reward that needs a parent can be sent to a parent's phone from the child's page; nothing is
 // spent until the answer; the page says it is waiting and then what was said; the PIN at the wall still works; Home Assistant's
 // automation (rendered by the stand-in, scripts/tests/digest_render.py) takes the points and writes the ledger only for a real,
 // affordable, unanswered ask; Settings sets it up on a save.
@@ -42,7 +42,7 @@ const told = (page, re) => page.waitForFunction((src) => new RegExp(src).test(do
   await K(page).locator('.rw.ask .save').click(); await page.waitForTimeout(200);
   await big.click(); await page.waitForTimeout(250);
   const ask = K(page).locator('.rw.ask[data-ask]');
-  ok('a big reward offers to ask a grown-up: Ask, the PIN for one standing here, or Not now', await ask.count() === 1 && /Ask a grown-up\?/.test(await ask.innerText()) && await ask.locator('button').count() === 3 && await K(page).locator('fh-pin').count() === 0, await ask.innerText().catch(() => ''));
+  ok('a big reward offers to ask a parent: Ask, the PIN for one standing here, or Not now', await ask.count() === 1 && /Ask a parent\?/.test(await ask.innerText()) && await ask.locator('button').count() === 3 && await K(page).locator('fh-pin').count() === 0, await ask.innerText().catch(() => ''));
   ok('nothing has been sent or spent by looking', (await calls(page, /^notify\.|fh_add_points|todo\.add_item todo\.(family_hub_asks|rewards_owed)/)).length === 0 && Number(await state(page, PTS)) === 300, await state(page, PTS));
   await ask.locator('[data-act="ask-no"]').click(); await page.waitForTimeout(200);
   ok('“Not now” puts the row back', await K(page).locator('.rw.ask').count() === 0);
@@ -51,11 +51,11 @@ const told = (page, re) => page.waitForFunction((src) => new RegExp(src).test(do
   ok('“Ask” writes one line to the asks list', items.length === 1 && items[0].summary === 'Riley: Pick the family movie' && items[0].status === 'needs_action' && /^ask \{/.test(items[0].description) && rec.v === 1 && rec.k === 'reward' && rec.kid === 'riley' && rec.cost === 100 && /^a[a-z0-9]{6}$/.test(rec.id), items);
   ok('and sends the phone one notice', sent.length === 1 && /Riley would like a reward/.test(sent[0]), sent);
   const full = await page.evaluate(() => window.__notified?.slice(-1)[0] ?? null);
-  ok('no points are spent and the ledger is untouched until a grown-up answers', await state(page, PTS) === '300' && (await list(page, OWED)).length === 0 && (await calls(page, /fh_add_points/)).length === 0);
-  ok('the page says it has asked', /^Asked! A grown-up will answer on their phone\.$/.test(await msg(page)), await msg(page));
-  ok('the reward’s row and a line above the list say it is waiting', (await K(page).locator('[data-asks]').innerText()).includes('Asked a grown-up: Pick the family movie') && await big.locator('[data-asked]').count() === 1, await K(page).locator('[data-asks]').innerText().catch(() => ''));
+  ok('no points are spent and the ledger is untouched until a parent answers', await state(page, PTS) === '300' && (await list(page, OWED)).length === 0 && (await calls(page, /fh_add_points/)).length === 0);
+  ok('the page says it has asked', /^Asked! A parent will answer on their phone\.$/.test(await msg(page)), await msg(page));
+  ok('the reward’s row and a line above the list say it is waiting', (await K(page).locator('[data-asks]').innerText()).includes('Asked a parent: Pick the family movie') && await big.locator('[data-asked]').count() === 1, await K(page).locator('[data-asks]').innerText().catch(() => ''));
   await big.click(); await page.waitForTimeout(250);
-  ok('asking again for the same thing does not send a second notice', (await calls(page, /^notify\./)).length === 1 && (await list(page, ASKS)).length === 1 && /^Asked\. Waiting for a grown-up/.test(await msg(page)), await msg(page));
+  ok('asking again for the same thing does not send a second notice', (await calls(page, /^notify\./)).length === 1 && (await list(page, ASKS)).length === 1 && /^Asked\. Waiting for a parent/.test(await msg(page)), await msg(page));
   // not yet
   await answer(page, 'no'); await told(page, /^Not yet/);
   ok('“Not yet” is told kindly, costs nothing, and clears the waiting line', /^Not yet for Pick the family movie\. Your points are safe\.$/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0 && await state(page, PTS) === '300', await msg(page));
@@ -63,21 +63,21 @@ const told = (page, re) => page.waitForFunction((src) => new RegExp(src).test(do
   // approve
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-send"]').click(); await page.waitForTimeout(500);
   await answer(page, 'ok'); await told(page, /said yes/);
-  ok('“Approve” is told as a yes', /^A grown-up said yes: Pick the family movie\.$/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0, await msg(page));
+  ok('“Approve” is told as a yes', /^A parent said yes: Pick the family movie\.$/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0, await msg(page));
   ok('the page itself spends nothing for a yes (Home Assistant has already taken the points)', (await calls(page, /fh_add_points/)).length === 0);
   // short
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-send"]').click(); await page.waitForTimeout(500);
   await answer(page, 'short'); await told(page, /^Not enough/);
   ok('a yes that came after the points were gone is said plainly', /^Not enough points for Pick the family movie now\. Nothing was spent\.$/.test(await msg(page)), await msg(page));
-  // a grown-up at the wall
+  // a parent at the wall
   await big.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-here"]').click(); await page.waitForTimeout(300);
-  ok('a grown-up standing there can still use the PIN', await K(page).locator('fh-pin').count() === 1);
+  ok('a parent standing there can still use the PIN', await K(page).locator('fh-pin').count() === 1);
   await pin(page); await page.waitForTimeout(600);
   ok('and the PIN spends at once, as before', await state(page, PTS) === '200' && (await list(page, OWED)).some((x) => x.summary === 'Riley: Pick the family movie'), [await state(page, PTS), await list(page, OWED)]);
   // a phone that will not take it
   await page.evaluate(() => { window.__notifyFail = true; }); const paint = row(page, 'Warhammer paint pot');
   await paint.click(); await page.waitForTimeout(200); await K(page).locator('[data-act="ask-send"]').click(); await page.waitForTimeout(500);
-  ok('when no phone takes the message the child is sent to find a grown-up (the ask stays on the list for the digest)', /no phone took the message\. Find a grown-up\.$/.test(await msg(page)) && (await list(page, ASKS)).length === 1, await msg(page));
+  ok('when no phone takes the message the child is sent to find a parent (the ask stays on the list for the digest)', /no phone took the message\. Find a parent\.$/.test(await msg(page)) && (await list(page, ASKS)).length === 1, await msg(page));
   await page.context().close(); }
 { const page = await open('look=glass&page=kid&kid=0&shuffle=0'); await rich(page); await page.waitForTimeout(300);
   await row(page, 'Pick the family movie').click(); await page.waitForTimeout(300);

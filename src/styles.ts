@@ -439,7 +439,7 @@ export const styles = css`
   /* on a short screen the chat gives way inside the sheet (its side column scrolls) instead of being cut off by it */
   .sheet.chatsheet > fh-chat { flex-shrink: 1; }
   /* the note about the helper sits directly under the subtitle, so it is read before anything is asked */
-  /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a grown-up's way in */
+  /* Ask, set by child: who is asking? One big face each, low enough for the smallest, and a parent's way in */
   .askwho { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; align-content: center; gap: 18px; }
   .whobtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-width: 168px; min-height: 176px; padding: 16px 14px; border-radius: 28px; background: var(--chip); font-size: var(--fs-4); font-weight: var(--w-bold, 700); color: var(--ink); }
   .whobtn .avatar { overflow: hidden; flex-shrink: 0; }
