@@ -10514,13 +10514,13 @@ const R2 = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   heat: Re(w`<path d="M10 4a2 2 0 0 1 4 0v9.500a4 4 0 1 1-4 0z"></path><path d="M12 9v7"></path>`)
 }, oi = class oi extends wt {
   constructor() {
-    super(...arguments), this.lookCtl = new ie(this), this.fitCtl = new Ye(this), this.pin = "", this.kids = [], this.bedrooms = {}, this.me = "", this._holding = "", this._held = "", this.hideScripts = [], this.hide = [], this._all = !1, this._unlocked = 0, this._unlockedFor = "", this._askFor = "", this._tick = 0, this._askPin = null, this._went = "", this._busy = [], this._flight = /* @__PURE__ */ new Set(), this._opt = {}, this._askWhy = "";
+    super(...arguments), this.lookCtl = new ie(this), this.fitCtl = new Ye(this), this.pin = "", this.kids = [], this.bedrooms = {}, this.sharers = [], this.me = "", this._holding = "", this._held = "", this.hideScripts = [], this.hide = [], this._all = !1, this._unlocked = 0, this._unlockedFor = "", this._askFor = "", this._tick = 0, this._askPin = null, this._went = "", this._busy = [], this._flight = /* @__PURE__ */ new Set(), this._opt = {}, this._askWhy = "";
   }
   _owners(t) {
     const e = this.bedrooms?.[t.id] ?? this.bedrooms?.[t.name];
-    if (Array.isArray(e)) return e.filter((s) => typeof s == "string");
-    const i = t.name.toLowerCase();
-    return this.kids.map((s) => s.name).filter((s) => !!s && new RegExp(`(^|[^a-z])${s.toLowerCase().replace(/[^a-z0-9]/g, ".")}(’s|'s|s)?([^a-z]|$)`).test(i));
+    if (Array.isArray(e)) return e.filter((o) => typeof o == "string");
+    const i = t.name.toLowerCase(), s = this.kids.map((o) => o.name).filter((o) => !!o && new RegExp(`(^|[^a-z])${o.toLowerCase().replace(/[^a-z0-9]/g, ".")}(’s|'s|s)?([^a-z]|$)`).test(i));
+    return [.../* @__PURE__ */ new Set([...s, ...(this.sharers ?? []).filter((o) => o.some((r) => s.includes(r))).flat()])];
   }
   /** free: anyone, one tap. hold: press and hold. pin: a parent. */
   _guardOf(t) {
@@ -10807,7 +10807,7 @@ oi.styles = [It, X`
     .none b { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); color: var(--ink); }
     .none span { font-size: var(--fs-3); line-height: 1.4; max-width: 460px; }
     .tipline { font-size: var(--fs-2); line-height: 1.35; }
-  `], oi.properties = { hass: { attribute: !1 }, pin: {}, kids: { attribute: !1 }, me: {}, bedrooms: { attribute: !1 }, _holding: { state: !0 }, hideScripts: { attribute: !1 }, hide: { attribute: !1 }, _unlocked: { state: !0 }, _askPin: { state: !0 }, _went: { state: !0 }, _all: { state: !0 }, _busy: { state: !0 }, _opt: { state: !0 }, _tick: { state: !0 } }, oi.WINDOW = 6e4;
+  `], oi.properties = { hass: { attribute: !1 }, pin: {}, kids: { attribute: !1 }, me: {}, bedrooms: { attribute: !1 }, sharers: { attribute: !1 }, _holding: { state: !0 }, hideScripts: { attribute: !1 }, hide: { attribute: !1 }, _unlocked: { state: !0 }, _askPin: { state: !0 }, _went: { state: !0 }, _all: { state: !0 }, _busy: { state: !0 }, _opt: { state: !0 }, _tick: { state: !0 } }, oi.WINDOW = 6e4;
 let pl = oi;
 customElements.get("fh-home") || customElements.define("fh-home", pl);
 const ks = (a, t) => a.entities?.[t]?.platform ?? "", cd = (a) => !!a && a.state !== "unavailable", L0 = (a) => Object.keys(a.states).filter((t) => t.startsWith("media_player.") && ks(a, t) === "music_assistant" && !a.entities?.[t]?.hidden).map((t) => a.states[t]).filter(cd), Ni = (a) => !!a.services?.music_assistant && L0(a).length > 0, Q0 = (a, t) => {
@@ -18080,7 +18080,7 @@ const Jx = (a, t) => {
   "windy-variant": "Windy"
 }, sw = "fh-kid,fh-home,fh-music,fh-groceries,fh-doodle,fh-morning,fh-weather,fh-add-event,fh-chat", Ut = class Ut extends wt {
   constructor() {
-    super(...arguments), this.fitCtl = new Ye(this), this.lookCtl = new ie(this), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._look = "glass", this._opts = {}, this._snd = "on", this._sfxOn = !1, this._prefTick = 0, this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._toastAct = null, this._opener = null, this._pinFrom = null, this._remState = "ok", this._remShow = 99, this._mLines = 1, this._evKey = "", this._compact = !1, this._top = 110, this._bot = 122, this._wx = {}, this._reminders = [], this._remTk = {}, this._remOut = /* @__PURE__ */ new Set(), this._remDue = /* @__PURE__ */ new Set(), this._remSeq = {}, this._pressEl = null, this._pressAt = 0, this._bump = 0, this._remJust = "", this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._musicKid = "", this._homeKid = "", this._leftKid = "", this._leftKidAt = 0, this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._calSeen = {}, this._calSince = Date.now(), this._calTick = 0, this._beatAt = 0, this._use = new ex(), this._useAt = Date.now() - Jc + 6e4, this._wifiUntil = 0, this._vis = () => {
+    super(...arguments), this.fitCtl = new Ye(this), this.lookCtl = new ie(this), this._view = "week", this._anchor = /* @__PURE__ */ new Date(), this._events = [], this._soon = [], this._theme = "sea", this._look = "glass", this._opts = {}, this._snd = "on", this._sfxOn = !1, this._prefTick = 0, this._sheet = "", this._now = /* @__PURE__ */ new Date(), this._toast = "", this._toastAct = null, this._opener = null, this._pinFrom = null, this._remState = "ok", this._remShow = 99, this._mLines = 1, this._evKey = "", this._compact = !1, this._top = 110, this._bot = 122, this._wx = {}, this._reminders = [], this._remTk = {}, this._remOut = /* @__PURE__ */ new Set(), this._remDue = /* @__PURE__ */ new Set(), this._remSeq = {}, this._pressEl = null, this._pressAt = 0, this._bump = 0, this._remJust = "", this._nightManual = !1, this._page = "planner", this._kid = 0, this._photo = "", this._musicFocus = "", this._sh = [], this._musicKid = "", this._homeKid = "", this._leftKid = "", this._leftKidAt = 0, this._photos = [], this._photoIdx = 0, this._lastTouch = Date.now(), this._idle = !1, this._calError = !1, this._calSeen = {}, this._calSince = Date.now(), this._calTick = 0, this._beatAt = 0, this._use = new ex(), this._useAt = Date.now() - Jc + 6e4, this._wifiUntil = 0, this._vis = () => {
       document.visibilityState === "hidden" && this._use.flush(this.hass, this._config?.health?.use_log);
     }, this._waiting = [], this._waitSeen = "", this._waitBusy = "", this._dinners = {}, this._dnSeen = "", this._dn = { day: "", text: "", buy: "", field: "text", caps: !0, busy: !1, ok: !1 }, this._nt = { text: "", caps: !0, busy: !1 }, this._dinner = null, this._dinnerCooldown = 0, this._alarm = 0, this._alarmSeen = 0, this._pinAsk = null, this._asker = "", this._fetchedKey = "", this._fetchGen = 0, this._dayKey = "", this._onResize = () => {
       const t = Number(this._config?.scale), e = parseFloat(getComputedStyle(this).getPropertyValue("--header-height")) || 0, i = this.getBoundingClientRect().width || window.innerWidth, s = window.innerHeight - e, o = i < 600 || window.innerHeight < 500 && i < 1e3 ? "phone" : s > i * 1.15 ? "tall" : "wide";
@@ -18186,6 +18186,9 @@ const Jx = (a, t) => {
       this._opener = e && !i ? e : this._pinFrom;
     }
     this._sheet !== "meds" && (this._medOpen = !1), this._config && (this._lk !== Yt() && xr(this._lk), Nh(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1), Wd(this._kidOn?.theme ?? this._theme), this._sfxOn && t.has("_sheet") && !t.get("_sheet") != !this._sheet && S(this._sheet ? "open" : "close"), this._sfxOn = !0);
+  }
+  _sharers() {
+    return this._shFor !== this._config && (this._shFor = this._config, this._sh = (this._config?.music_map ?? []).flatMap((t) => t.rooms ?? []).map((t) => t.kids ?? []).filter((t) => t.length > 1)), this._sh;
   }
   /** What Home Assistant needs for the trust guards (the snapshot automation, the restore script, the panel watch), built from this configuration. Used when the card is set up; nothing on screen calls it. */
   trustSetup() {
@@ -19279,7 +19282,7 @@ const Jx = (a, t) => {
           .jarTarget=${t.jar?.target ?? 120} .jarReward=${t.jar?.reward ?? "a family treat"} .privateWords=${t.private ?? []} .quiet=${s} .oneAtATime=${ur(i).focus} .ask=${!!t.chat?.agent && (!po(t.kids) || sa(i).mode !== "off")} @ask=${() => this._openChat()} @song=${(o) => this._tidySong(i, o.detail.minutes)}></fh-kid>`;
       }
       case "home":
-        return d`<fh-home .hass=${this.hass} .pin=${String(t.parent_pin ?? "")} .kids=${t.kids ?? []} .me=${this._homeKid} .bedrooms=${t.home_bedrooms ?? {}} .hide=${t.home_hide ?? []} .hideScripts=${t.announce_script ? [t.announce_script] : []}
+        return d`<fh-home .hass=${this.hass} .pin=${String(t.parent_pin ?? "")} .kids=${t.kids ?? []} .me=${this._homeKid} .bedrooms=${t.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${t.home_hide ?? []} .hideScripts=${t.announce_script ? [t.announce_script] : []}
         @say=${(i) => this._say(i.detail)} @music=${(i) => {
           this._musicFocus = i.detail, this._page = "music";
         }}></fh-home>`;

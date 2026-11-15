@@ -72,6 +72,7 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
 { const page = await open('look=glass&page=home'); const H = page.locator('fh-home');
   const guards = await H.locator('.room').evaluateAll((r) => Object.fromEntries(r.map((x) => [x.getAttribute('data-room'), x.querySelector('[data-rguard]')?.getAttribute('data-rguard') ?? 'free'])));
   ok('by day each child’s bedroom says “Hold to switch”; the shared rooms do not', guards.riley === 'hold' && guards.charlie === 'hold' && guards.max === 'hold' && guards.kitchen === 'free' && guards.lounge === 'free', guards);
+  ok('a room named after one of two children who share it (the Music map says so) is the other’s room too', await H.evaluate((h) => { const o = h._owners({ id: 'charlie', name: 'Charlie’s room', ents: [] }); return o.includes('Charlie') && o.includes('Max') && o.length === 2; }));
   const dev = H.locator('.room[data-room="riley"] .dev[role="switch"]').first(), was = await dev.getAttribute('aria-checked');
   await dev.click(); await page.waitForTimeout(300);
   ok('a tap there switches nothing and says to hold', await dev.getAttribute('aria-checked') === was && (await calls(page, /homeassistant\.toggle/)).length === 0 && /Hold to switch that: it is Riley’s room/.test(await toastOf(page)), await toastOf(page));

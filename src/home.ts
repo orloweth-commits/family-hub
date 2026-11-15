@@ -105,12 +105,14 @@ export class FhHome extends LitElement {
     .tipline { font-size: var(--fs-2); line-height: 1.35; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, kids: { attribute: false }, me: {}, bedrooms: { attribute: false }, _holding: { state: true }, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, kids: { attribute: false }, me: {}, bedrooms: { attribute: false }, sharers: { attribute: false }, _holding: { state: true }, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
   hass?: Hass;
   pin = '';
   /** the children, for whose bedroom is whose (a room whose name has his name in it, or `bedrooms`: area id or name -> names) */
   kids: { name: string; bedtime?: string }[] = [];
   bedrooms: Record<string, string[]> = {};
+  /** children who share a bedroom (from the Music map's rooms): a room named after one of them is the others' room too */
+  sharers: string[][] = [];
   /** the child whose page Home was opened from: his own room is his to switch */
   me = '';
   /* ---- a child's bedroom is not for his brothers to switch (UX review 5.9): a hold by day, the PIN after his bedtime ---- */
@@ -119,7 +121,8 @@ export class FhHome extends LitElement {
     const set = this.bedrooms?.[r.id] ?? this.bedrooms?.[r.name];
     if (Array.isArray(set)) return set.filter((n) => typeof n === 'string');
     const low = r.name.toLowerCase();
-    return this.kids.map((k) => k.name).filter((n) => !!n && new RegExp(`(^|[^a-z])${n.toLowerCase().replace(/[^a-z0-9]/g, '.')}(’s|'s|s)?([^a-z]|$)`).test(low));
+    const named = this.kids.map((k) => k.name).filter((n) => !!n && new RegExp(`(^|[^a-z])${n.toLowerCase().replace(/[^a-z0-9]/g, '.')}(’s|'s|s)?([^a-z]|$)`).test(low));
+    return [...new Set([...named, ...(this.sharers ?? []).filter((g) => g.some((n) => named.includes(n))).flat()])];
   }
   /** free: anyone, one tap. hold: press and hold. pin: a parent. */
   private _guardOf(r: Room): 'free' | 'hold' | 'pin' {
