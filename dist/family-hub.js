@@ -12685,9 +12685,9 @@ const Z0 = async (a) => {
     this._tab === "rooms" && !this._viewAsk && !Vc.has(this._mode) && (Vc.add(this._mode), window.setTimeout(() => this._showCoach(), 0));
     const f = p`<div class="tabs ${d ? "inline" : ""}" role="tablist">${o.map(([m, k, b]) => p`<button class="tap" role="tab" aria-label=${k} aria-selected=${String(this._tab === m)} @click=${() => r(m)}>${A(b, 26)}<span>${k}</span></button>`)}</div>`, u = l && s ? p`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((m) => p`<span class="pinto" data-pin=${m} ?data-hot=${l.over === `pin:${m}`} style="--c:${this._shelfColour(m)}"><i aria-hidden="true">${m === "Family" ? A("home", 22) : this._face(m, 44)}</i><b>${m}</b></span>`)}</div>` : g;
     return p`${i ? this._hero(i) : p`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${c} data-teach=${h && this._teach || g} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${(m) => {
+      <section class="glass panel" aria-label="Music" ?data-one=${c} data-teach=${h && this._teach || g} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${{ capture: !0, handleEvent: (m) => {
       this._coach && !m.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
-    }}>
+    } }}>
         <div class="mhead" ?data-one=${c} ?data-hinting=${c && h && this._coach} ?data-carrying=${c && !!l && s}><h1 class="t-title">Music</h1>${c && !n ? f : g}${c && h ? this._tools() : g}
           ${n ? this._searchBar() : s ? p`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : p`<span style="flex:1"></span>`}${c ? this._oneNow() : g}${d && !c && !n ? f : g}${c ? u : g}</div>
         ${n || d ? g : f}

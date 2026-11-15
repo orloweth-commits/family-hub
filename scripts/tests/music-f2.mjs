@@ -222,6 +222,8 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   ok('"?" plays them again, and a tap on it while one shows goes on to the next', /^1 of 3/.test(a1) && /^2 of 3/.test(a2) && /^3 of 3/.test(a3) && await M(page).locator('.hint[data-on]').count() === 0, [a1.slice(0, 6), a2.slice(0, 6), a3.slice(0, 6)]);
   await q.click(); await page.waitForTimeout(250); await M(page).locator('.mzone[data-zone="media_player.office"] .zname').click(); await page.waitForTimeout(300);
   ok('a touch anywhere else puts them away, and the touch still lands', await M(page).locator('.hint[data-on]').count() === 0 && await M(page).locator('.mzone[data-zone="media_player.office"]').getAttribute('data-focus') !== null);
+  await q.click(); await page.waitForTimeout(250); const pk = await mid(M(page).locator('.mzone[data-zone="media_player.kitchen"] .puck')); await page.mouse.move(pk[0], pk[1]); await page.mouse.down(); await page.waitForTimeout(150); const gone = await M(page).locator('.hint[data-on]').count() === 0; await page.mouse.up(); await page.waitForTimeout(300);
+  ok('so does a finger coming down on the record in a room', gone);
   await shut(page);
   const sc = await open('page=music&mview=scene'); await sc.waitForTimeout(500);
   const s1 = await M(sc).locator('.hint[data-on]').innerText(); await sc.waitForTimeout(4000); const s2 = await M(sc).locator('.hint[data-on]').innerText();

@@ -23,5 +23,10 @@
     "name": "click-base: the wind map (embed.windy.com) cannot load where the tests have no internet",
     "suite": "click-base",
     "match": "embed\\.windy\\.com"
+  },
+  {
+    "name": "click-base R5-12: the youngest's shelf at the wall expects every record's top in the lower half; since 0.38.1's bigger records the top is 10 px above it (530 of 1080), the record's middle is well below (backlog 103; on main too)",
+    "suite": "click-base",
+    "match": "R5-12 Max’s shelf at the wall"
   }
 ]
