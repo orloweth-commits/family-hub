@@ -12,7 +12,13 @@ def run(auto, sc):
     now = datetime.fromisoformat(sc['now']).astimezone(TZ)
     S = sc.get('states', {})
     env = ImmutableSandboxedEnvironment()
-    def states(e): return S[e]['state'] if e in S else 'unknown'
+    class _St:
+        def __init__(self, e): self.state = S[e]['state']; self.attributes = S[e].get('attributes') or {}; self.last_changed = datetime.fromisoformat(S[e]['last_changed']) if S[e].get('last_changed') else now
+    class _States:
+        # states('x') and states['x'], as in Home Assistant (the second gives the state object: .state, .last_changed)
+        def __call__(self, e): return S[e]['state'] if e in S else 'unknown'
+        def __getitem__(self, e): return _St(e) if e in S else None
+    states = _States()
     def state_attr(e, a): return (S.get(e, {}).get('attributes') or {}).get(a)
     def has_value(e): return e in S and S[e]['state'] not in ('unknown', 'unavailable')
     def today_at(t='00:00'):
@@ -59,6 +65,9 @@ def run(auto, sc):
                 go(a['then'] if truth(a['if']) else a.get('else', []))
             elif 'stop' in a:
                 raise Stop(a['stop'])
+            elif 'repeat' in a:
+                for item in (render(a['repeat']['for_each'], v) or []):
+                    v['repeat'] = {'item': item}; go(a['repeat']['sequence'])
             elif 'response_variable' in a:
                 asked.append({'action': a['action'], 'target': deep(a.get('target') or {}, v), 'data': deep(a.get('data', {}), v)})
                 r = (sc.get('responses') or {}).get(a['response_variable'])
@@ -70,7 +79,7 @@ def run(auto, sc):
     if not truth(auto.get('conditions') or []): return {'name': sc['name'], 'skipped': True, 'sent': [], 'asked': []}
     try: go(auto['actions'])
     except Stop as e: stopped = str(e)
-    return {'name': sc['name'], 'title': v.get('title'), 'message': v.get('message'), 'sent': sent, 'asked': asked, 'stopped': stopped, 'vars': {k: v[k] for k in ('verdict', 'can', 'aid') if k in v}}
+    return {'name': sc['name'], 'title': v.get('title'), 'message': v.get('message'), 'sent': sent, 'asked': asked, 'stopped': stopped, 'vars': {k: v[k] for k in ('verdict', 'can', 'aid', 'who', 'msg', 'used', 'room', 'school', 'kind') if k in v}}
 
 job = json.load(sys.stdin)
 out = []

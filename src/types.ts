@@ -59,6 +59,8 @@ export interface KidConfig {
   likes?: string;
   /** catalogue item ids this kid loves – shown first as the next unlock */
   favourites?: string[];
+  /** spoken cues on his own speaker (cues.ts): off unless `on` is true */
+  cues?: import('./cues').KidCues;
   /** school-night bedtime, e.g. "19:00" (later on Fri/Sat by `bedtime_weekend_extra`, 30 min unless set) */
   bedtime?: string;
   /** signature sound: clarinet | trumpet | roar */
@@ -208,6 +210,8 @@ export interface FamilyHubConfig {
   digest?: import('./digest').DigestConfig;
   /** approve from a phone: a reward that needs a parent asks these phones, with Approve and Not yet (approve.ts). `notify` names the phones; `list` is the to-do list of what is waiting (default todo.family_hub_asks) */
   approve?: import('./approve').ApproveConfig;
+  /** spoken cues (cues.ts): the script that speaks them and how loud. Which child gets them is kids[].cues */
+  cues?: import('./cues').CuesConfig;
   /** calendar used by the quick-add sheet */
   add_calendar?: string;
   /** when adding an event, look places and addresses up on the internet as they are typed (Photon, OpenStreetMap data, Australia only); false keeps the Where box to plain typing */
