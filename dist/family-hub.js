@@ -2521,7 +2521,8 @@ const im = `
 
   /* night: the kitchen clock keeps watch */
   /* the screensaver: the time is a note under a magnet, a little crooked */
-  @F .artm:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
+  @F .artm[data-mat] { --mat: #f1ecdf; --mat-lip: #fffdf6; }
+  @F .artm[data-bare]:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
   @F .artm:not([data-night]) .aplate { background: #fffdf6; color: #23262b; border: 0; border-radius: 5px; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 12px 22px rgba(0,0,0,.34); rotate: -1.4deg; }
   @F .artm .atime .big { font-weight: 600; }
   /* weather: today is a note under a magnet, the week is a strip torn off a calendar, the maps are a photo taped to the door */
@@ -2775,6 +2776,7 @@ const im = `
 
   /* night: only the dial and the time */
   /* the screensaver: an instrument panel, thin and exact */
+  @O .artm[data-mat] { --mat: #1b1d25; --mat-lip: #2a2d38; --mat-ink: rgba(255,255,255,.74); }
   @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
   @O .artm .atime .big { font-weight: 300; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
@@ -3215,9 +3217,9 @@ const im = `
   /* at night the scoreboard on the screensaver is dim amber on black */
   @S .artm[data-night] { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); }
   /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
-  @S .artm .atime { display: none; }
+  @S .artm[data-bare] .atime { display: none; }
   @S .artm .aplate { border-radius: 22px; }
-  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
+  @S .artm[data-bare] .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
   @S .artm[data-night] .dball { opacity: .4; }
   
   /* portrait tablets: the same touchline, with the balls closer together so every place still fits */
@@ -3500,6 +3502,7 @@ const im = `
   /* (since 0.33.5 night is the screensaver at its night level, not a screen of its own) */
   @B .artm[data-night] { --live: var(--ink); }
   /* the screensaver: the picture is framed like art in a dark room; the time sits on a smoked plate */
+  @B .artm[data-mat] { --mat: #0c0c0e; --mat-lip: #1b1b1f; --mat-ink: #c9c4b8; }
   @B .artm .aplate { border-radius: 18px; background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,170,40,.3); }
   @B .artm .atime .big { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
   @B .artm .adate { letter-spacing: .12em; text-transform: uppercase; }
@@ -17982,10 +17985,19 @@ class Px {
   }
 }
 const Jx = (a, t) => {
-  const [e, i] = Ox(t.now), s = `left:${(e * 100).toFixed(2)}%;top:${(i * 100).toFixed(2)}%;transform:translate(${(-e * 100).toFixed(2)}%, ${(-i * 100).toFixed(2)}%)`, o = (n, l) => d`<img class="aimg" alt="" draggable="false" ?data-out=${l} src=${n.url}>`, r = a.cur;
-  return d`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${t.night} ?data-closing=${t.closing} ?data-bare=${!r}
+  const [e, i] = Ox(t.now), s = `left:${(e * 100).toFixed(2)}%;top:${(i * 100).toFixed(2)}%;transform:translate(${(-e * 100).toFixed(2)}%, ${(-i * 100).toFixed(2)}%)`, o = (n, l) => d`<img class="aimg" alt="" draggable="false" ?data-out=${l} src=${n.url}>`;
+  return a.cur ? d`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${t.night} ?data-closing=${t.closing} data-mat
       @pointerdown=${t.onWake} @keydown=${t.onWake}>
-    ${r ? d`${a.prev ? da(a.prev.n, o(a.prev, !0)) : m}${da(a.cur.n, o(a.cur, !1))}<span class="ashade" aria-hidden="true"></span>` : t.night ? m : d`<fh-ambient .look=${t.look} .theme=${t.theme} .tod=${t.tod} .calm=${t.calm}></fh-ambient>`}
+    <div class="amatcol">
+      <div class="aframe">${a.prev ? da(a.prev.n, o(a.prev, !0)) : m}${da(a.cur.n, o(a.cur, !1))}</div>
+      <div class="acap" style="transform:translateX(${((e - 0.5) * 16).toFixed(1)}px)">
+        <span class="aline1"><span class="atime"><span class="display big">${t.hm}</span><span class="aampm">${t.ampm}</span></span><span class="adate">${t.date}</span></span>
+        ${t.lines.slice(0, 1).map((n) => d`<span class="ainfo">${n}</span>`)}</div>
+    </div>
+    <span class="agrain" aria-hidden="true"></span>
+  </div>` : d`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${t.night} ?data-closing=${t.closing} data-bare
+      @pointerdown=${t.onWake} @keydown=${t.onWake}>
+    ${t.night ? m : d`<fh-ambient .look=${t.look} .theme=${t.theme} .tod=${t.tod} .calm=${t.calm}></fh-ambient>`}
     <div class="adrift"><div class="aplate" style=${s}>
       ${t.art && t.art !== m ? d`<span class="nart">${t.art}</span>` : m}
       <div class="awords"><span class="atime"><span class="display big">${t.hm}</span><span class="aampm">${t.ampm}</span></span>
@@ -18027,6 +18039,33 @@ const Jx = (a, t) => {
   /* with no picture to show at night there is only the clock, on black */
   .artm[data-night][data-bare] .aplate { background: none; opacity: .72; }
   .artm[data-night] .atime .big { font-weight: 300; }
+  /* ---- the picture as art: a mat, a matte picture, a caption (the polish block, batch 1) ---- */
+  .artm[data-mat] { background: var(--mat, #e8e3d7); color: var(--mat-ink, #4b4740); --ink: var(--mat-ink, #4b4740); }
+  .amatcol { position: absolute; top: 5.5%; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; pointer-events: none; }
+  /* the window: the picture's own shape, so nothing of it is cut; a pale lip where the mat is cut, and the shadow the mat throws on the picture */
+  .aframe { position: relative; flex: none; height: 86.8%; aspect-ratio: 3 / 2; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.28), 0 0 0 9px var(--mat-lip, #f4f0e6), 0 0 0 10px rgba(0,0,0,.12); }
+  .aframe::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 3px 10px rgba(0,0,0,.34), inset 0 0 2px rgba(0,0,0,.4); pointer-events: none; }
+  /* matte, not glossy: a little colour and contrast taken out, as a print behind glass has */
+  .artm[data-mat] .aimg { filter: saturate(.8) contrast(.9) brightness(.97); object-position: 50% 50%; }
+  /* paper: one fine grain over mat and picture alike */
+  .agrain { position: absolute; inset: 0; pointer-events: none; opacity: .16; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .acap { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; transition: transform calc(15s * var(--m-d, 1)) linear; }
+  .acap .aline1 { display: flex; align-items: baseline; gap: 14px; white-space: nowrap; }
+  .acap .atime { gap: 6px; }
+  .acap .atime .big { font-size: var(--fs-d1); font-weight: 500; line-height: 1; letter-spacing: -.01em; }
+  .acap .aampm { font-size: var(--fs-4); font-weight: 600; opacity: .8; }
+  .acap .adate { font-size: var(--fs-4); font-weight: 500; margin-top: 0; opacity: .8; }
+  .acap .ainfo { font-size: var(--fs-3); font-weight: 500; margin-top: 0; opacity: .72; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* night: the room is dark, so the mat is too; the picture is a low, warm print and the caption dim amber */
+  .artm[data-mat][data-night] { background: var(--mat-night, #050505); color: rgba(255,178,107,.6); --mat-lip: #0d0c0b; }
+  .artm[data-mat][data-night] .aimg { filter: brightness(.36) sepia(.42) saturate(.7) contrast(.9); }
+  .artm[data-mat][data-night] .agrain { opacity: .08; mix-blend-mode: screen; }
+  .artm[data-mat][data-night] .aframe { box-shadow: 0 0 0 1px rgba(255,178,107,.06), 0 0 0 9px var(--mat-lip), 0 0 0 10px rgba(255,178,107,.05); }
+  /* upright screens: the window is as wide as the mat allows, and the caption sits under it */
+  :host([data-shape='tall']) .amatcol, :host([data-phone]) .amatcol { left: 5%; right: 5%; transform: none; top: 8%; bottom: auto; }
+  :host([data-shape='tall']) .aframe, :host([data-phone]) .aframe { height: auto; width: 100%; }
+  :host([data-shape='tall']) .acap, :host([data-phone]) .acap { flex: none; padding-top: 22px; }
+  :host([data-phone]) .acap .aline1 { flex-wrap: wrap; gap: 4px 10px; } :host([data-phone]) .acap .atime .big { font-size: var(--fs-6); } :host([data-phone]) .acap .ainfo { white-space: normal; }
   :host([data-phone]) .artm { position: fixed; }
   :host([data-phone]) .adrift { inset: 24px 18px; }
   :host([data-phone]) .aplate { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; border-radius: 28px; }
@@ -18062,7 +18101,7 @@ const Jx = (a, t) => {
 }, aw = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), iw = d`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Kf = "0.37.0", fh = "family-hub-theme", mh = "family-hub-sounds", gh = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Kf = "0.38.0", fh = "family-hub-theme", mh = "family-hub-sounds", gh = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

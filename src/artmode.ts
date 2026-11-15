@@ -179,10 +179,22 @@ export const artView = (m: ArtMode, v: ArtView): TemplateResult => {
   // a picture is still: it arrives by a slow cross-fade over the one before, and never zooms or pans
   const pic = (s: Shown, out: boolean): TemplateResult => html`<img class="aimg" alt="" draggable="false" ?data-out=${out} src=${s.url}>`;
   const pics = m.cur;
-  return html`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${v.night} ?data-closing=${v.closing} ?data-bare=${!pics}
+  // With pictures the screen is a framed picture, not a television (Oliver, 14 Nov: "like a Samsung Frame: dulled down to read as art"):
+  // the picture whole, at its own 3:2, in a mat; matte and muted under a faint paper grain; the time a small caption on the mat with one line under it.
+  // The caption moves a few pixels over the quarter hour, so no pixel shows the same thing all day.
+  if (pics) return html`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${v.night} ?data-closing=${v.closing} data-mat
       @pointerdown=${v.onWake} @keydown=${v.onWake}>
-    ${pics ? html`${m.prev ? keyed(m.prev.n, pic(m.prev, true)) : nothing}${keyed(m.cur!.n, pic(m.cur!, false))}<span class="ashade" aria-hidden="true"></span>`
-      : v.night ? nothing : html`<fh-ambient .look=${v.look} .theme=${v.theme} .tod=${v.tod} .calm=${v.calm}></fh-ambient>`}
+    <div class="amatcol">
+      <div class="aframe">${m.prev ? keyed(m.prev.n, pic(m.prev, true)) : nothing}${keyed(m.cur!.n, pic(m.cur!, false))}</div>
+      <div class="acap" style="transform:translateX(${((fx - 0.5) * 16).toFixed(1)}px)">
+        <span class="aline1"><span class="atime"><span class="display big">${v.hm}</span><span class="aampm">${v.ampm}</span></span><span class="adate">${v.date}</span></span>
+        ${v.lines.slice(0, 1).map((l) => html`<span class="ainfo">${l}</span>`)}</div>
+    </div>
+    <span class="agrain" aria-hidden="true"></span>
+  </div>`;
+  return html`<div class="artm" role="button" tabindex="0" aria-label="Screensaver. Touch to use the panel" ?data-night=${v.night} ?data-closing=${v.closing} data-bare
+      @pointerdown=${v.onWake} @keydown=${v.onWake}>
+    ${v.night ? nothing : html`<fh-ambient .look=${v.look} .theme=${v.theme} .tod=${v.tod} .calm=${v.calm}></fh-ambient>`}
     <div class="adrift"><div class="aplate" style=${at}>
       ${v.art && v.art !== nothing ? html`<span class="nart">${v.art}</span>` : nothing}
       <div class="awords"><span class="atime"><span class="display big">${v.hm}</span><span class="aampm">${v.ampm}</span></span>
@@ -226,6 +238,33 @@ export const artCss = `
   /* with no picture to show at night there is only the clock, on black */
   .artm[data-night][data-bare] .aplate { background: none; opacity: .72; }
   .artm[data-night] .atime .big { font-weight: 300; }
+  /* ---- the picture as art: a mat, a matte picture, a caption (the polish block, batch 1) ---- */
+  .artm[data-mat] { background: var(--mat, #e8e3d7); color: var(--mat-ink, #4b4740); --ink: var(--mat-ink, #4b4740); }
+  .amatcol { position: absolute; top: 5.5%; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; pointer-events: none; }
+  /* the window: the picture's own shape, so nothing of it is cut; a pale lip where the mat is cut, and the shadow the mat throws on the picture */
+  .aframe { position: relative; flex: none; height: 86.8%; aspect-ratio: 3 / 2; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.28), 0 0 0 9px var(--mat-lip, #f4f0e6), 0 0 0 10px rgba(0,0,0,.12); }
+  .aframe::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 3px 10px rgba(0,0,0,.34), inset 0 0 2px rgba(0,0,0,.4); pointer-events: none; }
+  /* matte, not glossy: a little colour and contrast taken out, as a print behind glass has */
+  .artm[data-mat] .aimg { filter: saturate(.8) contrast(.9) brightness(.97); object-position: 50% 50%; }
+  /* paper: one fine grain over mat and picture alike */
+  .agrain { position: absolute; inset: 0; pointer-events: none; opacity: .16; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .acap { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; transition: transform calc(15s * var(--m-d, 1)) linear; }
+  .acap .aline1 { display: flex; align-items: baseline; gap: 14px; white-space: nowrap; }
+  .acap .atime { gap: 6px; }
+  .acap .atime .big { font-size: var(--fs-d1); font-weight: 500; line-height: 1; letter-spacing: -.01em; }
+  .acap .aampm { font-size: var(--fs-4); font-weight: 600; opacity: .8; }
+  .acap .adate { font-size: var(--fs-4); font-weight: 500; margin-top: 0; opacity: .8; }
+  .acap .ainfo { font-size: var(--fs-3); font-weight: 500; margin-top: 0; opacity: .72; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* night: the room is dark, so the mat is too; the picture is a low, warm print and the caption dim amber */
+  .artm[data-mat][data-night] { background: var(--mat-night, #050505); color: rgba(255,178,107,.6); --mat-lip: #0d0c0b; }
+  .artm[data-mat][data-night] .aimg { filter: brightness(.36) sepia(.42) saturate(.7) contrast(.9); }
+  .artm[data-mat][data-night] .agrain { opacity: .08; mix-blend-mode: screen; }
+  .artm[data-mat][data-night] .aframe { box-shadow: 0 0 0 1px rgba(255,178,107,.06), 0 0 0 9px var(--mat-lip), 0 0 0 10px rgba(255,178,107,.05); }
+  /* upright screens: the window is as wide as the mat allows, and the caption sits under it */
+  :host([data-shape='tall']) .amatcol, :host([data-phone]) .amatcol { left: 5%; right: 5%; transform: none; top: 8%; bottom: auto; }
+  :host([data-shape='tall']) .aframe, :host([data-phone]) .aframe { height: auto; width: 100%; }
+  :host([data-shape='tall']) .acap, :host([data-phone]) .acap { flex: none; padding-top: 22px; }
+  :host([data-phone]) .acap .aline1 { flex-wrap: wrap; gap: 4px 10px; } :host([data-phone]) .acap .atime .big { font-size: var(--fs-6); } :host([data-phone]) .acap .ainfo { white-space: normal; }
   :host([data-phone]) .artm { position: fixed; }
   :host([data-phone]) .adrift { inset: 24px 18px; }
   :host([data-phone]) .aplate { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 20px; border-radius: 28px; }

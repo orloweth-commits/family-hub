@@ -847,7 +847,8 @@ const FRIDGE = `
 
   /* night: the kitchen clock keeps watch */
   /* the screensaver: the time is a note under a magnet, a little crooked */
-  @F .artm:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
+  @F .artm[data-mat] { --mat: #f1ecdf; --mat-lip: #fffdf6; }
+  @F .artm[data-bare]:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
   @F .artm:not([data-night]) .aplate { background: #fffdf6; color: #23262b; border: 0; border-radius: 5px; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 12px 22px rgba(0,0,0,.34); rotate: -1.4deg; }
   @F .artm .atime .big { font-weight: 600; }
   /* weather: today is a note under a magnet, the week is a strip torn off a calendar, the maps are a photo taped to the door */
@@ -1103,6 +1104,7 @@ const ORBIT = `
 
   /* night: only the dial and the time */
   /* the screensaver: an instrument panel, thin and exact */
+  @O .artm[data-mat] { --mat: #1b1d25; --mat-lip: #2a2d38; --mat-ink: rgba(255,255,255,.74); }
   @O .artm .aplate { border-radius: 26px; background: rgba(6,10,20,.5); border-color: rgba(255,255,255,.28); }
   @O .artm .atime .big { font-weight: 300; }
   /* weather: instruments. The sky is drawn in line, temperature is a trace, the week is a set of gauges */
@@ -1545,9 +1547,9 @@ const SPORTS = `
   /* at night the scoreboard on the screensaver is dim amber on black */
   @S .artm[data-night] { --board: #060908; --tile: #000; --board-ink: #b89b72; --hi: #6e5f1f; --board-line: rgba(255,178,107,.16); }
   /* the screensaver: the scoreboard keeps the time, so the digits beside it are not said twice */
-  @S .artm .atime { display: none; }
+  @S .artm[data-bare] .atime { display: none; }
   @S .artm .aplate { border-radius: 22px; }
-  @S .artm .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
+  @S .artm[data-bare] .adate { margin-top: 0; text-transform: uppercase; letter-spacing: .04em; font-size: var(--fs-5); }
   @S .artm[data-night] .dball { opacity: .4; }
   
   /* portrait tablets: the same touchline, with the balls closer together so every place still fits */
@@ -1832,6 +1834,7 @@ const OBSIDIAN = `
   /* (since 0.33.5 night is the screensaver at its night level, not a screen of its own) */
   @B .artm[data-night] { --live: var(--ink); }
   /* the screensaver: the picture is framed like art in a dark room; the time sits on a smoked plate */
+  @B .artm[data-mat] { --mat: #0c0c0e; --mat-lip: #1b1b1f; --mat-ink: #c9c4b8; }
   @B .artm .aplate { border-radius: 18px; background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,170,40,.3); }
   @B .artm .atime .big { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; letter-spacing: .05em; }
   @B .artm .adate { letter-spacing: .12em; text-transform: uppercase; }
