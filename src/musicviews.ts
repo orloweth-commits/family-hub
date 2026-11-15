@@ -743,6 +743,8 @@ export const viewsCss = css`
   .aname { position: relative; z-index: 1; max-width: 200px; min-height: 44px; border-radius: 14px; display: flex; align-items: center; line-height: 1.15; background: var(--chip-strong); background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
   .vscene[data-kind='space'] .aname { background: #1b1e45; background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); }
   :host([data-dark]) .ahull { fill: #d5dde6; }
+  /* a speaker's cone was drawn in the ink, which is dark by day: in the dark it stays a dark cone with a pale rim */
+  :host([data-dark]) .cone { background: var(--ring-halo); box-shadow: inset 0 0 0 2px var(--ink2); }
   :host([data-dark]) .vrail .slot { box-shadow: inset 0 0 0 1.5px var(--ink3); }
   :host([data-dark]) .clabel b { background: var(--sel-bg); color: var(--sel-ink); }
   :host([data-dark]) .cknob::before { background: var(--ring-halo); box-shadow: inset 0 0 0 2px var(--ink2), 0 2px 4px rgba(0,0,0,.4); }
