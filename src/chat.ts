@@ -78,6 +78,36 @@ export const audioFrame = (handlerId: number, pcm?: Int16Array): Uint8Array => {
   if (pcm) out.set(new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength), 1);
   return out;
 };
+/**
+ * Listens once and gives back the words, through an Assist pipeline's speech-to-text stage only (nothing is asked of the
+ * helper and nothing is spoken back). For "say it" on other pages. `text` resolves to '' when nothing was heard and rejects
+ * when the microphone cannot be opened; `stop()` ends the listening early (the words still come).
+ */
+export const hearOnce = (hass: Hass, pipeline: string, ms = 8000): { text: Promise<string>; stop: () => void } => {
+  let stopCap: (() => void) | undefined, handler: number | undefined, unsub: Promise<() => void> | undefined, done = false, lt = 0, wt = 0;
+  const held: Int16Array[] = [];
+  const send = (pcm?: Int16Array): void => { try { hass.connection?.socket?.send(audioFrame(handler!, pcm)); } catch { /* the socket is reconnecting */ } };
+  let settle: (t: string) => void = () => undefined;
+  const end = (t: string): void => { if (done) return; done = true; clearTimeout(lt); clearTimeout(wt); try { stopCap?.(); } catch { /* already stopped */ } stopCap = undefined; void unsub?.then((u) => u()).catch(() => undefined); settle(t); };
+  const stop = (): void => { if (done || !stopCap) return; try { stopCap(); } catch { /* already stopped */ } stopCap = undefined; sfx('heard'); if (handler !== undefined) send(); wt = window.setTimeout(() => end(''), 10_000); };
+  const text = new Promise<string>((ok, no) => {
+    settle = ok;
+    sfx('listen'); // before the microphone opens, so it is not recorded
+    openMic().then((stream) => {
+      if (done) { releaseMic(stream); return; }
+      stopCap = startCapture(stream, (pcm) => { if (done) return; if (handler === undefined) { if (held.length < 40) held.push(pcm); } else send(pcm); });
+      lt = window.setTimeout(stop, ms);
+      unsub = hass.connection!.subscribeMessage<PipeEvent>((e) => {
+        const d = e.data ?? {};
+        if (e.type === 'run-start') { const id = d.runner_data?.stt_binary_handler_id; if (typeof id === 'number') { handler = id; for (const pcm of held.splice(0)) send(pcm); } }
+        else if (e.type === 'stt-end') end(String(d.stt_output?.text ?? '').trim().slice(0, MAX_CHARS));
+        else if (e.type === 'error' || e.type === 'run-end') end('');
+      }, { type: 'assist_pipeline/run', start_stage: 'stt', end_stage: 'stt', input: { sample_rate: 16000 }, pipeline });
+      unsub.catch(() => end(''));
+    }, (e) => { done = true; no(e); });
+  });
+  return { text, stop };
+};
 /** Starts capturing; `onPcm` gets each chunk. Returns the function that stops it and lets go of the microphone. */
 const startCapture = (stream: MediaStream, onPcm: (pcm: Int16Array) => void): (() => void) => {
   const AC: typeof AudioContext = window.AudioContext || (window as any).webkitAudioContext;

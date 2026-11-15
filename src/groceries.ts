@@ -8,6 +8,10 @@ import { flip, getShape, FitController, linger, places, scrollCue, sfx, watched,
 /** a row that has just been touched: what it shows, where it sat, whether Home Assistant has answered yet (out), whether its four seconds are up (due) */
 interface Held { to: string; was: string; t: number; n: number; out: boolean; due: boolean; busy: boolean }
 import { spark } from './sparks';
+import { canListen, hearOnce } from './chat';
+
+/** What was said, as things to buy: "milk and eggs, and some bread" is three. At most eight, so a misheard sentence cannot fill the list. */
+export const saidItems = (text: string): string[] => [...new Set(String(text ?? '').replace(/[.!?]+$/g, '').split(/\s*(?:,|;|\band\b|\bplus\b|\bthen\b)\s*/i).map((s) => s.replace(/^(?:some|a|an|the|please add|add|we need|i need|get)\s+/i, '').trim()).filter((s) => s.length > 1))].slice(0, 8);
 
 interface TodoItem { uid: string; summary: string; status: 'needs_action' | 'completed' }
 
@@ -46,6 +50,13 @@ export class FhGroceries extends LitElement {
     .txt { flex: 1; min-width: 0; font-size: var(--fs-3); font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
     .tag { font-size: var(--fs-1); font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
     .label { font-size: var(--fs-1); }
+    .aisle { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .aisle:first-child { margin-top: 0; }
+    .aisle > i { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .sayit { height: 56px; padding: 0 18px; border-radius: 999px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; flex-shrink: 0; }
+    .sayit[aria-pressed='true'] { box-shadow: inset 0 0 0 3px var(--accent); }
+    .hidekeys { align-self: center; height: 44px; padding: 0 18px; }
+    .keyhint { font-size: var(--fs-2); }
     .note { font-size: var(--fs-1); }
     .trolley { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
     .clear { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
@@ -105,7 +116,7 @@ export class FhGroceries extends LitElement {
   static properties = {
     _tk: { state: true }, _just: { state: true }, _sending: { state: true },
     hass: { attribute: false },
-    entity: {},
+    entity: {}, pipeline: {}, _keys: { state: true }, _hearing: { state: true },
     usuals: { attribute: false },
     recipients: { attribute: false },
     _items: { state: true },
@@ -116,6 +127,19 @@ export class FhGroceries extends LitElement {
 
   hass?: Hass;
   entity = 'todo.shopping_list';
+  /** the Assist pipeline that turns speech into words (Ask's), for "Say it"; '' when there is none */
+  pipeline = '';
+  /** the on-screen keys: the list comes first, and the keys come up when the field is touched */
+  private _keys = false;
+  private _hearing: { stop: () => void } | null = null;
+  /** "Say it": listen once, then add each thing that was said. Shown only where the browser gives a page the microphone (https). */
+  private _sayIt(): void {
+    if (this._hearing) { this._hearing.stop(); return; }
+    if (!this.hass?.connection || !this.pipeline) return;
+    const h = hearOnce(this.hass, this.pipeline); this._hearing = h;
+    h.text.then((t) => { if (this._hearing !== h) return; this._hearing = null; const items = saidItems(t); if (!items.length) { this._say('I did not catch that. Try again, or type it.'); return; } for (const i of items) this._add(i, null); this._say(`Heard: ${items.join(', ')}`); },
+      () => { if (this._hearing !== h) return; this._hearing = null; this._say('The microphone is not available on this screen.'); });
+  }
   usuals: string[] = ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee'];
   recipients: GroceryRecipient[] = [];
   private _items: TodoItem[] = [];
@@ -133,7 +157,7 @@ export class FhGroceries extends LitElement {
   private _hidden: string[] = [];
   private _clearTimer?: number;
 
-  disconnectedCallback(): void { super.disconnectedCallback(); this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
@@ -249,6 +273,8 @@ export class FhGroceries extends LitElement {
     const open = this._items.filter((i) => this._group(i) === 'needs_action');
     const done = this._items.filter((i) => this._group(i) === 'completed' && !this._hidden.includes(i.uid));
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
+    // grouped by aisle: each group under its own heading (a list of one or two things needs none)
+    const heads = sorted.length > 2, canSay = !!this.pipeline && canListen();
     return html`
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -259,7 +285,7 @@ export class FhGroceries extends LitElement {
           <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
         <div class="items scrolly" @scroll=${scrollCue}>
           ${adding.map((n) => html`<div class="item row pending" role="status" aria-busy="true" data-busy><span class="box check"></span><span class="txt content"><span class="strike">${n}</span></span><span class="tag">Adding…</span></div>`)}
-          ${sorted.map((i) => this._row(i))}
+          ${sorted.map((i, n) => html`${heads && (n === 0 || aisleOf(sorted[n - 1].summary)[0] !== aisleOf(i.summary)[0]) ? html`<div class="aisle label" role="heading" aria-level="2" data-aisle=${aisleOf(i.summary)[0]}><i style="background:var(${aisleOf(i.summary)[1]})" aria-hidden="true"></i>${aisleOf(i.summary)[0]}</div>` : nothing}${this._row(i)}`)}
           ${done.length ? html`<div class="trolley">
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>
@@ -278,15 +304,18 @@ export class FhGroceries extends LitElement {
         </div>
         <div class="entry">
           <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
+            @pointerdown=${() => { this._keys = true; }}
             @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
             @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
           <button class="tap lead" @click=${() => this._add()}>Add</button>
+          ${canSay ? html`<button class="tap sayit" data-act="say" aria-pressed=${String(!!this._hearing)} aria-label=${this._hearing ? 'Listening. Tap to stop' : 'Say what to add'} @click=${() => this._sayIt()}>${this._hearing ? 'Listening…' : '🎤 Say it'}</button>` : nothing}
         </div>
         <div class="usuals">
           <span class="muted">Usuals</span>
           ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${(e: Event) => this._add(u, e.currentTarget as Element)}>+ ${u}</button>`)}
         </div>
-        ${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
+        ${this._keys ? html`${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
+          <button class="pill tap hidekeys" data-act="hide-keys" @click=${() => { this._keys = false; }}>Hide the keys</button>` : html`<span class="muted keyhint" data-keyhint>Touch the box to type. Usuals are one tap.</span>`}
       </section>
       <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => { sfx('undo'); this._undo?.(); }}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }

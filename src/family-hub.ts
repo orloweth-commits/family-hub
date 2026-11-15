@@ -33,6 +33,8 @@ import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
 import { haDigest } from './digest';
 import { cueBlock, cueLines, haCues, ownRoom, warmCuesOnce } from './cues';
+import { haTerm } from './term';
+import { DINNER_MAX, dinnerClean, dinnersReady, loadDinners, setDinner, toBuy, ymdOf, type Dinner } from './dinner';
 import { NOTE_MAX, NOTICED, leaveNote, noteClean, notesReady } from './noticed';
 import { answerAsk, approveOn, askList, askPhones, askParse, askReady, haApprove, openAsks, type Ask } from './approve';
 import { BEAT_MS, USE_FLUSH_MS, UseLog, agoWords, calHealth, calWarning, haTrust, isWall, restoreCalls, snapParse, snapText, snapshotOf, useTotals, type HaTrust } from './trust';
@@ -50,8 +52,8 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.36.0';
+type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
+const VERSION = '0.37.0';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -110,7 +112,12 @@ export class FamilyHubCard extends LitElement {
   protected willUpdate(ch: PropertyValues): void {
     // the bell: read the asks list again whenever Home Assistant says it has changed
     if (this.hass && this._config) { const a = this._asksCfg(), l = a ? this.hass.states[a.list] : undefined, key = `${!!a}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}`; if (key !== this._waitSeen) { this._waitSeen = key; void this._loadWaiting(); } }
+    // the dinner line is kept on the same list: read it again when the list changes, and when the day does
+    if (this.hass && this._config) { const id = askList(this._config), l = this.hass.states[id], key = `${!!l}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}|${ymdOf(this._now)}`; if (key !== this._dnSeen) { this._dnSeen = key; void this._loadDinners(); } }
     // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
+    // Home opened straight from a child's page is his: his own bedroom is his to switch (home.ts). Any other page ends it.
+    // (a child's dock is his face and Home, which leads back to the shared pages: so "from his page" means the Home page is opened within two minutes of leaving it, as Doodle has it)
+    if (ch.has('_page')) { if (ch.get('_page') === 'kid') { this._leftKid = this._config?.kids?.[this._kid]?.name ?? ''; this._leftKidAt = Date.now(); } if (this._page !== 'home') this._homeKid = ''; else this._homeKid = Date.now() - this._leftKidAt < 120_000 ? this._leftKid : ''; }
     if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
     // a child who cannot read yet gets Doodle's tools along the bottom. Since his page's dock is only his face and Home, "from his page" means Doodle is the first place he goes after Home, within two minutes of leaving it
     if (ch.has('_page')) { if (ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture') { this._leftPicKid = Date.now(); this._picHops = 0; } else this._picHops++; }
@@ -167,7 +174,10 @@ export class FamilyHubCard extends LitElement {
   private _photo = '';
   private _musicFocus = '';
   /** the child whose page Music was opened from (his calm setting applies there), or '' */
-  private _musicKid = '';
+  /** children who share a bedroom, as the Music map has them (one list for as long as the configuration stands) */
+  private _shFor?: FamilyHubConfig; private _sh: string[][] = [];
+  private _sharers(): string[][] { if (this._shFor !== this._config) { this._shFor = this._config; this._sh = (this._config?.music_map ?? []).flatMap((f) => f.rooms ?? []).map((r) => r.kids ?? []).filter((k) => k.length > 1); } return this._sh; }
+  private _musicKid = ''; private _homeKid = ''; private _leftKid = ''; private _leftKidAt = 0;
   private _photos: string[] = [];
   private _photoIdx = 0;
   private _photoTimer?: number;
@@ -186,6 +196,9 @@ export class FamilyHubCard extends LitElement {
   /** the automation that speaks the cues (cues.ts), built from this configuration; null when no child's cues are on */
   cuesSetup(): Record<string, unknown> | null { return haCues(this._config); }
   static cues = { haCues, cueBlock, ownRoom, cueLines };
+  /** the end-of-term automation (term.ts), built from this configuration; null when it is off */
+  termSetup(): Record<string, unknown> | null { return haTerm(this._config); }
+  static term = { haTerm };
   /** The snapshot record and the use counts in TypeScript, for the tests and the restore drill: `customElements.get('family-hub-card').trust`. */
   /** the brightness the screen should have for a given sun and room light (artmode.ts), for the tests and for calibrating at the wall */
   static bright = brightTarget;
@@ -230,6 +243,53 @@ export class FamilyHubCard extends LitElement {
           : html`<button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
         <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>`}</div>`)}
         ${this._waiting.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
+  }
+  /* ---------------- the dinner line: one line a day, feeding the shopping list (dinner.ts) ---------------- */
+  private _dinners: Record<string, Dinner> = {}; private _dnSeen = '';
+  private _dn: { day: string; text: string; buy: string; field: 'text' | 'buy'; caps: boolean; busy: boolean; ok: boolean } = { day: '', text: '', buy: '', field: 'text', caps: true, busy: false, ok: false };
+  private async _loadDinners(): Promise<void> {
+    const list = askList(this._config);
+    if (!this.hass || !dinnersReady(this.hass, list)) { if (Object.keys(this._dinners).length) { this._dinners = {}; this.requestUpdate(); } return; }
+    try { this._dinners = await loadDinners(this.hass, list, this._now); this.requestUpdate(); } catch { /* left as it was */ }
+  }
+  /** Tonight's dinner, or '' when none is set (or there is nowhere to keep one). */
+  private get _dinnerTonight(): string { return this._dinners[ymdOf(this._now)]?.text ?? ''; }
+  private _dinnerEdit(day: string): void {
+    const open = (): void => { this._dn = { day, text: this._dinners[day]?.text ?? '', buy: '', field: 'text', caps: !(this._dinners[day]?.text), busy: false, ok: true }; this.requestUpdate(); };
+    // (planning dinners is a parent's job: one PIN opens the week for changing, until the sheet is closed)
+    if (this._config.parent_pin && !this._dn.ok) this._pinAsk = { reason: 'Change the dinners?', run: open, sheet: 'dinner' }; else open();
+  }
+  private async _dinnerSave(): Promise<void> {
+    const d = this._dn, list = askList(this._config), shop = this._config.groceries ?? 'todo.shopping_list';
+    if (!this.hass || d.busy || !d.day) return;
+    this._dn = { ...d, busy: true }; this.requestUpdate();
+    try {
+      await inTime(setDinner(this.hass, list, d.day, d.text, this._dinners[d.day]));
+      const want = dinnerClean(d.text) ? toBuy(d.buy) : []; let added = 0;
+      if (want.length && this.hass.states[shop]) {
+        const have = (await this.hass.callWS<{ items: { summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: shop })).items.filter((i) => i.status === 'needs_action').map((i) => i.summary.toLowerCase());
+        for (const w of want) if (!have.includes(w.toLowerCase())) { await this.hass.callService('todo', 'add_item', { item: w }, { entity_id: shop }); added++; }
+      }
+      this._dn = { ...this._dn, day: '', text: '', buy: '', busy: false };
+      this._say(!dinnerClean(d.text) ? 'Dinner cleared.' : added ? `Dinner set. ${added} thing${added === 1 ? '' : 's'} added to the shopping list.` : 'Dinner set.');
+    } catch (err) { this._dn = { ...this._dn, busy: false }; this._say(err instanceof SlowError ? SLOW_SAY : 'That dinner was not kept. Try again.'); }
+    this.requestUpdate();
+  }
+  private _dinnerBody(): TemplateResult {
+    const d = this._dn, set = (p: Partial<typeof d>): void => { this._dn = { ...this._dn, ...p }; this.requestUpdate(); };
+    const days = Array.from({ length: 7 }, (_, i) => new Date(this._now.getFullYear(), this._now.getMonth(), this._now.getDate() + i));
+    const name = (x: Date, i: number): string => (i === 0 ? 'Tonight' : i === 1 ? 'Tomorrow' : x.toLocaleDateString('en-AU', { weekday: 'long' }));
+    const editing = days.find((x) => ymdOf(x) === d.day), val = d.field === 'text' ? d.text : d.buy;
+    return html`${this._sheetHead('Dinners this week', 'One line a day. Tap a day to set it.')}
+      ${editing ? html`<div class="dinedit" style="display:flex;flex-direction:column;gap:10px">
+          <span class="label">${name(editing, days.indexOf(editing))}</span>
+          <input class="field" data-act="dn-text" style="height:48px;font-size:var(--fs-3)${d.field === 'text' ? ';box-shadow:inset 0 0 0 2px var(--accent)' : ''}" inputmode="none" maxlength=${DINNER_MAX} aria-label="What is for dinner" placeholder="What’s for dinner?" .value=${d.text} @pointerdown=${() => set({ field: 'text' })} @input=${(e: Event) => set({ text: (e.target as HTMLInputElement).value })}>
+          <input class="field" data-act="dn-buy" style="height:48px;font-size:var(--fs-3)${d.field === 'buy' ? ';box-shadow:inset 0 0 0 2px var(--accent)' : ''}" inputmode="none" maxlength="120" aria-label="What to buy for it" placeholder="To buy for it (optional): mince, tortillas" .value=${d.buy} @pointerdown=${() => set({ field: 'buy', caps: false })} @input=${(e: Event) => set({ buy: (e.target as HTMLInputElement).value })}>
+          ${keyboard((k) => { const [t, caps] = typeKey(val, k, d.caps); set(d.field === 'text' ? { text: t.slice(0, DINNER_MAX), caps } : { buy: t.slice(0, 120), caps: false }); }, d.caps, () => set({ caps: !d.caps }), true, false, true)}
+          <div style="display:flex;gap:8px;justify-content:flex-end"><button class="pill tap" data-act="dn-back" style="height:48px;padding:0 18px" @click=${() => set({ day: '' })}>Back</button>
+            <button class="pill tap primary" data-act="dn-save" style="height:48px;padding:0 22px" ?disabled=${d.busy} @click=${() => void this._dinnerSave()}>${dinnerClean(d.text) ? 'Save' : this._dinners[d.day] ? 'Clear it' : 'Save'}</button></div></div>`
+        : html`<div class="dinlist" style="display:flex;flex-direction:column;gap:6px">${days.map((x, i) => { const k = ymdOf(x), has = this._dinners[k]?.text; return html`<button class="setrow tap" data-day=${k} style="text-align:left;width:100%;min-height:52px" @click=${() => this._dinnerEdit(k)}>
+            <span class="setlabel"><b>${name(x, i)}</b><span class=${has ? '' : 'muted'} data-dinner>${has ?? 'Not set'}</span></span>${icon('pencil', 20)}</button>`; })}</div>`}`;
   }
   /* ---------------- "I noticed": a parent leaves a note on a child's page (noticed.ts) ---------------- */
   private _nt: { text: string; caps: boolean; busy: boolean } = { text: '', caps: true, busy: false };
@@ -432,7 +492,8 @@ export class FamilyHubCard extends LitElement {
   }
   private _watch(): string[] {
     const c = this._config;
-    return [c.weather, c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
+    // (the asks list: the bell, and the dinner line kept on it, must not wait for the next minute's tick)
+    return [askList(c), c.weather, c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
       ...(c.people ?? []).map((p) => p.entity), ...(c.kids ?? []).map((k) => kidEntities(k).avatar),
       ...(c.meds ?? []).flatMap((m) => [`input_datetime.fh_med_${m.id}`, `input_text.fh_med_${m.id}_by`])].filter((x): x is string => !!x);
   }
@@ -1211,7 +1272,7 @@ export class FamilyHubCard extends LitElement {
     const fam = (c.calendars ?? []).filter((x) => x.colour === 'family').map((x) => x.entity);
     switch (this._page) {
       case 'groceries':
-        return html`<fh-groceries .hass=${this.hass} .entity=${c.groceries ?? 'todo.shopping_list'} .usuals=${c.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${c.grocery_recipients ?? []}></fh-groceries>`;
+        return html`<fh-groceries .hass=${this.hass} .entity=${c.groceries ?? 'todo.shopping_list'} .usuals=${c.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${c.grocery_recipients ?? []} .pipeline=${c.chat?.pipeline ?? ''}></fh-groceries>`;
       case 'kid': {
         const k = c.kids?.[this._kid];
         if (!k) break;
@@ -1219,13 +1280,13 @@ export class FamilyHubCard extends LitElement {
         return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${this._asksCfg()} .notes=${askList(c)}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
-      case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
+      case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .kids=${c.kids ?? []} .me=${this._homeKid} .bedrooms=${c.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .views=${c.music_views ?? []} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
       case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass} ?low=${this._doodleLow} .artists=${(c.kids ?? []).map((k) => k.name)} .kids=${c.kids ?? []} .pin=${String(c.parent_pin ?? '')}></fh-doodle>`;
-      case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .events=${this._soon} .asks=${this._asksCfg()} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
+      case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .dinner=${this._dinnerTonight} .events=${this._soon} .asks=${this._asksCfg()} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
         .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
     }
@@ -1491,6 +1552,8 @@ export class FamilyHubCard extends LitElement {
 
       <section class="glass card rems" aria-label="Reminders">
         <span class="label">Reminders</span>
+        ${dinnersReady(this.hass, askList(c)) ? html`<button class="pill tap dinline" data-act="dinner" style="align-self:stretch;justify-content:flex-start;min-height:44px;height:auto;padding:6px 14px;white-space:normal;text-align:left;flex-shrink:0" aria-label=${this._dinnerTonight ? `Dinner tonight: ${this._dinnerTonight}. Tap for the week` : 'No dinner set for tonight. Tap to plan the week'} @click=${() => { this._dn = { ...this._dn, day: '', ok: false }; this._sheet = 'dinner'; }}>
+          <span aria-hidden="true">🍽️</span><span style="min-width:0;overflow-wrap:anywhere">${this._dinnerTonight ? html`Dinner: <b>${this._dinnerTonight}</b>` : html`<span class="muted">Dinner tonight?</span>`}</span></button>` : nothing}
         ${this._remState !== 'ok' ? html`<span class="muted remfail" role="alert" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === 'missing' ? 'The reminders list is not in Home Assistant. Check the card settings.' : 'Can’t load the reminders.'}</span>
           ${this._remState === 'failed' ? html`<button class="pill tap" style="align-self:flex-start" @click=${() => { void this._loadReminders(); }}>Try again</button>` : nothing}`
           : html`<div class="remlist">${this._remList(cut)}</div>`}
@@ -1602,9 +1665,9 @@ export class FamilyHubCard extends LitElement {
           <p class="ainote">${AI_NOTE}</p>
           ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? hv?.tts ?? ''} .ttsVoice=${ch.tts ? ch.tts_voice ?? '' : hv?.voice ?? ''} .ttsLanguage=${ch.tts ? ch.tts_language ?? '' : hv?.language ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
-    const body = s === 'noticed' ? this._noticedBody() : s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
+    const body = s === 'dinner' ? this._dinnerBody() : s === 'noticed' ? this._noticedBody() : s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ noticed: 'Leave a note', waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ dinner: 'Dinners this week', noticed: 'Leave a note', waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' || s === 'more' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
   /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */

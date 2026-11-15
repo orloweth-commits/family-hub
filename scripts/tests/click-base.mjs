@@ -51,6 +51,7 @@ await page.close();
 
 // 5. shared keyboard: groceries and add-event type the same way
 page = await open('look=orbit&page=groceries');
+await page.locator('fh-groceries .entry .field').dispatchEvent('pointerdown'); await page.waitForTimeout(250); // (0.37.0: the keys come up when the box is touched)
 for (const k of ['R', 'i', 'c', 'e']) await page.locator('fh-groceries .key', { hasText: new RegExp('^' + k + '$', 'i') }).first().click();
 console.log('groceries typed:', await page.locator('fh-groceries input').inputValue());
 await page.getByRole('button', { name: 'Delete' }).click(); console.log('after delete:', await page.locator('fh-groceries input').inputValue());
@@ -422,6 +423,7 @@ console.log('no Bureau data:', /Cover up today/.test(await wx()), '| "No sun pro
 console.log('tips:', await page.locator('fh-weather .tipone').evaluateAll((els) => els.map((e) => e.textContent.trim() + ' ' + parseFloat(getComputedStyle(e.querySelector('svg')).width) + 'px').join(', ')), '| speaker:', await page.getByRole('button', { name: 'Read the advice aloud' }).count());
 console.log('hour strip:', await page.locator('fh-weather .hscroll').evaluate((e) => { const n = e.querySelectorAll(':scope > svg > circle').length, w = e.querySelector('svg').getBoundingClientRect().width / n, k = e.getBoundingClientRect().width / w; return `${k.toFixed(2)} columns in view, fade ${e.hasAttribute('data-more-r')}`; }));
 await page.close(); page = await open('look=glass&page=weather');
+await page.locator('fh-weather [data-act="wmore"]').click(); await page.waitForTimeout(250); // (0.37.0: the fire danger is behind More)
 console.log('fire danger in full:', await page.locator('fh-weather .wfact b', { hasText: /^Mod/ }).evaluate((e) => e.textContent + ' ' + (e.scrollWidth <= e.clientWidth + 1)));
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass; c.hass = { ...h, states: { ...h.states, 'weather.home': { ...h.states['weather.home'], state: 'unavailable' } } }; }); await page.waitForTimeout(500);
 console.log('weather entity lost:', (await wx()).slice(0, 40));

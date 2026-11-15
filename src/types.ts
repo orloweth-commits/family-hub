@@ -182,7 +182,7 @@ export interface FamilyHubConfig {
   public_holidays?: string[];
   morning?: { start?: string; end?: string; leave_by?: string; /** minutes to leave before a child's first morning event */ travel?: number };
   bring_rules?: BringRule[];
-  jar?: { target?: number; reward?: string; script?: string };
+  jar?: { target?: number; reward?: string; script?: string; /** end of term: this many unspent points become one marble (term.ts). Absent or 0 = off */ term_points?: number };
   /** the PIN pad puts its digits in a new order each time it opens, so the PIN cannot be learnt by watching where a finger goes (default true) */
   pin_shuffle?: boolean;
   /** seconds "All off" waits, with a Cancel button, before the lights go out (default 3; 0 = at once) */
@@ -210,6 +210,8 @@ export interface FamilyHubConfig {
   digest?: import('./digest').DigestConfig;
   /** approve from a phone: a reward that needs a parent asks these phones, with Approve and Not yet (approve.ts). `notify` names the phones; `list` is the to-do list of what is waiting (default todo.family_hub_asks) */
   approve?: import('./approve').ApproveConfig;
+  /** whose bedroom a room on the Home page is, when its name does not say: area id or name -> children's names. A child's bedroom needs a hold from anyone else, and the PIN after his bedtime */
+  home_bedrooms?: Record<string, string[]>;
   /** spoken cues (cues.ts): the script that speaks them and how loud. Which child gets them is kids[].cues */
   cues?: import('./cues').CuesConfig;
   /** calendar used by the quick-add sheet */

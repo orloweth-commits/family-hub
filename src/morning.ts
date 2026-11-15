@@ -140,7 +140,7 @@ export class FhMorning extends LitElement {
     ${unsafeCSS(avatarCss)}
     ${unsafeCSS(fxCss)}
   `];
-  static properties = { hass: { attribute: false }, kids: { attribute: false }, events: { attribute: false }, leaveBy: {}, asks: { attribute: false }, rules: { attribute: false },
+  static properties = { hass: { attribute: false }, kids: { attribute: false }, dinner: {}, events: { attribute: false }, leaveBy: {}, asks: { attribute: false }, rules: { attribute: false },
     privateWords: { attribute: false }, uv: { type: Number }, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true }, _cheer: { state: true }, _just: { state: true }, _msg: { state: true } };
   hass?: Hass;
   kids: KidConfig[] = [];
@@ -148,6 +148,8 @@ export class FhMorning extends LitElement {
   leaveBy = '08:15';
   /** approve from a phone (approve.ts): a job worth enough points asks a parent here too */
   asks?: { notify?: string[]; list?: string; jobs_from?: number };
+  /** tonight's dinner (dinner.ts), '' when none is set */
+  dinner = '';
   rules: BringRule[] = [];
   privateWords: string[] = [];
   uv = 0;
@@ -301,7 +303,7 @@ export class FhMorning extends LitElement {
     return html`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
-          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}${this.dinner ? html` · <span data-part="dinner">Dinner tonight: ${this.dinner}</span>` : nothing}</span></div>
         ${team.total ? html`<div class="team" data-part="team" role="img" aria-label=${ready ? 'Morning jobs: all done' : `Morning jobs to go: ${togo.map((g) => `${g.k.name} ${g.n}`).join(', ')}`}>
           ${ready ? nothing : html`<div class="faces" aria-hidden="true">${team.total - team.done <= 12
             ? togo.flatMap((g) => Array.from({ length: g.n }, () => html`<span class="fc" data-who=${g.k.name}>${face(g.k)}</span>`))
