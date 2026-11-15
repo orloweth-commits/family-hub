@@ -118,7 +118,8 @@ const WANT = { obSweepX: 14000, obFlow: 9000, obEdge: 12000, obGlint: 7000, obPu
   ok('reduce-motion: no bloom either', bloom.every((ms) => ms <= 1), bloom);
   await shut(page); }
 // the screensaver at night wears it, with the chronograph, and wakes
-{ const page = await open('page=planner&idle=1&night=1'); await page.waitForTimeout(1500);
+// (with no pictures: with pictures the screen is a matted picture and a caption, and the chronograph stays off it)
+{ const page = await open('page=planner&idle=1&night=1&artn=0'); await page.waitForTimeout(1500);
   const art = await deep(page, `(all) => { const m = all.find((e) => e.matches('.artm')); return m ? { night: m.hasAttribute('data-night'), chrono: !!m.querySelector('.chrono') || all.some((e) => e.matches('.chrono') && m.contains(e.getRootNode().host ?? e)) } : null; }`);
   ok('the screensaver at its night level shows the look’s chronograph', !!art && art.night && art.chrono, art);
   await shut(page); }
