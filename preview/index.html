@@ -163,7 +163,7 @@ const hass = {
   },
   callApi: async (_m, path, body) => { if (_m === 'POST' && path === 'events/mobile_app_notification_action') { (window.__calls ||= []).push('api.event ' + body.action); if (window.__eventFail) throw new Error('unauthorized');
       const m = /^FH_(OK|NO)_(a[a-z0-9]+)$/.exec(body.action), L = store['todo.family_hub_asks'] ?? [], it = m && L.find((x) => x.status === 'needs_action' && (x.description || '').includes('"id":"' + m[2] + '"'));
-      if (it) { const rec = JSON.parse(it.description.slice(4)); let v = m[1] === 'OK' ? 'ok' : 'no';
+      if (it) { const rec = JSON.parse(it.description.slice(4)); let v = m[1] === 'OK' || rec.k === 'chat' ? 'ok' : 'no';
         if (v === 'ok' && rec.k === 'job') { const job = (store[rec.list] ?? []).find((x) => x.uid === rec.uid && x.status === 'needs_action'); if (job) { await hass.callService('todo', 'update_item', { item: job.uid, status: 'completed' }, { entity_id: rec.list }); await hass.callService('script', 'fh_add_points', { kid: rec.kid, points: rec.cost, lifetime: true, jar: 1, grow: 0 }); } else v = 'short'; }
         if (v === 'ok' && rec.k === 'reward') await hass.callService('script', 'fh_add_points', { kid: rec.kid, points: -rec.cost, lifetime: false });
         await hass.callService('todo', 'update_item', { item: it.uid, status: 'completed', description: v + ' ' + it.description.slice(4) }, { entity_id: 'todo.family_hub_asks' }); }

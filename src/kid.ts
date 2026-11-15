@@ -399,6 +399,7 @@ export class FhKid extends LitElement {
     } catch (e) { console.warn('Family Hub: asks not read', e); }
   }
   private _told(a: Ask, v: 'ok' | 'no' | 'short'): void {
+    if (a.k === 'chat') { this._sound('tap'); const m = 'A parent has seen your note.'; if (this._picMode) say(m); this._say(m); return; }
     if (a.k === 'job') {
       // (Home Assistant has ticked the job and given the points: the list and the numbers arrive by themselves)
       if (v === 'ok') { this._jump++; this._sound('coin'); if (a.uid) { const t = lsGet<Record<string, number>>('fh-ticks', {}); t[a.uid] = Date.now(); lsSet('fh-ticks', t); } }
@@ -775,15 +776,27 @@ export class FhKid extends LitElement {
   private _feelReply(kind: 'hug' | 'chat' | 'ok' | 'share'): void {
     const n = this.kid.name;
     if (kind === 'chat' || kind === 'share') {
-      // the note is real: a notification in Home Assistant, and an event the card can turn into a chip for the parents. Nothing here promises that someone is on the way.
-      Promise.resolve(this.hass?.callService('persistent_notification', 'create', { title: kind === 'share' ? `${n} has something good to share` : `${n} would like a chat`,
-        message: this._feel ? `${n} is feeling ${this._feel} and would like ${kind === 'share' ? 'to tell a parent about it' : 'a chat later'}.` : `${n} would like a chat with a parent${this._wind ? ' before bed' : ''}.`, notification_id: `fh_chat_${this._e.slug}` })).catch(() => { /* the event below still reaches the card */ });
-      // older mode: the note is private. It goes to Home Assistant's notifications only; no chip with his name appears on the shared pages
-      if (!this.kid.older) this.dispatchEvent(new CustomEvent('fh-kid-wants-chat', { bubbles: true, composed: true, detail: { name: n, kind, feeling: this._feel } }));
+      const words = this._feel ? `${n} is feeling ${this._feel} and would like ${kind === 'share' ? 'to tell a parent about it' : 'a chat later'}.` : `${n} would like a chat with a parent${this._wind ? ' before bed' : ''}.`;
+      void this._chatNote(kind, words, this._feel);
     }
     const msg = kind === 'hug' ? 'Go find a parent for a big hug 🤗' : kind === 'ok' ? 'Good to know. Thanks for sharing.' : this.kid.older ? 'Sent. Nothing shows on the wall.' : 'I’ve left a note for a parent.';
     this._say(msg); if (this._picMode) say(msg.replace(' 🤗', ''));
     this._feel = '';
+  }
+
+  /** The note is real. With approvals set up it goes to the parents' phones and waits on the bell (one line on the asks list, behind the PIN: the bell's count is all that shows, so an older child's stays private).
+   *  Without them, or if that fails: a notification in Home Assistant and, unless he is in older mode, a chip on the shared pages. Nothing here promises that someone is on the way. */
+  private async _chatNote(kind: 'chat' | 'share', words: string, feeling: string): Promise<void> {
+    const n = this.kid.name, title = kind === 'share' ? 'has something good to share' : 'would like a chat';
+    if (this.hass && this._askOn) {
+      if (this._asked.some((a) => a.k === 'chat')) return; // one note waits already: a second tap sends nothing more
+      const ask: Ask = { v: 1, id: newAskId(), k: 'chat', kid: this._e.slug, who: n, name: title, cost: 0, t: Date.now() };
+      this._asked = [...this._asked, ask];
+      try { await inTime(sendAsk(this.hass, this.asks!, ask, 0, words)); return; }
+      catch { this._asked = this._asked.filter((a) => a.id !== ask.id); /* the old way, below */ }
+    }
+    Promise.resolve(this.hass?.callService('persistent_notification', 'create', { title: `${n} ${title}`, message: words, notification_id: `fh_chat_${this._e.slug}` })).catch(() => { /* the event below still reaches the card */ });
+    if (!this.kid.older) this.dispatchEvent(new CustomEvent('fh-kid-wants-chat', { bubbles: true, composed: true, detail: { name: n, kind, feeling } }));
   }
 
   /** Days off are a parent's call: the sheet (one big button per day) opens from the child's settings, which sit behind the PIN. */
@@ -968,7 +981,7 @@ export class FhKid extends LitElement {
         <span style="display:flex;flex-direction:column;gap:2px">${(() => { const n = Math.floor(have / st); return n > 10 ? html`<b style="display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-6)">${starSvg(true, 30)} ${n}</b>` : n ? html`<span class="starjar">${Array.from({ length: n }, () => starSvg(true, 24))}</span>` : starSvg(false, 28); })()}
         <span>${Math.floor(have / st)} stars in my jar</span></span></div>`
       : html`<div class="ptsline" role="group" aria-label=${have ? `${have} points to spend` : 'No points to spend yet'}>${have ? html`<b>${have}</b><span>${have === 1 ? 'point' : 'points'} to spend</span>` : html`<span>${this.kid.older ? 'No points to spend yet' : '✨ Ready to start'}</span>`}</div>`;
-    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.some((a) => a.k !== 'job') ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.filter((a) => a.k !== 'job').map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
+    return html`${purse}${this._owed.length ? html`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(', ')}</span></div>` : nothing}${this._asked.some((a) => a.k === 'reward') ? html`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.filter((a) => a.k === 'reward').map((a) => a.name).join(', ')}</span></div>` : nothing}${list.map((r, i) => {
         const ok = have >= r.cost, pic = r.icon ?? (this._picMode ? REWARD_PICS[i % REWARD_PICS.length] : '🎁'), words = this._costWords(r);
         const total = Math.max(1, Math.round(r.cost / st)), got = Math.min(total, Math.floor(have / st));
         const saving = this._saving === r.name, held = this._held === r.name || saving, capped = this._capped(r), back = backDay(this._now);
