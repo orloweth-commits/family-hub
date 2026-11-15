@@ -123,6 +123,9 @@ export class FhSettings extends LitElement {
     .schips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
     .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
+    /* in the dark only the chosen chip wears a ring: the others keep a hairline, and a colour dot keeps a pale edge so teal shows on teal */
+    :host([data-dark]) .schips > button:not([aria-pressed='true']), :host([data-dark]) .stime { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink3) 45%, transparent); }
+    :host([data-dark]) .schips > button .sw6 { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6); }
     .schips > button .sw6 { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
     .stime { font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
     .sstep { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); padding: 2px; }
