@@ -32,7 +32,7 @@ import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
 import { haDigest } from './digest';
-import { cueBlock, haCues, ownRoom } from './cues';
+import { cueBlock, cueLines, haCues, ownRoom, warmCuesOnce } from './cues';
 import { NOTE_MAX, NOTICED, leaveNote, noteClean, notesReady } from './noticed';
 import { answerAsk, approveOn, askList, askPhones, askParse, askReady, haApprove, openAsks, type Ask } from './approve';
 import { BEAT_MS, USE_FLUSH_MS, UseLog, agoWords, calHealth, calWarning, haTrust, isWall, restoreCalls, snapParse, snapText, snapshotOf, useTotals, type HaTrust } from './trust';
@@ -185,7 +185,7 @@ export class FamilyHubCard extends LitElement {
   digestSetup(): Record<string, unknown> | null { return haDigest(this._config); }
   /** the automation that speaks the cues (cues.ts), built from this configuration; null when no child's cues are on */
   cuesSetup(): Record<string, unknown> | null { return haCues(this._config); }
-  static cues = { haCues, cueBlock, ownRoom };
+  static cues = { haCues, cueBlock, ownRoom, cueLines };
   /** The snapshot record and the use counts in TypeScript, for the tests and the restore drill: `customElements.get('family-hub-card').trust`. */
   /** the brightness the screen should have for a given sun and room light (artmode.ts), for the tests and for calibrating at the wall */
   static bright = brightTarget;
@@ -272,7 +272,7 @@ export class FamilyHubCard extends LitElement {
     const bad = configError(config); if (bad) throw new Error(bad);
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     setWeekendExtra(config.bedtime_weekend_extra);
-    setVoice(config.voice, () => this.hass); forgetLines(); this._voiceSynced = false;
+    setVoice(config.voice, () => this.hass); forgetLines(); this._voiceSynced = false; this._cuesWarmed = false;
     setPinShuffle(config.pin_shuffle !== false);
     this._config = config;
     let snd: string | null = null;
@@ -450,9 +450,11 @@ export class FamilyHubCard extends LitElement {
     this._move(b, 'data-just', 700);
   };
   /** the voice in use has been copied to Home Assistant's side since the settings last changed (voice.ts, voiceSync) */
-  private _voiceSynced = false;
+  private _voiceSynced = false; private _cuesWarmed = false;
   protected updated(ch: PropertyValues): void {
     if (!this._voiceSynced && this.hass?.states && this._config?.voice?.sync) { this._voiceSynced = true; void voiceSync(this.hass, this._config.chat?.pipeline); }
+    // the spoken cues: have Home Assistant make each line in the house voice before a speaker ever asks for it (cues.ts, warmCues)
+    if (!this._cuesWarmed && this.hass?.states && this._config) { this._cuesWarmed = true; void warmCuesOnce(this._config); }
     if (ch.has('_page') && ch.get('_page') !== undefined && this._page !== 'kid') this._move(this.renderRoot.querySelector('.dock .item[aria-current="page"]:not(.kidbtn)'), 'data-arrive', 900);
     if (ch.has('hass')) this._watchJar();
     if (ch.has('_page')) this._use.open(this._page);

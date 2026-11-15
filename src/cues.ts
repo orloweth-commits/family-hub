@@ -1,6 +1,6 @@
 import type { FamilyHubConfig, Hass, KidConfig } from './types';
 import { hm } from './util';
-import { resolveVoice, DAILY_CHARS } from './voice';
+import { resolveVoice, houseVoice, voiceReady, DAILY_CHARS } from './voice';
 
 /* ------------------------------------------------------------------ *
  * Spoken cues (F4). The panel waits to be visited; a child who finds
@@ -75,6 +75,30 @@ export const cuesOn = (cfg: Cfg): boolean => cueKids(cfg).length > 0;
 export const cuesEntity = (hass: Hass | undefined): string | undefined => Object.keys(hass?.states ?? {}).find((e) => e.startsWith('automation.') && hass!.states[e].attributes.id === CUES_ID);
 /** What each cue says. Each starts with a word, so Home Assistant never reads one as a number or a list. */
 export const CUE_WORDS = { morning: (n: string): string => `Good morning, ${n}. Time to start your morning jobs.`, leave: (n: string): string => `${n}, ten minutes until it is time to leave.`, wind: (n: string): string => `${n}, it is wind-down time. One hour until bed.` };
+
+/** Every line the automation may say, as it will say it. */
+export const cueLines = (cfg: Cfg): string[] => cueKids(cfg).flatMap((k) => [k.m ? CUE_WORDS.morning(k.n) : '', k.l ? CUE_WORDS.leave(k.n) : '', k.w ? CUE_WORDS.wind(k.n) : ''].filter(Boolean));
+/**
+ * Makes each cue line in the house voice ahead of time, so Home Assistant holds the sound before a speaker asks for it.
+ * Found on the real system (15 Nov): a line the voice has never said is not ready when a HomePod asks, the speaker gives up
+ * ("failed to init decoder") and the cue is silent; the same line a minute later plays. A cue is said once a day, so without
+ * this the first of each would be lost, and again after every change of voice.
+ * Resolves to the lines that could NOT be made (none when there is no house voice: the script then uses the built-in one).
+ */
+export const warmCues = async (cfg: Cfg): Promise<string[]> => {
+  if (!houseVoice()) return [];
+  const cold: string[] = [];
+  for (const line of cueLines(cfg)) { if (!(await voiceReady(line))) cold.push(line); }
+  return cold;
+};
+const WARM = 'fh-cues-warm';
+/** Once per screen for each set of lines and voice: the card calls this when it has its settings. */
+export const warmCuesOnce = async (cfg: Cfg): Promise<void> => {
+  const v = houseVoice(), lines = cueLines(cfg); if (!v || !lines.length) return;
+  const key = JSON.stringify([v.tts, v.voice ?? '', v.language ?? '', lines]);
+  try { if (localStorage.getItem(WARM) === key) return; } catch { /* storage unavailable: make them again */ }
+  if (!(await warmCues(cfg)).length) { try { localStorage.setItem(WARM, key); } catch { /* storage unavailable */ } }
+};
 
 const j = (v: unknown): string => JSON.stringify(v);
 const at = (m: number): string => { const x = ((m % 1440) + 1440) % 1440; return `${String(Math.floor(x / 60)).padStart(2, '0')}:${String(x % 60).padStart(2, '0')}:00`; };

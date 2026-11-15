@@ -7,7 +7,7 @@ import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
 import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
-import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues } from './cues';
+import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues, warmCues } from './cues';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
@@ -415,6 +415,9 @@ export class FhSettings extends LitElement {
     try {
       const did = await syncCues(mediaHass() ?? this.hass, cfg);
       this._cuHeld = haCues(cfg);
+      // (a line the voice has never said is not ready when a speaker asks for it: make each one now)
+      const cold = did === 'made' || did === 'updated' ? await warmCues(cfg) : [];
+      if (cold.length) { this._say('Saved, but the house voice could not make the cue lines just now (its daily allowance, or the voice service). The first cue may be silent; it will be made the next time this screen loads.', { bad: true }); return; }
       if (!quiet) this._say(did === 'made' ? 'Set up. The next cue is spoken at its time.' : did === 'updated' ? 'The spoken cues have been updated.' : did === 'off' ? 'The spoken cues are switched off.' : 'Switch a child’s cues on first.');
     } catch { this._say(quiet ? 'Saved, but Home Assistant would not set up the spoken cues. Under Children, press “Set it up”.' : 'Home Assistant would not set up the spoken cues. It needs an administrator.', { bad: true }); }
     finally { this._cuBusy = false; this._tick++; }

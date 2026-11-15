@@ -140,6 +140,28 @@ else {
   ok('Home Assistant refusing is said plainly', /would not set up the spoken cues/.test(await toast(page)), await toast(page));
   await page.context().close(); }
 
+// 2b. the lines are made ahead of time (a line the voice has never said is not ready when a speaker asks: found on the real system)
+{ const page = await open('look=glass&page=planner&voice=1&cues=1'); await page.waitForTimeout(1200);
+  const made = await calls(page, /tts_get_url/);
+  ok('a screen whose house has cues on makes each line in the house voice when it loads', made.length === 3 && /Good morning, Riley/.test(made[0]) && /ten minutes until/.test(made[1]) && /wind-down time/.test(made[2]), made);
+  ok('and no speaker is asked to say anything', (await calls(page, /^(script\.|tts\.speak|media_player\.play_media)/)).length === 0);
+  const lines = await page.evaluate(() => customElements.get('family-hub-card').cues.cueLines(document.querySelector('family-hub-card')._config));
+  ok('they are the very lines the automation says', JSON.stringify(lines) === JSON.stringify(['Good morning, Riley. Time to start your morning jobs.', 'Riley, ten minutes until it is time to leave.', 'Riley, it is wind-down time. One hour until bed.']), lines);
+  await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(1200);
+  ok('once made, the next load of that screen does not ask again', (await calls(page, /tts_get_url/)).length === 0, await calls(page, /tts_get_url/));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1'); await page.waitForTimeout(900);
+  ok('with nobody’s cues on, nothing is made', (await calls(page, /tts_get_url/)).length === 0);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1&sheet=settings&pane=children');
+  await sw(page, 'Spoken cues').click(); await page.waitForTimeout(250); await save(page); await page.waitForTimeout(600); const made2 = await calls(page, /tts_get_url/);
+  ok('switching cues on in Settings makes the lines at the save', ['Good morning, Riley', 'ten minutes until', 'wind-down time'].every((w) => made2.some((c) => c.includes(w))) && !/could not make/.test(await toast(page)), [await calls(page, /tts_get_url/), await toast(page)]);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1&sheet=settings&pane=children'); await page.evaluate(() => { window.__ttsFail = 'throw'; });
+  await sw(page, 'Spoken cues').click(); await page.waitForTimeout(250); await save(page); await page.waitForTimeout(600);
+  ok('if the voice cannot make them, the save still stands and the parent is told the first cue may be silent', /could not make the cue lines/.test(await toast(page)) && await page.evaluate(() => !!window.__cues), await toast(page));
+  await page.context().close(); }
+
 // 3. "Start with me": two minutes on the job he is on now
 { const page = await open('look=glass&page=kid&kid=0&nownext=1&voice=1', false);
   const wedge = K(page).locator('[data-act="wedge"]');
