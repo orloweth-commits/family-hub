@@ -34,6 +34,7 @@
     "test:approve": "node scripts/tests/approve.mjs",
     "test:noticed": "node scripts/tests/noticed.mjs",
     "test:cues": "node scripts/tests/cues.mjs",
+    "test:f5": "node scripts/tests/f5.mjs",
     "test:obsidian": "node scripts/tests/obsidian.mjs"
   },
   "dependencies": {

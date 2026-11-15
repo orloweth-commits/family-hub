@@ -116,7 +116,8 @@ export class FamilyHubCard extends LitElement {
     if (this.hass && this._config) { const id = askList(this._config), l = this.hass.states[id], key = `${!!l}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}|${ymdOf(this._now)}`; if (key !== this._dnSeen) { this._dnSeen = key; void this._loadDinners(); } }
     // Music opened straight from a child's page is still that child's: his calm setting goes with him. Any other page ends it.
     // Home opened straight from a child's page is his: his own bedroom is his to switch (home.ts). Any other page ends it.
-    if (ch.has('_page')) { if (this._page !== 'home') this._homeKid = ''; else if (ch.get('_page') === 'kid') this._homeKid = this._config?.kids?.[this._kid]?.name ?? ''; }
+    // (a child's dock is his face and Home, which leads back to the shared pages: so "from his page" means the Home page is opened within two minutes of leaving it, as Doodle has it)
+    if (ch.has('_page')) { if (ch.get('_page') === 'kid') { this._leftKid = this._config?.kids?.[this._kid]?.name ?? ''; this._leftKidAt = Date.now(); } if (this._page !== 'home') this._homeKid = ''; else this._homeKid = Date.now() - this._leftKidAt < 120_000 ? this._leftKid : ''; }
     if (ch.has('_page')) { if (this._page !== 'music') this._musicKid = ''; else if (ch.get('_page') === 'kid') this._musicKid = this._config?.kids?.[this._kid]?.name ?? ''; }
     // a child who cannot read yet gets Doodle's tools along the bottom. Since his page's dock is only his face and Home, "from his page" means Doodle is the first place he goes after Home, within two minutes of leaving it
     if (ch.has('_page')) { if (ch.get('_page') === 'kid' && this._config?.kids?.[this._kid]?.mode === 'picture') { this._leftPicKid = Date.now(); this._picHops = 0; } else this._picHops++; }
@@ -173,7 +174,7 @@ export class FamilyHubCard extends LitElement {
   private _photo = '';
   private _musicFocus = '';
   /** the child whose page Music was opened from (his calm setting applies there), or '' */
-  private _musicKid = ''; private _homeKid = '';
+  private _musicKid = ''; private _homeKid = ''; private _leftKid = ''; private _leftKidAt = 0;
   private _photos: string[] = [];
   private _photoIdx = 0;
   private _photoTimer?: number;
@@ -488,7 +489,8 @@ export class FamilyHubCard extends LitElement {
   }
   private _watch(): string[] {
     const c = this._config;
-    return [c.weather, c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
+    // (the asks list: the bell, and the dinner line kept on it, must not wait for the next minute's tick)
+    return [askList(c), c.weather, c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
       ...(c.people ?? []).map((p) => p.entity), ...(c.kids ?? []).map((k) => kidEntities(k).avatar),
       ...(c.meds ?? []).flatMap((m) => [`input_datetime.fh_med_${m.id}`, `input_text.fh_med_${m.id}_by`])].filter((x): x is string => !!x);
   }

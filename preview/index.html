@@ -218,7 +218,7 @@ const hass = {
         later(50, 'run-start', { runner_data: { stt_binary_handler_id: 7 } });
         window.__onFrame = () => { if (done || (window.__frames?.bytes ?? 0) < 32000) return; done = true;
           if (q.get('voice') === 'silent') { later(100, 'error', { code: 'stt-no-text-recognized', message: 'No text recognized' }); return; }
-          later(100, 'stt-end', { stt_output: { text: 'What do koalas eat?' } }); later(700, 'intent-end', { intent_output: { conversation_id: 'demo-1', response: { speech: { plain: { speech: 'Koalas eat gum leaves, and they sleep for most of the day.' } } } } }); later(800, 'tts-end', { tts_output: { url: '/api/tts_proxy/demo.mp3' } }); later(900, 'run-end', {}); };
+          later(100, 'stt-end', { stt_output: { text: window.__sttText ?? 'What do koalas eat?' } }); if (msg.end_stage === 'stt') { later(150, 'run-end', {}); return; } later(700, 'intent-end', { intent_output: { conversation_id: 'demo-1', response: { speech: { plain: { speech: 'Koalas eat gum leaves, and they sleep for most of the day.' } } } } }); later(800, 'tts-end', { tts_output: { url: '/api/tts_proxy/demo.mp3' } }); later(900, 'run-end', {}); };
         return () => { window.__unsubbed = (window.__unsubbed || 0) + 1; }; }
       if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
       (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
@@ -261,6 +261,8 @@ el.setConfig({
   // &vfiles=none leaves the recordings out of the configuration, &vfiles=missing names recordings that are not there. window.__ttsFail = true makes the engine fail.
   ...(q.get('voice') ? { voice: { tts: 'tts.demo_voice', voice: 'demo-voice', language: 'en', ...(q.get('vfiles') === 'none' ? {} : { files: 'media-source://media_source/local/line-{line}.mp3' }), ...(q.get('vcap') ? { daily_chars: Number(q.get('vcap')) } : {}), ...(q.get('vcount') ? { count: 'input_number.fh_voice_chars' } : {}), ...(q.get('voices') ? { use: q.get('voices') === '1' ? 'Wren' : q.get('voices'), voices: [{ name: 'Wren', voice: 'demo-voice', files: 'media-source://media_source/local/line-{line}.mp3' }, { name: 'Robin', voice: 'demo-robin' }], sync: { voice: 'input_text.fh_voice_id', files: 'input_text.fh_voice_files', pipeline: true } } : {}) } } : {}),
   // &chat=off leaves the Ask button out
+  // &terms=1 gives the house school terms (end-of-term points need the last day of a term)
+  ...(q.get('terms') ? { school_terms: [['2026-10-12', '2026-12-10'], ['2027-02-01', '2027-04-01']] } : {}),
   ...(q.get('chat') === 'off' ? {} : { chat: { agent: 'conversation.demo_chat', pipeline: 'demo' } })
 });
 // &juke=1 starts with tonight's jukebox picks waiting
