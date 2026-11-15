@@ -7,6 +7,7 @@ import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
 import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
+import { haTerm, syncTerm, termEnds, termRate } from './term';
 import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues, warmCues } from './cues';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
@@ -401,6 +402,8 @@ export class FhSettings extends LitElement {
     if (JSON.stringify(haApprove(from)) !== JSON.stringify(haApprove(next))) void this._approveSync(next, true);
     // the spoken cues are an automation too: a save that changes who is spoken to, where or when rewrites it (or switches it off)
     if (JSON.stringify(haCues(from)) !== JSON.stringify(haCues(next))) void this._cuesSync(next, true);
+    // so is end-of-term points into the jar (term.ts): off unless a rate is set
+    if (JSON.stringify(haTerm(from)) !== JSON.stringify(haTerm(next)) && this.hass) void syncTerm(mediaHass() ?? this.hass, next).catch(() => this._say('Saved, but Home Assistant would not set up the end-of-term change. It needs an administrator.', { bad: true }));
   }
   /* ---------------- spoken cues (cues.ts) ---------------- */
   /** what Home Assistant holds for the cues: undefined before asking, null when it has none or will not say */
@@ -783,6 +786,7 @@ export class FhSettings extends LitElement {
       <div class="scard"><h3>${icon('jar', 20)}Family jar <span class="muted">shared by everyone</span></h3>
         ${this._row('Marbles to fill the jar', 'Every family job a child ticks adds one marble.', this._step('Marbles to fill the jar', jar.target ?? 200, (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), target: v }; }), { min: 10, max: 5000, step: 10, unit: 'marbles' }))}
         ${this._row('What a full jar earns', '', this._txt('jar.reward', 'What a full jar earns', jar.reward ?? '', (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), reward: v }; if (!v) delete x.jar!.reward; }), { ph: 'e.g. Family movie night' }), true)}
+        ${this._row('End of term: points into the jar', termEnds(d).length ? (termRate(d) ? `At 4 pm on the last day of each term, every ${termRate(d)} unspent points become one marble. What is left over stays his.` : 'Off. Switch it on and, on the last day of each term, unspent points become marbles for everyone: points are for spending, not hoarding.') : 'Needs the school terms (Morning) to know the last day.', html`${this._sw('End of term: points into the jar', termRate(d) > 0, () => this._edit((x) => { const jr = { ...(x.jar ?? {}) } as Record<string, unknown>; if (jr.term_points) delete jr.term_points; else jr.term_points = 10; x.jar = jr as typeof x.jar; }))}${termRate(d) ? this._step('Points for one marble', termRate(d), (v) => this._edit((x) => { x.jar = { ...(x.jar ?? {}), term_points: Math.max(1, v) } as typeof x.jar; }), { min: 5, max: 100, step: 5, unit: 'points' }) : nothing}`)}
       </div>`;
   }
 

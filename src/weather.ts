@@ -238,7 +238,7 @@ export class FhWeather extends LitElement {
     @keyframes flash { 0%, 100% { opacity: 1; } 6% { opacity: .2; } 9% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } }
   `];
 
-  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _failed: { state: true }, _hw: { state: true } };
+  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _more: { state: true }, _failed: { state: true }, _hw: { state: true } };
   /** width of one hour's column, so the strip always shows whole hours */
   private _hw = 58;
   private _ro?: ResizeObserver;
@@ -251,6 +251,8 @@ export class FhWeather extends LitElement {
   private _days: Day[] = [];
   private _hours: Hour[] = [];
   private _map: 'radar' | 'wind' = 'radar';
+  /** humidity, fire danger and sunrise: shown when More is tapped */
+  private _more = false;
   private _failed = false;
   private _timer?: number;
   private _loadedFor = '';
@@ -393,11 +395,18 @@ export class FhWeather extends LitElement {
     const fact = (big: unknown, small: string, cls = '') => html`<div class="wfact ${cls}"><b>${big}</b><small>${small}</small></div>`;
     const tips = this._tips(), night = new Date().getHours() >= 19 || new Date().getHours() < 5;
     // three thirds when they fit; with the fire danger (a long word that must not be cut) the small readings pair up in halves
-    const small = [chance !== undefined, since !== undefined, hum !== undefined, !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
+    // humidity, the fire danger and sunrise sit behind More: they are a parent's readings, and the card is the wordiest on the panel
+    const more = this._more, hasMore = hum !== undefined || !!fire || !!(rise && set);
+    const small = [chance !== undefined, since !== undefined, more && hum !== undefined, more && !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
     return html`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
       ${getLook() === 'sports' ? verdictTile(this._verdict(tips), true) : nothing}
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
+      ${/* what to wear and bring comes first: it is the line a child needs (UX review 5.9) */ nothing}
+      <div class="wtip" role="group" aria-label="What to wear and bring today" data-first>
+        <div class="tips">${tips.map((x) => html`<span class="tipone">${tipPic(x.id)}<span>${TIP_WORDS[x.id]}</span></span>`)}</div>
+        <button class="speak tap" aria-label="Read the advice aloud" @click=${(e: Event) => { sfx('tap'); say(tips.map((x) => x.say).join(' '), e.currentTarget as Element); }}>${speakerIcon}</button>
+      </div>
       <div class="top">
         ${sky(w?.state, 72)}
         <div>
@@ -408,19 +417,16 @@ export class FhWeather extends LitElement {
       <div class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">
         ${feels !== undefined ? html`Feels like ${Math.round(feels)}°` : nothing}${t?.temperature !== undefined ? html`${feels !== undefined ? ' · ' : ''}Top ${Math.round(t.temperature)}°` : nothing}${t?.templow !== undefined && t.templow !== t.temperature ? html` · Low ${Math.round(t.templow)}°` : nothing}
       </div>
-      <div class="wtip" role="group" aria-label="What to wear today">
-        <div class="tips">${tips.map((x) => html`<span class="tipone">${tipPic(x.id)}<span>${TIP_WORDS[x.id]}</span></span>`)}</div>
-        <button class="speak tap" aria-label="Read the advice aloud" @click=${(e: Event) => { sfx('tap'); say(tips.map((x) => x.say).join(' '), e.currentTarget as Element); }}>${speakerIcon}</button>
-      </div>
       <div class="facts">
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
         ${chance !== undefined ? fact(`${Math.round(chance)}%`, range && range !== '0' ? `Rain · ${range} mm` : 'Chance of rain', half) : nothing}
         ${since !== undefined ? fact(`${since} mm`, 'Since 9 am', `${half} x3`) : nothing}
-        ${hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity', `${half} x3`) : nothing}
-        ${fire ? fact(fire, 'Fire danger', half) : nothing}
+        ${more && hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity', `${half} x3`) : nothing}
+        ${more && fire ? fact(fire, 'Fire danger', half) : nothing}
         ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)} · ${uvWord(uv.max)}`, uv.max >= 3 ? (uv.from && uv.to ? `Cover up ${uv.from} to ${uv.to}` : night ? 'Cover up in the daytime' : 'Cover up today') : 'No sun protection needed', 'wide stack') : nothing}
-        ${rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', 'wide stack x2') : nothing}
+        ${more && rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', 'wide stack x2') : nothing}
       </div>
+      ${hasMore ? html`<button class="pill tap wmore" data-act="wmore" aria-expanded=${String(more)} style="align-self:flex-start;height:44px;padding:0 16px;flex-shrink:0" @click=${() => { sfx('tap'); this._more = !this._more; }}>${more ? 'Less' : 'More'}</button>` : nothing}
       ${said ? html`<p class="said">${said}</p>` : nothing}
     </section>`;
   }

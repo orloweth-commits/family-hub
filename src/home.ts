@@ -3,7 +3,7 @@ import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
 import type { Hass, HassEntity } from './types';
-import { FitController, getNarrow, getShape, inTime, SlowError, SLOW_SAY } from './util';
+import { FitController, bedtimeFor, getNarrow, getShape, hm, inTime, minsNow, SlowError, SLOW_SAY } from './util';
 import './pin';
 
 const CONTROL = ['light', 'switch', 'fan', 'cover', 'lock', 'climate', 'media_player', 'input_boolean'];
@@ -105,9 +105,43 @@ export class FhHome extends LitElement {
     .tipline { font-size: var(--fs-2); line-height: 1.35; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, kids: { attribute: false }, me: {}, bedrooms: { attribute: false }, _holding: { state: true }, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
   hass?: Hass;
   pin = '';
+  /** the children, for whose bedroom is whose (a room whose name has his name in it, or `bedrooms`: area id or name -> names) */
+  kids: { name: string; bedtime?: string }[] = [];
+  bedrooms: Record<string, string[]> = {};
+  /** the child whose page Home was opened from: his own room is his to switch */
+  me = '';
+  /* ---- a child's bedroom is not for his brothers to switch (UX review 5.9): a hold by day, the PIN after his bedtime ---- */
+  private _holding = ''; private _holdT?: number; private _held = '';
+  private _owners(r: Room): string[] {
+    const set = this.bedrooms?.[r.id] ?? this.bedrooms?.[r.name];
+    if (Array.isArray(set)) return set.filter((n) => typeof n === 'string');
+    const low = r.name.toLowerCase();
+    return this.kids.map((k) => k.name).filter((n) => !!n && new RegExp(`(^|[^a-z])${n.toLowerCase().replace(/[^a-z0-9]/g, '.')}(’s|'s|s)?([^a-z]|$)`).test(low));
+  }
+  /** free: anyone, one tap. hold: press and hold. pin: a parent. */
+  private _guardOf(r: Room): 'free' | 'hold' | 'pin' {
+    const own = this._owners(r);
+    if (!own.length || (this.me && own.includes(this.me))) return 'free';
+    const n = minsNow(new Date()), abed = this.kids.some((k) => own.includes(k.name) && (n >= hm(bedtimeFor(k.bedtime)) || n < 5 * 60));
+    return abed && this.pin ? 'pin' : 'hold';
+  }
+  private _holdStart(key: string, run: () => void): void {
+    clearTimeout(this._holdT); this._holding = key; this._held = '';
+    this._holdT = window.setTimeout(() => { this._holding = ''; this._held = key; run(); }, 600);
+  }
+  private _holdEnd(): void { clearTimeout(this._holdT); this._holding = ''; }
+  /** What a tap does in a guarded room: nothing by itself. Returns true when the tap may go through. */
+  private _mayTap(ev: Event, key: string, r: Room, g: 'free' | 'hold' | 'pin', run: () => void): boolean {
+    if (g === 'free') return true;
+    const whose = this._owners(r).join(' and ');
+    if (g === 'pin') { this._guard(run, `room:${r.id}`, `Switch something in ${r.name}? It is after ${whose}’s bedtime.`); return false; }
+    if (this._held === key) { this._held = ''; return false; } // the hold has just done it
+    if ((ev as MouseEvent).detail === 0) return true; // a key press cannot be held: Enter or Space goes through
+    this._tell(`Hold to switch that: it is ${whose}’s room.`); return false;
+  }
   hideScripts: string[] = [];
   hide: string[] = [];
   private _all = false;
@@ -226,10 +260,14 @@ export class FhHome extends LitElement {
     return s[0].toUpperCase() + s.slice(1);
   }
 
-  private _dev(e: HassEntity, room: string): TemplateResult {
+  private _dev(e: HassEntity, room: string, r?: Room, guard: 'free' | 'hold' | 'pin' = 'free'): TemplateResult {
     const d = dom(e), on = this._on(e), off = gone(e), name = this._name(e, room), sw = SWITCHED.includes(d) && !off, pinned = d === 'lock' || d === 'cover';
+    // (doors already ask for the PIN, and a speaker only opens Music: the room's guard is for what a tap switches)
+    const g = r && sw ? guard : 'free', key = e.entity_id, go = (): void => this._toggle(e, room);
     return html`<button class="dev tap ${on && d === 'light' ? 'on' : ''} ${off ? 'gone' : ''}" role=${sw ? 'switch' : nothing} aria-checked=${sw ? String(on) : nothing} aria-disabled=${off ? 'true' : nothing}
-      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the parents’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} @click=${() => this._toggle(e, room)}>
+      aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the parents’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} data-guard=${g === 'free' ? nothing : g} ?data-holding=${this._holding === key}
+      @pointerdown=${g === 'hold' ? () => this._holdStart(key, go) : nothing} @pointerup=${g === 'hold' ? () => this._holdEnd() : nothing} @pointerleave=${g === 'hold' ? () => this._holdEnd() : nothing} @pointercancel=${g === 'hold' ? () => this._holdEnd() : nothing}
+      @click=${(ev: Event) => { if (this._mayTap(ev, key, r!, g, go)) go(); }}>
       <span class="dicon">${this._ic(e)}</span><span class="nm"><span class="n">${name}</span><span class="s">${this._state(e, on)}</span></span>
       ${sw ? html`<span class="toggle"></span>` : pinned && !off ? html`<span class="pinned">${DRAWN.locked}</span>` : nothing}</button>`;
   }
@@ -251,10 +289,12 @@ export class FhHome extends LitElement {
           ${left > 0 ? html`<div class="unl" role="group" aria-label="Unlocked for parents: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'}"><span class="ut">${DRAWN.unlocked}<span>Unlocked for parents: ${this._unlockedFor ? (this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? 'this door') : 'automations'} · <b aria-hidden="true">${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : nothing}</div>
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
-            const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e));
-            return html`<div class="room ${lit ? 'lit' : ''}">
-              <div class="rh"><h2>${r.name}</h2>${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} @click=${() => this._room(r, !lit)}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
-              ${r.ents.map((e) => this._dev(e, r.name))}
+            const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e)), g = this._guardOf(r);
+            return html`<div class="room ${lit ? 'lit' : ''}" data-room=${r.id}>
+              <div class="rh"><h2>${r.name}</h2>${g === 'free' ? nothing : html`<span class="muted rguard" data-rguard=${g} style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);white-space:nowrap">${g === 'pin' ? html`${DRAWN.locked}` : 'Hold to switch'}</span>`}${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} ?data-holding=${this._holding === `room:${r.id}`}
+                @pointerdown=${g === 'hold' ? () => this._holdStart(`room:${r.id}`, () => this._room(r, !lit)) : nothing} @pointerup=${g === 'hold' ? () => this._holdEnd() : nothing} @pointerleave=${g === 'hold' ? () => this._holdEnd() : nothing} @pointercancel=${g === 'hold' ? () => this._holdEnd() : nothing}
+                @click=${(ev: Event) => { if (this._mayTap(ev, `room:${r.id}`, r, g, () => this._room(r, !lit))) this._room(r, !lit); }}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
+              ${r.ents.map((e) => this._dev(e, r.name, r, g))}
             </div>`; })}</div>`)}
         </div>` : html`<div class="none"><span style="color:var(--accent)">${icon('home', 44)}</span><b>No rooms to show yet</b>
           <span>In Home Assistant, give your lights, switches and other devices an area (Settings, then Areas). Each area with a device in it appears here as a room.</span></div>`}
