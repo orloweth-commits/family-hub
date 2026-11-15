@@ -93,6 +93,8 @@ export class FhHome extends LitElement {
     .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
+    /* on, in the dark: the track is a pale green, so the knob is the dark one */
+    :host([data-dark]) [aria-checked='true'] > .toggle::after { background: var(--on-ok, #0b2414); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
     .grown { height: 44px; /* token */ font-size: var(--fs-2); }
     /* while the PIN window is open the page says so, counts it down and offers to close it */

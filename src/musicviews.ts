@@ -749,7 +749,7 @@ export const viewsCss = css`
   :host([data-dark]) .clabel b { background: var(--sel-bg); color: var(--sel-ink); }
   :host([data-dark]) .cknob::before { background: var(--ring-halo); box-shadow: inset 0 0 0 2px var(--ink2), 0 2px 4px rgba(0,0,0,.4); }
   /* Glass in the dark: a room's volume handle is dark glass ringed in the room's colour, not a white disc */
-  :host([data-dark]) .agrab i { background: var(--ring-halo); color: var(--ink); }
+  :host([data-dark]) .agrab i { background: color-mix(in srgb, var(--ink) 24%, var(--ring-halo)); color: var(--ink); }
   :host([data-dark]) .agrab[data-idle] i { box-shadow: inset 0 0 0 3px var(--ink3), 0 2px 5px rgba(0,0,0,.4); }
   .atx { min-width: 60px; min-height: 44px; padding: 4px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .atx > b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }

@@ -133,6 +133,7 @@ export class FhSettings extends LitElement {
     .sswitch > i::after { content: ''; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.25); transition: transform var(--mt-2, 160ms) var(--e-spring, ease); }
     .sswitch[aria-checked='true'] > i { background: var(--ok); box-shadow: none; }
     .sswitch[aria-checked='true'] > i::after { transform: translateX(20px); }
+    :host([data-dark]) .sswitch[aria-checked='true'] > i::after { background: var(--on-ok, #0b2414); }
     .srange { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
     .srange input { width: 220px; max-width: 46vw; height: 44px; margin: 0; accent-color: var(--primary); background: transparent; }
     .srange output { min-width: 52px; text-align: right; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }

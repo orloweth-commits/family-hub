@@ -101,6 +101,10 @@ export class FhDoodle extends LitElement {
     .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .stickup { height: 52px; /* token */ padding: 0 22px; font-size: var(--fs-3); white-space: nowrap; flex-shrink: 0; }
     .stampbtn { font-size: var(--fs-5); }
+    /* a stamp drawn in black (the clarinet, a pirate flag) keeps a light edge on a dark panel; every stamp gets it, so the grid stays even */
+    :host([data-dark]) .stampbtn { filter: drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 0 1.5px rgba(255,255,255,.55)); }
+    :host([data-dark]) .ink { box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
+    :host([data-dark]) .snap .by { background: var(--ring-halo); color: var(--ink); }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
     .ghead { display: flex; align-items: center; gap: 8px; }
