@@ -127,6 +127,23 @@ export class FhWeather extends LitElement {
     :host([data-shape='wide'][data-n3]) .wweek { grid-area: 1 / 2; }
     :host([data-shape='wide'][data-n3]) .whours { grid-area: 2 / 1 / 3 / 3; }
     :host([data-shape='wide'][data-n3]) .wmaps { grid-area: 3 / 1 / 4 / 3; }
+    /* a dry day (0.38.3): the radar has nothing to show, so it is a small card and the hours and the week have the room; it is large only while rain is about, or when asked for */
+    :host([data-dry][data-shape='wide']:not([data-n3])) { grid-template-rows: auto minmax(0, 1fr); }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .whours { grid-area: 1 / 2; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wweek { grid-area: 2 / 2; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wmaps { grid-area: 1 / 3 / 3 / 4; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .days { flex-direction: row; justify-content: stretch; gap: 8px; overflow: visible; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday { flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px; padding: 14px 4px 10px; text-align: center; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday > .sky { width: 58px; height: 58px; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng { align-self: stretch; grid-template-columns: 1fr 1fr; grid-template-areas: 'hi lo' 'track track' 'wet wet'; grid-template-rows: auto auto 20px; gap: 6px 8px; padding: 0 6px; font-size: var(--fs-3); }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng > span:nth-child(3) { grid-area: hi; text-align: right; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .lo { grid-area: lo; text-align: left; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .track { grid-area: track; }
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet { grid-area: wet; margin-top: 0; white-space: nowrap; }
+    /* a day's column is too narrow for the millimetres as well: the chance is what decides the raincoat */
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet .mm { display: none; }
+    .mapsize { height: 44px; padding: 0 16px; flex-shrink: 0; font-size: var(--fs-2); white-space: nowrap; }
+    .dryline { font-size: var(--fs-2); font-weight: var(--w-semi, 600); padding: 0 6px; }
     :host([data-phone]) { display: flex; flex-direction: column; flex: none; }
     :host([data-phone]) .wmaps { height: 420px; }
     :host([data-phone]) section { border-radius: 22px; }
@@ -238,7 +255,7 @@ export class FhWeather extends LitElement {
     @keyframes flash { 0%, 100% { opacity: 1; } 6% { opacity: .2; } 9% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } }
   `];
 
-  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _more: { state: true }, _failed: { state: true }, _hw: { state: true } };
+  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _big: { state: true }, _more: { state: true }, _failed: { state: true }, _hw: { state: true } };
   /** width of one hour's column, so the strip always shows whole hours */
   private _hw = 58;
   private _ro?: ResizeObserver;
@@ -253,6 +270,20 @@ export class FhWeather extends LitElement {
   private _map: 'radar' | 'wind' = 'radar';
   /** humidity, fire danger and sunrise: shown when More is tapped */
   private _more = false;
+  /** the map's size when someone has chosen it; undefined follows the weather (large only while rain is about) */
+  private _big?: boolean;
+  /** Rain about: it is raining or storming, a warning is current, or the next six hours bring a real chance of it. With no hours to go by, the day's own chance decides. */
+  private _rainAbout(): boolean {
+    const WET = /rain|pour|lightning|hail|snow/, st = this.hass?.states[this.entity]?.state ?? '';
+    if (WET.test(st)) return true;
+    const warns = (this.hass?.states[this._warnId]?.attributes.warnings ?? []) as { phase?: string; expiry_time?: string }[];
+    if (warns.some((x) => x.phase !== 'cancelled' && (!x.expiry_time || new Date(x.expiry_time).getTime() > Date.now()))) return true;
+    const now = Date.now(), soon = this._hours.filter((h) => { const t = new Date(h.datetime).getTime(); return t >= now - 30 * 60000 && t <= now + 6 * 3600000; });
+    if (soon.length) return soon.some((h) => (h.precipitation_probability ?? 0) >= 40 || WET.test(h.condition ?? ''));
+    return (num(this._f('rain_chance')) ?? this._today()?.precipitation_probability ?? 0) >= 60;
+  }
+  /** whether the map is the large piece of the page now */
+  private get _mapLarge(): boolean { return this._big ?? this._rainAbout(); }
   private _failed = false;
   private _timer?: number;
   private _loadedFor = '';
@@ -263,7 +294,7 @@ export class FhWeather extends LitElement {
     if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this._measure()); this._ro.observe(this); }
   }
   disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); this._ro?.disconnect(); }
-  protected updated(): void { this._measure(); }
+  protected updated(): void { this.toggleAttribute('data-dry', !!this.entity && !this._mapLarge); this._measure(); }
   /** Size the hour columns so a whole number of them fills the strip, and mark the edges that have more beyond them. */
   private _measure(): void {
     const el = this.renderRoot.querySelector('.hscroll') as HTMLElement | null;
@@ -483,7 +514,7 @@ export class FhWeather extends LitElement {
               <span class="lo">${same ? '' : `${Math.round(l)}°`}</span>
               <span class="track"><span class="wbar" style="left:${same ? ((h - lo) / span) * 100 - 4 : ((l - lo) / span) * 100}%;right:${100 - ((h - lo) / span) * 100}%;background:linear-gradient(90deg, ${tcol(l)}, ${tcol(h)})"></span></span>
               <span>${Math.round(h)}°</span>
-              ${p >= 30 ? html`<span class="wet">💧 ${Math.round(p)}%${d.precipitation ? ` · ${d.precipitation} mm` : ''}</span>` : nothing}
+              ${p >= 30 ? html`<span class="wet">💧 ${Math.round(p)}%${d.precipitation ? html`<span class="mm"> · ${d.precipitation} mm</span>` : ''}</span>` : nothing}
             </span>
           </div>`;
         })}
@@ -504,10 +535,14 @@ export class FhWeather extends LitElement {
     const wantRadar = this.page.radar !== false, wantWind = this.page.wind !== false;
     if (!wantRadar && !wantWind) return nothing;
     const lat = this.hass?.config?.latitude, lon = this.hass?.config?.longitude;
-    const tab = !wantRadar ? 'wind' : !wantWind ? 'radar' : this._map;
+    const large = this._mapLarge, rain = this._rainAbout();
+    // small, it is the rain radar alone (the wind map is a tap away, with the larger map)
+    const tab = !wantRadar ? 'wind' : !wantWind || !large ? 'radar' : this._map;
+    const size = rain ? nothing : html`<button class="pill tap mapsize" data-act="mapsize" aria-pressed=${String(large)} @click=${() => { sfx('tap'); this._big = !large; }}>${large ? 'Smaller map' : 'Bigger map'}</button>`;
     const btn = (id: 'radar' | 'wind', label: string) => html`<button class="tap" aria-pressed=${tab === id} @click=${() => { sfx('tap'); this._map = id; }}>${label}</button>`;
-    return html`<section class="glass wmaps">
-      <div class="mhead"><h2>${this._titles()[3]}</h2>${wantRadar && wantWind ? html`<div class="seg" role="group" aria-label="Which map">${btn('radar', 'Rain radar')}${btn('wind', 'Wind')}</div>` : nothing}</div>
+    return html`<section class="glass wmaps" data-size=${large ? 'large' : 'small'}>
+      <div class="mhead"><h2>${large ? this._titles()[3] : tab === 'radar' ? 'Rain radar' : 'Wind'}</h2>${large && wantRadar && wantWind ? html`<div class="seg" role="group" aria-label="Which map">${btn('radar', 'Rain radar')}${btn('wind', 'Wind')}</div>` : nothing}${size}</div>
+      ${large ? nothing : html`<span class="muted dryline" data-dryline>No rain about for the next few hours.</span>`}
       <div class="mbox">
         ${tab === 'radar'
           ? lat !== undefined && lon !== undefined ? html`<fh-radar .lat=${lat} .lon=${lon} .zoom=${this.page.zoom ?? 6} ?dark=${this._dark}></fh-radar>` : html`<p class="none">The radar needs to know where home is. Set the location in Home Assistant’s settings.</p>`
