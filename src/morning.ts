@@ -93,6 +93,9 @@ export class FhMorning extends LitElement {
     .khead h2 { font-size: var(--fs-5); font-weight: var(--w-heavy, 800); flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .khead .go { flex-shrink: 0; line-height: 0; color: var(--ink2); }
     /* his current morning job: one big button, a picture, the words and a circle to tick. It is the only thing on the board a child presses in the morning */
+    /* in the dark a child's colour is lifted wherever it is drawn as a line (the bar over his column, the ring round his job), so teal still shows on a teal panel */
+    :host([data-dark]) .kcol { border-top-color: color-mix(in srgb, var(--kid) 58%, #fff); }
+    :host([data-dark]) .jobbtn { background: color-mix(in oklab, var(--kid) 46%, var(--ring-halo)); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 58%, #fff); }
     .jobbtn { display: flex; align-items: center; gap: 12px; min-height: 96px; padding: 10px 14px; border-radius: 22px; text-align: left; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--kid); flex-shrink: 0; }
     .jobbtn .jpic { font-size: var(--fs-d2); line-height: 1; flex-shrink: 0; }
     .jobbtn .jtx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

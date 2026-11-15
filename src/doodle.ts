@@ -79,6 +79,7 @@ export class FhDoodle extends LitElement {
     .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     /* Glass: the tinted fill was within a whisker of the card in the light themes, so the chosen one is a solid block of ink there (the halo tone is ink's opposite in every theme) */
     :host([data-look='glass']) .size[aria-pressed='true'] { background: var(--ink); color: var(--ring-halo, #fff); box-shadow: none; }
+    :host([data-look='glass'][data-dark]) .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .size i { border-radius: 50%; background: currentColor; display: block; }
     /* the three sizes draw what they will make: dots for a brush, the chosen stamp small to large, blocks for the eraser */
     .size i.rub { border-radius: 3px; background: transparent; box-shadow: inset 0 0 0 2.5px currentColor; }
@@ -102,8 +103,9 @@ export class FhDoodle extends LitElement {
     .stickup { height: 52px; /* token */ padding: 0 22px; font-size: var(--fs-3); white-space: nowrap; flex-shrink: 0; }
     .stampbtn { font-size: var(--fs-5); }
     /* a stamp drawn in black (the clarinet, a pirate flag) keeps a light edge on a dark panel; every stamp gets it, so the grid stays even */
-    :host([data-dark]) .stampbtn { filter: drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 0 1.5px rgba(255,255,255,.55)); }
-    :host([data-dark]) .ink { box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
+    :host([data-dark]) .stampbtn { filter: drop-shadow(0 0 .7px #fff) drop-shadow(0 0 .7px #fff); }
+    :host([data-dark]) .ink:not([aria-pressed='true']) { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.34); }
+    :host([data-dark]) .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ring-halo), 0 0 0 6.5px var(--ink); }
     :host([data-dark]) .snap .by { background: var(--ring-halo); color: var(--ink); }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }

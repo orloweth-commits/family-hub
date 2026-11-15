@@ -94,6 +94,7 @@ export class FhHome extends LitElement {
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }
     /* on, in the dark: the track is a pale green, so the knob is the dark one */
+    :host([data-dark]) .toggle::after { background: var(--ink2); }
     :host([data-dark]) [aria-checked='true'] > .toggle::after { background: var(--on-ok, #0b2414); }
     .alist { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
     .grown { height: 44px; /* token */ font-size: var(--fs-2); }

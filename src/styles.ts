@@ -474,10 +474,13 @@ export const styles = css`
   /* a person's colour on an event: the colour itself taken down to a deep tone, not mixed into the panel's tint. Teal stays teal on a plum panel and on a teal one;
      Family stays a neutral slate. A past event keeps its hue at a third of the strength, its bar still the person's colour, its words in the second ink. */
   :host([data-dark]) .fh .ev { background: color-mix(in oklab, var(--c) 58%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 72%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 46%, transparent); }
-  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 36%, color-mix(in srgb, var(--ink) 26%, var(--ring-halo))); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: none; }
+  /* a past event sinks below its column and keeps its hue, its bar and a hairline of the person's colour */
+  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
+  /* the next event keeps its ring (the theme's own colour), as the chip in the top bar names it */
+  :host([data-dark]) .fh .ev.next { box-shadow: inset 0 0 0 2.5px var(--primary); }
   :host([data-dark]) .fh .ev.past :is(.t, .w, .n, .content, span, b) { color: var(--ink2); }
   :host([data-dark]) .fh .dayrow { background: color-mix(in oklab, var(--c, transparent) 52%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 72%, #fff); }
-  :host([data-dark]) .fh .dayrow.past { background: color-mix(in oklab, var(--c, transparent) 34%, color-mix(in srgb, var(--ink) 26%, var(--ring-halo))); border-left-color: color-mix(in srgb, var(--c, transparent) 80%, #fff); }
+  :host([data-dark]) .fh .dayrow.past { background: color-mix(in oklab, var(--c, transparent) 32%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 80%, #fff); }
   :host([data-dark]) .fh .dayrow.past :is(.content, .muted) { color: var(--ink2); }
   /* a sheet over a dark page: the page behind goes well back, and the sheet is a solid step lighter than it with a clear edge */
   :host([data-dark]) .fh { --scrim: rgba(0,0,0,.7);
@@ -486,7 +489,7 @@ export const styles = css`
     /* the radar map's own controls wear the theme */
     --radar-bar: color-mix(in srgb, var(--ring-halo) 88%, transparent); --radar-ink: var(--ink);
     /* music with no picture: a deep tile of the theme's two colours, not a pale square */
-    --art-none: linear-gradient(135deg, color-mix(in srgb, var(--accent) 62%, #000), color-mix(in srgb, var(--primary) 46%, #000)); }
+    --art-none: linear-gradient(135deg, color-mix(in srgb, var(--accent) 84%, #000), color-mix(in srgb, var(--primary) 62%, #000)); }
   :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
   /* "+3" on a month's day: a quiet raised chip, not the brightest thing on the page */
   :host([data-dark]) .cell .mmore { background: var(--chip); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
@@ -496,6 +499,8 @@ export const styles = css`
   :host([data-dark]) .badge { background: color-mix(in srgb, #f59e0b 42%, var(--ring-halo)); } :host([data-dark]) .badge.hot { background: color-mix(in srgb, #dc2626 46%, var(--ring-halo)); }
   /* the words of a segment that is not chosen are the main ink in the dark (the chosen one has its fill, its ring and its weight) */
   :host([data-dark]) .seg button { color: var(--ink); }
+  /* "Overdue" on a medicine: a small filled badge in the amber of the overdue chip, with dark words: pale red text on a dark card was the quietest thing on it */
+  :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
