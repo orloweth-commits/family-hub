@@ -6,7 +6,9 @@ import bush from '../assets/bg-bush.jpg';
 import space from '../assets/bg-space.jpg';
 
 export type ThemeId = 'sea' | 'sunset' | 'reef' | 'bush' | 'space';
-export interface ThemeDef { id: ThemeId; name: string; tagline: string; bg: string; vars: Record<string, string>; }
+export interface ThemeDef { id: ThemeId; name: string; tagline: string; bg: string; vars: Record<string, string>;
+  /** dark mode: the same place after dark. A second set of the theme's variables, laid over `vars` (dark.ts says when), and the layer that dims the photo behind the panels. Space has none: it is dark already. */
+  dark?: Record<string, string>; dim?: string; }
 const BG: Record<ThemeId, string> = { sea, sunset, reef, bush, space };
 
 export const THEMES: ThemeDef[] = [
@@ -21,6 +23,20 @@ export const THEMES: ThemeDef[] = [
 const PEOPLE: Record<string, string> = { '--p-1': '#2563eb', '--p-2': '#db2777', '--p-3': '#0f766e', '--p-4': '#c2410c', '--p-5': '#7c3aed', '--on-person': '#ffffff' };
 for (const t of THEMES) Object.assign(t.vars, PEOPLE);
 
+/**
+ * Dark mode: each light theme after dark (Space needs none). The same keys as Space, so every page that reads the theme's variables follows.
+ * Person colours are not here: they are the same in every theme, light or dark.
+ * `dim` is laid over the photo, so the place is still that place at night and never a flat black.
+ */
+const DARK: Partial<Record<ThemeId, { vars: Record<string, string>; dim: string }>> = {
+  sea: { dim: 'linear-gradient(rgba(6,16,30,.66), rgba(6,16,30,.76))', vars: { '--ring-halo': '#06121f', '--ink': '#eef5fb', '--ink2': '#cddbe8', '--ink3': '#a9bccd', '--glass': 'rgba(14,30,48,0.74)', '--glass-line': 'rgba(255,255,255,0.14)', '--shadow': '0 12px 32px rgba(0,0,0,0.35)', '--chip': 'rgba(52,84,118,0.66)', '--chip-strong': 'rgba(70,108,148,0.84)', '--chip-soft': 'rgba(52,84,118,0.36)', '--chip-faint': 'rgba(52,84,118,0.16)', '--track': 'rgba(255,255,255,0.18)', '--primary': '#7cc4ff', '--on-primary': '#06213a', '--accent': '#ffc46b', '--ok': '#4ade80', '--p-family': '#56677c', '--danger': '#ff8a7a', '--ink-done': '#c0cfdd', '--wet': '#9fd4ff', '--on-ok': '#0b2414', '--on-danger': '#2a0b08', '--sel-bg': '#cfe6fb', '--sel-ink': '#0b2236', '--mat': '#16202b', '--mat-lip': '#263443', '--mat-ink': 'rgba(255,255,255,.74)' } },
+  sunset: { dim: 'linear-gradient(rgba(24,10,14,.66), rgba(24,10,14,.76))', vars: { '--ring-halo': '#1c0c0c', '--ink': '#fdf3ea', '--ink2': '#ead6c6', '--ink3': '#cbb3a2', '--glass': 'rgba(44,24,26,0.74)', '--glass-line': 'rgba(255,255,255,0.14)', '--shadow': '0 12px 32px rgba(0,0,0,0.35)', '--chip': 'rgba(110,66,62,0.66)', '--chip-strong': 'rgba(136,84,78,0.84)', '--chip-soft': 'rgba(110,66,62,0.36)', '--chip-faint': 'rgba(110,66,62,0.16)', '--track': 'rgba(255,255,255,0.18)', '--primary': '#ffb37a', '--on-primary': '#3a1606', '--accent': '#ffd166', '--ok': '#4ade80', '--p-family': '#6b5a55', '--danger': '#ff8a7a', '--ink-done': '#dcc6b6', '--wet': '#9fd4ff', '--on-ok': '#0b2414', '--on-danger': '#2a0b08', '--sel-bg': '#ffe1c9', '--sel-ink': '#2b1408', '--mat': '#221816', '--mat-lip': '#362824', '--mat-ink': 'rgba(255,255,255,.74)' } },
+  reef: { dim: 'linear-gradient(rgba(2,18,24,.66), rgba(2,18,24,.76))', vars: { '--ring-halo': '#04161a', '--ink': '#ecfbfb', '--ink2': '#c8e2e4', '--ink3': '#a3c4c8', '--glass': 'rgba(8,36,42,0.74)', '--glass-line': 'rgba(255,255,255,0.14)', '--shadow': '0 12px 32px rgba(0,0,0,0.35)', '--chip': 'rgba(36,96,106,0.66)', '--chip-strong': 'rgba(50,120,132,0.84)', '--chip-soft': 'rgba(36,96,106,0.36)', '--chip-faint': 'rgba(36,96,106,0.16)', '--track': 'rgba(255,255,255,0.18)', '--primary': '#6fe0e6', '--on-primary': '#03252b', '--accent': '#ffa07a', '--ok': '#4ade80', '--p-family': '#52666c', '--danger': '#ff8a7a', '--ink-done': '#bcd8db', '--wet': '#9fd4ff', '--on-ok': '#0b2414', '--on-danger': '#2a0b08', '--sel-bg': '#c9f1f3', '--sel-ink': '#03252b', '--mat': '#121e20', '--mat-lip': '#213235', '--mat-ink': 'rgba(255,255,255,.74)' } },
+  bush: { dim: 'linear-gradient(rgba(12,16,8,.66), rgba(12,16,8,.76))', vars: { '--ring-halo': '#0f140a', '--ink': '#f5f6ea', '--ink2': '#d9dcc6', '--ink3': '#b6bba0', '--glass': 'rgba(28,36,22,0.76)', '--glass-line': 'rgba(255,255,255,0.14)', '--shadow': '0 12px 32px rgba(0,0,0,0.35)', '--chip': 'rgba(78,96,60,0.66)', '--chip-strong': 'rgba(98,120,76,0.84)', '--chip-soft': 'rgba(78,96,60,0.36)', '--chip-faint': 'rgba(78,96,60,0.16)', '--track': 'rgba(255,255,255,0.18)', '--primary': '#c5e47a', '--on-primary': '#1c2a12', '--accent': '#ffb86b', '--ok': '#4ade80', '--p-family': '#5d6456', '--danger': '#ff8a7a', '--ink-done': '#cdd1b9', '--wet': '#9fd4ff', '--on-ok': '#0b2414', '--on-danger': '#2a0b08', '--sel-bg': '#e3f0c4', '--sel-ink': '#1c2a12', '--mat': '#1a1e16', '--mat-lip': '#2b3124', '--mat-ink': 'rgba(255,255,255,.74)' } },
+};
+for (const t of THEMES) { const d = DARK[t.id]; if (d) { t.dark = d.vars; t.dim = d.dim; } }
+
+const DIM = 'linear-gradient(rgba(8,12,22,.66), rgba(8,12,22,.74))';
 export const themeById = (id: string): ThemeDef => THEMES.find((t) => t.id === id) ?? THEMES[0];
 /**
  * Sea & Sun has a horizon you can find at a glance: the sky pales down to one crisp line and the sea begins under it
@@ -32,4 +48,10 @@ export const themeById = (id: string): ThemeDef => THEMES.find((t) => t.id === i
 const HORIZON: Partial<Record<ThemeId, string>> = {
   sea: 'linear-gradient(to bottom, rgba(228,244,253,0) 42%, rgba(228,244,253,.97) 51%, rgba(232,246,254,.98) 56.7%, rgba(255,255,255,.98) 56.7%, rgba(255,255,255,.98) 57%, rgba(255,255,255,0) 57%)',
 };
-export const themeStyle = (t: ThemeDef): string => Object.entries(t.vars).map(([k, v]) => `${k}:${v}`).join(';') + `;--bg:${HORIZON[t.id] ? `${HORIZON[t.id]}, ` : ''}url(${t.bg})`;
+/** Does this theme have a dark version to wear? */
+export const hasDark = (t: ThemeDef): boolean => !!t.dark;
+/** The theme as inline variables. `--dim` is the layer that dims the photo and the world drawn over it in the dark (styles.ts: .dkdim); it is given in the light as well, so the two can fade into each other. `photo` is a family photo standing in for the theme's picture. */
+export const themeStyle = (t: ThemeDef, dark = false, photo = ''): string => {
+  const dk = dark && !!t.dark, vars = dk ? { ...t.vars, ...t.dark } : t.vars;
+  return Object.entries(vars).map(([k, v]) => `${k}:${v}`).join(';') + `${t.dark ? `;--dim:${t.dim ?? DIM}` : ''};--bg:${photo ? `url('${photo}')` : `${HORIZON[t.id] ? `${HORIZON[t.id]}, ` : ''}url(${t.bg})`}`;
+};

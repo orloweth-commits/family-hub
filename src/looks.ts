@@ -1,6 +1,7 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 import { loadFonts } from './fonts';
 import { getNarrow, getShape, onShape, setSoundLook } from './util';
+import { glassDark, glassFading, onGlassDark } from './dark';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -30,6 +31,7 @@ import { getNarrow, getShape, onShape, setSoundLook } from './util';
  *   data-calm                  calm mode: no looping motion, no tilt
  *   data-opt-<id>              a look option the family switched on
  *   data-dow="0…6"             the day of the week, Sunday first (Home Ground shows a different ball each day)
+ *   data-dark                  Glass in dark mode (dark.ts); every component's host carries it too, so `@G[data-dark] .x` works anywhere
  * ------------------------------------------------------------------ */
 
 export type LookId = 'glass' | 'fridge' | 'orbit' | 'sports' | 'obsidian';
@@ -502,10 +504,13 @@ function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [
 export class LookController implements ReactiveController {
   private _off?: () => void;
   private _shape = (): void => { const s = getShape(), stack = s === 'wide' && getNarrow() >= 3 && !!(this.host as { stackNarrow?: boolean }).stackNarrow; this.host.setAttribute('data-shape', s === 'phone' || stack ? 'tall' : s); this.host.toggleAttribute('data-stack', stack); this.host.toggleAttribute('data-phone', s === 'phone'); const n = getNarrow(); for (const i of [1, 2, 3]) this.host.toggleAttribute('data-n' + i, n >= i); };
-  private _on = (): void => { this.host.setAttribute('data-look', current); this._shape(); this.host.requestUpdate(); };
+  private _offDark?: () => void;
+  /** dark glass, and the slow fade between light and dark, are host state like the look: a rule anywhere can read them */
+  private _dark = (): void => { this.host.toggleAttribute('data-dark', glassDark()); this.host.toggleAttribute('data-dkfade', glassFading()); };
+  private _on = (): void => { this.host.setAttribute('data-look', current); this._dark(); this._shape(); this.host.requestUpdate(); };
   constructor(private host: ReactiveControllerHost & HTMLElement) { host.addController(this); }
-  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this._shape(); }
-  hostDisconnected(): void { subs.delete(this._on); this._off?.(); }
+  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this._offDark = onGlassDark(this._on); this.host.setAttribute('data-look', current); this._dark(); this._shape(); }
+  hostDisconnected(): void { subs.delete(this._on); this._off?.(); this._offDark?.(); }
 }
 
 /* ---------------- look styles (shared by every component) ---------------- */

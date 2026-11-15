@@ -1,6 +1,7 @@
 import { LitElement, html, css, unsafeCSS, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { THEMES, themeById, themeStyle, type ThemeId } from './themes';
+import { THEMES, hasDark, themeById, themeStyle, type ThemeId } from './themes';
+import { AUTO_HOLD_MS, DARK_FADE_MS, DARK_MODES, autoDark, getDarkMode, initDarkMode, onDarkMode, setDarkMode, setGlassDark, type DarkMode } from './dark';
 import { styles } from './styles';
 import { LOOKS, LOOK_KEY, LOOK_OPTS_KEY, LookController, getLook, lookArt, lookById, lookPreview, setLook, type DialArc, type LookId, type LookOption } from './looks';
 import './ambient';
@@ -70,7 +71,7 @@ export class FamilyHubCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true }, _view: { state: true }, _anchor: { state: true }, _events: { state: true }, _soon: { state: true },
-    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
+    _medLog: { state: true }, _mx: { state: true }, _theme: { state: true }, _dkMode: { state: true }, _dk: { state: true }, _dkFade: { state: true }, _look: { state: true }, _opts: { state: true }, _snd: { state: true }, _prefTick: { state: true }, _sheet: { state: true }, _evOpen: { state: true }, _evAsk: { state: true }, _evBusy: { state: true }, _editEv: { state: true }, _editScope: { state: true }, _now: { state: true }, _toast: { state: true }, _wx: { state: true },
     _reminders: { state: true }, _remTk: { state: true }, _bump: { state: true }, _wantsChat: { state: true }, _remJust: { state: true }, _nightManual: { state: true }, _page: { state: true }, _kid: { state: true },
     _waiting: { state: true }, _photo: { state: true }, _calError: { state: true }, _idle: { state: true }, _toastAct: { state: true }, _dinner: { state: true }, _off: { state: true }, _alarm: { state: true }, _pinAsk: { state: true }, _asker: { state: true }, _wifiUntil: { state: true }, _calTick: { state: true },
     _remState: { state: true }, _remShow: { state: true }, _mLines: { state: true }, _evKey: { state: true }, _compact: { state: true }, _top: { state: true }, _bot: { state: true }
@@ -84,6 +85,9 @@ export class FamilyHubCard extends LitElement {
   /** today + next two days, for the capsule, morning mode and night screen */
   private _soon: CalEvent[] = [];
   private _theme: ThemeId = 'sea';
+  /** Dark mode for Glass (dark.ts): this screen's choice, whether dark is worn now, and whether the slow fade between the two is running. */
+  private _dkMode: DarkMode = 'light'; private _dk = false; private _dkFade = false;
+  private _dkAuto = false; private _dkWishAt = 0; private _dkSettled = false; private _dkByHand = false; private _fingerDown = false; private _dkFadeTimer?: number; private _offDkMode?: () => void;
   private _look: LookId = 'glass';
   /** look options the family has switched on, e.g. { hand: true } */
   private _opts: Record<string, boolean> = {};
@@ -131,6 +135,8 @@ export class FamilyHubCard extends LitElement {
     if (this._sheet !== 'meds') this._medOpen = false;
     if (!this._config) return;
     if (this._lk !== getLook()) setLook(this._lk);
+    if (ch.has('hass') || ch.has('_dkMode')) this._dkEval();
+    setGlassDark(this._darkNow, this._dkFade);
     setVolume(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1);
     setSoundTheme(this._kidOn?.theme ?? this._theme);
     // a sheet says that it opened or closed (not the one the page loads with)
@@ -342,6 +348,7 @@ export class FamilyHubCard extends LitElement {
     let saved: string | null = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
     this._theme = themeById(saved || config.theme || 'sea').id;
+    this._dkMode = initDarkMode(config.dark); this._dkSettled = false; this._dkEval();
     let look: string | null = null;
     try { look = localStorage.getItem(LOOK_KEY); } catch { /* storage unavailable */ }
     this._look = lookById(look || config.look).id;
@@ -363,6 +370,7 @@ export class FamilyHubCard extends LitElement {
     if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
     this.addEventListener('pointerdown', this._touched, { capture: true });
+    this._offDkMode = onDarkMode(() => { this._dkMode = getDarkMode(); this._dkByHand = true; this._dkEval(); });
     document.addEventListener('visibilitychange', this._vis);
     window.addEventListener('keydown', this._keys);
     (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready.then(() => { if (this.isConnected) this._fitFrame(); });
@@ -411,8 +419,10 @@ export class FamilyHubCard extends LitElement {
     this._photoTimer = undefined; this._photos = [];
     this.removeEventListener('pointerdown', this._touched, { capture: true });
     document.removeEventListener('visibilitychange', this._vis);
+    this._offDkMode?.(); clearTimeout(this._dkFadeTimer);
   }
   private _touched = (): void => {
+    this._fingerDown = true;
     this._lastTouch = Date.now(); if (this._idle) this._idle = false;
     this._use.tap(this._sheet ? `s-${this._sheet}` : this._page);
     if (this._page === 'music') this._musicAt = Date.now();
@@ -423,7 +433,7 @@ export class FamilyHubCard extends LitElement {
   private _art = new ArtMode(this, () => this._config, () => { this._lastTouch = Date.now(); if (this._idle) this._idle = false; });
   private _nightKey = '';
   private _musicAt = 0; private _wakeDown = false; private _swallowUntil = 0;
-  private _wakeUp = (): void => { if (this._wakeDown) { this._wakeDown = false; this._swallowUntil = Date.now() + 120; } };
+  private _wakeUp = (): void => { this._fingerDown = false; if (this._wakeDown) { this._wakeDown = false; this._swallowUntil = Date.now() + 120; } };
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   private _artBlocked(): boolean {
@@ -453,6 +463,7 @@ export class FamilyHubCard extends LitElement {
 
   private _onTick(): void {
     const now = new Date(), timerOn = this._timerLeft() !== null;
+    if (this._config) this._dkEval();
     if (this._config) {
       const was = this._art.on;
       const night = this._isNight();
@@ -1095,6 +1106,37 @@ export class FamilyHubCard extends LitElement {
     clearTimeout(this._toastTimer);
     this._toastTimer = window.setTimeout(() => { this._toast = ''; this._toastAct = null; }, act ? Math.max(5000, ms) : ms);
   }
+  /** What this screen should wear: the choice itself, or for Auto the sun and, where there is a reading, the room's light. */
+  private _dkWant(): boolean {
+    if (this._dkMode !== 'auto') return this._dkMode === 'dark';
+    const st = this.hass?.states, id = this._config?.room_light ?? this._config?.art?.backlight_room, lux = id && st?.[id] ? Number(st[id].state) : NaN;
+    this._dkAuto = autoDark({ sun: st?.['sun.sun']?.state, lux: Number.isFinite(lux) ? lux : undefined, hour: new Date().getHours(), was: this._dkAuto });
+    return this._dkAuto;
+  }
+  /** Light or dark, decided. A choice made by hand is worn at once. Auto waits until its wish has stood for half a minute (a shadow over
+   *  the sensor, a light flicked on and off) and never changes while a finger is down; then one slow fade. The first answer after loading has no fade. */
+  private _dkEval(): void {
+    const want = this._dkWant(), hand = this._dkByHand; this._dkByHand = false;
+    if (!this._dkSettled) { if (this.hass?.states) this._dkSettled = true; this._dkWear(want, false); return; }
+    if (want === this._dk) { this._dkWishAt = 0; return; }
+    if (hand) { this._dkWear(want, true); return; }
+    const t = Date.now(); if (!this._dkWishAt) this._dkWishAt = t;
+    if (t - this._dkWishAt < AUTO_HOLD_MS || this._fingerDown) return;
+    this._dkWear(want, true);
+  }
+  private _dkWear(v: boolean, fade: boolean): void {
+    this._dkWishAt = 0;
+    if (v === this._dk) return;
+    this._dk = v; clearTimeout(this._dkFadeTimer);
+    this._dkFade = fade;
+    if (fade) this._dkFadeTimer = window.setTimeout(() => { this._dkFade = false; }, DARK_FADE_MS + 200);
+  }
+  /** Is dark glass on the screen now? Only the Glass look has it, and only a theme with a dark version (Space is dark already). On a child's page it is his theme that is asked. */
+  private get _darkNow(): boolean {
+    const kid = this._page === 'kid' ? this._config?.kids?.[this._kid] : undefined;
+    return this._dk && !!lookById(this._lk).themed && hasDark(themeById(kid?.theme ?? this._theme));
+  }
+  private _setDark(m: DarkMode): void { if (m === this._dkMode) return; sfx('look'); setDarkMode(m); }
   private _setTheme(id: ThemeId): void {
     this._theme = id; setSoundTheme(id); sfx('look');
     try { localStorage.setItem(THEME_KEY, id); } catch { /* ignore */ }
@@ -1240,7 +1282,8 @@ export class FamilyHubCard extends LitElement {
     const theme = themeById(kid?.theme ?? this._theme);
     const look = lookById(this._lk);
     // themed looks take their tokens from the photo theme; the others define theirs in the look stylesheet
-    const skin = look.themed ? `${themeStyle(theme)}${this._photo ? `;--bg:url('${this._photo}')` : ''};` : '';
+    const dark = this._darkNow;
+    const skin = look.themed ? `${themeStyle(theme, dark, this._photo)};` : '';
     const hr = this._now.getHours(), todKey = hr >= 21 || hr < 6 ? 'night' : hr >= 18 ? 'eve' : 'day';
     const kp = this._kp, mk = this._page === 'music' && this._musicKid ? this._config.kids?.find((k) => k.name === this._musicKid) : undefined;
     // calm: everywhere when the house says so; otherwise a child's page (and Music opened from it) follows his own choice, and the shared pages move.
@@ -1252,8 +1295,9 @@ export class FamilyHubCard extends LitElement {
     // things that fade out before they leave: the sheet, the toast, the PIN pad's question and the screensaver
     const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [artUp, artOut] = linger(this, 'art', this._art.on, 250);
     return html`
-      <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} data-dow=${this._now.getDay()} ?data-calm=${calm} ?data-compact=${this._compact} style=${`${skin}--tod:${tod};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
+      <div lang="en-AU" class="fh ${this._idle ? 'idle' : ''} ${rainy ? 'rainy' : ''}" data-tod=${todKey} data-dow=${this._now.getDay()} ?data-calm=${calm} ?data-compact=${this._compact} ?data-dark=${dark} ?data-dkfade=${this._dkFade} style=${`${skin}--tod:${tod};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
+        ${this._config.ambient === false || this._photo ? nothing : html`<fh-ambient .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''} ?dark=${dark}></fh-ambient><fh-ambient front ?dark=${dark} .look=${this._lk} .theme=${theme.id} .tod=${todKey} .calm=${calm} .hold=${!!(sheet || this._alarm)} .demo=${this._config.ambient_demo ?? ''}></fh-ambient>`}
+        ${look.themed && hasDark(theme) ? html`<div class="dkdim" aria-hidden="true"></div>` : nothing}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
@@ -1695,17 +1739,19 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead('Pick a look', 'Changes the whole panel.', 'palette')}
       <div class="themes looks">
         ${LOOKS.map((l) => html`<button class="tcard tap" aria-pressed=${String(l.id === this._look)} @click=${() => this._setLook(l.id)}>
-          ${lookPreview(l, 96, themeStyle(themeById(this._theme)))}
+          ${lookPreview(l, 96, themeStyle(themeById(this._theme), this._dk))}
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${l.name}</span><span class="muted" style="font-size:var(--fs-1)">${l.tagline}</span>
         </button>`)}
       </div>
       ${(lookById(this._look).options ?? []).map((o) => this._optRow(o, !!this._opts[o.id], () => this._toggleOpt(o.id)))}
       <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Taps, ticks and keys from this screen. Timers always sound.</span></span>
         <div class="seg" role="group" aria-label="Sounds" data-set="sounds">${([['off', 'Off'], ['quiet', 'Soft'], ['on', 'On']] as const).map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._snd === v)} @click=${() => this._setSounds(v)}>${l}</button>`)}</div></div>
-      ${!lookById(this._look).themed ? nothing : html`<span class="label">Background</span>
+      ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'Space Mission is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Auto: dark from sunset to sunrise, and whenever the room is dim.' : 'For this screen. Auto goes dark at sunset and in a dim room.'}</span></span>
+        <div class="seg" role="group" aria-label="Light and dark" data-set="dark">${DARK_MODES.map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._dkMode === v)} @click=${() => this._setDark(v)}>${l}</button>`)}</div></div>
+      <span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
-          <span class="tprev" style=${themeStyle(t)}>${[1, 2, 3, 4, 5].map((n) => html`<span style="background:var(--p-${n})"></span>`)}</span>
+          <span class="tprev" ?data-dark=${this._dk && hasDark(t)} style=${themeStyle(t, this._dk)}>${[1, 2, 3, 4, 5].map((n) => html`<span style="background:var(--p-${n})"></span>`)}</span>
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${t.name}</span><span class="muted" style="font-size:var(--fs-1)">${t.tagline}</span>
         </button>`)}
       </div>`}
@@ -1737,7 +1783,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`, '', note)}
       <div class="themes kidlooks">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
-          ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme)))}
+          ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme), this._dk))}
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${name}</span><span class="muted" style="font-size:var(--fs-1)">${tag}</span></button>`)}
       </div>
       ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}

@@ -1,6 +1,7 @@
 import { LitElement, html, svg, css, nothing, type TemplateResult, type PropertyValues } from 'lit';
 import { styles } from './styles';
 import { LookController, getLook, verdictTile, type Verdict } from './looks';
+import { glassDark } from './dark';
 import type { Hass, HassEntity } from './types';
 import { FitController, changed, motion, sfx, say } from './util';
 import { icon } from './icons';
@@ -524,7 +525,7 @@ export class FhWeather extends LitElement {
 
   /** Home Ground goes dark under lights (from 6 pm until 6 am), and the radar map goes with it. */
   private get _eve(): boolean { const h = new Date().getHours(); return h >= 18 || h < 6; }
-  private get _dark(): boolean { return getLook() === 'orbit' || getLook() === 'obsidian' || (getLook() === 'sports' && this._eve) || (getLook() === 'glass' && this.theme === 'space'); }
+  private get _dark(): boolean { return getLook() === 'orbit' || getLook() === 'obsidian' || (getLook() === 'sports' && this._eve) || (getLook() === 'glass' && (this.theme === 'space' || glassDark())); }
   private _windUrl(): string {
     // rounded to a tenth of a degree (about 10 km): enough to centre the map, without sending the address of the house
     const lat = Math.round((this.hass?.config?.latitude ?? -31.95) * 10) / 10, lon = Math.round((this.hass?.config?.longitude ?? 115.86) * 10) / 10;

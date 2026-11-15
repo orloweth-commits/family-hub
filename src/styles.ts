@@ -30,9 +30,15 @@ export const styles = css`
     background: repeating-linear-gradient(105deg, transparent 0 18px, rgba(255,255,255,.55) 18px 19px, transparent 19px 46px); animation: rain 1.4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
   .fh > header, .fh > .body, .fh > nav { position: relative; }
+  /* dark mode (Glass): one layer dims the photo and the world drawn over it, under the tint of the hour and every panel. It is there in the light too, clear, so light and dark fade into each other. */
+  .dkdim { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--dim, none); opacity: 0; transition: opacity var(--m-4) ease; }
+  .fh[data-dark] > .dkdim { opacity: 1; }
+  .fh[data-dkfade] > .dkdim { transition-duration: var(--m-6, 1600ms); }
+  /* light to dark and back, by the sun or by hand: every colour crosses slowly, together. Nothing moves, so calm mode keeps it. */
+  :host([data-dkfade]) *, :host([data-dkfade]) *::before, :host([data-dkfade]) *::after { transition: color var(--m-6, 1600ms) ease, background-color var(--m-6, 1600ms) ease, border-color var(--m-6, 1600ms) ease, fill var(--m-6, 1600ms) ease, stroke var(--m-6, 1600ms) ease, box-shadow var(--m-6, 1600ms) ease, outline-color var(--m-6, 1600ms) ease !important; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
   /* one grammar under the three looks (claude/family-hub-foreground-spec.md): timings, the selected style, the lead action */
-  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
+  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --m-6: 1600ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
     --mt-1: calc(var(--m-1) * var(--m-d)); --mt-2: calc(var(--m-2) * var(--m-d)); --mt-3: calc(var(--m-3) * var(--m-d)); --mt-4: calc(var(--m-4) * var(--m-d)); --mt-5: calc(var(--m-5) * var(--m-d));
     /* a look whose primary colour means ACTION only (Home Ground's yellow) sets --mark / --on-mark for things that are merely current (the next pick, a level, a room that is live) and --art-none for music with no picture; left unset, those use the primary */
     /* selected: a filled tint with no border, so it never reads as an outlined action */ --sel-bg: color-mix(in srgb, var(--primary) 26%, var(--chip-strong)); --sel-ink: var(--ink); --sel-ring: none; --danger: #c62828;
@@ -463,6 +469,7 @@ export const styles = css`
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
+  .tprev[data-dark] { background: var(--dim), var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
   .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   /* a child's own picker: "Same as the panel" and every look */
