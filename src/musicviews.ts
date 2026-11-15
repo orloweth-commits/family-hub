@@ -15,7 +15,7 @@ export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
 /** The sleeve of a record with no cover: two of the people's colours; smoked glass in a look with no cartoons (Obsidian). */
 export const blank = (i: number): string => plainLook() ? 'linear-gradient(160deg, #23272e, #0b0e13)' : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`;
 export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
-  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Tap a quiet room, then Move the music. Or carry it there. Slide for volume.' },
+  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Tap a quiet room, then Move the music. Or carry the record there.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob and a tuner', hint: 'Drag round an arc for volume. Tap it to add the room.' },
   { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders, a jog wheel and pads', hint: 'Slide a fader for volume. Turn the wheel to move the song.' },
@@ -26,6 +26,18 @@ const SCENE_HINT: Record<string, string> = { sea: 'Sail two boats together to sh
   sunset: 'Fly two kites together to share the music.', fridge: 'Push two magnets together to share the music.', orbit: 'Drag a planet onto an orbit to join that music.', sports: 'Two players together share the music.' };
 export const sceneKind = (look: string, theme: string): string => (look === 'glass' ? (SCENE_HINT[theme] ? theme : 'sea') : look === 'fridge' ? 'fridge' : look === 'sports' ? 'sports' : 'orbit');
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? SCENE_HINT[sceneKind(look, theme)] : VIEWS.find((v) => v.id === id)?.hint ?? '');
+/** A view's coach marks: short lines shown one at a time in the hint's place, the first time the view is opened and again from "?".
+ *  The House and the Scene have three; each names the tap first and the drag second. `teach` names what the page rings while the line shows. */
+export interface Mark { text: string; teach: '' | 'move' | 'vol' | 'pin' }
+export const viewMarks = (id: ViewId, look: string, theme: string): Mark[] => (id === 'house' ? [
+  { text: 'Tap a quiet room, then Move the music. Or carry the record there.', teach: 'move' },
+  { text: 'Tap the speaker buttons for louder or softer. Or slide the bar.', teach: 'vol' },
+  { text: 'Tap the pin, then a name, to keep the music. Or carry it onto a name.', teach: 'pin' }]
+  : id === 'scene' ? [
+    { text: viewHint(id, look, theme), teach: '' },
+    { text: 'Tap a quiet room, then Move the music.', teach: 'move' },
+    { text: 'Tap the pin, then a name, to keep the music.', teach: 'pin' }]
+    : [{ text: viewHint(id, look, theme), teach: '' }]).filter((m): m is Mark => !!m.text);
 
 export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; /** plays the music in the player (the room that leads it included) */ on: boolean; /** grouped with at least one other room, whichever room is selected */ linked: boolean; /** a home speaker that cannot be reached right now */ offline: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
 export interface Ctx {
