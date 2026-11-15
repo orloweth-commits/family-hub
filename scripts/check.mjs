@@ -52,6 +52,7 @@ const RULES = [
   { suite: 'digest', when: src('digest|settings|trust|validate') },
   { suite: 'approve', when: src('approve|kid|rewards|settings|digest|validate') },
   { suite: 'noticed', when: src('noticed|approve|kid|digest') },
+  { suite: 'cues', when: src('cues|kid|settings|voice|validate|digest') },
   { suite: 'settings', when: src('settings|settings-store|validate|types') },
   { suite: 'art', when: src('artmode|artlib|nightly|presence|studio|avatar') },
   { suite: 'screensaver', when: src(`artmode|artlib|${SHELL}`) },
@@ -69,7 +70,7 @@ const PAGES = [
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'obsidian'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'obsidian'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }
