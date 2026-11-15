@@ -742,6 +742,10 @@ export const viewsCss = css`
   /* the name chip: opaque, so no orbit, string or wave shows through the words (the second background is for browsers that can work out a colour opposite the ink) */
   .aname { position: relative; z-index: 1; max-width: 200px; min-height: 44px; border-radius: 14px; display: flex; align-items: center; line-height: 1.15; background: var(--chip-strong); background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); box-shadow: 0 1px 4px rgba(0,0,0,.18); }
   .vscene[data-kind='space'] .aname { background: #1b1e45; background: linear-gradient(var(--chip-strong), var(--chip-strong)), hsl(from var(--ink) h s calc((50 - l) * 1000)); }
+  :host([data-dark]) .ahull { fill: #d5dde6; }
+  /* Glass in the dark: a room's volume handle is dark glass ringed in the room's colour, not a white disc */
+  :host([data-dark]) .agrab i { background: var(--ring-halo); color: var(--ink); }
+  :host([data-dark]) .agrab[data-idle] i { box-shadow: inset 0 0 0 3px var(--ink3), 0 2px 5px rgba(0,0,0,.4); }
   .atx { min-width: 60px; min-height: 44px; padding: 4px 8px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .atx > b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; text-align: center; max-width: 176px; line-height: 1.1; overflow-wrap: anywhere; } .atx > span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; } .atx[aria-pressed='true'] > b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   /* the shelf in the world */

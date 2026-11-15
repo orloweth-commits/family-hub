@@ -128,7 +128,7 @@ const BODY = 'M30 240 C32 190 62 166 100 166 C138 166 168 190 170 240 Z';
 type L = (l: Look) => SVGTemplateResult;
 
 const SCENES: Record<string, L> = {
-  plain: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#dbeafe"></rect><circle cx="100" cy="120" r="82" fill="#bfdbfe"></circle></g>`,
+  plain: () => svg`<g class="av-pop"><rect width="200" height="240" style="fill:var(--av-sky, #dbeafe)"></rect><circle cx="100" cy="120" r="82" style="fill:var(--av-sky2, #bfdbfe)"></circle></g>`,
   beach: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#9fd8f5"></rect><circle cx="162" cy="46" r="18" fill="#ffd166"></circle><rect y="150" width="200" height="40" fill="#3a9ad9"></rect><rect y="168" width="200" height="4" fill="#bfe6f7"></rect><rect y="190" width="200" height="50" fill="#f1d39b"></rect></g>`,
   pool: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#38bdf8"></rect><rect y="40" width="200" height="6" fill="#e0f2fe"></rect><rect y="100" width="200" height="6" fill="#e0f2fe"></rect><rect y="160" width="200" height="6" fill="#e0f2fe"></rect><rect y="70" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="130" width="200" height="4" fill="#ef4444" opacity=".7"></rect><rect y="190" width="200" height="4" fill="#ef4444" opacity=".7"></rect></g>`,
   court: () => svg`<g class="av-pop"><rect width="200" height="240" fill="#2563eb"></rect><rect x="12" y="12" width="176" height="216" fill="none" stroke="#fff" stroke-width="3"></rect><rect x="12" y="118" width="176" height="4" fill="#fff"></rect><rect x="98" y="12" width="4" height="216" fill="#fff" opacity=".6"></rect><circle cx="40" cy="60" r="7" fill="#d9f99d"></circle></g>`,
@@ -274,7 +274,7 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   return html`<span class="avwrap ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${head ? '36 28 128 128' : '0 0 200 240'} width=${w} height=${h} role="img" aria-label=${o.label ?? 'Avatar'}
       style="display:block;overflow:hidden;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`}">
-      ${head ? svg`<circle cx="100" cy="92" r="64" fill=${TINT[look.scene] ?? TINT.plain}></circle>` : (SCENES[look.scene] ?? SCENES.plain)(look)}
+      ${head ? svg`<circle cx="100" cy="92" r="64" style=${!look.scene || look.scene === 'plain' || !TINT[look.scene] ? 'fill:var(--av-sky, #dbeafe)' : `fill:${TINT[look.scene]}`}></circle>` : (SCENES[look.scene] ?? SCENES.plain)(look)}
       ${o.ring && head ? svg`<circle cx="100" cy="92" r="60" fill="none" stroke=${o.ring} stroke-width="7"></circle>` : nothing}
       <g class=${o.still ? '' : 'av-bob'}>
         ${!head && GEAR_BEHIND[look.gear] ? GEAR_BEHIND[look.gear](look) : nothing}

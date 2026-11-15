@@ -46,6 +46,10 @@ export class FhRadar extends LitElement {
     .zoom b { font-size: var(--fs-5); line-height: 1; font-weight: 600; }
     .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: var(--fs-1); font-weight: 700; pointer-events: none; }
     :host([dark]) .key { --rkey: #10182c; --rink: #eef3ff; }
+    /* Glass in the dark: the map's own controls wear the theme, not a fixed navy */
+    :host([data-dark]) .bar, :host([data-dark]) .zoom { --rbar: color-mix(in srgb, var(--ring-halo) 86%, transparent); --rink: var(--ink); }
+    :host([data-dark]) .key { --rkey: var(--ring-halo); --rink: var(--ink); }
+    :host([data-dark]) .home { box-shadow: 0 0 0 2.5px var(--ink), 0 2px 6px rgba(0,0,0,.5); } :host([data-dark]) .home::after { background: var(--ring-halo); }
     .key b { font-weight: inherit; }
     .key span { width: 74px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #9ad7f5, #3b8fe0, #1f4fc4, #f7e33c, #f39a1e, #e0261c, #a31278); }
     .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); pointer-events: none; }

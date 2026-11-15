@@ -468,6 +468,22 @@ export const styles = css`
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
+  /* ---- dark mode (Glass): what the theme's variables cannot reach by themselves ---- */
+  /* a person's colour on an event: mixed from a lifted tone of it, so teal, blue, pink, orange and purple stay five hues on a dark panel instead of sinking into its tint */
+  :host([data-dark]) .ev { background: color-mix(in srgb, color-mix(in srgb, var(--c) 82%, #fff) 34%, var(--chip-soft)); border-left-color: color-mix(in srgb, var(--c) 78%, #fff); }
+  :host([data-dark]) .ev.past { background: color-mix(in srgb, color-mix(in srgb, var(--c) 82%, #fff) 13%, var(--chip-soft)); border-left-color: color-mix(in srgb, var(--c) 55%, transparent); }
+  :host([data-dark]) .dayrow { background: color-mix(in srgb, color-mix(in srgb, var(--c, transparent) 82%, #fff) 30%, transparent); border-left-color: color-mix(in srgb, var(--c, transparent) 78%, #fff); }
+  /* a sheet over a dark page: the page behind goes well back, and the sheet is a solid step lighter than it with a clear edge */
+  :host([data-dark]) .fh { --scrim: rgba(0,0,0,.7); }
+  :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
+  /* "+3" on a month's day: a quiet raised chip, not the brightest thing on the page */
+  :host([data-dark]) .cell .mmore { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
+  /* the record on the Music button is black: on a dark dock it keeps a thin light edge */
+  :host([data-dark]) .fh .dock .item svg[data-ic='music'] { filter: drop-shadow(0 0 1.2px rgba(255,255,255,.8)) drop-shadow(0 1.5px 1.5px rgba(0,0,0,.3)); }
+  /* the emergency card: still red, still first, but a dark red panel with pale words, not a pink sheet of paper */
+  :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 38%, var(--ring-halo)); color: #ffe1dd; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #f87171 55%, transparent); }
+  /* a character with no scene behind him stands against the evening, not a pale sky */
+  :host([data-dark]) { --av-sky: color-mix(in srgb, var(--primary) 20%, var(--ring-halo)); --av-sky2: color-mix(in srgb, var(--primary) 34%, var(--ring-halo)); }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev[data-dark] { background: var(--dim), var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
