@@ -105,6 +105,7 @@ ok('with no phone named there is nothing to set up', built.none === null && buil
 ok('an approve setting that is not a list of notify services, or not a to-do list, is refused in words', built.bad.every((m) => /^Family Hub: approve/.test(m)), built.bad);
 const line = (id, extra = {}) => ({ uid: 'u-' + id, summary: 'Riley: Pick the family movie', status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k: 'reward', kid: 'riley', who: 'Riley', name: 'Pick the family movie', cost: 100, t: 1, ...extra }) });
 const jline = (id, extra = {}) => ({ uid: 'u-' + id, summary: 'Riley: Mow the lawn', status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k: 'job', kid: 'riley', who: 'Riley', name: 'Mow the lawn', cost: 20, t: 1, list: 'todo.riley_chores', uid: 'c-9', ...extra }) });
+const cline = (id, extra = {}) => ({ uid: 'u-' + id, summary: 'Riley: would like a chat', status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k: 'chat', kid: 'riley', who: 'Riley', name: 'would like a chat', cost: 0, t: 1, ...extra }) });
 const st = (state) => ({ state, attributes: {} });
 const sc = (name, action, items, states = { 'input_number.riley_points': st('300'), 'input_number.maxs_stars': st('40') }) => ({ name, now: '2026-11-10T17:00:00+08:00', states, vars: { trigger: { event: { data: { action } } } }, responses: { asks: { [ASKS]: { items } } } });
 const scenarios = [
@@ -123,6 +124,9 @@ const scenarios = [
   { ...sc('job-gone', 'FH_OK_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [] } } } },
   { ...sc('job-other-list', 'FH_OK_ajob111', [jline('ajob111', { list: 'todo.shopping_list' })]), responses: { asks: { [ASKS]: { items: [jline('ajob111', { list: 'todo.shopping_list' })] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @job' }] } } } },
   { ...sc('job-routine', 'FH_OK_ajob111', [jline('ajob111')]), responses: { asks: { [ASKS]: { items: [jline('ajob111')] } }, jobs: { 'todo.riley_chores': { items: [{ uid: 'c-9', summary: 'Mow the lawn', status: 'needs_action', description: '+20 @routine' }] } } } },
+  sc('chat-seen', 'FH_OK_achat01', [cline('achat01'), line('aabc123')]),
+  sc('chat-no', 'FH_NO_achat01', [cline('achat01')]),
+  sc('chat-stranger', 'FH_OK_achat01', [cline('achat01', { kid: 'nobody', cost: -900 })]),
   { name: 'digest', now: '2026-11-13T19:30:00+08:00', states: {}, responses: { waiting: { [ASKS]: { items: [line('aabc123'), { summary: 'junk', description: 'not an ask' }] } } }, automation: built.digest }
 ];
 const py = spawnSync('python3', [path.join(ROOT, 'scripts/tests/digest_render.py')], { input: JSON.stringify({ automation: AU, scenarios }), encoding: 'utf8' });
@@ -153,6 +157,11 @@ else {
   ok('an ask that names a list which is not that child’s job list touches nothing', to('job-other-list', 'script.fh_add_points').length === 0 && to('job-other-list', 'todo.update_item').every((u) => u.target.entity_id === ASKS), R['job-other-list']?.sent);
   ok('a routine with points gives the points and no marble', to('job-routine', 'script.fh_add_points')[0]?.jar === 0 && to('job-routine', 'script.fh_add_points')[0]?.points === 20, to('job-routine', 'script.fh_add_points'));
   ok('a reward’s answer is unchanged by the job branch', to('yes', 'script.fh_add_points').length === 1 && !to('yes', 'todo.update_item').some((u) => u.target.entity_id !== ASKS));
+  const cu = to('chat-seen', 'todo.update_item');
+  ok('Seen for a chat only marks that line: no points, no ledger, no job list read for a tick', cu.length === 1 && cu[0].item === 'u-achat01' && cu[0].target.entity_id === ASKS && /^ok \{"v":1,"id":"achat01","k":"chat"/.test(cu[0].description) && to('chat-seen', 'script.fh_add_points').length === 0 && to('chat-seen', 'todo.add_item').length === 0, R['chat-seen']?.sent);
+  ok('and the notice is taken off every phone, not replaced by a verdict', to('chat-seen', 'notify.mobile_app_alex').length === 1 && to('chat-seen', 'notify.mobile_app_sam').length === 1 && to('chat-seen', 'notify.mobile_app_alex')[0].message === 'clear_notification' && to('chat-seen', 'notify.mobile_app_alex')[0].data.tag === 'fh-ask-achat01' && !to('chat-seen', 'notify.mobile_app_alex')[0].title, to('chat-seen', 'notify.mobile_app_alex'));
+  ok('a chat cannot be refused: the other button marks it seen as well', /^ok \{/.test(to('chat-no', 'todo.update_item')[0]?.description ?? '') && to('chat-no', 'script.fh_add_points').length === 0, R['chat-no']?.sent);
+  ok('a chat line naming an unknown child and a negative cost still spends and gives nothing', to('chat-stranger', 'script.fh_add_points').length === 0 && to('chat-stranger', 'todo.add_item').length === 0 && to('chat-stranger', 'todo.update_item').length === 1, R['chat-stranger']?.sent);
   ok('the evening digest lists what is still waiting for an answer, and only real asks', String(R.digest?.message ?? '').split('\n').includes('Waiting for your answer: Riley: Pick the family movie.'), R.digest?.message);
   ok('without approvals the digest does not ask for that list', built.digestOff.actions.filter((a) => a.response_variable === 'waiting').length === 0 && built.digest.actions.filter((a) => a.response_variable === 'waiting').length === 1);
 }
@@ -196,6 +205,50 @@ else {
 { const page = await open('look=glass&page=kid&kid=0&approve=1&shuffle=0'); 
   await K(page).locator('.job.row').filter({ hasText: 'Set the table' }).locator('.hit').click(); await page.waitForTimeout(500);
   ok('with the usual 15 points, a 10-point job is ticked at once', (await list(page, ASKS)).length === 0 && await K(page).locator('.job.row').filter({ hasText: 'Set the table' }).locator('.hit').getAttribute('aria-pressed') === 'true');
+  await page.context().close(); }
+
+// 2c. a chat asked for: to the phone and on the bell (F3 item 4)
+{ const page = await open('look=glass&page=kid&kid=1&approve=1&shuffle=0'); const C = page.locator('family-hub-card'), before = await state(page, 'input_number.charlie_points');
+  await K(page).locator('.feelcard .feel button').first().click(); await page.waitForTimeout(300);
+  await K(page).locator('.feelcard button').filter({ hasText: /Chat later|Leave a note/i }).first().click(); await page.waitForTimeout(700);
+  let items = await list(page, ASKS); const rec = JSON.parse((items[0]?.description ?? 'ask {}').slice(4)), sent = await page.evaluate(() => (window.__calls ?? []).filter((c) => /^notify\./.test(c)));
+  ok('asking for a chat writes one line to the asks list', items.length === 1 && rec.k === 'chat' && rec.kid === 'charlie' && rec.cost === 0 && /^Charlie: (would like a chat|has something good to share)$/.test(items[0].summary), items);
+  ok('and sends the phone one notice', sent.length === 1 && /^notify\.mobile_app_alex/.test(sent[0]) && /Charlie (would like a chat|has something good to share)/.test(sent[0]), sent);
+  ok('the page says a note was left, and nothing else on it changes', /left a note for a parent/.test(await msg(page)) && await K(page).locator('[data-asks]').count() === 0 && await state(page, 'input_number.charlie_points') === before, await msg(page));
+  ok('with the phone and the bell, no chip with his name is put in the header and Home Assistant gets no second notification', (await calls(page, /persistent_notification/)).length === 0 && (await page.evaluate(() => document.querySelector('family-hub-card')._wantsChat.length)) === 0);
+  await K(page).locator('.feelcard .feel button').first().click(); await page.waitForTimeout(300);
+  await K(page).locator('.feelcard button').filter({ hasText: /Chat later|Leave a note/i }).first().click(); await page.waitForTimeout(600);
+  ok('asking again while one waits sends nothing more', (await list(page, ASKS)).length === 1 && (await calls(page, /^notify\./)).length === 1);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  const bell = C.locator('header [data-act="bell"]');
+  ok('the bell counts it', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''));
+  ok('the header shows the count only: no name', !/Charlie/.test(await C.locator('header').innerText()), await C.locator('header').innerText());
+  await bell.click(); await page.waitForTimeout(300); for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
+  const rowW = C.locator('.sheet[data-sheet="waiting"] .waitrow');
+  ok('behind the PIN the sheet names him, with one button, Seen', await rowW.count() === 1 && /Charlie/.test(await rowW.innerText()) && await rowW.locator('button').count() === 1 && (await rowW.locator('button').innerText()).trim() === 'Seen', await rowW.innerText().catch(() => ''));
+  await rowW.locator('[data-act="wait-seen"]').click(); await page.waitForTimeout(900);
+  items = await list(page, ASKS);
+  ok('Seen answers it as a phone would, the bell goes, and no points move', (await calls(page, /^api\.event FH_OK_a[a-z0-9]+$/)).length === 1 && await bell.count() === 0 && items[0]?.description.startsWith('ok ') && (await calls(page, /fh_add_points/)).length === 0 && await state(page, 'input_number.charlie_points') === before, items);
+  await C.locator('nav.dock .item').filter({ hasText: /Charlie$/ }).first().click(); await told(page, /seen your note/);
+  ok('his page tells him once that a parent has seen it, and clears the line', /^A parent has seen your note\.$/.test(await msg(page)) && (await list(page, ASKS)).length === 0, await msg(page));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=0&older=1&approve=1&shuffle=0'); const C = page.locator('family-hub-card');
+  await K(page).locator('[data-act="chat-note"]').click(); await page.waitForTimeout(700);
+  ok('older mode: the note goes to the phone and the list, and the page says nothing shows on the wall', (await list(page, ASKS)).length === 1 && (await calls(page, /^notify\.mobile_app_alex/)).length === 1 && /Nothing shows on the wall/.test(await msg(page)), await msg(page));
+  ok('his own page shows nothing waiting', await K(page).locator('[data-asks]').count() === 0 && await K(page).locator('[data-asked]').count() === 0);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  const shown = await page.evaluate(() => { const out = []; const walk = (r) => { for (const n of r.querySelectorAll('*')) { if (n.shadowRoot) walk(n.shadowRoot); } out.push(r.textContent ?? ''); }; walk(document.querySelector('family-hub-card').shadowRoot); return out.join(' '); });
+  ok('on the shared pages only the bell’s count shows: the word chat is nowhere', await C.locator('header [data-act="bell"]').count() === 1 && !/would like a chat/i.test(shown));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=1&shuffle=0');
+  await K(page).locator('.feelcard .feel button').first().click(); await page.waitForTimeout(300);
+  await K(page).locator('.feelcard button').filter({ hasText: /Chat later|Leave a note/i }).first().click(); await page.waitForTimeout(600);
+  ok('with no phone named it is as before: a notification in Home Assistant and a chip on the shared pages', (await calls(page, /persistent_notification/)).length === 1 && (await page.evaluate(() => document.querySelector('family-hub-card')._wantsChat.length)) === 1);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=1&approve=1&shuffle=0'); await page.evaluate(() => { window.__todoFail = 'todo.family_hub_asks'; });
+  await K(page).locator('.feelcard .feel button').first().click(); await page.waitForTimeout(300);
+  await K(page).locator('.feelcard button').filter({ hasText: /Chat later|Leave a note/i }).first().click(); await page.waitForTimeout(600);
+  ok('if the list will not take the line, the note still goes the old way', (await calls(page, /persistent_notification/)).length === 1 && (await page.evaluate(() => document.querySelector('family-hub-card')._wantsChat.length)) === 1, await calls(page, /persistent|notify/));
   await page.context().close(); }
 
 // 3. Settings

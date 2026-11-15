@@ -49,7 +49,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.35.7';
+const VERSION = '0.35.8';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -213,16 +213,17 @@ export class FamilyHubCard extends LitElement {
   private async _answer(a: Ask, yes: boolean): Promise<void> {
     if (!this.hass || this._waitBusy) return;
     this._waitBusy = a.id; this.requestUpdate();
-    try { await inTime(answerAsk(this.hass, a.id, yes)); this._waiting = this._waiting.filter((x) => x.id !== a.id); this._say(`${yes ? 'Approved' : 'Not yet'}: ${a.who}, ${a.name}.`); if (!this._waiting.length) this._sheet = ''; }
+    try { await inTime(answerAsk(this.hass, a.id, yes)); this._waiting = this._waiting.filter((x) => x.id !== a.id); this._say(a.k === 'chat' ? `Seen: ${a.who}.` : `${yes ? 'Approved' : 'Not yet'}: ${a.who}, ${a.name}.`); if (!this._waiting.length) this._sheet = ''; }
     catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'Home Assistant did not take that. It needs an administrator’s screen.'); }
     finally { this._waitBusy = ''; this.requestUpdate(); }
   }
   private _waitingBody(): TemplateResult {
-    return html`${this._sheetHead('Waiting for a parent', 'Approve takes or gives the points. Not yet changes nothing.', '')}
+    return html`${this._sheetHead('Waiting for a parent', this._waiting.every((a) => a.k === 'chat') ? 'Seen takes the note off the list and tells him you have seen it.' : 'Approve takes or gives the points. Not yet changes nothing.', '')}
       <div class="waitlist">${this._waiting.map((a) => html`<div class="waitrow" data-ask=${a.id}>
-        <span class="wt"><b>${a.who}</b><span>${a.k === 'job' ? `says “${a.name}” is done · ${a.cost} points` : `would like ${a.name} · ${a.cost} points`}</span></span>
-        <button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
-        <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button></div>`)}
+        <span class="wt"><b>${a.who}</b><span>${a.k === 'chat' ? a.name : a.k === 'job' ? `says “${a.name}” is done · ${a.cost} points` : `would like ${a.name} · ${a.cost} points`}</span></span>
+        ${a.k === 'chat' ? html`<button class="pill tap primary" data-act="wait-seen" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Seen</button>`
+          : html`<button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
+        <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>`}</div>`)}
         ${this._waiting.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
   }
   private _dinner: { at: number; timer?: number } | null = null;

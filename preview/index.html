@@ -130,6 +130,7 @@ const hass = {
       return { response: { url: paintCard('painted', `hsl(${hue(data.instructions)} 60% 45%)`, `hsl(${(hue(data.instructions) + 120) % 360} 70% 70%)`, 1024, 1536), width: 1024, height: 1536, model: 'demo' } }; }
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
     if (domain === 'notify' && window.__notifyFail) throw new Error('no such phone');
+    if (domain === 'todo' && service === 'add_item' && window.__todoFail === id) throw new Error('list not there'); // (a test: that list refuses a new line)
     if (domain === 'calendar' && service === 'create_event' && window.__evFail === 'create') throw new Error('no');
     if (domain === 'calendar' && service === 'create_event') (CAL[id] ??= []).push({ uid: `new-${Date.now()}`, description: data.description, summary: data.summary, location: data.location, start: data.start_date ? { date: data.start_date } : { dateTime: new Date(data.start_date_time).toISOString() }, end: data.end_date ? { date: data.end_date } : { dateTime: new Date(data.end_date_time).toISOString() } });
     const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
@@ -163,7 +164,7 @@ const hass = {
   },
   callApi: async (_m, path, body) => { if (_m === 'POST' && path === 'events/mobile_app_notification_action') { (window.__calls ||= []).push('api.event ' + body.action); if (window.__eventFail) throw new Error('unauthorized');
       const m = /^FH_(OK|NO)_(a[a-z0-9]+)$/.exec(body.action), L = store['todo.family_hub_asks'] ?? [], it = m && L.find((x) => x.status === 'needs_action' && (x.description || '').includes('"id":"' + m[2] + '"'));
-      if (it) { const rec = JSON.parse(it.description.slice(4)); let v = m[1] === 'OK' ? 'ok' : 'no';
+      if (it) { const rec = JSON.parse(it.description.slice(4)); let v = m[1] === 'OK' || rec.k === 'chat' ? 'ok' : 'no';
         if (v === 'ok' && rec.k === 'job') { const job = (store[rec.list] ?? []).find((x) => x.uid === rec.uid && x.status === 'needs_action'); if (job) { await hass.callService('todo', 'update_item', { item: job.uid, status: 'completed' }, { entity_id: rec.list }); await hass.callService('script', 'fh_add_points', { kid: rec.kid, points: rec.cost, lifetime: true, jar: 1, grow: 0 }); } else v = 'short'; }
         if (v === 'ok' && rec.k === 'reward') await hass.callService('script', 'fh_add_points', { kid: rec.kid, points: -rec.cost, lifetime: false });
         await hass.callService('todo', 'update_item', { item: it.uid, status: 'completed', description: v + ' ' + it.description.slice(4) }, { entity_id: 'todo.family_hub_asks' }); }
