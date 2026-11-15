@@ -348,7 +348,7 @@ export class FamilyHubCard extends LitElement {
     let saved: string | null = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
     this._theme = themeById(saved || config.theme || 'sea').id;
-    this._dkMode = initDarkMode(config.dark); this._dkSettled = false; this._dkEval();
+    { const m = initDarkMode(config.dark); if (m !== this._dkMode) this._dkByHand = true; this._dkMode = m; this._dkEval(); }
     let look: string | null = null;
     try { look = localStorage.getItem(LOOK_KEY); } catch { /* storage unavailable */ }
     this._look = lookById(look || config.look).id;
@@ -1117,7 +1117,7 @@ export class FamilyHubCard extends LitElement {
    *  the sensor, a light flicked on and off) and never changes while a finger is down; then one slow fade. The first answer after loading has no fade. */
   private _dkEval(): void {
     const want = this._dkWant(), hand = this._dkByHand; this._dkByHand = false;
-    if (!this._dkSettled) { if (this.hass?.states) this._dkSettled = true; this._dkWear(want, false); return; }
+    if (!this._dkSettled) { if (this.hass?.states) this._dkSettled = true; this._dkWear(want, hand); return; }
     if (want === this._dk) { this._dkWishAt = 0; return; }
     if (hand) { this._dkWear(want, true); return; }
     const t = Date.now(); if (!this._dkWishAt) this._dkWishAt = t;
