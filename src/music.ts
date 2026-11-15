@@ -89,6 +89,23 @@ export class FhMusic extends LitElement {
     .hint[data-wrap] { max-height: none; display: block; }
     .mhead[data-one][data-hinting] .finder { display: none; }
     :host([data-full]) .stage { display: none; }
+    /* the full player, asked for from the small one: it comes over the right of the page; a tap beside it, or its ✕, puts it away */
+    :host([data-full][data-peek]) .stage { display: flex; position: absolute; top: 0; right: 0; bottom: 0; z-index: 7; box-shadow: -18px 0 40px -18px rgba(0,0,0,.45); animation: peekin var(--m-3, 240ms) ease-out; }
+    @keyframes peekin { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+    .pscrim { position: absolute; inset: 0; z-index: 6; border-radius: inherit; background: rgba(0,0,0,.12); }
+    .pclose { position: absolute; top: 10px; right: 10px; z-index: 2; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.16); color: #fff; }
+    /* one bar: the tabs stand first, in the same place on every tab */
+    .mhead[data-one] .tabs.inline { order: -1; }
+    .mhead[data-one] .sbar { flex: 1 1 0; min-width: 0; }
+    /* a full page gives the shelves the room: bigger records */
+    .panel[data-one] .covers { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 18px 14px; }
+    .panel[data-one] .crate .st .lbl { font-size: var(--fs-3); }
+    /* the moment pads beside the House */
+    .hpads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: none; }
+    .hpad { min-width: 0; min-height: 64px; padding: 7px 2px 5px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
+    .hpad span { font-size: var(--fs-4); line-height: 1; } .hpad b { font-weight: inherit; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+    .hpad:active, .hpad[data-busy] { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
+    .hpad[data-on] { box-shadow: 0 4px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); }
     .tabs.inline { flex: 0 0 auto; } .tabs.inline button { flex: 0 0 52px; height: 48px; padding: 0; } .tabs.inline button span { display: none; }
     .nowbar { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 46%; padding: 4px 6px 4px 4px; border-radius: 999px; background: var(--chip); }
     .nthumb { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: var(--art, var(--art-none, linear-gradient(135deg, var(--accent), var(--primary)))) center / cover; box-shadow: 0 0 0 2px var(--chip-strong); }
@@ -639,8 +656,10 @@ export class FhMusic extends LitElement {
 
 
   /** A room view other than the list takes the whole page: the player steps aside and its controls move into the bar above the view. */
-  private get _full(): boolean { return this._tab === 'rooms' && this._mode !== 'list' && !this._peek && !!this._cur; }
-  protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); }
+  /** A wide screen: every tab is a full page under one bar, and the full player comes over the page when asked for (polish block, batch 2). */
+  private get _wide(): boolean { return shp() !== 'phone' && shp() !== 'tall'; }
+  private get _full(): boolean { if (!this._cur) return false; return this._tab === 'rooms' ? this._mode !== 'list' && (this._wide || !this._peek) : this._wide; }
+  protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); this.toggleAttribute('data-peek', !!this.hass && this._peek && this._wide && this._full); }
   /** Beside a full-page view the tabs are icons; they get their words back whenever the row has room for them (the search field may shrink to make it). */
   private _fitTabs(): void {
     const tabs = this.renderRoot.querySelector<HTMLElement>('.mhead[data-one] .tabs.inline'), head = tabs?.parentElement;
@@ -651,7 +670,11 @@ export class FhMusic extends LitElement {
     const slot = fin?.offsetParent ? fin : head.querySelector<HTMLElement>('.hint[data-on]');
     // the hint is never cut: the tab words go first, and if it is still cut it takes a row of its own
     const hint = head.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
-    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230) && !cut();
+    // (the words do not wait on the hint: the tabs stand first in the row, and words that came and went with the hint would move every button under a finger)
+    // With the view's tools in the row, the words also need the room a two-line hint takes (the search field's place and the small player's
+    // together, which is the same whether the hint is showing or not), so the same answer comes out with the hint and without it.
+    const room = (slot?.offsetWidth ?? 0) + (nb?.offsetParent ? nb.offsetWidth : 0), tools = !!head.querySelector('.viewbtn');
+    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || !nb.offsetParent || nb.offsetWidth >= 230) && (!tools || room >= 400); void cut;
     if (!ok) tabs.removeAttribute('data-words');
   }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
@@ -1061,6 +1084,13 @@ export class FhMusic extends LitElement {
     </div>${this._sideShelf()}</div>`;
   }
   /** Beside the house: a shelf of records to tap or carry to a room, and a place to drop music for the whole house. */
+  /** The four moment pads, beside the House (Oliver, 15 Nov: "On the Rooms page"). One tap starts that moment where it plays. */
+  private _padRow(): TemplateResult | typeof nothing {
+    if (!hasMa(this.hass!)) return nothing;
+    const pads = this._pads, lit = this._momentOn && this.hass!.states[this._momentOn.lead]?.state === 'playing' ? this._momentOn.name : '';
+    return html`<div class="hpads" role="group" aria-label="Moments">${pads.map((m, i) => html`<button class="hpad tap" style="--c:var(--p-${[2, 5, 3, 4][i % 4]})" ?data-on=${lit === m.name} ?data-busy=${this._momentBusy === m.name} aria-pressed=${String(lit === m.name)}
+        @click=${() => { if (!this._momentBusy) { sfx('pad'); this._moment(m); } }}><span aria-hidden="true">${m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵'}</span><b>${m.name}</b></button>`)}</div>`;
+  }
   private _sideShelf(): TemplateResult {
     const ma = hasMa(this.hass!), cur = this._cur, drag = this._carry;
     if (ma && !this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
@@ -1076,6 +1106,7 @@ export class FhMusic extends LitElement {
               <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : blank(i)}"></i><span>${m.name}</span></button>`)}
             ${list.length > MAX ? html`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => { this._tab = 'shelves'; }}>＋${list.length - show.length}<span>more</span></button>` : nothing}</div>`
           : html`<div class="snone">${icon('sleeve', 34)}<span>${wind ? 'Nothing calm pinned yet.' : 'Nothing pinned yet.'}<br>Search for music, then tap Pin.</span></div>`}` : html`<span style="flex:1"></span>`}
+      ${this._padRow()}
       <button class="wholeh tap" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-joined=${this._allJoined} ?data-open=${!!drag} ?data-hot=${drag?.over === 'all'} @click=${() => this._spread()}>
         ${this._allJoined ? icon('check', 26) : icon('home', 26)}<span><b>Whole house</b><span>${drag ? 'Drop it here' : this._allJoined ? 'Playing in every room' : 'Drop music here'}</span></span></button>
     </div>`;
@@ -1238,20 +1269,21 @@ export class FhMusic extends LitElement {
     const p = this._cur, ma = hasMa(this.hass);
     const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
     const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
-    const searching = this._tab === 'search', c = this._carry, full = this._full, one = this._one && !searching;
+    const searching = this._tab === 'search', c = this._carry, full = this._full, one = this._one, rooms = this._tab === 'rooms';
     // the hint shows by itself once for each view, the first time it is opened after the page loads
     if (this._tab === 'rooms' && !this._viewAsk && !HINTED.has(this._mode)) { HINTED.add(this._mode); window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${one} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
-        <div class="mhead" ?data-one=${one} ?data-hinting=${one && this._coach}><h1 class="t-title">Music</h1>${one ? this._tools() : nothing}
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !searching ? tabrow : nothing}</div>
+        <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
         ${c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span>📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing}
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
+      ${this._peek && one ? html`<div class="pscrim" @click=${() => { this._peek = false; }}></div>` : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
       <div class="toast" role="status" ?data-closing=${msgOut}>${msg?.m || nothing}${msg?.undo ? html` <button class="pill tap" style="height:44px;margin-left:12px;background:#fff;color:#111" @click=${() => { const u = this._undo; this._msg = ''; this._undo = null; sfx('undo'); u?.(); }}>${this._undoLabel}</button>` : nothing}</div>`;
   }
@@ -1264,6 +1296,7 @@ export class FhMusic extends LitElement {
     const deck = lookArt(getLook(), 'player', { img: a.entity_picture, frac, playing });
     return html`<section class="glass stage" style=${art ? `--art:${art}` : ''} aria-label="Now playing">
       <div class="bg"></div>
+      ${this._peek && this._one ? html`<button class="pclose tap" aria-label="Hide the player" @click=${() => { this._peek = false; }}>${icon('close', 20)}</button>` : nothing}
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${playing ? '' : 'animation:none;background:rgba(255,255,255,.5)'}"></span>
         <span style="font-size:var(--fs-1);font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${playing ? 'Playing in' : 'Ready in'} ${this._name(p)}${mix ? ` + ${mix} more` : ''}</span></div>
       <div class="deck">${deck === nothing ? html`<div class="cover ${playing ? '' : 'paused'}"></div>` : deck}</div>
@@ -1289,7 +1322,7 @@ export class FhMusic extends LitElement {
   }
 
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
-  private get _one(): boolean { return this._full && shp() !== 'phone' && shp() !== 'tall'; }
+  private get _one(): boolean { return this._full && this._wide; }
   private _coach = false; private _coachT = 0;
   /** The view's own tools, the same on every layout: Switcheroo, Whole house, "Just this room", the offline note, "?" and the hint beside it. */
   private _tools(): TemplateResult {
@@ -1315,7 +1348,7 @@ export class FhMusic extends LitElement {
   /** What stands in for the player beside a full-page view: the small player with the House; with the others (which show what is playing themselves) only a way to the full player. */
   private _oneNow(): TemplateResult | typeof nothing {
     const cur = this._cur;
-    if (this._mode !== 'house') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
+    if (this._tab === 'rooms' && this._mode !== 'house') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
     return cur ? this._nowbar(cur) : nothing;
   }
   private _showCoach(toggle = false): void { clearTimeout(this._coachT); this._coach = toggle ? !this._coach : true; if (this._coach) this._coachT = window.setTimeout(() => { this._coach = false; }, 4000); }
@@ -1383,7 +1416,7 @@ export class FhMusic extends LitElement {
         <h2 class="t-head">Pin “${m.name}”</h2><span class="soft">Whose shelf? Calm picks are the only ones offered at wind-down.</span>
         ${this._shelfNames.map((n) => html`<div class="setrow"><b style="font-size:var(--fs-3)">${n === 'Family' ? 'Family shelf' : `${n}’s shelf`}</b><span style="display:flex;gap:8px">
           <button class="pill tap primary" @click=${() => this._pin(n, false)}>Pin</button><button class="pill tap" @click=${() => this._pin(n, true)}>🌙 Pin as calm</button></span></div>`)}
-        ${this._offered.includes('desk') ? html`<span class="soft" style="margin-top:6px">Or put it on a moment pad on the Desk. It plays where that pad plays.</span>
+        ${hasMa(this.hass!) ? html`<span class="soft" style="margin-top:6px">Or put it on a moment pad. It plays where that pad plays.</span>
         <div class="acts">${this._pads.map((p) => { const on = this._padSet[p.name]; return html`<button class="pill tap" style="height:44px" aria-label="Put it on the ${p.name} pad${on ? `, which now plays ${on.title}` : ''}" @click=${() => { this._padPut(p.name, m); this._pinTo = null; }}>${p.name}</button>
           ${on ? html`<button class="pill tap" style="height:44px" aria-label="Put the ${p.name} pad back to its own music instead of ${on.title}" @click=${() => this._padPut(p.name, null)}>↺</button>` : nothing}`; })}</div>` : nothing}
         <button class="pill tap" style="align-self:flex-end" @click=${() => { this._pinTo = null; }}>Cancel</button></section></div>`;

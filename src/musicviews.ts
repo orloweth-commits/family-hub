@@ -15,7 +15,7 @@ export type ViewId = 'house' | 'dial' | 'desk' | 'cables' | 'scene' | 'list';
 /** The sleeve of a record with no cover: two of the people's colours; smoked glass in a look with no cartoons (Obsidian). */
 export const blank = (i: number): string => plainLook() ? 'linear-gradient(160deg, #23272e, #0b0e13)' : `linear-gradient(135deg, var(--p-${(i % 5) + 1}), var(--p-${((i + 2) % 5) + 1}))`;
 export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hint: string }[] = [
-  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Carry the music to a room. Slide for volume.' },
+  { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Tap a quiet room, then Move the music. Or carry it there. Slide for volume.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob and a tuner', hint: 'Drag round an arc for volume. Tap it to add the room.' },
   { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders, a jog wheel and pads', hint: 'Slide a fader for volume. Turn the wheel to move the song.' },
