@@ -276,8 +276,8 @@ const Wf = (a, t) => {
     const l = a[n];
     let d, c, h = -1, f = 0;
     for (; f < l.length && (r.lastIndex = f, c = r.exec(l), c !== null); ) f = r.lastIndex, r === Ki ? c[1] === "!--" ? r = $p : c[1] !== void 0 ? r = Rp : c[2] !== void 0 ? (Kh.test(c[2]) && (s = RegExp("</" + c[2], "g")), r = fa) : c[3] !== void 0 && (r = fa) : r === fa ? c[0] === ">" ? (r = s ?? Ki, h = -1) : c[1] === void 0 ? h = -2 : (h = r.lastIndex - c[2].length, d = c[1], r = c[3] === void 0 ? fa : c[3] === '"' ? Np : Vp) : r === Np || r === Vp ? r = fa : r === $p || r === Rp ? r = Ki : (r = fa, s = void 0);
-    const m = r === fa && a[n + 1].startsWith("/>") ? " " : "";
-    o += r === Ki ? l + zf : h >= 0 ? (i.push(d), l.slice(0, h) + vh + l.slice(h) + ia + m) : l + ia + (h === -2 ? n : m);
+    const u = r === fa && a[n + 1].startsWith("/>") ? " " : "";
+    o += r === Ki ? l + zf : h >= 0 ? (i.push(d), l.slice(0, h) + vh + l.slice(h) + ia + u) : l + ia + (h === -2 ? n : u);
   }
   return [Ah(a, o + (a[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -294,14 +294,14 @@ class ls {
     for (; (s = _a.nextNode()) !== null && l.length < n; ) {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(vh)) {
-          const f = c[r++], m = s.getAttribute(h).split(ia), u = /([.?@])?(.*)/.exec(f);
-          l.push({ type: 1, index: o, name: u[2], strings: m, ctor: u[1] === "." ? Lf : u[1] === "?" ? Qf : u[1] === "@" ? Bf : Eo }), s.removeAttribute(h);
+          const f = c[r++], u = s.getAttribute(h).split(ia), m = /([.?@])?(.*)/.exec(f);
+          l.push({ type: 1, index: o, name: m[2], strings: u, ctor: m[1] === "." ? Lf : m[1] === "?" ? Qf : m[1] === "@" ? Bf : Eo }), s.removeAttribute(h);
         } else h.startsWith(ia) && (l.push({ type: 6, index: o }), s.removeAttribute(h));
         if (Kh.test(s.tagName)) {
           const h = s.textContent.split(ia), f = h.length - 1;
           if (f > 0) {
             s.textContent = bo ? bo.emptyScript : "";
-            for (let m = 0; m < f; m++) s.append(h[m], rs()), _a.nextNode(), l.push({ type: 2, index: ++o });
+            for (let u = 0; u < f; u++) s.append(h[u], rs()), _a.nextNode(), l.push({ type: 2, index: ++o });
             s.append(h[f], rs());
           }
         }
@@ -884,7 +884,7 @@ const ys = (a) => fi.find((t) => t.id === a) ?? fi[0], zp = {
     // a click stays a click: only what is long enough to shorten is shortened
     ...h.h ? { h: h.h * s } : {},
     ...h.gd ? { gd: h.gd * s } : {}
-  })), r = (c, h, f) => [...e(c, h, 0.8, f).map((m) => ({ ...m, h: m.d * 0.5 })), R("sine", c, h, f, 0.5, { a: 6e-3, h: f * 0.5 })], n = a.over?.(t) ?? {}, l = n.alarm1 ?? o([...r(t(4), 0, 0.15), ...r(t(6), 0.19, 0.19)]), d = {
+  })), r = (c, h, f) => [...e(c, h, 0.8, f).map((u) => ({ ...u, h: u.d * 0.5 })), R("sine", c, h, f, 0.5, { a: 6e-3, h: f * 0.5 })], n = a.over?.(t) ?? {}, l = n.alarm1 ?? o([...r(t(4), 0, 0.15), ...r(t(6), 0.19, 0.19)]), d = {
     key: i(0, 0.6),
     space: i(0, 0.6, 0.72),
     del: [...i(0, 0.5, 1.2), ...i(0.028, 0.5, 0.85)],
@@ -957,29 +957,29 @@ const ys = (a) => fi.find((t) => t.id === a) ?? fi[0], zp = {
     if (!(h > 0) || !(o.d > 0)) continue;
     const f = a.createGain();
     f.gain.value = 0, f.gain.setValueAtTime(0, r), f.gain.linearRampToValueAtTime(h, r + d), c && f.gain.setValueAtTime(h, r + d + c), f.gain.exponentialRampToValueAtTime(h * 0.02, n - l), f.gain.linearRampToValueAtTime(0, n);
-    let m;
+    let u;
     if (o.w === "noise") {
       const k = a.createBufferSource();
-      k.buffer = Nh(a), k.start(r, ((o.ff ?? 1e3) * 13e-6 + o.t * 0.37) % 0.08), m = k;
+      k.buffer = Nh(a), k.start(r, ((o.ff ?? 1e3) * 13e-6 + o.t * 0.37) % 0.08), u = k;
     } else {
       const k = a.createOscillator();
       if (k.type = o.w, k.frequency.setValueAtTime(o.f, r), o.to && k.frequency.exponentialRampToValueAtTime(o.to, r + Math.min(o.gd ?? o.d, o.d)), o.vib) {
         const b = a.createOscillator(), x = a.createGain();
         b.frequency.value = o.vib[0], x.gain.value = o.vib[1], b.connect(x).connect(k.frequency), b.start(r), b.stop(n + 0.01);
       }
-      k.start(r), m = k;
+      k.start(r), u = k;
     }
-    m.stop(n + 0.01);
-    let u = m;
+    u.stop(n + 0.01);
+    let m = u;
     if (o.ft) {
       const k = a.createBiquadFilter();
-      k.type = o.ft, k.Q.value = o.q ?? 0.7, k.frequency.setValueAtTime(o.ff ?? 1e3, r), o.fto && k.frequency.exponentialRampToValueAtTime(o.fto, n), u = u.connect(k);
+      k.type = o.ft, k.Q.value = o.q ?? 0.7, k.frequency.setValueAtTime(o.ff ?? 1e3, r), o.fto && k.frequency.exponentialRampToValueAtTime(o.fto, n), m = m.connect(k);
     }
     if (o.w === "noise") {
       const k = a.createBiquadFilter();
-      k.type = "lowpass", k.Q.value = 0.6, k.frequency.value = o.cut ?? 7e3, u = u.connect(k);
+      k.type = "lowpass", k.Q.value = 0.6, k.frequency.value = o.cut ?? 7e3, m = m.connect(k);
     }
-    u.connect(f), f.connect(t);
+    m.connect(f), f.connect(t);
   }
 }, Th = (a, t, e = !1, i = !1) => {
   const s = i ? 1 : x1(a, t);
@@ -1636,17 +1636,17 @@ const vo = "family-hub-look", Op = "family-hub-look-options", Dp = (a, t = 62) =
   return p`<svg class="dial" aria-hidden="true" width=${e} height=${e} viewBox="0 0 100 100" fill="none">${w`
     <circle cx="50" cy="50" r=${43} stroke="var(--track)" stroke-width="8"></circle>
     ${l.map((h) => {
-    const f = Math.max(h.start.getTime(), o), m = Math.min(h.end.getTime(), r), u = Math.max(8, (m - f) / 36e5 * 30);
-    return w`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${u / 360 * s} ${s}" transform="rotate(${n(f) - 90} 50 50)"></circle>`;
+    const f = Math.max(h.start.getTime(), o), u = Math.min(h.end.getTime(), r), m = Math.max(8, (u - f) / 36e5 * 30);
+    return w`<circle cx="50" cy="50" r=${43} stroke=${h.colour} stroke-width="8" stroke-dasharray="${m / 360 * s} ${s}" transform="rotate(${n(f) - 90} 50 50)"></circle>`;
   })}
     ${[0, 3, 6, 9].map((h) => w`<rect x="49" y="13" width="2" height="6" rx="1" fill="var(--ink2)" transform="rotate(${h * 30} 50 50)"></rect>`)}
     <rect x="48" y="27" width="4" height="25" rx="2" fill="var(--ink)" transform="rotate(${d} 50 50)"></rect>
     <rect x="48.75" y="17" width="2.5" height="35" rx="1.25" fill="var(--ink)" transform="rotate(${c} 50 50)"></rect>
     <circle class="nowdot" cx="50" cy="50" r="3.5" fill="var(--accent)"></circle>`}</svg>`;
 }, Z1 = (a, t, e = 360) => {
-  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, m, u) => {
-    const k = Math.max(m, r(h.start)), b = Math.min(u, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
-    if (b <= k && !(r(h.start) >= m && r(h.start) < u)) return g;
+  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, u, m) => {
+    const k = Math.max(u, r(h.start)), b = Math.min(m, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
+    if (b <= k && !(r(h.start) >= u && r(h.start) < m)) return g;
     const x = Math.max(7, (Math.max(b, k) - k) * 30);
     return w`<circle cx="100" cy="100" r=${f} stroke=${h.colour} stroke-width="15" stroke-dasharray="${x / 360 * i(f)} ${i(f)}" transform="rotate(${k % 12 * 30 - 90} 100 100)"></circle>`;
   }, l = a.filter((h) => !h.allDay), d = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, c = t ? t.getMinutes() * 6 : 0;
@@ -1655,7 +1655,7 @@ const vo = "family-hub-look", Op = "family-hub-look-options", Dp = (a, t = 62) =
     <circle cx="100" cy="100" r=${62} stroke="var(--track)" stroke-width="15" opacity=".55"></circle>
     ${l.map((h) => n(h, 62, 0, 12))}${l.map((h) => n(h, 84, 12, 24))}
     ${Array.from({ length: 12 }, (h, f) => w`<rect x="99.4" y="6" width="1.2" height=${f % 3 ? 4 : 0} fill="var(--ink3)" transform="rotate(${f * 30} 100 100)"></rect>`)}
-    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, f, m]) => w`<text class="dh" x=${f} y=${m} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
+    ${[[12, 100, 13], [3, 190.5, 103.5], [6, 100, 194], [9, 9.5, 103.5]].map(([h, f, u]) => w`<text class="dh" x=${f} y=${u} text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink2)">${h}</text>`)}
     <text class="dp" x="100" y="41.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">AM</text>
     <text class="dp" x="100" y="19.5" text-anchor="middle" font-size="7.2" font-weight="700" letter-spacing=".08em" fill="var(--ink)" opacity=".85">PM</text>
     ${t ? w`<rect x="97.5" y="66" width="5" height="36" rx="2.5" fill="var(--ink)" transform="rotate(${d} 100 100)"></rect>
@@ -1742,19 +1742,19 @@ ${Pl.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
     ${Array.from({ length: e }, (n, l) => p`${l ? o(l <= i) : g}${l < i ? r : l === i ? p`<i style="width:22px;height:26px;margin:0 -2px -6px 0;flex-shrink:0;align-self:flex-start;background:var(--s-flag) center / contain no-repeat"></i><i style="width:34px;height:34px;flex-shrink:0;background:var(--s-ball) center / contain no-repeat"></i>` : p`<i style="width:14px;height:14px;flex-shrink:0;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--ink3)"></i>`}`)}
     ${o(i >= e)}<i style="width:44px;height:33px;flex-shrink:0;background:var(--s-goal) center / contain no-repeat"></i></div>`;
 }, tm = (a, t = 0, e = 0, i = 0) => /rain|pour|storm|lightning|hail|snow/.test(a) || e >= 5 ? "wet" : t >= 6 || i >= 30 ? "hat" : "on", em = { on: "Play is on", hat: "Take a hat", wet: "Wet weather plan" }, s0 = (a, t = !1) => p`<span class="verdict" ?data-big=${t} data-v=${a}>${a === "on" ? p`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : g}${em[a]}</span>`, Hp = (a, t, e = 76) => {
-  const s = 2 * Math.PI * 37, o = 44, r = 2 * Math.PI * o, n = t.getTime(), l = n + 12 * 36e5, d = (u) => {
-    const k = new Date(u);
+  const s = 2 * Math.PI * 37, o = 44, r = 2 * Math.PI * o, n = t.getTime(), l = n + 12 * 36e5, d = (m) => {
+    const k = new Date(m);
     return (k.getHours() % 12 + k.getMinutes() / 60) * 30;
-  }, c = a.filter((u) => !u.allDay && u.end.getTime() > n && u.start.getTime() < l), h = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, f = t.getMinutes() * 6, m = (t.getMinutes() + t.getSeconds() / 60) / 60;
+  }, c = a.filter((m) => !m.allDay && m.end.getTime() > n && m.start.getTime() < l), h = t.getHours() % 12 * 30 + t.getMinutes() * 0.5, f = t.getMinutes() * 6, u = (t.getMinutes() + t.getSeconds() / 60) / 60;
   return p`<svg class="chrono" aria-hidden="true" width=${e} height=${e} viewBox="0 0 100 100" fill="none">${w`
     <circle cx="50" cy="50" r="48.5" stroke="var(--glass-line)" stroke-width=".6"></circle>
-    ${Array.from({ length: 60 }, (u, k) => w`<rect x=${k % 5 ? 49.8 : 49.5} y="2.5" width=${k % 5 ? 0.4 : 1} height=${k % 15 ? k % 5 ? 2.2 : 4.5 : 6} fill=${k % 15 ? "var(--ink3)" : "var(--accent)"} opacity=${k % 5 ? 0.55 : 1} transform="rotate(${k * 6} 50 50)"></rect>`)}
+    ${Array.from({ length: 60 }, (m, k) => w`<rect x=${k % 5 ? 49.8 : 49.5} y="2.5" width=${k % 5 ? 0.4 : 1} height=${k % 15 ? k % 5 ? 2.2 : 4.5 : 6} fill=${k % 15 ? "var(--ink3)" : "var(--accent)"} opacity=${k % 5 ? 0.55 : 1} transform="rotate(${k * 6} 50 50)"></rect>`)}
     <circle cx="50" cy="50" r=${o} stroke="var(--track)" stroke-width=".6"></circle>
     <g class="cspark" style="rotate:${t.getSeconds() * 6}deg"><circle cx="50" cy=${50 - o} r="1.6" fill="#fff" style="filter:drop-shadow(0 0 2px var(--live)) drop-shadow(0 0 5px var(--live))"></circle></g>
-    <circle class="cglow" cx="50" cy="50" r=${o} stroke="var(--live)" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="${m * r} ${r}" transform="rotate(-90 50 50)"></circle>
-    ${c.map((u) => {
-    const k = Math.max(u.start.getTime(), n), b = Math.min(u.end.getTime(), l), x = Math.max(6, (b - k) / 36e5 * 30);
-    return w`<circle cx="50" cy="50" r=${37} stroke=${u.colour} stroke-width="2.6" stroke-linecap="round" opacity=".9" stroke-dasharray="${x / 360 * s} ${s}" transform="rotate(${d(k) - 90} 50 50)"></circle>`;
+    <circle class="cglow" cx="50" cy="50" r=${o} stroke="var(--live)" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="${u * r} ${r}" transform="rotate(-90 50 50)"></circle>
+    ${c.map((m) => {
+    const k = Math.max(m.start.getTime(), n), b = Math.min(m.end.getTime(), l), x = Math.max(6, (b - k) / 36e5 * 30);
+    return w`<circle cx="50" cy="50" r=${37} stroke=${m.colour} stroke-width="2.6" stroke-linecap="round" opacity=".9" stroke-dasharray="${x / 360 * s} ${s}" transform="rotate(${d(k) - 90} 50 50)"></circle>`;
   })}
     <rect x="48.9" y="25" width="2.2" height="27" rx="1.1" fill="var(--accent)" transform="rotate(${h} 50 50)"></rect>
     <rect x="49.4" y="13" width="1.2" height="39" rx=".6" fill="var(--ink)" transform="rotate(${f} 50 50)"></rect>
@@ -1779,9 +1779,9 @@ ${Pl.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
     <circle cx="50" cy="50" r=${40} stroke="var(--timer, var(--accent))" stroke-width="5" stroke-linecap=${s > 0 ? "round" : "butt"} stroke-dasharray="${s * i} ${i}" transform="rotate(-90 50 50)" style="transition:stroke-dasharray var(--ring-t, calc(1s * var(--m-d, 1))) var(--ring-e, linear)"></circle>
     <circle cx="50" cy="50" r="2.5" fill="var(--accent)"></circle>`}</svg>`;
 }, sm = (a, t, e = 360) => {
-  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, m, u) => {
-    const k = Math.max(m, r(h.start)), b = Math.min(u, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
-    if (b <= k && !(r(h.start) >= m && r(h.start) < u)) return g;
+  const i = (h) => 2 * Math.PI * h, r = (h) => h.getHours() + h.getMinutes() / 60, n = (h, f, u, m) => {
+    const k = Math.max(u, r(h.start)), b = Math.min(m, h.end.getDate() !== h.start.getDate() ? 24 : r(h.end));
+    if (b <= k && !(r(h.start) >= u && r(h.start) < m)) return g;
     const x = Math.max(7, (Math.max(b, k) - k) * 30);
     return w`<circle cx="100" cy="100" r=${f} stroke=${h.colour} stroke-width="5" stroke-linecap="round" stroke-dasharray="${x / 360 * i(f)} ${i(f)}" transform="rotate(${k % 12 * 30 - 90} 100 100)"></circle>`;
   }, l = a.filter((h) => !h.allDay), d = t ? t.getHours() % 12 * 30 + t.getMinutes() * 0.5 : 0, c = t ? t.getMinutes() * 6 : 0;
@@ -1791,7 +1791,7 @@ ${Pl.map((s, o) => `${a}[data-dow='${o}'] {--s-ball:var(--s-${s})}`).join(`
     <circle cx="100" cy="100" r=${84} stroke="var(--track)" stroke-width="1"></circle>
     <circle cx="100" cy="100" r=${64} stroke="var(--track)" stroke-width="1"></circle>
     ${l.map((h) => n(h, 64, 0, 12))}${l.map((h) => n(h, 84, 12, 24))}
-    ${[[3, 174, 102.6], [6, 100, 176.6], [9, 26, 102.6]].map(([h, f, m]) => w`<text class="dh" x=${f} y=${m} text-anchor="middle" font-size="7.5" font-weight="400" fill="var(--ink2)">${h}</text>`)}
+    ${[[3, 174, 102.6], [6, 100, 176.6], [9, 26, 102.6]].map(([h, f, u]) => w`<text class="dh" x=${f} y=${u} text-anchor="middle" font-size="7.5" font-weight="400" fill="var(--ink2)">${h}</text>`)}
     <text class="dp" x="100" y="28.6" text-anchor="middle" font-size="6" font-weight="500" letter-spacing=".2em" fill="var(--ink2)">PM</text>
     <text class="dp" x="100" y="48.6" text-anchor="middle" font-size="6" font-weight="500" letter-spacing=".2em" fill="var(--ink2)">AM</text>
     ${t ? w`<rect x="98.8" y="64" width="2.4" height="38" rx="1.2" fill="var(--accent)" transform="rotate(${d} 100 100)"></rect>
@@ -3623,7 +3623,7 @@ const qi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
     let n = null;
     for (const h of r.replace(/\[[^\]]*\]/g, "").matchAll(/\.([a-zA-Z][\w-]*)/g)) {
       const f = Vn.get(h[1]);
-      f && !i0.roles.includes(h[1]) && (n = n ? n.filter((m) => f.includes(m)) : f);
+      f && !i0.roles.includes(h[1]) && (n = n ? n.filter((u) => f.includes(u)) : f);
     }
     const l = /^@[A-Z](?:<(\d+))?((?:\[[^\]]+\])*)/.exec(r.trim()), d = `:host(${n?.length === 1 ? n[0] : ""}[data-look='${t}']${l?.[2] ?? ""})`, c = l?.[1] ?? "";
     o.set(c, [...o.get(c) ?? [], r.trim().replace(/^@[A-Z](?:<\d+)?(?:\[[^\]]+\])*/, d)]);
@@ -4244,8 +4244,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   for (let n = 0; n < (e ? 13 : 19); n++) {
     const l = (e ? 8 : 2) + n * (e ? 13 : 9.4) + i() * 6, d = (n < 7 ? 52 : 28) * (0.5 + i() * 0.6) * (1 - n / 44) * (e ? 1.25 : 1), c = (i() - 0.38) * 18, h = 1.6 + i() * 1.8;
     if (r.push(w`<path d="M${l.toFixed(0)} 90q${(c / 4).toFixed(0)}-${(d * 0.55).toFixed(0)} ${c.toFixed(0)}-${d.toFixed(0)}" stroke=${o[e ? 0 : 1 + n % 2]} stroke-width=${h.toFixed(1)}/>`), e || n % 3 !== 1 || n > 14) continue;
-    const f = (l + c).toFixed(0), m = (90 - d - 2).toFixed(0);
-    s === "spring" && n % 2 ? r.push(w`<g transform="translate(${f} ${m})"><path d="M0 12V3" stroke="#a02a26" stroke-width="2"/><path d="M0 4c-6-2-8-8-6-13M0 4c-2-5-1-11 1-15M0 4c3-4 8-7 11-7M0 4c5-1 9-1 11 2" stroke="#c2332b" stroke-width="2.8"/><path d="M-6-9l-.6-3.400M1-11l.6-3.400M11-3l3-1.200M11 6l3 .8" stroke="#5f8f38" stroke-width="2.4"/><path d="M-5-4c-.6-2-.6-4 0-5M3-1c2-2 4-3 6-3" stroke="#e8685a" stroke-width="1" opacity=".8"/></g>`) : s === "spring" ? r.push(w`<g transform="translate(${f} ${m})" stroke="none"><path d="M0-8l2 4.500l4.5-3.200l-1 5l5.2.700l-4 3l4 3l-5.2.700l1 5l-4.5-3.200l-2 4.500l-2-4.500l-4.5 3.200l1-5l-5.2-.700l4-3l-4-3l5.2-.700l-1-5l4.5 3.200z" fill=${n % 4 ? "#f39cbb" : "#fff8ea"}/><circle r="4.8" fill=${n % 4 ? "#ffd0e0" : "#fff1c4"}/><circle r="2.6" fill="#eaa820"/><circle cx="-.6" cy="-.7" r="1.2" fill="#f8d060"/></g>`) : s === "winter" ? r.push(w`<g transform="translate(${f} ${m})" stroke="none"><circle r="3.6" fill="#e6bd22"/><circle cx="-5" cy="5" r="3.2" fill="#f2d040"/><circle cx="4" cy="7" r="3" fill="#e6bd22"/><circle cx="-1" cy="-1" r="1.6" fill="#fbe98a"/><circle cx="-6" cy="4" r="1.3" fill="#fbe98a"/></g>`) : r.push(w`<path d="M${f} ${m}q2 5 0 11" stroke=${o[2]} stroke-width="4.4" stroke-dasharray="2.2 1.2"/>`);
+    const f = (l + c).toFixed(0), u = (90 - d - 2).toFixed(0);
+    s === "spring" && n % 2 ? r.push(w`<g transform="translate(${f} ${u})"><path d="M0 12V3" stroke="#a02a26" stroke-width="2"/><path d="M0 4c-6-2-8-8-6-13M0 4c-2-5-1-11 1-15M0 4c3-4 8-7 11-7M0 4c5-1 9-1 11 2" stroke="#c2332b" stroke-width="2.8"/><path d="M-6-9l-.6-3.400M1-11l.6-3.400M11-3l3-1.200M11 6l3 .8" stroke="#5f8f38" stroke-width="2.4"/><path d="M-5-4c-.6-2-.6-4 0-5M3-1c2-2 4-3 6-3" stroke="#e8685a" stroke-width="1" opacity=".8"/></g>`) : s === "spring" ? r.push(w`<g transform="translate(${f} ${u})" stroke="none"><path d="M0-8l2 4.500l4.5-3.200l-1 5l5.2.700l-4 3l4 3l-5.2.700l1 5l-4.5-3.200l-2 4.500l-2-4.500l-4.5 3.200l1-5l-5.2-.700l4-3l-4-3l5.2-.700l-1-5l4.5 3.200z" fill=${n % 4 ? "#f39cbb" : "#fff8ea"}/><circle r="4.8" fill=${n % 4 ? "#ffd0e0" : "#fff1c4"}/><circle r="2.6" fill="#eaa820"/><circle cx="-.6" cy="-.7" r="1.2" fill="#f8d060"/></g>`) : s === "winter" ? r.push(w`<g transform="translate(${f} ${u})" stroke="none"><circle r="3.6" fill="#e6bd22"/><circle cx="-5" cy="5" r="3.2" fill="#f2d040"/><circle cx="4" cy="7" r="3" fill="#e6bd22"/><circle cx="-1" cy="-1" r="1.6" fill="#fbe98a"/><circle cx="-6" cy="4" r="1.3" fill="#fbe98a"/></g>`) : r.push(w`<path d="M${f} ${u}q2 5 0 11" stroke=${o[2]} stroke-width="4.4" stroke-dasharray="2.2 1.2"/>`);
   }
   return w`<svg viewBox="0 0 180 90" width="180" height="90" fill="none" stroke-linecap="round">${r}</svg>`;
 }, As = (a, t, e = 30) => w`<svg viewBox="0 0 46 16" width=${e}><path d="M1 12Q12-2 45 5Q22 18 1 12z" fill=${a}/><path d="M1 12Q22 9 45 5Q22 18 1 12z" fill=${t} opacity=".55"/><path d="M1 12Q20 8 45 5" stroke="#f0e6b8" stroke-width=".8" fill="none" opacity=".7"/></svg>`, td = w`<svg viewBox="-10 -10 20 26" width="15"><path d="M0 0v13M0 0l-8-3M0 0l-6-7M0 0l-2-9M0 0l3-9M0 0l7-6M0 0l8-2" stroke="#fffdf2" stroke-width=".8" stroke-linecap="round" opacity=".9"/><ellipse cy="14" rx="1.2" ry="2.2" fill="#7a5c30"/></svg>`, ed = (a, t) => w`<svg viewBox="0 0 200 50" width=${a} fill=${t}><ellipse cx="70" cy="34" rx="68" ry="9"/><ellipse cx="126" cy="26" rx="70" ry="10"/><ellipse cx="60" cy="22" rx="30" ry="12"/><ellipse cx="104" cy="15" rx="36" ry="14"/><ellipse cx="146" cy="19" rx="24" ry="9"/></svg>`, Jl = (a, t, e, i) => {
@@ -5429,7 +5429,7 @@ const n0 = {
     @media (max-width: 600px) { .reef-go { --p: 99vw; } .reef-sch { left: 40vw; } .reef-jl + .reef-jl { left: 50vw; } }
   `,
   always: (a) => {
-    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, s = t && (a.month === 3 || a.month === 4), o = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (o - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, l = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, f, m]) => p`<i class="reef-ray" style="left:${o + h - f / 2}%;width:${f}vw;--a:${r.toFixed(1)}deg;--d:${m}s;--c:${n}"></i>`), d = t ? s ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", c = (h) => p`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${Ft(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
+    const t = a.tod === "night", e = a.tod === "eve", i = a.month === 12 || a.month <= 2, s = t && (a.month === 3 || a.month === 4), o = t ? 30 : e ? 90 : Math.max(10, Math.min(90, 10 + (a.mins - 360) / 720 * 80)), r = (o - 50) / 50 * 13, n = t ? "rgba(200,220,255,.16)" : e ? "rgba(255,196,128,.3)" : `rgba(255,250,215,${i ? 0.4 : 0.32})`, l = (t ? [[-3, 12, 37]] : e ? [[-16, 17, 31], [-34, 10, 43]] : [[-10, 16, 29], [3, 9, 41], [15, 20, 53]]).map(([h, f, u]) => p`<i class="reef-ray" style="left:${o + h - f / 2}%;width:${f}vw;--a:${r.toFixed(1)}deg;--d:${u}s;--c:${n}"></i>`), d = t ? s ? "rgba(255,170,200,.8)" : "rgba(150,255,230,.75)" : "rgba(255,255,255,.5)", c = (h) => p`<svg class="reef-s reef-jl" viewBox="0 0 48 64" width="46">${Ft(h, "rgba(235,245,255,.2)", "rgba(215,235,255,.55)", 0.5, 0.2, 0.8)}<g class="reef-jp"><path d="M10 28q-2 10 1 18M16 29q2 12-1 24M24 29q-2 14 1 28M32 29q2 12-1 24M38 28q2 10-1 18" stroke="rgba(255,255,255,.5)" stroke-width="1.1" fill="none"/><path d="M19 28q-3 8 1 14q3 6 0 12M29 28q3 8-1 14q-3 6 0 12" stroke="rgba(255,225,240,.55)" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M4 25q0-21 20-21t20 21q-4 4-10 1q-5 4-10 1q-5 3-10-1q-6 3-10-1z" fill="url(#${h})" stroke="rgba(255,255,255,.75)" stroke-width="1.1"/><path d="M18 12a3.4 3.4 0 1 0 .1 0M29 12a3.4 3.4 0 1 0 .1 0M18 19.6a3.4 3.4 0 1 0 .1 0M29 19.6a3.4 3.4 0 1 0 .1 0" fill="none" stroke="rgba(255,190,225,.8)" stroke-width="1.3"/><path d="M10 14q5-8 13-8" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5" stroke-linecap="round"/></g></svg>`;
     return p`
       ${t ? p`<i class="reef-moon" style="left:${o}%"></i>` : p`<i class="reef-sun" style="left:${o}%;--c:${n}"></i>`}${l}
       <i class="reef-sh"></i>${a.tod === "day" ? p`<i class="reef-sh"></i>` : g}
@@ -5449,7 +5449,7 @@ const n0 = {
         <path d="M82 136q0-12 18-14t22 14z" fill="#8f4a6a"/>
         <g class="reef-wa" style="transform-origin:50% 100%;--r:5deg;--d:5.1s"><path d="M100 128q-30-8-40-36M100 128q-22-14-24-44M100 128q-11-18-8-48M100 128q1-24 5-52M100 128q14-20 18-48M100 128q24-16 30-42M100 128q30-10 40-34" stroke="#b97a6a" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M100 128q-26-12-34-40M100 128q-17-18-17-46M100 128q-5-22-2-50M100 128q8-22 12-50M100 128q20-18 25-45M100 128q28-12 36-38" stroke="url(#rkcB)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1M60 92h.1M76 84h.1M140 94h.1M92 80h.1M118 80h.1" stroke="#f6e9f3" stroke-width="7" stroke-linecap="round"/><path d="M66 88h.1M83 82h.1M98 78h.1M112 78h.1M125 83h.1M136 90h.1" stroke="#c9a0e0" stroke-width="3" stroke-linecap="round"/></g>
         <path d="M78 136q22-20 44 0z" fill="#a85a7e"/><path d="M84 134q16-12 32 0" stroke="#fff" stroke-opacity=".2" stroke-width="2" fill="none"/></svg>
-      ${[["7px", 23, -4], ["calc(100% - 30px)", 31, -17]].map(([h, f, m]) => p`<svg class="reef-bt" style="--x:${h};--d:${f}s;--dl:${m}s" viewBox="0 0 26 220" width="26" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"><circle cx="13" cy="10" r="5"/><circle cx="8" cy="52" r="3.4"/><circle cx="17" cy="96" r="6"/><circle cx="11" cy="142" r="3"/><circle cx="15" cy="188" r="4.4"/></svg>`)}
+      ${[["7px", 23, -4], ["calc(100% - 30px)", 31, -17]].map(([h, f, u]) => p`<svg class="reef-bt" style="--x:${h};--d:${f}s;--dl:${u}s" viewBox="0 0 26 220" width="26" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"><circle cx="13" cy="10" r="5"/><circle cx="8" cy="52" r="3.4"/><circle cx="17" cy="96" r="6"/><circle cx="11" cy="142" r="3"/><circle cx="15" cy="188" r="4.4"/></svg>`)}
       ${a.tod === "day" ? g : c("rjA")}${t ? c("rjB") : g}`;
   },
   cast: zn
@@ -6029,7 +6029,7 @@ const n0 = {
     const [z, F] = Kt(34, $), I = 830 / $;
     f += `<path d="M${z} ${F}V${W(F - T * I, 1)}" stroke="${t.post}" stroke-width="${W(0.3 * I, 1)}" stroke-linecap="round"/><path d="M${z} ${F}V${W(F - 1.5 * I, 1)}" stroke="${ui}" stroke-width="${W(0.55 * I, 1)}" stroke-linecap="round"/>`;
   }
-  const [m, u] = Kt(-34, 41.5), [k, b] = Kt(-34, 44.5), x = Kt(-37.5, 41.5), y = Kt(-37.5, 44.5), K = W(3.4 * 830 / 41.5, 1), v = W(3.4 * 830 / 44.5, 1), U = `<path d="M${m} ${W(u - K, 1)}L${x}L${y}L${k} ${W(b - v, 1)}V${b}L${m} ${u}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${u}V${W(u - K, 1)}L${k} ${W(b - v, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, V = `<rect y="${h - 4}" width="1920" height="${W(1084 - h, 1)}" fill="${t.g1}"/><path d="${d}" fill="${t.g2}"/><g fill="none" stroke="${Qa}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${Kt(-34, 29.4)}L${Kt(-34, 70)}L${Kt(34, 70)}L${Kt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${Kt(34, 42)}L${Kt(27, 42)}L${Kt(27, 45)}L${Kt(34, 45)}"/><path d="${c}"/><path d="M0 942H1920" stroke-width="6"/></g>${U}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
+  const [u, m] = Kt(-34, 41.5), [k, b] = Kt(-34, 44.5), x = Kt(-37.5, 41.5), y = Kt(-37.5, 44.5), K = W(3.4 * 830 / 41.5, 1), v = W(3.4 * 830 / 44.5, 1), U = `<path d="M${u} ${W(m - K, 1)}L${x}L${y}L${k} ${W(b - v, 1)}V${b}L${u} ${m}z" fill="${t.post}" opacity=".3"/><path d="M${u} ${m}V${W(m - K, 1)}L${k} ${W(b - v, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, V = `<rect y="${h - 4}" width="1920" height="${W(1084 - h, 1)}" fill="${t.g1}"/><path d="${d}" fill="${t.g2}"/><g fill="none" stroke="${Qa}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${Kt(-34, 29.4)}L${Kt(-34, 70)}L${Kt(34, 70)}L${Kt(34, 29.4)}M960 ${h}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${Kt(34, 42)}L${Kt(27, 42)}L${Kt(27, 45)}L${Kt(34, 45)}"/><path d="${c}"/><path d="M0 942H1920" stroke-width="6"/></g>${U}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
   return `<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="gd-sky" x2="0" y2="1"><stop offset=".35" stop-color="${t.s0}"/><stop offset="1" stop-color="${t.s1}"/></linearGradient>${a ? '<radialGradient id="gd-glow"><stop stop-color="#fff3c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>' : ""}</defs>${r}${l}${V}</svg>`;
 }, ug = {}, bg = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${ui}"/><path d="M12 31H52" stroke="${eg}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${d0}</g></svg>`, xg = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${ui}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${ui}"/><path d="M22 26H42L44.300 34H19.700z" fill="${Qa}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, wg = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${xg}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, kg = (a) => {
   const t = a.tod !== "day", e = t ? "eve" : "day", i = !!a.lay && !a.lay.phone && a.lay.corner >= 110;
@@ -6236,10 +6236,10 @@ const _g = { sea: jn, sunset: jn, reef: n0, bush: o0, space: Qn, orbit: Qn, frid
   _measure() {
     const t = this.parentElement, e = this.offsetWidth, i = this.offsetHeight;
     if (!t || !e || !i) return;
-    const s = t.querySelector(":scope > .body"), o = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (u, k) => parseFloat(r.getPropertyValue(u)) || k, l = s ? s.offsetTop : n("--top", 110), d = s ? s.offsetTop + s.offsetHeight : i - n("--bot", 122);
+    const s = t.querySelector(":scope > .body"), o = t.querySelector(":scope > nav"), r = getComputedStyle(t), n = (m, k) => parseFloat(r.getPropertyValue(m)) || k, l = s ? s.offsetTop : n("--top", 110), d = s ? s.offsetTop + s.offsetHeight : i - n("--bot", 122);
     if (!o || getComputedStyle(o).position === "fixed") return { w: e, h: i, top: l, bottom: d, dl: 0, dr: e, dt: i, db: i, gutter: 0, strip: 0, corner: 0, phone: !0 };
-    const c = o.offsetLeft, h = c + o.offsetWidth, f = o.offsetTop, m = f + o.offsetHeight;
-    return { w: e, h: i, top: l, bottom: d, dl: c, dr: h, dt: f, db: m, gutter: Math.max(0, f - d), strip: Math.max(0, i - m), corner: Math.max(0, Math.min(c, e - h)), phone: !1 };
+    const c = o.offsetLeft, h = c + o.offsetWidth, f = o.offsetTop, u = f + o.offsetHeight;
+    return { w: e, h: i, top: l, bottom: d, dl: c, dr: h, dt: f, db: u, gutter: Math.max(0, f - d), strip: Math.max(0, i - u), corner: Math.max(0, Math.min(c, e - h)), phone: !1 };
   }
   _remeasure() {
     if (!this._scene?.solo) return;
@@ -6516,7 +6516,7 @@ const Fg = 40, ct = "cubic-bezier(.2,.8,.2,1)", Ae = "cubic-bezier(.2,1.4,.4,1)"
     } else if (i === "fridge")
       Di(a, [0, -5, 5, -4, 4, 0], 600), [-1, 1].forEach((s) => q(a, Y(a, s < 0 ? -12 : t + 3, -4, 9, 14, Qd, s > 0 ? "scale:-1 1" : ""), N([["translateY(2px)", 0], ["translateY(0)", 1, 0.25], ["translateY(0)", 1, 0.7], ["translateY(-2px)", 0]]), 600));
     else {
-      const o = t + 8, r = e + 8, n = 2 * (o + r), l = o / n, d = (o + r) / n, c = (2 * o + r) / n, h = 0.74, f = (m, u, k, b) => q(a, O(a, m + ";background:var(--ac)"), N([[`scale${u}(0)`, 1], [`scale${u}(0)`, 1, k * h], [`scale${u}(1)`, 1, b * h], [`scale${u}(1)`, 1, 0.84], [`scale${u}(1)`, 0]]), 900);
+      const o = t + 8, r = e + 8, n = 2 * (o + r), l = o / n, d = (o + r) / n, c = (2 * o + r) / n, h = 0.74, f = (u, m, k, b) => q(a, O(a, u + ";background:var(--ac)"), N([[`scale${m}(0)`, 1], [`scale${m}(0)`, 1, k * h], [`scale${m}(1)`, 1, b * h], [`scale${m}(1)`, 1, 0.84], [`scale${m}(1)`, 0]]), 900);
       f(`left:-4px;top:-4px;width:${o}px;height:1.5px;transform-origin:0 50%`, "X", 0, l), f(`left:${t + 4 - 1.5}px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 0`, "Y", l, d), f(`left:-4px;top:${e + 4 - 1.5}px;width:${o}px;height:1.5px;transform-origin:100% 50%`, "X", d, c), f(`left:-4px;top:-4px;width:1.5px;height:${r}px;transform-origin:50% 100%`, "Y", c, 1), q(a, rt(a, -4, -4, 5, "background:#fff"), N([["translate(0,0)", 1], [`translate(${o}px,0)`, 1, l * h], [`translate(${o}px,${r}px)`, 1, d * h], [`translate(0,${r}px)`, 1, c * h], ["translate(0,0)", 1, h], ["translate(0,0)", 0, h + 0.08], ["translate(0,0)", 0]]), 900);
     }
   },
@@ -6541,8 +6541,8 @@ const Fg = 40, ct = "cubic-bezier(.2,.8,.2,1)", Ae = "cubic-bezier(.2,1.4,.4,1)"
     Fa(a);
     const { W: t, H: e } = a, i = a.o.soft ? 3 : 5, s = t * 0.1, o = t * 0.9, r = e * 0.7, n = e * 0.36, l = Math.atan2(n - r, (o - s) * a.dir) * 180 / Math.PI + 90, d = a.look === "glass" ? `color-mix(in srgb,${a.kid} 70%,transparent)` : a.look === "fridge" ? "#9a6a3a" : "var(--ok)";
     for (let c = 0; c < i; c++) {
-      const h = i > 1 ? c / (i - 1) : 0.5, f = c % 2 ? 1 : -1, m = l + f * 9, u = (a.dir > 0 ? s + (o - s) * h : o - (o - s) * h) - 10, k = r + (n - r) * h - 11 + f * 7, b = Y(a, u - 2, k - 3, 24, 26, Rg, `--c:${d};transform-origin:50% 70%`);
-      a.look === "glass" && b.querySelectorAll(".spk-f").forEach((x) => x.setAttribute("style", "stroke:none")), a.calm ? q(a, b, N([[`rotate(${m}deg)`, 0], [`rotate(${m}deg)`, 0.9, 0.25], [`rotate(${m}deg)`, 0.9, 0.7], [`rotate(${m}deg)`, 0]]), 800) : q(a, b, N([[`rotate(${m}deg) scale(1.7)`, 0], [`rotate(${m}deg) scale(.92)`, 0.95, 0.2, At], [`rotate(${m}deg) scale(1)`, 0.9, 0.3], [`rotate(${m}deg) scale(1)`, 0.85, 0.7], [`rotate(${m}deg) scale(1)`, 0]]), 700, c * 115);
+      const h = i > 1 ? c / (i - 1) : 0.5, f = c % 2 ? 1 : -1, u = l + f * 9, m = (a.dir > 0 ? s + (o - s) * h : o - (o - s) * h) - 10, k = r + (n - r) * h - 11 + f * 7, b = Y(a, m - 2, k - 3, 24, 26, Rg, `--c:${d};transform-origin:50% 70%`);
+      a.look === "glass" && b.querySelectorAll(".spk-f").forEach((x) => x.setAttribute("style", "stroke:none")), a.calm ? q(a, b, N([[`rotate(${u}deg)`, 0], [`rotate(${u}deg)`, 0.9, 0.25], [`rotate(${u}deg)`, 0.9, 0.7], [`rotate(${u}deg)`, 0]]), 800) : q(a, b, N([[`rotate(${u}deg) scale(1.7)`, 0], [`rotate(${u}deg) scale(.92)`, 0.95, 0.2, At], [`rotate(${u}deg) scale(1)`, 0.9, 0.3], [`rotate(${u}deg) scale(1)`, 0.85, 0.7], [`rotate(${u}deg) scale(1)`, 0]]), 700, c * 115);
     }
   },
   puff(a) {
@@ -6557,32 +6557,32 @@ const Fg = 40, ct = "cubic-bezier(.2,.8,.2,1)", Ae = "cubic-bezier(.2,1.4,.4,1)"
   },
   truck(a) {
     Fa(a);
-    const { W: t, H: e } = a, i = a.dir, s = t / 2 - 14, o = t + 12, r = e - 25, n = 1180, l = (x) => i > 0 ? x : t - 44 - x, d = (x) => `translateX(${i * x}px)`, c = O(a, `left:${l(0)}px;top:${r}px;width:44px;height:24px`), h = O(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", c, !1), f = Y(a, 0, 0, 44, 24, Zg, "--c:var(--pr)", h, !1), m = [5, 28].map((x) => Y(a, x, 14, 10, 10, Og, "transform-origin:50% 50%", h, !1)), u = Y(a, 7, 3.5, 11, 10, Dg, "--c:var(--ac);transform-origin:50% 50%", h);
+    const { W: t, H: e } = a, i = a.dir, s = t / 2 - 14, o = t + 12, r = e - 25, n = 1180, l = (x) => i > 0 ? x : t - 44 - x, d = (x) => `translateX(${i * x}px)`, c = O(a, `left:${l(0)}px;top:${r}px;width:44px;height:24px`), h = O(a, `width:44px;height:24px;${i < 0 ? "scale:-1 1" : ""}`, "", c, !1), f = Y(a, 0, 0, 44, 24, Zg, "--c:var(--pr)", h, !1), u = [5, 28].map((x) => Y(a, x, 14, 10, 10, Og, "transform-origin:50% 50%", h, !1)), m = Y(a, 7, 3.5, 11, 10, Dg, "--c:var(--ac);transform-origin:50% 50%", h);
     if (a.calm) {
-      c.style.translate = `${l(s) - l(0)}px 0`, q(a, c, J(), 800), u.style.opacity = "1", u.removeAttribute("data-p");
+      c.style.translate = `${l(s) - l(0)}px 0`, q(a, c, J(), 800), m.style.opacity = "1", m.removeAttribute("data-p");
       return;
     }
     const k = 0.36, b = 0.56;
-    q(a, c, [{ transform: d(-50), opacity: 1, easing: ct }, { transform: d(s), opacity: 1, offset: k }, { transform: d(s), opacity: 1, offset: b, easing: At }, { transform: d(o), opacity: 1 }], n), q(a, u, [
+    q(a, c, [{ transform: d(-50), opacity: 1, easing: ct }, { transform: d(s), opacity: 1, offset: k }, { transform: d(s), opacity: 1, offset: b, easing: At }, { transform: d(o), opacity: 1 }], n), q(a, m, [
       { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
       { transform: "translate(0,0) rotate(0deg)", offset: k, easing: "ease-out" },
       { transform: "translate(-9px,-8px) rotate(-50deg)", offset: (k + b) / 2, easing: "ease-in" },
       { transform: "translate(-17px,9px) rotate(-90deg)", offset: b, easing: At },
       { opacity: 1, offset: 0.86 },
       { transform: `translate(${-17 - (o - s)}px,9px) rotate(-90deg)`, opacity: 0 }
-    ], n), m.forEach((x) => q(a, x, [{ transform: "rotate(0deg)", opacity: 1, easing: ct }, { transform: "rotate(500deg)", offset: k }, { transform: "rotate(500deg)", offset: b, easing: At }, { transform: "rotate(1100deg)", opacity: 1 }], n)), q(a, f, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((x, y) => q(a, rt(a, l(s) + (i > 0 ? 0 : 44), e - 5, 7 + y * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), N([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * b + x, ct));
+    ], n), u.forEach((x) => q(a, x, [{ transform: "rotate(0deg)", opacity: 1, easing: ct }, { transform: "rotate(500deg)", offset: k }, { transform: "rotate(500deg)", offset: b, easing: At }, { transform: "rotate(1100deg)", opacity: 1 }], n)), q(a, f, [{ transform: "translateY(0)" }, { transform: "translateY(-1.2px)" }], 130, 0, "ease-in-out", { iterations: 8, direction: "alternate", fill: "none" }), [0, 90].forEach((x, y) => q(a, rt(a, l(s) + (i > 0 ? 0 : 44), e - 5, 7 + y * 3, a.look === "orbit" ? "border:1.2px solid var(--pr)" : "background:color-mix(in srgb,var(--ink) 30%,transparent)"), N([["translate(0,0) scale(.3)", 0], [`translate(${-i * 5}px,-3px) scale(1)`, 0.8, 0.35], [`translate(${-i * 12}px,-7px) scale(1.4)`, 0]]), 380, n * b + x, ct));
   },
   tada(a) {
     const t = a.o.variant === "clarinet", e = a.dir, i = t ? 40 : 37, s = t ? 11 : 20, o = e > 0 ? a.W * 0.6 - i / 2 : a.W * 0.4 - i / 2, r = -s / 2 - 2, n = t ? -22 : -14, l = O(a, `left:${o}px;top:${r}px;width:${i}px;height:${s}px;transform-origin:${e > 0 ? 0 : 100}% 50%`);
     Y(a, 0, 0, i, s, t ? a.look === "orbit" ? Ld.replace("#2b2d36", "var(--pr)") : Ld : Ig, `--c:${Yn};${e < 0 ? "scale:-1 1" : ""}`, l, !1);
-    const d = (m, u = 1) => `rotate(${e * n * u}deg) scale(${m})`;
+    const d = (u, m = 1) => `rotate(${e * n * m}deg) scale(${u})`;
     if (a.calm) {
       q(a, l, N([[d(1), 0], [d(1), 1, 0.25], [d(1), 1, 0.7], [d(1), 0]]), 900);
       return;
     }
     q(a, l, N([[d(0.3, 2.2), 0], [d(1.1), 1, 0.16], [d(1), 1, 0.24], [d(1.14, 1.3), 1, 0.36], [d(1), 1, 0.48], [d(1.14, 1.3), 1, 0.6], [d(1), 1, 0.72], [d(1), 1, 0.86], [d(0.85, 0.4), 0]]), 1050);
     const c = e > 0 ? o + i + 1 : o - 12, h = r + s / 2 + Math.sin(n * Math.PI / 180) * i - 8, f = [a.kid, "var(--ac)", "var(--ok)"];
-    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([m, u, k], b) => q(a, Y(a, c, h, 10, 13, Pg, `--c:${a.look === "fridge" ? "var(--ink)" : f[b]}`), N([["translate(0,0) scale(.3)", 0], [`translate(${e * m * 0.55}px,${u * 0.6}px) rotate(${k}deg) scale(1)`, 1, 0.35], [`translate(${e * m * 0.85}px,${u * 0.9}px) rotate(${k}deg) scale(1)`, 1, 0.7], [`translate(${e * m}px,${u - 4}px) rotate(${k * 1.4}deg) scale(.9)`, 0]]), 560, 250 + b * 130, ct));
+    [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([u, m, k], b) => q(a, Y(a, c, h, 10, 13, Pg, `--c:${a.look === "fridge" ? "var(--ink)" : f[b]}`), N([["translate(0,0) scale(.3)", 0], [`translate(${e * u * 0.55}px,${m * 0.6}px) rotate(${k}deg) scale(1)`, 1, 0.35], [`translate(${e * u * 0.85}px,${m * 0.9}px) rotate(${k}deg) scale(1)`, 1, 0.7], [`translate(${e * u}px,${m - 4}px) rotate(${k * 1.4}deg) scale(.9)`, 0]]), 560, 250 + b * 130, ct));
   },
   bounce(a) {
     const t = a.dir, e = te(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), s = O(a, `left:${i}px;top:-12px;width:14px;height:14px`), o = O(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", s, !1), r = Y(a, 0, 0, 14, 14, m0, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, s, !1);
@@ -6742,16 +6742,16 @@ const Fg = 40, ct = "cubic-bezier(.2,.8,.2,1)", Ae = "cubic-bezier(.2,1.4,.4,1)"
   /* the last thing off the list: a soccer ball into a net that bulges */
   truck(a) {
     Fa(a);
-    const { W: t, H: e } = a, i = Math.max(2, t - 72), s = e - 4, o = i + 36, r = s - 9, n = Math.min(t * 0.12, i - 20), l = Math.max(10, e * 0.5), d = 2300, c = O(a, `left:${i}px;top:${s - 54}px;width:64px;height:54px`, Ao(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = Y(a, 0, 0, 64, 54, su, "transform-origin:0 50%", c, !1), f = O(a, "left:-7px;top:-7px;width:14px;height:14px"), m = Y(a, 0, 0, 14, 14, eu, "transform-origin:50% 50%", f, !1);
+    const { W: t, H: e } = a, i = Math.max(2, t - 72), s = e - 4, o = i + 36, r = s - 9, n = Math.min(t * 0.12, i - 20), l = Math.max(10, e * 0.5), d = 2300, c = O(a, `left:${i}px;top:${s - 54}px;width:64px;height:54px`, Ao(64, 54, '<path d="M1 53V1H35L63 53" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>')), h = Y(a, 0, 0, 64, 54, su, "transform-origin:0 50%", c, !1), f = O(a, "left:-7px;top:-7px;width:14px;height:14px"), u = Y(a, 0, 0, 14, 14, eu, "transform-origin:50% 50%", f, !1);
     if (a.calm) {
       f.style.translate = `${o}px ${r}px`, q(a, c, J(), 1e3), q(a, f, J(), 1e3);
       return;
     }
-    const u = [[n, l], [n + (o - n) * 0.45, l - 26], [o - 4, r - 70], [o, r - 21]], k = Array.from({ length: 9 }, (b, x) => {
-      const y = x / 8, K = 1 - y, v = (U) => K * K * K * u[0][U] + 3 * K * K * y * u[1][U] + 3 * K * y * y * u[2][U] + y * y * y * u[3][U];
+    const m = [[n, l], [n + (o - n) * 0.45, l - 26], [o - 4, r - 70], [o, r - 21]], k = Array.from({ length: 9 }, (b, x) => {
+      const y = x / 8, K = 1 - y, v = (U) => K * K * K * m[0][U] + 3 * K * K * y * m[1][U] + 3 * K * y * y * m[2][U] + y * y * y * m[3][U];
       return [H(v(0), v(1)), 1, y * 1e3 / d];
     });
-    q(a, f, N([...k, [H(o + 3, r), 1, 1300 / d, "ease-out"], [H(o + 4, r - 5), 1, 1420 / d, "ease-in"], [H(o + 3, r), 1, 1540 / d], [H(o + 3, r), 1, 0.92], [H(o + 3, r), 0]]), d), q(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], d, 0, "linear", { fill: "both" }), q(a, c, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], d), q(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / d, easing: ct }, { transform: "scaleX(1.16)", offset: 1140 / d, easing: Ae }, { transform: "scaleX(1)", offset: 1500 / d }, { transform: "scaleX(1)" }], d, 0, "linear", { fill: "both" });
+    q(a, f, N([...k, [H(o + 3, r), 1, 1300 / d, "ease-out"], [H(o + 4, r - 5), 1, 1420 / d, "ease-in"], [H(o + 3, r), 1, 1540 / d], [H(o + 3, r), 1, 0.92], [H(o + 3, r), 0]]), d), q(a, u, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], d, 0, "linear", { fill: "both" }), q(a, c, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], d), q(a, h, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / d, easing: ct }, { transform: "scaleX(1.16)", offset: 1140 / d, easing: Ae }, { transform: "scaleX(1)", offset: 1500 / d }, { transform: "scaleX(1)" }], d, 0, "linear", { fill: "both" });
   },
   /* a floorball held up on a puff of air */
   puff(a) {
@@ -6838,9 +6838,9 @@ function Rt(a, t, e = {}) {
     if (!i || !t || typeof document > "u" || !("animate" in Element.prototype)) return null;
     const s = t instanceof Element ? null : t, o = s ? nu(s.x, s.y) ?? document.body : t;
     if (!o.isConnected) return null;
-    const r = getComputedStyle(o), n = (dt, _ = "") => r.getPropertyValue(dt).trim() || _, l = o.getRootNode(), d = l instanceof ShadowRoot ? l : document.body, c = e.look ?? pu(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = du(d), m = f.getBoundingClientRect(), u = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, x = k !== 1 && b > 8 && Math.abs(u.width / b - 1) < Math.abs(u.width / b - k) ? k : 1, y = n("--ink", "#1b2430"), K = n("--primary", "#0b5fa5"), v = e.colour || n("--kid") || n("--c") || K, U = document.createElement("div");
+    const r = getComputedStyle(o), n = (dt, _ = "") => r.getPropertyValue(dt).trim() || _, l = o.getRootNode(), d = l instanceof ShadowRoot ? l : document.body, c = e.look ?? pu(o), h = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = du(d), u = f.getBoundingClientRect(), m = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, x = k !== 1 && b > 8 && Math.abs(m.width / b - 1) < Math.abs(m.width / b - k) ? k : 1, y = n("--ink", "#1b2430"), K = n("--primary", "#0b5fa5"), v = e.colour || n("--kid") || n("--c") || K, U = document.createElement("div");
     U.className = `spk-fx spk-${c}`, U.setAttribute("data-kind", a);
-    const V = s ? s.x - m.left : u.left * x - m.left, $ = s ? s.y - m.top : u.top * x - m.top, T = s ? 0 : u.width * x / k, z = s ? 0 : u.height * x / k;
+    const V = s ? s.x - u.left : m.left * x - u.left, $ = s ? s.y - u.top : m.top * x - u.top, T = s ? 0 : m.width * x / k, z = s ? 0 : m.height * x / k;
     U.style.cssText = `left:${V}px;top:${$}px;width:${T}px;height:${z}px;transform:scale(${k});--ink:${y};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${K};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${v};--c0:${v}`;
     const F = {
       look: c,
@@ -7093,7 +7093,7 @@ const g0 = {
       i = void 0, o?.then((b) => b()).catch(() => {
       }), h(k);
     }
-  }, m = () => {
+  }, u = () => {
     if (!(r || !i)) {
       try {
         i();
@@ -7110,7 +7110,7 @@ const g0 = {
       }
       i = K0(x, (y) => {
         r || (s === void 0 ? d.length < 40 && d.push(y) : c(y));
-      }), n = window.setTimeout(m, e), o = a.connection.subscribeMessage((y) => {
+      }), n = window.setTimeout(u, e), o = a.connection.subscribeMessage((y) => {
         const K = y.data ?? {};
         if (y.type === "run-start") {
           const v = K.runner_data?.stt_binary_handler_id;
@@ -7123,7 +7123,7 @@ const g0 = {
     }, (x) => {
       r = !0, b(x);
     });
-  }), stop: m };
+  }), stop: u };
 }, K0 = (a, t) => {
   const e = window.AudioContext || window.webkitAudioContext;
   let i;
@@ -8022,7 +8022,7 @@ const Vu = async (a = cs, t = !1) => {
   const n = Math.round((s.width - o) / 2), l = Math.round((s.height - r) * i), d = document.createElement("canvas");
   d.width = t, d.height = Math.round(t / e);
   const c = d.getContext("2d");
-  return c.imageSmoothingQuality = "high", c.drawImage(s, n, l, o, r, 0, 0, d.width, d.height), s.close?.(), new Promise((h, f) => d.toBlob((m) => m ? h(m) : f(new Error("no picture")), "image/jpeg", 0.9));
+  return c.imageSmoothingQuality = "high", c.drawImage(s, n, l, o, r, 0, 0, d.width, d.height), s.close?.(), new Promise((h, f) => d.toBlob((u) => u ? h(u) : f(new Error("no picture")), "image/jpeg", 0.9));
 }, bi = (a, t) => t && a?.states[t] ? t : Object.keys(a?.states ?? {}).find((e) => e.startsWith("ai_task.")) ?? "", Tu = async (a, t, e, i, s = []) => {
   const r = await a.callService.call(a, "ai_task", "generate_image", {
     entity_id: t,
@@ -8335,8 +8335,8 @@ const zu = (a, t, e = ha) => Ga(e).all.filter((i) => i.req > a && i.req <= t), j
 function ee(a, t = {}) {
   const e = t.size ?? 200, i = t.crop === "head", s = e, o = i ? e : Math.round(e * 1.2), r = t.jump ? t.jump % 2 ? "av-jump-a" : "av-jump-b" : "";
   if (tr() && !t.real) {
-    const m = (t.name ?? t.label ?? "").trim();
-    return i ? p`<span class="avwrap avmono" role="img" aria-label=${t.label ?? t.name ?? "Avatar"} style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${s}px;height:${s}px;border-radius:50%;background:${t.ring ?? "var(--chip-strong)"};color:${t.ring ? "var(--on-person, #000)" : "inherit"};font-family:'Cormorant Garamond','Jost',serif;font-weight:600;line-height:1;font-size:${Math.round(e * 0.52)}px">${m.slice(0, 1).toUpperCase()}</span>` : p``;
+    const u = (t.name ?? t.label ?? "").trim();
+    return i ? p`<span class="avwrap avmono" role="img" aria-label=${t.label ?? t.name ?? "Avatar"} style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${s}px;height:${s}px;border-radius:50%;background:${t.ring ?? "var(--chip-strong)"};color:${t.ring ? "var(--on-person, #000)" : "inherit"};font-family:'Cormorant Garamond','Jost',serif;font-weight:600;line-height:1;font-size:${Math.round(e * 0.52)}px">${u.slice(0, 1).toUpperCase()}</span>` : p``;
   }
   if (a.img) return p`<span class="avwrap avpic ${r}" style="display:inline-block;line-height:0;flex-shrink:0">
     <fh-pic role="img" aria-label=${t.label ?? "Avatar"} .media=${a.img} .label=${""}
@@ -8361,7 +8361,7 @@ function ee(a, t = {}) {
         </g>
         <g class=${t.still ? "" : "av-blink"}>${(ic[a.eyes] ?? ic.normal)(a)}</g>
         ${f}
-        ${a.freckles === "yes" ? w`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([m, u]) => w`<circle cx=${m} cy=${u} r="1.15"></circle>`)}</g>` : g}
+        ${a.freckles === "yes" ? w`<g fill="#b9734f" opacity=".5">${[[91, 113], [95, 110.5], [105, 110.5], [109, 113], [77, 114], [81, 117], [74, 118], [119, 117], [123, 114], [126, 118]].map(([u, m]) => w`<circle cx=${u} cy=${m} r="1.15"></circle>`)}</g>` : g}
         ${h}
         ${a.mole === "yes" ? w`<circle cx="81" cy="121" r="1.2" fill="#6b4532" opacity=".75"></circle>` : g}
         ${(sc[a.mouth] ?? sc.smile)(a)}
@@ -8937,12 +8937,12 @@ const f2 = async (a, t, e) => {
   render() {
     const [t, e] = na(this, "msg", this._msg), i = this._cats, s = i.find((x) => x.id === this._tab) ?? i[0], o = this._painted, r = Qu(this.life, this.kid.favourites, this._goal || void 0, i), n = Bu(this.life, i), l = o ? Hi(this.d) !== Hi(Gr(this.look)) : !!this._draft && Cs(this._draft) !== Cs(this.look), d = o && (!!this._files?.has(this._file) || this._file === this._base.img), c = !!this._wet, h = o && l && !d ? this._cannot.trim() : "", f = () => {
       o || !l ? this.dispatchEvent(new CustomEvent("close")) : this._save();
-    }, m = (x) => x > 0 && x <= this.life && x > this.life - 100, u = !this._picMode && !this.kid.older ? Lu(this.life) : null, k = mc(s.items, this.life, this.grow, this._goal), b = s.swatch ? mc(s.swatch.items, this.life, this.grow) : null;
+    }, u = (x) => x > 0 && x <= this.life && x > this.life - 100, m = !this._picMode && !this.kid.older ? Lu(this.life) : null, k = mc(s.items, this.life, this.grow, this._goal), b = s.swatch ? mc(s.swatch.items, this.life, this.grow) : null;
     return p`<div style="display:contents;--kid:${Z(this.kid.colour)}">
       <section class="glass mirror ${this._picMode ? "low" : ""}">
         <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
           <button class="round tap" aria-label=${l && !o ? "Back, and keep this look" : "Back"} @click=${f}>${A("left", 18)}</button>
-          <div style="flex:1;min-width:0"><h1 class="t-title">${this.kid.name}’s studio</h1>${u ? p`<div class="rankline"><span class="rank">${u.rank}</span><span>${u.need - u.into} more to ${u.nextRank}</span></div>` : g}</div>
+          <div style="flex:1;min-width:0"><h1 class="t-title">${this.kid.name}’s studio</h1>${m ? p`<div class="rankline"><span class="rank">${m.rank}</span><span>${m.need - m.into} more to ${m.nextRank}</span></div>` : g}</div>
           <button class="round tap" aria-label="Surprise look" ?disabled=${c} @click=${() => this._random()}>${A("shuffle", 18)}</button>
         </div>
         ${o ? p`
@@ -8982,7 +8982,7 @@ const f2 = async (a, t, e) => {
       const y = !Aa(x, this.life, this.grow), K = Gu(this.d, s, x[0]), v = !!x[3];
       return p`<div class="cell"><button class="tile tap ${y ? "locked shimmer" : ""} ${this._shake === `${s.id}:${x[0]}` ? "shake" : ""}" aria-pressed=${String(K)} @click=${() => this._pick(s, x)}>
               <span class="av">${y && v ? p`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:var(--fs-d1)">🎁</span>` : o ? p`<span class="emo" aria-hidden="true">${al(s, x[0])}</span>` : ee(Ii(this.d, s, x[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${y && v ? "Surprise" : x[1]}
-              ${y ? p`<span class="lock">${v ? "🌱" : p`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? p`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : x[2]}`}</span>` : m(x[2]) ? p`<span class="new">NEW</span>` : g}
+              ${y ? p`<span class="lock">${v ? "🌱" : p`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? p`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : x[2]}`}</span>` : u(x[2]) ? p`<span class="new">NEW</span>` : g}
             </button>
               ${y && !v && !this._picMode ? p`<button class="heart tap" aria-pressed=${String(this._goal === x[0])} aria-label=${this._goal === x[0] ? `${x[1]} is my goal` : `Make ${x[1]} my goal`} @click=${() => this._setGoal(x)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === x[0] ? "#e11d48" : "none"} stroke=${this._goal === x[0] ? "#9f1239" : "currentColor"} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : g}</div>`;
     })}
@@ -9716,10 +9716,10 @@ const ol = 15, C0 = (a) => {
     }
     const o = i.getBoundingClientRect(), r = e.getBoundingClientRect(), n = document.createElement("i");
     n.className = "marble fly", n.setAttribute("aria-hidden", "true"), this.renderRoot.appendChild(n);
-    const l = n.getBoundingClientRect(), d = o.left + o.width / 2 - l.left - 8, c = o.top + o.height / 2 - l.top - 8, h = r.left + r.width / 2 - l.left - 8, f = r.top + 6 - l.top - 8, m = Math.min(c, f) - 46, u = n.animate([{ transform: `translate(${d}px, ${c}px) scale(1)`, opacity: 1 }, { transform: `translate(${(d + h) / 2}px, ${m}px) scale(1.25)`, opacity: 1, offset: 0.5 }, { transform: `translate(${h}px, ${f}px) scale(.9)`, opacity: 1 }], { duration: s.ms * 0.8, easing: "cubic-bezier(.4,0,.6,1)", fill: "forwards" }), k = () => {
+    const l = n.getBoundingClientRect(), d = o.left + o.width / 2 - l.left - 8, c = o.top + o.height / 2 - l.top - 8, h = r.left + r.width / 2 - l.left - 8, f = r.top + 6 - l.top - 8, u = Math.min(c, f) - 46, m = n.animate([{ transform: `translate(${d}px, ${c}px) scale(1)`, opacity: 1 }, { transform: `translate(${(d + h) / 2}px, ${u}px) scale(1.25)`, opacity: 1, offset: 0.5 }, { transform: `translate(${h}px, ${f}px) scale(.9)`, opacity: 1 }], { duration: s.ms * 0.8, easing: "cubic-bezier(.4,0,.6,1)", fill: "forwards" }), k = () => {
       n.remove(), e.isConnected && Rt("marble", e);
     };
-    u.onfinish = k, u.oncancel = k;
+    m.onfinish = k, m.oncancel = k;
   }
   /* ---------------- ticking ---------------- */
   _sound(t) {
@@ -10017,18 +10017,18 @@ const ol = 15, C0 = (a) => {
   _jobs() {
     const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: l, done: d, total: c } = this._block();
     this._nowUid = l[0]?.uid ?? "";
-    const h = c - d, f = 2 * Math.PI * 22, m = c ? d / c : 0, u = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${gc(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, x = this._night ? 0 : Math.min(60, lt(t) - ae(this._now));
+    const h = c - d, f = 2 * Math.PI * 22, u = c ? d / c : 0, m = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${gc(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, x = this._night ? 0 : Math.min(60, lt(t) - ae(this._now));
     return p`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._night ? "Night time" : this._wind ? "Wind down" : this._picMode ? e === "am" ? "My morning" : e === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
-          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${u}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${m}</span></div>
         ${this.oneAtATime && this._showAll ? p`<button class="pill tap" @click=${() => {
       this._showAll = !1;
     }}>One at a time</button>` : g}
 
         ${this._wind && x > 0 ? p`<span class="bedclock" role="img" aria-label="${x} minutes until bed">${le(Yt(), "timer", { frac: x / 60, size: 52 })}<b>${x}<span>min</span></b></span>` : g}
         ${this._night ? g : p`<div class="ring" role="img" aria-label="${d} of ${c} done"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--track)" stroke-width="6"></circle>
-          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${f} stroke-dashoffset=${f * (1 - m)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${d}/${c}</b></div>`}
+          <circle cx="26" cy="26" r="22" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray=${f} stroke-dashoffset=${f * (1 - u)} style="transition:stroke-dashoffset var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1)"></circle></svg><b>${d}/${c}</b></div>`}
       </div>
       ${le(Yt(), "steps", { done: d, total: c })}
       ${k ? this._focusList(l, d, r.length) : p`<div class="list scrolly" data-fits @scroll=${_t}>
@@ -10108,8 +10108,8 @@ const ol = 15, C0 = (a) => {
     })()}
         <span>${Math.floor(t / i)} stars in my jar</span></span></div>` : p`<div class="ptsline" role="group" aria-label=${t ? `${t} points to spend` : "No points to spend yet"}>${t ? p`<b>${t}</b><span>${t === 1 ? "point" : "points"} to spend</span>` : p`<span>${this.kid.older ? "No points to spend yet" : "✨ Ready to start"}</span>`}</div>`;
     return p`${s}${this._owed.length ? p`<div class="owedline" role="status"><span aria-hidden="true">⏳</span><span>Waiting for a parent: ${this._owed.join(", ")}</span></div>` : g}${this._asked.some((o) => o.k === "reward") ? p`<div class="owedline" data-asks role="status"><span aria-hidden="true">📱</span><span>Asked a parent: ${this._asked.filter((o) => o.k === "reward").map((o) => o.name).join(", ")}</span></div>` : g}${e.map((o, r) => {
-      const n = t >= o.cost, l = o.icon ?? (this._picMode ? xc[r % xc.length] : "🎁"), d = this._costWords(o), c = Math.max(1, Math.round(o.cost / i)), h = Math.min(c, Math.floor(t / i)), f = this._saving === o.name, m = this._held === o.name || f, u = this._capped(o), k = cc(this._now), b = this._asked.some((x) => x.k === "reward" && x.name === o.name);
-      return this._spend === o.name && n && !m && (o.approve ?? o.cost >= 60) && this._askOn ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" data-ask role="group" aria-label="Ask a parent for ${o.name}?">
+      const n = t >= o.cost, l = o.icon ?? (this._picMode ? xc[r % xc.length] : "🎁"), d = this._costWords(o), c = Math.max(1, Math.round(o.cost / i)), h = Math.min(c, Math.floor(t / i)), f = this._saving === o.name, u = this._held === o.name || f, m = this._capped(o), k = cc(this._now), b = this._asked.some((x) => x.k === "reward" && x.name === o.name);
+      return this._spend === o.name && n && !u && (o.approve ?? o.cost >= 60) && this._askOn ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" data-ask role="group" aria-label="Ask a parent for ${o.name}?">
           <span class="rpic" aria-hidden="true">${l}</span><span class="q">Ask a parent?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name} · ${d}</span></span>
           <button class="tap" data-act="ask-send" @click=${() => {
         this._heldAt = Date.now(), this._askFor(o);
@@ -10117,18 +10117,18 @@ const ol = 15, C0 = (a) => {
         this._spend = "", this._redeem(o);
       }}>PIN</button>` : g}<button class="tap save" data-act="ask-no" @click=${() => {
         this._spend = "", this._sound("tap");
-      }}>${wc}Not now</button></div>` : this._spend === o.name && n || m ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${d} on ${o.name}?" ?data-held=${m} aria-busy=${f ? "true" : g}>
+      }}>${wc}Not now</button></div>` : this._spend === o.name && n || u ? p`<div class="rw ask ${this._picMode ? "picrow" : ""}" role="group" aria-label="Spend ${d} on ${o.name}?" ?data-held=${u} aria-busy=${f ? "true" : g}>
           <span class="rpic" aria-hidden="true">${l}</span><span class="q">Spend ${d}?<br><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${o.name}</span></span>
-          <button class="tap" ?disabled=${m} @click=${() => {
+          <button class="tap" ?disabled=${u} @click=${() => {
         this._held = o.name, this._heldAt = Date.now(), window.setTimeout(() => {
           this._held === o.name && (this._held = "");
         }, 600), this._redeem(o);
-      }}>${f ? "Saving…" : p`${Bs(18)}Yes`}</button><button class="tap save" ?disabled=${m} @click=${() => {
+      }}>${f ? "Saving…" : p`${Bs(18)}Yes`}</button><button class="tap save" ?disabled=${u} @click=${() => {
         this._spend = "", this._sound("tap");
-      }}>${wc}Not now</button></div>` : p`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${u} aria-label="${o.name}: ${b ? "asked, waiting for a parent" : u ? `had this week. Back on ${k}` : n ? `spend ${d}` : this._picMode ? `${h} of ${c} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
+      }}>${wc}Not now</button></div>` : p`<button class="rw tap ${this._picMode ? "picrow" : ""}" ?data-capped=${m} aria-label="${o.name}: ${b ? "asked, waiting for a parent" : m ? `had this week. Back on ${k}` : n ? `spend ${d}` : this._picMode ? `${h} of ${c} stars saved` : `${o.cost - t} points to go`}" @click=${() => this._rewardTap(o)}>
           <span class="rpic" aria-hidden="true">${l}</span>
           <span class="n">${o.name}${this._picMode ? p`<span class="stars" style="justify-content:flex-start" aria-hidden="true">${c > 12 ? p`${Ia(n, 20)}<b style="font-size:var(--fs-2);line-height:20px;margin-left:4px">${h} / ${c}</b>` : Array.from({ length: c }, (x, y) => Ia(y < h, 18))}</span>` : g}</span>
-          ${b ? p`<span class="cost notyet" data-asked style="margin-left:auto">⏳ Asked</span>` : u ? p`<span class="cost notyet" style="margin-left:auto">Back ${k}</span>` : this._picMode ? g : p`<span class="cost ${n ? "" : "notyet"}" style="margin-left:auto">${n ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
+          ${b ? p`<span class="cost notyet" data-asked style="margin-left:auto">⏳ Asked</span>` : m ? p`<span class="cost notyet" style="margin-left:auto">Back ${k}</span>` : this._picMode ? g : p`<span class="cost ${n ? "" : "notyet"}" style="margin-left:auto">${n ? `Spend ${o.cost}` : `${o.cost - t} to go`}</span>`}</button>`;
     })}`;
   }
   _tabs() {
@@ -10669,19 +10669,19 @@ const T2 = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     return s[0].toUpperCase() + s.slice(1);
   }
   _dev(t, e, i, s = "free") {
-    const o = Ni(t), r = this._on(t), n = Pa(t), l = this._name(t, e), d = Kc.includes(o) && !n, c = o === "lock" || o === "cover", h = i && d ? s : "free", f = t.entity_id, m = () => this._toggle(t, e);
+    const o = Ni(t), r = this._on(t), n = Pa(t), l = this._name(t, e), d = Kc.includes(o) && !n, c = o === "lock" || o === "cover", h = i && d ? s : "free", f = t.entity_id, u = () => this._toggle(t, e);
     return p`<button class="dev tap ${r && o === "light" ? "on" : ""} ${n ? "gone" : ""}" role=${d ? "switch" : g} aria-checked=${d ? String(r) : g} aria-disabled=${n ? "true" : g}
       aria-label=${d ? l : `${l}: ${this._state(t, r)}${c && !n ? ". Needs the parents’ PIN" : ""}`} ?data-busy=${this._busy.includes(t.entity_id)} aria-busy=${this._busy.includes(t.entity_id) ? "true" : g} data-guard=${h === "free" ? g : h} ?data-holding=${this._holding === f}
-      @pointerdown=${h === "hold" ? () => this._holdStart(f, m) : g} @pointerup=${h === "hold" ? () => this._holdEnd() : g} @pointerleave=${h === "hold" ? () => this._holdEnd() : g} @pointercancel=${h === "hold" ? () => this._holdEnd() : g}
-      @click=${(u) => {
-      this._mayTap(u, f, i, h, m) && m();
+      @pointerdown=${h === "hold" ? () => this._holdStart(f, u) : g} @pointerup=${h === "hold" ? () => this._holdEnd() : g} @pointerleave=${h === "hold" ? () => this._holdEnd() : g} @pointercancel=${h === "hold" ? () => this._holdEnd() : g}
+      @click=${(m) => {
+      this._mayTap(m, f, i, h, u) && u();
     }}>
       <span class="dicon">${this._ic(t)}</span><span class="nm"><span class="n">${l}</span><span class="s">${this._state(t, r)}</span></span>
       ${d ? p`<span class="toggle"></span>` : c && !n ? p`<span class="pinned">${Qt.locked}</span>` : g}</button>`;
   }
   render() {
     if (!this.hass) return g;
-    const t = this.hass, e = this._rooms(), i = qt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, f) => h + f.ents.filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length, 0), l = e.reduce((h, f) => h + f.ents.filter(Pa).length, 0), d = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), c = this._columns(e, i === "phone" ? 1 : i === "wide" && gi() >= 2 ? 2 : gi() >= 1 ? 3 : e.length > 9 ? 4 : 3);
+    const t = this.hass, e = this._rooms(), i = qt(), s = (h) => !!t.entities?.[h]?.labels?.includes("family_hub"), o = Object.values(t.states).filter((h) => h.entity_id.startsWith("script.") && !this.hideScripts.includes(h.entity_id) && s(h.entity_id)), r = Object.values(t.states).filter((h) => h.entity_id.startsWith("automation.") && (this._all || s(h.entity_id))), n = e.reduce((h, f) => h + f.ents.filter((u) => u.entity_id.startsWith("light.") && u.state === "on").length, 0), l = e.reduce((h, f) => h + f.ents.filter(Pa).length, 0), d = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1e3)), c = this._columns(e, i === "phone" ? 1 : i === "wide" && gi() >= 2 ? 2 : gi() >= 1 ? 3 : e.length > 9 ? 4 : 3);
     return p`
       <section class="glass rooms" aria-label="Rooms">
         <div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><h1 class="t-title">Home</h1>
@@ -10689,12 +10689,12 @@ const T2 = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
           ${d > 0 ? p`<div class="unl" role="group" aria-label="Unlocked for parents: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"}"><span class="ut">${Qt.unlocked}<span>Unlocked for parents: ${this._unlockedFor ? this.hass?.states[this._unlockedFor]?.attributes.friendly_name ?? "this door" : "automations"} · <b aria-hidden="true">${Math.floor(d / 60)}:${String(d % 60).padStart(2, "0")}</b></span></span><button class="pill tap" @click=${() => this._lockNow()}>Lock now</button></div>` : g}</div>
         ${e.length ? p`<div class="rgrid" data-fits>
           ${c.map((h) => p`<div class="rcol">${h.map((f) => {
-      const m = f.ents.filter((b) => b.entity_id.startsWith("light.") && !Pa(b)), u = m.some((b) => this._on(b)), k = this._guardOf(f);
-      return p`<div class="room ${u ? "lit" : ""}" data-room=${f.id}>
-              <div class="rh"><h2>${f.name}</h2>${k === "free" ? g : p`<span class="muted rguard" data-rguard=${k} style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);white-space:nowrap">${k === "pin" ? p`${Qt.locked}` : "Hold to switch"}</span>`}${m.length > 1 ? p`<button class="sw tap" role="switch" aria-label="${f.name} lights" aria-checked=${String(u)} ?data-busy=${this._busy.includes(`room:${f.id}`)} ?data-holding=${this._holding === `room:${f.id}`}
-                @pointerdown=${k === "hold" ? () => this._holdStart(`room:${f.id}`, () => this._room(f, !u)) : g} @pointerup=${k === "hold" ? () => this._holdEnd() : g} @pointerleave=${k === "hold" ? () => this._holdEnd() : g} @pointercancel=${k === "hold" ? () => this._holdEnd() : g}
+      const u = f.ents.filter((b) => b.entity_id.startsWith("light.") && !Pa(b)), m = u.some((b) => this._on(b)), k = this._guardOf(f);
+      return p`<div class="room ${m ? "lit" : ""}" data-room=${f.id}>
+              <div class="rh"><h2>${f.name}</h2>${k === "free" ? g : p`<span class="muted rguard" data-rguard=${k} style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);white-space:nowrap">${k === "pin" ? p`${Qt.locked}` : "Hold to switch"}</span>`}${u.length > 1 ? p`<button class="sw tap" role="switch" aria-label="${f.name} lights" aria-checked=${String(m)} ?data-busy=${this._busy.includes(`room:${f.id}`)} ?data-holding=${this._holding === `room:${f.id}`}
+                @pointerdown=${k === "hold" ? () => this._holdStart(`room:${f.id}`, () => this._room(f, !m)) : g} @pointerup=${k === "hold" ? () => this._holdEnd() : g} @pointerleave=${k === "hold" ? () => this._holdEnd() : g} @pointercancel=${k === "hold" ? () => this._holdEnd() : g}
                 @click=${(b) => {
-        this._mayTap(b, `room:${f.id}`, f, k, () => this._room(f, !u)) && this._room(f, !u);
+        this._mayTap(b, `room:${f.id}`, f, k, () => this._room(f, !m)) && this._room(f, !m);
       }}><span>Lights</span><span class="toggle"></span></button>` : g}</div>
               ${f.ents.map((b) => this._dev(b, f.name, f, k))}
             </div>`;
@@ -10723,10 +10723,10 @@ const T2 = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
     }}>${this._all ? "Hide" : p`${Qt.locked}Parents`}</button></div>
           <div class="alist">
             ${r.length ? r.map((h) => {
-      const f = h.attributes.friendly_name ?? h.entity_id, m = h.state === "on";
-      return p`<button class="auto tap" role="switch" aria-checked=${String(m)} ?data-busy=${this._busy.includes(h.entity_id)}
+      const f = h.attributes.friendly_name ?? h.entity_id, u = h.state === "on";
+      return p`<button class="auto tap" role="switch" aria-checked=${String(u)} ?data-busy=${this._busy.includes(h.entity_id)}
                 @click=${() => this._guard(() => {
-        this._call(h.entity_id, f, () => this.hass.callService("automation", m ? "turn_off" : "turn_on", { entity_id: h.entity_id }), `${f} ${m ? "off" : "on"}`);
+        this._call(h.entity_id, f, () => this.hass.callService("automation", u ? "turn_off" : "turn_on", { entity_id: h.entity_id }), `${f} ${u ? "off" : "on"}`);
       })}><span>${f}</span><span class="toggle"></span></button>`;
     }) : p`<span class="muted tipline">Household automations are in the parents section.</span>`}
           </div>
@@ -10921,7 +10921,7 @@ const Z0 = async (a) => {
   if (!t.isPrimary || t.button > 0) return;
   const e = t.currentTarget, i = e.getBoundingClientRect(), s = t.clientX, o = t.clientY, r = !!t.target.closest(".fcap"), n = 16, l = (k) => (a.vert ? (i.bottom - n - k.clientY) / Math.max(1, i.height - 2 * n) : (k.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, d = r ? a.v - l(t) : 0;
   let c = !1, h = !1, f = a.v;
-  const m = (k) => {
+  const u = (k) => {
     const b = k, x = Math.abs(b.clientX - s), y = Math.abs(b.clientY - o), K = a.vert ? y : x, v = a.vert ? x : y;
     if (!h) {
       if (!c) {
@@ -10934,14 +10934,14 @@ const Z0 = async (a) => {
       }
       f = ca(l(b) + d), a.set(f, !1);
     }
-  }, u = (k) => {
-    if (e.removeEventListener("pointermove", m), e.removeEventListener("pointerup", u), e.removeEventListener("pointercancel", u), k.type === "pointercancel" || h) {
+  }, m = (k) => {
+    if (e.removeEventListener("pointermove", u), e.removeEventListener("pointerup", m), e.removeEventListener("pointercancel", m), k.type === "pointercancel" || h) {
       c && a.drop?.();
       return;
     }
     c ? a.set(f, !0) : r || a.set(ca(l(k)), !0);
   };
-  e.setPointerCapture(t.pointerId), e.addEventListener("pointermove", m), e.addEventListener("pointerup", u), e.addEventListener("pointercancel", u);
+  e.setPointerCapture(t.pointerId), e.addEventListener("pointermove", u), e.addEventListener("pointerup", m), e.addEventListener("pointercancel", m);
 }, Ro = (a) => p`<div class="vs" ?data-vert=${!!a.vert} ?data-idle=${!a.live} ?data-held=${!!a.held} style="--v:${a.v}">
   ${wi(a.name, a.v, !1, () => a.set(ca(a.v - xi), !0))}
   <div class="vrail" role="slider" tabindex="0" aria-label="Volume in ${a.name}" aria-orientation=${a.vert ? "vertical" : "horizontal"} aria-valuemin="0" aria-valuemax="100" aria-valuenow=${a.v} aria-valuetext="${a.v} per cent${a.live ? "" : ", quiet"}"
@@ -10996,7 +10996,7 @@ const Z0 = async (a) => {
   }, h = (x) => {
     const y = x.key === "ArrowRight" || x.key === "ArrowUp" ? 1 : x.key === "ArrowLeft" || x.key === "ArrowDown" ? -1 : 0;
     y && n && (x.preventDefault(), r.tune(Math.max(0, Math.min(n - 1, (l < 0 ? y > 0 ? -1 : n : l) + y))));
-  }, f = r.sleep.left, m = f === null ? 0 : Math.max(0.02, Math.min(1, f / Math.max(1, r.sleep.mins))), u = m * 2 * Math.PI, k = 20 + 16 * Math.sin(u), b = 20 - 16 * Math.cos(u);
+  }, f = r.sleep.left, u = f === null ? 0 : Math.max(0.02, Math.min(1, f / Math.max(1, r.sleep.mins))), m = u * 2 * Math.PI, k = 20 + 16 * Math.sin(m), b = 20 - 16 * Math.cos(m);
   return p`<div class="dialwrap">
     <section class="dcard dnext" aria-label="Up next"><h3>Up next</h3>
       ${r.next.length ? r.next.map((x) => p`<div class="dn"><i class="puck onshelf" style="--art:${x.art ? `url(${x.art})` : rr(2)}"></i><span><b>${x.title}</b><span>${x.sub}</span></span></div>`) : p`<p class="dnone">Nothing queued. Slide the tuner, or let someone choose.</p>`}
@@ -11027,7 +11027,7 @@ const Z0 = async (a) => {
       <div class="dcoins">${r.turn.map((x) => p`<button class="dcoin tap" style="--c:${x.colour}" ?data-now=${x.now} aria-label="${x.name} chooses a song${x.now ? " (their turn)" : ""}" @click=${() => r.choose(x.name)}>${x.face}</button>`)}</div>
       <p class="dwho">${r.chooser ? p`<b>${r.chooser}</b> chooses next` : "Tap a face to choose a song"}</p>
       ${r.sleep.can ? p`<button class="dsleep tap" ?data-on=${f !== null} aria-pressed=${String(f !== null)} @click=${() => r.sleepGo()}>
-        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${f !== null ? w`<path class="sww" d="M20 20 L20 4 A16 16 0 ${u > Math.PI ? 1 : 0} 1 ${k.toFixed(2)} ${b.toFixed(2)} Z"></path>` : g}</svg>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="swt" cx="20" cy="20" r="17"></circle>${f !== null ? w`<path class="sww" d="M20 20 L20 4 A16 16 0 ${m > Math.PI ? 1 : 0} 1 ${k.toFixed(2)} ${b.toFixed(2)} Z"></path>` : g}</svg>
         <span><b>Sleep fade · ${r.sleep.room}</b><span>${f !== null ? `${f} min left · tap to cancel` : `Fade out in ${r.sleep.mins} min`}</span></span></button>` : g}</section>
     <div class="tuner" role="slider" tabindex="0" aria-label="Tuner. Slide to a favourite or a station to play it." aria-valuemin="1" aria-valuemax=${Math.max(1, n)} aria-valuenow=${l < 0 ? 1 : l + 1} aria-valuetext=${l < 0 ? "Not tuned" : r.stops[l].name} @pointerdown=${c} @keydown=${h}>
       <i class="tticks" aria-hidden="true"></i>
@@ -11036,21 +11036,21 @@ const Z0 = async (a) => {
     </div></div>`;
 }, O2 = (a) => {
   const t = a.rooms.filter((c) => c.live && c.hasVol && !c.offline), e = t.length ? Math.round(t.reduce((c, h) => c + h.vol, 0) / t.length) : 0, i = t.map((c) => [c.id, c.vol]), s = Ro({ name: "the whole house", v: e, live: t.length > 0, vert: !0, set: (c, h) => {
-    for (const [f, m] of i) a.vol(f, ca(m + c - e), h);
+    for (const [f, u] of i) a.vol(f, ca(u + c - e), h);
   }, drop: () => {
     for (const [c] of i) a.drop(c);
   } }), o = (c) => {
-    const h = c.live ? Math.max(1, Math.round(c.vol / 10)) : 0, f = c.offline ? "–" : c.on ? "ON" : c.live ? "PLAYING" : c.asleep ? "☾" : "OFF", m = c.offline ? `${c.name} is offline` : c.on ? c.lead ? `ON: ${c.name} plays this music. ${c.playing ? "Pause" : "Play"}` : `ON. Remove ${c.name} from the music` : c.live ? `${c.name} has other music. Swap it for this music` : `OFF. Add ${c.name} to the music`;
+    const h = c.live ? Math.max(1, Math.round(c.vol / 10)) : 0, f = c.offline ? "–" : c.on ? "ON" : c.live ? "PLAYING" : c.asleep ? "☾" : "OFF", u = c.offline ? `${c.name} is offline` : c.on ? c.lead ? `ON: ${c.name} plays this music. ${c.playing ? "Pause" : "Play"}` : `ON. Remove ${c.name} from the music` : c.live ? `${c.name} has other music. Swap it for this music` : `OFF. Add ${c.name} to the music`;
     return p`<div class="strip" data-zone=${c.id} ?data-live=${c.live} ?data-playing=${c.playing} ?data-asleep=${c.asleep} ?data-offline=${c.offline} ?data-focus=${c.focus} ?data-hot=${a.over === c.id} style=${Ba(c)}>
       <button class="sname tap" aria-pressed=${String(c.focus)} aria-label="Show ${c.name} in the player" @click=${() => a.focus(c.id)}><span>${c.name}</span>${pr(c)}</button>
-      <button class="lamp tap" aria-pressed=${String(c.on)} ?data-other=${c.live && !c.on} ?disabled=${c.offline} aria-label=${m} @click=${() => a.toggle(c.id)}>${f}</button>
-      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (u, k) => p`<i ?data-lit=${9 - k < h} ?data-peak=${9 - k >= h - 2 && 9 - k < h}></i>`)}</span>
+      <button class="lamp tap" aria-pressed=${String(c.on)} ?data-other=${c.live && !c.on} ?disabled=${c.offline} aria-label=${u} @click=${() => a.toggle(c.id)}>${f}</button>
+      <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (m, k) => p`<i ?data-lit=${9 - k < h} ?data-peak=${9 - k >= h - 2 && 9 - k < h}></i>`)}</span>
         ${c.hasVol && !c.offline ? Y2(a, c, !0) : p`<span class="sval">${c.offline ? "Offline" : "–"}</span>`}</div></div>`;
   }, r = (c) => {
-    const h = c.currentTarget.getBoundingClientRect(), f = h.left + h.width / 2, m = h.top + h.height / 2, u = (K) => Math.atan2(K.clientY - m, K.clientX - f) * 180 / Math.PI;
-    let k = u(c), b = 0, x = !1;
+    const h = c.currentTarget.getBoundingClientRect(), f = h.left + h.width / 2, u = h.top + h.height / 2, m = (K) => Math.atan2(K.clientY - u, K.clientX - f) * 180 / Math.PI;
+    let k = m(c), b = 0, x = !1;
     const y = (K) => {
-      const v = u(K);
+      const v = m(K);
       let U = v - k;
       return U > 180 ? U -= 360 : U < -180 && (U += 360), k = v, b += U, b;
     };
@@ -11082,28 +11082,28 @@ const Z0 = async (a) => {
       <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${A("home", 22)}</button>
       <div class="well">${t.length ? s : p`<span class="sval">–</span>`}</div></div></div></div>`;
 }, _c = 6, D2 = (a) => {
-  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - _c)), o = t.items.slice(s, s + _c), r = t.items[i], n = (u) => (u + 0.5) / a.rooms.length * 100, l = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, d = (u, k) => {
-    const [b, x] = fp(a, u);
-    return p`<div class="cab" data-zone=${u.id} ?data-live=${u.live} ?data-playing=${u.playing} ?data-asleep=${u.asleep} ?data-offline=${u.offline} ?data-focus=${u.focus} ?data-hot=${a.over === u.id} ?data-held=${a.held === u.id} style="--top:${n(k)}%;--n:${a.rooms.length};${Ba(u)}">
-    <button class="chit tap" aria-pressed=${String(u.focus)} aria-label="Show ${u.name} in the player" @click=${() => a.focus(u.id)}><span class="cone" aria-hidden="true"><i></i></span>
-      <span class="ctext"><b>${u.asleep ? "☾ " : ""}${u.name}${pr(u)}</b><span>${u.hasVol && !u.offline ? p`<b class="vnum">${u.vol}</b> ` : g}${lr(u)}</span></span></button>
-    ${u.hasVol && !u.offline ? p`<span class="cvol">${b}<span class="cknob" role="slider" tabindex="0" aria-label="Volume in ${u.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${u.vol} aria-valuetext=${gp(u)} ?data-idle=${!u.live}
-      style="--v:${u.vol}" @pointerdown=${P0(a, u, () => 150)} @keydown=${mp(a, u)}><i></i></span>${x}</span>` : g}
-    <button class="sock tap" data-notrack aria-pressed=${String(u.on)} ?disabled=${u.offline} aria-label="${u.on ? "Remove" : "Add"} ${u.name} ${u.on ? "from" : "to"} the music" @click=${() => a.toggle(u.id)}>${u.on ? "" : "＋"}</button></div>`;
-  }, c = a.rooms.map((u, k) => [u, k]).filter(([u]) => u.on), h = (u) => 39 + (u - (c.length - 1) / 2) * Math.min(9, 60 / Math.max(1, c.length)), f = c.map(([u, k], b) => {
+  const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - _c)), o = t.items.slice(s, s + _c), r = t.items[i], n = (m) => (m + 0.5) / a.rooms.length * 100, l = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, d = (m, k) => {
+    const [b, x] = fp(a, m);
+    return p`<div class="cab" data-zone=${m.id} ?data-live=${m.live} ?data-playing=${m.playing} ?data-asleep=${m.asleep} ?data-offline=${m.offline} ?data-focus=${m.focus} ?data-hot=${a.over === m.id} ?data-held=${a.held === m.id} style="--top:${n(k)}%;--n:${a.rooms.length};${Ba(m)}">
+    <button class="chit tap" aria-pressed=${String(m.focus)} aria-label="Show ${m.name} in the player" @click=${() => a.focus(m.id)}><span class="cone" aria-hidden="true"><i></i></span>
+      <span class="ctext"><b>${m.asleep ? "☾ " : ""}${m.name}${pr(m)}</b><span>${m.hasVol && !m.offline ? p`<b class="vnum">${m.vol}</b> ` : g}${lr(m)}</span></span></button>
+    ${m.hasVol && !m.offline ? p`<span class="cvol">${b}<span class="cknob" role="slider" tabindex="0" aria-label="Volume in ${m.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${m.vol} aria-valuetext=${gp(m)} ?data-idle=${!m.live}
+      style="--v:${m.vol}" @pointerdown=${P0(a, m, () => 150)} @keydown=${mp(a, m)}><i></i></span>${x}</span>` : g}
+    <button class="sock tap" data-notrack aria-pressed=${String(m.on)} ?disabled=${m.offline} aria-label="${m.on ? "Remove" : "Add"} ${m.name} ${m.on ? "from" : "to"} the music" @click=${() => a.toggle(m.id)}>${m.on ? "" : "＋"}</button></div>`;
+  }, c = a.rooms.map((m, k) => [m, k]).filter(([m]) => m.on), h = (m) => 39 + (m - (c.length - 1) / 2) * Math.min(9, 60 / Math.max(1, c.length)), f = c.map(([m, k], b) => {
     const y = h(b), K = 70, v = n(k), U = 9 + Math.abs(v - y) * 0.18;
-    return w`<path class="wire" ?data-playing=${u.playing} style="${Ba(u)};animation-delay:${-b * 0.4}s" d="M${64.6} ${y} C${64.6 + 3.4} ${y + U}, ${K - 3.4} ${v + U}, ${K} ${v}"></path>`;
-  }), m = (u, k) => {
+    return w`<path class="wire" ?data-playing=${m.playing} style="${Ba(m)};animation-delay:${-b * 0.4}s" d="M${64.6} ${y} C${64.6 + 3.4} ${y + U}, ${K - 3.4} ${v + U}, ${K} ${v}"></path>`;
+  }), u = (m, k) => {
     const b = s + k, x = b === i, y = 0.5 + (k - (o.length - 1) / 2) / Math.max(3, o.length - 1);
-    return p`<button class="sleeve tap" ?data-front=${x} ?data-lifted=${a.liftedItem === u} style="z-index:${10 - Math.abs(b - i)};--x:${y};--tilt:${(-9 + 17 * y).toFixed(1)}deg;--art:${u.img ? `url(${u.img})` : rr(b)}"
-      aria-label="${u.name}. ${x ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
-      @pointerdown=${(K) => a.carryItem(K, u, (v) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(v / 52)))))} @click=${() => t.tap(b)}><span class="sart">${u.img ? "" : u.name[0]}</span></button>`;
+    return p`<button class="sleeve tap" ?data-front=${x} ?data-lifted=${a.liftedItem === m} style="z-index:${10 - Math.abs(b - i)};--x:${y};--tilt:${(-9 + 17 * y).toFixed(1)}deg;--art:${m.img ? `url(${m.img})` : rr(b)}"
+      aria-label="${m.name}. ${x ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
+      @pointerdown=${(K) => a.carryItem(K, m, (v) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(v / 52)))))} @click=${() => t.tap(b)}><span class="sart">${m.img ? "" : m.name[0]}</span></button>`;
   };
   return p`<div class="rig" data-fits>
     <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${f}</svg>
     <div class="cratecol">
-      <div class="ctabs" role="group" aria-label="Whose crate">${t.tabs.map((u) => p`<button class="ctab tap" style="--c:${u.colour}" aria-pressed=${String(u.name === t.who)} @click=${() => t.pick(u.name)}>${u.name}</button>`)}</div>
-      <div class="sleeves">${o.map(m)}</div>
+      <div class="ctabs" role="group" aria-label="Whose crate">${t.tabs.map((m) => p`<button class="ctab tap" style="--c:${m.colour}" aria-pressed=${String(m.name === t.who)} @click=${() => t.pick(m.name)}>${m.name}</button>`)}</div>
+      <div class="sleeves">${o.map(u)}</div>
       <div class="cbox">
         <div class="clabel">${e > 1 ? p`<button class="cnav tap" aria-label="Flick back" ?disabled=${i === 0} @click=${() => t.flick(i - 1)}>${ft("prev", 20)}</button>` : g}
           <b>${t.calm ? "🌙 " : ""}${l}</b>${e > 1 ? p`<button class="cnav tap" aria-label="Flick forward" ?disabled=${i === e - 1} @click=${() => t.flick(i + 1)}>${ft("next", 20)}</button>` : g}</div>
@@ -11115,7 +11115,7 @@ const Z0 = async (a) => {
         <div class="tplat"><button class="cdisc tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}></button>
           <i class="tarm" aria-hidden="true" style="--arm:${a.now.lead ? (12 + 18 * a.now.frac).toFixed(1) : 0}deg"><i></i></i><i class="tpivot" aria-hidden="true"></i></div>
         <span class="ttitle"><b>${a.now.title}</b><span>${a.now.artist || (a.now.lead ? "" : "Drop a record here")}</span></span>
-        ${c.map((u, k) => p`<i class="jack" aria-hidden="true" style="top:${h(k) / 78 * 100}%"></i>`)}
+        ${c.map((m, k) => p`<i class="jack" aria-hidden="true" style="top:${h(k) / 78 * 100}%"></i>`)}
       </div>
       <div class="tkeys"><button class="tkey tap" aria-label="Previous" @click=${() => a.prev()}>${ft("prev", 28)}</button>
         <button class="tkey go tap" data-go aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}>${ft(a.now.playing ? "pause" : "play", 30)}</button>
@@ -11181,10 +11181,10 @@ const Z0 = async (a) => {
 }, P2 = (a) => {
   const t = {}, e = a.rooms.filter((d) => d.stream), i = a.rooms.filter((d) => !d.stream);
   if (a.narrow) {
-    const d = [...a.streams.flatMap((f) => e.filter((m) => m.stream === f).sort((m, u) => Number(u.lead) - Number(m.lead))), ...i], c = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(d.length / c));
-    return d.forEach((f, m) => {
-      const u = Math.floor(m / c), k = Math.min(c, d.length - u * c);
-      t[f.id] = [(m % c + 0.5) / k * 100, 27 + (u + 0.5) / h * 55];
+    const d = [...a.streams.flatMap((f) => e.filter((u) => u.stream === f).sort((u, m) => Number(m.lead) - Number(u.lead))), ...i], c = a.phone ? 2 : 3, h = Math.max(1, Math.ceil(d.length / c));
+    return d.forEach((f, u) => {
+      const m = Math.floor(u / c), k = Math.min(c, d.length - m * c);
+      t[f.id] = [(u % c + 0.5) / k * 100, 27 + (m + 0.5) / h * 55];
     }), t;
   }
   const s = 31, o = 67, r = 5, n = Math.min(16, (o - r * Math.max(0, a.streams.length - 1)) / Math.max(1, e.length));
@@ -11199,11 +11199,11 @@ const Z0 = async (a) => {
     t[d.id] = [2 + (c + 0.5) / i.length * 96, e.length ? 60 : 45];
   }), t;
 }, Mc = { sea: "buoys", reef: "shells", space: "stars", orbit: "stars", bush: "lanterns", sunset: "beach balls", fridge: "photos", sports: "kit bag" }, X0 = (a) => J0(a.now.playing, () => a.prev(), () => a.playPause(), () => a.next()), tf = (a, t) => {
-  const e = a.crate, i = e.items.slice(0, 7), s = e.tabs.map((f) => f.name), o = s[(s.indexOf(e.who) + 1) % Math.max(1, s.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), l = (f) => `${(f + 0.5) / n * 100} ${f % 2 ? 62 : 38}`, d = t === "space" || t === "orbit", c = t === "fridge" || t === "bush", h = d ? `M${i.map((f, m) => l(m)).join(" L")}` : "M0 6 Q50 20 100 6";
+  const e = a.crate, i = e.items.slice(0, 7), s = e.tabs.map((f) => f.name), o = s[(s.indexOf(e.who) + 1) % Math.max(1, s.length)], r = e.who === "Family" ? "Family" : `${e.who}’s`, n = Math.max(1, i.length), l = (f) => `${(f + 0.5) / n * 100} ${f % 2 ? 62 : 38}`, d = t === "space" || t === "orbit", c = t === "fridge" || t === "bush", h = d ? `M${i.map((f, u) => l(u)).join(" L")}` : "M0 6 Q50 20 100 6";
   return p`<div class="sshelf" data-kind=${t}>
     <button class="slabel tap" aria-label="${r} ${Mc[t] ?? "shelf"}. Show ${o === "Family" ? "the family" : `${o}’s`} shelf" @click=${() => e.pick(o)}><b>${e.calm ? "🌙 " : ""}${r} ${Mc[t] ?? "shelf"}</b><span>${i.length ? "Carry one to a room" : "Pin music from Search"}</span></button>
-    <div class="sitems" style="--n:${n}">${i.length > 1 && (d || c) ? p`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : g}${i.map((f, m) => p`<button class="sitem tap" style="--i:${m};animation-delay:${-m * 0.55}s" ?data-lifted=${a.liftedItem === f} aria-label="${f.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
-      @pointerdown=${(u) => a.carryItem(u, f)} @click=${() => e.play(f)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${f.img ? `url(${f.img})` : rr(m)}"></i></button>`)}</div>
+    <div class="sitems" style="--n:${n}">${i.length > 1 && (d || c) ? p`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${h}></path></svg>` : g}${i.map((f, u) => p`<button class="sitem tap" style="--i:${u};animation-delay:${-u * 0.55}s" ?data-lifted=${a.liftedItem === f} aria-label="${f.name}. Tap to play in ${e.room}, or drag it to a room or to the music."
+      @pointerdown=${(m) => a.carryItem(m, f)} @click=${() => e.play(f)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${f.img ? `url(${f.img})` : rr(u)}"></i></button>`)}</div>
   </div>`;
 }, ef = (a) => p`<button class="puck spot" data-drop="deck" ?data-hot=${a.over === "deck"} ?data-playing=${a.now.playing} ?data-lifted=${!!a.lifted && a.lifted === a.now.lead} style=${a.now.art ? `--art:url(${a.now.art})` : ""}
   aria-label="${a.now.title}. Tap to ${a.now.playing ? "pause" : "play"}${a.now.lead ? ", drag onto a room to move the music there" : ""}." @pointerdown=${(t) => {
@@ -11251,11 +11251,11 @@ const Z0 = async (a) => {
   </div>`;
 }, Gs = [36, 58], Pr = 82, Sc = "0 22 100 92", E2 = (a, t) => {
   const e = H0[t], i = a.sdrag, s = (d) => Gs[Math.min(Gs.length - 1, a.streams.indexOf(d))], o = (d) => (c, h) => {
-    const f = c.target.closest(".vscene") ?? document.body, m = getComputedStyle(f), u = Number(m.getPropertyValue("--sq")) || 0.42, k = Number(m.getPropertyValue("--k")) || 1, b = Number(m.getPropertyValue("--cy")) || 0.4, x = Number(m.getPropertyValue("--uh")) || 1, y = Math.hypot(c.clientX - (h.left + h.width / 2), (c.clientY - (h.top + h.height * b)) / u) / Math.min(h.height * x, h.width * 0.56) * 100 / k, K = [...a.streams.map((U) => [s(U), U]), [Pr, ""]], [, v] = K.sort((U, V) => Math.abs(U[0] - y) - Math.abs(V[0] - y))[0];
+    const f = c.target.closest(".vscene") ?? document.body, u = getComputedStyle(f), m = Number(u.getPropertyValue("--sq")) || 0.42, k = Number(u.getPropertyValue("--k")) || 1, b = Number(u.getPropertyValue("--cy")) || 0.4, x = Number(u.getPropertyValue("--uh")) || 1, y = Math.hypot(c.clientX - (h.left + h.width / 2), (c.clientY - (h.top + h.height * b)) / m) / Math.min(h.height * x, h.width * 0.56) * 100 / k, K = [...a.streams.map((U) => [s(U), U]), [Pr, ""]], [, v] = K.sort((U, V) => Math.abs(U[0] - y) - Math.abs(V[0] - y))[0];
     v && v !== d.stream ? a.join(d.id, v) : !v && d.stream && !d.lead && a.leave(d.id);
   }, r = a.rooms.filter((d) => !d.stream), n = (d) => {
-    const c = d.stream ? a.rooms.filter((u) => u.stream === d.stream) : r, h = c.indexOf(d), f = d.stream ? a.streams.indexOf(d.stream) : 0, m = d.stream ? (f * 137 + h * 360 / c.length) % 360 : (100 + h * 360 / Math.max(1, c.length)) % 360;
-    return p`<div class="arm" ?data-moving=${d.playing} ?data-away=${i?.id === d.id} style="--a:${m};--r:${d.stream ? s(d.stream) : Pr};--t:${d.stream ? 70 + f * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
+    const c = d.stream ? a.rooms.filter((m) => m.stream === d.stream) : r, h = c.indexOf(d), f = d.stream ? a.streams.indexOf(d.stream) : 0, u = d.stream ? (f * 137 + h * 360 / c.length) % 360 : (100 + h * 360 / Math.max(1, c.length)) % 360;
+    return p`<div class="arm" ?data-moving=${d.playing} ?data-away=${i?.id === d.id} style="--a:${u};--r:${d.stream ? s(d.stream) : Pr};--t:${d.stream ? 70 + f * 40 : 0}s"><div class="hold"><div class="unspin"><div class="unsquash">
       <div class="actor planet" data-zone=${d.id} ?data-live=${d.live} ?data-playing=${d.playing} ?data-asleep=${d.asleep} ?data-offline=${d.offline} ?data-focus=${d.focus} ?data-vheld=${a.held === d.id} ?data-hot=${a.over === d.id && a.lifted !== d.id} style=${Ba(d)} @pointerdown=${af(a, d, o(d))}>${ml(a, d, e, Sc)}</div></div></div></div></div>`;
   }, l = i ? a.rooms.find((d) => d.id === i.id) : void 0;
   return p`<div class="vscene orbits" data-kind=${t} ?data-narrow=${a.narrow} data-fits>
@@ -12159,7 +12159,7 @@ const Z0 = async (a) => {
         colour: be && be.entity_id !== e?.entity_id ? `var(--p-${[3, 5, 4, 2][o.indexOf(be.entity_id) % 4]})` : "",
         title: String(be?.attributes.media_title ?? "")
       };
-    }))), n = Number(s.media_duration) || 0, l = s.media_position_updated_at ? new Date(s.media_position_updated_at).getTime() : 0, d = t?.state === "playing", c = n ? Math.min(n, (Number(s.media_position) || 0) + (d && l ? (this._now - l) / 1e3 : 0)) : 0, h = n ? c / n : 0, f = this._pads, m = this._jog, u = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
+    }))), n = Number(s.media_duration) || 0, l = s.media_position_updated_at ? new Date(s.media_position_updated_at).getTime() : 0, d = t?.state === "playing", c = n ? Math.min(n, (Number(s.media_position) || 0) + (d && l ? (this._now - l) / 1e3 : 0)) : 0, h = n ? c / n : 0, f = this._pads, u = this._jog, m = this._momentOn && this.hass.states[this._momentOn.lead]?.state === "playing" ? this._momentOn.name : "";
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
     const k = this.kids.find((_) => _.name === this._shelf), b = !!k && Zi(k.bedtime), x = this._items[this._shelf] ?? [], y = b ? x.filter((_) => _.calm) : x, K = Math.max(0, Math.min(y.length - 1, this._crateAt));
     this._mode === "dial" && this._loadRadio();
@@ -12188,11 +12188,11 @@ const Z0 = async (a) => {
           Ct[_] && !Ct[_].on && (M("tune"), Ct[_].go());
         }
       },
-      moments: f.map((_) => ({ name: _.name, icon: _.icon ?? Fc.find(([G]) => G.test(_.name))?.[1] ?? "🎵", on: u === _.name, busy: this._momentBusy === _.name })),
+      moments: f.map((_) => ({ name: _.name, icon: _.icon ?? Fc.find(([G]) => G.test(_.name))?.[1] ?? "🎵", on: m === _.name, busy: this._momentBusy === _.name })),
       moment: (_) => {
         !this._momentBusy && f[_] && (M("pad"), this._moment(f[_]));
       },
-      jog: { turn: m, at: c, read: m === null ? n ? Os(c) : "" : n ? Os(Math.max(0, Math.min(n, c + m / 360 * 120))) : Math.abs(m) < 60 ? "" : m > 0 ? "Next" : "Back", len: n, says: n ? `${Os(c)} of ${Os(n)}` : "No length" },
+      jog: { turn: u, at: c, read: u === null ? n ? Os(c) : "" : n ? Os(Math.max(0, Math.min(n, c + u / 360 * 120))) : Math.abs(u) < 60 ? "" : u > 0 ? "Next" : "Back", len: n, says: n ? `${Os(c)} of ${Os(n)}` : "No length" },
       jogTo: (_, G) => this._jogTo(_, G, c, n),
       seekBy: (_) => {
         n ? this._svc("media_seek", { seek_position: Math.max(0, Math.min(n - 1, Math.round(c + _))) }) : this._svc(_ > 0 ? "media_next_track" : "media_previous_track");
@@ -12265,7 +12265,7 @@ const Z0 = async (a) => {
   }
   /** One press for an occasion: find the music, set the rooms and the volume, play. */
   _moment(t) {
-    const e = this._h, i = this._list, s = this._cur, o = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], l = (o ? this._homeList : r.map((m) => We(e, i, m)).filter((m) => !!m)).filter((m) => this._off(m)).map((m) => this._name(m)), d = r.map((m) => We(e, i, m) ?? (e.states[m]?.entity_id.startsWith("media_player.") ? e.states[m] : void 0)).filter((m) => !!m), c = this._homeList, h = (o ? [...s && c.includes(s) ? [s] : [], ...c.filter((m) => m.entity_id !== s?.entity_id)] : d.length ? d : s ? [s] : []).filter((m) => !this._off(m));
+    const e = this._h, i = this._list, s = this._cur, o = t.rooms === "all", r = Array.isArray(t.rooms) ? t.rooms : [], n = this._padSet[t.name], l = (o ? this._homeList : r.map((u) => We(e, i, u)).filter((u) => !!u)).filter((u) => this._off(u)).map((u) => this._name(u)), d = r.map((u) => We(e, i, u) ?? (e.states[u]?.entity_id.startsWith("media_player.") ? e.states[u] : void 0)).filter((u) => !!u), c = this._homeList, h = (o ? [...s && c.includes(s) ? [s] : [], ...c.filter((u) => u.entity_id !== s?.entity_id)] : d.length ? d : s ? [s] : []).filter((u) => !this._off(u));
     if (!h.length) {
       this._say(this._offline.length ? "Those speakers are offline" : "No speaker to play on");
       return;
@@ -12274,24 +12274,24 @@ const Z0 = async (a) => {
     const f = async () => {
       this._momentBusy = t.name;
       try {
-        const m = n ? { name: n.title, uri: n.uri } : t.uri ? { name: t.name, uri: t.uri } : await W2(e, t.find ?? t.name, t.kind ?? "playlist");
-        if (!m) {
+        const u = n ? { name: n.title, uri: n.uri } : t.uri ? { name: t.name, uri: t.uri } : await W2(e, t.find ?? t.name, t.kind ?? "playlist");
+        if (!u) {
           this._say(`Couldn’t find “${t.find ?? t.name}” to play`);
           return;
         }
-        const u = h[0], k = h.map((b) => b.entity_id);
-        for (const b of this._mix(u)) k.includes(b) || e.callService("media_player", "unjoin", {}, { entity_id: b });
+        const m = h[0], k = h.map((b) => b.entity_id);
+        for (const b of this._mix(m)) k.includes(b) || e.callService("media_player", "unjoin", {}, { entity_id: b });
         if (typeof t.volume == "number") for (const b of k) this._svc("volume_set", { volume_level: Math.max(0, Math.min(100, t.volume)) / 100 }, b);
-        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, u.entity_id), this._lastUri = m.uri, await Ei(e, u.entity_id, m.uri, "play"), k.length > 1 && await e.callService("media_player", "join", { group_members: k.slice(1) }, { entity_id: u.entity_id }).catch((b) => this._oops("Couldn’t add every room", b)), this._focus = u.entity_id, this._momentOn = { name: t.name, lead: u.entity_id }, this._say(`${t.name}: ${m.name === t.name ? "" : `${m.name} `}in ${o ? "the whole house" : h.map((b) => this._name(b)).join(" and ")}${l.length ? ` (${l.join(" and ")} offline)` : ""}`);
-      } catch (m) {
-        this._oops(`${t.name} couldn’t start`, m);
+        t.shuffle && this._svc("shuffle_set", { shuffle: !0 }, m.entity_id), this._lastUri = u.uri, await Ei(e, m.entity_id, u.uri, "play"), k.length > 1 && await e.callService("media_player", "join", { group_members: k.slice(1) }, { entity_id: m.entity_id }).catch((b) => this._oops("Couldn’t add every room", b)), this._focus = m.entity_id, this._momentOn = { name: t.name, lead: m.entity_id }, this._say(`${t.name}: ${u.name === t.name ? "" : `${u.name} `}in ${o ? "the whole house" : h.map((b) => this._name(b)).join(" and ")}${l.length ? ` (${l.join(" and ")} offline)` : ""}`);
+      } catch (u) {
+        this._oops(`${t.name} couldn’t start`, u);
       } finally {
         this._momentBusy = "";
       }
     };
     o ? this._wholeHouse(() => {
       f();
-    }) : h.some((m) => this._asleep(m.entity_id)) ? this._guard(`It is after bedtime. ${t.name} plays in a bedroom.`, () => {
+    }) : h.some((u) => this._asleep(u.entity_id)) ? this._guard(`It is after bedtime. ${t.name} plays in a bedroom.`, () => {
       f();
     }) : f();
   }
@@ -12326,7 +12326,7 @@ const Z0 = async (a) => {
       const c = We(t, e, d);
       return c && i.add(c.entity_id), c;
     }, n = this.map.map((d) => ({ name: d.name ?? "", rooms: (d.rooms ?? []).map((c) => {
-      const h = (c.zones ?? (c.player ? [{ player: c.player, name: c.name }] : [])).map((m) => ({ name: m.name ?? "", p: r(m.player) })).filter((m) => !!m.p).map((m) => ({ ...m, name: m.name || String(m.p.attributes.friendly_name ?? "") })), f = (c.kids ?? []).map((m) => this.kids.find((u) => u.name === m)).filter((m) => !!m).map((m) => lt(_e(m.bedtime)));
+      const h = (c.zones ?? (c.player ? [{ player: c.player, name: c.name }] : [])).map((u) => ({ name: u.name ?? "", p: r(u.player) })).filter((u) => !!u.p).map((u) => ({ ...u, name: u.name || String(u.p.attributes.friendly_name ?? "") })), f = (c.kids ?? []).map((u) => this.kids.find((m) => m.name === u)).filter((u) => !!u).map((u) => lt(_e(u.bedtime)));
       return { name: c.name ?? h[0]?.name ?? "", size: c.size ?? Math.max(1, h.length), stairs: !!c.stairs, asleep: f.length > 0 && (s >= Math.min(...f) || s < o), zones: h };
     }).filter((c) => c.stairs || c.zones.length) })).filter((d) => d.rooms.some((c) => c.zones.length)), l = e.filter((d) => !i.has(d.entity_id)).map((d) => ({ name: String(d.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(d.attributes.friendly_name ?? ""), p: d }] }));
     return l.length && n.push({ name: n.length ? "Other" : "", rooms: l }), n;
@@ -12354,26 +12354,26 @@ const Z0 = async (a) => {
     const i = t.target, s = this._volOf(e);
     if (!t.isPrimary || i.closest(".zname, .join, .puck, .vstep") || s === null || this._off(e) || Ja() === "phone" && !i.closest(".grab")) return;
     const o = t.currentTarget, r = e.entity_id, n = t.clientX, l = t.clientY, d = o.querySelector(".grab"), c = d ? getComputedStyle(d) : null, h = Math.max(40, o.getBoundingClientRect().height - (c ? (parseFloat(c.getPropertyValue("--r0")) || 0) + (parseFloat(c.getPropertyValue("--r1")) || 0) : 72));
-    let f = !1, m = !1, u = s;
+    let f = !1, u = !1, m = s;
     const k = (x) => {
-      if (!m) {
+      if (!u) {
         if (!f) {
           const y = Math.abs(x.clientX - n), K = Math.abs(x.clientY - l);
           if (y >= 10 && y > K) {
-            m = !0;
+            u = !0;
             return;
           }
           if (K < 10) return;
           f = !0;
         }
-        u = Math.max(0, Math.min(100, Math.round(s + (l - x.clientY) / h * 100))), this._setVol(r, u, !1);
+        m = Math.max(0, Math.min(100, Math.round(s + (l - x.clientY) / h * 100))), this._setVol(r, m, !1);
       }
     }, b = (x) => {
-      if (o.removeEventListener("pointermove", k), o.removeEventListener("pointerup", b), o.removeEventListener("pointercancel", b), x.type === "pointercancel" || m) {
+      if (o.removeEventListener("pointermove", k), o.removeEventListener("pointerup", b), o.removeEventListener("pointercancel", b), x.type === "pointercancel" || u) {
         f && this._volDrop(r);
         return;
       }
-      f && this._setVol(r, u, !0);
+      f && this._setVol(r, m, !0);
     };
     o.setPointerCapture(t.pointerId), o.addEventListener("pointermove", k), o.addEventListener("pointerup", b), o.addEventListener("pointercancel", b);
   }
@@ -12383,7 +12383,7 @@ const Z0 = async (a) => {
     const i = e.lead, s = e.item;
     let o = !1, r = 0;
     i && t.stopPropagation();
-    const n = t.currentTarget, l = this.renderRoot.querySelector(".panel"), d = t.clientX, c = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, f = String(i?.attributes.entity_picture ?? s?.img ?? ""), m = (b, x) => {
+    const n = t.currentTarget, l = this.renderRoot.querySelector(".panel"), d = t.clientX, c = t.clientY, h = e.flick ? n.closest(".cratecol")?.getBoundingClientRect() : void 0, f = String(i?.attributes.entity_picture ?? s?.img ?? ""), u = (b, x) => {
       const y = (U) => {
         const V = U.getBoundingClientRect();
         return b >= V.left && b <= V.right && x >= V.top && x <= V.bottom;
@@ -12392,7 +12392,7 @@ const Z0 = async (a) => {
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(y)) return "all";
       const v = s ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
       return v && y(v) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(y)?.dataset.zone ?? "";
-    }, u = (b) => {
+    }, m = (b) => {
       const x = l.getBoundingClientRect();
       if (r = Math.max(r, Math.hypot(b.clientX - d, b.clientY - c)), !this._carry && !o && r < nr) return;
       const y = !!h && (b.clientX < h.left || b.clientX > h.right || b.clientY < h.top || b.clientY > h.bottom);
@@ -12400,9 +12400,9 @@ const Z0 = async (a) => {
         e.flick(b.clientX - d);
         return;
       }
-      this._carry = { from: i?.entity_id, item: s, art: f, x: (b.clientX - x.left) / x.width * 100, y: (b.clientY - x.top) / x.height * 100, over: m(b.clientX, b.clientY) };
+      this._carry = { from: i?.entity_id, item: s, art: f, x: (b.clientX - x.left) / x.width * 100, y: (b.clientY - x.top) / x.height * 100, over: u(b.clientX, b.clientY) };
     }, k = (b) => {
-      n.removeEventListener("pointermove", u), n.removeEventListener("pointerup", k), n.removeEventListener("pointercancel", k);
+      n.removeEventListener("pointermove", m), n.removeEventListener("pointerup", k), n.removeEventListener("pointercancel", k);
       let x = this._carry;
       if (this._carry = null, b.type === "pointercancel") {
         o && e.flick(0);
@@ -12436,7 +12436,7 @@ const Z0 = async (a) => {
         this._focus = y.entity_id, this._shelfPlay(s, y);
       });
     };
-    n.setPointerCapture(t.pointerId), n.addEventListener("pointermove", u), n.addEventListener("pointerup", k), n.addEventListener("pointercancel", k);
+    n.setPointerCapture(t.pointerId), n.addEventListener("pointermove", m), n.addEventListener("pointerup", k), n.addEventListener("pointercancel", k);
   }
   /** The house in small: rooms as buttons, for choosing where to call or where a record goes. */
   _mini(t, e, i = !1) {
@@ -12449,19 +12449,19 @@ const Z0 = async (a) => {
   }
   _house() {
     const t = this._cur, e = t && this._leader(t), i = this._group(e), s = this._floors, o = this._carry, r = [...new Set(this._list.map((l) => this._leader(l)?.entity_id).filter((l) => !!l && l !== e?.entity_id))], n = (l, d) => {
-      const c = l.p, h = c.entity_id, f = this._leader(c), m = f?.state === "playing", u = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(c), x = this._off(c), y = b !== null && !x, K = !!f && this._group(f).length > 1, v = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", U = x ? "Offline" : f ? m ? String(f.attributes.media_title ?? "Music") : "Paused" : d ? "Asleep" : "Quiet", V = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
-      return p`<div class="mzone" data-zone=${h} ?data-offline=${x} ?data-focus=${u} ?data-live=${!!f} ?data-playing=${m} ?data-asleep=${d} ?data-linked=${K} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${v}--v:${b ?? 0}" @pointerdown=${($) => this._volDown($, c)}>
+      const c = l.p, h = c.entity_id, f = this._leader(c), u = f?.state === "playing", m = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(c), x = this._off(c), y = b !== null && !x, K = !!f && this._group(f).length > 1, v = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", U = x ? "Offline" : f ? u ? String(f.attributes.media_title ?? "Music") : "Paused" : d ? "Asleep" : "Quiet", V = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
+      return p`<div class="mzone" data-zone=${h} ?data-offline=${x} ?data-focus=${m} ?data-live=${!!f} ?data-playing=${u} ?data-asleep=${d} ?data-linked=${K} ?data-held=${this._held === h} ?data-hot=${o?.over === h && o.from !== h} style="${v}--v:${b ?? 0}" @pointerdown=${($) => this._volDown($, c)}>
         ${f && y ? p`<span class="pool"></span>` : g}
-        ${f ? p`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (b ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${u ? p`<b></b>` : g}</span>` : g}
+        ${f ? p`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (b ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${m ? p`<b></b>` : g}</span>` : g}
         ${o && f?.entity_id !== h ? p`<span class="land" aria-hidden="true"></span>` : g}
-        <button class="zname tap" aria-pressed=${String(u)} aria-label="${l.name}: ${U}${b !== null ? `, volume ${b}` : ""}${K ? ", linked with another room" : ""}" @click=${() => {
+        <button class="zname tap" aria-pressed=${String(m)} aria-label="${l.name}: ${U}${b !== null ? `, volume ${b}` : ""}${K ? ", linked with another room" : ""}" @click=${() => {
         this._focus = h;
       }}><b>${d ? "☾ " : ""}${l.name}${K ? p`<i class="linkd" aria-hidden="true"></i>` : g}</b><span>${U}</span></button>
         ${h === e?.entity_id || x ? g : p`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${l.name} ${k ? "from" : "to"} the music" @click=${() => this._join(h)}>${k ? "✓" : "＋"}</button>`}
         ${y ? p`${wi(l.name, b, !0, () => this._volStep(h, 5))}
           <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${l.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${b} aria-valuetext="${b} per cent${f ? "" : ", quiet"}" @keydown=${hp(b, ($) => this._setVol(h, $, !0))}><i></i></span>
           ${wi(l.name, b, !1, () => this._volStep(h, -5))}<b class="zvol" aria-hidden="true">${b}</b>` : g}
-        ${f?.entity_id === h ? p`<span class="puck" role="button" tabindex="0" ?data-lifted=${o?.from === h} style=${V} aria-label="${f.attributes.media_title ?? "Music"} in ${l.name}. Tap to ${m ? "pause" : "play"}, drag to move it to another room."
+        ${f?.entity_id === h ? p`<span class="puck" role="button" tabindex="0" ?data-lifted=${o?.from === h} style=${V} aria-label="${f.attributes.media_title ?? "Music"} in ${l.name}. Tap to ${u ? "pause" : "play"}, drag to move it to another room."
           @pointerdown=${($) => this._carryDown($, { lead: f })} @keydown=${($) => {
         ($.key === "Enter" || $.key === " ") && ($.preventDefault(), this._focus = h, this._svc("media_play_pause", {}, h));
       }}></span>` : g}
@@ -12485,17 +12485,17 @@ const Z0 = async (a) => {
   _sideShelf() {
     const t = wa(this.hass), e = this._cur, i = this._carry;
     t && !this._shelfAsked && (this._shelfAsked = !0, this._loadShelves());
-    const s = this.kids.find((m) => m.name === this._shelf), o = !!s && Zi(s.bedtime), r = this._items[this._shelf] ?? [], n = o ? r.filter((m) => m.calm) : r, l = 9, d = n.length > l ? n.slice(0, l - 1) : n, c = n.length <= 4 ? 2 : 3, h = (m) => Z(this.kids.find((u) => u.name === m)?.colour ?? "family"), f = (m) => {
-      Date.now() - this._carried < 400 || !e || this._gentle(e.entity_id, () => this._shelfPlay(m, e));
+    const s = this.kids.find((u) => u.name === this._shelf), o = !!s && Zi(s.bedtime), r = this._items[this._shelf] ?? [], n = o ? r.filter((u) => u.calm) : r, l = 9, d = n.length > l ? n.slice(0, l - 1) : n, c = n.length <= 4 ? 2 : 3, h = (u) => Z(this.kids.find((m) => m.name === u)?.colour ?? "family"), f = (u) => {
+      Date.now() - this._carried < 400 || !e || this._gentle(e.entity_id, () => this._shelfPlay(u, e));
     };
     return p`<div class="mshelf" role="group" aria-label="Shelf">
       ${t ? p`<div class="shead"><b>${o ? "🌙 " : ""}${this._shelf === "Family" ? "Family shelf" : `${this._shelf}’s shelf`}</b>
-          ${this._shelfNames.map((m) => p`<button class="swho tap" data-pin=${m} ?data-hot=${i?.over === `pin:${m}`} style="--c:${h(m)}" aria-pressed=${String(this._shelf === m)} aria-label=${m === "Family" ? "Family shelf" : `${m}’s shelf`} @click=${() => {
-      this._shelf = m;
-    }}><i>${m === "Family" ? A("home", 20) : this._face(m, 36)}</i></button>`)}</div>
-        ${d.length ? p`<div class="srecs" style="--cols:${c};--rows:${Math.ceil(Math.min(n.length, l) / c)}">${d.map((m, u) => p`<button class="srec tap" ?data-lifted=${i?.item === m} aria-label="${m.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
-              @pointerdown=${(k) => this._carryDown(k, { item: m })} @click=${() => f(m)}>
-              <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : rr(u)}"></i><span>${m.name}</span></button>`)}
+          ${this._shelfNames.map((u) => p`<button class="swho tap" data-pin=${u} ?data-hot=${i?.over === `pin:${u}`} style="--c:${h(u)}" aria-pressed=${String(this._shelf === u)} aria-label=${u === "Family" ? "Family shelf" : `${u}’s shelf`} @click=${() => {
+      this._shelf = u;
+    }}><i>${u === "Family" ? A("home", 20) : this._face(u, 36)}</i></button>`)}</div>
+        ${d.length ? p`<div class="srecs" style="--cols:${c};--rows:${Math.ceil(Math.min(n.length, l) / c)}">${d.map((u, m) => p`<button class="srec tap" ?data-lifted=${i?.item === u} aria-label="${u.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
+              @pointerdown=${(k) => this._carryDown(k, { item: u })} @click=${() => f(u)}>
+              <i class="puck onshelf" style="--art:${u.img ? `url(${u.img})` : rr(m)}"></i><span>${u.name}</span></button>`)}
             ${n.length > l ? p`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => {
       this._tab = "shelves";
     }}>＋${n.length - d.length}<span>more</span></button>` : g}</div>` : p`<div class="snone">${A("sleeve", 34)}<span>${o ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : p`<span style="flex:1"></span>`}
@@ -12666,10 +12666,10 @@ const Z0 = async (a) => {
       return;
     }
     this._lastCall = Date.now(), this._calling = !0;
-    const c = this._h, h = this.callLanguage, f = this.callVoice ? { options: { voice: this.callVoice } } : {}, m = Math.max(0, Math.min(100, Math.round(this.callVolume))), u = o && r >= 0 ? await Xh(_1[r]) : "", k = o && !u ? await Eh(e) : "", b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, x = (F) => !!c.services?.music_assistant?.play_announcement && c.entities?.[F]?.platform === "music_assistant", y = (F) => s ? Promise.resolve(c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0, ...h ? { language: h } : {}, ...f }, { entity_id: s })).catch(() => c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), K = (F) => (b ? Promise.resolve(c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => y(F)) : y(F)).then(() => !0, (I) => (console.warn("Family Hub: call failed", F, I), !1)), v = (F) => Promise.resolve(c.callService("media_player", "play_media", { media_content_id: u, media_content_type: "music", announce: !0, ...x(F) ? { extra: { announce_volume: m } } : {} }, { entity_id: F })).then(() => !0, () => K(F)), U = u ? [] : i.filter(x), V = i.filter((F) => !U.includes(F)).map(u ? v : K);
+    const c = this._h, h = this.callLanguage, f = this.callVoice ? { options: { voice: this.callVoice } } : {}, u = Math.max(0, Math.min(100, Math.round(this.callVolume))), m = o && r >= 0 ? await Xh(_1[r]) : "", k = o && !m ? await Eh(e) : "", b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, x = (F) => !!c.services?.music_assistant?.play_announcement && c.entities?.[F]?.platform === "music_assistant", y = (F) => s ? Promise.resolve(c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0, ...h ? { language: h } : {}, ...f }, { entity_id: s })).catch(() => c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), K = (F) => (b ? Promise.resolve(c.callService("tts", "speak", { media_player_entity_id: F, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => y(F)) : y(F)).then(() => !0, (I) => (console.warn("Family Hub: call failed", F, I), !1)), v = (F) => Promise.resolve(c.callService("media_player", "play_media", { media_content_id: m, media_content_type: "music", announce: !0, ...x(F) ? { extra: { announce_volume: u } } : {} }, { entity_id: F })).then(() => !0, () => K(F)), U = m ? [] : i.filter(x), V = i.filter((F) => !U.includes(F)).map(m ? v : K);
     if (U.length) {
       const F = k ? Promise.resolve(k) : s ? Promise.resolve(c.callApi("POST", "tts_get_url", { engine_id: s, message: e, cache: !0, ...h ? { language: h } : {}, ...f })).then((I) => I?.url ?? "", () => "") : Promise.resolve("");
-      for (const I of U) V.push(F.then((st) => st ? Promise.resolve(c.callService("music_assistant", "play_announcement", { url: st, announce_volume: m }, { entity_id: I })).then(() => !0, () => K(I)) : K(I)));
+      for (const I of U) V.push(F.then((st) => st ? Promise.resolve(c.callService("music_assistant", "play_announcement", { url: st, announce_volume: u }, { entity_id: I })).then(() => !0, () => K(I)) : K(I)));
     }
     const $ = await Promise.all(V), T = i.filter((F) => $[[...i.filter((I) => !U.includes(I)), ...U].indexOf(F)]);
     if (this._calling = !1, !this.isConnected) return;
@@ -12683,17 +12683,17 @@ const Z0 = async (a) => {
       m === "search" && this._tab !== "search" && (this._prev = this._tab, this._keys = !0), this._tab = m, this._adding = !1, m === "radio" && this._loadRadio(), m === "shelves" && this._loadShelves();
     }, n = this._tab === "search", l = this._carry, d = this._full, c = this._one, h = this._tab === "rooms";
     this._tab === "rooms" && !this._viewAsk && !Vc.has(this._mode) && (Vc.add(this._mode), window.setTimeout(() => this._showCoach(), 0));
-    const f = p`<div class="tabs ${d ? "inline" : ""}" role="tablist">${o.map(([m, u, k]) => p`<button class="tap" role="tab" aria-label=${u} aria-selected=${String(this._tab === m)} @click=${() => r(m)}>${A(k, 26)}<span>${u}</span></button>`)}</div>`;
+    const f = p`<div class="tabs ${d ? "inline" : ""}" role="tablist">${o.map(([m, k, b]) => p`<button class="tap" role="tab" aria-label=${k} aria-selected=${String(this._tab === m)} @click=${() => r(m)}>${A(b, 26)}<span>${k}</span></button>`)}</div>`, u = l && s ? p`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((m) => p`<span class="pinto" data-pin=${m} ?data-hot=${l.over === `pin:${m}`} style="--c:${this._shelfColour(m)}"><i aria-hidden="true">${m === "Family" ? A("home", 22) : this._face(m, 44)}</i><b>${m}</b></span>`)}</div>` : g;
     return p`${i ? this._hero(i) : p`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${c} data-teach=${h && this._teach || g} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${(m) => {
       this._coach && !m.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
     }}>
         <div class="mhead" ?data-one=${c} ?data-hinting=${c && h && this._coach} ?data-carrying=${c && !!l && s}><h1 class="t-title">Music</h1>${c && !n ? f : g}${c && h ? this._tools() : g}
-          ${n ? this._searchBar() : s ? p`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : p`<span style="flex:1"></span>`}${c ? this._oneNow() : g}${d && !c && !n ? f : g}</div>
+          ${n ? this._searchBar() : s ? p`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : p`<span style="flex:1"></span>`}${c ? this._oneNow() : g}${d && !c && !n ? f : g}${c ? u : g}</div>
         ${n || d ? g : f}
         ${pa(this._tab, p`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}
         ${l ? p`<span class="puck fly" style="left:${l.x}%;top:${l.y}%;${l.art ? `--art:url(${l.art})` : ""}"></span>` : g}
-        ${l && s ? p`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((m) => p`<span class="pinto" data-pin=${m} ?data-hot=${l.over === `pin:${m}`} style="--c:${this._shelfColour(m)}"><i aria-hidden="true">${m === "Family" ? A("home", 22) : this._face(m, 44)}</i><b>${m}</b></span>`)}</div>` : g}
+        ${c ? g : u}
       </section>
       ${this._pinTo ? this._pinSheet() : g}
       ${this._peek && c ? p`<div class="pscrim" @click=${() => {
@@ -12732,14 +12732,14 @@ const Z0 = async (a) => {
         <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${ft("next", 28)}</button>
         <button class="tap" aria-label="Save this song to favourites" @click=${() => this._heart()}>♥</button>
       </div>
-      <div class="upnext">${n?.next ? p`<span>Up next</span><b style="overflow:hidden;text-overflow:ellipsis">${n.next.name}</b>${n.items > 2 ? p`<span>+${n.items - 2} more</span>` : g}` : this._juke.on ? p`<span>🎶 Jukebox is on · ${this._juke.picks.filter((m) => !m.done).length} waiting</span>` : g}</div>
+      <div class="upnext">${n?.next ? p`<span>Up next</span><b style="overflow:hidden;text-overflow:ellipsis">${n.next.name}</b>${n.items > 2 ? p`<span>+${n.items - 2} more</span>` : g}` : this._juke.on ? p`<span>🎶 Jukebox is on · ${this._juke.picks.filter((u) => !u.done).length} waiting</span>` : g}</div>
       <div class="mini">
         <button class="tog tap" aria-pressed=${String(this._keep)} title="When the music runs out, carry on with similar songs" @click=${() => {
       this._keep = !this._keep, Ds("fh-keep", this._keep), this._say(this._keep ? "When the music runs out, I’ll keep it going" : "The music will stop at the end");
     }}>∞ Keep going</button>
         ${this._off(t) ? g : p`<button class="tog tap" aria-pressed=${String(this._sleepLeft(t) !== null)} @click=${() => this._sleep()}>🌙 ${this._sleepLeft(t) !== null ? `${this._name(t)}: ${this._sleepLeft(t)} min left · Cancel` : `Sleep ${this.sleepMinutes}`}</button>`}
       </div>
-      ${o !== null && !this._off(t) ? Ro({ name: this._name(t), v: o, live: !!this._leader(t), held: this._held === t.entity_id, set: (m, u) => this._setVol(t.entity_id, m, u), drop: () => this._volDrop(t.entity_id) }) : g}
+      ${o !== null && !this._off(t) ? Ro({ name: this._name(t), v: o, live: !!this._leader(t), held: this._held === t.entity_id, set: (u, m) => this._setVol(t.entity_id, u, m), drop: () => this._volDrop(t.entity_id) }) : g}
     </section>`;
   }
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
@@ -12805,7 +12805,7 @@ const Z0 = async (a) => {
       if (!h) return g;
       const f = this.hass.states[h].state === "on";
       return p`<button class="pill tap" style="font-size:var(--fs-2)" aria-pressed=${String(f)} @click=${() => {
-        this._h.callService("switch", f ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((m) => this._oops("The TV sound didn’t change", m));
+        this._h.callService("switch", f ? "turn_off" : "turn_on", {}, { entity_id: h }).catch((u) => this._oops("The TV sound didn’t change", u));
       }}>${c} ${f ? "on" : "off"}</button>`;
     }, l = this._mode;
     return p`${this._viewAsk ? tb(l, (d) => this._setView(d), () => {
@@ -12816,16 +12816,16 @@ const Z0 = async (a) => {
         ${r ? p`<span class="soft">TV sound</span>${n(/^switch\..*night_sound$/, "Night")}${n(/^switch\..*speech_enhancement$/, "Clear speech")}` : g}
       </div>`}
       ${l === "house" ? this._house() : l === "dial" ? Z2(this._vctx()) : l === "desk" ? O2(this._vctx()) : l === "cables" ? D2(this._vctx()) : l === "scene" ? X2(this._vctx()) : p`<div class="grid scrolly" data-fits @scroll=${_t}>${this._list.map((d) => {
-      const c = d.attributes, h = d.entity_id, f = this._leader(d), m = d.state === "playing", u = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(d), x = this._name(d), y = this._off(d), K = !!f && this._group(f).length > 1, v = y ? "Offline" : k ? `With ${this._name(e)}` : f ? f.state === "playing" ? String(f.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
-      return p`<div class="spk ${u ? "focus" : k ? "inmix" : ""}" data-zone=${h} ?data-offline=${y}>
-        <div class="top"><button class="rsel tap" aria-pressed=${String(u)} @click=${() => {
+      const c = d.attributes, h = d.entity_id, f = this._leader(d), u = d.state === "playing", m = h === t?.entity_id, k = i.includes(h) && h !== e?.entity_id, b = this._volOf(d), x = this._name(d), y = this._off(d), K = !!f && this._group(f).length > 1, v = y ? "Offline" : k ? `With ${this._name(e)}` : f ? f.state === "playing" ? String(f.attributes.media_title ?? "Playing") : "Paused" : this._asleep(h) ? "Asleep" : "Quiet";
+      return p`<div class="spk ${m ? "focus" : k ? "inmix" : ""}" data-zone=${h} ?data-offline=${y}>
+        <div class="top"><button class="rsel tap" aria-pressed=${String(m)} @click=${() => {
         this._focus = h;
       }}>
-          <span class="thumb ${m ? "eq" : ""}" style=${c.entity_picture ? `--art:url(${c.entity_picture})` : ""}>${m ? p`<i></i><i></i><i></i>` : A("music", 20)}</span>
+          <span class="thumb ${u ? "eq" : ""}" style=${c.entity_picture ? `--art:url(${c.entity_picture})` : ""}>${u ? p`<i></i><i></i><i></i>` : A("music", 20)}</span>
           <span class="rtx"><span class="sn2">${x}${K ? p`<i class="linkd" role="img" aria-label="linked with another room"></i>` : g}</span><span class="rst">${v}</span></span></button>
           ${h === e?.entity_id || y ? g : p`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${x} ${k ? "from" : "to"} the music" @click=${() => this._join(h)}>${k ? "✓" : "＋"}</button>`}</div>
         ${b !== null && !y ? Ro({ name: x, v: b, live: !!f, held: this._held === h, set: (U, V) => this._setVol(h, U, V), drop: () => this._volDrop(h) }) : g}
-        ${!u && !k && !y && s && t?.state === "playing" ? p`<button class="pill tap moveb" @click=${() => this._move(d)}>Move the music here</button>` : g}
+        ${!m && !k && !y && s && t?.state === "playing" ? p`<button class="pill tap moveb" @click=${() => this._move(d)}>Move the music here</button>` : g}
       </div>`;
     })}</div>`}`;
   }
@@ -12932,33 +12932,33 @@ const Z0 = async (a) => {
     }}>${this._edit ? "Done" : "Edit"}</button>` : g}</span></div></div>`;
   }
   _jukeTab() {
-    const t = this._juke, e = (u) => Z(this._everyone.find((k) => k.name === u)?.colour ?? "family"), i = this._nextPick(), s = (u) => t.picks.filter((k) => k.done && k.who === u).length;
+    const t = this._juke, e = (m) => Z(this._everyone.find((k) => k.name === m)?.colour ?? "family"), i = this._nextPick(), s = (m) => t.picks.filter((k) => k.done && k.who === m).length;
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
-    const o = new Set(t.picks.filter((u) => !u.done).map((u) => u.who)), r = [...this._everyone].sort((u, k) => Number(o.has(u.name)) - Number(o.has(k.name)) || s(u.name) - s(k.name))[0]?.name ?? "", n = () => {
+    const o = new Set(t.picks.filter((m) => !m.done).map((m) => m.who)), r = [...this._everyone].sort((m, k) => Number(o.has(m.name)) - Number(o.has(k.name)) || s(m.name) - s(k.name))[0]?.name ?? "", n = () => {
       this._jpick = !1, this._adding = !0, this._prev = this._prev === "rooms" ? "rooms" : "juke", this._tab = "search", this._keys = !0, this._hits = null, this._text = "", this._caps = !0;
     };
     if (this._jpick && t.who) {
-      const u = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((y) => !u.has(y.uri) && !!u.add(y.uri)), b = this.kids.find((y) => y.name === t.who)?.mode === "picture", x = p`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${n}>${A("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
+      const m = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((y) => !m.has(y.uri) && !!m.add(y.uri)), b = this.kids.find((y) => y.name === t.who)?.mode === "picture", x = p`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${n}>${A("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
         this._jpick = !1, this._prev === "rooms" && (this._tab = "rooms");
       }}>Back</button></div>`;
       return p`${b ? g : x}
         ${k.length ? p`<div class="covers scrolly jcovers ${b ? "low" : ""}" data-fits @scroll=${_t}>${k.map((y) => p`<button class="st tap" aria-label="Add ${y.name}" @click=${() => this._addPick(y)}>
           <i class="disc"></i><span class="img" style=${y.img ? `--art:url(${y.img})` : ""}>${y.img ? "" : y.name[0]}</span><span class="lbl">${y.name}</span></button>`)}</div>` : p`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A parent can pin music from Search. Until then, use Search instead.</span></div>`}${b ? x : g}`;
     }
-    const l = t.picks.filter((u) => !u.done).sort((u, k) => +(k === i) - +(u === i) || u.t - k.t), d = t.picks.filter((u) => u.done).sort((u, k) => k.t - u.t), c = (u) => u.done ? this._q?.next?.name === u.name ? p`<i aria-hidden="true">${ft("next", 14)}</i>Up next` : p`<i aria-hidden="true">✓</i>Played` : u === i ? p`<i aria-hidden="true">${ft("play", 14)}</i>Next` : p`<i aria-hidden="true">⏳</i>Waiting`, h = (u) => p`<div class="pickrow ${u.done ? "played" : ""}" ?data-next=${u === i}>
-      <span class="pcover"><i class="disc"></i><span class="art" style=${u.img ? `--art:url(${u.img})` : ""}>${u.img ? "" : A("music", 26)}</span>
-        <span class="init avatar" style="--c:${e(u.who)}" role="img" aria-label=${u.who}>${this._face(u.who, 30)}</span></span>
-      <span class="nm">${u.name}${u.sub ? p` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${u.sub}</span>` : g}</span>
-      <span class="when">${c(u)}</span></div>`, f = (u) => l.find((k) => k.who === u), m = this.kids.some((u) => u.mode === "picture") ? "jlow" : "";
+    const l = t.picks.filter((m) => !m.done).sort((m, k) => +(k === i) - +(m === i) || m.t - k.t), d = t.picks.filter((m) => m.done).sort((m, k) => k.t - m.t), c = (m) => m.done ? this._q?.next?.name === m.name ? p`<i aria-hidden="true">${ft("next", 14)}</i>Up next` : p`<i aria-hidden="true">✓</i>Played` : m === i ? p`<i aria-hidden="true">${ft("play", 14)}</i>Next` : p`<i aria-hidden="true">⏳</i>Waiting`, h = (m) => p`<div class="pickrow ${m.done ? "played" : ""}" ?data-next=${m === i}>
+      <span class="pcover"><i class="disc"></i><span class="art" style=${m.img ? `--art:url(${m.img})` : ""}>${m.img ? "" : A("music", 26)}</span>
+        <span class="init avatar" style="--c:${e(m.who)}" role="img" aria-label=${m.who}>${this._face(m.who, 30)}</span></span>
+      <span class="nm">${m.name}${m.sub ? p` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${m.sub}</span>` : g}</span>
+      <span class="when">${c(m)}</span></div>`, f = (m) => l.find((k) => k.who === m), u = this.kids.some((m) => m.mode === "picture") ? "jlow" : "";
     return p`${this._dj ? p`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : g}
-      <div class="coins ${m}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((u) => {
-      const k = f(u.name);
-      return p`<button class="coin tap" style="--c:${Z(u.colour)}" aria-pressed=${String(t.who === u.name)} ?data-next=${u.name === r} aria-label="${u.name}${u.name === r ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
-        this._saveJuke({ who: u.name }), this._prev = "juke", this._jpick = !0;
+      <div class="coins ${u}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((m) => {
+      const k = f(m.name);
+      return p`<button class="coin tap" style="--c:${Z(m.colour)}" aria-pressed=${String(t.who === m.name)} ?data-next=${m.name === r} aria-label="${m.name}${m.name === r ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
+        this._saveJuke({ who: m.name }), this._prev = "juke", this._jpick = !0;
       }}>
-        <span class="face"><span class="fpic">${this._face(u.name, 50)}</span>${k ? p`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : ft("play", 12)}</i>` : g}</span><span class="cname">${u.name}</span><span class="cnext">${u.name === r ? "Next" : ""}</span></button>`;
+        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${k ? p`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : ft("play", 12)}</i>` : g}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r ? "Next" : ""}</span></button>`;
     })}</div>
-      <div class="acts ${m}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!t.who} @click=${() => {
+      <div class="acts ${u}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
     }}>＋ ${t.who ? `${t.who} adds a song` : "Pick who’s choosing"}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(t.on)} style="font-size:var(--fs-2)" @click=${() => {
@@ -12966,10 +12966,10 @@ const Z0 = async (a) => {
     }}><i></i>${t.on ? "Jukebox is on" : "Jukebox is off"}</button>
         <span class="soft" style="flex:1;font-size:var(--fs-2)">Everyone gets a turn.</span>
         ${t.picks.length ? p`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => {
-      const u = t.picks;
-      this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: u }));
+      const m = t.picks;
+      this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: m }));
     }}>Clear</button>` : g}</div>
-      ${t.picks.length ? p`<div class="picks scrolly ${m}" data-fits @scroll=${_t}>${l.map(h)}${d.map(h)}</div>` : p`<div class="empty"><span style="color:var(--ink2)">${A("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
+      ${t.picks.length ? p`<div class="picks scrolly ${u}" data-fits @scroll=${_t}>${l.map(h)}${d.map(h)}</div>` : p`<div class="empty"><span style="color:var(--ink2)">${A("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
   _radio() {
     const t = this._cur, e = t && t.state === "playing" ? Zs[t.entity_id] : "";
@@ -13227,10 +13227,11 @@ Zo.styles = [It, ki, X`${Nt(vi)}`, eb, X`
     :host([data-phone]) .pinto b { display: none; } :host([data-phone]) .pinto { padding: 4px 6px; }
     /* under one bar the names take the bar's own row and its glass: the tabs and the tools cannot be used while a finger is carrying, so they step back
        (they keep their room, so nothing moves) and the small player stays */
-    .panel[data-one] .pinstrip { top: 12px; left: 14px; transform: none; gap: 8px; padding: 4px 8px 4px 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); box-shadow: 0 0 0 2px var(--primary), 0 12px 30px -12px rgba(0,0,0,.45); max-width: calc(100% - 28px); }
-    .panel[data-one] .pinto { min-height: 48px; padding: 2px 16px 2px 4px; border-radius: 999px; background: var(--chip); }
+    .mhead[data-one] { position: relative; }
+    .panel[data-one] .pinstrip { top: 0; bottom: 0; left: 0; transform: none; gap: 6px; padding: 2px 2px 2px 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); box-shadow: 0 0 0 2px var(--primary), 0 12px 30px -12px rgba(0,0,0,.45); max-width: 100%; }
+    .panel[data-one] .pinto { min-height: 44px; padding: 0 16px 0 2px; border-radius: 999px; background: var(--chip); } .panel[data-one] .pinto i { width: 40px; height: 40px; }
     .panel[data-one] .pinto[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--primary); }
-    .mhead[data-carrying] > :not(.nowbar):not(.peekb) { visibility: hidden; }
+    .mhead[data-carrying] > :not(.nowbar):not(.peekb):not(.pinstrip) { visibility: hidden; }
     .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
@@ -13846,7 +13847,7 @@ const bl = {
     </svg>`;
   }
   _now() {
-    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = ve(this._o("temp")) ?? e.temperature, o = ve(this._o("temp_feels_like")) ?? e.apparent_temperature, r = ve(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = ve(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, l = Je(this._o("wind_direction")) ?? e.wind_bearing, d = ve(this._o("humidity")) ?? e.humidity, c = ve(this._o("rain_since_9am")), h = ve(this._f("rain_chance")) ?? i?.precipitation_probability, f = Je(this._f("rain_amount_range")), m = this._uv(), u = Je(this._f("fire_danger")), k = Is(Je(this._f("astronomical_sunrise_time"))), b = Is(Je(this._f("astronomical_sunset_time"))), x = Je(this._f("extended_text")), y = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((F) => F.phase !== "cancelled" && (!F.expiry_time || new Date(F.expiry_time).getTime() > Date.now())), K = (F, I, st = "") => p`<div class="wfact ${st}"><b>${F}</b><small>${I}</small></div>`, v = this._tips(), U = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, V = this._more, $ = d !== void 0 || !!u || !!(k && b), T = [h !== void 0, c !== void 0, V && d !== void 0, V && !!u].filter(Boolean).length, z = T === 4 || T === 2 ? "half" : "";
+    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = ve(this._o("temp")) ?? e.temperature, o = ve(this._o("temp_feels_like")) ?? e.apparent_temperature, r = ve(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = ve(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, l = Je(this._o("wind_direction")) ?? e.wind_bearing, d = ve(this._o("humidity")) ?? e.humidity, c = ve(this._o("rain_since_9am")), h = ve(this._f("rain_chance")) ?? i?.precipitation_probability, f = Je(this._f("rain_amount_range")), u = this._uv(), m = Je(this._f("fire_danger")), k = Is(Je(this._f("astronomical_sunrise_time"))), b = Is(Je(this._f("astronomical_sunset_time"))), x = Je(this._f("extended_text")), y = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((F) => F.phase !== "cancelled" && (!F.expiry_time || new Date(F.expiry_time).getTime() > Date.now())), K = (F, I, st = "") => p`<div class="wfact ${st}"><b>${F}</b><small>${I}</small></div>`, v = this._tips(), U = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, V = this._more, $ = d !== void 0 || !!m || !!(k && b), T = [h !== void 0, c !== void 0, V && d !== void 0, V && !!m].filter(Boolean).length, z = T === 4 || T === 2 ? "half" : "";
     return p`<section class="glass wnow scrolly" data-fits>
       <h2>${this._titles()[0]}</h2>
       ${Yt() === "sports" ? s0(this._verdict(v), !0) : g}
@@ -13874,8 +13875,8 @@ const bl = {
         ${h !== void 0 ? K(`${Math.round(h)}%`, f && f !== "0" ? `Rain · ${f} mm` : "Chance of rain", z) : g}
         ${c !== void 0 ? K(`${c} mm`, "Since 9 am", `${z} x3`) : g}
         ${V && d !== void 0 ? K(`${Math.round(d)}%`, "Humidity", `${z} x3`) : g}
-        ${V && u ? K(u, "Fire danger", z) : g}
-        ${m.max !== void 0 ? K(`UV ${Math.round(m.max)} · ${mb(m.max)}`, m.max >= 3 ? m.from && m.to ? `Cover up ${m.from} to ${m.to}` : U ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : g}
+        ${V && m ? K(m, "Fire danger", z) : g}
+        ${u.max !== void 0 ? K(`UV ${Math.round(u.max)} · ${mb(u.max)}`, u.max >= 3 ? u.from && u.to ? `Cover up ${u.from} to ${u.to}` : U ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : g}
         ${V && k && b ? K(p`${k} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${b}`, "Sunrise to sunset", "wide stack x2") : g}
       </div>
       ${$ ? p`<button class="pill tap wmore" data-act="wmore" aria-expanded=${String(V)} style="align-self:flex-start;height:44px;padding:0 16px;flex-shrink:0" @click=${() => {
@@ -13885,30 +13886,30 @@ const bl = {
     </section>`;
   }
   _hoursChart() {
-    const t = Date.now() - 18e5, e = this._hours.filter((m) => new Date(m.datetime).getTime() >= t).slice(0, 24);
+    const t = Date.now() - 18e5, e = this._hours.filter((u) => new Date(u.datetime).getTime() >= t).slice(0, 24);
     if (e.length < 2) return p`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:var(--fs-2);margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
-    const i = this._hw, s = 158, o = e.length, r = e.map((m) => m.temperature ?? 0), n = Math.min(...r), l = Math.max(...r), d = (m) => 98 - (m - n) / Math.max(1, l - n) * 24, c = (m) => m * i + i / 2, h = e.map((m, u) => `${c(u)} ${d(m.temperature ?? n)}`), f = (m) => {
-      const u = this.renderRoot.querySelector(".hscroll");
-      u && u.scrollTo({ left: Math.round((u.scrollLeft + m * u.clientWidth) / this._hw) * this._hw, behavior: ds(this).travel ? "smooth" : "auto" });
+    const i = this._hw, s = 158, o = e.length, r = e.map((u) => u.temperature ?? 0), n = Math.min(...r), l = Math.max(...r), d = (u) => 98 - (u - n) / Math.max(1, l - n) * 24, c = (u) => u * i + i / 2, h = e.map((u, m) => `${c(m)} ${d(u.temperature ?? n)}`), f = (u) => {
+      const m = this.renderRoot.querySelector(".hscroll");
+      m && m.scrollTo({ left: Math.round((m.scrollLeft + u * m.clientWidth) / this._hw) * this._hw, behavior: ds(this).travel ? "smooth" : "auto" });
     };
     return p`<section class="glass whours">
       <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
         <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => f(-1)}>${A("left", 20)}</button>
         <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => f(1)}>${A("right", 20)}</button></div>
-      <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${o} hours: ${e.filter((m, u) => u % 3 === 0).map((m) => `${Nc(new Date(m.datetime))} ${Math.round(m.temperature ?? 0)} degrees`).join(", ")}`}>
+      <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${o} hours: ${e.filter((u, m) => m % 3 === 0).map((u) => `${Nc(new Date(u.datetime))} ${Math.round(u.temperature ?? 0)} degrees`).join(", ")}`}>
         <svg class="hchart" width=${o * i} height=${s} viewBox="0 0 ${o * i} ${s}">
-          ${w`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${o * i} y1="0" y2="0">${e.map((m, u) => w`<stop offset=${u / (o - 1)} stop-color=${Ps(m.temperature ?? n)}></stop>`)}</linearGradient></defs>
+          ${w`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${o * i} y1="0" y2="0">${e.map((u, m) => w`<stop offset=${m / (o - 1)} stop-color=${Ps(u.temperature ?? n)}></stop>`)}</linearGradient></defs>
           <path class="area" fill="url(#tg)" d="M${c(0)} 122L${h.join("L")}L${c(o - 1)} 122z"></path>
           <path class="line" stroke="url(#tg)" d="M${h.join("L")}"></path>
-          ${e.map((m, u) => {
-      const k = new Date(m.datetime), b = m.precipitation_probability ?? 0, x = u > 0 && k.getHours() === 0;
+          ${e.map((u, m) => {
+      const k = new Date(u.datetime), b = u.precipitation_probability ?? 0, x = m > 0 && k.getHours() === 0;
       return w`
-              ${x ? w`<path class="split" d="M${u * i} 18V${s - 4}"></path><text class="day" x=${u * i + 4} y="12.5" style="text-anchor:start">${k.toLocaleDateString("en-AU", { weekday: "short" })}</text>` : g}
-              <text x=${c(u)} y=${x ? 26 : 13}>${u === 0 ? "Now" : Nc(k)}</text>
-              <svg class="sky" x=${c(u) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${sf(m.condition)}</svg>
-              <circle cx=${c(u)} cy=${d(m.temperature ?? n)} r="3.5" fill=${Ps(m.temperature ?? n)}></circle>
-              <text class="tv" x=${c(u)} y=${d(m.temperature ?? n) - 9}>${Math.round(m.temperature ?? 0)}°</text>
-              ${b >= 10 ? w`<rect class="rainbar" x=${c(u) - 13} y=${150 - b / 100 * 14} width="26" height=${b / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${c(u)} y="133">${Math.round(b)}%</text>` : w`<text class="wind" x=${c(u)} y="146">${m.wind_speed !== void 0 ? Math.round(m.wind_speed) : ""}</text>`}`;
+              ${x ? w`<path class="split" d="M${m * i} 18V${s - 4}"></path><text class="day" x=${m * i + 4} y="12.5" style="text-anchor:start">${k.toLocaleDateString("en-AU", { weekday: "short" })}</text>` : g}
+              <text x=${c(m)} y=${x ? 26 : 13}>${m === 0 ? "Now" : Nc(k)}</text>
+              <svg class="sky" x=${c(m) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${sf(u.condition)}</svg>
+              <circle cx=${c(m)} cy=${d(u.temperature ?? n)} r="3.5" fill=${Ps(u.temperature ?? n)}></circle>
+              <text class="tv" x=${c(m)} y=${d(u.temperature ?? n) - 9}>${Math.round(u.temperature ?? 0)}°</text>
+              ${b >= 10 ? w`<rect class="rainbar" x=${c(m) - 13} y=${150 - b / 100 * 14} width="26" height=${b / 100 * 14 + 2} rx="2"></rect><text class="raintxt" x=${c(m)} y="133">${Math.round(b)}%</text>` : w`<text class="wind" x=${c(m)} y="146">${u.wind_speed !== void 0 ? Math.round(u.wind_speed) : ""}</text>`}`;
     })}`}
         </svg>
       </div>
@@ -13921,14 +13922,14 @@ const bl = {
       ${t.length ? p`
       <div class="days" role="list">
         ${t.map((l, d) => {
-      const c = new Date(l.datetime), h = c.toDateString() === e, f = l.precipitation_probability ?? 0, m = l.templow ?? l.temperature ?? o, u = l.temperature ?? r, k = l.templow === void 0 || l.templow === l.temperature, b = h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "short" });
-      return p`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "long" })}: ${bl[l.condition ?? ""] ?? ""}, ${k ? "" : `${Math.round(m)} to `}${Math.round(u)} degrees${f >= 30 ? `, ${Math.round(f)} percent chance of rain` : ""}`}>
+      const c = new Date(l.datetime), h = c.toDateString() === e, f = l.precipitation_probability ?? 0, u = l.templow ?? l.temperature ?? o, m = l.temperature ?? r, k = l.templow === void 0 || l.templow === l.temperature, b = h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "short" });
+      return p`<div class="wday ${h ? "today" : ""}" role="listitem" aria-label=${`${h ? "Today" : c.toLocaleDateString("en-AU", { weekday: "long" })}: ${bl[l.condition ?? ""] ?? ""}, ${k ? "" : `${Math.round(u)} to `}${Math.round(m)} degrees${f >= 30 ? `, ${Math.round(f)} percent chance of rain` : ""}`}>
             <span class="dn">${b}<small>${c.getDate()} ${c.toLocaleDateString("en-AU", { month: "short" })}</small></span>
             ${an(d === 0 && l.condition === "clear-night" ? "clear-night" : l.condition, 38)}
             <span class="rng">
-              <span class="lo">${k ? "" : `${Math.round(m)}°`}</span>
-              <span class="track"><span class="wbar" style="left:${k ? (u - o) / n * 100 - 4 : (m - o) / n * 100}%;right:${100 - (u - o) / n * 100}%;background:linear-gradient(90deg, ${Ps(m)}, ${Ps(u)})"></span></span>
-              <span>${Math.round(u)}°</span>
+              <span class="lo">${k ? "" : `${Math.round(u)}°`}</span>
+              <span class="track"><span class="wbar" style="left:${k ? (m - o) / n * 100 - 4 : (u - o) / n * 100}%;right:${100 - (m - o) / n * 100}%;background:linear-gradient(90deg, ${Ps(u)}, ${Ps(m)})"></span></span>
+              <span>${Math.round(m)}°</span>
               ${f >= 30 ? p`<span class="wet">💧 ${Math.round(f)}%${l.precipitation ? ` · ${l.precipitation} mm` : ""}</span>` : g}
             </span>
           </div>`;
@@ -14671,13 +14672,13 @@ const Sb = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Lc = (a, t) => {
   }
   render() {
     if (!this.hass) return g;
-    const t = ae(this._now), e = this.kids.map((b) => ({ k: b, ...this._leave(b) })), i = e.filter((b) => b.at - t > -5).sort((b, x) => b.at - x.at)[0], s = i ? i.at - t : -99, o = (b) => gt(new Date(new Date(this._now).setHours(Math.floor(b / 60), b % 60, 0, 0))), r = i ? e.filter((b) => b.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((b) => b.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", l = this._now, d = this.privateWords.map((b) => b.toLowerCase()), c = this._team(), h = c.total > 0 && c.done === c.total, f = (b) => ht(this.hass.states[D(b).avatar]?.state, b.look ? ht(b.look) : {}), m = (b) => ee(f(b), { size: 36, crop: "head", still: !0, age: b.age, ring: Z(b.colour), name: b.name }), u = this.kids.map((b) => ({ k: b, n: this._list(b).filter((x) => sn(x) && x.status !== "completed").length })).filter((b) => b.n > 0), k = this.events.filter((b) => Lc(b, l) && b.colour === "family" && !d.some((x) => b.title.toLowerCase().includes(x)) && !this.kids.some((x) => b.who === x.name || b.title.toLowerCase().includes(x.name.toLowerCase()))).map((b, x) => ({ ev: b, i: x, k: qe(b, l).sort })).sort((b, x) => b.k - x.k || b.i - x.i).map((b) => b.ev);
+    const t = ae(this._now), e = this.kids.map((b) => ({ k: b, ...this._leave(b) })), i = e.filter((b) => b.at - t > -5).sort((b, x) => b.at - x.at)[0], s = i ? i.at - t : -99, o = (b) => gt(new Date(new Date(this._now).setHours(Math.floor(b / 60), b % 60, 0, 0))), r = i ? e.filter((b) => b.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((b) => b.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", l = this._now, d = this.privateWords.map((b) => b.toLowerCase()), c = this._team(), h = c.total > 0 && c.done === c.total, f = (b) => ht(this.hass.states[D(b).avatar]?.state, b.look ? ht(b.look) : {}), u = (b) => ee(f(b), { size: 36, crop: "head", still: !0, age: b.age, ring: Z(b.colour), name: b.name }), m = this.kids.map((b) => ({ k: b, n: this._list(b).filter((x) => sn(x) && x.status !== "completed").length })).filter((b) => b.n > 0), k = this.events.filter((b) => Lc(b, l) && b.colour === "family" && !d.some((x) => b.title.toLowerCase().includes(x)) && !this.kids.some((x) => b.who === x.name || b.title.toLowerCase().includes(x.name.toLowerCase()))).map((b, x) => ({ ev: b, i: x, k: qe(b, l).sort })).sort((b, x) => b.k - x.k || b.i - x.i).map((b) => b.ev);
     return p`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ""}${this.dinner ? p` · <span data-part="dinner">Dinner tonight: ${this.dinner}</span>` : g}</span></div>
-        ${c.total ? p`<div class="team" data-part="team" role="img" aria-label=${h ? "Morning jobs: all done" : `Morning jobs to go: ${u.map((b) => `${b.k.name} ${b.n}`).join(", ")}`}>
-          ${h ? g : p`<div class="faces" aria-hidden="true">${c.total - c.done <= 12 ? u.flatMap((b) => Array.from({ length: b.n }, () => p`<span class="fc" data-who=${b.k.name}>${m(b.k)}</span>`)) : u.map((b) => p`<span class="fc" data-who=${b.k.name} data-n=${b.n}>${m(b.k)}<b>${b.n}</b></span>`)}</div>`}
+        ${c.total ? p`<div class="team" data-part="team" role="img" aria-label=${h ? "Morning jobs: all done" : `Morning jobs to go: ${m.map((b) => `${b.k.name} ${b.n}`).join(", ")}`}>
+          ${h ? g : p`<div class="faces" aria-hidden="true">${c.total - c.done <= 12 ? m.flatMap((b) => Array.from({ length: b.n }, () => p`<span class="fc" data-who=${b.k.name}>${u(b.k)}</span>`)) : m.map((b) => p`<span class="fc" data-who=${b.k.name} data-n=${b.n}>${u(b.k)}<b>${b.n}</b></span>`)}</div>`}
           <span class="nextstep ${h ? "set" : ""}">${h ? "Morning jobs: all done. Go team! 🎉" : `Morning jobs: ${c.total - c.done} to go between us`}</span></div>` : g}
         <div class="goclock ${s > 0 && s <= 10 ? "soon" : ""}" data-part="goclock" role="timer" aria-label=${s > 0 ? `Time to leave: ${Nb(s)} until ${n} at ${o(i.at)}` : s > -5 ? "Time to go" : "Everyone has left"}>
           <span class="face" aria-hidden="true">${le(Yt(), "timer", { frac: s > 0 ? Math.min(1, s / 60) : 0, size: 96 })}<b>${s > -5 ? "🚪" : "👋"}</b></span>
@@ -15114,8 +15115,8 @@ const zb = qh(Kl), Yc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
       ${e.map((o, r) => p`<i ?data-on=${o === i} @click=${() => this._setDrum(t, r)}>${t === "h" ? o : Le(o)}</i>`)}</div>`;
   }
   _monthGrid() {
-    const t = nt(/* @__PURE__ */ new Date()), e = this._shown.getFullYear(), i = this._shown.getMonth(), s = new Date(e, i, 1), o = (s.getDay() + 6) % 7, r = new Date(e, i + 1, 0).getDate(), n = (f, m) => {
-      this._shown = new Date(e + f, i + m, 1);
+    const t = nt(/* @__PURE__ */ new Date()), e = this._shown.getFullYear(), i = this._shown.getMonth(), s = new Date(e, i, 1), o = (s.getDay() + 6) % 7, r = new Date(e, i + 1, 0).getDate(), n = (f, u) => {
+      this._shown = new Date(e + f, i + u, 1);
     }, l = this._pickFor === "until", d = l && this._rep?.until ? /* @__PURE__ */ new Date(`${this._rep.until}T00:00:00`) : this._date, c = l ? this._date : t, h = (f) => {
       M("tap"), l ? this._rep && (this._rep = { ...this._rep, end: "on", until: Es(f) }) : this._date = f, this._pick = !1, this._pickFor = "date";
     };
@@ -15131,9 +15132,9 @@ const zb = qh(Kl), Yc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
         <div class="mgrid">
           ${["M", "T", "W", "T", "F", "S", "S"].map((f) => p`<span aria-hidden="true">${f}</span>`)}
           ${Array.from({ length: o }, () => p`<span></span>`)}
-          ${Array.from({ length: r }, (f, m) => {
-      const u = new Date(e, i, m + 1);
-      return p`<button class="tap ${Xs(u, t) ? "td" : ""}" ?disabled=${u < c} aria-pressed=${String(Xs(u, d))} aria-label=${u.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} @click=${() => h(u)}>${m + 1}</button>`;
+          ${Array.from({ length: r }, (f, u) => {
+      const m = new Date(e, i, u + 1);
+      return p`<button class="tap ${Xs(m, t) ? "td" : ""}" ?disabled=${m < c} aria-pressed=${String(Xs(m, d))} aria-label=${m.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })} @click=${() => h(m)}>${u + 1}</button>`;
     })}
         </div>
       </div>`;
@@ -15142,8 +15143,8 @@ const zb = qh(Kl), Yc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
   _repeatSheet() {
     const t = this._date, e = this._rep, i = Jc(t), s = this._custom ? void 0 : this._presetOf(e), o = (c) => {
       this._rep && (M("tap"), this._rep = { ...this._rep, ...c });
-    }, r = (c, h, f, m, u) => p`<span class="rstep" role="group" aria-label=${c}>
-      <button class="tap" aria-label=${`${c}: fewer`} ?disabled=${h <= f} @click=${() => u(Math.max(f, h - 1))}>−</button><b aria-live="polite">${h}</b><button class="tap" aria-label=${`${c}: more`} ?disabled=${h >= m} @click=${() => u(Math.min(m, h + 1))}>+</button></span>`, n = (c, h, f, m = "") => p`<button class="tap" role="radio" data-act=${m || g} aria-checked=${String(h)} @click=${f}>${c}</button>`, l = [["DAILY", "day"], ["WEEKLY", "week"], ["MONTHLY", "month"], ["YEARLY", "year"]], d = e?.until ? /* @__PURE__ */ new Date(`${e.until}T00:00:00`) : null;
+    }, r = (c, h, f, u, m) => p`<span class="rstep" role="group" aria-label=${c}>
+      <button class="tap" aria-label=${`${c}: fewer`} ?disabled=${h <= f} @click=${() => m(Math.max(f, h - 1))}>−</button><b aria-live="polite">${h}</b><button class="tap" aria-label=${`${c}: more`} ?disabled=${h >= u} @click=${() => m(Math.min(u, h + 1))}>+</button></span>`, n = (c, h, f, u = "") => p`<button class="tap" role="radio" data-act=${u || g} aria-checked=${String(h)} @click=${f}>${c}</button>`, l = [["DAILY", "day"], ["WEEKLY", "week"], ["MONTHLY", "month"], ["YEARLY", "year"]], d = e?.until ? /* @__PURE__ */ new Date(`${e.until}T00:00:00`) : null;
     return p`<div class="veil" @click=${() => {
       this._repOpen = !1;
     }}></div>
@@ -15165,8 +15166,8 @@ const zb = qh(Kl), Yc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
         ${this._custom && e ? p`<div class="rrow"><span class="sub">Every</span>${r("How many", e.every, 1, 99, (c) => o({ every: c }))}
             <div class="rseg" role="radiogroup" aria-label="Days, weeks, months or years">${l.map(([c, h]) => n(e.every > 1 ? `${h}s` : h, e.freq === c, () => o({ freq: c })))}</div></div>
           ${e.freq === "WEEKLY" ? p`<div class="rrow"><span class="sub">On</span><div class="rdays" role="group" aria-label="Which days">${Zb.map((c, h) => p`<button class="tap" aria-label=${Ob[h]} aria-pressed=${String(e.days.includes(h))} @click=${() => {
-      const f = e.days.includes(h), m = f ? e.days.filter((u) => u !== h) : [...e.days, h];
-      o({ days: m.length ? m : [fs(t)] });
+      const f = e.days.includes(h), u = f ? e.days.filter((m) => m !== h) : [...e.days, h];
+      o({ days: u.length ? u : [fs(t)] });
     }}>${c}</button>`)}</div></div>` : g}
           ${e.freq === "MONTHLY" ? p`<div class="rrow"><span class="sub">On</span><div class="rseg" role="radiogroup" aria-label="Which day of the month">${n(Hs({ ...e, every: 1, end: "never", monthBy: "date" }, t).replace("Every month on ", ""), e.monthBy === "date", () => o({ monthBy: "date" }))}${n(Hs({ ...e, every: 1, end: "never", monthBy: "weekday" }, t).replace("Every month on ", ""), e.monthBy === "weekday", () => o({ monthBy: "weekday" }))}</div></div>` : g}` : g}
         ${e ? p`<div class="rrow"><span class="sub">Ends</span><div class="rseg" role="radiogroup" aria-label="When it ends">
@@ -15208,23 +15209,23 @@ const zb = qh(Kl), Yc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }, ni.WAIT), c = () => !this.isConnected || this.hasAttribute("data-closing");
     try {
       let h = !1;
-      const f = (k) => String(k).replace(" ", "T"), m = { summary: s.summary, dtstart: f(s.start_date ?? s.start_date_time), dtend: f(s.end_date ?? s.end_date_time) };
-      s.location && (m.location = s.location), s.description && (m.description = s.description), n && (m.rrule = n);
-      const u = async () => {
-        n ? await this.hass.callWS({ type: "calendar/event/create", entity_id: t, event: m }) : await this.hass.callService("calendar", "create_event", s, { entity_id: t });
+      const f = (k) => String(k).replace(" ", "T"), u = { summary: s.summary, dtstart: f(s.start_date ?? s.start_date_time), dtend: f(s.end_date ?? s.end_date_time) };
+      s.location && (u.location = s.location), s.description && (u.description = s.description), n && (u.rrule = n);
+      const m = async () => {
+        n ? await this.hass.callWS({ type: "calendar/event/create", entity_id: t, event: u }) : await this.hass.callService("calendar", "create_event", s, { entity_id: t });
       };
       if (o?.uid && o.entity) {
         const k = Number(this.hass.states[o.entity]?.attributes.supported_features ?? 0), b = o.recurrenceId && this.scope ? { recurrence_id: o.recurrenceId, ...this.scope === "future" ? { recurrence_range: "THISANDFUTURE" } : {} } : {};
-        if (t === o.entity && k & 4) await this.hass.callWS({ type: "calendar/event/update", entity_id: o.entity, uid: o.uid, ...b, event: m });
+        if (t === o.entity && k & 4) await this.hass.callWS({ type: "calendar/event/update", entity_id: o.entity, uid: o.uid, ...b, event: u });
         else {
-          await u();
+          await m();
           try {
             await this.hass.callWS({ type: "calendar/event/delete", entity_id: o.entity, uid: o.uid, ...b });
           } catch {
             h = !0;
           }
         }
-      } else await u();
+      } else await m();
       if (clearTimeout(d), l !== this._saveGen) return;
       this._busy = !0, this._err = "", this.dispatchEvent(new CustomEvent("saved", { detail: (h ? "!" : "") + e }));
     } catch {
@@ -15751,7 +15752,7 @@ const Xc = 10 * 6e4, sx = (a, t) => {
   return `${Math.floor(t / 60) % 12 || 12}:${String(t % 60).padStart(2, "0")} ${t < 720 ? "am" : "pm"}`;
 }, hf = (a) => Object.keys(a?.states ?? {}).find((t) => t.startsWith("automation.") && a.states[t].attributes.id === To), xx = (a, t) => {
   const e = (a.calendars ?? []).map((c) => {
-    const h = (a.kids ?? []).find((m) => D(m).calendar === c.entity || c.name && m.name.toLowerCase() === c.name.toLowerCase()), f = (m) => (m ?? []).map((u) => String(u).trim().toLowerCase()).filter(Boolean);
+    const h = (a.kids ?? []).find((u) => D(u).calendar === c.entity || c.name && u.name.toLowerCase() === c.name.toLowerCase()), f = (u) => (u ?? []).map((m) => String(m).trim().toLowerCase()).filter(Boolean);
     return { e: c.entity, n: c.name ?? "", only: f(c.only), hide: f(c.hide), who: h?.name ?? "" };
   }), i = a.morning?.leave_by ?? "08:15", s = (a.kids ?? []).map((c) => ({ n: c.name, l: Wa(c.leave_by ?? i, Wa(i, 495)) })), o = a.bins, r = a.health ?? {}, n = (a.meds ?? []).map((c) => ({ id: c.id, w: c.who ?? c.label, t: Wa(c.time, 0) })), l = [], d = (c) => `{%- set ns.L = ns.L + [${c}] -%}`;
   if (l.push(
@@ -16233,10 +16234,10 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
   }, i = /* @__PURE__ */ new Set();
   (a.kids ?? []).forEach((c, h) => {
     const f = (c.name ?? "").trim();
-    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${h + 1} needs a name.`), i.add(f.toLowerCase()), c.bedtime !== void 0 && !Xt(c.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), c.leave_by !== void 0 && !Xt(c.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (c.rewards ?? []).forEach((m) => {
-      (m.name ?? "").trim() || e("rewards", `One of ${f}’s rewards has no name.`), (!Number.isFinite(m.cost) || m.cost < 0) && e("rewards", `“${m.name}” needs a cost of 0 or more.`);
-    }), (c.rewards_draft ?? []).forEach((m) => {
-      (m.name ?? "").trim() || e("rewards", `One of ${f}’s drafted rewards has no name.`), (!Number.isFinite(m.cost) || m.cost < 0) && e("rewards", `“${m.name}” needs a cost of 0 or more.`);
+    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${h + 1} needs a name.`), i.add(f.toLowerCase()), c.bedtime !== void 0 && !Xt(c.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), c.leave_by !== void 0 && !Xt(c.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (c.rewards ?? []).forEach((u) => {
+      (u.name ?? "").trim() || e("rewards", `One of ${f}’s rewards has no name.`), (!Number.isFinite(u.cost) || u.cost < 0) && e("rewards", `“${u.name}” needs a cost of 0 or more.`);
+    }), (c.rewards_draft ?? []).forEach((u) => {
+      (u.name ?? "").trim() || e("rewards", `One of ${f}’s drafted rewards has no name.`), (!Number.isFinite(u.cost) || u.cost < 0) && e("rewards", `“${u.name}” needs a cost of 0 or more.`);
     });
   });
   const s = a.art;
@@ -16510,7 +16511,7 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
       $.cues = $.cues ?? {}, U($.cues);
     }), d = (U) => String(s?.states[U]?.attributes.friendly_name ?? U.split(".")[1]), c = pf(s), h = this.config.kids?.[e]?.cues?.on === !0, f = Ra(this.config);
     this._cuHeld === void 0 && c && (this._cuHeld = null, this._cuesLoad());
-    const m = t.leave_by ?? i.morning?.leave_by ?? "08:15", [u, k] = m.split(":").map(Number), b = u * 60 + k - No, x = (t.bedtime ?? "20:00").split(":").map(Number), y = x[0] * 60 + x[1] - 60, K = (U) => `${String(Math.floor(U / 60)).padStart(2, "0")}:${String(U % 60).padStart(2, "0")}`, v = o.on ? wp(i, t) : "";
+    const u = t.leave_by ?? i.morning?.leave_by ?? "08:15", [m, k] = u.split(":").map(Number), b = m * 60 + k - No, x = (t.bedtime ?? "20:00").split(":").map(Number), y = x[0] * 60 + x[1] - 60, K = (U) => `${String(Math.floor(U / 60)).padStart(2, "0")}:${String(U % 60).padStart(2, "0")}`, v = o.on ? wp(i, t) : "";
     return p`<div class="scard" data-card="cues"><h3>Spoken cues${r ? p` <span class="muted">on ${t.name}’s own speaker</span>` : g}</h3>
       ${r ? p`
         ${this._row("Spoken cues", "A short line in the house voice at the moments that matter, so he does not have to come to the panel to know. Off until you switch it on.", this._sw("Spoken cues", o.on === !0, () => l((U) => {
@@ -16597,18 +16598,18 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
   _approveCard(t) {
     const e = this._draft, i = e.approve?.notify ?? [], s = ke() ?? this.hass, o = s?.states ?? {}, r = L0(s), n = ws(this.config), l = $a(this.config);
     this._apHeld === void 0 && r && (this._apHeld = null, this._approveLoad());
-    const d = (f) => this._edit((m) => {
-      m.approve = m.approve ?? {}, f(m.approve), m.approve.notify?.length || delete m.approve.notify, Object.keys(m.approve).length || delete m.approve;
+    const d = (f) => this._edit((u) => {
+      u.approve = u.approve ?? {}, f(u.approve), u.approve.notify?.length || delete u.approve.notify, Object.keys(u.approve).length || delete u.approve;
     }), c = !!r && !!this._apHeld && !!l && !sh(this._apHeld, l), h = n && !o[jt(this.config)];
     return p`<div class="scard" data-card="approve"><h3>${A("check", 20)}Approve from a phone</h3>
         <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
-        <div class="spick" role="group" aria-label="Phones that are asked to approve">${[.../* @__PURE__ */ new Set([...t, ...i])].map((f) => p`<button class="tap" data-ap=${f} aria-pressed=${String(i.includes(f))} @click=${() => d((m) => {
-      const u = m.notify ?? [];
-      m.notify = u.includes(f) ? u.filter((k) => k !== f) : [...u, f];
+        <div class="spick" role="group" aria-label="Phones that are asked to approve">${[.../* @__PURE__ */ new Set([...t, ...i])].map((f) => p`<button class="tap" data-ap=${f} aria-pressed=${String(i.includes(f))} @click=${() => d((u) => {
+      const m = u.notify ?? [];
+      u.notify = m.includes(f) ? m.filter((k) => k !== f) : [...m, f];
     })}><span class="sbox2" aria-hidden="true">${i.includes(f) ? A("check", 16) : g}</span><span><b>${f.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(f) ? f : "Not found in Home Assistant"}</small></span></button>`)}</div>
-        ${i.length ? this._row("Jobs that wait for a parent", "A job worth this many points or more asks a parent when it is ticked; the tick and the points come with the yes. Smaller jobs are ticked as before.", this._step("Points from which a job waits for a parent", e.approve?.jobs_from ?? ol, (f) => d((m) => {
-      f === ol ? delete m.jobs_from : m.jobs_from = f;
+        ${i.length ? this._row("Jobs that wait for a parent", "A job worth this many points or more asks a parent when it is ticked; the tick and the points come with the yes. Smaller jobs are ticked as before.", this._step("Points from which a job waits for a parent", e.approve?.jobs_from ?? ol, (f) => d((u) => {
+      f === ol ? delete u.jobs_from : u.jobs_from = f;
     }), { min: 0, max: 100, step: 5, say: (f) => f ? `${f} points and over` : "No job waits" })) : g}
         ${this._dirty ? i.length || n ? p`<span class="shint" data-ap-state="unsaved">Save, and Home Assistant ${i.length ? "is set up to hear the answer" : "stops asking"}.</span>` : g : n ? !r || h ? this._row("Not set up in Home Assistant yet", "This makes one automation, “Family Hub: approve from a phone”, and one list, “Family Hub asks”.", p`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Set it up</button>`) : this._row(
       o[r].state === "on" ? "On" : "Switched off in Home Assistant",
@@ -16630,8 +16631,8 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         <span class="shint">One message a night to a parent’s phone: tomorrow’s events and leaving times, bin night, a daily medicine with no record today, rewards waiting, marbles added today, and anything the panel is unsure of. It only reads: nothing can be changed from it.</span>
         <span class="label">Phones it goes to</span>
         <div class="spick" role="group" aria-label="Phones the evening digest goes to">${[.../* @__PURE__ */ new Set([...t, ...i])].map((h) => p`<button class="tap" data-dg=${h} aria-pressed=${String(i.includes(h))} @click=${() => l((f) => {
-      const m = f.notify ?? [];
-      f.notify = m.includes(h) ? m.filter((u) => u !== h) : [...m, h];
+      const u = f.notify ?? [];
+      f.notify = u.includes(h) ? u.filter((m) => m !== h) : [...u, h];
     })}><span class="sbox2" aria-hidden="true">${i.includes(h) ? A("check", 16) : g}</span><span><b>${h.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(h) ? h : "Not found in Home Assistant"}</small></span></button>`)}</div>
         ${t.length || i.length ? g : p`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${i.length ? this._row("It is sent at", "", this._tm("The evening digest is sent at", () => this._draft.digest?.time, (h) => l((f) => {
@@ -16868,7 +16869,7 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         this._job = null;
       }}>Cancel</button>
           <button class="pill tap primary" data-act="job-save" ?data-busy=${this._busy === "job"} ?disabled=${!!this._busy} @click=${() => void this._saveJob()}>${x.uid ? "Save this job" : "Add this job"}</button></div></div>`;
-    }, m = (x, y) => {
+    }, u = (x, y) => {
       const K = ch(x);
       return this._job?.uid === x.uid && this._job.entity === i ? f(this._job) : p`<div class="sitem" style="border:0;padding:0"><button class="sjob tap sgrow" ?disabled=${l} aria-label=${`Change ${K.name}`} @click=${() => {
         this._job = { entity: i, uid: x.uid, form: K };
@@ -16876,11 +16877,11 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         <span class="spic" aria-hidden="true">${K.pic || "•"}</span><span class="sname sgrow">${K.name}</span>
         ${K.minutes ? p`<span class="stag">${K.minutes} min${K.song ? " ♪" : ""}</span>` : g}<span class="stag">${h[K.lane]}</span>${K.pts ? p`<span class="stag">+${K.pts}</span>` : g}</button>
         ${n && !l && !d ? this._move(K.name, y, s.length, (v) => void this._moveJob(i, s, y, v)) : g}</div>`;
-    }, u = s.map((x, y) => ({ c: x, i: y, f: ch(x) })), k = e ? u.filter((x) => x.f.slot === e) : u, b = this._job && this._job.uid === null && this._job.entity === i ? f(this._job) : g;
+    }, m = s.map((x, y) => ({ c: x, i: y, f: ch(x) })), k = e ? m.filter((x) => x.f.slot === e) : m, b = this._job && this._job.uid === null && this._job.entity === i ? f(this._job) : g;
     return p`<div class="sjobs">
-      ${e ? k.map((x) => m(x.c, x.i)) : c.map(([x, y]) => {
+      ${e ? k.map((x) => u(x.c, x.i)) : c.map(([x, y]) => {
       const K = k.filter((v) => v.f.slot === x);
-      return K.length ? p`<span class="label">${y}</span>${K.map((v) => m(v.c, v.i))}` : g;
+      return K.length ? p`<span class="label">${y}</span>${K.map((v) => u(v.c, v.i))}` : g;
     })}
       ${k.length ? g : p`<span class="shint">Nothing here yet.</span>`}
       ${b}
@@ -16975,9 +16976,9 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
     });
   }
   _rewards() {
-    const t = this._draft, e = t.kids ?? [], i = e[this._kid], s = this._kid, o = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], r = !!i?.rewards_draft, n = r && this._rwLive !== s, l = n ? "rewards_draft" : "rewards", d = i?.[l], c = (f) => this._edit((m) => {
-      const u = m.kids[s];
-      u[l] = u[l] ?? Ke(o), f(u[l]);
+    const t = this._draft, e = t.kids ?? [], i = e[this._kid], s = this._kid, o = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], r = !!i?.rewards_draft, n = r && this._rwLive !== s, l = n ? "rewards_draft" : "rewards", d = i?.[l], c = (f) => this._edit((u) => {
+      const m = u.kids[s];
+      m[l] = m[l] ?? Ke(o), f(m[l]);
     }), h = t.jar ?? {};
     return p`<p class="sintro">Each child has his own list. A reward costs points; the bigger ones can ask for a parent first.</p>
       ${i ? p`${this._kidChips("Whose rewards")}
@@ -16988,8 +16989,8 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
     })}
         <div style="display:flex;flex-wrap:wrap;gap:10px"><button class="pill tap primary" data-act="draft-live" @click=${() => {
       this._edit((f) => {
-        const m = f.kids[s];
-        m.rewards = m.rewards_draft, delete m.rewards_draft;
+        const u = f.kids[s];
+        u.rewards = u.rewards_draft, delete u.rewards_draft;
       }), this._rwLive = -1;
     }}>${A("check", 18)}Put this draft live</button>
           <button class="pill tap" data-act="draft-drop" @click=${() => {
@@ -16999,56 +17000,56 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
     }}>Discard the draft</button></div>
       </div>` : g}
       <div class="scard" data-list=${n ? "draft" : "live"}><h3>${i.name}’s ${n ? "drafted rewards" : "rewards"} ${d ? g : p`<span class="muted">the two starter rewards, until you change them</span>`}</h3>
-        ${(d ?? o).map((f, m, u) => p`<div class="sitem" data-reward=${m}>
-          ${this._txt(`rw.${s}.${m}.icon`, `Picture for ${f.name || "this reward"} (an emoji)`, f.icon ?? "", (k) => c((b) => {
-      k ? b[m].icon = k : delete b[m].icon;
+        ${(d ?? o).map((f, u, m) => p`<div class="sitem" data-reward=${u}>
+          ${this._txt(`rw.${s}.${u}.icon`, `Picture for ${f.name || "this reward"} (an emoji)`, f.icon ?? "", (k) => c((b) => {
+      k ? b[u].icon = k : delete b[u].icon;
     }), { cls: "pic", ph: "🎁", pic: !0, max: 16 })}
-          ${this._txt(`rw.${s}.${m}.name`, `Reward ${m + 1} name`, f.name, (k) => c((b) => {
-      b[m].name = k;
+          ${this._txt(`rw.${s}.${u}.name`, `Reward ${u + 1} name`, f.name, (k) => c((b) => {
+      b[u].name = k;
     }), { cls: "sgrow sfull2", ph: "Name of the reward", bad: !f.name.trim() })}
           ${this._step(`Cost of ${f.name || "this reward"}`, f.cost, (k) => c((b) => {
-      b[m].cost = k;
+      b[u].cost = k;
     }), { max: 5e3, step: 5, unit: "pts" })}
           <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a parent’s PIN`} @click=${() => c((k) => {
-      k[m].approve = !(k[m].approve ?? k[m].cost >= 60);
+      k[u].approve = !(k[u].approve ?? k[u].cost >= 60);
     })}><span class="sbox2" aria-hidden="true">${f.approve ?? f.cost >= 60 ? A("check", 16) : g}</span>Needs PIN</button>
             <button class="tap" data-act="weekly" aria-pressed=${String(!!f.weekly)} aria-label=${`${f.name || "This reward"} can be had once a week`} @click=${() => c((k) => {
-      k[m].weekly ? delete k[m].weekly : k[m].weekly = 1;
+      k[u].weekly ? delete k[u].weekly : k[u].weekly = 1;
     })}><span class="sbox2" aria-hidden="true">${f.weekly ? A("check", 16) : g}</span>${f.weekly && f.weekly > 1 ? `${f.weekly} a week` : "Once a week"}</button></span>
-          ${this._move(f.name || "reward", m, u.length, (k) => c((b) => {
-      const [x] = b.splice(m, 1);
+          ${this._move(f.name || "reward", u, m.length, (k) => c((b) => {
+      const [x] = b.splice(u, 1);
       b.splice(k, 0, x);
     }))}
           ${this._del(`Remove ${f.name || "this reward"}`, () => c((k) => {
-      k.splice(m, 1);
+      k.splice(u, 1);
     }))}</div>`)}
         <div><button class="pill tap" data-act="reward-add" @click=${() => {
       const f = (d ?? o).length;
-      c((m) => {
-        m.push({ name: "", cost: 50 });
+      c((u) => {
+        u.push({ name: "", cost: 50 });
       }), this._focusSoon(`rw.${s}.${f}.name`);
     }}>${A("plus", 18)}Add a reward</button></div>
         <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. “Once a week” is a limit: after it is had, the row says “Back Monday”. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
       </div>` : g}
       <div class="scard"><h3>${A("jar", 20)}Family jar <span class="muted">shared by everyone</span></h3>
-        ${this._row("Marbles to fill the jar", "Every family job a child ticks adds one marble.", this._step("Marbles to fill the jar", h.target ?? 200, (f) => this._edit((m) => {
-      m.jar = { ...m.jar ?? {}, target: f };
+        ${this._row("Marbles to fill the jar", "Every family job a child ticks adds one marble.", this._step("Marbles to fill the jar", h.target ?? 200, (f) => this._edit((u) => {
+      u.jar = { ...u.jar ?? {}, target: f };
     }), { min: 10, max: 5e3, step: 10, unit: "marbles" }))}
-        ${this._row("What a full jar earns", "", this._txt("jar.reward", "What a full jar earns", h.reward ?? "", (f) => this._edit((m) => {
-      m.jar = { ...m.jar ?? {}, reward: f }, f || delete m.jar.reward;
+        ${this._row("What a full jar earns", "", this._txt("jar.reward", "What a full jar earns", h.reward ?? "", (f) => this._edit((u) => {
+      u.jar = { ...u.jar ?? {}, reward: f }, f || delete u.jar.reward;
     }), { ph: "e.g. Family movie night" }), !0)}
         ${this._row("End of term: points into the jar", xp(t).length ? qa(t) ? `At 4 pm on the last day of each term, every ${qa(t)} unspent points become one marble. What is left over stays his.` : "Off. Switch it on and, on the last day of each term, unspent points become marbles for everyone: points are for spending, not hoarding." : "Needs the school terms (Morning) to know the last day.", p`${this._sw("End of term: points into the jar", qa(t) > 0, () => this._edit((f) => {
-      const m = { ...f.jar ?? {} };
-      m.term_points ? delete m.term_points : m.term_points = 10, f.jar = m;
-    }))}${qa(t) ? this._step("Points for one marble", qa(t), (f) => this._edit((m) => {
-      m.jar = { ...m.jar ?? {}, term_points: Math.max(1, f) };
+      const u = { ...f.jar ?? {} };
+      u.term_points ? delete u.term_points : u.term_points = 10, f.jar = u;
+    }))}${qa(t) ? this._step("Points for one marble", qa(t), (f) => this._edit((u) => {
+      u.jar = { ...u.jar ?? {}, term_points: Math.max(1, f) };
     }), { min: 5, max: 100, step: 5, unit: "points" }) : g}`)}
       </div>`;
   }
   _morning() {
     const t = this._draft, e = t.morning ?? {}, i = t.kids ?? [], s = i[this._kid], o = this._kid, r = (c) => this._edit((h) => {
       h.morning = h.morning ?? {}, c(h.morning);
-    }), n = t.school_terms ?? [], l = t.public_holidays ?? [], d = (c, h, f, m) => p`<input class="sin" type="date" data-f=${c} aria-label=${h} .value=${f} @input=${(u) => m(u.target.value)}>`;
+    }), n = t.school_terms ?? [], l = t.public_holidays ?? [], d = (c, h, f, u) => p`<input class="sin" type="date" data-f=${c} aria-label=${h} .value=${f} @input=${(m) => u(m.target.value)}>`;
     return p`<p class="sintro">The “Out the door” board takes over the panel on school mornings.</p>
       <div class="scard"><h3>School mornings</h3>
         ${this._row("The board shows from", "", p`${this._tm("Morning board starts", () => this._draft.morning?.start, (c) => r((h) => {
@@ -17076,37 +17077,37 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         <span class="label">Things to bring, by day</span>
         ${Zx.map(([c, h]) => {
       const f = s.bring?.[c] ?? [];
-      return this._row(h, "", p`${f.map((m, u) => p`<span class="sitem" style="border:0;padding:0;min-height:0">${this._txt(`bring.${o}.${c}.${u}`, `${h}: thing ${u + 1}`, m, (k) => this._edit((b) => {
-        b.kids[o].bring[c][u] = k;
-      }), { cls: "sgrow", ph: "e.g. Library bag" })}${this._del(`Remove ${m || "this"}`, () => this._edit((k) => {
+      return this._row(h, "", p`${f.map((u, m) => p`<span class="sitem" style="border:0;padding:0;min-height:0">${this._txt(`bring.${o}.${c}.${m}`, `${h}: thing ${m + 1}`, u, (k) => this._edit((b) => {
+        b.kids[o].bring[c][m] = k;
+      }), { cls: "sgrow", ph: "e.g. Library bag" })}${this._del(`Remove ${u || "this"}`, () => this._edit((k) => {
         const b = k.kids[o].bring;
-        b[c].splice(u, 1), b[c].length || delete b[c], Object.keys(b).length || delete k.kids[o].bring;
+        b[c].splice(m, 1), b[c].length || delete b[c], Object.keys(b).length || delete k.kids[o].bring;
       }))}</span>`)}
             <button class="pill tap" aria-label=${`Add something to bring on ${h}`} @click=${() => {
-        this._edit((m) => {
-          const u = m.kids[o];
-          u.bring = u.bring ?? {}, (u.bring[c] = u.bring[c] ?? []).push("");
+        this._edit((u) => {
+          const m = u.kids[o];
+          m.bring = m.bring ?? {}, (m.bring[c] = m.bring[c] ?? []).push("");
         }), this._focusSoon(`bring.${o}.${c}.${f.length}`);
       }}>${A("plus", 18)}Add</button>`, !0);
     })}
       </div>` : g}
       <div class="scard"><h3>School days</h3>
         <span class="shint">School days are Monday to Friday inside a term, except public holidays. With no terms listed, every weekday counts.</span>
-        ${n.map(([c, h], f) => p`<div class="sitem"><span class="sname">Term ${f + 1}</span><span class="sgrow"></span>${d(`term.${f}.a`, `Term ${f + 1} first day`, c, (m) => this._edit((u) => {
-      u.school_terms[f][0] = m;
-    }))}<span class="muted">to</span>${d(`term.${f}.b`, `Term ${f + 1} last day`, h, (m) => this._edit((u) => {
-      u.school_terms[f][1] = m;
+        ${n.map(([c, h], f) => p`<div class="sitem"><span class="sname">Term ${f + 1}</span><span class="sgrow"></span>${d(`term.${f}.a`, `Term ${f + 1} first day`, c, (u) => this._edit((m) => {
+      m.school_terms[f][0] = u;
+    }))}<span class="muted">to</span>${d(`term.${f}.b`, `Term ${f + 1} last day`, h, (u) => this._edit((m) => {
+      m.school_terms[f][1] = u;
     }))}
-          ${this._del(`Remove term ${f + 1}`, () => this._edit((m) => {
-      m.school_terms.splice(f, 1), m.school_terms.length || delete m.school_terms;
+          ${this._del(`Remove term ${f + 1}`, () => this._edit((u) => {
+      u.school_terms.splice(f, 1), u.school_terms.length || delete u.school_terms;
     }))}</div>`)}
         <div><button class="pill tap" @click=${() => this._edit((c) => {
       const h = (/* @__PURE__ */ new Date()).getFullYear();
       (c.school_terms = c.school_terms ?? []).push([`${h}-02-01`, `${h}-04-10`]);
     })}>${A("plus", 18)}Add a term</button></div>
         <span class="label">Public holidays and days off for everyone</span>
-        ${l.map((c, h) => p`<div class="sitem"><span class="sgrow"></span>${d(`hol.${h}`, `Holiday ${h + 1}`, c, (f) => this._edit((m) => {
-      m.public_holidays[h] = f;
+        ${l.map((c, h) => p`<div class="sitem"><span class="sgrow"></span>${d(`hol.${h}`, `Holiday ${h + 1}`, c, (f) => this._edit((u) => {
+      u.public_holidays[h] = f;
     }))}${this._del("Remove this holiday", () => this._edit((f) => {
       f.public_holidays.splice(h, 1), f.public_holidays.length || delete f.public_holidays;
     }))}</div>`)}
@@ -17145,22 +17146,22 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
     return p`<p class="sintro">The medication sheet shows each of these when it is due and records who gave it. A medicine here is only a name and a time of day: amounts are never kept on the panel.</p>
       <div class="scard"><h3>Daily medicines</h3>
         ${e.map((l, d) => {
-      const [c, h] = this._helpers(l), f = [c, h].filter((u) => !o[u]), m = !n.has(l.id);
+      const [c, h] = this._helpers(l), f = [c, h].filter((m) => !o[m]), u = !n.has(l.id);
       return p`<div class="sitem" data-med=${d} style="align-items:flex-start">
             <div class="sgrow" style="display:flex;flex-direction:column;gap:8px">
-              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${d}.label`, `Medicine ${d + 1} name`, l.label, (u) => r((k) => {
-        k[d].label = u;
+              <div class="sitem" style="border:0;padding:0">${this._txt(`med.${d}.label`, `Medicine ${d + 1} name`, l.label, (m) => r((k) => {
+        k[d].label = m;
       }), { cls: "sgrow sfull", ph: "Name shown on the panel", bad: !l.label.trim() })}
-                ${this._tm(`Time for ${l.label || "this medicine"}`, () => this._draft.meds?.[d]?.time, (u) => r((k) => {
-        k[d].time = u;
-      }), "07:00")}${this._del(`Remove ${l.label || "this medicine"}`, () => r((u) => {
-        u.splice(d, 1);
+                ${this._tm(`Time for ${l.label || "this medicine"}`, () => this._draft.meds?.[d]?.time, (m) => r((k) => {
+        k[d].time = m;
+      }), "07:00")}${this._del(`Remove ${l.label || "this medicine"}`, () => r((m) => {
+        m.splice(d, 1);
       }))}</div>
-              <div class="schips" role="group" aria-label=${`Who ${l.label || "this medicine"} is for`}>${[...i.map((u) => u.name), ""].map((u) => p`<button class="tap" aria-pressed=${String((l.who ?? "") === u)} @click=${() => r((k) => {
-        u ? k[d].who = u : delete k[d].who;
-      })}>${u || "Anyone"}</button>`)}</div>
-              ${m ? p`<span class="shint" role="note">New. After you save, it needs two helpers in Home Assistant before it can be recorded; Settings will offer to make them.</span>` : f.length ? p`<div class="snote" role="note"><span><b>Not ready yet.</b> Home Assistant needs ${f.length === 2 ? "two helpers" : "one more helper"} for this medicine, or it cannot be recorded:</span>
-                  ${f.map((u) => p`<span><code>${u}</code> ${u.startsWith("input_datetime") ? "(a date and time helper)" : "(a text helper)"}</span>`)}
+              <div class="schips" role="group" aria-label=${`Who ${l.label || "this medicine"} is for`}>${[...i.map((m) => m.name), ""].map((m) => p`<button class="tap" aria-pressed=${String((l.who ?? "") === m)} @click=${() => r((k) => {
+        m ? k[d].who = m : delete k[d].who;
+      })}>${m || "Anyone"}</button>`)}</div>
+              ${u ? p`<span class="shint" role="note">New. After you save, it needs two helpers in Home Assistant before it can be recorded; Settings will offer to make them.</span>` : f.length ? p`<div class="snote" role="note"><span><b>Not ready yet.</b> Home Assistant needs ${f.length === 2 ? "two helpers" : "one more helper"} for this medicine, or it cannot be recorded:</span>
+                  ${f.map((m) => p`<span><code>${m}</code> ${m.startsWith("input_datetime") ? "(a date and time helper)" : "(a text helper)"}</span>`)}
                   <div class="sbtns" style="justify-content:flex-start"><button class="pill tap" data-act="med-helpers" ?data-busy=${this._busy === `mk:${l.id}`} ?disabled=${!!this._busy} @click=${() => void this._makeHelpers(l)}>Make ${f.length === 2 ? "them" : "it"} now</button><span class="shint">Or make ${f.length === 2 ? "them" : "it"} by hand: Settings, Devices and services, Helpers.</span></div></div>` : p`<span class="shint">${A("check", 16)} Ready: its helpers are in Home Assistant.</span>`}
             </div></div>`;
     })}
@@ -17206,22 +17207,22 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
   }
   /** Pick things Home Assistant knows about, by their own names. */
   _picker(t, e, i, s, o) {
-    const r = this.hass?.states ?? {}, n = this.hass?.entities ?? {}, l = this.hass?.areas ?? {}, d = this._find.trim().toLowerCase(), c = Object.keys(r).filter((m) => s.includes(m.split(".")[0]) && !n[m]?.hidden).map((m) => ({ id: m, name: this._name(m), area: l[n[m]?.area_id ?? ""]?.name ?? "" }));
-    for (const m of i) r[m] || c.push({ id: m, name: m, area: "Not found in Home Assistant" });
-    const h = (m) => i.includes(m), f = c.filter((m) => !d || `${m.name} ${m.area} ${m.id} ${m.id.replace(/[._]/g, " ")}`.toLowerCase().includes(d)).sort((m, u) => Number(h(u.id)) - Number(h(m.id)) || m.name.localeCompare(u.name));
-    return p`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${A("search", 22)}</span>${this._txt(`${t}.find`, `Search ${e}`, this._find, (m) => {
-      this._find = m;
+    const r = this.hass?.states ?? {}, n = this.hass?.entities ?? {}, l = this.hass?.areas ?? {}, d = this._find.trim().toLowerCase(), c = Object.keys(r).filter((u) => s.includes(u.split(".")[0]) && !n[u]?.hidden).map((u) => ({ id: u, name: this._name(u), area: l[n[u]?.area_id ?? ""]?.name ?? "" }));
+    for (const u of i) r[u] || c.push({ id: u, name: u, area: "Not found in Home Assistant" });
+    const h = (u) => i.includes(u), f = c.filter((u) => !d || `${u.name} ${u.area} ${u.id} ${u.id.replace(/[._]/g, " ")}`.toLowerCase().includes(d)).sort((u, m) => Number(h(m.id)) - Number(h(u.id)) || u.name.localeCompare(m.name));
+    return p`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${A("search", 22)}</span>${this._txt(`${t}.find`, `Search ${e}`, this._find, (u) => {
+      this._find = u;
     }, { cls: "sgrow", ph: `Search ${e}` })}<span class="stag" role="status">${i.length} chosen</span></div>
-      <div class="spick" role="group" aria-label=${e}>${f.map((m) => p`<button class="tap" data-e=${m.id} aria-pressed=${String(h(m.id))} @click=${() => o(h(m.id) ? i.filter((u) => u !== m.id) : [...i, m.id])}><span class="sbox2" aria-hidden="true">${h(m.id) ? A("check", 16) : g}</span><span><b>${m.name}</b>${m.area ? p`<small>${m.area}</small>` : g}</span></button>`)}</div>
+      <div class="spick" role="group" aria-label=${e}>${f.map((u) => p`<button class="tap" data-e=${u.id} aria-pressed=${String(h(u.id))} @click=${() => o(h(u.id) ? i.filter((m) => m !== u.id) : [...i, u.id])}><span class="sbox2" aria-hidden="true">${h(u.id) ? A("check", 16) : g}</span><span><b>${u.name}</b>${u.area ? p`<small>${u.area}</small>` : g}</span></button>`)}</div>
       ${f.length ? g : p`<span class="shint">Nothing matches “${this._find}”.</span>`}`;
   }
   _house() {
     const t = this._draft, e = t.night, i = t.quiet ?? {}, s = t.bins, o = t.look ?? "glass", r = (b) => this._edit((x) => {
       x.bins = x.bins ?? { day: 1 }, b(x.bins);
-    }), n = Object.keys(ss), l = [...new Set([...s?.always ?? [], ...s?.alternate ?? []].map((b) => b.toLowerCase()).filter((b) => !ra(b)))], d = t.health, c = (b) => b[0].toUpperCase() + b.slice(1), h = (b) => `Out on ${cn[b]} night, collected ${cn[(b + 1) % 7]} morning.`, f = (b, x, y) => p`<div class="schips" role="group" aria-label=${b}>${n.map((K) => p`<button class="tap" aria-pressed=${String(x.map((v) => v.toLowerCase()).includes(K))} @click=${() => y(x.map((v) => v.toLowerCase()).includes(K) ? x.filter((v) => v.toLowerCase() !== K) : [...x, K])}><i class="sw6" style="background:${ss[K].col}" aria-hidden="true"></i>${c(K)}<span class="muted" style="font-weight:500">${ss[K].what}</span></button>`)}</div>`, m = t.voice, u = Bh(m), k = Gh(m);
+    }), n = Object.keys(ss), l = [...new Set([...s?.always ?? [], ...s?.alternate ?? []].map((b) => b.toLowerCase()).filter((b) => !ra(b)))], d = t.health, c = (b) => b[0].toUpperCase() + b.slice(1), h = (b) => `Out on ${cn[b]} night, collected ${cn[(b + 1) % 7]} morning.`, f = (b, x, y) => p`<div class="schips" role="group" aria-label=${b}>${n.map((K) => p`<button class="tap" aria-pressed=${String(x.map((v) => v.toLowerCase()).includes(K))} @click=${() => y(x.map((v) => v.toLowerCase()).includes(K) ? x.filter((v) => v.toLowerCase() !== K) : [...x, K])}><i class="sw6" style="background:${ss[K].col}" aria-hidden="true"></i>${c(K)}<span class="muted" style="font-weight:500">${ss[K].what}</span></button>`)}</div>`, u = t.voice, m = Bh(u), k = Gh(u);
     return p`
-      ${u.length ? p`<div class="scard" data-voice><h3>${A("megaphone", 20)}The house voice</h3>
-        ${this._row("Voice", "Everything the house says aloud: read-aloud on the children’s pages, Ask, Call a room, the dinner call and the kitchen timer.", this._seg("The house voice", k?.name, u.map((b) => [b.name, b.name]), (b) => this._edit((x) => {
+      ${m.length ? p`<div class="scard" data-voice><h3>${A("megaphone", 20)}The house voice</h3>
+        ${this._row("Voice", "Everything the house says aloud: read-aloud on the children’s pages, Ask, Call a room, the dinner call and the kitchen timer.", this._seg("The house voice", k?.name, m.map((b) => [b.name, b.name]), (b) => this._edit((x) => {
       x.voice && (x.voice.use = b);
     })))}
         <span class="shint">${k?.files ? `${k.name} has recordings of the ready messages and the dinner call, and they are used.` : `${k?.name ?? "This voice"} has no recordings, so the ready messages and the dinner call are spoken fresh each time (the first time each day counts towards the daily allowance).`} The other voices’ recordings are kept. A new voice is added to the list under Advanced.</span>
@@ -17373,7 +17374,7 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
       v(V), Object.keys(V).length ? U.art = V : delete U.art;
     }), o = e.idle_minutes ?? et.idle, r = e.interval_minutes ?? et.interval, n = e.presence ?? "none", l = da(t), d = !!i[l], c = bi(this.hass, e.painter);
     this._lib === void 0 && d && (this._lib = null, this._loadLib());
-    const h = this._lib ?? [], f = j0(h, e.cost ?? et.cost), m = e.cap ?? et.cap, u = Object.keys(i).find((v) => v.startsWith("automation.") && /family hub.*art/i.test(String(i[v].attributes.friendly_name ?? ""))), k = (t.kids ?? []).map((v) => v.bedtime ?? "20:00").sort()[0], b = {
+    const h = this._lib ?? [], f = j0(h, e.cost ?? et.cost), u = e.cap ?? et.cap, m = Object.keys(i).find((v) => v.startsWith("automation.") && /family hub.*art/i.test(String(i[v].attributes.friendly_name ?? ""))), k = (t.kids ?? []).map((v) => v.bedtime ?? "20:00").sort()[0], b = {
       insecure: p`<b>This screen cannot use its camera yet,</b> because the page is not a secure one (its address starts with http). Either open Home Assistant over https, or, on the kiosk PC, set the Edge policies <i>OverrideSecurityRestrictionsOnInsecureOrigin</i> and <i>VideoCaptureAllowedUrls</i> to this address. Until then the panel wakes by touch.`,
       nocamera: p`<b>No camera was found on this screen.</b> The panel wakes by touch.`,
       denied: p`<b>The browser has not allowed the camera.</b> Allow it for this address in the browser’s site settings, then test again.`,
@@ -17439,7 +17440,7 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
       <div class="scard"><h3>${A("palette", 20)}The painter</h3>
         ${c ? p`<span class="shint">Pictures are painted by <b>${this._name(c)}</b>, in Home Assistant. The key stays there.</span>` : p`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
         ${d ? g : p`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${l}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
-        ${this._row("Stop at", `This month: ${f.n} picture${f.n === 1 ? "" : "s"}, about US$${f.usd.toFixed(2)}.`, this._step("Monthly limit", m, (v) => s((U) => {
+        ${this._row("Stop at", `This month: ${f.n} picture${f.n === 1 ? "" : "s"}, about US$${f.usd.toFixed(2)}.`, this._step("Monthly limit", u, (v) => s((U) => {
       U.cap = v;
     }), { min: 0, max: 200, step: 5, say: (v) => `US$${v} a month` }))}
         ${this._row("A picture is reckoned at", "An estimate: check it against your OpenAI bill.", this._step("Cost of one picture", Math.round((e.cost ?? et.cost) * 100), (v) => s((U) => {
@@ -17448,11 +17449,11 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         ${this._row("New looks a day, each child", "In the style studio. Looks made before are free.", this._step("New looks a day", e.looks_per_day ?? et.looks, (v) => s((U) => {
       U.looks_per_day = v;
     }), { min: 0, max: 10 }))}
-        ${u ? p`${this._row("Three new artworks every night", `At 2 am, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. ${i[u].attributes.last_triggered ? `Last ran ${new Date(String(i[u].attributes.last_triggered)).toLocaleString("en-AU", { weekday: "short", hour: "numeric", minute: "2-digit" })}.` : "Has not run yet."}${this._night?.d ? ` ${this._night.made ?? 0} painted on ${this._night.d}. ${this._night.note ?? ""}` : ""}`, this._sw("Nightly artwork", i[u].state === "on", () => {
-      Promise.resolve(this.hass?.callService("automation", i[u].state === "on" ? "turn_off" : "turn_on", {}, { entity_id: u })).then(() => window.setTimeout(() => this.requestUpdate(), 600));
+        ${m ? p`${this._row("Three new artworks every night", `At 2 am, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. ${i[m].attributes.last_triggered ? `Last ran ${new Date(String(i[m].attributes.last_triggered)).toLocaleString("en-AU", { weekday: "short", hour: "numeric", minute: "2-digit" })}.` : "Has not run yet."}${this._night?.d ? ` ${this._night.made ?? 0} painted on ${this._night.d}. ${this._night.note ?? ""}` : ""}`, this._sw("Nightly artwork", i[m].state === "on", () => {
+      Promise.resolve(this.hass?.callService("automation", i[m].state === "on" ? "turn_off" : "turn_on", {}, { entity_id: m })).then(() => window.setTimeout(() => this.requestUpdate(), 600));
     }))}
-          ${this._row("After changing the children, their sheets or their calendars", "Save first, then rewrite the nightly automation from what is saved.", p`<button class="pill tap" data-act="night-update" ?disabled=${!!this._libBusy || !!pn(this.hass, this.config)} @click=${() => void this._setUpNightly(u)}>Update it</button>`)}` : this._row("Three new artworks every night", pn(this.hass, this.config) || `Painted in Home Assistant at 2 am from the saved character sheets, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. It is set up switched off.`, p`<button class="pill tap" data-act="night-setup" ?disabled=${!!this._libBusy || !!pn(this.hass, this.config)} @click=${() => void this._setUpNightly()}>Set it up</button>`)}
-        ${u ? this._row("The artwork is painted", "", this._seg("Artwork style", e.style ?? "look", [["look", "In the panel’s look"], ["house", "In the house style"]], (v) => s((U) => {
+          ${this._row("After changing the children, their sheets or their calendars", "Save first, then rewrite the nightly automation from what is saved.", p`<button class="pill tap" data-act="night-update" ?disabled=${!!this._libBusy || !!pn(this.hass, this.config)} @click=${() => void this._setUpNightly(m)}>Update it</button>`)}` : this._row("Three new artworks every night", pn(this.hass, this.config) || `Painted in Home Assistant at 2 am from the saved character sheets, about US$${(3 * (e.cost ?? et.cost)).toFixed(2)} a night. It is set up switched off.`, p`<button class="pill tap" data-act="night-setup" ?disabled=${!!this._libBusy || !!pn(this.hass, this.config)} @click=${() => void this._setUpNightly()}>Set it up</button>`)}
+        ${m ? this._row("The artwork is painted", "", this._seg("Artwork style", e.style ?? "look", [["look", "In the panel’s look"], ["house", "In the house style"]], (v) => s((U) => {
       v === "look" ? delete U.style : U.style = v;
     }))) : g}
       </div>
@@ -17504,48 +17505,48 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
     return p`<p class="sintro">A moment is one press on the mixing desk that plays something for an occasion.${(t.music_views ?? []).includes("desk") ? "" : " The pads are on the Desk view: switch it on under “Ways to see the rooms”."}</p>
       <div class="scard"><h3>Moments ${i?.length ? g : p`<span class="muted">the four starters, until you change them</span>`}</h3>
         ${s.slice(0, 4).map((n, l, d) => {
-      const c = n.rooms === "all" ? "all" : Array.isArray(n.rooms) && n.rooms.length ? "some" : "focus", h = Array.isArray(n.rooms) ? n.rooms : [], f = this._open === l, m = [n.find || (n.uri ? "One exact thing" : "Nothing to play yet"), c === "all" ? "every room" : c === "some" ? h.map((u) => this._name(u)).join(" and ") : "the room in focus", n.volume === void 0 ? "" : `${n.volume}%`].filter(Boolean).join(" · ");
+      const c = n.rooms === "all" ? "all" : Array.isArray(n.rooms) && n.rooms.length ? "some" : "focus", h = Array.isArray(n.rooms) ? n.rooms : [], f = this._open === l, u = [n.find || (n.uri ? "One exact thing" : "Nothing to play yet"), c === "all" ? "every room" : c === "some" ? h.map((m) => this._name(m)).join(" and ") : "the room in focus", n.volume === void 0 ? "" : `${n.volume}%`].filter(Boolean).join(" · ");
       return f ? p`<div class="sform" data-moment=${l} role="group" aria-label=${n.name || "New moment"}>
-            ${this._row("Name", "", p`${this._txt(`mo.${l}.icon`, `Picture for ${n.name || "this moment"} (an emoji)`, n.icon ?? "", (u) => r((k) => {
-        u ? k[l].icon = u : delete k[l].icon;
-      }), { cls: "pic", ph: "🎵", pic: !0, max: 16 })}${this._txt(`mo.${l}.name`, `Moment ${l + 1} name`, n.name, (u) => r((k) => {
-        k[l].name = u;
+            ${this._row("Name", "", p`${this._txt(`mo.${l}.icon`, `Picture for ${n.name || "this moment"} (an emoji)`, n.icon ?? "", (m) => r((k) => {
+        m ? k[l].icon = m : delete k[l].icon;
+      }), { cls: "pic", ph: "🎵", pic: !0, max: 16 })}${this._txt(`mo.${l}.name`, `Moment ${l + 1} name`, n.name, (m) => r((k) => {
+        k[l].name = m;
       }), { ph: "Name", bad: !n.name.trim() })}`, !0)}
-            ${this._row("What to play", n.uri && !n.find ? "This moment plays one exact thing, set in YAML. Typing here searches for something instead." : "Searched for in your music.", this._txt(`mo.${l}.find`, `What ${n.name || "this moment"} plays`, n.find ?? "", (u) => r((k) => {
-        k[l].find = u, u && delete k[l].uri;
+            ${this._row("What to play", n.uri && !n.find ? "This moment plays one exact thing, set in YAML. Typing here searches for something instead." : "Searched for in your music.", this._txt(`mo.${l}.find`, `What ${n.name || "this moment"} plays`, n.find ?? "", (m) => r((k) => {
+        k[l].find = m, m && delete k[l].uri;
       }), { ph: n.uri ? fn(n.uri, 30) : "e.g. dinner jazz" }), !0)}
-            ${this._row("Kind", "", this._seg(`Kind of music for ${n.name}`, n.kind ?? "playlist", [["playlist", "Playlist"], ["album", "Album"], ["artist", "Artist"], ["radio", "Radio"]], (u) => r((k) => {
-        u === "playlist" ? delete k[l].kind : k[l].kind = u;
+            ${this._row("Kind", "", this._seg(`Kind of music for ${n.name}`, n.kind ?? "playlist", [["playlist", "Playlist"], ["album", "Album"], ["artist", "Artist"], ["radio", "Radio"]], (m) => r((k) => {
+        m === "playlist" ? delete k[l].kind : k[l].kind = m;
       })))}
-            ${this._row("Where", c === "focus" ? "Plays in the room chosen on the Music page." : "", this._seg(`Where ${n.name} plays`, c, [["focus", "Room in focus"], ["all", "Every room"], ["some", "Chosen rooms"]], (u) => r((k) => {
-        u === "focus" ? delete k[l].rooms : u === "all" ? k[l].rooms = "all" : k[l].rooms = o.slice(0, 1);
+            ${this._row("Where", c === "focus" ? "Plays in the room chosen on the Music page." : "", this._seg(`Where ${n.name} plays`, c, [["focus", "Room in focus"], ["all", "Every room"], ["some", "Chosen rooms"]], (m) => r((k) => {
+        m === "focus" ? delete k[l].rooms : m === "all" ? k[l].rooms = "all" : k[l].rooms = o.slice(0, 1);
       })))}
-            ${c === "some" ? p`<div class="schips" role="group" aria-label=${`Rooms for ${n.name}`}>${o.map((u) => p`<button class="tap" aria-pressed=${String(h.includes(u))} @click=${() => r((k) => {
+            ${c === "some" ? p`<div class="schips" role="group" aria-label=${`Rooms for ${n.name}`}>${o.map((m) => p`<button class="tap" aria-pressed=${String(h.includes(m))} @click=${() => r((k) => {
         const b = Array.isArray(k[l].rooms) ? k[l].rooms : [];
-        k[l].rooms = b.includes(u) ? b.filter((x) => x !== u) : [...b, u];
-      })}>${this._name(u)}</button>`)}</div>` : g}
-            ${this._row("Volume", n.volume === void 0 ? "Left as the room already is." : "Set when the moment starts.", p`<div class="schips"><button class="tap" aria-pressed=${String(n.volume === void 0)} aria-label=${`Leave the volume as it is for ${n.name}`} @click=${() => r((u) => {
-        u[l].volume === void 0 ? u[l].volume = 30 : delete u[l].volume;
+        k[l].rooms = b.includes(m) ? b.filter((x) => x !== m) : [...b, m];
+      })}>${this._name(m)}</button>`)}</div>` : g}
+            ${this._row("Volume", n.volume === void 0 ? "Left as the room already is." : "Set when the moment starts.", p`<div class="schips"><button class="tap" aria-pressed=${String(n.volume === void 0)} aria-label=${`Leave the volume as it is for ${n.name}`} @click=${() => r((m) => {
+        m[l].volume === void 0 ? m[l].volume = 30 : delete m[l].volume;
       })}>As it is</button></div>
-              ${n.volume === void 0 ? g : this._range(`Volume for ${n.name}`, n.volume, (u) => r((k) => {
-        k[l].volume = u;
+              ${n.volume === void 0 ? g : this._range(`Volume for ${n.name}`, n.volume, (m) => r((k) => {
+        k[l].volume = m;
       }))}`)}
-            ${this._row("Shuffle", "", this._sw(`Shuffle ${n.name}`, !!n.shuffle, () => r((u) => {
-        u[l].shuffle ? delete u[l].shuffle : u[l].shuffle = !0;
+            ${this._row("Shuffle", "", this._sw(`Shuffle ${n.name}`, !!n.shuffle, () => r((m) => {
+        m[l].shuffle ? delete m[l].shuffle : m[l].shuffle = !0;
       })))}
             <div class="sbtns"><button class="pill tap danger" data-act="moment-remove" @click=${() => {
-        r((u) => {
-          u.splice(l, 1);
+        r((m) => {
+          m.splice(l, 1);
         }), this._open = -1;
       }}>${A("bin", 18)}Remove</button><span style="flex:1"></span><button class="pill tap" data-act="moment-close" @click=${() => {
         this._open = -1;
       }}>Close</button></div>
           </div>` : p`<div class="sitem" data-moment=${l}><button class="sjob tap sgrow" aria-expanded="false" aria-label=${`Change ${n.name || "this moment"}`} @click=${() => {
         this._open = l;
-      }}><span class="spic" aria-hidden="true">${n.icon || "🎵"}</span><span class="sgrow" style="display:flex;flex-direction:column;min-width:0;line-height:1.3"><span class="sname">${n.name || "New moment"}</span><span class="shint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m}</span></span></button>
-            ${this._move(n.name || "moment", l, d.length, (u) => r((k) => {
+      }}><span class="spic" aria-hidden="true">${n.icon || "🎵"}</span><span class="sgrow" style="display:flex;flex-direction:column;min-width:0;line-height:1.3"><span class="sname">${n.name || "New moment"}</span><span class="shint" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u}</span></span></button>
+            ${this._move(n.name || "moment", l, d.length, (m) => r((k) => {
         const [b] = k.splice(l, 1);
-        k.splice(u, 0, b);
+        k.splice(m, 0, b);
       }))}</div>`;
     })}
         ${s.length < 4 ? p`<div><button class="pill tap" data-act="moment-add" @click=${() => {
@@ -17561,7 +17562,7 @@ const dh = () => uo && Date.now() < uo.until ? uo : null, dn = (a) => {
         ${[["dial", "Dial", "One big knob and a tuner."], ["desk", "Desk", "Faders, a jog wheel and the four moment pads."], ["cables", "Crate", "Records, a turntable and cables."], ["list", "List", "Plain tiles."]].map(([n, l, d]) => this._row(l, d, this._sw(`${l} view`, (t.music_views ?? []).includes(n), () => this._edit((c) => {
       const h = new Set(c.music_views ?? []);
       h.has(n) ? h.delete(n) : h.add(n);
-      const f = ["dial", "desk", "cables", "list"].filter((m) => h.has(m));
+      const f = ["dial", "desk", "cables", "list"].filter((u) => h.has(u));
       f.length ? c.music_views = f : delete c.music_views;
     }))))}
       </div>
@@ -18081,13 +18082,13 @@ class Hx {
     const c = Math.round(this._hub * Math.max(1, Math.min(100, i.backlight_art ?? et.dimArt)) / 100), h = Math.min(c, Math.max(1, Math.min(100, i.backlight_night ?? et.dimNight))), f = Math.max(1, Math.min(100, t === "hub" ? this._hub : t === "art" ? c : h));
     if (f === this._level && t === this._state || (this._state = t, f === this._level)) return;
     this._level = f;
-    const m = s.split(".")[0];
+    const u = s.split(".")[0];
     try {
-      if (m === "light") Promise.resolve(o.callService("light", "turn_on", { brightness_pct: f }, { entity_id: s })).catch(() => {
+      if (u === "light") Promise.resolve(o.callService("light", "turn_on", { brightness_pct: f }, { entity_id: s })).catch(() => {
       });
-      else if (m === "number" || m === "input_number") {
-        const u = Number(r.attributes.min ?? 0), k = Number(r.attributes.max ?? 100);
-        Promise.resolve(o.callService(m, "set_value", { value: Math.round(u + (k - u) * f / 100) }, { entity_id: s })).catch(() => {
+      else if (u === "number" || u === "input_number") {
+        const m = Number(r.attributes.min ?? 0), k = Number(r.attributes.max ?? 100);
+        Promise.resolve(o.callService(u, "set_value", { value: Math.round(m + (k - m) * f / 100) }, { entity_id: s })).catch(() => {
         });
       }
     } catch {
@@ -18214,7 +18215,7 @@ const Ex = (a, t) => {
 }, sw = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), ow = p`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, qf = "0.38.1", uh = "family-hub-theme", bh = "family-hub-sounds", xh = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, qf = "0.38.2", uh = "family-hub-theme", bh = "family-hub-sounds", xh = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -18697,17 +18698,17 @@ const Ex = (a, t) => {
     const e = t.querySelector(".capsule");
     if (!e) return;
     const i = [...e.querySelectorAll(".cap")], s = i.find((d) => d.dataset.kind === "med"), o = qt() === "wide", r = qt() === "phone", n = () => e.scrollWidth > e.clientWidth + 1 || t.scrollWidth > t.clientWidth + 1, l = (d) => {
-      for (const m of i) m.hidden = !1;
+      for (const u of i) u.hidden = !1;
       if (e.removeAttribute("data-one"), t.removeAttribute("data-fit"), t.toggleAttribute("data-medchip", d), r) return;
-      const c = [], h = (m) => {
-        n() && (c.push(m), t.setAttribute("data-fit", c.join(" ")));
-      }, f = (m, u) => {
-        for (let k = i.length - 1; k >= 0 && n(); k--) Number(i[k].dataset.p) >= m && i.filter((b) => !b.hidden).length > u && (i[k].hidden = !0);
+      const c = [], h = (u) => {
+        n() && (c.push(u), t.setAttribute("data-fit", c.join(" ")));
+      }, f = (u, m) => {
+        for (let k = i.length - 1; k >= 0 && n(); k--) Number(i[k].dataset.p) >= u && i.filter((b) => !b.hidden).length > m && (i[k].hidden = !0);
       };
       for (o && (h("nobadge"), h("slim")), f(3, 0), o && (h("nowho"), h("nowx")), f(0, 1), n() && e.setAttribute("data-one", ""); c.length; ) {
-        const m = c.pop();
+        const u = c.pop();
         if (t.setAttribute("data-fit", c.join(" ")), n()) {
-          c.push(m);
+          c.push(u);
           break;
         }
       }
@@ -18744,30 +18745,30 @@ const Ex = (a, t) => {
       }
       const r = getComputedStyle(e), n = parseFloat(r.rowGap) || 0, l = parseFloat(getComputedStyle(i).rowGap) || 0, d = e.querySelector(".dayhead"), c = e.clientHeight - parseFloat(r.paddingTop) - parseFloat(r.paddingBottom) - (d ? d.offsetHeight + n : 0);
       let h = s.map((k) => k.offsetHeight);
-      const f = s.map(() => !0), m = () => {
+      const f = s.map(() => !0), u = () => {
         let k = 0, b = 0;
         return f.forEach((x, y) => {
           x && (k += h[y], b++);
         }), k + Math.max(0, b - 1) * l;
       };
-      if (m() > c + 1)
+      if (u() > c + 1)
         e.setAttribute("data-tight", ""), h = s.map((k) => k.offsetHeight);
       else if (i.querySelector(".loc")) {
         e.setAttribute("data-wrap", "");
         const k = h;
-        h = s.map((b) => b.offsetHeight), m() > c + 1 && (e.removeAttribute("data-wrap"), h = k);
+        h = s.map((b) => b.offsetHeight), u() > c + 1 && (e.removeAttribute("data-wrap"), h = k);
       }
-      if (m() > c + 1) {
+      if (u() > c + 1) {
         const k = c - 30 - n;
-        for (let b = 0; b < s.length && m() > k + 1; b++) s[b].classList.contains("past") && (f[b] = !1);
-        for (let b = s.length - 1; b >= 0 && m() > k + 1; b--) f[b] = !1;
-        for (let b = s.length - 1; b >= 0; b--) f[b] || (f[b] = !0, m() > k + 1 && (f[b] = !1));
+        for (let b = 0; b < s.length && u() > k + 1; b++) s[b].classList.contains("past") && (f[b] = !1);
+        for (let b = s.length - 1; b >= 0 && u() > k + 1; b--) f[b] = !1;
+        for (let b = s.length - 1; b >= 0; b--) f[b] || (f[b] = !0, u() > k + 1 && (f[b] = !1));
       }
       s.forEach((k, b) => {
         k.style.display = f[b] ? "" : "none";
       });
-      const u = f.filter((k) => !k).length;
-      u && (t[i.dataset.day] = u);
+      const m = f.filter((k) => !k).length;
+      m && (t[i.dataset.day] = m);
     }), JSON.stringify(t) !== JSON.stringify(this._clip) && (this._clip = t, this.requestUpdate());
   }
   // ---------- data ----------
@@ -18839,11 +18840,11 @@ const Ex = (a, t) => {
         const c = l.name ?? this.hass.states[l.entity]?.attributes.friendly_name ?? l.entity;
         for (const h of d ?? []) {
           if (!u0(l, String(h?.summary ?? ""))) continue;
-          const f = !!h?.start?.date, m = f ? `${h.start.date}T00:00:00` : h?.start?.dateTime, u = new Date(m);
-          if (!m || isNaN(u.getTime())) continue;
+          const f = !!h?.start?.date, u = f ? `${h.start.date}T00:00:00` : h?.start?.dateTime, m = new Date(u);
+          if (!u || isNaN(m.getTime())) continue;
           const k = f ? h.end?.date ? `${h.end.date}T00:00:00` : "" : h.end?.dateTime;
           let b = new Date(k);
-          (!k || isNaN(b.getTime())) && (b = new Date(u.getTime() + (f ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: u, end: b, allDay: f, colour: l.colour, who: c, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0, entity: l.entity, uid: h.uid ? String(h.uid) : void 0, recurrenceId: h.recurrence_id ? String(h.recurrence_id) : void 0, repeats: !!(h.rrule || h.recurrence_id), rrule: h.rrule ? String(h.rrule) : void 0 });
+          (!k || isNaN(b.getTime())) && (b = new Date(m.getTime() + (f ? 864e5 : 36e5))), r.push({ title: String(h.summary ?? "").trim() || "(busy)", start: m, end: b, allDay: f, colour: l.colour, who: c, location: String(h.location ?? "").trim() || void 0, description: String(h.description ?? "").trim() || void 0, entity: l.entity, uid: h.uid ? String(h.uid) : void 0, recurrenceId: h.recurrence_id ? String(h.recurrence_id) : void 0, repeats: !!(h.rrule || h.recurrence_id), rrule: h.rrule ? String(h.rrule) : void 0 });
         }
       } catch (d) {
         n++, console.warn("Family Hub: calendar fetch failed", l.entity, d);
@@ -19397,14 +19398,14 @@ const Ex = (a, t) => {
   // ---------- render ----------
   render() {
     if (!this._config) return g;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ys(t?.theme ?? this._theme), s = zt(this._lk).themed ? `${Ks(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", o = this._now.getHours(), r = o >= 21 || o < 6 ? "night" : o >= 18 ? "eve" : "day", n = this._kp, l = this._page === "music" && this._musicKid ? this._config.kids?.find((K) => K.name === this._musicKid) : void 0, d = this._config.calm === !0 || (n ? n.calm : l ? ur(l).calm : !1), c = this._now.getHours(), h = c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", f = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [m, u] = na(this, "sheet", this._sheet), [k, b] = na(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [x, y] = na(this, "art", this._art.on, 250);
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = ys(t?.theme ?? this._theme), s = zt(this._lk).themed ? `${Ks(e)}${this._photo ? `;--bg:url('${this._photo}')` : ""};` : "", o = this._now.getHours(), r = o >= 21 || o < 6 ? "night" : o >= 18 ? "eve" : "day", n = this._kp, l = this._page === "music" && this._musicKid ? this._config.kids?.find((K) => K.name === this._musicKid) : void 0, d = this._config.calm === !0 || (n ? n.calm : l ? ur(l).calm : !1), c = this._now.getHours(), h = c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", f = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [u, m] = na(this, "sheet", this._sheet), [k, b] = na(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [x, y] = na(this, "art", this._art.on, 250);
     return p`
       <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${f ? "rainy" : ""}" data-tod=${r} data-dow=${this._now.getDay()} ?data-calm=${d} ?data-compact=${this._compact} style=${`${s}--tod:${h};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
-        ${this._config.ambient === !1 || this._photo ? g : p`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${r} .calm=${d} .hold=${!!(m || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${r} .calm=${d} .hold=${!!(m || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
+        ${this._config.ambient === !1 || this._photo ? g : p`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${r} .calm=${d} .hold=${!!(u || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient><fh-ambient front .look=${this._lk} .theme=${e.id} .tod=${r} .calm=${d} .hold=${!!(u || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
         ${this._header()}
         <div class="body">${this._body()}</div>
         ${this._dock()}
-        ${this._sheetView(m, u)}
+        ${this._sheetView(u, m)}
         ${this._dinner ? this._dinnerView() : g}
         ${this._off ? this._offView() : g}
         <div class="toasts" role="status" aria-live="polite">${k ? p`<div class="toast" ?data-closing=${b}><span>${k.msg}</span>${k.act ? p`<button class="tap" @click=${() => {
@@ -19488,13 +19489,13 @@ const Ex = (a, t) => {
     const s = gr(this.hass);
     s && !s.alarm && e.push([4, p`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${s.t}</span></span>`]);
     {
-      const h = (t.meds ?? []).map((b) => ({ m: b, s: this._medStatus(b.id, b.time) })), f = h.filter((b) => b.s.due), m = f.some((b) => b.s.late), u = h.filter((b) => b.s.given), k = () => {
+      const h = (t.meds ?? []).map((b) => ({ m: b, s: this._medStatus(b.id, b.time) })), f = h.filter((b) => b.s.due), u = f.some((b) => b.s.late), m = h.filter((b) => b.s.given), k = () => {
         this._sheet = "meds", this._loadMedLog();
       };
       if (f.length && Date.now() >= this._medLater) {
-        const b = f.some((K) => K.s.late && !K.s.stale), x = m ? "overdue" : "due", y = b ? 0 : m ? 1.5 : 2;
-        e.push([y, p`<button class="cap tap ${b ? "hot" : ""}" ?data-warm=${m && !b} data-kind="med" data-p=${b ? 0 : 2} aria-label=${`Medicine: ${f.length} ${x}`} @click=${k}>${Ne("pill", 22)}<span style="white-space:nowrap">${f.length} ${x}</span></button>`]);
-      } else !f.length && u.length && this._now.getHours() < 12 && e.push([5, p`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${u.length === 1 ? ` at ${gt(u[0].s.given)}` : `: ${u.length}`}`} @click=${k}>${Ne("pill", 22)}${A("check", 18)}<span>${u.length === 1 ? gt(u[0].s.given) : `${u.length} given`}</span></button>`]);
+        const b = f.some((K) => K.s.late && !K.s.stale), x = u ? "overdue" : "due", y = b ? 0 : u ? 1.5 : 2;
+        e.push([y, p`<button class="cap tap ${b ? "hot" : ""}" ?data-warm=${u && !b} data-kind="med" data-p=${b ? 0 : 2} aria-label=${`Medicine: ${f.length} ${x}`} @click=${k}>${Ne("pill", 22)}<span style="white-space:nowrap">${f.length} ${x}</span></button>`]);
+      } else !f.length && m.length && this._now.getHours() < 12 && e.push([5, p`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${m.length === 1 ? ` at ${gt(m[0].s.given)}` : `: ${m.length}`}`} @click=${k}>${Ne("pill", 22)}${A("check", 18)}<span>${m.length === 1 ? gt(m[0].s.given) : `${m.length} given`}</span></button>`]);
     }
     if (this._page !== "kid") for (const h of this._wantsChat) e.push([0.5, p`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${h} would like a chat. Tap to dismiss`} @click=${() => {
       this._wantsChat = this._wantsChat.filter((f) => f !== h);
@@ -19636,13 +19637,13 @@ const Ex = (a, t) => {
     const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (n, l) => it(t, l)), s = this._idle && i.some((n) => bt(n, e)) && !this._sheet, o = i.map((n) => bt(n, e) ? s ? "2.3fr" : "1.4fr" : "1fr").join(" "), r = this._evKey === this._fetchedKey && !this._events.length;
     return p`<div class="weekwrap"><div class="week" ?data-rest=${s} style="grid-template-columns:${o}">
       ${i.map((n) => {
-      const l = this._eventsOn(n), d = bt(n, e), c = l.filter((u) => !this._private(u.title)), h = l.filter((u) => this._private(u.title)), f = Qe(n), m = this._clip[f] ?? 0;
+      const l = this._eventsOn(n), d = bt(n, e), c = l.filter((m) => !this._private(m.title)), h = l.filter((m) => this._private(m.title)), f = Qe(n), u = this._clip[f] ?? 0;
       return p`<div class="col ${d ? "today" : ""}">
           <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${os(n)}</span><span class="num">${n.getDate()}</span>${le(this._lk, "day", { now: n, arcs: this._arcs(c) })}${h.length ? p`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${A("lock", 15)}</span>` : g}</div>
-          <div class="evs" data-day=${f}>${c.map((u) => this._evCard(u, n))}</div>
-          ${m ? p`<button class="more tap" aria-label="${m} more on ${Vi(n)}" @click=${() => {
+          <div class="evs" data-day=${f}>${c.map((m) => this._evCard(m, n))}</div>
+          ${u ? p`<button class="more tap" aria-label="${u} more on ${Vi(n)}" @click=${() => {
         this._anchor = n, this._view = "day";
-      }}><span class="mpill">+${m} more</span></button>` : g}
+      }}><span class="mpill">+${u} more</span></button>` : g}
         </div>`;
     })}
     </div>${r ? p`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : g}</div>`;
@@ -19744,7 +19745,7 @@ const Ex = (a, t) => {
       playing: t,
       cover: d ? /^(https?:|data:)/.test(d) ? d : this.hass?.hassUrl ? this.hass.hassUrl(d) : d : void 0,
       count: Number.isFinite(c) ? c : void 0,
-      lit: Object.values(i).filter((m) => m.entity_id.startsWith("light.") && m.state === "on").length,
+      lit: Object.values(i).filter((u) => u.entity_id.startsWith("light.") && u.state === "on").length,
       frac: (o - h) / Math.max(1, f - h),
       moon: Dc(s),
       south: (this.hass?.config?.latitude ?? -32) < 0
@@ -19845,30 +19846,30 @@ const Ex = (a, t) => {
     if (t === "chat") {
       const o = this._config.chat, r = this._config.voice, n = o?.name || "Ask", l = this._config.kids ?? [];
       if (!o?.agent) return g;
-      const d = this._asker, c = d ? l.find((u) => u.name === d) : void 0, h = c ? sa(c) : void 0, f = h?.mode === "pictures", m = d === null ? p`<div class="askwho" role="group" aria-label="Who is asking?">
-          ${l.filter((u) => sa(u).mode !== "off").map((u) => {
-        const k = D(u), b = this.hass?.states[k.avatar]?.state, x = b || u.look ? ht(b, u.look ? ht(u.look) : {}) : null;
-        return p`<button class="whobtn tap" data-who=${k.slug} style="--kidc:${Z(u.colour)}" @click=${() => {
-          M("tap"), this._asker = u.name;
+      const d = this._asker, c = d ? l.find((m) => m.name === d) : void 0, h = c ? sa(c) : void 0, f = h?.mode === "pictures", u = d === null ? p`<div class="askwho" role="group" aria-label="Who is asking?">
+          ${l.filter((m) => sa(m).mode !== "off").map((m) => {
+        const k = D(m), b = this.hass?.states[k.avatar]?.state, x = b || m.look ? ht(b, m.look ? ht(m.look) : {}) : null;
+        return p`<button class="whobtn tap" data-who=${k.slug} style="--kidc:${Z(m.colour)}" @click=${() => {
+          M("tap"), this._asker = m.name;
         }}>
-              <span class="avatar" style="width:104px;height:104px;background:${Z(u.colour)};font-size:var(--fs-d1)">${x ? ee(x, { size: 104, crop: "head", still: !0, label: u.name, age: u.age, ring: Z(u.colour) }) : u.name[0]}</span><span class="wn">${u.name}</span></button>`;
+              <span class="avatar" style="width:104px;height:104px;background:${Z(m.colour)};font-size:var(--fs-d1)">${x ? ee(x, { size: 104, crop: "head", still: !0, label: m.name, age: m.age, ring: Z(m.colour) }) : m.name[0]}</span><span class="wn">${m.name}</span></button>`;
       })}
           <button class="whobtn tap" data-who="parent" @click=${() => {
-        const u = () => {
+        const m = () => {
           this._asker = "";
         };
-        M("tap"), this._config.parent_pin ? this._pinAsk = { reason: "Ask as a parent?", run: u, sheet: "chat" } : u();
+        M("tap"), this._config.parent_pin ? this._pinAsk = { reason: "Ask as a parent?", run: m, sheet: "chat" } : m();
       }}>
             <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${A("lock", 40)}</span><span class="wn">A parent</span></button>
         </div>` : g;
-      return p`<div class="scrim" ?data-closing=${e} @click=${(u) => {
-        u.target === u.currentTarget && i();
+      return p`<div class="scrim" ?data-closing=${e} @click=${(m) => {
+        m.target === m.currentTarget && i();
       }}>
         <section class="glass sheet chatsheet" tabindex="-1" role="dialog" aria-modal="true" aria-label=${n} ?data-who=${d === null}>${this._sheetHead(n, d === null ? "Who is asking?" : f ? "Tap a picture." : "Ask a question, or tap a picture.")}
           <p class="ainote">${b0}</p>
-          ${d === null ? m : pa(d, p`<fh-chat .hass=${this.hass} ?low=${f || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? r?.tts ?? ""} .ttsVoice=${o.tts ? o.tts_voice ?? "" : r?.voice ?? ""} .ttsLanguage=${o.tts ? o.tts_language ?? "" : r?.language ?? ""} .helper=${n} .pin=${!!this._config.parent_pin}
-            .mode=${f ? "pictures" : "full"} .who=${c ? D(c).slug : ""} .minutes=${h?.minutes ?? 0} @close=${i} @pin=${(u) => {
-        this._pinAsk = { ...u.detail, sheet: "chat" };
+          ${d === null ? u : pa(d, p`<fh-chat .hass=${this.hass} ?low=${f || this._page === "kid" && this._kidOn?.mode === "picture"} .agent=${o.agent} .pipeline=${o.pipeline ?? ""} .tts=${o.tts ?? r?.tts ?? ""} .ttsVoice=${o.tts ? o.tts_voice ?? "" : r?.voice ?? ""} .ttsLanguage=${o.tts ? o.tts_language ?? "" : r?.language ?? ""} .helper=${n} .pin=${!!this._config.parent_pin}
+            .mode=${f ? "pictures" : "full"} .who=${c ? D(c).slug : ""} .minutes=${h?.minutes ?? 0} @close=${i} @pin=${(m) => {
+        this._pinAsk = { ...m.detail, sheet: "chat" };
       }}></fh-chat>`)}</section></div>`;
     }
     const s = t === "dinner" ? this._dinnerBody() : t === "noticed" ? this._noticedBody() : t === "waiting" ? this._waitingBody() : t === "more" ? this._moreBody() : t === "event" ? this._eventBody() : t === "themes" ? this._themeBody() : t === "kidprefs" ? this._kidPrefsBody() : t === "meds" ? this._medsBody() : t === "timer" ? this._timerBody() : this._sitterBody();
@@ -19980,10 +19981,10 @@ const Ex = (a, t) => {
     }, h = (x) => {
       const [y, K] = x.split(":").map(Number);
       return `${y % 12 || 12}:${String(K).padStart(2, "0")} ${y < 12 ? "am" : "pm"}`;
-    }, f = (x, y, K) => p`<button class="tap mchip" aria-pressed=${String(x)} @click=${K}>${y}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), u = (t.meds ?? []).some((x) => {
+    }, f = (x, y, K) => p`<button class="tap mchip" aria-pressed=${String(x)} @click=${K}>${y}</button>`, u = !(t.med_log && this.hass?.states[t.med_log]), m = (t.meds ?? []).some((x) => {
       const y = this._medStatus(x.id, x.time);
       return y.due && !y.missing;
-    }), k = Date.now() < this._medLater, b = u ? k ? p`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${`The reminder is put away until ${gt(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${gt(new Date(this._medLater))} · </span>show now</span></button>` : p`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : g;
+    }), k = Date.now() < this._medLater, b = m ? k ? p`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${`The reminder is put away until ${gt(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${gt(new Date(this._medLater))} · </span>show now</span></button>` : p`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : g;
     return p`${this._sheetHead("Medication", "Kept off the kids’ pages and the night screen.", "pill", b)}
       <div class="med2">
         <div class="icol">
@@ -19999,7 +20000,7 @@ const Ex = (a, t) => {
       })}>Given by ${K}</button>`)}</div>`}
             </div>`;
     })}
-          <span class="label">${m ? "Kept on this screen only" : "Given in the last two days"}</span>
+          <span class="label">${u ? "Kept on this screen only" : "Given in the last two days"}</span>
           ${d.length ? d.map((x) => p`<div class="irow" data-at=${x.at.toISOString()}><span style="min-width:0"><b>${x.who}</b> · ${x.what}<br><small class="muted">${x.at.toLocaleDateString("en-AU", { weekday: "short" })} ${gt(x.at)}${x.by ? ` · ${x.by}` : ""} · ${c(x.at)}</small></span>
             <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${x.what} for ${x.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
       this._unlogMed(x);
@@ -20026,7 +20027,7 @@ const Ex = (a, t) => {
         </div>
       </div>
       <div class="sfoot">
-        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${m ? p` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it until a shared list is connected to the panel.</span>` : g}</span>
+        <span class="muted">A record only: it shows what was given and when. Follow the label or your doctor for doses and how long to wait.${u ? p` <span role="note" data-medlocal>“Something else given” is kept on this screen only. No other screen or phone will show it until a shared list is connected to the panel.</span>` : g}</span>
         <button class="tap ${(s.what === "other" ? s.other.trim() : s.what) ? "lead" : "ghost"}" data-act="log" style="height:60px;padding:0 26px;font-size:var(--fs-3);border-radius:999px;font-weight:var(--w-bold, 700);display:inline-flex;align-items:center;flex-shrink:0" @click=${() => this._medGuard("Add to the medicine record?", () => {
       this._logMed();
     })}>Add to the record</button>
@@ -20080,8 +20081,8 @@ const Ex = (a, t) => {
     const t = this._config, e = t.babysitter ?? {}, i = t.emergency, s = this._now, o = /^(.{1,40}?):\s*(\+?[\d ()-]{8,})$/, r = [...e.contacts ?? [], ...(e.lines ?? []).map((b) => o.exec(b)).filter((b) => !!b).map((b) => ({ name: b[1], phone: b[2].trim() }))], n = [...(e.lines ?? []).filter((b) => !o.test(b)), ...e.notes ?? []], l = (t.kids ?? []).filter((b) => b.bedtime).map((b) => ({ name: b.name, at: _e(b.bedtime, s) })), d = this._eventsOn(s, this._soon).filter((b) => !b.allDay && b.end > s && !this._private(b.title)).slice(0, 4), c = (b) => {
       const [x, y] = b.split(":").map(Number);
       return `${x % 12 || 12}:${String(y).padStart(2, "0")} ${x < 12 ? "am" : "pm"}`;
-    }, h = (b) => p`<span class="label">${b}</span>`, f = this._bins(s), m = (t.people ?? []).some((b) => b.entity), u = [];
-    r.length && u.push(p`${h("Who to ring")}${r.map((b) => p`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && u.push(p`${h("Bedtimes tonight")}${l.map((b) => p`<div class="irow"><b>${b.name}</b><span>${c(b.at)}</span></div>`)}`), d.length && u.push(p`${h("Still on today")}${d.map((b) => p`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${qe(b, s).label}</span></div>`)}`), f && u.push(p`${h("Bin night")}<div class="irow"><b>${bt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && u.push(p`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? p`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? p`<b>${e.wifi.password}</b>` : p`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${A("lock", 16)}Show</button>`}</div>` : g}`), m && u.push(p`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && u.push(p`${h("Good to know")}${n.map((b) => p`<div class="iline">${b}</div>`)}`);
+    }, h = (b) => p`<span class="label">${b}</span>`, f = this._bins(s), u = (t.people ?? []).some((b) => b.entity), m = [];
+    r.length && m.push(p`${h("Who to ring")}${r.map((b) => p`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && m.push(p`${h("Bedtimes tonight")}${l.map((b) => p`<div class="irow"><b>${b.name}</b><span>${c(b.at)}</span></div>`)}`), d.length && m.push(p`${h("Still on today")}${d.map((b) => p`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${qe(b, s).label}</span></div>`)}`), f && m.push(p`${h("Bin night")}<div class="irow"><b>${bt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(p`${h("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? p`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? p`<b>${e.wifi.password}</b>` : p`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${A("lock", 16)}Show</button>`}</div>` : g}`), u && m.push(p`${h("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(p`${h("Good to know")}${n.map((b) => p`<div class="iline">${b}</div>`)}`);
     const k = p`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for parents" @click=${() => this._openSettings()}>${A("cog", 22)}</button>`;
     return p`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", k)}
       <div class="sos">
@@ -20096,7 +20097,7 @@ const Ex = (a, t) => {
           <span><b>${this._sos === "sending" ? "Sending…" : this._sos === "sent" ? "Alert sent" : `Alert ${i.who ?? "the parents"}`}</b><small>${this._sos === "sent" ? "Hold again to send another" : "Press and hold"}</small></span></button>` : g}
       </div>
       <span id="sosnote" role="status" class="sosnote">${this._sosNote}</span>
-      <div class="info2">${u.map((b) => p`<div class="icol">${b}</div>`)}</div>`;
+      <div class="info2">${m.map((b) => p`<div class="icol">${b}</div>`)}</div>`;
   }
 };
 Ut.styles = [It, ki, X`${Nt(vi)}`, X`${Nt(Xx)}`], Ut.properties = {

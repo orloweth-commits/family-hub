@@ -264,10 +264,11 @@ export class FhMusic extends LitElement {
     :host([data-phone]) .pinto b { display: none; } :host([data-phone]) .pinto { padding: 4px 6px; }
     /* under one bar the names take the bar's own row and its glass: the tabs and the tools cannot be used while a finger is carrying, so they step back
        (they keep their room, so nothing moves) and the small player stays */
-    .panel[data-one] .pinstrip { top: 12px; left: 14px; transform: none; gap: 8px; padding: 4px 8px 4px 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); box-shadow: 0 0 0 2px var(--primary), 0 12px 30px -12px rgba(0,0,0,.45); max-width: calc(100% - 28px); }
-    .panel[data-one] .pinto { min-height: 48px; padding: 2px 16px 2px 4px; border-radius: 999px; background: var(--chip); }
+    .mhead[data-one] { position: relative; }
+    .panel[data-one] .pinstrip { top: 0; bottom: 0; left: 0; transform: none; gap: 6px; padding: 2px 2px 2px 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); box-shadow: 0 0 0 2px var(--primary), 0 12px 30px -12px rgba(0,0,0,.45); max-width: 100%; }
+    .panel[data-one] .pinto { min-height: 44px; padding: 0 16px 0 2px; border-radius: 999px; background: var(--chip); } .panel[data-one] .pinto i { width: 40px; height: 40px; }
     .panel[data-one] .pinto[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--primary); }
-    .mhead[data-carrying] > :not(.nowbar):not(.peekb) { visibility: hidden; }
+    .mhead[data-carrying] > :not(.nowbar):not(.peekb):not(.pinstrip) { visibility: hidden; }
     .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
@@ -1313,14 +1314,16 @@ export class FhMusic extends LitElement {
     // the hint shows by itself once for each view, the first time it is opened after the page loads
     if (this._tab === 'rooms' && !this._viewAsk && !HINTED.has(this._mode)) { HINTED.add(this._mode); window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
+    // while something is carried: every shelf by name, to let go on. Under one bar the names stand in the bar itself; otherwise they float at the top of the page
+    const strip = c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${one} data-teach=${(rooms && this._teach) || nothing} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
         <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach} ?data-carrying=${one && !!c && ma}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
-          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}</div>
+          ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}${one ? strip : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
-        ${c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing}
+        ${one ? nothing : strip}
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._peek && one ? html`<div class="pscrim" @click=${() => { this._peek = false; }}></div>` : nothing}

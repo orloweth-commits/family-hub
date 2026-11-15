@@ -431,12 +431,12 @@ async function polish() {
       console.log(`${v}: plus ${up} | minus ${(await calls(o, /volume_set/)).split(' || ').pop().slice(-20)} | slider:`, JSON.stringify(await sl.evaluate((e) => ({ role: e.getAttribute('role'), label: e.getAttribute('aria-label'), now: e.getAttribute('aria-valuenow'), text: e.getAttribute('aria-valuetext') }))),
         '| button', await M(o).locator(`${sel} .vstep`).first().evaluate((e) => Math.round(e.getBoundingClientRect().width) + 'x' + Math.round(e.getBoundingClientRect().height)));
       if (v !== 'house') { await o.close(); continue; }
-      await o.waitForTimeout(3600); const after = await M(o).locator('.hint[data-on]').count();
+      await o.waitForTimeout(11800); const after = await M(o).locator('.hint[data-on]').count();
       await M(o).getByRole('button', { name: 'How this view works' }).click(); await o.waitForTimeout(200); const asked = await M(o).locator('.hint[data-on]').count();
       await o.mouse.click(640, 300); await M(o).getByRole('button', { name: 'Change the view', exact: true }).click(); await M(o).locator('.vcard', { hasText: 'Desk' }).click(); await o.waitForTimeout(600);
       const first = await M(o).locator('.hint[data-on]').count(); await o.mouse.click(640, 300);
       await M(o).getByRole('button', { name: 'Change the view', exact: true }).click(); await M(o).locator('.vcard', { hasText: 'House' }).click(); await o.waitForTimeout(600);
-      console.log('hint: gone after 4 s:', after === 0, '| back on "?":', asked === 1, '| a new view shows it once:', first === 1, '| coming back to a view seen already does not:', await M(o).locator('.hint[data-on]').count() === 0); await o.close(); } }
+      console.log('hint: gone after its three marks (12 s):', after === 0, '| back on "?":', asked === 1, '| a new view shows it once:', first === 1, '| coming back to a view seen already does not:', await M(o).locator('.hint[data-on]').count() === 0); await o.close(); } }
   // 2. Whole house and ＋ spread the music that is playing, whichever room is selected; nothing playing: say so and do nothing; linked rooms keep their mark
   { const o = await open('page=music&look=glass&mview=house'); await clear(o);
     await M(o).locator('.mzone[data-zone="media_player.office"] .zname').click(); await o.waitForTimeout(200);

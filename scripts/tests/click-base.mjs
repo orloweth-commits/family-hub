@@ -837,7 +837,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   await p.locator('family-hub-card fh-kid .tabs button', { hasText: 'My week' }).click(); await p.waitForTimeout(400);
   const wk = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; const a = [...r.querySelectorAll('.wk .init')]; return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cut: a.filter((e) => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1).length }; });
   console.log('R4-5 kid week initials:', JSON.stringify(wk), ok(wk.n > 0 && wk.fs >= 14 && !wk.cut)); await p.context().close(); }
-{ const p = await openAt(1280, 800, 'look=glass&page=music&mview=house'); await p.waitForTimeout(4600);
+{ const p = await openAt(1280, 800, 'look=glass&page=music&mview=house'); await p.waitForTimeout(12600);
   const sh = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const a = [...r.querySelectorAll('.srec span')].filter((e) => e.offsetWidth); return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cutBelow: a.filter((e) => e.getBoundingClientRect().bottom > e.closest('.mshelf, .srecs').getBoundingClientRect().bottom + 1).length }; });
   console.log('R4-5 House shelf labels:', JSON.stringify(sh), ok(sh.n > 0 && sh.fs >= 14 && !sh.cutBelow));
   // the dock scenes: two taps in the same instant make one call
