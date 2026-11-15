@@ -18,7 +18,7 @@ export const VIEWS: { id: ViewId; name: string; icon: string; about: string; hin
   { id: 'house', name: 'House', icon: 'home', about: 'Rooms where they are', hint: 'Tap a quiet room, then Move the music. Or carry the record there.' },
   { id: 'scene', name: 'Scene', icon: 'scene', about: 'The theme comes alive', hint: '' },
   { id: 'dial', name: 'Dial', icon: 'dial', about: 'One big knob and a tuner', hint: 'Drag round an arc for volume. Tap it to add the room.' },
-  { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders, a jog wheel and pads', hint: 'Slide a fader for volume. Turn the wheel to move the song.' },
+  { id: 'desk', name: 'Desk', icon: 'desk', about: 'Faders and a jog wheel', hint: 'Slide a fader for volume. Turn the wheel to move the song.' },
   { id: 'cables', name: 'Crate', icon: 'sleeve', about: 'Records, a turntable and cables', hint: 'Flick through the crate. Drop a record on the turntable.' },
   { id: 'list', name: 'List', icon: 'list', about: 'Plain tiles', hint: 'Tap a room to control it. ＋ adds it to the music.' }
 ];
@@ -55,8 +55,7 @@ export interface Ctx {
   /** the big dial's surroundings: what plays next, whose turn it is to choose, the sleep fade, and a tuner across favourites and stations */
   dial: { next: { title: string; sub: string; art: string }[]; more: number; turn: { name: string; face: TemplateResult; colour: string; now: boolean }[]; chooser: string; choose(name: string): void;
     sleep: { mins: number; left: number | null; /** the room that will fade */ room: string; /** false when that speaker cannot be reached */ can: boolean }; sleepGo(): void; stops: { name: string; on: boolean }[]; tune(i: number): void };
-  /** the mixing desk: four moment pads and a jog wheel */
-  moments: { name: string; icon: string; on: boolean; busy: boolean }[]; moment(i: number): void;
+  /** the mixing desk: a jog wheel (its four moment pads moved beside the House in 0.38.3) */
   jog: { turn: number | null; at: number; read: string; len: number; says: string }; jogTo(turn: number, commit: boolean): void; seekBy(seconds: number): void;
   /** show a volume while dragging, then keep it */
   vol(id: string, v: number, commit: boolean): void;
@@ -252,7 +251,7 @@ export const deskView = (c: Ctx): TemplateResult => {
       <div class="dplay">
         <div class="jog" role="slider" tabindex="0" aria-label="Jog wheel. Turn it to move through the song; past the end it skips to the next." aria-valuemin="0" aria-valuemax=${Math.round(j.len)} aria-valuenow=${Math.round(j.at)} aria-valuetext=${j.says}
           ?data-held=${j.turn !== null} @pointerdown=${jogDown} @keydown=${jogKey}><i class="jring" style="transform:rotate(${spin.toFixed(1)}deg)"><i></i></i><b>${j.read}</b></div>
-        <div class="pads">${c.moments.map((m, i) => html`<button class="mpad tap" style="--c:var(--p-${[2, 5, 3, 4][i % 4]})" ?data-on=${m.on} ?data-busy=${m.busy} aria-pressed=${String(m.on)} @click=${() => c.moment(i)}><span aria-hidden="true">${m.icon}</span>${m.name}</button>`)}</div>
+        ${/* the four moment pads stand beside the House, and only there (Oliver, 15 Nov), so they are always in one place */ nothing}
       </div>
     </div>
     <div class="dstrips">${c.rooms.map(strip)}
@@ -592,7 +591,7 @@ export const viewsCss = css`
   .dtx b { font-size: clamp(17px, 6cqh, 26px); font-weight: var(--w-heavy, 800); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .dtx span { font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .desk .tkeys { flex: none; min-height: 0; }
-  .dplay { min-height: 0; display: flex; align-items: center; gap: 12px; }
+  .dplay { min-height: 0; display: flex; align-items: center; justify-content: center; gap: 12px; }
   .jog { height: 100%; max-height: 136px; aspect-ratio: 1; flex-shrink: 0; position: relative; border-radius: 50%; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--track), 0 6px 0 rgba(0,0,0,.16); touch-action: none; cursor: grab; outline: none; display: flex; align-items: center; justify-content: center; }
   .jog[data-held] { cursor: grabbing; box-shadow: inset 0 0 0 3px var(--primary), 0 3px 0 rgba(0,0,0,.16); }
   .jog:focus-visible { box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.16); }

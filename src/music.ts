@@ -32,7 +32,10 @@ const CALL_PIC = ['🍽️', '⏰', '🍳', '🌙', '👟', '❤️'];
 /** How long one coach mark shows before the next. */
 const COACH_MS = 4000;
 /** The views whose hint has been shown since the page was loaded: each shows once, then only when "?" is tapped. */
-const HINTED = new Set<string>();
+/** The views whose coach marks this screen has shown today (Oliver, 15 Nov: "the first time Music is opened each day"). Kept in the browser, so a reload on the same day does not play them again; a new day does. */
+const COACH_KEY = 'fh-music-coach';
+const coachDue = (view: string, day: string): boolean => { const r = ls<{ d?: string; v?: string[] }>(COACH_KEY, {}); return r.d !== day || !(r.v ?? []).includes(view); };
+const coachSeen = (view: string, day: string): void => { const r = ls<{ d?: string; v?: string[] }>(COACH_KEY, {}); lsSet(COACH_KEY, { d: day, v: [...new Set([...(r.d === day ? r.v ?? [] : []), view])] }); };
 const TYPE_LABEL: Record<string, string> = { track: 'Song', album: 'Album', playlist: 'Playlist', artist: 'Artist', radio: 'Radio', podcast: 'Podcast', audiobook: 'Story' };
 const today = (): string => new Date().toDateString();
 const ls = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
@@ -599,7 +602,10 @@ export class FhMusic extends LitElement {
   private _fedFor = '';
   private _fedName = '';
 
-  connectedCallback(): void { super.connectedCallback(); this._tick = window.setInterval(() => { this._calm(); if (this._cur?.state === 'playing' || this._sleepAt) this._now = Date.now(); }, 1000); }
+  /** the day Music was opened on this screen, and the view whose marks were last started by themselves */
+  private _openDay = new Date().toDateString();
+  private _coachFor = '';
+  connectedCallback(): void { super.connectedCallback(); this._openDay = new Date().toDateString(); this._coachFor = ''; this._tick = window.setInterval(() => { this._calm(); if (this._cur?.state === 'playing' || this._sleepAt) this._now = Date.now(); }, 1000); }
   disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._tick); }
   protected firstUpdated(): void {
     // remember the control last pressed, so a slow answer from Home Assistant can be shown on it
@@ -911,7 +917,7 @@ export class FhMusic extends LitElement {
     })));
     const dur = Number(a.media_duration) || 0, at = a.media_position_updated_at ? new Date(a.media_position_updated_at).getTime() : 0, playing = cur?.state === 'playing';
     const pos = dur ? Math.min(dur, (Number(a.media_position) || 0) + (playing && at ? (this._now - at) / 1000 : 0)) : 0, frac = dur ? pos / dur : 0;
-    const pads = this._pads, jog = this._jog, lit = this._momentOn && this.hass!.states[this._momentOn.lead]?.state === 'playing' ? this._momentOn.name : '';
+    const jog = this._jog;
     if (!this._shelfAsked) { this._shelfAsked = true; this._loadShelves(); }
     const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime), mine = this._items[this._shelf] ?? [], crate = wind ? mine.filter((x) => x.calm) : mine;
     const front = Math.max(0, Math.min(crate.length - 1, this._crateAt));
@@ -930,7 +936,6 @@ export class FhMusic extends LitElement {
         sleep: { mins: this.sleepMinutes, left: this._sleepLeft(cur), room: this._name(cur), can: !!cur && !this._off(cur) }, sleepGo: () => this._sleep(), stops: stops.map((x) => ({ name: x.name, on: x.on })),
         // the station or favourite already playing is left alone: tuning to it again would start it from the top
         tune: (i) => { if (stops[i] && !stops[i].on) { sfx('tune'); stops[i].go(); } } },
-      moments: pads.map((m) => ({ name: m.name, icon: m.icon ?? MOMENT_ICON.find(([re]) => re.test(m.name))?.[1] ?? '🎵', on: lit === m.name, busy: this._momentBusy === m.name })), moment: (i) => { if (!this._momentBusy && pads[i]) { sfx('pad'); this._moment(pads[i]); } },
       jog: { turn: jog, at: pos, read: jog === null ? (dur ? clock(pos) : '') : dur ? clock(Math.max(0, Math.min(dur, pos + (jog / 360) * 120))) : Math.abs(jog) < 60 ? '' : jog > 0 ? 'Next' : 'Back', len: dur, says: dur ? `${clock(pos)} of ${clock(dur)}` : 'No length' },
       jogTo: (turn, commit) => this._jogTo(turn, commit, pos, dur), seekBy: (sec) => { if (dur) this._svc('media_seek', { seek_position: Math.max(0, Math.min(dur - 1, Math.round(pos + sec))) }); else this._svc(sec > 0 ? 'media_next_track' : 'media_previous_track'); },
       prev: () => this._svc('media_previous_track'), next: () => this._svc('media_next_track'),
@@ -1311,8 +1316,9 @@ export class FhMusic extends LitElement {
     const tabs: [Tab, string, string][] = [['rooms', 'Rooms', 'home'], ...(ma ? [['shelves', 'Shelves', 'sleeve'], ['juke', 'Jukebox', 'jukebox']] as [Tab, string, string][] : []), ['radio', 'Radio', 'radio'], ['call', 'Call a room', 'megaphone']];
     const open = (id: Tab): void => { if (id === 'search' && this._tab !== 'search') { this._prev = this._tab; this._keys = true; } this._tab = id; this._adding = false; if (id === 'radio') this._loadRadio(); if (id === 'shelves') this._loadShelves(); };
     const searching = this._tab === 'search', c = this._carry, full = this._full, one = this._one, rooms = this._tab === 'rooms';
-    // the hint shows by itself once for each view, the first time it is opened after the page loads
-    if (this._tab === 'rooms' && !this._viewAsk && !HINTED.has(this._mode)) { HINTED.add(this._mode); window.setTimeout(() => this._showCoach(), 0); }
+    // the coach marks show by themselves the first time each view is opened on this screen each day (and again from "?"). The day is the one Music was opened on:
+    // a page left showing overnight does not play them to an empty kitchen at midnight
+    if (this._tab === 'rooms' && !this._viewAsk && this._coachFor !== this._mode && coachDue(this._mode, this._openDay)) { this._coachFor = this._mode; coachSeen(this._mode, this._openDay); window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     // (the coach marks are put away as a touch comes down, before anything under it can keep the touch to itself: the record in a room does)
     // while something is carried: every shelf by name, to let go on. Under one bar the names stand in the bar itself; otherwise they float at the top of the page

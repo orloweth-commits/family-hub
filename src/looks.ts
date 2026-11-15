@@ -745,7 +745,7 @@ const FRIDGE = `
 
   /* groceries: a shopping-list pad and chunky keys */
   @F .list.glass { background: linear-gradient(90deg, transparent 0 10px, var(--margin) 10px 12px, transparent 12px) 0 0 / 100% 100% no-repeat, var(--glass); rotate: calc(var(--tilt, 1) * -.5deg); }
-  @F .items { gap: 0; }
+  @F .items { gap: 0; --ig: 0px; }
   /* lists that have tightened to fit keep their ruled lines, just closer together */
   @F .items[data-fit] .row { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
   @F .items[data-fit] .row .content { font-size: var(--fs-3); }
@@ -1010,7 +1010,7 @@ const ORBIT = `
   @O .pic.done { background: color-mix(in srgb, var(--ok) 24%, transparent); border-color: var(--ok); }
 
   /* groceries */
-  @O .items { gap: 0; }
+  @O .items { gap: 0; --ig: 0px; }
   @O .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
   @O .tag { font-weight: 600; }
   @O .who.glass { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
@@ -1738,7 +1738,7 @@ const OBSIDIAN = `
   @B .rw.ask { background: var(--sel-bg); border-radius: 14px; border-bottom: 0; padding: 10px 12px; box-shadow: var(--sel-ring), 0 0 26px -12px var(--accent); }
 
   /* groceries */
-  @B .items { gap: 0; }
+  @B .items { gap: 0; --ig: 0px; }
   @B .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
   @B .tag { font-weight: 500; letter-spacing: .04em; }
   @B .who.glass { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }

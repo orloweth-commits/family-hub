@@ -38,11 +38,17 @@ export class FhGroceries extends LitElement {
   readonly lookCtl = new LookController(this);
   readonly fitCtl = new FitController(this as never);
   static styles = [styles, keysCss, css`
-    :host { display: flex; gap: 16px; flex: 1; min-height: 0; }
-    /* one layout however long the list is: the list keeps its width, so the keyboard never moves under a finger */
-    .list { width: 520px; flex-shrink: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
-    .items { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 8px; align-content: start; padding: 6px; margin: -6px; }
-    .items > :not(.item) { grid-column: 1 / -1; }
+    :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
+    /* the list has the room (0.38.3): it keeps its full width whether the keys are up or away, so nothing moves under a finger; the narrow panel beside it holds the box and the usuals */
+    .list { flex: 1 1 0; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+    .scroll { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
+    /* the aisles flow down one column and on into the next, so a short list fills the width too and a heading never wastes a row; the page scrolls down, never sideways */
+    .items { column-width: 204px; column-gap: 12px; column-fill: balance; }
+    .items > * { break-inside: avoid; margin-bottom: var(--ig, 6px); }
+    .items > .aisle { break-after: avoid; }
+    .items > .trolley, .items > .empty { column-span: all; }
+    /* while the keys are over the lower part of the page, the list can still be scrolled clear of them */
+    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 284px; }
     .item { display: flex; align-items: center; gap: 10px; min-height: 44px; /* token */ padding: 7px 10px; border-radius: 14px; background: var(--chip); width: 100%; min-width: 0; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
@@ -50,12 +56,35 @@ export class FhGroceries extends LitElement {
     .txt { flex: 1; min-width: 0; font-size: var(--fs-3); font-weight: var(--w-semi, 600); line-height: 1.2; overflow-wrap: anywhere; }
     .tag { font-size: var(--fs-1); font-weight: var(--w-bold, 700); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
     .label { font-size: var(--fs-1); }
-    .aisle { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-    .aisle:first-child { margin-top: 0; }
+    .aisle { display: flex; align-items: center; gap: 8px; padding-top: 6px; }
     .aisle > i { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .sayit { height: 56px; padding: 0 18px; border-radius: 999px; background: var(--chip-strong); font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; flex-shrink: 0; }
     .sayit[aria-pressed='true'] { box-shadow: inset 0 0 0 3px var(--accent); }
-    .hidekeys { align-self: center; height: 44px; padding: 0 18px; }
+    .hidekeys { align-self: center; height: 52px; padding: 0 22px; flex-shrink: 0; white-space: nowrap; font-size: var(--fs-3); }
+    /* the keys: a tray that slides up over the lower part of the page, with the box on top of it, and goes away again */
+    .tray { border-radius: 28px; padding: 16px 22px; display: flex; flex-direction: column; gap: 12px; align-items: center; min-width: 0; }
+    .tray .entry { width: min(100%, 900px); }
+    :host([data-shape='wide']:not([data-n3])) .tray { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; backdrop-filter: blur(34px) saturate(1.2); -webkit-backdrop-filter: blur(34px) saturate(1.2);
+      box-shadow: 0 -18px 44px -18px rgba(0,0,0,.45), inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent); animation: trayup var(--mt-3, 240ms) var(--e-out, ease-out) backwards; }
+    /* a second layer of the look's own glass, so the list under the tray does not read through the keys */
+    :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
+    /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
+    :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 232px; }
+    :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
+    :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
+    :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
+    :host([data-shape='wide']:not([data-n3])) .tray .hidekeys { flex: 1 1 100%; }
+    :host([data-shape='wide'][data-n1]:not([data-n3])) .tray .entry { flex-basis: 290px; }
+    :host([data-shape='wide']:not([data-n3])) .tray[data-closing] { animation: traydown var(--mt-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
+    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 52px; max-height: none; }
+    @keyframes trayup { from { transform: translateY(104%); } }
+    @keyframes traydown { to { transform: translateY(104%); } }
+    :host([data-shape='wide'][data-n3]) .tray { order: -1; flex: none; }
+    :host([data-shape='tall']) .tray { flex: 0 0 auto; }
+    :host([data-shape='tall']) .tray .key:not(.wide):not(.space) { width: 64px; height: 64px; }
+    :host([data-shape='tall']) .tray .key.space { width: 420px; }
+    :host([data-shape='tall']) .tray .key.wide { width: 96px; }
     .keyhint { font-size: var(--fs-2); }
     .note { font-size: var(--fs-1); }
     .trolley { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
@@ -64,42 +93,48 @@ export class FhGroceries extends LitElement {
     .failed .retry { height: 52px; padding: 0 22px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 2px var(--ink2); font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     /* two columns leave no room for the aisle chip; the list is still sorted by aisle. Phones show it. */
     :host(:not([data-phone])) .tag { display: none; }
-    :host([data-shape='tall']) .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    :host([data-shape='tall']) .items { columns: 3; }
 
-    :host([data-shape='tall']) .add .key:not(.wide):not(.space) { width: 64px; height: 64px; }
-    :host([data-shape='tall']) .add .key.space { width: 420px; }
-    :host([data-shape='tall']) .add .key.wide { width: 96px; }
     :host([data-shape='tall']) { flex-direction: column; }
     :host([data-shape='tall']) .list { width: auto; flex: 1; min-height: 0; }
     :host([data-shape='tall']) .add { flex: 0 0 auto; }
     :host([data-phone]) { flex: none; flex-direction: column; min-width: 0; }
     :host([data-phone]) .add { order: -1; padding: 14px; border-radius: 22px; flex: none; }
     :host([data-phone]) .list { flex: none; width: auto; padding: 14px; border-radius: 22px; }
-    :host([data-phone]) .items { overflow: visible; flex: none; grid-template-columns: minmax(0, 1fr); padding: 0; margin: 0; }
+    :host([data-phone]) .scroll { overflow: visible; flex: none; padding: 0; margin: 0; }
+    :host([data-phone]) .items { columns: 1; }
     :host([data-phone]) .keys { display: none; }
     :host([data-phone]) .entry { flex-wrap: wrap; }
     :host([data-phone]) .entry .field { flex: 1 1 180px; height: 52px; font-size: var(--fs-4); }
     :host([data-phone]) .entry .lead { height: 52px; flex: 0 0 auto; }
     /* tablets narrower than the canvas: the list narrows so the keyboard keeps whole keys; under 900 px the two stack and the page scrolls */
-    :host([data-shape='wide'][data-n1]) .list { width: 440px; }
-    :host([data-shape='wide'][data-n2]) .list { width: 372px; padding: 16px; }
+    :host([data-shape='wide'][data-n2]) .list { padding: 16px; }
+    :host([data-shape='wide'][data-n1]:not([data-n3])) .add { flex-basis: 330px; }
     :host([data-n2]) .add { padding: 16px; }
     :host([data-n2]) .krow, :host([data-n2]) .keys { gap: 6px; }
     :host([data-shape='wide'][data-n3]) { flex-direction: column; overflow-y: auto; gap: 12px; }
     :host([data-shape='wide'][data-n3]) .add { order: -1; flex: none; gap: 10px; }
     :host([data-shape='wide'][data-n3]) .krow { flex: 0 0 48px; }
     :host([data-shape='wide'][data-n3]) .list { width: auto; flex: none; }
-    :host([data-shape='wide'][data-n3]) .items { overflow: visible; flex: none; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    :host([data-shape='tall'][data-n3]) .add .key.space { width: 380px; }
-    .add { flex: 1; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+    :host([data-shape='wide'][data-n3]) .scroll { overflow: visible; flex: none; }
+    :host([data-shape='wide'][data-n3]) .items { columns: 3; }
+    :host([data-shape='tall'][data-n3]) .tray .key.space { width: 380px; }
+    .add { flex: 0 0 384px; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
     .entry { display: flex; gap: 10px; align-items: center; min-width: 0; }
+    /* in the narrow panel the box has a line to itself, with Add (and Say it) under it */
+    :host([data-shape='wide']:not([data-n3])) .add .entry { flex-wrap: wrap; }
+    :host([data-shape='wide']:not([data-n3])) .add .entry .field { flex: 1 1 100%; }
+    :host([data-shape='wide']:not([data-n3])) .add .entry .lead, :host([data-shape='wide']:not([data-n3])) .add .entry .sayit { flex: 1 1 0; padding: 0 12px; }
     .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
     .entry .lead { height: 60px; padding: 0 26px; font-size: var(--fs-3); flex-shrink: 0; }
-    .usuals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .usuals > span { font-size: var(--fs-1); font-weight: var(--w-bold, 700); margin-right: 4px; }
+    /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */
+    .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
+    .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+    .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+    :host([data-phone]) .add .usuals .chip.quick { min-height: 52px; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
     .keys { flex: 1; min-height: 0; justify-content: center; }
     :host(:not([data-shape='tall']):not([data-phone])) .krow { flex: 1 1 52px; max-height: 78px; min-height: 44px; }
@@ -161,6 +196,8 @@ export class FhGroceries extends LitElement {
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
+    // the box moves into the tray with the keys: it keeps the caret, so a real keyboard still types; with the keys away it lets go (a focused box holds the screensaver back)
+    if (c.has('_keys')) { this.toggleAttribute('data-keys', this._keys); const f = this.renderRoot.querySelector<HTMLInputElement>('.entry .field'); if (this._keys) f?.focus({ preventScroll: true }); else f?.blur(); }
     this.renderRoot.querySelectorAll('.scrolly').forEach(scrollCue);
     // a long list changes without the rows travelling: sixty rows moving at once is a blur, and slow on a wall panel
     if (this._places) { if (this._places.size <= 40) flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
@@ -275,6 +312,17 @@ export class FhGroceries extends LitElement {
     const sorted = [...open].sort((a, b) => aisleOf(a.summary)[0].localeCompare(aisleOf(b.summary)[0]));
     // grouped by aisle: each group under its own heading (a list of one or two things needs none)
     const heads = sorted.length > 2, canSay = !!this.pipeline && canListen();
+    // the keys come up as a tray over the lower part of the page, and the box goes with them; a phone has its own keyboard and keeps the box where it is
+    const [tray, trayOut] = linger(this, 'tray', this._keys ? 1 : 0, 200);
+    const entry = (up: boolean): TemplateResult => html`<div class="entry">
+          <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
+            @pointerdown=${() => { if (getShape() !== 'phone') this._keys = true; }}
+            @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
+            @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
+          <button class="tap lead" @click=${() => this._add()}>Add</button>
+          ${canSay ? html`<button class="tap sayit" data-act="say" aria-pressed=${String(!!this._hearing)} aria-label=${this._hearing ? 'Listening. Tap to stop' : 'Say what to add'} @click=${() => this._sayIt()}>${this._hearing ? 'Listening…' : '🎤 Say it'}</button>` : nothing}
+          ${up ? html`<button class="pill tap hidekeys" data-act="hide-keys" @click=${() => { this._keys = false; }}>Hide the keys</button>` : nothing}
+        </div>`;
     return html`
       <section class="glass list" aria-label="Shopping list">
         <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -283,7 +331,7 @@ export class FhGroceries extends LitElement {
         </div>
         ${this._failed ? html`<div class="failed" role="alert"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span>Can’t reach the shopping list.</span>
           <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
-        <div class="items scrolly" @scroll=${scrollCue}>
+        <div class="scroll scrolly" @scroll=${scrollCue}><div class="items">
           ${adding.map((n) => html`<div class="item row pending" role="status" aria-busy="true" data-busy><span class="box check"></span><span class="txt content"><span class="strike">${n}</span></span><span class="tag">Adding…</span></div>`)}
           ${sorted.map((i, n) => html`${heads && (n === 0 || aisleOf(sorted[n - 1].summary)[0] !== aisleOf(i.summary)[0]) ? html`<div class="aisle label" role="heading" aria-level="2" data-aisle=${aisleOf(i.summary)[0]}><i style="background:var(${aisleOf(i.summary)[1]})" aria-hidden="true"></i>${aisleOf(i.summary)[0]}</div>` : nothing}${this._row(i)}`)}
           ${done.length ? html`<div class="trolley">
@@ -291,7 +339,7 @@ export class FhGroceries extends LitElement {
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>
             ${done.map((i) => this._row(i))}` : nothing}
           ${!open.length && !done.length && !adding.length ? html`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${icon('cart', 40)}</span><span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:var(--fs-2)">Type an item or tap a usual to add it.</span></div>` : nothing}
-        </div>`}
+        </div></div>`}
         <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
 
@@ -302,21 +350,17 @@ export class FhGroceries extends LitElement {
             <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
           ${!this.recipients.length ? html`<span class="muted" style="font-size:var(--fs-1)">(add phones in the card settings)</span>` : nothing}
         </div>
-        <div class="entry">
-          <input class="field" .value=${this._typed} inputmode=${getShape() === 'phone' ? 'text' : 'none'} autocomplete="off" placeholder="Type an item…" aria-label="New item"
-            @pointerdown=${() => { this._keys = true; }}
-            @input=${(e: InputEvent) => { this._typed = (e.target as HTMLInputElement).value; }}
-            @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') this._add(); }} />
-          <button class="tap lead" @click=${() => this._add()}>Add</button>
-          ${canSay ? html`<button class="tap sayit" data-act="say" aria-pressed=${String(!!this._hearing)} aria-label=${this._hearing ? 'Listening. Tap to stop' : 'Say what to add'} @click=${() => this._sayIt()}>${this._hearing ? 'Listening…' : '🎤 Say it'}</button>` : nothing}
-        </div>
+        ${tray ? nothing : entry(false)}
         <div class="usuals">
           <span class="muted">Usuals</span>
           ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${(e: Event) => this._add(u, e.currentTarget as Element)}>+ ${u}</button>`)}
         </div>
-        ${this._keys ? html`${keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
-          <button class="pill tap hidekeys" data-act="hide-keys" @click=${() => { this._keys = false; }}>Hide the keys</button>` : html`<span class="muted keyhint" data-keyhint>Touch the box to type. Usuals are one tap.</span>`}
+        ${this._keys ? nothing : html`<span class="muted keyhint" data-keyhint>Touch the box to type. Usuals are one tap.</span>`}
       </section>
+      ${tray ? html`<section class="glass tray" aria-label="Type an item" ?data-closing=${trayOut}>
+        ${entry(true)}
+        ${trayOut ? html`<div class="keysgone" aria-hidden="true"></div>` : keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
+      </section>` : nothing}
       <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => { sfx('undo'); this._undo?.(); }}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }
 
