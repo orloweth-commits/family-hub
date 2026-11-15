@@ -27,7 +27,7 @@ await ahead(page, '00:45'); ok('the artwork is up after three minutes', await ar
 await page.waitForTimeout(600);
 ok('it shows a picture from the record', await page.locator('family-hub-card .artm img.aimg').count() >= 1);
 ok('it shows the time', /\d{1,2}:\d{2}/.test(await page.locator('family-hub-card .artm .atime').innerText()), await page.locator('family-hub-card .artm .atime').innerText());
-{ const lines = await page.locator('family-hub-card .artm .ainfo').allInnerTexts(); ok('a line or two of news, never more', lines.length >= 1 && lines.length <= 2, lines); }
+{ const lines = await page.locator('family-hub-card .artm .ainfo').allInnerTexts(); ok('one line of news under the time, never more', lines.length === 1, lines); }
 ok('the page behind is out of reach', await card(page, (c) => c.shadowRoot.querySelector('.fh > .body').inert));
 { const a = await page.locator('family-hub-card .artm').evaluate((e) => getComputedStyle(e).animationDuration); ok('it fades in slowly (2.5 s)', a.startsWith('2.5s'), a); }
 
@@ -219,10 +219,13 @@ await page.close();
 // 12. sizes: the clock is inside the screen on the wall panel, an iPad and a phone
 for (const [name, w, h] of [['wall panel', 1920, 1080], ['iPad', 1180, 820], ['iPad upright', 820, 1180], ['phone', 390, 844]]) {
   page = await open('art=1&artn=3', { w, h }); await page.waitForTimeout(700);
-  const r = await page.locator('family-hub-card .artm .aplate').boundingBox();
+  const r = await page.locator('family-hub-card .artm .acap').boundingBox();
   ok(`${name}: the clock is whole and on the screen`, !!r && r.x >= 0 && r.y >= 0 && r.x + r.width <= w + 1 && r.y + r.height <= h + 1, r && [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]);
   const fs2 = await page.locator('family-hub-card .artm .atime .big').evaluate((e) => e.getBoundingClientRect().height);
-  ok(`${name}: the time is large`, fs2 >= (w < 600 ? 60 : 110), Math.round(fs2));
+  ok(`${name}: the time is a caption, not a headline, and still readable`, fs2 >= (w < 600 ? 26 : 34) && fs2 <= 90, Math.round(fs2));
+  const f = await page.locator('family-hub-card .artm .aframe').boundingBox();
+  ok(`${name}: the picture is whole, in a mat, with the caption under it`, !!f && !!r && f.x >= 15 && f.y >= 15 && f.x + f.width <= w - 15 && Math.abs(f.width / f.height - 1.5) < 0.02 && r.y >= f.y + f.height - 1, f && [Math.round(f.x), Math.round(f.y), Math.round(f.width), Math.round(f.height)]);
+  ok(`${name}: one line under the time, never more`, await page.locator('family-hub-card .artm .ainfo').count() <= 1);
   await page.close();
 }
 

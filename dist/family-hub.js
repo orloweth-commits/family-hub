@@ -18041,12 +18041,12 @@ const Jx = (a, t) => {
   .artm[data-night] .atime .big { font-weight: 300; }
   /* ---- the picture as art: a mat, a matte picture, a caption (the polish block, batch 1) ---- */
   .artm[data-mat] { background: var(--mat, #e8e3d7); color: var(--mat-ink, #4b4740); --ink: var(--mat-ink, #4b4740); }
-  .amatcol { position: absolute; top: 5.5%; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; pointer-events: none; }
+  .amatcol { position: absolute; top: 6.5%; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; pointer-events: none; }
   /* the window: the picture's own shape, so nothing of it is cut; a pale lip where the mat is cut, and the shadow the mat throws on the picture */
-  .aframe { position: relative; flex: none; height: 86.8%; aspect-ratio: 3 / 2; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.28), 0 0 0 9px var(--mat-lip, #f4f0e6), 0 0 0 10px rgba(0,0,0,.12); }
+  .aframe { position: relative; flex: none; height: 83%; aspect-ratio: 3 / 2; overflow: hidden; background: #111; box-shadow: 0 0 0 1px rgba(0,0,0,.28), 0 0 0 9px var(--mat-lip, #f4f0e6), 0 0 0 10px rgba(0,0,0,.12); }
   .aframe::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 3px 10px rgba(0,0,0,.34), inset 0 0 2px rgba(0,0,0,.4); pointer-events: none; }
   /* matte, not glossy: a little colour and contrast taken out, as a print behind glass has */
-  .artm[data-mat] .aimg { filter: saturate(.8) contrast(.9) brightness(.97); object-position: 50% 50%; }
+  .artm[data-mat] .aimg { filter: saturate(.8) contrast(.9) brightness(.97); }
   /* paper: one fine grain over mat and picture alike */
   .agrain { position: absolute; inset: 0; pointer-events: none; opacity: .16; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
   .acap { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; transition: transform calc(15s * var(--m-d, 1)) linear; }
