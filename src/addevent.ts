@@ -77,6 +77,7 @@ export class FhAddEvent extends LitElement {
     .rowhead .sub { flex: 1; }
     .rowhead .calbtn, .rowhead .farchip { height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; }
     .rowhead .calbtn { background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); }
+    :host([data-dark]) .rowhead .calbtn:not([aria-pressed='true']) { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink3) 45%, transparent); }
     .rowhead .farchip { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
     :host([data-phone]) .chips.days, :host([data-phone]) .chips.cals { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
     :host([data-phone]) .chips.days button, :host([data-phone]) .chips.cals button { flex: 0 0 auto; padding: 0 13px; }

@@ -482,10 +482,15 @@ export const styles = css`
   :host([data-dark]) .fh .dayrow { background: color-mix(in oklab, color-mix(in srgb, var(--c, transparent) 78%, #fff) 56%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 72%, #fff); }
   :host([data-dark]) .fh .dayrow.past { background: color-mix(in oklab, var(--c, transparent) 32%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 80%, #fff); }
   :host([data-dark]) .fh .dayrow.past :is(.content, .muted) { color: var(--ink2); }
+  /* today's column is marked by its ring and its date, not by a lift: every event still to come on it stays lighter than the column, as on the other days */
+  :host([data-dark]) .fh .col.today { background: var(--chip-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 62%, transparent); }
+  /* in the dark a ring means "chosen" and nothing else: a chip that is not chosen, and an outlined button, keep only a hairline */
+  :host([data-dark]) .mchip:not([aria-pressed='true']) { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink3) 45%, transparent); }
+  :host([data-dark]) .ghost { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink3) 75%, transparent); }
   /* a sheet over a dark page: the page behind goes well back, and the sheet is a solid step lighter than it with a clear edge */
   :host([data-dark]) .fh { --scrim: rgba(0,0,0,.7);
     /* a character with no scene behind him stands against the dusk: a plate and a halo lighter than any hair, so every head keeps its edge */
-    --av-sky: color-mix(in srgb, var(--primary) 24%, var(--ring-halo)); --av-sky2: color-mix(in srgb, var(--primary) 26%, #8ea6c6);
+    --av-sky: color-mix(in srgb, var(--primary) 24%, var(--ring-halo)); --av-sky2: color-mix(in srgb, var(--primary) 28%, #7c93b2);
     /* the radar map's own controls wear the theme */
     --radar-bar: color-mix(in srgb, var(--ring-halo) 88%, transparent); --radar-ink: var(--ink);
     /* music with no picture: a deep tile of the theme's two colours, not a pale square */
