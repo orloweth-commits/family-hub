@@ -15,6 +15,7 @@ import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
 import type { ArtConfig } from './artlib';
 import './pin';
 import { askParse, askReady, jobsFrom, newAskId, sendAsk, type Ask } from './approve';
+import { notesFor, notesReady, type Note } from './noticed';
 
 interface KEvent { title: string; start: Date; end?: Date; allDay: boolean; family: boolean }
 
@@ -310,7 +311,7 @@ export class FhKid extends LitElement {
 
   private _nowUid = '';
   static properties = {
-    hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, calRules: { attribute: false }, pin: {}, owed: {}, asks: { attribute: false }, _asked: { state: true }, jarTarget: { type: Number }, jarReward: {},
+    hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, calRules: { attribute: false }, pin: {}, owed: {}, asks: { attribute: false }, notes: {}, _notes: { state: true }, _asked: { state: true }, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
@@ -328,6 +329,8 @@ export class FhKid extends LitElement {
   owed = 'todo.rewards_owed';
   /** approve from a phone (approve.ts): the phones and the list of what is waiting; without it a big reward asks for the PIN here, as before */
   asks?: { notify?: string[]; list?: string; jobs_from?: number };
+  /** "I noticed" (noticed.ts): the list a parent's notes are kept on; empty when there is none */
+  notes = '';
   jarTarget = 120;
   jarReward = 'a family treat';
   privateWords: string[] = [];
@@ -375,6 +378,34 @@ export class FhKid extends LitElement {
       const mine = res.items.filter((i) => i.status === 'needs_action' && i.summary.startsWith(`${name}: `)).map((i) => i.summary.slice(name.length + 2));
       this._owed = [...new Set(mine)].filter((n) => this._needsAdult(n));
     } catch { /* the line is simply left as it was */ }
+  }
+  /** notes a parent has left for him ("I noticed", noticed.ts), oldest first: shown one at a time until he taps Thanks */
+  private _notes: Note[] = []; private _notesSeen = ''; private _noteSaid = '';
+  private async _loadNotes(): Promise<void> {
+    const name = this.kid.name;
+    if (!notesReady(this.hass, this.notes)) { if (this._notes.length) this._notes = []; return; }
+    try { const got = await notesFor(this.hass!, this.notes, this._e.slug); if (name !== this.kid.name) return; this._notes = got; }
+    catch (e) { console.warn('Family Hub: notes not read', e); }
+    // a child who cannot read hears his note once, when it comes up
+    const n = this._notes[0]; if (n && this._picMode && this._noteSaid !== n.id) { this._noteSaid = n.id; say(n.text); }
+  }
+  private _noteThanks(n: Note): void {
+    this._notes = this._notes.filter((x) => x.id !== n.id); this._sound('coin'); this._jump++;
+    if (n.uid) this.hass?.callService('todo', 'remove_item', { item: n.uid }, { entity_id: this.notes }).catch(() => undefined);
+    const next = this._notes[0]; if (next && this._picMode && this._noteSaid !== next.id) { this._noteSaid = next.id; say(next.text); }
+  }
+  /** One note at a time, over his page, in a parent's words. It gives no points and counts nothing. */
+  private _noticedCard(): TemplateResult {
+    const n = this._notes[0], more = this._notes.length - 1;
+    return html`<div class="celebrate" data-noticed>
+      <div class="glass cbox" role="dialog" aria-label="A note from a parent">
+        <span class="rank" style="font-size:var(--fs-2)">A NOTE FROM A PARENT</span>
+        <h1 class="t-title" style="text-align:center;max-width:22em" data-note=${n.id}>${n.text}</h1>
+        <div style="display:flex;gap:12px;align-items:center">
+          ${this._picMode ? html`<button class="round tap" style="font-size:var(--fs-4)" aria-label="Read the note" @click=${(e: Event) => say(n.text, e.currentTarget as Element)}>🔊</button>` : nothing}
+          <button class="pill tap primary" data-act="note-thanks" style="height:52px;padding:0 24px;font-size:var(--fs-3)" @click=${() => this._noteThanks(n)}>Thanks!</button></div>
+        ${more > 0 ? html`<span class="muted" style="font-size:var(--fs-2)">${more === 1 ? 'One more note after this' : `${more} more notes after this`}</span>` : nothing}
+      </div></div>`;
   }
   /** what he has asked a parent's phone for and not yet heard about */
   private _asked: Ask[] = [];
@@ -499,7 +530,7 @@ export class FhKid extends LitElement {
   protected shouldUpdate(ch: PropertyValues): boolean {
     if (ch.size === 1 && ch.has('hass') && this.kid) {
       const e = this._e;
-      return changed(ch.get('hass') as Hass | undefined, this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, 'input_number.family_jar', this.owed, this.asks?.list ?? 'todo.family_hub_asks']); // (the two lists: an answer from a phone, or a reward written by Home Assistant, shows at once)
+      return changed(ch.get('hass') as Hass | undefined, this.hass, [e.points, e.lifetime, e.week, e.goal, e.grow, e.avatar, 'input_number.family_jar', this.owed, this.asks?.list ?? 'todo.family_hub_asks', this.notes]); // (the two lists: an answer from a phone, or a reward written by Home Assistant, shows at once)
     }
     if (ch.size === 1 && ch.has('_now')) return this._now.getSeconds() === 0 || !!this._practice;
     return true;
@@ -518,9 +549,10 @@ export class FhKid extends LitElement {
         .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
-    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._asked = []; this._asksSeen = ''; this._lines = []; this._lookSaid = false; this._loadWeek(); }
+    if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._asked = []; this._asksSeen = ''; this._notes = []; this._notesSeen = ''; this._lines = []; this._lookSaid = false; this._loadWeek(); }
     { const key = `${this.kid.name}|${this.hass.states[this.owed]?.state ?? ''}`; if (key !== this._owedSeen) { this._owedSeen = key; void this._loadOwed(); } }
     { const l = this.hass.states[this.asks?.list ?? 'todo.family_hub_asks'], key = `${this.kid.name}|${this._askOn}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}`; if (key !== this._asksSeen) { this._asksSeen = key; void this._loadAsks(); } }
+    { const l = this.notes ? this.hass.states[this.notes] : undefined, key = `${this.kid.name}|${!!l}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}`; if (key !== this._notesSeen) { this._notesSeen = key; void this._loadNotes(); } }
     if (!this._drawn && !this._drawWait) { this._drawWait = true; const go = (): void => { this._drawWait = false; this._drawn = true; };
       if ('requestIdleCallback' in window) (window as any).requestIdleCallback(go, { timeout: 200 }); else requestAnimationFrame(() => requestAnimationFrame(go)); }
     if (ch.has('hass')) this._checkUnlocks();
@@ -843,7 +875,7 @@ export class FhKid extends LitElement {
         : this._picMode ? html`${this._jar()}${this._feelCard()}${this._tabs()}` : html`${this._tabs()}${this._jar()}${this.kid.older ? this._chatCard() : this._feelCard()}`}</div>
       ${this._bursts.map((b) => html`<span class="burst" style="left:150px;top:260px">${b.text}</span>`)}
       ${this._confetti && !this._wind ? keyed(this._confetti, confetti(this._confetti)) : nothing}
-      ${this._celebrate ? this._celebration() : nothing}
+      ${this._celebrate ? this._celebration() : this._notes.length ? this._noticedCard() : nothing}
       ${this._days ? this._daysSheet() : nothing}
       ${this._pinAsk ? html`<fh-pin .pin=${String(this.pin)} reason=${this._pinAsk.reason} @ok=${() => { const r = this._pinAsk!.run; this._pinAsk = null; r(); }} @cancel=${() => { this._pinAsk = null; }}></fh-pin>` : nothing}
       <div class="says" role="status" aria-live="polite">${msg ? html`<div class="toast" ?data-closing=${msgOut}>${msg}</div>` : nothing}</div>
