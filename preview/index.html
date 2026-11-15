@@ -130,6 +130,7 @@ const hass = {
       return { response: { url: paintCard('painted', `hsl(${hue(data.instructions)} 60% 45%)`, `hsl(${(hue(data.instructions) + 120) % 360} 70% 70%)`, 1024, 1536), width: 1024, height: 1536, model: 'demo' } }; }
     (window.__calls ??= []).push(`${domain}.${service} ${id ?? ''} ${JSON.stringify(data).slice(0, 140)}`);
     if (domain === 'notify' && window.__notifyFail) throw new Error('no such phone');
+    if (domain === 'todo' && service === 'add_item' && window.__todoFail === id) throw new Error('list not there'); // (a test: that list refuses a new line)
     if (domain === 'calendar' && service === 'create_event' && window.__evFail === 'create') throw new Error('no');
     if (domain === 'calendar' && service === 'create_event') (CAL[id] ??= []).push({ uid: `new-${Date.now()}`, description: data.description, summary: data.summary, location: data.location, start: data.start_date ? { date: data.start_date } : { dateTime: new Date(data.start_date_time).toISOString() }, end: data.end_date ? { date: data.end_date } : { dateTime: new Date(data.end_date_time).toISOString() } });
     const S = hass.states, upd = (eid, patch, state) => { if (S[eid]) { S[eid] = { ...S[eid], state: state ?? S[eid].state, attributes: { ...S[eid].attributes, ...patch } }; } };
