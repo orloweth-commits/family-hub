@@ -54,7 +54,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.4';
+const VERSION = '0.38.5';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1290,7 +1290,8 @@ export class FamilyHubCard extends LitElement {
     // A child's page is animated until calm is chosen (Oliver, 14 Nov 2026).
     const calm = this._config.calm === true || (kp ? kp.calm : mk ? kidPrefs(mk).calm : false);
     const h = this._now.getHours();
-    const tod = h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
+    // (in the dark the photo is already dimmed by the theme's own layer: the tint of the hour would only muddy it)
+    const tod = this._darkNow ? 'transparent' : h < 5 || h >= 21 ? 'rgba(10,20,60,.28)' : h < 7 ? 'rgba(255,170,150,.16)' : h >= 17 && h < 19 ? 'rgba(255,150,60,.14)' : h >= 19 ? 'rgba(30,40,110,.2)' : 'transparent';
     const rainy = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? '']?.state ?? '');
     // things that fade out before they leave: the sheet, the toast, the PIN pad's question and the screensaver
     const [sheet, sheetOut] = linger(this, 'sheet', this._sheet), [toast, toastOut] = linger(this, 'toast', this._toast ? { msg: this._toast, act: this._toastAct } : null), [artUp, artOut] = linger(this, 'art', this._art.on, 250);
@@ -1739,7 +1740,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead('Pick a look', 'Changes the whole panel.', 'palette')}
       <div class="themes looks">
         ${LOOKS.map((l) => html`<button class="tcard tap" aria-pressed=${String(l.id === this._look)} @click=${() => this._setLook(l.id)}>
-          ${lookPreview(l, 96, themeStyle(themeById(this._theme), this._dk))}
+          ${lookPreview(l, 96, themeStyle(themeById(this._theme), this._dk), this._dk && hasDark(themeById(this._theme)))}
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${l.name}</span><span class="muted" style="font-size:var(--fs-1)">${l.tagline}</span>
         </button>`)}
       </div>
@@ -1783,7 +1784,7 @@ export class FamilyHubCard extends LitElement {
     return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`, '', note)}
       <div class="themes kidlooks">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
-          ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme), this._dk))}
+          ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme), this._dk), this._dk && hasDark(themeById(this._theme)))}
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${name}</span><span class="muted" style="font-size:var(--fs-1)">${tag}</span></button>`)}
       </div>
       ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}

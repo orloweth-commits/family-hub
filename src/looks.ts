@@ -479,9 +479,9 @@ export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult 
  * The picture of a look in the picker. It carries the look's own tokens, so a look that changes its
  * colours changes its preview too; a themed look inherits the current theme from the panel.
  */
-export const lookPreview = (l: LookDef, height = 120, theme = ''): TemplateResult => {
+export const lookPreview = (l: LookDef, height = 120, theme = '', dark = false): TemplateResult => {
   const vars = l.vars ? Object.entries(l.vars).map(([k, v]) => `${k}:${v}`).join(';') : theme;
-  return html`<span class="lookprev" data-prev=${l.id} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
+  return html`<span class="lookprev" data-prev=${l.id} ?data-dark=${dark && !!l.themed} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
     ${l.art?.clock && l.previewClock !== false ? html`<span class="lp-clock">${l.art.clock({ now: new Date(2000, 0, 1, 10, 10), arcs: [] })}</span>` : nothing}${l.preview?.() ?? nothing}
     <span class="lp-people">${[1, 2, 3, 4, 5].map((n) => html`<i style="background:var(--p-${n})"></i>`)}</span></span>`;
 };
@@ -1929,6 +1929,7 @@ const KEYFRAMES = `
 /* The look picker's little pictures. They are built from each look's tokens, never from fixed colours. */
 const PREVIEW = `
   .lookprev { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; overflow: hidden; padding: 10px; color: var(--ink); }
+  .lookprev[data-dark] { background: var(--dim), var(--bg) center / cover !important; }
   .lookprev .lp-clock { position: absolute; top: 8px; right: 10px; line-height: 0; }
   .lookprev .lp-clock svg { width: 30px; height: 30px; }
   .lookprev .lp-people { position: absolute; left: 10px; bottom: 8px; display: flex; gap: 4px; }

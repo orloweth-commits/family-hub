@@ -1,3 +1,4 @@
+import { DARK_MODES, getDarkMode, setDarkMode, type DarkMode } from './dark';
 import { voiceInUse, voiceList } from './voice';
 import { LitElement, html, css, nothing, svg, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
@@ -914,9 +915,10 @@ export class FhSettings extends LitElement {
         <span class="shint">${q.start || q.end ? '' : 'Quiet hours are 8:00 pm to 6:30 am until you change them.'}</span>
         ${this._row('Silent in quiet hours', 'Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.', this._sw('Silent in quiet hours', q.mute === true, () => this._edit((x) => { const m = x.quiet?.mute === true; x.quiet = { ...(x.quiet ?? {}) }; if (m) delete x.quiet.mute; else x.quiet.mute = true; if (!Object.keys(x.quiet).length) delete x.quiet; })))}
       </div>
-      ${hc?.heartbeat ? html`<div class="scard"><h3>${icon('home', 20)}This screen</h3>
-        ${this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
-      </div>` : nothing}
+      <div class="scard" data-screen><h3>${icon('home', 20)}This screen</h3>
+        ${this._row('Light and dark', 'For the Glass look, on this screen only. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Space Mission is always dark. Kept on this screen, not saved with the rest.', this._seg<DarkMode>('Light and dark', getDarkMode(), DARK_MODES, (v) => { setDarkMode(v); sfx('set'); this.requestUpdate(); }))}
+        ${!hc?.heartbeat ? nothing : this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
+      </div>
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>
         ${this._row('Show bin night', 'On the planner, the screensaver and House info, on the evening the bins go out.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}
         ${bins ? html`
