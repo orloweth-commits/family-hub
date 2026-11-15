@@ -32,6 +32,7 @@ import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { icon, solid, weatherIcon } from './icons';
 import { haDigest } from './digest';
+import { NOTE_MAX, NOTICED, leaveNote, noteClean, notesReady } from './noticed';
 import { answerAsk, approveOn, askList, askPhones, askParse, askReady, haApprove, openAsks, type Ask } from './approve';
 import { BEAT_MS, USE_FLUSH_MS, UseLog, agoWords, calHealth, calWarning, haTrust, isWall, restoreCalls, snapParse, snapText, snapshotOf, useTotals, type HaTrust } from './trust';
 import { BINS, isBin, askByChild, askFor, calShows, kidEntities, num, slotVar, type CalEvent, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type PersonConfig } from './types';
@@ -48,8 +49,8 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
-type Sheet = '' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.35.8';
+type Sheet = '' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
+const VERSION = '0.35.9';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -225,6 +226,28 @@ export class FamilyHubCard extends LitElement {
           : html`<button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
         <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>`}</div>`)}
         ${this._waiting.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
+  }
+  /* ---------------- "I noticed": a parent leaves a note on a child's page (noticed.ts) ---------------- */
+  private _nt: { text: string; caps: boolean; busy: boolean } = { text: '', caps: true, busy: false };
+  private async _leaveNote(text: string): Promise<void> {
+    const k = this._kidOn, list = askList(this._config);
+    if (!k || !this.hass || this._nt.busy || !noteClean(text)) return;
+    this._nt = { ...this._nt, busy: true }; this.requestUpdate();
+    try { await inTime(leaveNote(this.hass, list, { slug: kidEntities(k).slug, name: k.name }, text)); this._nt = { text: '', caps: true, busy: false }; this._sheet = ''; this._say(`Left on ${k.name}’s page. It stays until ${k.name} taps Thanks.`); }
+    catch (err) { this._nt = { ...this._nt, busy: false }; this._say(err instanceof SlowError ? SLOW_SAY : 'That note was not kept. Try again.'); }
+    this.requestUpdate();
+  }
+  private _noticedBody(): TemplateResult {
+    const k = this._kidOn, n = this._nt, set = (p: Partial<typeof n>): void => { this._nt = { ...this._nt, ...p }; this.requestUpdate(); };
+    if (!k) return html``;
+    return html`${this._sheetHead(`A note for ${k.name}`, `It shows on ${k.name}’s page until ${k.name} taps Thanks. It gives no points.`)}
+      <div class="noticed" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:8px">${NOTICED.map((t) => html`<button class="pill tap" data-act="note-say" style="min-height:48px;height:auto;padding:8px 16px;font-size:var(--fs-2);text-align:left;white-space:normal" ?disabled=${n.busy} @click=${() => void this._leaveNote(t)}>${t}</button>`)}</div>
+        <span class="label">Or in your own words</span>
+        <div style="display:flex;gap:8px"><input class="field" data-act="note-text" style="flex:1;min-width:0;height:48px;font-size:var(--fs-3)" inputmode="none" maxlength=${NOTE_MAX} aria-label="Your note" placeholder="I noticed…" .value=${n.text} @input=${(e: Event) => set({ text: (e.target as HTMLInputElement).value })}>
+          <button class="pill tap primary" data-act="note-send" style="height:48px;padding:0 20px" ?disabled=${n.busy || !noteClean(n.text)} @click=${() => void this._leaveNote(n.text)}>Leave it</button></div>
+        ${keyboard((key) => { const [t, caps] = typeKey(n.text, key, n.caps); set({ text: t.slice(0, NOTE_MAX), caps }); }, n.caps, () => set({ caps: !n.caps }), true, false, true)}
+      </div>`;
   }
   private _dinner: { at: number; timer?: number } | null = null;
   private _dinnerCooldown = 0;
@@ -1187,7 +1210,7 @@ export class FamilyHubCard extends LitElement {
         const k = c.kids?.[this._kid];
         if (!k) break;
         const quiet = isQuiet(this._now, c.quiet?.start ?? '20:00', c.quiet?.end ?? '06:30');
-        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${this._asksCfg()}
+        return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${this._asksCfg()} .notes=${askList(c)}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
@@ -1573,9 +1596,9 @@ export class FamilyHubCard extends LitElement {
           <p class="ainote">${AI_NOTE}</p>
           ${who === null ? pick : keyed(who, html`<fh-chat .hass=${this.hass} ?low=${pics || (this._page === 'kid' && this._kidOn?.mode === 'picture')} .agent=${ch.agent} .pipeline=${ch.pipeline ?? ''} .tts=${ch.tts ?? hv?.tts ?? ''} .ttsVoice=${ch.tts ? ch.tts_voice ?? '' : hv?.voice ?? ''} .ttsLanguage=${ch.tts ? ch.tts_language ?? '' : hv?.language ?? ''} .helper=${name} .pin=${!!this._config.parent_pin}
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
-    const body = s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
+    const body = s === 'noticed' ? this._noticedBody() : s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ noticed: 'Leave a note', waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' || s === 'more' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
   /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */
@@ -1640,7 +1663,9 @@ export class FamilyHubCard extends LitElement {
     void this._prefTick;
     const eff = lookById(this._lk), hand = eff.options?.find((o) => o.id === 'hand');
     const looks: [string, string, string][] = [['panel', 'Same as the panel', `Follows the family’s choice (${lookById(this._look).name})`], ...LOOKS.filter((l) => !l.parentsOnly).map((l): [string, string, string] => [l.id, l.name, l.tagline])];
-    return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`)}
+    // ("I noticed": a parent's note for his page starts here, in the sheet's head, so the rows below keep their room)
+    const note = notesReady(this.hass, askList(this._config)) ? html`<button class="pill tap" data-act="note-open" style="height:48px;padding:0 18px;flex-shrink:0" aria-label=${`Leave a note for ${k.name}: I noticed…`} @click=${() => { this._nt = { text: '', caps: true, busy: false }; this._sheet = 'noticed'; }}>Leave a note</button>` : nothing;
+    return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`, '', note)}
       <div class="themes kidlooks">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
           ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme)))}
