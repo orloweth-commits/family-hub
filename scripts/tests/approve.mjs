@@ -42,6 +42,8 @@ const told = (page, re) => page.waitForFunction((src) => new RegExp(src).test(do
   await K(page).locator('.rw.ask .save').click(); await page.waitForTimeout(200);
   await big.click(); await page.waitForTimeout(250);
   const ask = K(page).locator('.rw.ask[data-ask]');
+  for (const act of ['ask-send', 'ask-here', 'ask-no']) { const seen = await ask.locator(`[data-act="${act}"]`).evaluate((b) => { const r = b.getBoundingClientRect(); let p = b.parentElement, lo = innerHeight, hi = 0; while (p) { const o = getComputedStyle(p).overflowY; if (o === 'auto' || o === 'scroll' || o === 'hidden') { const q = p.getBoundingClientRect(); lo = Math.min(lo, q.bottom); hi = Math.max(hi, q.top); } p = p.parentElement ?? p.getRootNode().host; } return r.height >= 44 && r.bottom <= lo + 1 && r.top >= hi - 1; }).catch(() => act === 'ask-here');
+    ok(`the question's "${act}" button is wholly in view at the wall's size (backlog 62)`, seen); }
   ok('a big reward offers to ask a parent: Ask, the PIN for one standing here, or Not now', await ask.count() === 1 && /Ask a parent\?/.test(await ask.innerText()) && await ask.locator('button').count() === 3 && await K(page).locator('fh-pin').count() === 0, await ask.innerText().catch(() => ''));
   ok('nothing has been sent or spent by looking', (await calls(page, /^notify\.|fh_add_points|todo\.add_item todo\.(family_hub_asks|rewards_owed)/)).length === 0 && Number(await state(page, PTS)) === 300, await state(page, PTS));
   await ask.locator('[data-act="ask-no"]').click(); await page.waitForTimeout(200);

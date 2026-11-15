@@ -1737,6 +1737,8 @@ const OBSIDIAN = `
   /* the question a reward asks (Spend? Ask a parent?) is a lit cell, not a ruled line */
   @B .rw.ask { background: var(--sel-bg); border-radius: 14px; border-bottom: 0; padding: 10px 12px; box-shadow: var(--sel-ring), 0 0 26px -12px var(--accent); }
 
+  /* a person's initial: Jost's capitals sit high in the chip */
+  @B .init { padding-top: 1px; }
   /* groceries */
   @B .items { gap: 0; --ig: 0px; }
   @B .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
