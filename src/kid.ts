@@ -540,6 +540,8 @@ export class FhKid extends LitElement {
 
   protected updated(ch: PropertyValues): void {
     if (!this.hass || !this.kid) return;
+    // a question that opens in a row ("Ask a parent?", "Spend 50 points?") is brought wholly into view: at the wall's size its last button was under the card's bottom edge
+    if (ch.has('_spend') && this._spend) this.renderRoot.querySelector<HTMLElement>('.rw.ask')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
     this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
     void this._loadJarBase();

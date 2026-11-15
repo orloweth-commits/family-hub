@@ -3405,6 +3405,8 @@ const im = `
   /* the question a reward asks (Spend? Ask a parent?) is a lit cell, not a ruled line */
   @B .rw.ask { background: var(--sel-bg); border-radius: 14px; border-bottom: 0; padding: 10px 12px; box-shadow: var(--sel-ring), 0 0 26px -12px var(--accent); }
 
+  /* a person's initial: Jost's capitals sit high in the chip */
+  @B .init:not(.sm) { padding-top: 1px; }
   /* groceries */
   @B .items { gap: 0; --ig: 0px; }
   @B .jobs [data-fit] .row { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
@@ -7843,7 +7845,7 @@ const Uu = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
+          <span class="muted sendl" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((f) => d`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === f.name} aria-busy=${this._sending === f.name ? "true" : m} @click=${() => void this._send(f)}>
             <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${Z(f.colour)}">${f.name[0]}</span>${f.name}</button>`)}
           ${this.recipients.length ? m : d`<span class="muted" style="font-size:var(--fs-1)">(add phones in the card settings)</span>`}
@@ -7983,6 +7985,8 @@ Wo.styles = [Dt, ki, X`
     :host(:not([data-shape='tall']):not([data-phone])) .key.wide { width: 86px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.space { width: 380px; }
     .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    /* in the narrow panel the words have their own line, so two phones sit side by side under them and never wrap one by one */
+    :host([data-shape='wide']:not([data-n3])) .sendl { flex-basis: 100% !important; }
     .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .toast.act { display: flex; align-items: center; gap: 14px; pointer-events: auto; padding: 8px 8px 8px 22px; }
     .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
@@ -9652,7 +9656,7 @@ const il = 15, z0 = (a) => {
   }
   updated(t) {
     if (!this.hass || !this.kid) return;
-    this.toggleAttribute("data-hush", !!this.quiet || !!this._wind), this._loadJarBase();
+    t.has("_spend") && this._spend && this.renderRoot.querySelector(".rw.ask")?.scrollIntoView({ block: "nearest", inline: "nearest" }), this.toggleAttribute("data-hush", !!this.quiet || !!this._wind), this._loadJarBase();
     const e = this._e;
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(), this._unsub = void 0, this._subFor = e.chores, this._chores = [];
@@ -11390,7 +11394,7 @@ const B0 = async (a) => {
   .tuner { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 720px); height: 62px; position: relative; border-radius: 20px; background: var(--chip); touch-action: none; cursor: ew-resize; outline: none; user-select: none; -webkit-user-select: none; }
   .tuner:focus-visible { box-shadow: 0 0 0 3px var(--ink); }
   .tticks { position: absolute; left: 3%; right: 3%; top: 8px; height: 12px; background: repeating-linear-gradient(90deg, var(--ink2) 0 1.5px, transparent 1.5px 14.4px); opacity: .7; -webkit-mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); -webkit-mask-composite: source-over; mask-image: linear-gradient(#000 0 6px, transparent 6px), repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 86.4px); }
-  .tstop { position: absolute; bottom: 5px; transform: translateX(-50%); font-size: var(--fs-2); line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
+  .tstop { position: absolute; bottom: 7px; transform: translateX(-50%); font-size: var(--fs-2); line-height: 1.1; font-weight: var(--w-bold, 700); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
   .tstop[data-on] { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
   .tstop:only-of-type { max-width: 90%; color: var(--ink2); font-weight: var(--w-semi, 600); }
   .tneedle { position: absolute; top: 4px; width: 6px; height: 30px; margin-left: -3px; border-radius: 3px; background: var(--danger, #c62a22); transition: left var(--mt-4, 400ms) cubic-bezier(.2,1.3,.4,1); pointer-events: none; opacity: .55; }
@@ -18296,7 +18300,7 @@ const Ex = (a, t) => {
 }, sw = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), ow = d`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Kf = "0.38.3", fh = "family-hub-theme", mh = "family-hub-sounds", gh = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Kf = "0.38.4", fh = "family-hub-theme", mh = "family-hub-sounds", gh = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

@@ -142,6 +142,8 @@ export class FhGroceries extends LitElement {
     :host(:not([data-shape='tall']):not([data-phone])) .key.wide { width: 86px; }
     :host(:not([data-shape='tall']):not([data-phone])) .key.space { width: 380px; }
     .chip { height: 44px; /* token */ padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
+    /* in the narrow panel the words have their own line, so two phones sit side by side under them and never wrap one by one */
+    :host([data-shape='wide']:not([data-n3])) .sendl { flex-basis: 100% !important; }
     .who { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
     .toast.act { display: flex; align-items: center; gap: 14px; pointer-events: auto; padding: 8px 8px 8px 22px; }
     .toast .undo { height: 44px; /* token */ min-width: 72px; padding: 0 18px; border-radius: 999px; background: #fff; color: #14141a; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
@@ -345,7 +347,7 @@ export class FhGroceries extends LitElement {
 
       <section class="glass add" aria-label="Add an item">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
+          <span class="muted sendl" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((r) => html`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === r.name} aria-busy=${this._sending === r.name ? 'true' : nothing} @click=${() => void this._send(r)}>
             <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}
           ${!this.recipients.length ? html`<span class="muted" style="font-size:var(--fs-1)">(add phones in the card settings)</span>` : nothing}
