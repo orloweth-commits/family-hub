@@ -102,7 +102,7 @@ export class FhMusic extends LitElement {
     .panel[data-one] .crate .st .lbl { font-size: var(--fs-3); }
     /* the moment pads beside the House */
     .hpads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: none; }
-    .hpad { min-width: 0; min-height: 62px; padding: 4px 2px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
+    .hpad { min-width: 0; min-height: 64px; padding: 7px 2px 5px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
     .hpad span { font-size: var(--fs-4); line-height: 1; } .hpad b { font-weight: inherit; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
     .hpad:active, .hpad[data-busy] { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
     .hpad[data-on] { box-shadow: 0 4px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); }
@@ -658,7 +658,7 @@ export class FhMusic extends LitElement {
   /** A room view other than the list takes the whole page: the player steps aside and its controls move into the bar above the view. */
   /** A wide screen: every tab is a full page under one bar, and the full player comes over the page when asked for (polish block, batch 2). */
   private get _wide(): boolean { return shp() !== 'phone' && shp() !== 'tall'; }
-  private get _full(): boolean { return !!this._cur && (this._wide || (this._tab === 'rooms' && this._mode !== 'list' && !this._peek)); }
+  private get _full(): boolean { if (!this._cur) return false; return this._tab === 'rooms' ? this._mode !== 'list' && (this._wide || !this._peek) : this._wide; }
   protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); this.toggleAttribute('data-peek', !!this.hass && this._peek && this._wide && this._full); }
   /** Beside a full-page view the tabs are icons; they get their words back whenever the row has room for them (the search field may shrink to make it). */
   private _fitTabs(): void {
@@ -670,7 +670,8 @@ export class FhMusic extends LitElement {
     const slot = fin?.offsetParent ? fin : head.querySelector<HTMLElement>('.hint[data-on]');
     // the hint is never cut: the tab words go first, and if it is still cut it takes a row of its own
     const hint = head.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
-    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230) && !cut();
+    // (the words do not wait on the hint: the tabs stand first in the row, and words that came and went with the hint would move every button under a finger)
+    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230); void cut;
     if (!ok) tabs.removeAttribute('data-words');
   }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
@@ -1344,7 +1345,7 @@ export class FhMusic extends LitElement {
   /** What stands in for the player beside a full-page view: the small player with the House; with the others (which show what is playing themselves) only a way to the full player. */
   private _oneNow(): TemplateResult | typeof nothing {
     const cur = this._cur;
-    if (this._tab === 'rooms' && this._mode !== 'house' && this._mode !== 'list') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
+    if (this._tab === 'rooms' && this._mode !== 'house') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
     return cur ? this._nowbar(cur) : nothing;
   }
   private _showCoach(toggle = false): void { clearTimeout(this._coachT); this._coach = toggle ? !this._coach : true; if (this._coach) this._coachT = window.setTimeout(() => { this._coach = false; }, 4000); }

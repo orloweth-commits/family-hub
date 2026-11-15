@@ -123,7 +123,7 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   ok('it asks for the PIN', await M(page).locator('fh-pin').count() === 1); await pin(page);
   const sheet = M(page).getByRole('dialog', { name: 'Pin to a shelf' });
   ok('then asks whose shelf', await sheet.count() === 1 && await sheet.locator('.setrow').count() === 4);
-  ok('the Desk’s pads are not offered while the Desk is switched off', !/moment pad/.test(await sheet.innerText()));
+  ok('the four moment pads are offered (they stand beside the House now, with the Desk off)', /moment pad/.test(await sheet.innerText()) && await sheet.getByRole('button', { name: /^Put it on the .* pad/ }).count() === 4);
   await sheet.locator('.setrow').first().getByRole('button', { name: 'Pin', exact: true }).click(); await page.waitForTimeout(600);
   const c = await calls(page, /todo\.add_item/);
   ok('and pins it there', c.length === 1 && /todo\.family_music/.test(c[0]), c);
@@ -166,6 +166,39 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   ok('search: a tap on a result still selects it', await hit.getAttribute('aria-pressed') === 'true');
   await shut(page); }
 
+// 9. one bar on every tab (the polish block, batch 2)
+{ const page = await open('page=music&calm=1'); await page.waitForTimeout(4600); // the first-visit hint has gone
+  const box = async (sel) => M(page).locator(sel).first().boundingBox();
+  const tabsAt = async () => { const b = await box('.mhead .tabs'); return b && [Math.round(b.x), Math.round(b.y)]; };
+  const at0 = await tabsAt(); const seen = [];
+  for (const t of ['Shelves', 'Jukebox', 'Radio', 'Call a room', 'Rooms']) { await M(page).getByRole('tab', { name: t }).click(); await page.waitForTimeout(350); seen.push({ t, at: await tabsAt(), stage: await M(page).locator('.stage').isVisible(), now: await M(page).locator('.mhead .nowbar').count(), words: await M(page).locator('.mhead .tabs button span').first().isVisible() }); }
+  ok('the tabs stand in the same place on every tab', seen.every((x) => x.at && x.at[0] === at0[0] && x.at[1] === at0[1]), [at0, seen.map((x) => x.at)]);
+  ok('with their words', seen.every((x) => x.words));
+  ok('every tab is a full page: the big player is away', seen.every((x) => !x.stage));
+  ok('and the small player is in the bar on every tab', seen.every((x) => x.now === 1), seen.map((x) => x.now));
+  await M(page).getByRole('tab', { name: 'Shelves' }).click(); await page.waitForTimeout(350);
+  const rec = await box('.covers .st .img'); ok('a full page gives the shelf bigger records (170 px or more)', !!rec && rec.width >= 170, rec && Math.round(rec.width));
+  await M(page).getByRole('button', { name: 'Show the full player' }).click(); await page.waitForTimeout(400);
+  const st = await box('.stage'), pn = await box('.panel');
+  ok('the small player opens the full one over the page, not beside it', !!st && !!pn && st.x >= pn.x && st.x + st.width <= pn.x + pn.width + 1 && Math.abs((await tabsAt())[0] - at0[0]) < 1, st && [Math.round(st.x), Math.round(st.width)]);
+  await M(page).getByRole('button', { name: 'Hide the player', exact: true }).first().click(); await page.waitForTimeout(350);
+  ok('and its ✕ puts it away', !(await M(page).locator('.stage').isVisible()));
+  await M(page).getByRole('button', { name: 'Show the full player' }).click(); await page.waitForTimeout(300); await M(page).locator('.pscrim').click({ position: { x: 40, y: 300 } }); await page.waitForTimeout(350);
+  ok('so does a tap beside it', !(await M(page).locator('.stage').isVisible()));
+  // the moment pads beside the House
+  await M(page).getByRole('tab', { name: 'Rooms' }).click(); await page.waitForTimeout(350);
+  const pads = M(page).locator('.hpads .hpad'); ok('four moment pads stand beside the House', await pads.count() === 4, await pads.allInnerTexts());
+  const pb = await pads.first().boundingBox(); ok('each big enough for a finger (44 px)', !!pb && pb.height >= 44 && pb.width >= 44, pb && [Math.round(pb.width), Math.round(pb.height)]);
+  const before = await page.evaluate(() => (window.__calls ?? []).length);
+  await pads.first().click(); await page.waitForTimeout(900);
+  const calls = await page.evaluate((n) => (window.__calls ?? []).slice(n).join(' ~ '), before);
+  ok('a tap on a pad starts its music', /play_media/.test(calls), calls.slice(0, 200));
+  // a tap while the hint shows is not lost (the row must not move under the finger)
+  const p2 = await open('page=music'); await p2.waitForTimeout(600);
+  await M(p2).getByRole('tab', { name: 'Radio' }).click(); await p2.waitForTimeout(400);
+  ok('a tap on a tab while the first-visit hint is showing lands', await M(p2).getByRole('tab', { name: 'Radio' }).getAttribute('aria-selected') === 'true');
+  await p2.context().close(); await page.context().close(); }
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
+
 await browser.close(); srv.close(); process.exit(fails.length ? 1 : 0);

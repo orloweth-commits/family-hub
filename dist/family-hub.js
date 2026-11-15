@@ -11806,7 +11806,7 @@ const G0 = async (a) => {
     return Ja() !== "phone" && Ja() !== "tall";
   }
   get _full() {
-    return !!this._cur && (this._wide || this._tab === "rooms" && this._mode !== "list" && !this._peek);
+    return this._cur ? this._tab === "rooms" ? this._mode !== "list" && (this._wide || !this._peek) : this._wide : !1;
   }
   willUpdate() {
     this.toggleAttribute("data-full", !!this.hass && this._full), this.toggleAttribute("data-peek", !!this.hass && this._peek && this._wide && this._full);
@@ -11816,8 +11816,8 @@ const G0 = async (a) => {
     const t = this.renderRoot.querySelector(".mhead[data-one] .tabs.inline"), e = t?.parentElement;
     if (!t || !e) return;
     t.setAttribute("data-words", "");
-    const i = e.querySelector(".finder"), s = e.querySelector(".nowbar"), o = i?.offsetParent ? i : e.querySelector(".hint[data-on]"), r = e.querySelector(".hint[data-on]"), n = () => !!r && r.scrollHeight > r.clientHeight + 1;
-    e.scrollWidth <= e.clientWidth + 1 && (!o || o.offsetWidth >= 118) && (!s || s.offsetWidth >= 230) && !n() || t.removeAttribute("data-words");
+    const i = e.querySelector(".finder"), s = e.querySelector(".nowbar"), o = i?.offsetParent ? i : e.querySelector(".hint[data-on]");
+    e.querySelector(".hint[data-on]"), e.scrollWidth <= e.clientWidth + 1 && (!o || o.offsetWidth >= 118) && (!s || s.offsetWidth >= 230) || t.removeAttribute("data-words");
   }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
   _fitHint() {
@@ -12742,7 +12742,7 @@ const G0 = async (a) => {
   /** What stands in for the player beside a full-page view: the small player with the House; with the others (which show what is playing themselves) only a way to the full player. */
   _oneNow() {
     const t = this._cur;
-    return this._tab === "rooms" && this._mode !== "house" && this._mode !== "list" ? d`<button class="round tap peekb" aria-label="Show the full player" @click=${() => {
+    return this._tab === "rooms" && this._mode !== "house" ? d`<button class="round tap peekb" aria-label="Show the full player" @click=${() => {
       this._peek = !0;
     }}>${A("music", 22)}</button>` : t ? this._nowbar(t) : g;
   }
@@ -13019,7 +13019,7 @@ Zo.styles = [It, ki, X`${Nt(vi)}`, X2, X`
     .panel[data-one] .crate .st .lbl { font-size: var(--fs-3); }
     /* the moment pads beside the House */
     .hpads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: none; }
-    .hpad { min-width: 0; min-height: 62px; padding: 4px 2px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
+    .hpad { min-width: 0; min-height: 64px; padding: 7px 2px 5px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
     .hpad span { font-size: var(--fs-4); line-height: 1; } .hpad b { font-weight: inherit; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
     .hpad:active, .hpad[data-busy] { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
     .hpad[data-on] { box-shadow: 0 4px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); }
