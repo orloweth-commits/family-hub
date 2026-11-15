@@ -120,14 +120,14 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
       { const hv = await open('look=glass&page=music&mview=house'); await hv.evaluate(() => { (window.__calls ||= []).length = 0; }); await M(hv).locator('.hpad', { hasText: 'Dance' }).click(); await hv.waitForTimeout(700);
         console.log('pad in the room in focus:', (await calls(hv, /music_assistant\.play_media/)).slice(0, 120), '| pads beside the House:', await M(hv).locator('.hpad').count(), '| pads on the Desk:', await M(v).locator('.mpad').count(), '| lit:', await M(hv).locator('.hpad[data-on]').innerText().then((t) => t.trim().split('\n').pop())); await hv.close(); }
       const pv = await open('look=glass&page=music&mview=house&moments=1'); await pv.evaluate(() => { (window.__calls ||= []).length = 0; });
-      await M(pv).getByRole('button', { name: 'Dinner' }).click(); await pv.waitForTimeout(700);
+      await M(pv).locator('.hpad', { hasText: 'Dinner' }).click(); await pv.waitForTimeout(700);
       console.log('pad on a named speaker:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
-      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Wind down' }).click(); await pv.waitForTimeout(700);
+      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).locator('.hpad', { hasText: 'Wind down' }).click(); await pv.waitForTimeout(700);
       console.log('pad in two rooms:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
-      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
+      await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).locator('.hpad', { hasText: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
       console.log('pad in every room:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|media_player\.join/.test(c)).map((c) => c.slice(0, 190)).join(' || ')));
       await pv.close();
-      const nv = await open('look=glass&page=music&mview=house&moments=1', '20:10'); await M(nv).getByRole('button', { name: 'Wind down' }).click(); await nv.waitForTimeout(500);
+      const nv = await open('look=glass&page=music&mview=house&moments=1', '20:10'); await M(nv).locator('.hpad', { hasText: 'Wind down' }).click(); await nv.waitForTimeout(500);
       console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }

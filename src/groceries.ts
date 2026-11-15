@@ -133,7 +133,7 @@ export class FhGroceries extends LitElement {
     /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
-    .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; overflow-wrap: anywhere; min-width: 0; }
+    .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
     :host([data-phone]) .add .usuals .chip.quick { min-height: 52px; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
     .keys { flex: 1; min-height: 0; justify-content: center; }
