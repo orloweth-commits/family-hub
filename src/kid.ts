@@ -58,6 +58,8 @@ const speakerSvg = (s = 26): TemplateResult => html`<svg viewBox="0 0 24 24" wid
 const listSvg = html`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`;
 
 const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
+/** "Start with me": minutes on the clock to get a job going */
+const WEDGE_MIN = 2;
 /** What the feelings card asks next, shown and (for a child who cannot read) spoken. */
 const FEEL_ASK: Record<'up' | 'mid' | 'down', string> = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' };
 const JAR = 'input_number.family_jar';
@@ -490,7 +492,7 @@ export class FhKid extends LitElement {
   }
   private _needsAdult(name: string): boolean { const r = (this.kid.rewards ?? DEFAULT_REWARDS).find((x) => x.name === name); return !r || (r.approve ?? r.cost >= 60); }
   private _msg = '';
-  private _practice: { uid: string; end: number; mins: number } | null = null;
+  private _practice: { uid: string; end: number; mins: number; /** "Start with me": two minutes to get going; it ticks nothing */ wedge?: boolean } | null = null;
   private _now = new Date();
   private _feel = '';
   private _tab: 'rewards' | 'week' = 'rewards';
@@ -728,6 +730,15 @@ export class FhKid extends LitElement {
     this._say(c.song ? `${c.minutes} minutes of music. Go!` : `${c.minutes} minutes on the clock. You’ve got this.`);
     if (c.song) this._song(c.minutes);
   }
+  /** "Start with me" (F4): starting is harder than doing. Two minutes, visible on the job he is on now, and a sound at the end. It ticks nothing and gives nothing.
+   *  A child whose spoken cues are on hears it start and end, on the screen he is standing at. */
+  private _startWedge(c: ParsedChore): void {
+    this._practice = { uid: c.uid, end: Date.now() + WEDGE_MIN * 60_000, mins: WEDGE_MIN, wedge: true };
+    lsSet(`fh-practice-${this._e.slug}`, this._practice);
+    this._sound('tap');
+    const m = `Two minutes. Let’s start: ${c.summary}.`;
+    this._say(m); if (this.kid.cues?.on) say(m);
+  }
   /** A timed job tagged @song plays music for as long as its timer runs: when the music stops, time is up. */
   private _song(minutes: number): void { this.dispatchEvent(new CustomEvent('song', { detail: { minutes }, bubbles: true, composed: true })); }
   private _stopPractice(): void {
@@ -739,6 +750,7 @@ export class FhKid extends LitElement {
     if (!p || Date.now() < p.end) return;
     const c = this._chores.find((x) => x.uid === p.uid);
     this._stopPractice();
+    if (p.wedge) { this._sound('done'); const m = c && c.status !== 'completed' ? 'Two minutes done. You’ve started: keep going!' : 'Two minutes done. Nice start.'; this._say(m); if (this.kid.cues?.on) say(m); return; }
     if (c?.song) this._say('Time’s up! All done? Tick it off.');
     else if (c && c.status !== 'completed') { this._doToggle(c, false, lsGet('fh-ticks', {})); this._say(`Practice done – ${p.mins} minutes. Sounding good!`); }
   }
@@ -988,8 +1000,10 @@ export class FhKid extends LitElement {
         <span class="box check">${d ? tickSvg(big ? 26 : 18) : nothing}</span>
         ${this.kid.mode === 'mixed' && !this.kid.older ? html`<span style="font-size:${big ? 40 : 28}px" aria-hidden="true">${picFor(c)}</span>` : nothing}
         <span class="t content">${c.summary}</span></button>
-      ${(c.lane === 'grow' || c.song) && c.minutes && !d ? (p ? html`<button class="play tap going" aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
-        : html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`) : nothing}
+      ${d ? nothing : p ? html`<button class="play tap going" ?data-wedge=${!!p.wedge} aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
+        : (c.lane === 'grow' || c.song) && c.minutes ? html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`
+        // "Start with me": only on the job he is on now, only while no other timer is running, and in the same place a timed job has its timer
+        : c.uid === this._nowUid && !this._practice && !this._night ? html`<button class="play tap" data-act="wedge" aria-label="Start with me: two minutes on ${c.summary}" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startWedge(c); }}>▶ Start with me</button>` : nothing}
       ${!d && this._jobAsked(c) ? html`<span class="plus" data-asked role="status">⏳ Asked</span>` : nothing}
       ${c.lane === 'job' ? html`<span class="mb" role="img" aria-label="Adds one marble to the family jar"><i class="marble" aria-hidden="true"></i>+1</span>${c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing}` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;

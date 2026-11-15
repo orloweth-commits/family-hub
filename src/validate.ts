@@ -63,6 +63,17 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
     if (dg.notify !== undefined && !(Array.isArray(dg.notify) && dg.notify.every((x) => /^notify\.[a-z0-9_]+$/.test(String(x))))) return 'Family Hub: digest.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]';
     if (dg.time !== undefined && !isTime(dg.time)) return 'Family Hub: digest.time should be a time like "19:30"';
   }
+  const cu = (config as { cues?: Record<string, unknown> }).cues;
+  if (cu !== undefined) {
+    if (!cu || typeof cu !== 'object' || Array.isArray(cu)) return 'Family Hub: cues should be a group of options, e.g. cues: { script: script.fh_announce, volume: 0.4 }';
+    if (cu.script !== undefined && !/^script\.[a-z0-9_]+$/.test(String(cu.script))) return 'Family Hub: cues.script should be a script, e.g. script.fh_announce';
+    if (cu.volume !== undefined && !(typeof cu.volume === 'number' && cu.volume >= 0 && cu.volume <= 1)) return 'Family Hub: cues.volume should be a number from 0 to 1, e.g. 0.4';
+  }
+  for (const k of (config.kids ?? []) as { name?: string; cues?: Record<string, unknown> }[]) {
+    const c = k?.cues; if (c === undefined) continue;
+    if (!c || typeof c !== 'object' || Array.isArray(c)) return `Family Hub: ${k.name ?? 'a child'}’s cues should be a group of options, e.g. cues: { on: true, speaker: media_player.sams_room }`;
+    if (c.speaker !== undefined && !/^media_player\.[a-z0-9_]+$/.test(String(c.speaker))) return `Family Hub: ${k.name ?? 'a child'}’s cues.speaker should be a speaker, e.g. media_player.sams_room`;
+  }
   const ap = (config as { approve?: Record<string, unknown> }).approve;
   if (ap !== undefined) {
     if (!ap || typeof ap !== 'object' || Array.isArray(ap)) return 'Family Hub: approve should be a group of options, e.g. approve: { notify: [notify.mobile_app_my_phone] }';

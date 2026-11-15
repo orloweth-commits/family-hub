@@ -7,6 +7,7 @@ import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
 import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
+import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues, warmCues } from './cues';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
 import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
@@ -398,6 +399,52 @@ export class FhSettings extends LitElement {
     // the evening digest is an automation written from these settings: a save that changes what it would say rewrites it
     if (JSON.stringify(haDigest(from)) !== JSON.stringify(haDigest(next))) void this._digestSync(next, true);
     if (JSON.stringify(haApprove(from)) !== JSON.stringify(haApprove(next))) void this._approveSync(next, true);
+    // the spoken cues are an automation too: a save that changes who is spoken to, where or when rewrites it (or switches it off)
+    if (JSON.stringify(haCues(from)) !== JSON.stringify(haCues(next))) void this._cuesSync(next, true);
+  }
+  /* ---------------- spoken cues (cues.ts) ---------------- */
+  /** what Home Assistant holds for the cues: undefined before asking, null when it has none or will not say */
+  private _cuHeld: Record<string, unknown> | null | undefined; private _cuBusy = false;
+  private async _cuesLoad(): Promise<void> {
+    if (!this.hass) return;
+    try { this._cuHeld = await this.hass.callApi<Record<string, unknown>>('GET', `config/automation/config/${CUES_ID}`) ?? null; } catch { this._cuHeld = null; }
+    this._tick++;
+  }
+  private async _cuesSync(cfg: Cfg, quiet = false): Promise<void> {
+    if (!this.hass || this._cuBusy) return; this._cuBusy = true; this._tick++;
+    try {
+      const did = await syncCues(mediaHass() ?? this.hass, cfg);
+      this._cuHeld = haCues(cfg);
+      // (a line the voice has never said is not ready when a speaker asks for it: make each one now)
+      const cold = did === 'made' || did === 'updated' ? await warmCues(cfg) : [];
+      if (cold.length) { this._say('Saved, but the house voice could not make the cue lines just now (its daily allowance, or the voice service). The first cue may be silent; it will be made the next time this screen loads.', { bad: true }); return; }
+      if (!quiet) this._say(did === 'made' ? 'Set up. The next cue is spoken at its time.' : did === 'updated' ? 'The spoken cues have been updated.' : did === 'off' ? 'The spoken cues are switched off.' : 'Switch a child’s cues on first.');
+    } catch { this._say(quiet ? 'Saved, but Home Assistant would not set up the spoken cues. Under Children, press “Set it up”.' : 'Home Assistant would not set up the spoken cues. It needs an administrator.', { bad: true }); }
+    finally { this._cuBusy = false; this._tick++; }
+  }
+  /** One child's cues: off until switched on, on his own speaker only. */
+  private _cuesCard(k: KidConfig, i: number): TemplateResult {
+    const d = this._draft, H = mediaHass() ?? this.hass, c = k.cues ?? {}, own = ownRoom(d, k), choices = ownSpeakers(d, k, H);
+    const set = (fn: (x: NonNullable<KidConfig['cues']>) => void): void => this._edit((x) => { const kk = x.kids![i]; kk.cues = kk.cues ?? {}; fn(kk.cues); });
+    const nameOf = (e: string): string => String(H?.states[e]?.attributes.friendly_name ?? e.split('.')[1]);
+    const ent = cuesEntity(H), saved = this.config.kids?.[i]?.cues?.on === true, want = haCues(this.config);
+    if (this._cuHeld === undefined && ent) { this._cuHeld = null; void this._cuesLoad(); }
+    const lv = k.leave_by ?? d.morning?.leave_by ?? '08:15', [lh, lm] = lv.split(':').map(Number), lmin = lh * 60 + lm - CUE_LEAVE, bed = (k.bedtime ?? '20:00').split(':').map(Number), wmin = bed[0] * 60 + bed[1] - 60;
+    const hhmm = (m: number): string => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    const block = c.on ? cueBlock(d, k) : '';
+    return html`<div class="scard" data-card="cues"><h3>Spoken cues${own ? html` <span class="muted">on ${k.name}’s own speaker</span>` : nothing}</h3>
+      ${!own ? html`<span class="shint" data-cue="none">${k.name} has no room of his own on the Music map, so there are no spoken cues for him: a cue is only ever spoken on a child’s own speaker, never in a shared room.</span>` : html`
+        ${this._row('Spoken cues', 'A short line in the house voice at the moments that matter, so he does not have to come to the panel to know. Off until you switch it on.', this._sw('Spoken cues', c.on === true, () => set((x) => { if (x.on) delete x.on; else { x.on = true; if (!x.speaker || !choices.includes(x.speaker)) x.speaker = choices[0]; } })))}
+        ${c.on ? html`
+          ${choices.length > 1 ? this._row('Speaker', 'Home Assistant has this speaker under more than one name. Choose the one the announcements use.', html`<div class="schips" role="group" aria-label="Speaker">${choices.map((e) => html`<button class="tap" data-spk=${e} aria-pressed=${String(c.speaker === e)} @click=${() => set((x) => { x.speaker = e; })}>${nameOf(e)}${choices.filter((o) => nameOf(o) === nameOf(e)).length > 1 ? html` <span class="muted">${e.split('.')[1]}</span>` : nothing}</button>`)}</div>`) : nothing}
+          ${this._row('When the school morning starts', `“Good morning, ${k.name}. Time to start your morning jobs.” At ${t12(d.morning?.start ?? '06:30')} on a school day.`, this._sw('Morning start', c.morning !== false, () => set((x) => { if (x.morning === false) delete x.morning; else x.morning = false; })))}
+          ${this._row(`${CUE_LEAVE} minutes before leaving`, `“${k.name}, ten minutes until it is time to leave.” At ${t12(hhmm(lmin))} on a school day.`, this._sw('Before leaving', c.leave !== false, () => set((x) => { if (x.leave === false) delete x.leave; else x.leave = false; })))}
+          ${this._row('When wind-down starts', `“${k.name}, it is wind-down time. One hour until bed.” At ${t12(hhmm(wmin))}, later on Friday and Saturday.`, this._sw('Wind-down start', c.wind !== false, () => set((x) => { if (x.wind === false) delete x.wind; else x.wind = false; })))}
+          ${block ? html`<span class="shint" data-cue="block" style="color:var(--warn, #b45309)">${block}</span>` : nothing}` : nothing}
+        <span class="shint">Only on ${own ? nameOf(c.speaker && choices.includes(c.speaker) ? c.speaker : choices[0] ?? own) : 'his own speaker'}, never in a shared room and never after his bedtime. Nothing is said while that speaker is playing. Each cue counts towards the house voice’s daily allowance. “Start with me” on his page needs none of this: it is always there.</span>
+        ${saved && !block ? html`<div class="srow"><span class="muted" data-cue="state">${!ent ? 'Not set up in Home Assistant yet.' : H?.states[ent]?.state !== 'on' ? 'Switched off in Home Assistant.' : this._cuHeld && !sameCues(this._cuHeld, want) ? 'On, but the settings have changed since it was written.' : 'On.'}</span>
+          ${!ent || H?.states[ent]?.state !== 'on' || (this._cuHeld && !sameCues(this._cuHeld, want)) ? html`<button class="pill tap" data-act="cu-sync" ?disabled=${this._cuBusy} @click=${() => void this._cuesSync(this.config)}>${ent ? 'Update it' : 'Set it up'}</button>` : nothing}</div>` : nothing}`}
+    </div>`;
   }
   /* ---------------- the evening digest (digest.ts) ---------------- */
   /** what Home Assistant holds for the digest: undefined before asking, null when it has none or will not say */
@@ -672,6 +719,7 @@ export class FhSettings extends LitElement {
         ${this._row('School nights', 'Wind-down starts an hour before; music in the bedroom goes quiet at bedtime.', this._tm(`${k.name}’s bedtime`, () => this._draft.kids?.[i]?.bedtime, (v) => set((x) => { x.bedtime = v; }), '20:00'))}
         ${this._row('Friday and Saturday nights', 'How much later bedtime is. This is the same for every child.', this._step('Later on Friday and Saturday', d.bedtime_weekend_extra ?? 30, (v) => this._edit((x) => { x.bedtime_weekend_extra = v; }), { max: 120, step: 15, say: (v) => (v ? `+${v} min` : 'Same time') }))}
       </div>
+      ${this._cuesCard(k, i)}
       <div class="scard"><h3>${k.name}’s page <span class="muted">what it starts with</span></h3>
         ${this._row('Look', '', html`<div class="schips" role="group" aria-label="Look">${[['', 'Same as the panel'], ...LOOKS.filter((l) => !l.parentsOnly).map((l) => [l.id, l.name])].map(([id, n]) => html`<button class="tap" aria-pressed=${String((k.look_id ?? '') === id)} @click=${() => set((x) => { if (id) x.look_id = id as KidConfig['look_id']; else delete x.look_id; })}>${n}</button>`)}</div>`)}
         ${this._row('Calm mode', 'No looping motion or tilted cards, and nothing travels. Off unless you choose it: his page is animated.', this._sw('Calm mode', k.calm ?? false, () => set((x) => { if (x.calm) delete x.calm; else x.calm = true; })))}
