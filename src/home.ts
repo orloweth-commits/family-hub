@@ -88,6 +88,8 @@ export class FhHome extends LitElement {
     /* the switch: a 56 by 32 track inside a control at least 44 high (the row, or the room's "Lights" button) */
     .sw { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; /* token */ padding: 0 2px 0 8px; border-radius: 999px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink); flex-shrink: 0; }
     .toggle { display: block; width: 56px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-3, 240ms); }
+    /* in the dark an off switch's track is close to its card: it keeps an edge (as Settings' switch has) */
+    :host([data-dark]) .toggle { box-shadow: inset 0 0 0 1.5px var(--ink3); } :host([data-dark]) [aria-checked='true'] .toggle, :host([data-dark]) [aria-pressed='true'] .toggle { box-shadow: none; }
     .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     [aria-checked='true'] > .toggle { background: var(--ok); }
     [aria-checked='true'] > .toggle::after { transform: translateX(24px); }

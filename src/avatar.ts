@@ -274,7 +274,7 @@ export function renderAvatar(look: Look, o: AvatarOpts = {}): TemplateResult {
   return html`<span class="avwrap ${jumpCls}" style="display:inline-block;line-height:0;flex-shrink:0">
     <svg viewBox=${head ? '36 28 128 128' : '0 0 200 240'} width=${w} height=${h} role="img" aria-label=${o.label ?? 'Avatar'}
       style="display:block;overflow:hidden;border-radius:${head ? '50%' : `${Math.round(size * 0.12)}px`}">
-      ${head ? svg`<circle cx="100" cy="92" r="64" style=${!look.scene || look.scene === 'plain' || !TINT[look.scene] ? 'fill:var(--av-sky, #dbeafe)' : `fill:${TINT[look.scene]}`}></circle>` : (SCENES[look.scene] ?? SCENES.plain)(look)}
+      ${head ? svg`<circle cx="100" cy="92" r="64" style=${!look.scene || look.scene === 'plain' || !TINT[look.scene] ? 'fill:var(--av-sky2, #dbeafe)' : `fill:${TINT[look.scene]}`}></circle>` : (SCENES[look.scene] ?? SCENES.plain)(look)}
       ${o.ring && head ? svg`<circle cx="100" cy="92" r="60" fill="none" stroke=${o.ring} stroke-width="7"></circle>` : nothing}
       <g class=${o.still ? '' : 'av-bob'}>
         ${!head && GEAR_BEHIND[look.gear] ? GEAR_BEHIND[look.gear](look) : nothing}

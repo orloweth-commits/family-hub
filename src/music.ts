@@ -320,6 +320,10 @@ export class FhMusic extends LitElement {
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
     .pickrow.played .art { filter: grayscale(.8); }
+    :host([data-dark]) .pickrow.played .pcover { opacity: .8; }
+    /* the pool of sound is the room's colour, which is pale in the dark: thinner, so the room's number still reads over it */
+    :host([data-dark]) .pool { background: color-mix(in srgb, var(--c) 22%, transparent); }
+    :host([data-dark]) .pchip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink); }
     .pickrow.played .nm .muted { color: var(--ink2); }
     .pcover { position: relative; display: block; padding-right: 12px; }
     .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }

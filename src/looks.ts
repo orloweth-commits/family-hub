@@ -536,6 +536,8 @@ const GLASS = `
   @G[data-shape='wide'] .right > .weather { background: transparent; padding: 0 12px 0 4px; }
   /* the page sits inside the frame: one panel of the bars' own material runs from the top bar to the bottom bar, and the page's cards are set into it, their outer edges in line with the bars' (the page loses no room to the frame: the bars and the panel take only what the old gaps did) */
   @G[data-shape='wide'] .fh > .body { padding: 8px 0; background: color-mix(in srgb, var(--glass) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+  @G[data-dark][data-shape='wide'] .fh > .body { background: color-mix(in srgb, var(--glass) 46%, transparent); }
+  @G[data-dark][data-shape='wide'] .fh > header, @G[data-dark][data-shape='wide'] .fh > .dock { background: color-mix(in srgb, var(--glass) 82%, transparent); }
   @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(0px - var(--gap)); padding: 8px 16px; border-radius: 0 0 28px 28px; justify-content: center; }
   @G[data-shape='wide'] .dock .item { height: 70px; }
   @G[data-shape='wide'] .dock .item svg.i { width: 44px; height: 44px; }

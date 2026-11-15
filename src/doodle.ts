@@ -110,8 +110,6 @@ export class FhDoodle extends LitElement {
     .tidy[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .clearall { height: 44px; background: var(--danger, #dc2626); color: var(--on-danger, #fff); justify-content: center; }
     .snapbox { position: relative; display: block; }
-    /* dark mode: paper is still paper (the colours drawn on it must be true), but it does not glare from a dark wall */
-    :host([data-dark]) .pad:not(.chalk), :host([data-dark]) .snap { filter: brightness(.84); }
     .snapbox .snap { width: 100%; display: block; }
     .down { position: absolute; top: -6px; right: -6px; width: 44px; height: 44px; border-radius: 50%; background: var(--danger, #dc2626); color: var(--on-danger, #fff); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(0,0,0,.35); }
     .snaps { padding: 14px 14px 16px 12px; }
