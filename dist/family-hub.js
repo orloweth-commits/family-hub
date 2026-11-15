@@ -11817,7 +11817,9 @@ const G0 = async (a) => {
     if (!t || !e) return;
     t.setAttribute("data-words", "");
     const i = e.querySelector(".finder"), s = e.querySelector(".nowbar"), o = i?.offsetParent ? i : e.querySelector(".hint[data-on]");
-    e.querySelector(".hint[data-on]"), e.scrollWidth <= e.clientWidth + 1 && (!o || o.offsetWidth >= 118) && (!s || s.offsetWidth >= 230) || t.removeAttribute("data-words");
+    e.querySelector(".hint[data-on]");
+    const r = (o?.offsetWidth ?? 0) + (s?.offsetParent ? s.offsetWidth : 0), n = !!e.querySelector(".viewbtn");
+    e.scrollWidth <= e.clientWidth + 1 && (!o || o.offsetWidth >= 118) && (!s || !s.offsetParent || s.offsetWidth >= 230) && (!n || r >= 400) || t.removeAttribute("data-words");
   }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
   _fitHint() {
@@ -12660,7 +12662,7 @@ const G0 = async (a) => {
       <section class="glass panel" aria-label="Music" ?data-one=${c} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${(m) => {
       this._coach && !m.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1);
     }}>
-        <div class="mhead" ?data-one=${c} ?data-hinting=${c && h && this._coach}><h1 class="t-title">Music</h1>${c ? f : g}${c && h ? this._tools() : g}
+        <div class="mhead" ?data-one=${c} ?data-hinting=${c && h && this._coach}><h1 class="t-title">Music</h1>${c && !n ? f : g}${c && h ? this._tools() : g}
           ${n ? this._searchBar() : s ? d`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${A("search", 24)}<span>${c ? "Search…" : "Search songs, stories…"}</span></button>` : d`<span style="flex:1"></span>`}${c ? this._oneNow() : g}${p && !c && !n ? f : g}</div>
         ${n || p ? g : f}
         ${da(this._tab, d`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}

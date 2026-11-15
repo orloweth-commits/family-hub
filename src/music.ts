@@ -671,7 +671,10 @@ export class FhMusic extends LitElement {
     // the hint is never cut: the tab words go first, and if it is still cut it takes a row of its own
     const hint = head.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
     // (the words do not wait on the hint: the tabs stand first in the row, and words that came and went with the hint would move every button under a finger)
-    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || nb.offsetWidth >= 230); void cut;
+    // With the view's tools in the row, the words also need the room a two-line hint takes (the search field's place and the small player's
+    // together, which is the same whether the hint is showing or not), so the same answer comes out with the hint and without it.
+    const room = (slot?.offsetWidth ?? 0) + (nb?.offsetParent ? nb.offsetWidth : 0), tools = !!head.querySelector('.viewbtn');
+    const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || !nb.offsetParent || nb.offsetWidth >= 230) && (!tools || room >= 400); void cut;
     if (!ok) tabs.removeAttribute('data-words');
   }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
@@ -1272,7 +1275,7 @@ export class FhMusic extends LitElement {
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${one} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
-        <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach}><h1 class="t-title">Music</h1>${one ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
+        <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
           ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
