@@ -22,7 +22,7 @@ const PAGES = (process.env.PAGES || ['planner', 'planner&view=day', 'planner&vie
   'planner&sheet=settings&pane=pictures&artn=3', 'planner&art=1&artn=3', 'planner&night=1@22:30'].join(',')).split(',');
 const STRESS = !!process.env.STRESS, SHOW = (process.env.SHOW || '').split(',');
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
-const found = new Map(); const errs = [];
+const found = new Map(); const errs = []; const again = { looks: new Set(), vp: new Set(), pages: new Set() };
 for (const look of LOOKS) for (const v of VP) {
   const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
   for (const pg0 of PAGES) {
@@ -114,7 +114,7 @@ for (const look of LOOKS) for (const v of VP) {
       groups(card.shadowRoot);
       return out;
     }).catch((e) => [`ERROR|${String(e).slice(0, 120)}||`]);
-    for (const line of r) { const [kind, where, word, detail] = line.split('|'); if (kind === 'TRUNC' && !SHOW.includes('trunc')) continue; const key = `${kind}|${where}`; const f = found.get(key) ?? found.set(key, { kind, where, n: 0, at: new Set(), eg: [] }).get(key); f.n++; f.at.add(`${look}/${v.n}/${pg.split('&sheet=').pop().slice(0, 28)}`); if (f.eg.length < 2) f.eg.push(`"${word}" ${detail}`); }
+    for (const line of r) { const [kind, where, word, detail] = line.split('|'); if (kind === 'TRUNC' && !SHOW.includes('trunc')) continue; again.looks.add(look); again.vp.add(`${v.n}:${v.w}x${v.h}`); again.pages.add(pg); const key = `${kind}|${where}`; const f = found.get(key) ?? found.set(key, { kind, where, n: 0, at: new Set(), eg: [] }).get(key); f.n++; f.at.add(`${look}/${v.n}/${pg.split('&sheet=').pop().slice(0, 28)}`); if (f.eg.length < 2) f.eg.push(`"${word}" ${detail}`); }
     await page.close();
   }
   await ctx.close();
@@ -124,5 +124,7 @@ const list = [...found.values()].sort((a, b) => order.indexOf(a.kind) - order.in
 for (const f of list) console.log(`${f.kind.padEnd(10)} ${f.where}  x${f.n}\n            ${f.eg.join('  ·  ')}\n            ${[...f.at].slice(0, 5).join(', ')}${f.at.size > 5 ? ` … +${f.at.size - 5}` : ''}`);
 const tot = {}; for (const f of list) tot[f.kind] = (tot[f.kind] ?? 0) + 1;
 console.log(`\n${STRESS ? 'Long words' : 'Ordinary words'}: ${Object.entries(tot).map(([k, n]) => `${k} ${n}`).join(', ') || 'nothing found'}`);
+// for the check command: the looks, sizes and pages with a finding, so a second look walks only those
+if (again.pages.size) console.log(`again: ${JSON.stringify({ looks: [...again.looks], vp: [...again.vp], pages: [...again.pages] })}`);
 if (errs.length) console.log('page errors:\n - ' + [...new Set(errs)].slice(0, 10).join('\n - '));
 await browser.close(); srv.close();

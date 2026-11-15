@@ -4,6 +4,9 @@
 //                             since main, and the fit check (clearance) on the pages those files draw, ordinary words only
 //   npm run check -- --broad  the same plus the two long click suites (click-base is 17 minutes by itself): for a phase that
 //                             reshapes the shell or a whole page. They also join by themselves when a page's own file changes
+//   npm run check -- --batch  for a batch of the polish block (about 15 minutes): the suites that cover the files changed, without
+//                             click-base, and the fit check at 1920 x 1080 only, in all five looks, ordinary and long words.
+//                             Other sizes wait for the full check at the end of the block and on the release candidate
 //   npm run check -- --full   everything, ordinary and long words (about 40 minutes): for a release candidate, and for any change
 //                             to the shared styles, the looks or the type scale
 //
@@ -12,7 +15,9 @@
 //   * runs two at a time (the machine has two cores), each on its own port, longest first
 //   * reads every result itself: a failing line that is on the known list (scripts/tests/known.json, faults in the tests
 //     that main has too) is reported as known, not as a failure
-//   * runs a failed suite once more by itself before calling it a failure (most false alarms are a busy machine)
+//   * runs a failed suite once more by itself before calling it a failure (most false alarms are a busy machine); a fit check
+//     with a finding walks only the looks, sizes and pages that had one, not everything again
+//   * does not count a change to family-hub.ts that is only its version line
 //   * keeps each suite's output in preview/shots/logs/ and how long each took in timings.json there
 //
 // Options: --full   --broad   --base <ref> (default origin/main)   --only a,b   --pages 'planner&sheet=sitter,…' (narrow the fit check by
@@ -20,13 +25,16 @@
 import { spawn, execSync } from 'node:child_process'; import fs from 'node:fs'; import path from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname, T = path.join(ROOT, 'scripts/tests'), LOGS = path.join(ROOT, 'preview/shots/logs');
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i < 0 ? undefined : process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : true; };
-const FULL = !!arg('full'), BROAD = !!arg('broad'), BASE = typeof arg('base') === 'string' ? arg('base') : 'origin/main', JOBS = Number(arg('jobs')) || 2;
+const FULL = !!arg('full'), BROAD = !!arg('broad'), BATCH = !!arg('batch') && !arg('full'), BASE = typeof arg('base') === 'string' ? arg('base') : 'origin/main', JOBS = Number(arg('jobs')) || 2;
 const sh = (c) => { try { return execSync(c, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return ''; } };
 
 /* ---------------- what changed ---------------- */
 const changed = [...new Set([...sh(`git diff --name-only ${BASE}...HEAD`).split('\n'), ...sh('git status --porcelain').split('\n').map((l) => l.slice(3))].map((s) => s.trim()).filter(Boolean))]
-  .filter((f) => !/^(dist\/|package(-lock)?\.json$|README|LICENSE|preview\/shots\/)/.test(f));
+  .filter((f) => !/^(dist\/|package(-lock)?\.json$|README|LICENSE|preview\/shots\/)/.test(f))
+  // every release changes the version line in the shell, and the shell calls nine suites: a change that is only that line does not count
+  .filter((f) => f !== 'src/family-hub.ts' || sh(`git diff -U0 ${BASE} -- src/family-hub.ts`).split('\n').filter((l) => /^[+-][^+-]/.test(l)).some((l) => !/const VERSION = /.test(l)));
 const hit = (re) => changed.some((f) => re.test(f));
+const FIVE = 'glass,fridge,orbit,sports,obsidian', WALL = 'wall:1920x1080';
 
 /* ---------------- which suite covers which files ---------------- */
 // `when`: the suite runs if any changed file matches. `alone`: it needs the machine to itself (it times things).
@@ -78,21 +86,23 @@ if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand 
 else if (!FULL) { const set = new Set(); let every = false; for (const [re, list] of PAGES) if (hit(re)) { if (!list) every = true; else list.forEach((p) => set.add(p)); } pages = every ? null : [...set]; }
 const only = typeof arg('only') === 'string' ? arg('only').split(',') : null;
 const exists = (s) => fs.existsSync(path.join(T, `${s}.mjs`));
-const plan = []; const left = [];
+const plan = []; const left = []; const batchLeft = [];
 for (const s of FULL ? ALL : RULES.map((r) => r.suite)) { const r = RULES.find((x) => x.suite === s) ?? {};
   if (!exists(s)) continue;
-  if (only ? only.includes(s) : FULL || hit(r.when) || (BROAD && r.long) || changed.includes(`scripts/tests/${s}.mjs`)) plan.push({ name: s, file: s, alone: !!r.alone, env: {} }); else left.push(s); }
+  // a batch of the polish block leaves click-base to the full check (17 minutes; it is split by page in Phase 9)
+  const skip = BATCH && s === 'click-base' && !BROAD; if (skip && hit(r.when)) batchLeft.push(s);
+  if (only ? only.includes(s) : FULL || (hit(r.when) && !skip) || (BROAD && r.long) || changed.includes(`scripts/tests/${s}.mjs`)) plan.push({ name: s, file: s, alone: !!r.alone, env: {} }); else left.push(s); }
 const fit = !only || only.includes('clearance');
 if (fit && (FULL || pages === null || pages.length)) {
-  const env = pages ? { PAGES: pages.join(',') } : {};
+  const env = { ...(pages ? { PAGES: pages.join(',') } : {}), ...(BATCH ? { LOOKS: FIVE, VP: process.env.VP || WALL } : FULL ? { LOOKS: FIVE } : {}) }; // (Obsidian was not in the fit check's own list)
   plan.push({ name: 'clearance', file: 'clearance', env, fit: true });
-  if (FULL || (pages === null && hit(src(LOOKS)))) plan.push({ name: 'clearance (long words)', file: 'clearance', env: { ...env, STRESS: '1' }, fit: true });
+  if (FULL || BATCH || (pages === null && hit(src(LOOKS)))) plan.push({ name: 'clearance (long words)', file: 'clearance', env: { ...env, STRESS: '1' }, fit: true });
 }
 
-console.log(`${FULL ? 'Full check' : 'Check sized to the change'} against ${BASE}`);
+console.log(`${FULL ? 'Full check' : BATCH ? 'Batch check (1920 x 1080, five looks)' : 'Check sized to the change'} against ${BASE}`);
 console.log(`Changed: ${changed.length ? changed.join(', ') : 'nothing'}`);
 console.log(`Running: ${plan.map((p) => p.name).join(', ') || 'only the build'}`);
-if (!FULL) console.log(`Left out (their files did not change): ${left.join(', ') || 'none'}${pages ? `\nFit check on ${pages.length} of 37 pages${byHand ? ', narrowed by hand' : ''}; ordinary words` : ''}`);
+if (!FULL) console.log(`Left out (their files did not change): ${left.join(', ') || 'none'}${pages ? `\nFit check on ${pages.length} of 37 pages${byHand ? ', narrowed by hand' : ''}; ordinary ${BATCH ? 'and long ' : ''}words` : ''}${batchLeft.length ? `\nLeft to the full check at the end of the block: ${batchLeft.join(', ')}; the fit check at iPad and phone sizes` : ''}`);
 if (arg('list')) process.exit(0);
 
 /* ---------------- run ---------------- */
@@ -130,7 +140,9 @@ const guess = { 'click-base': 1020, 'click-music': 480, clearance: 780, 'clearan
 plan.sort((a, b) => (took[b.name] ?? guess[b.name] ?? 90) - (took[a.name] ?? guess[a.name] ?? 90));
 await pool(plan, JOBS);
 // a second go, alone, for anything that failed: a busy machine is the usual cause
-for (const r of results.filter((x) => x.real.length)) { process.stdout.write(`  again, alone: ${r.name}… `); const again = await run(r.p); console.log(again.real.length ? 'still failing' : 'passes alone'); if (!again.real.length) { r.flaky = r.real; r.real = []; r.known = again.known; } else r.real = again.real; r.secs += again.secs; }
+for (const r of results.filter((x) => x.real.length)) { // (a fit check says where it found something: "again: {looks, vp, pages}"; the second go walks only those)
+  let p2 = r.p; if (r.p.fit) { try { const log = fs.readFileSync(path.join(LOGS, `${r.name.replace(/[^a-z0-9-]+/gi, '_')}.log`), 'utf8'); const m = /^again: (\{.*\})$/m.exec(log); if (m) { const a = JSON.parse(m[1]); p2 = { ...r.p, env: { ...r.p.env, LOOKS: a.looks.join(','), VP: a.vp.join(','), PAGES: a.pages.join(',') } }; } } catch { /* walk it all again */ } }
+  process.stdout.write(`  again, alone${p2 !== r.p ? ', where it found something' : ''}: ${r.name}… `); const again = await run(p2); console.log(again.real.length ? 'still failing' : 'passes alone'); if (!again.real.length) { r.flaky = r.real; r.real = []; r.known = again.known; } else r.real = again.real; r.secs += again.secs; }
 
 /* ---------------- report ---------------- */
 const secs = Math.round((Date.now() - t0) / 1000);
