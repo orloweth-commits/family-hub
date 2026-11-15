@@ -130,7 +130,7 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   await shut(page); }
 { const page = await open('page=music&mview=house&mviews=all&nopin=1');
   await M(page).getByRole('button', { name: 'Pin what is playing to a shelf' }).click(); await page.waitForTimeout(300);
-  ok('with the Desk switched on the pin sheet offers its pads', /moment pad/.test(await M(page).getByRole('dialog', { name: 'Pin to a shelf' }).innerText()));
+  ok('with the Desk switched on the pin sheet still offers the pads', /moment pad/.test(await M(page).getByRole('dialog', { name: 'Pin to a shelf' }).innerText()));
   await shut(page); }
 
 // 7. Scene: the music in the middle is carried onto a name the same way
@@ -275,6 +275,35 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   ok('a room and a message can still be chosen there', await M(page).locator('.callside .mz[aria-pressed="true"]').count() === 1 && await M(page).locator('.bubble[aria-pressed="true"]').count() === 1);
   await M(page).locator('.sayrow .field').click(); await page.waitForTimeout(400);
   ok('and the keys still come up over it, with Say it in reach', await M(page).locator('.rchips').count() === 1 && await M(page).locator('.sayit').isVisible());
+  await shut(page); }
+// 11. batch 3 (0.38.3): the moment pads are only beside the House; the coach marks show the first time Music is opened each day on a screen
+{ const page = await open('page=music&mview=desk&mviews=all'); await page.waitForTimeout(400);
+  ok('the Desk has its faders and its wheel, and no moment pads', await M(page).locator('.desk .jog').count() === 1 && await M(page).locator('.desk .strip').count() >= 2 && await M(page).locator('.mpad, .pads').count() === 0, await M(page).locator('.mpad').count());
+  await shut(page);
+  const h = await open('page=music&mviews=all'); await h.waitForTimeout(400);
+  ok('with the Desk switched on as well, the pads are still beside the House: one place', await M(h).locator('.hpads .hpad').count() === 4);
+  await shut(h); }
+{ const page = await open('page=music'); await page.waitForTimeout(500);
+  const on = (pg) => M(pg).locator('.hint[data-on]').count(), text = (pg) => M(pg).locator('.hint[data-on]').innerText().catch(() => '');
+  const first = await text(page);
+  const kept = await page.evaluate(() => JSON.parse(localStorage.getItem('fh-music-coach') || '{}'));
+  ok('the first time Music is opened today the marks play, and the screen remembers the day and the view', /^1 of 3/.test(first) && kept.d === await page.evaluate(() => new Date().toDateString()) && (kept.v || []).join() === 'house', [first.slice(0, 6), kept]);
+  await page.clock.runFor(13000); await page.waitForTimeout(300);
+  // leave Music and come back, the same day
+  await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'planner'; }); await page.waitForTimeout(400);
+  await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'music'; }); await page.waitForTimeout(700);
+  ok('opened again the same day, they do not play by themselves', await on(page) === 0, await text(page));
+  await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(900);
+  ok('nor after the page is loaded again that day', await on(page) === 0, await text(page));
+  await M(page).locator('.helpb').click(); await page.waitForTimeout(300);
+  ok('"?" still plays them whenever it is asked', /^1 of 3/.test(await text(page)), await text(page));
+  await page.clock.runFor(13000); await page.waitForTimeout(300);
+  // overnight: the page is left showing Music, and nothing plays to an empty kitchen
+  await page.clock.fastForward('09:00:00'); await page.waitForTimeout(400);
+  ok('left showing overnight, they do not play at midnight', await on(page) === 0 && await page.evaluate(() => new Date().getDate()) === 11, await text(page));
+  await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'planner'; }); await page.waitForTimeout(400);
+  await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'music'; }); await page.waitForTimeout(700);
+  ok('the first time Music is opened the next day, they play again', /^1 of 3/.test(await text(page)), await text(page));
   await shut(page); }
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');

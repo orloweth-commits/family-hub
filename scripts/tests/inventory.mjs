@@ -16,7 +16,7 @@ const ALL = [
   ['groceries', 'page=groceries'], ['groceries-long', 'page=groceries&long=1'], ['doodle', 'page=doodle'],
   ...['house', 'scene', 'dial', 'desk', 'cables', 'list'].map((v) => ['music-' + v, 'page=music&mview=' + v]),
   ['music-shelves', 'page=music&mtab=shelves'], ['music-juke', 'page=music&mtab=juke&juke=1'], ['music-radio', 'page=music&mtab=radio'], ['music-search', 'page=music&mtab=search&find=blu'], ['music-call', 'page=music&mtab=call'],
-  ['music-offline', 'page=music&mview=house&moff=kitchen,office'], ['music-moments', 'page=music&mview=desk&moments=1'],
+  ['music-offline', 'page=music&mview=house&moff=kitchen,office'], ['music-moments', 'page=music&mview=house&moments=1'],
   ['weather', 'page=weather'], ['weather-rain', 'page=weather&wx=rain'], ['weather-nobom', 'page=weather&bom=0'], ['planner-rain', 'page=planner&wx=rain'],
   ['home', 'page=home'], ['morning', 'page=morning', '07:10'], ['night', 'page=planner&night=1', '22:30'], ['planner-calm', 'page=planner&calm=1'],
   ['planner-bedtime', 'page=planner', '19:45'], ['kid2-bedtime', 'page=kid&kid=2', '19:45'], ['music-house-quiet', 'page=music&mview=house', '20:30'], ['music-scene-quiet', 'page=music&mview=scene', '20:30'], ['music-call-quiet', 'page=music&mtab=call', '20:30'], ['planner-morning', 'page=planner', '06:45'],

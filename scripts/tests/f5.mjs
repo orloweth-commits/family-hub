@@ -30,14 +30,27 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   ok('the list is grouped by aisle, each group under its heading, in order', heads.length >= 3 && JSON.stringify(heads) === JSON.stringify([...heads].sort()) && new Set(heads).size === heads.length, heads);
   const order = await G.locator('.items > *').evaluateAll((n) => n.map((x) => (x.hasAttribute('data-aisle') ? '#' + x.getAttribute('data-aisle') : x.classList.contains('item') ? x.querySelector('.strike')?.textContent : '')).filter(Boolean));
   ok('every heading has something under it', order.every((x, i) => !x.startsWith('#') || (order[i + 1] && !order[i + 1].startsWith('#'))), order.slice(0, 8));
-  await G.locator('.entry .field').dispatchEvent('pointerdown'); await page.waitForTimeout(250);
+  // 0.38.3, the layout: the list has the room, the usuals are large chips, the keys slide up over the lower part of the page
+  const box = (sel) => G.locator(sel).first().evaluate((e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height, b: b.bottom, r: b.right }; });
+  const L0 = await box('.list'), A0 = await box('.add'), chips = await G.locator('.usuals .quick').evaluateAll((n) => n.map((x) => x.getBoundingClientRect().height));
+  ok('the list has the room: well over half the page, the panel beside it narrow', L0.w > 2 * A0.w && L0.w > 1100, [Math.round(L0.w), Math.round(A0.w)]);
+  ok('the list is laid out in three columns or more, and goes down the page, not sideways', await G.locator('.items').evaluate((e) => new Set([...e.querySelectorAll('button.item')].map((b) => Math.round(b.getBoundingClientRect().x))).size >= 3 && e.scrollWidth <= e.clientWidth + 1));
+  ok('the usuals are large chips', chips.length >= 6 && chips.every((h) => h >= 85), chips.map(Math.round));
+  await G.locator('.entry .field').dispatchEvent('pointerdown'); await page.waitForTimeout(600);
   ok('touching the box brings the keys up', await G.locator('.keys').count() === 1 && await G.locator('[data-keyhint]').count() === 0);
+  await G.evaluate((g) => g.shadowRoot.getAnimations().forEach((x) => x.finish())); // a fake clock holds the slide where it is
+  { const T = await box('.tray'), L1 = await box('.list'), H = await G.evaluate((g) => g.getBoundingClientRect());
+    ok('the keys are a tray over the lower part of the page: full width, under half its height, down at the bottom', Math.abs(T.w - H.width) < 2 && T.h < H.height * 0.52 && Math.abs(T.b - H.bottom) < 2 && T.y > H.y + H.height * 0.45, [Math.round(T.y), Math.round(T.h), Math.round(H.height)]);
+    ok('the list keeps its full width and place with the keys up', Math.abs(L1.w - L0.w) < 1 && Math.abs(L1.x - L0.x) < 1 && Math.abs(L1.h - L0.h) < 1, [Math.round(L0.w), Math.round(L1.w)]);
+    ok('the box goes with the keys, and there is one box', await G.locator('.tray .entry .field').count() === 1 && await G.locator('.entry .field').count() === 1 && await G.evaluate((g) => g.shadowRoot.activeElement?.classList.contains('field'))); }
   await typeKeys(G, 'kiwi'); 
   ok('the keys type into the box', await G.locator('.entry .field').inputValue() === 'Kiwi', await G.locator('.entry .field').inputValue());
   await G.locator('.entry .lead').click(); await page.waitForTimeout(500);
   ok('Add puts it on the list and keeps the keys for the next thing', (await calls(page, /todo\.add_item todo\.shopping_list.*Kiwi/)).length === 1 && await G.locator('.keys').count() === 1);
   await G.locator('[data-act="hide-keys"]').click(); await page.waitForTimeout(200);
   ok('“Hide the keys” gives the room back', await G.locator('.keys').count() === 0);
+  await page.waitForFunction(() => !document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries').shadowRoot.querySelector('.tray'), null, { timeout: 3000 }).catch(() => {});
+  ok('the tray goes away again and the box is back in its panel', await G.locator('.tray').count() === 0 && await G.locator('.add .entry .field').count() === 1 && await G.locator('[data-keyhint]').count() === 1);
   await G.locator('.usuals .quick').filter({ hasText: 'Cheese' }).click(); await page.waitForTimeout(400);
   ok('a usual is still one tap, with no keys', ((await calls(page, /todo\.add_item todo\.shopping_list.*Cheese/)).length === 1 || /already on the list/.test(await G.evaluate((g) => g._toast))) && await G.locator('.keys').count() === 0, await G.evaluate((g) => g._toast));
   // say it
@@ -66,6 +79,21 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   await now.locator('[data-act="wmore"]').click(); await page.waitForTimeout(250);
   ok('More shows them, and Less puts them away', /Fire danger/.test(await now.innerText()) && /Sunrise to sunset/.test(await now.innerText()) && (await now.locator('[data-act="wmore"]').innerText()).trim() === 'Less', (await now.innerText()).replace(/\n/g, ' | ').slice(0, 300));
   ok('the advice can still be read aloud', await now.locator('.wtip .speak').count() === 1);
+  // 0.38.3, the layout: the radar is large only while rain is about
+  const area = (sel) => W.locator(sel).evaluate((e) => { const b = e.getBoundingClientRect(); return Math.round(b.width * b.height); });
+  const dry = { attr: await W.evaluate((w) => w.hasAttribute('data-dry')), size: await W.locator('.wmaps').getAttribute('data-size'), map: await area('.wmaps'), week: await area('.wweek'), line: await W.locator('[data-dryline]').count(), seg: await W.locator('.wmaps .seg').count() };
+  ok('on a dry day the radar is a small card that says so, and the week has the room', dry.attr && dry.size === 'small' && dry.line === 1 && dry.seg === 0 && dry.week > dry.map * 1.3, dry);
+  ok('the week then reads across the page, a column a day', await W.locator('.wday').evaluateAll((d) => d.length === 7 && new Set(d.map((x) => Math.round(x.getBoundingClientRect().y))).size === 1 && d.every((x) => x.scrollWidth <= x.clientWidth + 1)));
+  await W.locator('[data-act="mapsize"]').click(); await page.waitForTimeout(300);
+  ok('“Bigger map” makes it the large piece, with the wind map beside it; “Smaller map” puts it back', await W.locator('.wmaps').getAttribute('data-size') === 'large' && !(await W.evaluate((w) => w.hasAttribute('data-dry'))) && await W.locator('.wmaps .seg').count() === 1 && (await W.locator('[data-act="mapsize"]').innerText()).trim() === 'Smaller map');
+  await W.locator('[data-act="mapsize"]').click(); await page.waitForTimeout(300);
+  ok('and small again', await W.locator('.wmaps').getAttribute('data-size') === 'small');
+  await page.context().close(); }
+{ const page = await open('look=glass&page=weather&wx=rain'); const W = page.locator('fh-weather');
+  const area = (sel) => W.locator(sel).evaluate((e) => { const b = e.getBoundingClientRect(); return Math.round(b.width * b.height); });
+  ok('while rain is about the radar is the large piece in the middle, with no button to shrink it', await W.locator('.wmaps').getAttribute('data-size') === 'large' && !(await W.evaluate((w) => w.hasAttribute('data-dry'))) && await W.locator('[data-act="mapsize"]').count() === 0 && await area('.wmaps') > await area('.whours'));
+  ok('rain about is worked out from now, the warnings and the next six hours', await W.evaluate((w) => { const keep = w._hours, st = w.hass.states; const dryNow = { ...st, [w.entity]: { ...st[w.entity], state: 'cloudy' }, [w._warnId]: { ...st[w._warnId], attributes: { warnings: [] } } }; const h = (n, p) => [{ datetime: new Date(Date.now() + 3600000).toISOString(), precipitation_probability: 0, condition: 'cloudy' }, { datetime: new Date(Date.now() + n * 3600000).toISOString(), precipitation_probability: p, condition: 'cloudy' }];
+    const was = w.hass; w.hass = { ...was, states: dryNow }; w._hours = h(2, 70); const soon = w._rainAbout(); w._hours = h(9, 90); const later = w._rainAbout(); w._hours = h(2, 20); const slight = w._rainAbout(); w._hours = keep; w.hass = was; return soon === true && later === false && slight === false; }));
   await page.context().close(); }
 
 // 3. Home: a child's bedroom

@@ -154,7 +154,7 @@ const hass = {
     if (domain === 'media_player' || domain === 'music_assistant' || domain === 'switch') { el.hass = { ...hass }; }
     if (domain === 'todo' && store[id]) {
       if (service === 'update_item') { const i = store[id].find((x) => x.uid === data.item) ?? store[id].find((x) => x.summary === data.item); if (i) { if (data.status) i.status = data.status; if (data.rename) i.summary = data.rename; if (data.description !== undefined) i.description = data.description ?? ''; } }
-      if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}`, summary: data.item, status: 'needs_action', description: '' });
+      if (service === 'add_item') store[id].push({ uid: `${id}-${Date.now()}-${(window.__uid = (window.__uid || 0) + 1)}`, summary: data.item, status: 'needs_action', description: '' });
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
       if (service === 'remove_item') store[id] = store[id].filter((x) => ![].concat(data.item).includes(x.uid));
       if (service === 'add_item' && data.description) store[id][store[id].length - 1].description = data.description;

@@ -116,9 +116,10 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
       await M(v).locator('.jog').focus(); await v.keyboard.press('ArrowLeft'); await v.waitForTimeout(200); out2 += ` | key: ${(await calls(v, /media_seek/)).split(' || ').pop().slice(-24)}`;
       console.log(out2);
       // the moment pads: a press finds the playlist and plays it; a pad with rooms plays there, lets other rooms go, sets the volume and joins the rest
-      await v.evaluate(() => { window.__calls.length = 0; }); await M(v).getByRole('button', { name: 'Dance' }).click(); await v.waitForTimeout(700);
-      console.log('pad in the room in focus:', (await calls(v, /music_assistant\.play_media/)).slice(0, 120), '| pads:', await M(v).locator('.mpad').count(), '| lit:', await M(v).locator('.mpad[data-on]').innerText().then((t) => t.trim().split('\n').pop()));
-      const pv = await open('look=glass&page=music&mview=desk&moments=1'); await pv.evaluate(() => { (window.__calls ||= []).length = 0; });
+      // (0.38.3: the pads are beside the House, and no longer on the Desk)
+      { const hv = await open('look=glass&page=music&mview=house'); await hv.evaluate(() => { (window.__calls ||= []).length = 0; }); await M(hv).locator('.hpad', { hasText: 'Dance' }).click(); await hv.waitForTimeout(700);
+        console.log('pad in the room in focus:', (await calls(hv, /music_assistant\.play_media/)).slice(0, 120), '| pads beside the House:', await M(hv).locator('.hpad').count(), '| pads on the Desk:', await M(v).locator('.mpad').count(), '| lit:', await M(hv).locator('.hpad[data-on]').innerText().then((t) => t.trim().split('\n').pop())); await hv.close(); }
+      const pv = await open('look=glass&page=music&mview=house&moments=1'); await pv.evaluate(() => { (window.__calls ||= []).length = 0; });
       await M(pv).getByRole('button', { name: 'Dinner' }).click(); await pv.waitForTimeout(700);
       console.log('pad on a named speaker:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|join|volume_set/.test(c)).map((c) => c.slice(0, 104)).join(' || ')));
       await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Wind down' }).click(); await pv.waitForTimeout(700);
@@ -126,7 +127,7 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
       await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).getByRole('button', { name: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
       console.log('pad in every room:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|media_player\.join/.test(c)).map((c) => c.slice(0, 190)).join(' || ')));
       await pv.close();
-      const nv = await open('look=glass&page=music&mview=desk&moments=1', '20:10'); await M(nv).getByRole('button', { name: 'Wind down' }).click(); await nv.waitForTimeout(500);
+      const nv = await open('look=glass&page=music&mview=house&moments=1', '20:10'); await M(nv).getByRole('button', { name: 'Wind down' }).click(); await nv.waitForTimeout(500);
       console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       console.log('desk master moves:', (await v.evaluate(() => window.__calls.filter((c) => /volume_set/.test(c)).slice(-2).map((c) => c.split(' ')[1]).join(', ')))); }
@@ -337,7 +338,7 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
   { const d = await atv(1280, 800, 'look=glass&page=music&mview=house');
     await d.evaluate(() => { window.__calls = []; }); await M(d).locator('.wholeh').click(); await d.waitForTimeout(600);
     const dayWhole = { pad: await pad(d), joins: await said(d, /media_player\.join/) }; await d.context().close();
-    const dp = await atv(1280, 800, 'look=glass&page=music&mview=desk&moments=1'); await dp.evaluate(() => { window.__calls = []; }); await M(dp).locator('.mpad', { hasText: 'Tidy-up' }).click(); await dp.waitForTimeout(900);
+    const dp = await atv(1280, 800, 'look=glass&page=music&mview=house&moments=1'); await dp.evaluate(() => { window.__calls = []; }); await M(dp).locator('.hpad', { hasText: 'Tidy-up' }).click(); await dp.waitForTimeout(900);
     const dayPad = { pad: await pad(dp), plays: await said(dp, /play_media|media_player\.join/) }; await dp.context().close();
     const dc = await atv(1280, 800, 'look=glass&page=music&mtab=call'); await dc.evaluate(() => { window.__calls = []; });
     await M(dc).locator('.mz[data-zone="media_player.alexs_homepod"]').click(); await M(dc).locator('.bubble').first().click(); await M(dc).locator('.sayit').click(); await dc.waitForTimeout(700);
@@ -350,7 +351,7 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
     const n = await atv(1280, 800, 'look=glass&page=music&mview=house', '19:45');
     await n.evaluate(() => { window.__calls = []; }); await M(n).locator('.wholeh').click(); await n.waitForTimeout(600);
     const w1 = { pad: await pad(n), joins: await said(n, /media_player\.join/) }; await pin(n); const w2 = { pad: await pad(n), joins: await said(n, /media_player\.join/) }; await n.context().close();
-    const np = await atv(1280, 800, 'look=glass&page=music&mview=desk&moments=1', '19:45'); await np.evaluate(() => { window.__calls = []; }); await M(np).locator('.mpad', { hasText: 'Tidy-up' }).click(); await np.waitForTimeout(700);
+    const np = await atv(1280, 800, 'look=glass&page=music&mview=house&moments=1', '19:45'); await np.evaluate(() => { window.__calls = []; }); await M(np).locator('.hpad', { hasText: 'Tidy-up' }).click(); await np.waitForTimeout(700);
     const p1 = { pad: await pad(np), plays: await said(np, /play_media|media_player\.join/) }; await pin(np); await np.waitForTimeout(500); const p2 = await said(np, /play_media|media_player\.join/); await np.context().close();
     const nc = await atv(1280, 800, 'look=glass&page=music&mtab=call', '19:45'); await nc.evaluate(() => { window.__calls = []; });
     await M(nc).locator('.mz[data-zone="media_player.alexs_homepod"]').click(); await M(nc).locator('.bubble').first().click(); await M(nc).locator('.sayit').click(); await nc.waitForTimeout(700);
