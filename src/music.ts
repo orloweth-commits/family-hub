@@ -8,7 +8,7 @@ import { afterBedtime, bedtimeFor, getNarrow, getShape, FitController, hm, isQui
 import { spark } from './sparks';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
-import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, blank, viewHint, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Room, type ViewId } from './musicviews';
+import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, blank, viewMarks, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Mark, type Room, type ViewId } from './musicviews';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { LINES, houseVoice, lineReady, voiceReady } from './voice';
 import './pin';
@@ -29,6 +29,8 @@ const clock = (s: number): string => `${Math.floor(s / 60)}:${String(Math.floor(
 const CALLS = ['Dinner’s ready!', 'Time to get ready, please.', 'Please come to the kitchen.', 'Five minutes until bedtime.', 'Time to leave – shoes on!', 'I love you!'];
 /** A small picture for each ready message, so someone who cannot read yet can choose one: plate, clock, kitchen, moon, shoes, heart. */
 const CALL_PIC = ['🍽️', '⏰', '🍳', '🌙', '👟', '❤️'];
+/** How long one coach mark shows before the next. */
+const COACH_MS = 4000;
 /** The views whose hint has been shown since the page was loaded: each shows once, then only when "?" is tapped. */
 const HINTED = new Set<string>();
 const TYPE_LABEL: Record<string, string> = { track: 'Song', album: 'Album', playlist: 'Playlist', artist: 'Artist', radio: 'Radio', podcast: 'Podcast', audiobook: 'Story' };
@@ -81,6 +83,11 @@ export class FhMusic extends LitElement {
     /* the hint: one quiet line in the toolbar beside "?", shown for four seconds the first time a view is opened and whenever "?" is tapped. It is never laid over the view. On a wide screen it borrows the search field's place while it shows. */
     .hint { flex: 1 1 0; min-width: 0; max-height: 36px; font-size: var(--fs-2); line-height: 18px; font-weight: var(--w-semi, 600); color: var(--ink2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; opacity: 0; visibility: hidden; transition: opacity var(--m-3, 240ms) ease; }
     .hint[data-on] { opacity: 1; visibility: visible; }
+    /* three coach marks share the hint's place, one at a time: which one this is, then its words */
+    .hstep { font-style: normal; font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink); background: var(--chip-strong); border-radius: 999px; padding: 1px 8px; margin-right: 8px; white-space: nowrap; }
+    /* and what the line is about wears a ring while it shows (it holds still: nothing moves under a reader) */
+    .panel[data-teach='move'] .mzone:not([data-live]):not([data-offline]) .zname, .panel[data-teach='move'] .moveh, .panel[data-teach='vol'] .mzone .grab i, .panel[data-teach='vol'] .mzone .vstep,
+    .panel[data-teach='pin'] .pinb, .panel[data-teach='pin'] .swho i { outline: 3px solid var(--accent); outline-offset: 2px; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
     /* the hint is never cut, and never takes a row of its own on a wide screen (a tap takes the hint away, and a row that vanished under the finger would lose the tap):
        the tab words go first, then the small player beside it, and the buttons after it in the row wait while it shows */
@@ -136,6 +143,13 @@ export class FhMusic extends LitElement {
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
     .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: var(--fs-3); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
+    /* a full page: the little house and the ready messages share the height between them, so both are big enough to tap from a step away */
+    .panel[data-one] .callside .map.snug { flex: 1 1 0; min-height: 0; }
+    .panel[data-one] .callside .map.snug .floor { flex: 1 1 0; height: auto; max-height: 190px; }
+    .panel[data-one] .callside .mz b { font-size: var(--fs-4); }
+    .panel[data-one] .bubbles { grid-auto-rows: minmax(62px, 1fr); align-content: stretch; }
+    .panel[data-one] .bubble { font-size: var(--fs-4); gap: 14px; padding: 8px 20px; }
+    .panel[data-one] .bubble .bpic { font-size: var(--fs-d1); }
     .bubble[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); transform: scale(1.03); }
     .sayit { height: 52px; padding: 0 24px; font-size: var(--fs-3); display: inline-flex; align-items: center; gap: 8px; }
     .map.snug { flex: none; }
@@ -165,6 +179,11 @@ export class FhMusic extends LitElement {
       background: radial-gradient(circle, #f4efe3 0 3%, var(--accent) 3.5% 16%, #17140f 16.5% 100%); }
     .crate .st:active .disc, .crate .st[data-lifted] .disc { transform: translateX(26%) scale(.94) rotate(40deg); }
     .crate .st[data-lifted] .img { transform: scale(.94); }
+    .presets { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); padding: 6px; margin: -6px; }
+    /* a full page: bigger stations, standing low like the records on Shelves (in reach of the smallest), in a row that does not stretch two stations across the wall */
+    .panel[data-one] .presets { grid-template-columns: repeat(auto-fill, minmax(168px, 190px)); gap: 20px 18px; align-content: safe end; }
+    .panel[data-one] .presets .st { font-size: var(--fs-3); gap: 10px; }
+    .panel[data-one] .rnote { font-size: var(--fs-3); }
     .presets .st { background: transparent; align-items: center; text-align: center; }
     .presets .st .img { width: 100%; border-radius: 50%; box-shadow: 0 0 0 4px var(--chip-strong), 0 8px 16px -8px rgba(0,0,0,.5); }
     .presets .st.on { box-shadow: none; }
@@ -243,6 +262,12 @@ export class FhMusic extends LitElement {
     .pinto i { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--c); color: var(--on-person, #fff); display: flex; align-items: center; justify-content: center; font-style: normal; flex-shrink: 0; }
     .pinto[data-hot] { background: #fff; color: #111; } .pchip[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 4px var(--primary); } .swho[data-hot] i { transform: scale(1.2); box-shadow: 0 0 0 4px var(--primary); }
     :host([data-phone]) .pinto b { display: none; } :host([data-phone]) .pinto { padding: 4px 6px; }
+    /* under one bar the names take the bar's own row and its glass: the tabs and the tools cannot be used while a finger is carrying, so they step back
+       (they keep their room, so nothing moves) and the small player stays */
+    .panel[data-one] .pinstrip { top: 12px; left: 14px; transform: none; gap: 8px; padding: 4px 8px 4px 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-3); box-shadow: 0 0 0 2px var(--primary), 0 12px 30px -12px rgba(0,0,0,.45); max-width: calc(100% - 28px); }
+    .panel[data-one] .pinto { min-height: 48px; padding: 2px 16px 2px 4px; border-radius: 999px; background: var(--chip); }
+    .panel[data-one] .pinto[data-hot] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: 0 0 0 3px var(--primary); }
+    .mhead[data-carrying] > :not(.nowbar):not(.peekb) { visibility: hidden; }
     .st .x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border-radius: 50%; background: #dc2626; color: #fff; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .chiprow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .pchip { height: 44px; padding: 0 14px 0 8px; border-radius: 999px; background: var(--chip); display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
@@ -402,6 +427,10 @@ export class FhMusic extends LitElement {
     .srec:active .puck.onshelf { transform: scale(1.08) rotate(14deg); }
     .srec[data-lifted] .puck.onshelf { opacity: .3; }
     .srec span { max-width: 100%; height: 45px; font-size: var(--fs-2); line-height: 15px; font-weight: var(--w-semi, 600); text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    /* a full page gives the shelf a wider column; the grid that makes the records biggest is chosen in _fitShelf, and two rows or more keep their names to two lines */
+    .panel[data-one] .mshelf { flex-basis: clamp(236px, 27%, 360px); }
+    .srecs[data-tight] .srec .puck.onshelf { width: min(100%, max(44px, calc(var(--row) - 34px))); }
+    .srecs[data-tight] .srec span { height: 30px; -webkit-line-clamp: 2; }
     .srec.more { justify-content: center; align-self: stretch; background: var(--chip-strong); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     .snone { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); }
     .wholeh { min-height: 58px; padding: 6px 12px; border-radius: 18px; border: 2.5px dashed var(--ink3); display: flex; align-items: center; justify-content: center; gap: 10px; text-align: left; line-height: 1.15; transition: background var(--m-2, 160ms), border-color var(--m-2, 160ms), transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1); }
@@ -476,7 +505,7 @@ export class FhMusic extends LitElement {
 
   static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, views: { attribute: false }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _held: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
-    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true } };
+    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true }, _coachAt: { state: true } };
   hass?: Hass;
   players: string[] = [];
   stations: (string | StationConfig)[] = [];
@@ -677,6 +706,17 @@ export class FhMusic extends LitElement {
     const ok = head.scrollWidth <= head.clientWidth + 1 && (!slot || slot.offsetWidth >= 118) && (!nb || !nb.offsetParent || nb.offsetWidth >= 230) && (!tools || room >= 400); void cut;
     if (!ok) tabs.removeAttribute('data-words');
   }
+  /** Beside the House on a wide screen the shelf's records are as big as their box allows: of the grids that hold this many, the one that gives the largest record
+   *  (three in one row beat two rows of two; seven in two rows of four beat three rows). Two rows or more keep each name to two lines. */
+  private _fitShelf(): void {
+    const box = this.renderRoot.querySelector<HTMLElement>('.srecs'); if (!box) return;
+    const n = box.children.length, W = box.clientWidth, H = box.clientHeight;
+    if (!this._wide || !n || !W || !H) { box.removeAttribute('data-tight'); return; }
+    let best = 0, cols = 2;
+    for (let c = 1; c <= Math.min(n, 5); c++) { const r = Math.ceil(n / c), size = Math.min((W - (c - 1) * 8) / c, (H - (r - 1) * 8) / r - (r > 1 ? 34 : 49)); if (size > best + .5) { best = size; cols = c; } }
+    const rows = Math.ceil(n / cols);
+    box.style.setProperty('--cols', String(cols)); box.style.setProperty('--rows', String(rows)); box.toggleAttribute('data-tight', rows > 1);
+  }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
   private _fitHint(): void {
     const hint = this.renderRoot.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
@@ -689,7 +729,7 @@ export class FhMusic extends LitElement {
       this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
       this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
     this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintwide]')?.removeAttribute('data-hintwide');
-    this._fitTabs(); this._fitHint();
+    this._fitTabs(); this._fitHint(); this._fitShelf();
     const p = this._cur;
     if (!this.hass || !p) return;
     // refresh "up next" when the track or the room changes
@@ -1274,13 +1314,13 @@ export class FhMusic extends LitElement {
     if (this._tab === 'rooms' && !this._viewAsk && !HINTED.has(this._mode)) { HINTED.add(this._mode); window.setTimeout(() => this._showCoach(), 0); }
     const tabrow = html`<div class="tabs ${full ? 'inline' : ''}" role="tablist">${tabs.map(([id, l, ic]) => html`<button class="tap" role="tab" aria-label=${l} aria-selected=${String(this._tab === id)} @click=${() => open(id)}>${icon(ic, 26)}<span>${l}</span></button>`)}</div>`;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${one} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
-        <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
+      <section class="glass panel" aria-label="Music" ?data-one=${one} data-teach=${(rooms && this._teach) || nothing} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${(e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } }}>
+        <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach} ?data-carrying=${one && !!c && ma}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
           ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}</div>
         ${searching || full ? nothing : tabrow}
         ${keyed(this._tab, html`<div class="body">${this._tab === 'rooms' ? this._rooms() : this._tab === 'search' ? this._searchTab() : this._tab === 'shelves' ? this._shelves() : this._tab === 'juke' ? this._jukeTab() : this._tab === 'radio' ? this._radio() : this._callTab()}</div>`)}
         ${c ? html`<span class="puck fly" style="left:${c.x}%;top:${c.y}%;${c.art ? `--art:url(${c.art})` : ''}"></span>` : nothing}
-        ${c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span>📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing}
+        ${c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing}
       </section>
       ${this._pinTo ? this._pinSheet() : nothing}
       ${this._peek && one ? html`<div class="pscrim" @click=${() => { this._peek = false; }}></div>` : nothing}
@@ -1323,12 +1363,13 @@ export class FhMusic extends LitElement {
 
   /** A wide screen showing one of the full room views: the title row carries everything, so the view gets the height. */
   private get _one(): boolean { return this._full && this._wide; }
-  private _coach = false; private _coachT = 0;
+  private _coach = false; private _coachT = 0; private _coachAt = 0;
   /** The view's own tools, the same on every layout: Switcheroo, Whole house, "Just this room", the offline note, "?" and the hint beside it. */
   private _tools(): TemplateResult {
     const cur = this._cur, mine = cur && this._leader(cur), mode = this._mode, off = this._offline, ma = hasMa(this.hass!);
     // the room in focus is quiet and music is playing somewhere else: one tap brings it here (the same as carrying it)
     const from = !mine && cur && !this._off(cur) && ma ? this._source() : undefined;
+    const marks = this._marks, at = Math.min(this._coachAt, marks.length - 1);
     return html`
         <button class="viewbtn tap" aria-haspopup=${this._offered.length > 2 ? 'dialog' : nothing} aria-label="Change the view" data-to=${this._offered.length > 2 ? nothing : this._offered.find((v) => v !== mode) ?? nothing} @click=${() => this._switch()}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
         ${mode === 'house' ? nothing : html`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === 'all'} @click=${() => this._spread()}>${this._allJoined ? icon('check', 20) : icon('home', 20)}Whole house</button>`}
@@ -1337,7 +1378,7 @@ export class FhMusic extends LitElement {
         ${mine && ma && mode !== 'list' ? html`<button class="round tap pinb" aria-label="Pin what is playing to a shelf" @click=${() => this._pinPlaying()}>📌</button>` : nothing}
         ${off.length ? html`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${off.map((p) => this._name(p)).join(', ')}`)}>${icon('plug', 18)}${off.length === this._list.length ? 'Every speaker is offline' : `${off.length} ${off.length === 1 ? 'speaker' : 'speakers'} offline`}</button>` : nothing}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(true)}>?</button>
-        <span class="hint" role="note" ?data-on=${this._coach}>${viewHint(mode, getLook(), this.theme)}</span>`;
+        <span class="hint" role="note" ?data-on=${this._coach}>${marks.length > 1 ? html`<i class="hstep">${at + 1} of ${marks.length}</i>` : nothing}${marks[at]?.text ?? ''}</span>`;
   }
   /** The small player: what is playing where, and three keys of one shape. Shown with the House, which has no player of its own in the picture. */
   private _nowbar(cur: HassEntity): TemplateResult {
@@ -1351,7 +1392,18 @@ export class FhMusic extends LitElement {
     if (this._tab === 'rooms' && this._mode !== 'house') return html`<button class="round tap peekb" aria-label="Show the full player" @click=${() => { this._peek = true; }}>${icon('music', 22)}</button>`;
     return cur ? this._nowbar(cur) : nothing;
   }
-  private _showCoach(toggle = false): void { clearTimeout(this._coachT); this._coach = toggle ? !this._coach : true; if (this._coach) this._coachT = window.setTimeout(() => { this._coach = false; }, 4000); }
+  /** The view's coach marks (three for the House and the Scene, one line for the others). */
+  private get _marks(): Mark[] { return viewMarks(this._mode, getLook(), this.theme); }
+  /** What the line now showing is about: the page rings it. */
+  private get _teach(): string { return this._coach ? this._marks[Math.min(this._coachAt, this._marks.length - 1)]?.teach ?? '' : ''; }
+  /** Show the coach marks from the first, four seconds each. "?" while one is showing goes on to the next, and after the last puts them away; a touch anywhere else puts them away at once. */
+  private _showCoach(asked = false): void {
+    clearTimeout(this._coachT); const n = this._marks.length;
+    if (asked && this._coach) { if (this._coachAt + 1 < n) this._coachAt++; else { this._coach = false; return; } }
+    else { this._coach = n > 0; this._coachAt = 0; }
+    const next = (): void => { if (this._coachAt + 1 < this._marks.length) { this._coachAt++; this._coachT = window.setTimeout(next, COACH_MS); } else this._coach = false; };
+    if (this._coach) this._coachT = window.setTimeout(next, COACH_MS);
+  }
 
   private _rooms(): TemplateResult {
     const cur = this._cur, mine = cur && this._leader(cur), grp = this._group(mine), ma = hasMa(this.hass!);
@@ -1486,8 +1538,8 @@ export class FhMusic extends LitElement {
 
   private _radio(): TemplateResult {
     const cur = this._cur, playingName = cur && cur.state === 'playing' ? LAST[cur.entity_id] : '';
-    return html`<span class="muted" style="font-size:var(--fs-2)">Tap a station to play it in <b>${this._name(cur)}</b>. Pick a different room in the Rooms tab.</span>
-      <div class="grid presets" style="grid-template-columns:repeat(auto-fill,minmax(132px,1fr));padding:6px;margin:-6px">${this._stations.map((s) => {
+    return html`<span class="muted rnote" style="font-size:var(--fs-2)">Tap a station to play it in <b>${this._name(cur)}</b>. Pick a different room in the Rooms tab.</span>
+      <div class="grid presets">${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
           <span class="img" style=${th ? `--art:url(${th})` : plainLook() ? 'background:linear-gradient(160deg, #23272e, #0b0e13);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--glass-line)' : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
