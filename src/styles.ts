@@ -489,11 +489,13 @@ export const styles = css`
     --art-none: linear-gradient(135deg, color-mix(in srgb, var(--accent) 62%, #000), color-mix(in srgb, var(--primary) 46%, #000)); }
   :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
   /* "+3" on a month's day: a quiet raised chip, not the brightest thing on the page */
-  :host([data-dark]) .cell .mmore { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
+  :host([data-dark]) .cell .mmore { background: var(--chip); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
   /* drawings on the dock made for a pale bar (a black record, a grey bulb) keep a thin light edge on a dark one */
   :host([data-dark]) .fh .dock .item svg.i { filter: drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 1.5px 1.5px rgba(0,0,0,.3)); }
   /* the UV and heat badges keep their warning tint on a dark chip */
   :host([data-dark]) .badge { background: color-mix(in srgb, #f59e0b 42%, var(--ring-halo)); } :host([data-dark]) .badge.hot { background: color-mix(in srgb, #dc2626 46%, var(--ring-halo)); }
+  /* the words of a segment that is not chosen are the main ink in the dark (the chosen one has its fill, its ring and its weight) */
+  :host([data-dark]) .seg button { color: var(--ink); }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
@@ -506,6 +508,9 @@ export const styles = css`
   .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
+  /* two short settings side by side (Sounds, and Light and dark, in the Looks sheet), so neither rests in the fade at the sheet's foot */
+  .setpair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; } .setpair:has(> :only-child) { grid-template-columns: 1fr; } .setpair .setlabel .muted { font-size: var(--fs-1); }
+  :host([data-shape='tall']) .setpair, :host([data-n2]) .setpair { grid-template-columns: 1fr; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); }
   .setlabel .muted { font-size: var(--fs-2); font-weight: 500; }
   .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); }

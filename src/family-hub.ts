@@ -1745,11 +1745,13 @@ export class FamilyHubCard extends LitElement {
         </button>`)}
       </div>
       ${(lookById(this._look).options ?? []).map((o) => this._optRow(o, !!this._opts[o.id], () => this._toggleOpt(o.id)))}
-      <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Taps, ticks and keys from this screen. Timers always sound.</span></span>
+      <div class="setpair">
+        <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Taps, ticks and keys from this screen. Timers always sound.</span></span>
         <div class="seg" role="group" aria-label="Sounds" data-set="sounds">${([['off', 'Off'], ['quiet', 'Soft'], ['on', 'On']] as const).map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._snd === v)} @click=${() => this._setSounds(v)}>${l}</button>`)}</div></div>
-      ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'Space Mission is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Auto: dark from sunset to sunrise, and whenever the room is dim.' : 'For this screen. Auto goes dark at sunset and in a dim room.'}</span></span>
-        <div class="seg" role="group" aria-label="Light and dark" data-set="dark">${DARK_MODES.map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._dkMode === v)} @click=${() => this._setDark(v)}>${l}</button>`)}</div></div>
-      <span class="label">Background</span>
+        ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'Space Mission is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Dark from sunset to sunrise, and in a dim room.' : 'For this screen. Auto follows the sun and the room.'}</span></span>
+        <div class="seg" role="group" aria-label="Light and dark" data-set="dark">${DARK_MODES.map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._dkMode === v)} @click=${() => this._setDark(v)}>${l}</button>`)}</div></div>`}
+      </div>
+      ${!lookById(this._look).themed ? nothing : html`      <span class="label">Background</span>
       <div class="themes">
         ${THEMES.map((t) => html`<button class="tcard tap" aria-pressed=${String(t.id === this._theme)} @click=${() => this._setTheme(t.id)}>
           <span class="tprev" ?data-dark=${this._dk && hasDark(t)} style=${themeStyle(t, this._dk)}>${[1, 2, 3, 4, 5].map((n) => html`<span style="background:var(--p-${n})"></span>`)}</span>

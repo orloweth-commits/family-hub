@@ -324,7 +324,9 @@ export class FhMusic extends LitElement {
     :host([data-dark]) .pickrow.played .pcover { opacity: .8; }
     /* the pool of sound is the room's colour, which is pale in the dark: thinner, so the room's number still reads over it */
     :host([data-dark]) .pool { background: color-mix(in srgb, var(--c) 22%, transparent); }
-    :host([data-dark]) .pchip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink); }
+    :host([data-dark]) .dividers .pchip[aria-pressed='true'], :host([data-dark]:not([data-phone])) .crate.low .dividers .pchip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink); }
+    /* sunset's bands of light over the pool are pale: thinner in the dark, so the room's number reads across them */
+    :host([data-dark][data-theme='sunset']) .pool::after { background: repeating-linear-gradient(to bottom, rgba(255,226,160,.13) 0 2px, transparent 2px 16px); }
     .pickrow.played .nm .muted { color: var(--ink2); }
     .pcover { position: relative; display: block; padding-right: 12px; }
     .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }
