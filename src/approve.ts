@@ -103,7 +103,8 @@ export const haApprove = (cfg: FamilyHubConfig | undefined, owedEntity = 'todo.r
       { variables: { can: "{{ yes and rec is mapping and rec.k == 'reward' and pe != '' and (rec.cost | float(-1)) >= 0 and (states(pe) | float(0)) >= (rec.cost | float(0)) }}" } },
       // a job: its own line on the child's list says what it is worth, not the ask. Gone or already ticked: nothing to approve
       { variables: { cl: `{{ ${j(chores)}.get(rec.kid, '') if (rec is mapping and rec.k == 'job') else '' }}` } },
-      { action: 'todo.get_items', target: { entity_id: "{{ cl if cl else 'todo.none' }}" }, data: { status: ['needs_action'] }, response_variable: 'jobs', continue_on_error: true },
+      // (looked up only for a job: asking for a list that is not there leaves an error in every other answer's trace)
+      { if: [{ condition: 'template', value_template: "{{ cl != '' }}" }], then: [{ action: 'todo.get_items', target: { entity_id: '{{ cl }}' }, data: { status: ['needs_action'] }, response_variable: 'jobs', continue_on_error: true }] },
       { variables: { jd: "{{ (jobs[cl]['items'] | selectattr('uid', 'eq', rec.uid) | map(attribute='description') | map('default', '', true) | map('string') | list) if (cl and yes and rec.list == cl and jobs is defined and jobs is mapping and cl in jobs) else [] }}" } },
       { variables: { canjob: '{{ jd | count > 0 }}', jtext: "{{ 'job ' ~ (jd | first | default('')) }}" } },
       { variables: { jpts: "{{ 0 if '@grow' in jtext else ((jtext | regex_findall_index('\\+(\\d+)') | int(0)) if jtext is search('\\+\\d+') else (jtext[4:] | trim | int(0))) }}", jjar: "{{ 0 if ('@grow' in jtext or '@routine' in jtext) else 1 }}" } },
