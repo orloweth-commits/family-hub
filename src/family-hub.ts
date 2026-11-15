@@ -1211,7 +1211,7 @@ export class FamilyHubCard extends LitElement {
     const fam = (c.calendars ?? []).filter((x) => x.colour === 'family').map((x) => x.entity);
     switch (this._page) {
       case 'groceries':
-        return html`<fh-groceries .hass=${this.hass} .entity=${c.groceries ?? 'todo.shopping_list'} .usuals=${c.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${c.grocery_recipients ?? []}></fh-groceries>`;
+        return html`<fh-groceries .hass=${this.hass} .entity=${c.groceries ?? 'todo.shopping_list'} .usuals=${c.grocery_usuals ?? ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee']} .recipients=${c.grocery_recipients ?? []} .pipeline=${c.chat?.pipeline ?? ''}></fh-groceries>`;
       case 'kid': {
         const k = c.kids?.[this._kid];
         if (!k) break;
