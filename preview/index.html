@@ -270,7 +270,8 @@ for (const n of (q.get('moff') || '').split(',').filter(Boolean)) { const id = '
 if (q.get('mextra')) { hass.states['media_player.boardroom'] = { entity_id: 'media_player.boardroom', state: 'idle', attributes: { friendly_name: 'Boardroom', volume_level: 0.5, group_members: [] } }; hass.entities['media_player.boardroom'] = { entity_id: 'media_player.boardroom', platform: 'music_assistant', device_id: 'ma_boardroom' }; }
 // &slow=<ms> makes every call to Home Assistant take that long; &fail=1 makes every call fail
 if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) { const real = hass[fn]; hass[fn] = async (...a) => { if (fn === 'callWS' && a[0] && a[0].type !== 'call_service' && !/^lovelace\/config\/save$|\/create$|^todo\/item\/move$/.test(a[0].type)) return real(...a); await new Promise((r) => setTimeout(r, Number(q.get('slow') || 300))); if (q.get('fail')) throw new Error('Home Assistant did not answer'); return real(...a); }; }
-if (q.get('approve') && q.get('approve') !== 'nolist') { store['todo.family_hub_asks'] = []; hass.states['todo.family_hub_asks'] = { entity_id: 'todo.family_hub_asks', state: '0', attributes: { friendly_name: 'Family Hub asks', supported_features: 15 } }; }
+// (&notes=1 gives the mock the asks list with no phone named: "I noticed" notes need the list, not a phone)
+if ((q.get('approve') && q.get('approve') !== 'nolist') || q.get('notes')) { store['todo.family_hub_asks'] = []; hass.states['todo.family_hub_asks'] = { entity_id: 'todo.family_hub_asks', state: '0', attributes: { friendly_name: 'Family Hub asks', supported_features: 15 } }; }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;

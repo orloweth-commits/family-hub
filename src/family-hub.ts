@@ -1663,7 +1663,9 @@ export class FamilyHubCard extends LitElement {
     void this._prefTick;
     const eff = lookById(this._lk), hand = eff.options?.find((o) => o.id === 'hand');
     const looks: [string, string, string][] = [['panel', 'Same as the panel', `Follows the family’s choice (${lookById(this._look).name})`], ...LOOKS.filter((l) => !l.parentsOnly).map((l): [string, string, string] => [l.id, l.name, l.tagline])];
-    return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`)}
+    // ("I noticed": a parent's note for his page starts here, in the sheet's head, so the rows below keep their room)
+    const note = notesReady(this.hass, askList(this._config)) ? html`<button class="pill tap" data-act="note-open" style="height:48px;padding:0 18px;flex-shrink:0" aria-label=${`Leave a note for ${k.name}: I noticed…`} @click=${() => { this._nt = { text: '', caps: true, busy: false }; this._sheet = 'noticed'; }}>Leave a note</button>` : nothing;
+    return html`${this._sheetHead(`${k.name}’s settings`, `Only for ${k.name}’s page.`, '', note)}
       <div class="themes kidlooks">
         ${looks.map(([id, name, tag]) => html`<button class="tcard tap" aria-pressed=${String(p.look === id)} @click=${() => this._setKidPref({ look: id })}>
           ${id === 'panel' ? html`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${icon('home', 30)}</span>` : lookPreview(lookById(id), 84, themeStyle(themeById(this._theme)))}
@@ -1672,8 +1674,6 @@ export class FamilyHubCard extends LitElement {
       ${hand ? this._optRow(hand, p.font === 'hand', () => this._setKidPref({ font: p.font === 'hand' ? 'print' : 'hand' })) : nothing}
       ${this._switchRow('One job at a time', 'Shows Now and Next, with “Show all” one tap away. Off shows the whole list.', p.focus, () => this._setKidPref({ focus: !p.focus }))}
       ${this._switchRow('Calm mode', 'No looping motion or tilted cards.', p.calm, () => this._setKidPref({ calm: !p.calm }))}
-      ${notesReady(this.hass, askList(this._config)) ? html`<div class="setrow"><span class="setlabel"><b>I noticed…</b><span class="muted">A short note from a parent on ${k.name}’s page. Praise from a person outlasts points.</span></span>
-        <button class="pill tap" data-act="note-open" @click=${() => { this._nt = { text: '', caps: true, busy: false }; this._sheet = 'noticed'; }}>Leave a note</button></div>` : nothing}
       <div class="setrow"><span class="setlabel"><b>Days off</b><span class="muted">A sick day or a holiday never counts against ${k.name}’s week.</span></span>
         <button class="pill tap" data-act="days-off" @click=${() => { this._sheet = ''; (this.renderRoot.querySelector('fh-kid') as (HTMLElement & { openDays?: () => void }) | null)?.openDays?.(); }}>Mark days off</button></div>
       <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Timers and alarms always sound.</span></span>
