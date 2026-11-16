@@ -197,7 +197,7 @@ const MATERIALS: Record<PaletteId, Material> = {
   },
   /* Obsidian: the cabin of a quiet car. Felt, damped wood, one warm chime. Few sounds, low and soft. */
   obsidian: {
-    name: 'Obsidian', idea: 'A quiet car’s cabin: a damped click, a felt tick on wood, a low breath for a sheet, one warm two-note chime. Nothing for keys or scrolling, and softer than every other look. On the panel most of it is recorded (ElevenLabs); what is drawn here plays until a recording has loaded.', root: 392, scale: [0, 2, 4, 7, 9, 12, 14, 16], pace: 1,
+    name: 'Obsidian', idea: 'A touch screen in a good hotel: one clean click, a small rounded blip, one pure bell note. Nothing for keys or scrolling, and softer than every other look. On the panel most of it is recorded (ElevenLabs); what is drawn here plays until a recording has loaded.', root: 392, scale: [0, 2, 4, 7, 9, 12, 14, 16], pace: 1,
     hush: ['key', 'space', 'del', 'slide', 'step', 'tune'], level: 0.6,
     note: (f, t, g, d, to) => [osc('sine', f, t, d, g, { to, a: 0.007 }), osc('sine', f * 2, t, d * 0.6, g * 0.28, { to: to && to * 2, a: 0.007 }), osc('sine', f * 3, t, d * 0.3, g * 0.07, { a: 0.007 })],
     click: (t, g, p = 1) => [nz('bandpass', 820 * p, t, 0.011, g, { q: 0.8, cut: 2200 }), osc('sine', 400 * p, t, 0.03, g * 0.8, { to: 330 * p, a: 0.004 })],
@@ -217,8 +217,8 @@ const MATERIALS: Record<PaletteId, Material> = {
         tick: felt(466, 566, 0.9), untick: felt(566, 466, 0.75),
         on: [...c(0, 0.7), ...n(N(2), 0.012, 0.6, 0.11)], off: [...c(0, 0.7, 0.85), ...n(N(0), 0.012, 0.55, 0.1)],
         send: n(N(2), 0, 0.7, 0.12),
-        /* movement is a breath, with no note on it */
-        nav: m.air(0, 0.09, 0.8, true), open: m.air(0, 0.16, 0.9, true), close: m.air(0, 0.14, 0.8, false), undo: m.air(0, 0.12, 0.7, false),
+        /* movement is the same click, softer: nothing that moves air */
+        nav: c(0, 0.55), open: c(0, 0.65), close: c(0, 0.55, 0.92), undo: c(0, 0.55, 0.92),
         /* small rewards are one soft note each: no runs */
         coin: n(N(4), 0, 0.8, 0.28), jar: [...c(0, 0.5), ...n(N(2), 0.02, 0.7, 0.24)], pinok: n(N(4), 0, 0.8, 0.22), answer: n(N(3), 0, 0.7, 0.2),
         /* finished: the one chime, two warm notes a fifth apart */
@@ -365,23 +365,28 @@ export const render = async (p: PaletteId, s: Sfx, o: { raw?: boolean; indoors?:
  * measured and levelled when it loads, so a new take needs no tuning by hand. Until a file has loaded, and for
  * any sound that has none (the alarm above all), the drawn sound plays: nothing here can make a look silent.   */
 /** One stroke of a recording: which file, how fast (pitch and length go together), when, how loud beside the rest. */
-interface Stroke { f: string; rate?: number; t?: number; g?: number }
+interface Stroke { f: string; rate?: number; t?: number; g?: number; /** play no more of the file than this (s) */ d?: number; /** a slower start (s), for a take that begins abruptly */ a?: number }
 interface Recorded { /** file names, and how much of each is played (seconds) */ files: Record<string, [string, number]>; map: Partial<Record<Sfx, Stroke[]>> }
 const RECORDED: Partial<Record<PaletteId, Recorded>> = {
+  /* A touch screen in a good hotel: one clean click for every press, one small rounded blip for a choice, one pure bell note for
+   * anything worth marking, and nothing that moves air. Four recordings, all tuned to C by their speed, so every sound is kin. */
   obsidian: {
-    files: { tap: ['obsidian-tap-c', 0.12], tick: ['obsidian-tick-h', 0.15], sw: ['obsidian-switch-h', 0.18], air: ['obsidian-open-f', 0.42], fall: ['obsidian-close-f', 0.42],
-      note: ['obsidian-note-a', 0.7], done: ['obsidian-done-a', 1.3], swell: ['obsidian-unlock-b', 1.7], knock: ['obsidian-knock-b', 0.2] },
+    files: { tap: ['hotel-tap-a', 0.07], blip: ['hotel-tick-a', 0.1], low: ['hotel-tick-b', 0.2], note: ['hotel-note-f', 0.9] },
     map: {
-      tap: [{ f: 'tap' }], pin: [{ f: 'tap', rate: 1.08, g: 0.9 }], set: [{ f: 'tap', rate: 1.18, g: 0.8 }], timer: [{ f: 'tap' }, { f: 'tap', t: 0.11, rate: 0.9 }],
-      tick: [{ f: 'tick' }], untick: [{ f: 'tick', rate: 0.8, g: 0.85 }],
-      on: [{ f: 'sw' }], off: [{ f: 'sw', rate: 0.84 }],
-      nav: [{ f: 'air', rate: 1.4, g: 0.8 }], open: [{ f: 'air' }], close: [{ f: 'fall' }], undo: [{ f: 'fall', rate: 1.25, g: 0.8 }],
-      /* one bar, struck at different heights: a third, a fourth and a fifth above itself */
-      send: [{ f: 'note', rate: 1.12, g: 0.7 }], listen: [{ f: 'note', rate: 1.12, g: 0.7 }], heard: [{ f: 'note', rate: 0.94, g: 0.7 }],
-      coin: [{ f: 'note', rate: 1.5 }], pinok: [{ f: 'note', rate: 1.5 }], answer: [{ f: 'note', rate: 1.335 }], jar: [{ f: 'tap', g: 0.6 }, { f: 'note', rate: 1.26, t: 0.03 }],
-      look: [{ f: 'note', rate: 1.335 }, { f: 'note', t: 0.15, g: 0.85 }], poke: [{ f: 'note', rate: 1.68, g: 0.8 }],
-      done: [{ f: 'done' }], unlock: [{ f: 'swell' }],
-      locked: [{ f: 'knock' }], error: [{ f: 'knock', g: 0.6, rate: 1.1 }, { f: 'knock', t: 0.1 }], pinno: [{ f: 'knock', g: 0.6, rate: 1.18 }, { f: 'knock', t: 0.1, rate: 1.06 }]
+      /* every press, page and sheet: the click, a little softer when it only moves something */
+      tap: [{ f: 'tap' }], pin: [{ f: 'tap', g: 0.9 }], set: [{ f: 'tap', g: 0.8 }], timer: [{ f: 'tap' }, { f: 'tap', t: 0.12, g: 0.8 }],
+      nav: [{ f: 'tap', g: 0.7 }], open: [{ f: 'tap', g: 0.8 }], close: [{ f: 'tap', rate: 0.92, g: 0.7 }], undo: [{ f: 'tap', rate: 0.92, g: 0.7 }],
+      /* a choice made: the blip (C), lower when it is taken back (G) */
+      tick: [{ f: 'blip', rate: 1.116 }], untick: [{ f: 'blip', rate: 0.836, g: 0.8 }], on: [{ f: 'blip', rate: 1.116, g: 0.85 }], off: [{ f: 'blip', rate: 0.836, g: 0.75 }],
+      /* one short bell note for the small things */
+      send: [{ f: 'note', d: 0.3, g: 0.7 }], listen: [{ f: 'note', d: 0.25, g: 0.7 }], heard: [{ f: 'note', rate: 0.75, d: 0.25, g: 0.7 }],
+      coin: [{ f: 'note', rate: 1.5, d: 0.5 }], pinok: [{ f: 'note', rate: 1.5, d: 0.45 }], answer: [{ f: 'note', d: 0.45 }], jar: [{ f: 'note', rate: 1.5, d: 0.45 }],
+      look: [{ f: 'note', d: 0.5 }], poke: [{ f: 'note', rate: 2, d: 0.3, g: 0.7 }],
+      /* finished: two notes, a fifth apart. A celebration: the same two together, then the octave */
+      done: [{ f: 'note' }, { f: 'note', rate: 1.5, t: 0.17 }],
+      unlock: [{ f: 'note', g: 0.8 }, { f: 'note', rate: 1.5, g: 0.6 }, { f: 'note', rate: 2, t: 0.2, g: 0.7 }],
+      /* not that: a soft low note, twice; locked, once */
+      locked: [{ f: 'low', rate: 1.098, a: 0.008 }], error: [{ f: 'low', rate: 1.098, a: 0.008 }, { f: 'low', rate: 1.098, t: 0.14, g: 0.85, a: 0.008 }], pinno: [{ f: 'low', rate: 1.098, a: 0.008 }, { f: 'low', rate: 0.978, t: 0.14, g: 0.9, a: 0.008 }]
     }
   }
 };
@@ -425,10 +430,11 @@ const sampleBus = (a: AudioContext, to: AudioNode): AudioNode => { if (bus) retu
 const playRecorded = (a: AudioContext, to: AudioNode, s: Sfx, strokes: { hit: Stroke; take: Take; keep: number }[], scale: number): void => {
   const L = LIMITS[CLASS[s]], at = a.currentTime + 0.004;
   for (const { hit, take, keep } of strokes) {
-    const rate = hit.rate ?? 1, len = Math.min(keep, take.buf.duration - take.off) / rate, t = at + (hit.t ?? 0); if (!(len > 0.01)) continue;
+    const rate = hit.rate ?? 1, len = Math.min(hit.d ?? keep, keep, take.buf.duration - take.off) / rate, t = at + (hit.t ?? 0); if (!(len > 0.01)) continue;
     const level = Math.min(10 ** (L.rms / 20) / take.rms, 10 ** ((L.cap - 0.5) / 20) / take.peak) * (hit.g ?? 1) * scale;
     const src = a.createBufferSource(), g = a.createGain(); src.buffer = take.buf; src.playbackRate.value = rate;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + 0.002); g.gain.setValueAtTime(level, t + len * 0.6); g.gain.exponentialRampToValueAtTime(level * 0.02, t + len - 0.004); g.gain.linearRampToValueAtTime(0, t + len);
+    const up = Math.min(hit.a ?? 0.002, len * 0.3); // a cut-short note dies away from early on, so it never ends like a beep
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + up); g.gain.setValueAtTime(level, t + Math.max(up, len * 0.3)); g.gain.exponentialRampToValueAtTime(level * 0.02, t + len - 0.004); g.gain.linearRampToValueAtTime(0, t + len);
     src.connect(g).connect(sampleBus(a, to)); src.start(t, take.off); src.stop(t + len + 0.01);
   }
 };
