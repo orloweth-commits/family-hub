@@ -38,6 +38,8 @@ export class FhAmbient extends LitElement {
   static styles = [css`
     :host { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
     :host([front]) { z-index: 6; }
+    /* Glass in the dark: the back layer is dimmed with the photo (the card's .dkdim lies over both); what passes in front of the panels is dimmed here */
+    :host([front][dark]) { filter: brightness(.62) saturate(.85); }
     @media (prefers-reduced-motion: reduce) { :host(:not([world])) { display: none; } }
     /* Visitors never pass behind (or in front of) the greeting, the clock and the date at the top left, or the dock along the bottom:
        they slip out of sight there, the way they would behind a panel. Two boxes, because each mask can only say "keep this OR that". */
@@ -68,7 +70,8 @@ export class FhAmbient extends LitElement {
     @keyframes peek { from, to { transform: translateX(100%); } 18%, 80% { transform: translateX(34%); } 30%, 34% { transform: translateX(34%) rotate(-5deg); } }
     .foot { top: auto; bottom: 4px; }
   `, ...Object.values({ sea, reef, bush, space, fridge, sports, obsidian }).map((s) => s.css)];
-  static properties = { look: { reflect: true }, theme: { reflect: true }, tod: {}, calm: { type: Boolean }, hold: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: true }, _guest: { state: true }, _lay: { state: true } };
+  static properties = { look: { reflect: true }, theme: { reflect: true }, tod: {}, calm: { type: Boolean }, hold: { type: Boolean }, demo: {}, front: { type: Boolean, reflect: true }, dark: { type: Boolean, reflect: true }, _guest: { state: true }, _lay: { state: true } };
+  dark = false;
   look = 'glass'; theme = 'sea'; tod: Ctx['tod'] = 'day'; calm = false;
   /** the card sets this while a sheet, the night screen or an alarm is up: a `solo` world then sends its visitor away and waits */
   hold = false;

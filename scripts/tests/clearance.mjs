@@ -6,6 +6,7 @@
 //  - UNEVEN      things of one kind in one row whose tops or heights differ, or stacked ones whose sides differ
 // "…" on purpose (TRUNC) is listed only with SHOW=trunc.
 // STRESS=1 gives every name the panel shows a much longer one (children, rewards, events, rooms, songs, reminders).
+// LOOKS may name `glass-dark`: the Glass look in dark mode (Sea & Sun after dark).
 // Usage: npm run build && PLAYWRIGHT=<playwright index.mjs> [CHROME=<binary>] [LOOKS=glass,fridge,orbit,sports] [VP=wall:1920x1080,…] [PAGES=…] [STRESS=1] node scripts/tests/clearance.mjs
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
@@ -29,7 +30,7 @@ for (const look of LOOKS) for (const v of VP) {
     const [pg, time = '16:20'] = pg0.split('@');
     const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(`${look} ${v.n} ${pg}: ${e}`));
     await page.clock.setFixedTime(new Date(`2026-11-10T${time}:00+08:00`));
-    await page.goto(`http://localhost:${PORT}/?look=${look}&page=${pg}${STRESS ? '&stress=1' : ''}`); await page.waitForFunction('window.__ready === true').catch(() => {}); await page.waitForTimeout(1300);
+    await page.goto(`http://localhost:${PORT}/?look=${look === 'glass-dark' ? 'glass&dark=1' : look}&page=${pg}${STRESS ? '&stress=1' : ''}`); await page.waitForFunction('window.__ready === true').catch(() => {}); await page.waitForTimeout(1300);
     await page.evaluate(() => Promise.race([Promise.all(document.getAnimations().filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime)).map((a) => a.finished.catch(() => {}))), new Promise((r) => setTimeout(r, 2500))]));
     const r = await page.evaluate(() => {
       const MIN_X = 4, MIN_Y = 2, MIN_CARD = 6, out = [];

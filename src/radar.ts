@@ -32,7 +32,7 @@ export class FhRadar extends LitElement {
     .home { position: absolute; width: 22px; height: 22px; margin: -41px 0 0 -11px; border-radius: 50% 50% 50% 0; rotate: -45deg; background: var(--accent); box-shadow: 0 0 0 2.5px #fff, 0 2px 6px rgba(0,0,0,.4); pointer-events: none; }
     .home::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #fff; }
     .bar { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border-radius: 999px; background: var(--rbar, rgba(255,255,255,.88)); color: var(--rink, #14202e); box-shadow: 0 4px 14px rgba(0,0,0,.22); cursor: default; }
-    :host([dark]) .bar, :host([dark]) .zoom { --rbar: rgba(16,24,44,.86); --rink: #eef3ff; }
+    :host([dark]) .bar, :host([dark]) .zoom { --rbar: var(--radar-bar, rgba(16,24,44,.86)); --rink: var(--radar-ink, #eef3ff); }
     .bar button, .zoom button { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: inherit; flex-shrink: 0; }
     .bar button { background: var(--primary); color: var(--on-primary); }
     .when { font-size: var(--fs-2); font-weight: 800; font-variant-numeric: tabular-nums; min-width: 66px; }
@@ -45,7 +45,8 @@ export class FhRadar extends LitElement {
     .zoom button:disabled { opacity: .3; }
     .zoom b { font-size: var(--fs-5); line-height: 1; font-weight: 600; }
     .key { position: absolute; left: 10px; top: 10px; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rkey, #fff); color: var(--rink, #14202e); box-shadow: 0 1px 3px rgba(0,0,0,.3); font-size: var(--fs-1); font-weight: 700; pointer-events: none; }
-    :host([dark]) .key { --rkey: #10182c; --rink: #eef3ff; }
+    :host([dark]) .key { --rkey: var(--radar-bar, #10182c); --rink: var(--radar-ink, #eef3ff); }
+    /* (Glass in the dark gives the bar and its ink from the theme: styles.ts, --radar-bar) */
     .key b { font-weight: inherit; }
     .key span { width: 74px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #9ad7f5, #3b8fe0, #1f4fc4, #f7e33c, #f39a1e, #e0261c, #a31278); }
     .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: var(--fs-2); font-weight: 600; color: var(--ink2); pointer-events: none; }

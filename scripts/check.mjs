@@ -34,11 +34,11 @@ const changed = [...new Set([...sh(`git diff --name-only ${BASE}...HEAD`).split(
   // every release changes the version line in the shell, and the shell calls nine suites: a change that is only that line does not count
   .filter((f) => f !== 'src/family-hub.ts' || sh(`git diff -U0 ${BASE} -- src/family-hub.ts`).split('\n').filter((l) => /^[+-][^+-]/.test(l)).some((l) => !/const VERSION = /.test(l)));
 const hit = (re) => changed.some((f) => re.test(f));
-const FIVE = 'glass,fridge,orbit,sports,obsidian', WALL = 'wall:1920x1080';
+const FIVE = 'glass,glass-dark,fridge,orbit,sports,obsidian' /* five looks, Glass in light and in dark */, WALL = 'wall:1920x1080';
 
 /* ---------------- which suite covers which files ---------------- */
 // `when`: the suite runs if any changed file matches. `alone`: it needs the machine to itself (it times things).
-const SHELL = 'family-hub', LOOKS = 'styles|looks|fonts|themes';
+const SHELL = 'family-hub', LOOKS = 'styles|looks|fonts|themes|dark';
 // (the preview page is the tests' own stand-in for Home Assistant: a change there is exercised by the suite that needed it)
 const src = (names) => new RegExp(`^src/(${names})\\.ts$`);
 const RULES = [
@@ -67,6 +67,7 @@ const RULES = [
   { suite: 'screensaver', when: src(`artmode|artlib|${SHELL}`) },
   { suite: 'sounds', when: src('sound|soundtrim') },
   { suite: 'sports', when: /^src\/scenes\//, },
+  { suite: 'dark', when: src(`${LOOKS}|settings|ambient|weather|radar|${SHELL}`) },
   { suite: 'obsidian', when: src(`${LOOKS}|art|avatar|music|musicviews|scenes/obsidian|${SHELL}`) },
 ];
 // the fit check walks pages, so it is narrowed to the pages the changed files draw; the shared styles and looks mean every page
@@ -79,7 +80,7 @@ const PAGES = [
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }
@@ -99,7 +100,7 @@ if (fit && (FULL || pages === null || pages.length)) {
   if (FULL || BATCH || (pages === null && hit(src(LOOKS)))) plan.push({ name: 'clearance (long words)', file: 'clearance', env: { ...env, STRESS: '1' }, fit: true });
 }
 
-console.log(`${FULL ? 'Full check' : BATCH ? 'Batch check (1920 x 1080, five looks)' : 'Check sized to the change'} against ${BASE}`);
+console.log(`${FULL ? 'Full check' : BATCH ? 'Batch check (1920 x 1080, five looks, Glass in light and in dark)' : 'Check sized to the change'} against ${BASE}`);
 console.log(`Changed: ${changed.length ? changed.join(', ') : 'nothing'}`);
 console.log(`Running: ${plan.map((p) => p.name).join(', ') || 'only the build'}`);
 if (!FULL) console.log(`Left out (their files did not change): ${left.join(', ') || 'none'}${pages ? `\nFit check on ${pages.length} of 37 pages${byHand ? ', narrowed by hand' : ''}; ordinary ${BATCH ? 'and long ' : ''}words` : ''}${batchLeft.length ? `\nLeft to the full check at the end of the block: ${batchLeft.join(', ')}; the fit check at iPad and phone sizes` : ''}`);

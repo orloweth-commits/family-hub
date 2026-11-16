@@ -313,6 +313,8 @@ export class FhMusic extends LitElement {
     .jsw i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.4,.4,1); }
     .jsw[aria-checked='true'] i { background: var(--ok); }
     .jsw[aria-checked='true'] i::after { transform: translateX(20px); }
+    :host([data-dark]) .jsw i::after { background: var(--ink2); }
+    :host([data-dark]) .jsw[aria-checked='true'] i::after { background: var(--on-ok, #0b2414); }
     .picks { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 14px 10px; align-content: start; padding: 6px 2px 2px; }
     .picks[data-fit] { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
     .pickrow { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 18px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); min-width: 0; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.2,.3,1); }
@@ -320,6 +322,14 @@ export class FhMusic extends LitElement {
     @keyframes nextup { to { transform: translateY(-4px); } }
     .pickrow.played .pcover { opacity: .55; }
     .pickrow.played .art { filter: grayscale(.8); }
+    :host([data-dark]) .pickrow.played .pcover { opacity: .8; }
+    /* the pool of sound is the room's colour, which is pale in the dark: thinner, so the room's number still reads over it */
+    :host([data-dark]) .pool { background: color-mix(in srgb, var(--c) 22%, transparent); }
+    :host([data-dark]) .dividers .pchip[aria-pressed='true'], :host([data-dark]:not([data-phone])) .crate.low .dividers .pchip[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ink); }
+    /* on sunset's plum a thin tint of a room's colour turns grey: there the pool is the colour itself as a deep tone (teal stays teal, as the kite, the arc and the fader show it) */
+    :host([data-dark][data-theme='sunset']) .pool { background: color-mix(in oklab, var(--c) 52%, var(--ring-halo)); opacity: .86; }
+    /* sunset's bands of light over the pool are pale: thinner in the dark, so the room's number reads across them */
+    :host([data-dark][data-theme='sunset']) .pool::after { background: repeating-linear-gradient(to bottom, rgba(255,226,160,.13) 0 2px, transparent 2px 16px); }
     .pickrow.played .nm .muted { color: var(--ink2); }
     .pcover { position: relative; display: block; padding-right: 12px; }
     .pcover .disc { right: 0; width: calc(100% - 12px); top: 3%; }

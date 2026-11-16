@@ -1,6 +1,7 @@
 import { html, svg, nothing, unsafeCSS, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 import { loadFonts } from './fonts';
 import { getNarrow, getShape, onShape, setSoundLook } from './util';
+import { glassDark, glassFading, onGlassDark } from './dark';
 
 /* ------------------------------------------------------------------ *
  * Looks: whole design languages, one level above themes.
@@ -30,6 +31,7 @@ import { getNarrow, getShape, onShape, setSoundLook } from './util';
  *   data-calm                  calm mode: no looping motion, no tilt
  *   data-opt-<id>              a look option the family switched on
  *   data-dow="0…6"             the day of the week, Sunday first (Home Ground shows a different ball each day)
+ *   data-dark                  Glass in dark mode (dark.ts); every component's host carries it too, so `@G[data-dark] .x` works anywhere
  * ------------------------------------------------------------------ */
 
 export type LookId = 'glass' | 'fridge' | 'orbit' | 'sports' | 'obsidian';
@@ -477,9 +479,9 @@ export const lookArt = (id: LookId, slot: ArtSlot, ctx: ArtCtx): TemplateResult 
  * The picture of a look in the picker. It carries the look's own tokens, so a look that changes its
  * colours changes its preview too; a themed look inherits the current theme from the panel.
  */
-export const lookPreview = (l: LookDef, height = 120, theme = ''): TemplateResult => {
+export const lookPreview = (l: LookDef, height = 120, theme = '', dark = false): TemplateResult => {
   const vars = l.vars ? Object.entries(l.vars).map(([k, v]) => `${k}:${v}`).join(';') : theme;
-  return html`<span class="lookprev" data-prev=${l.id} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
+  return html`<span class="lookprev" data-prev=${l.id} ?data-dark=${dark && !!l.themed} style="height:${height}px;${vars};background:${l.themed ? 'var(--bg) center / cover' : 'var(--ground)'}">
     ${l.art?.clock && l.previewClock !== false ? html`<span class="lp-clock">${l.art.clock({ now: new Date(2000, 0, 1, 10, 10), arcs: [] })}</span>` : nothing}${l.preview?.() ?? nothing}
     <span class="lp-people">${[1, 2, 3, 4, 5].map((n) => html`<i style="background:var(--p-${n})"></i>`)}</span></span>`;
 };
@@ -502,10 +504,13 @@ function loadLookFonts(id: LookId): void { loadFonts(...(lookById(id).fonts ?? [
 export class LookController implements ReactiveController {
   private _off?: () => void;
   private _shape = (): void => { const s = getShape(), stack = s === 'wide' && getNarrow() >= 3 && !!(this.host as { stackNarrow?: boolean }).stackNarrow; this.host.setAttribute('data-shape', s === 'phone' || stack ? 'tall' : s); this.host.toggleAttribute('data-stack', stack); this.host.toggleAttribute('data-phone', s === 'phone'); const n = getNarrow(); for (const i of [1, 2, 3]) this.host.toggleAttribute('data-n' + i, n >= i); };
-  private _on = (): void => { this.host.setAttribute('data-look', current); this._shape(); this.host.requestUpdate(); };
+  private _offDark?: () => void;
+  /** dark glass, and the slow fade between light and dark, are host state like the look: a rule anywhere can read them */
+  private _dark = (): void => { this.host.toggleAttribute('data-dark', glassDark()); this.host.toggleAttribute('data-dkfade', glassFading()); };
+  private _on = (): void => { this.host.setAttribute('data-look', current); this._dark(); this._shape(); this.host.requestUpdate(); };
   constructor(private host: ReactiveControllerHost & HTMLElement) { host.addController(this); }
-  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this.host.setAttribute('data-look', current); this._shape(); }
-  hostDisconnected(): void { subs.delete(this._on); this._off?.(); }
+  hostConnected(): void { subs.add(this._on); this._off = onShape(this._on); this._offDark = onGlassDark(this._on); this.host.setAttribute('data-look', current); this._dark(); this._shape(); }
+  hostDisconnected(): void { subs.delete(this._on); this._off?.(); this._offDark?.(); }
 }
 
 /* ---------------- look styles (shared by every component) ---------------- */
@@ -531,6 +536,8 @@ const GLASS = `
   @G[data-shape='wide'] .right > .weather { background: transparent; padding: 0 12px 0 4px; }
   /* the page sits inside the frame: one panel of the bars' own material runs from the top bar to the bottom bar, and the page's cards are set into it, their outer edges in line with the bars' (the page loses no room to the frame: the bars and the panel take only what the old gaps did) */
   @G[data-shape='wide'] .fh > .body { padding: 8px 0; background: color-mix(in srgb, var(--glass) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+  @G[data-dark][data-shape='wide'] .fh > .body { background: color-mix(in srgb, var(--glass) 46%, transparent); }
+  @G[data-dark][data-shape='wide'] .fh > header, @G[data-dark][data-shape='wide'] .fh > .dock { background: color-mix(in srgb, var(--glass) 82%, transparent); }
   @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(0px - var(--gap)); padding: 8px 16px; border-radius: 0 0 28px 28px; justify-content: center; }
   @G[data-shape='wide'] .dock .item { height: 70px; }
   @G[data-shape='wide'] .dock .item svg.i { width: 44px; height: 44px; }
@@ -1924,6 +1931,7 @@ const KEYFRAMES = `
 /* The look picker's little pictures. They are built from each look's tokens, never from fixed colours. */
 const PREVIEW = `
   .lookprev { position: relative; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 16px; overflow: hidden; padding: 10px; color: var(--ink); }
+  .lookprev[data-dark] { background: var(--dim), var(--bg) center / cover !important; }
   .lookprev .lp-clock { position: absolute; top: 8px; right: 10px; line-height: 0; }
   .lookprev .lp-clock svg { width: 30px; height: 30px; }
   .lookprev .lp-people { position: absolute; left: 10px; bottom: 8px; display: flex; gap: 4px; }

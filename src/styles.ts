@@ -30,9 +30,15 @@ export const styles = css`
     background: repeating-linear-gradient(105deg, transparent 0 18px, rgba(255,255,255,.55) 18px 19px, transparent 19px 46px); animation: rain 1.4s linear infinite; animation-iteration-count: var(--loops, infinite); }
   @keyframes rain { from { background-position: 0 0; } to { background-position: -40px 120px; } }
   .fh > header, .fh > .body, .fh > nav { position: relative; }
+  /* dark mode (Glass): one layer dims the photo and the world drawn over it, under the tint of the hour and every panel. It is there in the light too, clear, so light and dark fade into each other. */
+  .dkdim { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--dim, none); opacity: 0; transition: opacity var(--m-4) ease; }
+  .fh[data-dark] > .dkdim { opacity: 1; }
+  .fh[data-dkfade] > .dkdim { transition-duration: var(--m-6, 1600ms); }
+  /* light to dark and back, by the sun or by hand: every colour crosses slowly, together. Nothing moves, so calm mode keeps it. */
+  :host([data-dkfade]) *, :host([data-dkfade]) *::before, :host([data-dkfade]) *::after { transition: color var(--m-6, 1600ms) ease, background-color var(--m-6, 1600ms) ease, border-color var(--m-6, 1600ms) ease, fill var(--m-6, 1600ms) ease, stroke var(--m-6, 1600ms) ease, box-shadow var(--m-6, 1600ms) ease, outline-color var(--m-6, 1600ms) ease !important; }
   /* calm mode: looping motion (avatar bob and blink, rain, pulses) runs once and settles; looks drop their tilt */
   /* one grammar under the three looks (claude/family-hub-foreground-spec.md): timings, the selected style, the lead action */
-  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
+  .fh { --m-1: 80ms; --m-2: 160ms; --m-3: 240ms; --m-4: 400ms; --m-5: 900ms; --m-6: 1600ms; --e-out: cubic-bezier(.2,.8,.2,1); --e-spring: cubic-bezier(.2,1.4,.4,1); --e-in: cubic-bezier(.4,0,1,1); --m-d: 1; --press: .03; --ring-halo: #fff;
     --mt-1: calc(var(--m-1) * var(--m-d)); --mt-2: calc(var(--m-2) * var(--m-d)); --mt-3: calc(var(--m-3) * var(--m-d)); --mt-4: calc(var(--m-4) * var(--m-d)); --mt-5: calc(var(--m-5) * var(--m-d));
     /* a look whose primary colour means ACTION only (Home Ground's yellow) sets --mark / --on-mark for things that are merely current (the next pick, a level, a room that is live) and --art-none for music with no picture; left unset, those use the primary */
     /* selected: a filled tint with no border, so it never reads as an outlined action */ --sel-bg: color-mix(in srgb, var(--primary) 26%, var(--chip-strong)); --sel-ink: var(--ink); --sel-ring: none; --danger: #c62828;
@@ -92,6 +98,8 @@ export const styles = css`
   /* words waiting in an empty field read as text, in every theme */
   input::placeholder, textarea::placeholder { color: var(--ink2); opacity: 1; }
   :is(button, input)[disabled], [aria-disabled='true'] { opacity: .45; cursor: default; box-shadow: none !important; }
+  /* the time drums are masked, so their ring is drawn round the pair */
+  .drums:has(.drum:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 14px; }
   .ghost { background: transparent; box-shadow: inset 0 0 0 2px var(--ink2); }
   .fade { animation: fadeIn var(--m-3, 240ms) var(--e-out, ease); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(8px * var(--m-d, 1))); } }
@@ -462,13 +470,59 @@ export const styles = css`
   .themes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .tcard { display: flex; flex-direction: column; gap: 6px; padding: 8px 8px 12px; border-radius: 22px; background: var(--chip); text-align: left; }
   .tcard[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--primary); background: var(--sel-bg); color: var(--sel-ink); }
+  /* ---- dark mode (Glass): what the theme's variables cannot reach by themselves ---- */
+  /* a person's colour on an event: the colour itself, lifted a little and then taken down to a mid-deep tone, not mixed into the panel's tint. Teal stays teal on a plum panel and on a teal one,
+     Family stays a neutral slate, and every event still to come is lighter than its day's column (only a past one sits below it). A past event keeps its hue at a third of the strength, its bar still the person's colour, its words in the second ink. */
+  :host([data-dark]) .fh .ev { background: color-mix(in oklab, color-mix(in srgb, var(--c) 78%, #fff) 62%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 72%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 46%, transparent); }
+  /* a past event sinks below its column and keeps its hue, its bar and a hairline of the person's colour */
+  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
+  /* the next event keeps its ring (the theme's own colour), as the chip in the top bar names it */
+  :host([data-dark]) .fh .ev.next { box-shadow: inset 0 0 0 2.5px var(--primary); }
+  :host([data-dark]) .fh .ev.past :is(.t, .w, .n, .content, span, b) { color: var(--ink2); }
+  :host([data-dark]) .fh .dayrow { background: color-mix(in oklab, color-mix(in srgb, var(--c, transparent) 78%, #fff) 56%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 72%, #fff); }
+  :host([data-dark]) .fh .dayrow.past { background: color-mix(in oklab, var(--c, transparent) 32%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c, transparent) 80%, #fff); }
+  :host([data-dark]) .fh .dayrow.past :is(.content, .muted) { color: var(--ink2); }
+  /* today's column is marked by its ring and its date, not by a lift: every event still to come on it stays lighter than the column, as on the other days */
+  :host([data-dark]) .fh .col.today { background: var(--chip-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 62%, transparent); }
+  /* in the dark a ring means "chosen" and nothing else: a chip that is not chosen, and an outlined button, keep only a hairline */
+  :host([data-dark]) .mchip:not([aria-pressed='true']) { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink3) 45%, transparent); }
+  :host([data-dark]) .ghost { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink3) 75%, transparent); }
+  /* a sheet over a dark page: the page behind goes well back, and the sheet is a solid step lighter than it with a clear edge */
+  :host([data-dark]) .fh { --scrim: rgba(0,0,0,.7);
+    /* a character with no scene behind him stands against the dusk: a plate and a halo lighter than any hair, so every head keeps its edge */
+    --av-sky: color-mix(in srgb, var(--primary) 24%, var(--ring-halo)); --av-sky2: color-mix(in srgb, var(--primary) 28%, #7c93b2);
+    /* the radar map's own controls wear the theme */
+    --radar-bar: color-mix(in srgb, var(--ring-halo) 88%, transparent); --radar-ink: var(--ink);
+    /* music with no picture: a deep tile of the theme's two colours, not a pale square */
+    --art-none: linear-gradient(135deg, color-mix(in oklab, var(--accent) 45%, #b4530a), color-mix(in oklab, var(--primary) 40%, #1f5488)); }
+  :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
+  /* "+3" on a month's day: a quiet raised chip, not the brightest thing on the page */
+  :host([data-dark]) .cell .mmore { background: var(--chip); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
+  /* drawings on the dock made for a pale bar (a black record, a grey bulb) keep a thin light edge on a dark one */
+  :host([data-dark]) .fh .dock .item svg.i { filter: drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 1.5px 1.5px rgba(0,0,0,.3)); }
+  /* the pictures of the pale looks (Fridge door, Home Ground) are honest, but they need not be the brightest things on a dark sheet */
+  :host([data-dark]) .lookprev:is([data-prev='fridge'], [data-prev='sports']) { filter: brightness(.78); }
+  /* the UV and heat badges keep their warning tint on a dark chip */
+  :host([data-dark]) .badge { background: color-mix(in srgb, #f59e0b 42%, var(--ring-halo)); } :host([data-dark]) .badge.hot { background: color-mix(in srgb, #dc2626 46%, var(--ring-halo)); }
+  /* the words of a segment that is not chosen are the main ink in the dark (the chosen one has its fill, its ring and its weight) */
+  :host([data-dark]) .seg button { color: var(--ink); }
+  /* "Overdue" on a medicine: a small filled badge in the amber of the overdue chip, with dark words: pale red text on a dark card was the quietest thing on it */
+  :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
+  /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
+  :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
+  /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
+  :host([data-dark]) input.field:focus-visible { outline: 3px solid var(--ink) !important; outline-offset: 2px; box-shadow: inset 0 0 0 3px var(--primary), 0 0 0 5px var(--ring-halo) !important; }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
+  .tprev[data-dark] { background: var(--dim), var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
   .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   /* a child's own picker: "Same as the panel" and every look */
   .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; }
+  /* two short settings side by side (Sounds, and Light and dark, in the Looks sheet), so neither rests in the fade at the sheet's foot */
+  .setpair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; } .setpair:has(> :only-child) { grid-template-columns: 1fr; } .setpair .setlabel .muted { font-size: var(--fs-1); }
+  :host([data-shape='tall']) .setpair, :host([data-n2]) .setpair { grid-template-columns: 1fr; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); }
   .setlabel .muted { font-size: var(--fs-2); font-weight: 500; }
   .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); }

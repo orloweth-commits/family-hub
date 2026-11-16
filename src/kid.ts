@@ -149,6 +149,8 @@ export class FhKid extends LitElement {
     .job > .hit { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; text-align: left; min-height: 44px; }
     .job.now { box-shadow: inset 0 0 0 2.5px var(--kid); }
     .pic.now { box-shadow: 0 0 0 4px var(--kid); }
+    /* the ring round the job he is on is his colour, which is deep: on a dark row it is lifted so it still reads as a ring */
+    :host([data-dark]) .job.now { box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 55%, #fff); } :host([data-dark]) .pic.now { box-shadow: 0 0 0 4px color-mix(in srgb, var(--kid) 55%, #fff); }
     .focus { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 6px; margin: -6px; }
     .focus .label { font-size: var(--fs-2); margin-top: 4px; }
     /* a short panel: Now and Next shrink in steps (fitBox) before anything is cut off */

@@ -118,6 +118,10 @@ export interface FamilyHubConfig {
   type: string;
   family_name?: string;
   theme?: ThemeId;
+  /** dark mode for the Glass look on a screen that has not chosen for itself: light (default), dark or auto (dark from sunset to sunrise and, with `room_light`, in a dim room). Each screen keeps its own choice in More, Looks */
+  dark?: import('./dark').DarkMode;
+  /** an illuminance sensor (lux) in the room the panel hangs in, for dark mode's Auto; `art.backlight_room` is used when this is not set */
+  room_light?: string;
   /** calm mode (no looping motion, no tilt): true = everywhere. Otherwise each child's page follows his own choice (animated unless he, or a parent, has chosen calm) and the shared pages move */
   calm?: boolean;
   /** whole design language: glass (default), fridge, orbit or sports (Home Ground); the panel's palette button changes it */

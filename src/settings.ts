@@ -1,3 +1,4 @@
+import { DARK_MODES, getDarkMode, setDarkMode, type DarkMode } from './dark';
 import { voiceInUse, voiceList } from './voice';
 import { LitElement, html, css, nothing, svg, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
@@ -122,6 +123,9 @@ export class FhSettings extends LitElement {
     .schips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .schips > button, .stime { min-height: 44px; padding: 0 14px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); font-size: var(--fs-2); font-weight: var(--w-semi, 600); display: inline-flex; align-items: center; gap: 8px; }
     .schips > button[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-heavy, 800); }
+    /* in the dark only the chosen chip wears a ring: the others keep a hairline, and a colour dot keeps a pale edge so teal shows on teal */
+    :host([data-dark]) .schips > button:not([aria-pressed='true']), :host([data-dark]) .stime { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink3) 45%, transparent); }
+    :host([data-dark]) .schips > button .sw6 { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6); }
     .schips > button .sw6 { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
     .stime { font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; min-width: 116px; justify-content: center; }
     .sstep { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px var(--ink3); padding: 2px; }
@@ -132,6 +136,8 @@ export class FhSettings extends LitElement {
     .sswitch > i::after { content: ''; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.25); transition: transform var(--mt-2, 160ms) var(--e-spring, ease); }
     .sswitch[aria-checked='true'] > i { background: var(--ok); box-shadow: none; }
     .sswitch[aria-checked='true'] > i::after { transform: translateX(20px); }
+    :host([data-dark]) .sswitch > i::after { background: var(--ink2); }
+    :host([data-dark]) .sswitch[aria-checked='true'] > i::after { background: var(--on-ok, #0b2414); }
     .srange { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
     .srange input { width: 220px; max-width: 46vw; height: 44px; margin: 0; accent-color: var(--primary); background: transparent; }
     .srange output { min-width: 52px; text-align: right; font-size: var(--fs-3); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
@@ -914,9 +920,10 @@ export class FhSettings extends LitElement {
         <span class="shint">${q.start || q.end ? '' : 'Quiet hours are 8:00 pm to 6:30 am until you change them.'}</span>
         ${this._row('Silent in quiet hours', 'Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.', this._sw('Silent in quiet hours', q.mute === true, () => this._edit((x) => { const m = x.quiet?.mute === true; x.quiet = { ...(x.quiet ?? {}) }; if (m) delete x.quiet.mute; else x.quiet.mute = true; if (!Object.keys(x.quiet).length) delete x.quiet; })))}
       </div>
-      ${hc?.heartbeat ? html`<div class="scard"><h3>${icon('home', 20)}This screen</h3>
-        ${this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
-      </div>` : nothing}
+      <div class="scard" data-screen><h3>${icon('home', 20)}This screen</h3>
+        ${this._row('Light and dark', 'For the Glass look, on this screen only. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Space Mission is always dark. Kept on this screen, not saved with the rest.', this._seg<DarkMode>('Light and dark', getDarkMode(), DARK_MODES, (v) => { setDarkMode(v); sfx('set'); this.requestUpdate(); }))}
+        ${!hc?.heartbeat ? nothing : this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
+      </div>
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>
         ${this._row('Show bin night', 'On the planner, the screensaver and House info, on the evening the bins go out.', this._sw('Show bin night', !!bins, () => this._edit((x) => { if (x.bins) delete x.bins; else x.bins = { day: 1, always: ['green'], alternate: ['yellow', 'red'] }; })))}
         ${bins ? html`

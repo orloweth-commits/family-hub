@@ -1,6 +1,7 @@
 import { LitElement, html, css, svg, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { LookController } from './looks';
+import { glassDark } from './dark';
 import { FitController, linger, sfx } from './util';
 import { icon } from './icons';
 import { kidEntities, slotVar, type Hass, type KidConfig } from './types';
@@ -79,6 +80,7 @@ export class FhDoodle extends LitElement {
     .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     /* Glass: the tinted fill was within a whisker of the card in the light themes, so the chosen one is a solid block of ink there (the halo tone is ink's opposite in every theme) */
     :host([data-look='glass']) .size[aria-pressed='true'] { background: var(--ink); color: var(--ring-halo, #fff); box-shadow: none; }
+    :host([data-look='glass'][data-dark]) .size[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .size i { border-radius: 50%; background: currentColor; display: block; }
     /* the three sizes draw what they will make: dots for a brush, the chosen stamp small to large, blocks for the eraser */
     .size i.rub { border-radius: 3px; background: transparent; box-shadow: inset 0 0 0 2.5px currentColor; }
@@ -101,6 +103,11 @@ export class FhDoodle extends LitElement {
     .artist[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); }
     .stickup { height: 52px; /* token */ padding: 0 22px; font-size: var(--fs-3); white-space: nowrap; flex-shrink: 0; }
     .stampbtn { font-size: var(--fs-5); }
+    /* a stamp drawn in black (the clarinet, a pirate flag) keeps a light edge on a dark panel; every stamp gets it, so the grid stays even */
+    :host([data-dark]) .stampbtn { filter: drop-shadow(0 0 .7px #fff) drop-shadow(0 0 .7px #fff); }
+    :host([data-dark]) .ink:not([aria-pressed='true']) { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.34); }
+    :host([data-dark]) .ink[aria-pressed='true'] { box-shadow: 0 0 0 3px var(--ring-halo), 0 0 0 6.5px var(--ink); }
+    :host([data-dark]) .snap .by { background: var(--ring-halo); color: var(--ink); }
     .gallery { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .snaps { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
     .ghead { display: flex; align-items: center; gap: 8px; }
@@ -149,7 +156,9 @@ export class FhDoodle extends LitElement {
   /** "Who drew it?": asked when a doodle is stuck up with no artist chosen */
   private _askWho = false;
   private _esc = (e: KeyboardEvent): void => { if (e.key !== 'Escape' || (!this._view && !this._askWho)) return; e.stopPropagation(); this._view = ''; this._askWho = false; };
-  connectedCallback(): void { super.connectedCallback(); window.addEventListener('keydown', this._esc, true); }
+  connectedCallback(): void { super.connectedCallback(); window.addEventListener('keydown', this._esc, true);
+    // on a dark panel the pad starts as the chalkboard (white paper is a third of the screen and glares); "Chalkboard" still swaps it, and the chalk is white to start
+    if (glassDark() && !this._strokes.length) { this._chalk = true; if (this._ink === INKS[0]) this._ink = '#ffffff'; } }
   private _strokes: (Stroke | null)[] = [];
   private _cur: Stroke | null = null;
   private _ctx?: CanvasRenderingContext2D;

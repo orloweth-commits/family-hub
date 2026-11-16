@@ -117,6 +117,7 @@ export class FhStudio extends LitElement {
     .rankline .rank { padding: 4px 10px; border-radius: 999px; background: var(--kid); color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: .02em; }
     .new { position: absolute; top: 8px; left: 8px; padding: 3px 7px; border-radius: 999px; background: #14141a; color: #fff; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); }
     /* a painted character: his picture, and what he has chosen that is not painted yet */
+    :host([data-dark]) .tile .emo { filter: drop-shadow(0 0 .7px #fff) drop-shadow(0 0 .7px #fff); }
     .tile .emo { display: flex; align-items: center; justify-content: center; width: 92px; height: 76px; font-size: var(--fs-d2); line-height: 1; }
     .tile.locked .emo { filter: grayscale(1); opacity: .5; }
     .easel { position: relative; z-index: 1; width: 300px; height: 300px; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.22); }
