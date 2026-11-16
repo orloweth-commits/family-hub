@@ -179,6 +179,23 @@ if (run('rules')) {
     const line = await pg.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet [data-set="sounds"]')?.closest('.setrow')?.querySelector('.muted')?.textContent ?? '');
     ok(/Obsidian/.test(line) && /Timers always sound/.test(line), 'the look sheet says what Obsidian\'s sounds are', line);
     await pg.close(); }
+  // Obsidian's recordings: found, trimmed and levelled when they load; the drawn sound until then, and always for the alarm and for a file that is missing
+  { const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const pg = await ctx.newPage(); pg.on('pageerror', (e) => errs.push(String(e)));
+    await pg.addInitScript(() => { // a made-up take: 30 ms of silence, then a 660 Hz stroke that dies away, as a WAV
+      const wav = (f, secs, lead, amp) => { const R = 24000, n = Math.round(R * secs), b = new DataView(new ArrayBuffer(44 + n * 2)), w = (o, t) => [...t].forEach((c, i) => b.setUint8(o + i, c.charCodeAt(0)));
+        w(0, 'RIFF'); b.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); b.setUint32(16, 16, true); b.setUint16(20, 1, true); b.setUint16(22, 1, true); b.setUint32(24, R, true); b.setUint32(28, R * 2, true); b.setUint16(32, 2, true); b.setUint16(34, 16, true); w(36, 'data'); b.setUint32(40, n * 2, true);
+        for (let i = 0; i < n; i++) { const t = i / R - lead; b.setInt16(44 + i * 2, t < 0 ? 0 : Math.round(32767 * amp * Math.sin(2 * Math.PI * f * t) * Math.exp(-t * 14)), true); }
+        return URL.createObjectURL(new Blob([b.buffer], { type: 'audio/wav' })); };
+      const F = {}; for (const [k, amp] of [['obsidian-tap-c', 0.9], ['obsidian-tick-h', 0.05], ['obsidian-switch-h', 0.5], ['obsidian-open-f', 0.5], ['obsidian-close-f', 0.5], ['obsidian-note-a', 0.9], ['obsidian-done-a', 0.9], ['obsidian-unlock-b', 0.5]]) F[k] = wav(660, 0.5, 0.03, amp);
+      window.__fhSfxFiles = F; /* no knock: that file is "missing" */ });
+    await pg.goto(`http://localhost:${PORT}/?look=obsidian&page=planner`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(1500);
+    const r = await pg.evaluate(async () => { const S = window.fhSound, T = S.takes(), has = (e) => S.hasRecording('obsidian', e);
+      const n0 = S.stats.recorded; for (const e of ['tap', 'tick', 'open', 'done', 'error', 'alarm', 'key']) { window.fhSfx(e); await new Promise((r) => setTimeout(r, 60)); }
+      return { loaded: Object.values(T).filter((v) => typeof v === 'object').length, missing: T['obsidian-knock-b'], starts: T['obsidian-tap-c']?.starts, loud: T['obsidian-tap-c']?.rms, soft: T['obsidian-tick-h']?.rms, tap: has('tap'), done: has('done'), error: has('error'), alarm: has('alarm'), key: has('key'), played: S.stats.recorded - n0, other: S.hasRecording('orbit', 'tap'), n: S.recordedSounds('obsidian').length, ctx: S.state().context }; });
+    ok(r.loaded === 8 && r.missing === 'none' && r.tap && r.done && !r.error && !r.alarm && !r.key && !r.other, 'Obsidian loads its recordings; a missing file, the alarm and the hushed keys have none; no other look has any', JSON.stringify(r));
+    ok(Math.abs(r.starts - 0.028) < 0.004 && r.loud > r.soft * 5, 'a recording is trimmed to where it starts (2 ms before) and measured, so a quiet take and a loud one can be levelled', `${r.starts} ${r.loud} ${r.soft}`);
+    ok(r.played === 4 && r.ctx === 'running', 'tap, tick, a sheet and "done" play their recordings; the error (no file), the alarm and a key do not', String(r.played));
+    await pg.close(); }
   { const pg0 = await open('look=glass&theme=sea&page=planner&night=0', { time: '20:40' }); await pg0.waitForTimeout(1500);
     const on = await tryAll(pg0, SOME); ok(on.includes('tap') && on.includes('alarm') && on.length > 3, 'quiet hours: touch sounds keep playing unless "Silent in quiet hours" is on', on.join(' ') || 'none'); await pg0.close(); }
   { const pg = await open('look=glass&theme=sea&page=planner&night=0&quietmute=1', { time: '20:40' }); await pg.waitForTimeout(1500);

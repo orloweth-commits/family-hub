@@ -133,7 +133,7 @@ export const afterBedtime = (kids: { bedtime?: string }[] = [], quiet: { start?:
 /* ---------------- sound: the palettes live in sound.ts; this keeps the old imports working ---------------- */
 import { isMuted } from './sound';
 import { houseVoice, voiceAllowed, voiceSpent, voiceUrl } from './voice';
-export { sfx, sfxAsked, setVolume, setMuted, setSounds, setSoundLook, setSoundTheme, type Sfx } from './sound';
+export { sfx, sfxAsked, setVolume, setMuted, setSounds, setSoundLook, setSoundTheme, setSampleSource, type Sfx } from './sound';
 
 /* ---------------- speech: the house voice when one is set (voice.ts), otherwise the screen's own, Australian English where available ---------------- */
 let voice: SpeechSynthesisVoice | null | undefined;

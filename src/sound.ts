@@ -197,7 +197,7 @@ const MATERIALS: Record<PaletteId, Material> = {
   },
   /* Obsidian: the cabin of a quiet car. Felt, damped wood, one warm chime. Few sounds, low and soft. */
   obsidian: {
-    name: 'Obsidian', idea: 'A quiet car’s cabin: a damped click, a felt tick on wood, a low breath for a sheet, one warm two-note chime. Nothing for keys or scrolling, and softer than every other look.', root: 392, scale: [0, 2, 4, 7, 9, 12, 14, 16], pace: 1,
+    name: 'Obsidian', idea: 'A quiet car’s cabin: a damped click, a felt tick on wood, a low breath for a sheet, one warm two-note chime. Nothing for keys or scrolling, and softer than every other look. On the panel most of it is recorded (ElevenLabs); what is drawn here plays until a recording has loaded.', root: 392, scale: [0, 2, 4, 7, 9, 12, 14, 16], pace: 1,
     hush: ['key', 'space', 'del', 'slide', 'step', 'tune'], level: 0.6,
     note: (f, t, g, d, to) => [osc('sine', f, t, d, g, { to, a: 0.007 }), osc('sine', f * 2, t, d * 0.6, g * 0.28, { to: to && to * 2, a: 0.007 }), osc('sine', f * 3, t, d * 0.3, g * 0.07, { a: 0.007 })],
     click: (t, g, p = 1) => [nz('bandpass', 820 * p, t, 0.011, g, { q: 0.8, cut: 2200 }), osc('sine', 400 * p, t, 0.03, g * 0.8, { to: 330 * p, a: 0.004 })],
@@ -359,6 +359,80 @@ export const render = async (p: PaletteId, s: Sfx, o: { raw?: boolean; indoors?:
   return (await ac.startRendering()).getChannelData(0);
 };
 
+/* ---------------- recorded sounds: a look may play recordings in place of what is drawn here ---------------- *
+ * The files are made outside the repository (ElevenLabs' sound effects, saved in Home Assistant's local media
+ * as fhsfx-<file>.mp3) and fetched by whoever calls setSampleSource. Each is found, trimmed to where it starts,
+ * measured and levelled when it loads, so a new take needs no tuning by hand. Until a file has loaded, and for
+ * any sound that has none (the alarm above all), the drawn sound plays: nothing here can make a look silent.   */
+/** One stroke of a recording: which file, how fast (pitch and length go together), when, how loud beside the rest. */
+interface Stroke { f: string; rate?: number; t?: number; g?: number }
+interface Recorded { /** file names, and how much of each is played (seconds) */ files: Record<string, [string, number]>; map: Partial<Record<Sfx, Stroke[]>> }
+const RECORDED: Partial<Record<PaletteId, Recorded>> = {
+  obsidian: {
+    files: { tap: ['obsidian-tap-c', 0.12], tick: ['obsidian-tick-h', 0.15], sw: ['obsidian-switch-h', 0.18], air: ['obsidian-open-f', 0.42], fall: ['obsidian-close-f', 0.42],
+      note: ['obsidian-note-a', 0.7], done: ['obsidian-done-a', 1.3], swell: ['obsidian-unlock-b', 1.7], knock: ['obsidian-knock-b', 0.2] },
+    map: {
+      tap: [{ f: 'tap' }], pin: [{ f: 'tap', rate: 1.08, g: 0.9 }], set: [{ f: 'tap', rate: 1.18, g: 0.8 }], timer: [{ f: 'tap' }, { f: 'tap', t: 0.11, rate: 0.9 }],
+      tick: [{ f: 'tick' }], untick: [{ f: 'tick', rate: 0.8, g: 0.85 }],
+      on: [{ f: 'sw' }], off: [{ f: 'sw', rate: 0.84 }],
+      nav: [{ f: 'air', rate: 1.4, g: 0.8 }], open: [{ f: 'air' }], close: [{ f: 'fall' }], undo: [{ f: 'fall', rate: 1.25, g: 0.8 }],
+      /* one bar, struck at different heights: a third, a fourth and a fifth above itself */
+      send: [{ f: 'note', rate: 1.12, g: 0.7 }], listen: [{ f: 'note', rate: 1.12, g: 0.7 }], heard: [{ f: 'note', rate: 0.94, g: 0.7 }],
+      coin: [{ f: 'note', rate: 1.5 }], pinok: [{ f: 'note', rate: 1.5 }], answer: [{ f: 'note', rate: 1.335 }], jar: [{ f: 'tap', g: 0.6 }, { f: 'note', rate: 1.26, t: 0.03 }],
+      look: [{ f: 'note', rate: 1.335 }, { f: 'note', t: 0.15, g: 0.85 }], poke: [{ f: 'note', rate: 1.68, g: 0.8 }],
+      done: [{ f: 'done' }], unlock: [{ f: 'swell' }],
+      locked: [{ f: 'knock' }], error: [{ f: 'knock', g: 0.6, rate: 1.1 }, { f: 'knock', t: 0.1 }], pinno: [{ f: 'knock', g: 0.6, rate: 1.18 }, { f: 'knock', t: 0.1, rate: 1.06 }]
+    }
+  }
+};
+interface Take { buf: AudioBuffer; /** where the sound starts (s) */ off: number; /** its loudest 20 ms and its peak, inside what is played */ rms: number; peak: number }
+type SampleSource = (file: string) => Promise<ArrayBuffer | null>;
+let sampleSource: SampleSource | null = null;
+const takes: Record<string, Take | 'wait' | 'none'> = {};
+let lastTry = 0;
+/** Find where a recording starts and how loud it is over the stretch that will be played. */
+const measureTake = (buf: AudioBuffer, keep: number): Take | null => {
+  const x = buf.getChannelData(0), R = buf.sampleRate; let top = 0; for (let i = 0; i < x.length; i++) { const a = Math.abs(x[i]); if (a > top) top = a; }
+  if (!(top > 0.004)) return null; // an empty take
+  let on = 0; while (on < x.length && Math.abs(x[on]) < top * 0.08) on++;
+  on = Math.max(0, on - Math.round(R * 0.002)); const end = Math.min(x.length, on + Math.round(R * keep)), w = Math.round(R * 0.02), hop = Math.round(R * 0.005);
+  let peak = 0, rms = 0; for (let i = on; i < end; i++) { const a = Math.abs(x[i]); if (a > peak) peak = a; }
+  for (let s0 = on; s0 + w <= end; s0 += hop) { let q = 0; for (let i = s0; i < s0 + w; i++) q += x[i] * x[i]; rms = Math.max(rms, Math.sqrt(q / w)); }
+  return rms > 0 ? { buf, off: on / R, rms, peak } : null;
+};
+const loadTakes = (p: PaletteId): void => {
+  const r = RECORDED[p]; if (!r || !sampleSource) return;
+  const todo = Object.entries(r.files).filter(([, [file]]) => !takes[file] || (takes[file] === 'none' && nowMs() - lastTry > 60_000)); if (!todo.length) return;
+  lastTry = nowMs();
+  for (const [, [file, keep]] of todo) { takes[file] = 'wait';
+    void (async (): Promise<void> => { try {
+      const raw = await sampleSource!(file); if (!raw) { takes[file] = 'none'; return; }
+      const Off: typeof OfflineAudioContext = (globalThis as any).OfflineAudioContext || (globalThis as any).webkitOfflineAudioContext;
+      const buf = await new Off(1, 1, 48000).decodeAudioData(raw); takes[file] = measureTake(buf, keep) ?? 'none';
+    } catch { takes[file] = 'none'; } })(); }
+};
+/** Who fetches a recording by its file name (the card: from Home Assistant's local media). Null = no recordings. */
+export const setSampleSource = (fn: SampleSource | null): void => { sampleSource = fn; if (fn) loadTakes(soundPalette()); };
+/** The strokes of a recorded sound, if every file it needs has loaded. */
+const recorded = (p: PaletteId, s: Sfx): { hit: Stroke; take: Take; keep: number }[] | null => {
+  const r = RECORDED[p], hits = r?.map[s]; if (!r || !hits) return null;
+  const out = hits.map((hit) => { const [file, keep] = r.files[hit.f] ?? ['', 0], take = takes[file]; return take && typeof take === 'object' ? { hit, take, keep } : null; });
+  return out.every(Boolean) ? (out as { hit: Stroke; take: Take; keep: number }[]) : null;
+};
+let bus: AudioNode | null = null;
+/** Recordings pass through one gentle band (nothing a small speaker cannot play, nothing sharp), which also makes takes from different days sit together. */
+const sampleBus = (a: AudioContext, to: AudioNode): AudioNode => { if (bus) return bus; const hp = a.createBiquadFilter(), lp = a.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 170; hp.Q.value = 0.6; lp.type = 'lowpass'; lp.frequency.value = 6200; lp.Q.value = 0.6; hp.connect(lp).connect(to); bus = hp; return hp; };
+const playRecorded = (a: AudioContext, to: AudioNode, s: Sfx, strokes: { hit: Stroke; take: Take; keep: number }[], scale: number): void => {
+  const L = LIMITS[CLASS[s]], at = a.currentTime + 0.004;
+  for (const { hit, take, keep } of strokes) {
+    const rate = hit.rate ?? 1, len = Math.min(keep, take.buf.duration - take.off) / rate, t = at + (hit.t ?? 0); if (!(len > 0.01)) continue;
+    const level = Math.min(10 ** (L.rms / 20) / take.rms, 10 ** ((L.cap - 0.5) / 20) / take.peak) * (hit.g ?? 1) * scale;
+    const src = a.createBufferSource(), g = a.createGain(); src.buffer = take.buf; src.playbackRate.value = rate;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + 0.002); g.gain.setValueAtTime(level, t + len * 0.6); g.gain.exponentialRampToValueAtTime(level * 0.02, t + len - 0.004); g.gain.linearRampToValueAtTime(0, t + len);
+    src.connect(g).connect(sampleBus(a, to)); src.start(t, take.off); src.stop(t + len + 0.01);
+  }
+};
+
 /* ---------------- the live side: one context, one master gain, the quiet rules ---------------- */
 let ctx: AudioContext | null = null, master: GainNode | null = null, masterLevel = 1;
 let muted = false, level = 1, mode: 'on' | 'quiet' | 'off' = 'on';
@@ -380,7 +454,7 @@ export const isMuted = (): boolean => muted;
 /** The panel's own setting: true, 'quiet' (softer) or false (off; the timer still sounds). */
 export const setSounds = (m: boolean | 'quiet' | undefined): void => { mode = m === false ? 'off' : m === 'quiet' ? 'quiet' : 'on'; };
 /** Call when a look is applied (its id), and when the Glass theme changes: the sounds follow what is on the screen. */
-export const setSoundLook = (id: string): void => { soundLook = id; };
+export const setSoundLook = (id: string): void => { soundLook = id; loadTakes(soundPalette()); };
 export const setSoundTheme = (id: string): void => { soundTheme = id; };
 /** The palette in use: a Glass theme's own, or the look's. */
 export const soundPalette = (): PaletteId => { const f = forced(); if (isPalette(f)) return f; const l = soundLook || 'glass'; return isPalette(l) ? l : isPalette(soundTheme) ? soundTheme : 'sea'; };
@@ -401,7 +475,10 @@ try { for (const ev of ['pointerdown', 'keydown'] as const) globalThis.addEventL
 
 const start = (p: PaletteId, s: Sfx, scale: number, indoors: boolean): void => {
   const a = live(); if (!a || !master) return;
-  const go = (): void => { try { const { vs, gain } = plan(p, s, indoors); build(a, master!, vs, a.currentTime + 0.004, gain * scale); } catch { /* never throw for a sound */ } };
+  const go = (): void => { try {
+    const rec = indoors ? null : recorded(p, s);
+    if (rec) { stats.recorded++; playRecorded(a, master!, s, rec, scale); return; }
+    const { vs, gain } = plan(p, s, indoors); build(a, master!, vs, a.currentTime + 0.004, gain * scale); } catch { /* never throw for a sound */ } };
   if (a.state === 'running') { go(); return; }
   // asleep (no touch yet, or the tab was put away): wake it, and play only if it wakes at once, so stale sounds never arrive in a bunch
   const t = nowMs(); a.resume().then(() => { if (nowMs() - t < 250) go(); }, () => { /* not allowed yet */ });
@@ -422,11 +499,16 @@ export const sfx = (s: Sfx): void => {
 };
 /** For the audition page: any palette, any sound, no quiet rules. */
 export const audition = (p: PaletteId, s: Sfx, indoors = false): void => { try { start(p, s, 1, indoors); } catch { /* no audio */ } };
-const stats = { played: 0, last: '' };
+const stats = { played: 0, last: '', recorded: 0 };
 
 /* for the preview, the audition page, the tests and trying things from the console */
 try {
+  // the preview names its own recordings: window.__fhSfxFiles = { 'obsidian-tap-c': url, … }
+  const files = (globalThis as { __fhSfxFiles?: Record<string, string> }).__fhSfxFiles;
+  if (files) setSampleSource(async (f) => { const u = files[f]; if (!u) return null; const r = await fetch(u); return r.ok ? r.arrayBuffer() : null; });
+} catch { /* no window */ }
+try {
   const g = globalThis as { fhSfx?: typeof sfx; fhSound?: unknown };
   g.fhSfx ??= sfx;
-  g.fhSound ??= { EVENTS, PALETTES, CLASS, LIMITS, recipe, render, build, audition, paletteInfo, setMaster, setSounds, setMuted, setVolume, soundPalette, stats, state: () => ({ muted, level, mode, palette: soundPalette(), context: ctx?.state ?? 'none' }) };
+  g.fhSound ??= { EVENTS, PALETTES, CLASS, LIMITS, recipe, render, build, audition, paletteInfo, setMaster, setSampleSource, takes: () => Object.fromEntries(Object.entries(takes).map(([k, v]) => [k, typeof v === 'object' ? { starts: +v.off.toFixed(3), rms: +v.rms.toFixed(4), peak: +v.peak.toFixed(3), length: +v.buf.duration.toFixed(2) } : v])), hasRecording: (p: PaletteId, s: Sfx) => !!recorded(p, s), recordedSounds: (p: PaletteId) => Object.keys(RECORDED[p]?.map ?? {}), setSounds, setMuted, setVolume, soundPalette, stats, state: () => ({ muted, level, mode, palette: soundPalette(), context: ctx?.state ?? 'none' }) };
 } catch { /* no window */ }
