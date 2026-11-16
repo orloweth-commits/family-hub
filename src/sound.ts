@@ -30,7 +30,7 @@ export type Sfx = typeof EVENTS[number];
 type LookSfx = typeof LOOK_EVENTS[number];
 type ThingSfx = typeof THING_EVENTS[number];
 
-export const PALETTES = ['sea', 'sunset', 'reef', 'bush', 'space', 'fridge', 'orbit', 'sports'] as const;
+export const PALETTES = ['sea', 'sunset', 'reef', 'bush', 'space', 'fridge', 'orbit', 'sports', 'obsidian'] as const;
 export type PaletteId = typeof PALETTES[number];
 
 /** Each sound belongs to a class: how long it may be and how loud (`cap` = highest peak, `rms` = the level it is trimmed to, both in dBFS at full volume). */
@@ -83,6 +83,8 @@ interface Material {
   /** a soft low knock: "not that" */ knock: Hit;
   /** the look's signature and what a creature or room on the Music scene says when touched */ sig: (N: (i: number) => number) => Voice[]; poke: (N: (i: number) => number) => Voice[];
   /** everything on screen is heard through this (under water) */ lp?: number;
+  /** sounds this look does not make at all on the panel (they are still drawn, for the audition page) */ hush?: readonly Sfx[];
+  /** how loud the whole look is beside the others (1 unless given); the alarm ignores it */ level?: number;
   /** where the look says something its own way */ over?: (N: (i: number) => number) => Partial<Record<LookSfx | 'alarm1', Voice[]>>;
 }
 
@@ -192,6 +194,38 @@ const MATERIALS: Record<PaletteId, Material> = {
         /* the referee: pip, peep (three times for the timer) */
         alarm1: [...whistle(2350, 0, 0.12, 1), ...whistle(2350, 0.17, 0.22, 1)]
       }; }
+  },
+  /* Obsidian: the cabin of a quiet car. Felt, damped wood, one warm chime. Few sounds, low and soft. */
+  obsidian: {
+    name: 'Obsidian', idea: 'A quiet car’s cabin: a damped click, a felt tick on wood, a low breath for a sheet, one warm two-note chime. Nothing for keys or scrolling, and softer than every other look.', root: 392, scale: [0, 2, 4, 7, 9, 12, 14, 16], pace: 1,
+    hush: ['key', 'space', 'del', 'slide', 'step', 'tune'], level: 0.6,
+    note: (f, t, g, d, to) => [osc('sine', f, t, d, g, { to, a: 0.007 }), osc('sine', f * 2, t, d * 0.6, g * 0.28, { to: to && to * 2, a: 0.007 }), osc('sine', f * 3, t, d * 0.3, g * 0.07, { a: 0.007 })],
+    click: (t, g, p = 1) => [nz('bandpass', 820 * p, t, 0.011, g, { q: 0.8, cut: 2200 }), osc('sine', 400 * p, t, 0.03, g * 0.8, { to: 330 * p, a: 0.004 })],
+    air: (t, d, g, up) => [nz('bandpass', up ? 450 : 800, t, d, g, { fto: up ? 800 : 450, q: 0.7, a: d * 0.45, cut: 2000 })],
+    knock: (t, g, p = 1) => [osc('sine', 350 * p, t, 0.095, g, { to: 310 * p, a: 0.006 }), osc('sine', 700 * p, t, 0.04, g * 0.3, { to: 620 * p, a: 0.006 }), nz('bandpass', 700, t, 0.014, g * 0.35, { q: 0.8, cut: 1800 })],
+    sig: (N) => [...MATERIALS.obsidian.note(N(3), 0, 0.7, 0.16), ...MATERIALS.obsidian.note(N(0), 0.13, 0.6, 0.22)],
+    poke: (N) => MATERIALS.obsidian.note(N(5), 0, 0.7, 0.12),
+    over: (N) => { const m = MATERIALS.obsidian, n = m.note, c = m.click;
+      /* a felt hammer on a block of wood: the pitch leans up for done, down for undone */
+      const felt = (from: number, to: number, g: number): Voice[] => [nz('bandpass', 1500, 0, 0.006, g * 0.4, { q: 1.2, a: 0.002, cut: 3000 }), osc('triangle', from, 0, 0.075, g, { to, a: 0.003, ft: 'lowpass', ff: 1500 })];
+      return {
+        /* a tap is the damped click and nothing after it */
+        tap: c(0, 0.8), pin: c(0, 0.7, 1.1), set: c(0, 0.6, 1.25),
+        space: c(0, 0.6, 0.92),
+        /* "not that": a light knock, then the firmer one, close together */
+        error: [...m.knock(0, 0.45, 1.12), ...m.knock(0.075, 0.9)], pinno: [...m.knock(0, 0.45, 1.2), ...m.knock(0.07, 0.9, 1.06)],
+        tick: felt(466, 566, 0.9), untick: felt(566, 466, 0.75),
+        on: [...c(0, 0.7), ...n(N(2), 0.012, 0.6, 0.11)], off: [...c(0, 0.7, 0.85), ...n(N(0), 0.012, 0.55, 0.1)],
+        send: n(N(2), 0, 0.7, 0.12),
+        /* movement is a breath, with no note on it */
+        nav: m.air(0, 0.09, 0.8, true), open: m.air(0, 0.16, 0.9, true), close: m.air(0, 0.14, 0.8, false), undo: m.air(0, 0.12, 0.7, false),
+        /* small rewards are one soft note each: no runs */
+        coin: n(N(4), 0, 0.8, 0.28), jar: [...c(0, 0.5), ...n(N(2), 0.02, 0.7, 0.24)], pinok: n(N(4), 0, 0.8, 0.22), answer: n(N(3), 0, 0.7, 0.2),
+        /* finished: the one chime, two warm notes a fifth apart */
+        done: [...n(N(0), 0, 0.8, 0.32), ...n(N(3), 0.19, 1, 0.4)],
+        /* a celebration is a single quiet swell */
+        unlock: [osc('sine', N(0), 0, 0.56, 1, { a: 0.18, h: 0.1 }), osc('sine', N(3), 0, 0.56, 0.5, { a: 0.2, h: 0.08 }), osc('sine', N(0) * 2, 0, 0.5, 0.18, { a: 0.2 })]
+      }; }
   }
 };
 
@@ -274,7 +308,7 @@ const book = (p: PaletteId): Record<string, Voice[]> => (made[p] ??= ((): Record
 })());
 /** The voices of one sound in one palette. */
 export const recipe = (p: PaletteId, s: Sfx): Voice[] => book(p)[s] ?? [];
-export const paletteInfo = (p: PaletteId): { name: string; idea: string } => ({ name: MATERIALS[p].name, idea: MATERIALS[p].idea });
+export const paletteInfo = (p: PaletteId): { name: string; idea: string; hush: readonly Sfx[]; level: number } => ({ name: MATERIALS[p].name, idea: MATERIALS[p].idea, hush: MATERIALS[p].hush ?? [], level: MATERIALS[p].level ?? 1 });
 const trimOf = (p: PaletteId, s: Sfx): number => TRIM[p]?.[EVENTS.indexOf(s)] ?? 0.08;
 
 /* ---------------- drawing a sound on a context (live or offline) ---------------- */
@@ -349,7 +383,7 @@ export const setSounds = (m: boolean | 'quiet' | undefined): void => { mode = m 
 export const setSoundLook = (id: string): void => { soundLook = id; };
 export const setSoundTheme = (id: string): void => { soundTheme = id; };
 /** The palette in use: a Glass theme's own, or the look's. */
-export const soundPalette = (): PaletteId => { const f = forced(); if (isPalette(f)) return f; const l = soundLook === 'obsidian' ? 'orbit' : soundLook || 'glass'; return isPalette(l) ? l : isPalette(soundTheme) ? soundTheme : 'sea'; };
+export const soundPalette = (): PaletteId => { const f = forced(); if (isPalette(f)) return f; const l = soundLook || 'glass'; return isPalette(l) ? l : isPalette(soundTheme) ? soundTheme : 'sea'; };
 /** How many sounds have been asked for so far (whether or not they were allowed to play): lets the card add a plain tap only where nothing else spoke. */
 export const sfxAsked = (): number => asks;
 /** The audition page's volume. The card leaves it at 1. */
@@ -379,9 +413,11 @@ export const sfx = (s: Sfx): void => {
     const cls = CLASS[s]; if (!cls) return;
     const always = s === 'alarm';
     if (!always && (muted || mode === 'off' || level <= 0)) return;
+    const p = soundPalette(), m = MATERIALS[p];
+    if (m.hush?.includes(s)) return; // this look says nothing here
     const was = lastAt[s]; if (was !== undefined && asked - was < GAP[cls]) return;
     lastAt[s] = asked; stats.played++; stats.last = s;
-    start(soundPalette(), s, always ? 1 : level * (mode === 'quiet' ? 0.4 : 1), always && muted);
+    start(p, s, always ? 1 : level * (m.level ?? 1) * (mode === 'quiet' ? 0.4 : 1), always && muted);
   } catch { /* audio is a nicety */ }
 };
 /** For the audition page: any palette, any sound, no quiet rules. */

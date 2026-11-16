@@ -56,6 +56,9 @@ for (const qs of PAGES) { const page = await open(qs);
   const cards = await deep(page, `(all) => all.filter((e) => e.matches('.tcard')).map((e) => e.textContent.replace(/\\s+/g, ' ').trim().slice(0, 24) + '|' + e.getAttribute('aria-pressed'))`);
   ok('More, Looks offers Obsidian, and shows it chosen', cards.some((c) => /^Obsidian.*\|true$/.test(c)), cards);
   await shut(page); }
+{ const page = await open('page=planner'); await page.waitForTimeout(1300);
+  const s = await page.evaluate(() => { const S = window.fhSound, n = S.stats.played; window.fhSfx('key'); window.fhSfx('step'); const hushed = S.stats.played === n; window.fhSfx('tick'); return { pal: S.state().palette, hushed, tick: S.stats.played === n + 1, level: S.paletteInfo('obsidian').level }; });
+  ok('Obsidian has its own sounds: its palette, softer than the rest, nothing for keys or steps', s.pal === 'obsidian' && s.hushed && s.tick && s.level < 0.72, s); await page.context().close(); }
 { const page = await open('page=kid&kid=0&sheet=kidprefs', { look: 'glass' });
   const cards = await deep(page, `(all) => all.filter((e) => e.matches('.kidlooks .tcard')).map((e) => e.textContent.replace(/\\s+/g, ' ').trim().slice(0, 18))`);
   ok('a child’s own look picker has every other look and not Obsidian', cards.length >= 5 && cards.some((c) => /^Orbit/.test(c)) && !cards.some((c) => /Obsidian/.test(c)), cards);
