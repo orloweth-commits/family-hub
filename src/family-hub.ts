@@ -20,7 +20,7 @@ import './chat';
 import { AI_NOTE } from './chat';
 import './settings';
 import { configError } from './validate';
-import { setMediaHass } from './media';
+import { mediaUrl, setMediaHass } from './media';
 import { ArtMode, artCss, artNight, artView, brightTarget } from './artmode';
 import { artListOf } from './artlib';
 import { syncNightly } from './nightly';
@@ -43,7 +43,7 @@ import { BINS, isBin, askByChild, askFor, calShows, kidEntities, num, slotVar, t
 import {
   addDays, fmtClock, fmtDow, fmtLongDate, fmtRange, fmtShortDate, fmtTime, greeting, inWindow,
   sameDay, startOfDay, startOfMonthGrid, startOfWeek, fmtSpan, whenOn } from './dates';
-import { afterBedtime, bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
+import { afterBedtime, bedtimeFor, changed, FitController, hm, isQuiet, isSchoolDay, kidPrefs, minsNow, panelMsg, saveKidPrefs, scrollCue, getNarrow, getShape, linger, watched, wasSlow, inTime, SlowError, SLOW_SAY, setMuted, setNarrow, setShape, setSampleSource, setSounds, setSoundTheme, setVolume, sfx, sfxAsked, shortNames, ymd, type KidPrefs, type Shape } from './util';
 
 /** The picture for a day with nothing on: a kite in the sun. */
 const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -54,7 +54,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.6';
+const VERSION = '0.38.7';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -94,6 +94,7 @@ export class FamilyHubCard extends LitElement {
   /** touch sounds on this screen: on, quiet (soft) or off; starts from the card's `sounds` setting */
   private _snd: 'on' | 'quiet' | 'off' = 'on';
   private _sfxOn = false;
+  private _recOn = false;
   private _prefTick = 0;
 
   /** The child whose page is open, and his settings (config defaults + what a parent changed on the panel). */
@@ -139,6 +140,9 @@ export class FamilyHubCard extends LitElement {
     setGlassDark(this._darkNow, this._dkFade);
     setVolume(this._kp ? { full: 1, soft: 0.35, off: 0 }[this._kp.sound] : 1);
     setSoundTheme(this._kidOn?.theme ?? this._theme);
+    // a look's recorded sounds come from Home Assistant's local media (fhsfx-<file>.mp3); the preview names its own
+    if (!this._recOn && this.hass && !(globalThis as { __fhSfxFiles?: unknown }).__fhSfxFiles) { this._recOn = true;
+      setSampleSource(async (f) => { try { const u = await mediaUrl(`fhsfx-${f}.mp3`); if (!u) return null; const r = await fetch(u); return r.ok ? await r.arrayBuffer() : null; } catch { return null; } }); }
     // a sheet says that it opened or closed (not the one the page loads with)
     if (this._sfxOn && ch.has('_sheet') && !ch.get('_sheet') !== !this._sheet) sfx(this._sheet ? 'open' : 'close');
     this._sfxOn = true;
