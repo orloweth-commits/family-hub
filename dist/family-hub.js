@@ -683,7 +683,7 @@ const Un = /* @__PURE__ */ new Set(), An = /* @__PURE__ */ new Set(), y1 = (a) =
   fridge: [0.2279, 0.2551, 0.274, 0.1647, 0.2238, 0.2225, 0.2031, 0.1955, 0.1571, 0.1785, 0.1689, 0.2334, 0.1504, 0.2166, 0.1983, 0.2128, 0.1713, 0.1495, 0.176, 0.2102, 0.179, 0.1495, 0.3558, 0.2869, 0.3013, 0.2198, 0.2148, 0.1818, 0.2183, 0.2207, 0.2326, 0.3315, 0.5352, 0.2041, 0.2231, 0.1614, 0.5384, 0.1428, 0.1785, 0.3726, 0.2598, 0.2116, 0.3545, 0.1665],
   orbit: [0.1095, 0.117, 0.1292, 0.1207, 0.09127, 0.1304, 0.136, 0.1164, 0.1233, 0.1355, 0.1121, 0.1498, 0.1205, 0.1397, 0.1413, 0.1697, 0.153, 0.1379, 0.1083, 0.1252, 0.1277, 0.1379, 0.1558, 0.1738, 0.1417, 0.1309, 0.1737, 0.09799, 0.1246, 0.1274, 0.1899, 0.1622, 0.5352, 0.2041, 0.2231, 0.1614, 0.5384, 0.1428, 0.1785, 0.3726, 0.2598, 0.2116, 0.3545, 0.1665],
   sports: [0.1941, 0.1942, 0.2219, 0.1971, 0.096, 0.6461, 0.2092, 0.2145, 0.1636, 0.1773, 0.1615, 0.1333, 0.1599, 0.1759, 0.13, 0.2554, 0.1461, 0.1359, 0.2004, 0.131, 0.1848, 0.1359, 0.1847, 0.175, 0.1573, 0.1352, 0.2363, 0.1899, 0.2208, 0.2261, 0.2428, 0.1744, 0.5352, 0.2041, 0.2231, 0.1614, 0.5384, 0.1428, 0.1785, 0.3726, 0.2598, 0.2116, 0.3545, 0.1665],
-  obsidian: [0.1829, 0.1603, 0.201, 0.1449, 0.2174, 0.6055, 0.3024, 0.329, 0.1702, 0.193, 0.1575, 0.1859, 0.1228, 0.1431, 0.1493, 0.1248, 0.1396, 0.107, 0.5602, 0.2096, 0.1268, 0.1083, 0.2502, 0.2595, 0.1852, 0.1587, 0.1892, 0.1532, 0.1635, 0.1667, 0.1473, 0.1632, 0.5352, 0.2041, 0.2231, 0.1614, 0.5384, 0.1428, 0.1785, 0.3726, 0.2598, 0.2116, 0.3545, 0.1665]
+  obsidian: [0.1829, 0.1603, 0.201, 0.1449, 0.2174, 0.3981, 0.2424, 0.2741, 0.1702, 0.193, 0.1575, 0.1859, 0.1228, 0.1431, 0.1493, 0.1248, 0.1396, 0.107, 0.349, 0.2096, 0.1268, 0.1083, 0.2502, 0.2595, 0.1852, 0.1587, 0.1892, 0.1532, 0.1635, 0.1667, 0.1473, 0.1632, 0.5352, 0.2041, 0.2231, 0.1614, 0.5384, 0.1428, 0.1785, 0.3726, 0.2598, 0.2116, 0.3545, 0.1665]
 }, j1 = [
   "key",
   "space",
@@ -925,7 +925,7 @@ const Un = /* @__PURE__ */ new Set(), An = /* @__PURE__ */ new Set(), y1 = (a) =
   /* Obsidian: the cabin of a quiet car. Felt, damped wood, one warm chime. Few sounds, low and soft. */
   obsidian: {
     name: "Obsidian",
-    idea: "A quiet car’s cabin: a damped click, a felt tick on wood, a low breath for a sheet, one warm two-note chime. Nothing for keys or scrolling, and softer than every other look. On the panel most of it is recorded (ElevenLabs); what is drawn here plays until a recording has loaded.",
+    idea: "A touch screen in a good hotel: one clean click, a small rounded blip, one pure bell note. Nothing for keys or scrolling, and softer than every other look. On the panel most of it is recorded (ElevenLabs); what is drawn here plays until a recording has loaded.",
     root: 392,
     scale: [0, 2, 4, 7, 9, 12, 14, 16],
     pace: 1,
@@ -953,11 +953,11 @@ const Un = /* @__PURE__ */ new Set(), An = /* @__PURE__ */ new Set(), y1 = (a) =
         on: [...i(0, 0.7), ...e(a(2), 0.012, 0.6, 0.11)],
         off: [...i(0, 0.7, 0.85), ...e(a(0), 0.012, 0.55, 0.1)],
         send: e(a(2), 0, 0.7, 0.12),
-        /* movement is a breath, with no note on it */
-        nav: t.air(0, 0.09, 0.8, !0),
-        open: t.air(0, 0.16, 0.9, !0),
-        close: t.air(0, 0.14, 0.8, !1),
-        undo: t.air(0, 0.12, 0.7, !1),
+        /* movement is the same click, softer: nothing that moves air */
+        nav: i(0, 0.55),
+        open: i(0, 0.65),
+        close: i(0, 0.55, 0.92),
+        undo: i(0, 0.55, 0.92),
         /* small rewards are one soft note each: no runs */
         coin: e(a(4), 0, 0.8, 0.28),
         jar: [...i(0, 0.5), ...e(a(2), 0.02, 0.7, 0.24)],
@@ -1082,46 +1082,42 @@ const Un = /* @__PURE__ */ new Set(), An = /* @__PURE__ */ new Set(), y1 = (a) =
   const { vs: i, gain: s } = Jh(a, t, e.indoors, e.raw), o = e.rate ?? 48e3, r = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext, n = new r(1, Math.ceil(o * (L1(i) + 0.05)), o);
   return ed(n, n.destination, i, 0, s), (await n.startRendering()).getChannelData(0);
 }, ad = {
+  /* A touch screen in a good hotel: one clean click for every press, one small rounded blip for a choice, one pure bell note for
+   * anything worth marking, and nothing that moves air. Four recordings, all tuned to C by their speed, so every sound is kin. */
   obsidian: {
-    files: {
-      tap: ["obsidian-tap-c", 0.12],
-      tick: ["obsidian-tick-h", 0.15],
-      sw: ["obsidian-switch-h", 0.18],
-      air: ["obsidian-open-f", 0.42],
-      fall: ["obsidian-close-f", 0.42],
-      note: ["obsidian-note-a", 0.7],
-      done: ["obsidian-done-a", 1.3],
-      swell: ["obsidian-unlock-b", 1.7],
-      knock: ["obsidian-knock-b", 0.2]
-    },
+    files: { tap: ["hotel-tap-a", 0.07], blip: ["hotel-tick-a", 0.1], low: ["hotel-tick-b", 0.2], note: ["hotel-note-f", 0.9] },
     map: {
+      /* every press, page and sheet: the click, a little softer when it only moves something */
       tap: [{ f: "tap" }],
-      pin: [{ f: "tap", rate: 1.08, g: 0.9 }],
-      set: [{ f: "tap", rate: 1.18, g: 0.8 }],
-      timer: [{ f: "tap" }, { f: "tap", t: 0.11, rate: 0.9 }],
-      tick: [{ f: "tick" }],
-      untick: [{ f: "tick", rate: 0.8, g: 0.85 }],
-      on: [{ f: "sw" }],
-      off: [{ f: "sw", rate: 0.84 }],
-      nav: [{ f: "air", rate: 1.4, g: 0.8 }],
-      open: [{ f: "air" }],
-      close: [{ f: "fall" }],
-      undo: [{ f: "fall", rate: 1.25, g: 0.8 }],
-      /* one bar, struck at different heights: a third, a fourth and a fifth above itself */
-      send: [{ f: "note", rate: 1.12, g: 0.7 }],
-      listen: [{ f: "note", rate: 1.12, g: 0.7 }],
-      heard: [{ f: "note", rate: 0.94, g: 0.7 }],
-      coin: [{ f: "note", rate: 1.5 }],
-      pinok: [{ f: "note", rate: 1.5 }],
-      answer: [{ f: "note", rate: 1.335 }],
-      jar: [{ f: "tap", g: 0.6 }, { f: "note", rate: 1.26, t: 0.03 }],
-      look: [{ f: "note", rate: 1.335 }, { f: "note", t: 0.15, g: 0.85 }],
-      poke: [{ f: "note", rate: 1.68, g: 0.8 }],
-      done: [{ f: "done" }],
-      unlock: [{ f: "swell" }],
-      locked: [{ f: "knock" }],
-      error: [{ f: "knock", g: 0.6, rate: 1.1 }, { f: "knock", t: 0.1 }],
-      pinno: [{ f: "knock", g: 0.6, rate: 1.18 }, { f: "knock", t: 0.1, rate: 1.06 }]
+      pin: [{ f: "tap", g: 0.9 }],
+      set: [{ f: "tap", g: 0.8 }],
+      timer: [{ f: "tap" }, { f: "tap", t: 0.12, g: 0.8 }],
+      nav: [{ f: "tap", g: 0.7 }],
+      open: [{ f: "tap", g: 0.8 }],
+      close: [{ f: "tap", rate: 0.92, g: 0.7 }],
+      undo: [{ f: "tap", rate: 0.92, g: 0.7 }],
+      /* a choice made: the blip (C), lower when it is taken back (G) */
+      tick: [{ f: "blip", rate: 1.116 }],
+      untick: [{ f: "blip", rate: 0.836, g: 0.8 }],
+      on: [{ f: "blip", rate: 1.116, g: 0.85 }],
+      off: [{ f: "blip", rate: 0.836, g: 0.75 }],
+      /* one short bell note for the small things */
+      send: [{ f: "note", d: 0.3, g: 0.7 }],
+      listen: [{ f: "note", d: 0.25, g: 0.7 }],
+      heard: [{ f: "note", rate: 0.75, d: 0.25, g: 0.7 }],
+      coin: [{ f: "note", rate: 1.5, d: 0.5 }],
+      pinok: [{ f: "note", rate: 1.5, d: 0.45 }],
+      answer: [{ f: "note", d: 0.45 }],
+      jar: [{ f: "note", rate: 1.5, d: 0.45 }],
+      look: [{ f: "note", d: 0.5 }],
+      poke: [{ f: "note", rate: 2, d: 0.3, g: 0.7 }],
+      /* finished: two notes, a fifth apart. A celebration: the same two together, then the octave */
+      done: [{ f: "note" }, { f: "note", rate: 1.5, t: 0.17 }],
+      unlock: [{ f: "note", g: 0.8 }, { f: "note", rate: 1.5, g: 0.6 }, { f: "note", rate: 2, t: 0.2, g: 0.7 }],
+      /* not that: a soft low note, twice; locked, once */
+      locked: [{ f: "low", rate: 1.098, a: 8e-3 }],
+      error: [{ f: "low", rate: 1.098, a: 8e-3 }, { f: "low", rate: 1.098, t: 0.14, g: 0.85, a: 8e-3 }],
+      pinno: [{ f: "low", rate: 1.098, a: 8e-3 }, { f: "low", rate: 0.978, t: 0.14, g: 0.9, a: 8e-3 }]
     }
   }
 };
@@ -1191,10 +1187,12 @@ const H1 = (a, t) => {
 }, E1 = (a, t, e, i, s) => {
   const o = Oh[td[e]], r = a.currentTime + 4e-3;
   for (const { hit: n, take: l, keep: p } of i) {
-    const c = n.rate ?? 1, h = Math.min(p, l.buf.duration - l.off) / c, f = r + (n.t ?? 0);
+    const c = n.rate ?? 1, h = Math.min(n.d ?? p, p, l.buf.duration - l.off) / c, f = r + (n.t ?? 0);
     if (!(h > 0.01)) continue;
     const u = Math.min(10 ** (o.rms / 20) / l.rms, 10 ** ((o.cap - 0.5) / 20) / l.peak) * (n.g ?? 1) * s, m = a.createBufferSource(), w = a.createGain();
-    m.buffer = l.buf, m.playbackRate.value = c, w.gain.setValueAtTime(0, f), w.gain.linearRampToValueAtTime(u, f + 2e-3), w.gain.setValueAtTime(u, f + h * 0.6), w.gain.exponentialRampToValueAtTime(u * 0.02, f + h - 4e-3), w.gain.linearRampToValueAtTime(0, f + h), m.connect(w).connect(H1(a, t)), m.start(f, l.off), m.stop(f + h + 0.01);
+    m.buffer = l.buf, m.playbackRate.value = c;
+    const b = Math.min(n.a ?? 2e-3, h * 0.3);
+    w.gain.setValueAtTime(0, f), w.gain.linearRampToValueAtTime(u, f + b), w.gain.setValueAtTime(u, f + Math.max(b, h * 0.3)), w.gain.exponentialRampToValueAtTime(u * 0.02, f + h - 4e-3), w.gain.linearRampToValueAtTime(0, f + h), m.connect(w).connect(H1(a, t)), m.start(f, l.off), m.stop(f + h + 0.01);
   }
 };
 let je = null, la = null, Mn = 1, ms = !1, vo = 1, yo = "on", Xh = "", Sn = "sea";
@@ -18633,7 +18631,7 @@ const Vk = (a, t) => {
 }, Ck = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), Lk = d`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Yf = "0.38.7", _h = "family-hub-theme", Mh = "family-hub-sounds", Sh = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, Yf = "0.38.8", _h = "family-hub-theme", Mh = "family-hub-sounds", Sh = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
