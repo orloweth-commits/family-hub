@@ -54,7 +54,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.5';
+const VERSION = '0.38.6';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1746,7 +1746,7 @@ export class FamilyHubCard extends LitElement {
       </div>
       ${(lookById(this._look).options ?? []).map((o) => this._optRow(o, !!this._opts[o.id], () => this._toggleOpt(o.id)))}
       <div class="setpair">
-        <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">Taps, ticks and keys from this screen. Timers always sound.</span></span>
+        <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">${this._look === 'obsidian' ? 'Obsidian is soft and sparing: nothing for keys or scrolling. Timers always sound.' : 'Taps, ticks and keys from this screen. Timers always sound.'}</span></span>
         <div class="seg" role="group" aria-label="Sounds" data-set="sounds">${([['off', 'Off'], ['quiet', 'Soft'], ['on', 'On']] as const).map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._snd === v)} @click=${() => this._setSounds(v)}>${l}</button>`)}</div></div>
         ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'Space Mission is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Dark from sunset to sunrise, and in a dim room.' : 'For this screen. Auto follows the sun and the room.'}</span></span>
         <div class="seg" role="group" aria-label="Light and dark" data-set="dark">${DARK_MODES.map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._dkMode === v)} @click=${() => this._setDark(v)}>${l}</button>`)}</div></div>`}

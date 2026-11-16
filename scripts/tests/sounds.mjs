@@ -162,8 +162,23 @@ if (run('rules')) {
       b[2].click(); await c.updateComplete; return { found: true, n: b.length, off, kept, on: window.fhSound.state().mode, pressed: b.map((x) => x.getAttribute('aria-pressed')).join() }; });
     ok(sw.found && sw.n === 3 && sw.off === 'off' && sw.kept === 'off' && sw.on === 'on' && sw.pressed === 'false,false,true', 'the look sheet has a Sounds choice (Off, Soft, On) that is kept on this screen', JSON.stringify(sw));
     await pg.close(); }
-  for (const [qs, want] of [['look=glass&theme=reef&page=planner', 'reef'], ['look=glass&theme=space&page=planner', 'space'], ['look=orbit&page=planner', 'orbit'], ['look=sports&page=planner', 'sports'], ['look=glass&theme=sea&scene=sports&page=planner', 'sports']]) {
+  for (const [qs, want] of [['look=glass&theme=reef&page=planner', 'reef'], ['look=glass&theme=space&page=planner', 'space'], ['look=orbit&page=planner', 'orbit'], ['look=obsidian&page=planner', 'obsidian'], ['look=sports&page=planner', 'sports'], ['look=glass&theme=sea&scene=sports&page=planner', 'sports']]) {
     const pg = await open(qs), pal = await pg.evaluate(() => window.fhSound.state().palette); ok(pal === want, `${qs.split('&page')[0]} plays the ${want} palette`, pal); await pg.close(); }
+  // Obsidian: its own palette, nothing for keys or scrolling, softer than the rest; the alarm is not softened
+  { const pg = await open('look=obsidian&page=planner'); await pg.waitForTimeout(1300);
+    const info = await pg.evaluate(() => { const S = window.fhSound; return { ob: S.paletteInfo('obsidian'), others: S.PALETTES.filter((p) => p !== 'obsidian').map((p) => S.paletteInfo(p)).every((i) => i.level === 1 && !i.hush.length) }; });
+    const HUSH = ['key', 'space', 'del', 'slide', 'step', 'tune'], LOUD = ['tap', 'nav', 'open', 'tick', 'done', 'error', 'alarm'];
+    const quiet = await tryAll(pg, HUSH), heard = await tryAll(pg, LOUD);
+    ok(!quiet.length && heard.length === LOUD.length, 'Obsidian: keys, scrolling and the tuner make no sound; taps, ticks, sheets, done, errors and the alarm do', `hushed that played: ${quiet.join(' ') || 'none'}; played: ${heard.join(' ')}`);
+    ok(info.ob.level > 0.4 && info.ob.level <= 0.71 && HUSH.every((e) => info.ob.hush.includes(e)) && info.others, 'Obsidian plays at least 3 dB under every other look; no other look is hushed or softened', JSON.stringify(info.ob.level));
+    // restrained: a tap has no note on it, the small rewards are one note, "done" is two notes and nothing climbs in a run
+    const shape = await pg.evaluate(() => { const S = window.fhSound, r = (e) => S.recipe('obsidian', e), starts = (e) => new Set(r(e).filter((v) => v.w !== 'noise').map((v) => v.t.toFixed(3))).size, top = (e) => Math.max(...r(e).map((v) => Math.max(v.f || 0, v.to || 0, v.ff || 0, v.fto || 0)));
+      return { tap: starts('tap'), coin: starts('coin'), pinok: starts('pinok'), answer: starts('answer'), done: starts('done'), unlock: starts('unlock'), top: Math.max(...S.EVENTS.filter((e) => !['clarinet', 'trumpet', 'roar', 'sleeve', 'needle', 'slot', 'tune', 'static', 'pad', 'stamp', 'rub', 'stick'].includes(e)).map(top)) }; });
+    ok(shape.tap === 1 && shape.coin === 1 && shape.pinok === 1 && shape.answer === 1 && shape.done === 2 && shape.unlock === 1 && shape.top <= 3600, 'Obsidian is restrained: one stroke for a tap and for each small reward, two notes for "done", one swell for a celebration, nothing above 3.6 kHz', JSON.stringify(shape));
+    await pg.goto(`http://localhost:${PORT}/?look=obsidian&page=planner&sheet=themes`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(400);
+    const line = await pg.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet [data-set="sounds"]')?.closest('.setrow')?.querySelector('.muted')?.textContent ?? '');
+    ok(/Obsidian/.test(line) && /Timers always sound/.test(line), 'the look sheet says what Obsidian\'s sounds are', line);
+    await pg.close(); }
   { const pg0 = await open('look=glass&theme=sea&page=planner&night=0', { time: '20:40' }); await pg0.waitForTimeout(1500);
     const on = await tryAll(pg0, SOME); ok(on.includes('tap') && on.includes('alarm') && on.length > 3, 'quiet hours: touch sounds keep playing unless "Silent in quiet hours" is on', on.join(' ') || 'none'); await pg0.close(); }
   { const pg = await open('look=glass&theme=sea&page=planner&night=0&quietmute=1', { time: '20:40' }); await pg.waitForTimeout(1500);
