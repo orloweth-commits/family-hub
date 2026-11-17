@@ -225,8 +225,23 @@ const hass = {
           later(100, 'stt-end', { stt_output: { text: window.__sttText ?? 'What do koalas eat?' } }); if (msg.end_stage === 'stt') { later(150, 'run-end', {}); return; } later(700, 'intent-end', { intent_output: { conversation_id: 'demo-1', response: { speech: { plain: { speech: 'Koalas eat gum leaves, and they sleep for most of the day.' } } } } }); later(800, 'tts-end', { tts_output: { url: '/api/tts_proxy/demo.mp3' } }); later(900, 'run-end', {}); };
         return () => { window.__unsubbed = (window.__unsubbed || 0) + 1; }; }
       if (q.get('listfail') && msg.entity_id === 'todo.shopping_list' && !window.__listOk) throw new Error('list not reachable');
-      (subs[msg.entity_id] ??= []).push(cb); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => {}; } }
+      // while Home Assistant is away a new subscription waits for the socket, as the real library does; then it may be refused (the list not there yet after a restart: window.__subRefuse)
+      if (window.__down) { await new Promise((r) => downWait.push(r)); if (window.__subRefuse) throw new Error('Entity not found'); }
+      const wrapped = (m) => { if (!window.__down) cb(m); };
+      (subs[msg.entity_id] ??= []).push(wrapped); cb({ items: (store[msg.entity_id] ?? []).map((x) => ({ ...x })) }); return () => { subs[msg.entity_id] = (subs[msg.entity_id] ?? []).filter((x) => x !== wrapped); }; },
+    ping: async () => { (window.__pings ||= []).push(Date.now()); if (window.__down || window.__hung) { if (window.__hung) await new Promise(() => {}); throw { code: 3, message: 'Connection lost' }; } return { type: 'pong' }; },
+    reconnect: () => { (window.__calls ||= []).push('ws.reconnect'); if (window.__hung) { window.__hung = false; window.__haDown(true); setTimeout(() => window.__haDown(false), 1500); } } }
 };
+// Home Assistant out of reach (R1.2, scripts/tests/hadown.mjs): window.__haDown(true) drops the websocket as Home Assistant's frontend sees it (hass.connected false,
+// every call refused at once, live lists silent); window.__haDown(false) brings it back. window.__resubDies = true: the library's own re-made subscriptions die on the way back
+// (as when a list is not loaded yet after a restart), so only a page that follows afresh hears the list again. window.__hung = true: the socket stays "open" but nothing answers a ping.
+const downWait = [];
+window.__haDown = (down) => {
+  window.__down = !!down;
+  if (!down) { if (window.__resubDies) for (const k of Object.keys(subs)) subs[k] = []; downWait.splice(0).forEach((r) => r()); }
+  hass.connected = !down; el.hass = { ...hass };
+};
+for (const fn of ['callService', 'callWS', 'callApi']) { const real = hass[fn]; hass[fn] = async (...a) => { if (window.__down) throw { code: 3, message: 'Connection lost' }; return real(...a); }; }
 { const today = new Date(), day = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return ymd(d); };
   for (let i = 0; i < ARTN; i++) store['todo.family_hub_art'].push({ uid: 'art-' + i, summary: `fhart-demo-${i}.jpg`, status: 'needs_action', description: JSON.stringify({ d: day(i < 3 ? 0 : i), kind: 'art', who: ['Riley', 'Max'].slice(0, 1 + (i % 2)), theme: ART_THEMES[i % ART_THEMES.length], look: 'glass', p: 'A demo prompt' }) }); }
 let el = document.createElement('family-hub-card');

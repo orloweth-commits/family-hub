@@ -10,6 +10,7 @@ import { spentThisWeek, noteSpend, backDay } from './rewards';
 import { calShows, kidEntities, num, slotVar, type CalendarConfig, type Hass, type KidConfig, type RewardConfig } from './types';
 import { spark } from './sparks';
 import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, motion, ymd, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
+import { followList, houseUp } from './house';
 import './studio';
 import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
 import type { ArtConfig } from './artlib';
@@ -551,8 +552,8 @@ export class FhKid extends LitElement {
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
       const gen = ++this._subGen, list = e.chores;
-      this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { if (gen === this._subGen) this._chores = this._withPending(m.items.map(parseChore)); }, { type: 'todo/item/subscribe', entity_id: list })
-        .then((u) => { if (gen === this._subGen) this._unsub = u; else u(); }).catch(() => { this._chores = []; });
+      // followed live; while Home Assistant is away his jobs stay as they were last read (house.ts)
+      this._unsub = followList<Chore>(this.hass.connection, list, (items) => { if (gen === this._subGen) this._chores = this._withPending(items.map(parseChore)); }, () => { if (gen === this._subGen) this._chores = []; });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
     if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._asked = []; this._asksSeen = ''; this._notes = []; this._notesSeen = ''; this._lines = []; this._lookSaid = false; this._loadWeek(); }
@@ -657,6 +658,8 @@ export class FhKid extends LitElement {
   private _toggle(c: ParsedChore, viaPin = false): void {
     if (!this.hass) return;
     if (this._busy.has(c.uid)) { this._nope(c.uid); return; }
+    // Home Assistant is not answering: the tick is not shown as done (it could not be kept), and he is told why
+    if (!houseUp()) { this._nope(c.uid); this._sound('error'); this._say(SLOW_SAY); return; }
     const done = c.status === 'completed';
     const ticks = lsGet<Record<string, number>>('fh-ticks', {});
     if (done && Date.now() - (ticks[c.uid] ?? 0) < 2000) { this._nope(c.uid); return; } // double-tap guard: a fresh tick can't be undone by the same flurry, but the tap still gets an answer

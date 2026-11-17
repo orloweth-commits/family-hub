@@ -1,3 +1,4 @@
+import { keep, kept, noteKept, onHouse } from './house';
 import { LitElement, html, svg, css, nothing, type TemplateResult, type PropertyValues } from 'lit';
 import { styles } from './styles';
 import { LookController, getLook, verdictTile, type Verdict } from './looks';
@@ -297,9 +298,11 @@ export class FhWeather extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
     this._timer = window.setInterval(() => this._load(), 10 * 60000);
+    this._offHouse = onHouse((isUp) => { if (isUp) window.setTimeout(() => { if (this.isConnected) void this._load(); }, 2000); });
     if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this._measure()); this._ro.observe(this); }
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); clearTimeout(this._windAsk); this._windAsk = undefined; this._ro?.disconnect(); }
+  private _offHouse?: () => void;
+  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); this._offHouse?.(); clearTimeout(this._windAsk); this._windAsk = undefined; this._ro?.disconnect(); }
   protected updated(): void { this.toggleAttribute('data-dry', !!this.entity && !this._mapLarge); this._measure(); }
   /** Size the hour columns so a whole number of them fills the strip, and mark the edges that have more beyond them. */
   private _measure(): void {
@@ -369,8 +372,11 @@ export class FhWeather extends LitElement {
   private async _load(): Promise<void> {
     if (!this.hass || !this.entity) return;
     const [d, h] = await Promise.allSettled([this._forecast(this.entity, 'daily'), this._forecast(this._hourlyId, 'hourly')]);
-    if (d.status === 'fulfilled' && d.value.length) this._days = d.value;
-    if (h.status === 'fulfilled') this._hours = h.value;
+    // what was read is kept (house.ts); while Home Assistant is away the page shows the forecast it last had, the hours already past left out
+    if (d.status === 'fulfilled' && d.value.length) { this._days = d.value; keep(`wx:${this.entity}:daily`, d.value); }
+    else if (!this._days.length) { const k = kept<Day[]>(`wx:${this.entity}:daily`); if (k) { this._days = k.v; noteKept(k.at); } }
+    if (h.status === 'fulfilled') { this._hours = h.value; keep(`wx:${this._hourlyId}:hourly`, h.value); }
+    else if (!this._hours.length) { const k = kept<Day[]>(`wx:${this._hourlyId}:hourly`); if (k) { const now = Date.now() - 3_600_000; this._hours = k.v.filter((x) => new Date(x.datetime).getTime() >= now); noteKept(k.at); } }
     this._failed = d.status === 'rejected' && !this._days.length;
   }
 
