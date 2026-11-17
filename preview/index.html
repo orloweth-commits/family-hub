@@ -241,7 +241,8 @@ window.__haDown = (down) => {
   if (!down) { if (window.__resubDies) for (const k of Object.keys(subs)) subs[k] = []; downWait.splice(0).forEach((r) => r()); }
   hass.connected = !down; el.hass = { ...hass };
 };
-for (const fn of ['callService', 'callWS', 'callApi']) { const real = hass[fn]; hass[fn] = async (...a) => { if (window.__down) throw { code: 3, message: 'Connection lost' }; return real(...a); }; }
+// (window.__restUp = true: the calendars' plain web requests still answer while the websocket is down, as when only the socket is lost)
+for (const fn of ['callService', 'callWS', 'callApi']) { const real = hass[fn]; hass[fn] = async (...a) => { if (window.__down && !(fn === 'callApi' && window.__restUp)) throw { code: 3, message: 'Connection lost' }; return real(...a); }; }
 { const today = new Date(), day = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return ymd(d); };
   for (let i = 0; i < ARTN; i++) store['todo.family_hub_art'].push({ uid: 'art-' + i, summary: `fhart-demo-${i}.jpg`, status: 'needs_action', description: JSON.stringify({ d: day(i < 3 ? 0 : i), kind: 'art', who: ['Riley', 'Max'].slice(0, 1 + (i % 2)), theme: ART_THEMES[i % ART_THEMES.length], look: 'glass', p: 'A demo prompt' }) }); }
 let el = document.createElement('family-hub-card');

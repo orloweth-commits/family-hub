@@ -55,7 +55,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.10';
+const VERSION = '0.38.11';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -803,7 +803,7 @@ export class FamilyHubCard extends LitElement {
       try {
         // a calendar that cannot be read just now shows the rows it last had for these days (house.ts), so a poll while Home Assistant is away keeps the week
         let rows: any[] | null = null;
-        try { rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`); this._calSeen[c.entity] = Date.now(); setHouse(true); keepRange(c.entity, soon ? 'soon' : this._view, a, b, rows ?? []); }
+        try { rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`); this._calSeen[c.entity] = Date.now(); keepRange(c.entity, soon ? 'soon' : this._view, a, b, rows ?? []); }
         catch (e) { const k = keptRange(c.entity, ['soon', 'day', 'week', 'month'], a, b); if (!k) throw e; rows = k.rows; keptAt = keptAt ? Math.min(keptAt, k.at) : k.at; noteKept(k.at); console.warn('Family Hub: calendar fetch failed, showing what was kept', c.entity, e); }
         const who = c.name ?? this.hass!.states[c.entity]?.attributes.friendly_name ?? c.entity;
         for (const r of rows ?? []) {
