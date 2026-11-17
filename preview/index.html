@@ -13,6 +13,8 @@ try { localStorage.setItem('family-hub-look', look); localStorage.setItem('famil
 try { const d = q.get('dark'); if (d) localStorage.setItem('family-hub-dark', d === '1' ? 'dark' : d); else localStorage.removeItem('family-hub-dark'); } catch {}
 // &scene=sports shows the Home Ground world, its sparks and its sounds whatever the look is (until the Sports look itself is in)
 if (q.get('scene')) window.__fhScene = q.get('scene');
+// the watchdog (R1.3) records a reload here instead of making it, so no suite is ever reloaded under its fake clock (scripts/tests/watchdog.mjs reads window.__reloads)
+window.__fhReload = (why) => (window.__reloads ||= []).push({ why, at: Date.now() });
 await import('../dist/family-hub.js');
 if (q.get('night')) window.__night = true;
 const now = new Date();

@@ -139,6 +139,8 @@ export class Watchdog {
   private fault(now: number): { why: Why; note?: string } | null {
     const h = this.host;
     if (!h) return null;
+    // Home Assistant silent to this screen for a long while, shown all the while (first: a reload is then the cure for whatever else is wrong, if a new link is answered)
+    if (!houseUp() && this.downShownAt && visible() && now - this.downShownAt > SOCKET_MS) return { why: 'socket' };
     // the screen has stopped drawing
     if (visible() && now - Math.max(this.drawnAt, this.shownAt) > STALL_MS) return { why: 'stalled' };
     // the same error again and again (and still coming)
@@ -155,8 +157,6 @@ export class Watchdog {
       const ceil = Math.min(Math.max(this.base * 4, this.base + 400e6), lim * 0.7);
       if (w.length >= 25 && now - w[0].at >= MEM_WINDOW - 90_000 && Math.min(...w.map((m) => m.used)) > ceil) return { why: 'memory', note: `${Math.round(Math.min(...w.map((m) => m.used)) / 1e6)} MB, settled at ${Math.round(this.base / 1e6)} MB` };
     }
-    // Home Assistant silent to this screen for a long while, shown all the while
-    if (!houseUp() && this.downShownAt && visible() && now - this.downShownAt > SOCKET_MS) return { why: 'socket' };
     return null;
   }
 
@@ -302,3 +302,5 @@ export class Watchdog {
 
 /** The one watchdog of this page. */
 export const watchdog = new Watchdog();
+// to read on a real screen (the console) and in the tests: window.__fhWatchdog.state
+if (typeof window !== 'undefined') (window as Window & { __fhWatchdog?: Watchdog }).__fhWatchdog = watchdog;
