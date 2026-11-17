@@ -10,7 +10,7 @@ import { keyboard, keysCss, typeKey } from './keys';
 import { findOne, findRoom, hasMa, kidSpeaker, loadShelf, pinToShelf, play, queue, rooms, search, shelfEntity, sibling, sleepIn, sleepOff, type MediaHit, type QueueInfo, type ShelfItem } from './ma';
 import { VIEWS, crateView, deskView, dialView, miniKeys, sceneView, stepBtn, blank, viewMarks, viewPicker, viewsCss, volCtl, volKey, TAP_SLOP, type Ctx, type Mark, type Room, type ViewId } from './musicviews';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
-import { LINES, houseVoice, lineReady, voiceReady } from './voice';
+import { LINES, houseVoice, lineReady, voiceReady, speechReady } from './voice';
 import './pin';
 
 type Tab = 'rooms' | 'search' | 'shelves' | 'juke' | 'radio' | 'call';
@@ -1295,6 +1295,13 @@ export class FhMusic extends LitElement {
     // and when neither can be had, the built-in voice says it, as it always did.
     const file = hv && line >= 0 ? await lineReady(LINES[line]) : '';
     const live = hv && !file ? await voiceReady(msg) : '';
+    // when the house voice could not make it (no credit left, the engine down, or the internet), the built-in voice is made and checked
+    // here as well: a speaker cannot tell us that nothing came, so the toast never says "Calling" for a call nobody will hear
+    if (hv && !file && !live && !(tts && (await speechReady(msg, { tts, ...(lang ? { language: lang } : {}), ...(this.callVoice ? { voice: this.callVoice } : {}) }, 6000) || await speechReady(msg, { tts }, 6000)))) {
+      this._calling = false; this._lastCall = 0;
+      if (this.isConnected) this._say('The call didn’t go through: no voice could be made for it. The voice comes from the internet, so try again in a few minutes.');
+      return;
+    }
     const will = live && hv ? { language: hv.language, options: hv.voice ? { voice: hv.voice } : undefined } : null;
     const isMa = (id: string): boolean => !!h.services?.music_assistant?.play_announcement && (h.entities?.[id] as { platform?: string } | undefined)?.platform === 'music_assistant';
     // each room answers true when Home Assistant took the call; the toast says "Calling" only for rooms that did

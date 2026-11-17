@@ -6,6 +6,7 @@ import type { Hass, HassEntity } from './types';
 import { FitController, changed, motion, sfx, say } from './util';
 import { icon } from './icons';
 import './radar';
+import { reachable, forgetReach, NO_INTERNET } from './online';
 
 /** What the page reads besides the weather entity. Every part is optional and found by itself where it can be. */
 export interface WeatherPageConfig {
@@ -256,7 +257,7 @@ export class FhWeather extends LitElement {
     @keyframes flash { 0%, 100% { opacity: 1; } 6% { opacity: .2; } 9% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } }
   `];
 
-  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _big: { state: true }, _more: { state: true }, _failed: { state: true }, _hw: { state: true } };
+  static properties = { hass: { attribute: false }, entity: {}, page: { attribute: false }, theme: {}, _moreL: { state: true }, _moreR: { state: true }, _days: { state: true }, _hours: { state: true }, _map: { state: true }, _big: { state: true }, _more: { state: true }, _failed: { state: true }, _hw: { state: true }, _windOk: { state: true } };
   /** width of one hour's column, so the strip always shows whole hours */
   private _hw = 58;
   private _ro?: ResizeObserver;
@@ -286,6 +287,10 @@ export class FhWeather extends LitElement {
   /** whether the map is the large piece of the page now */
   private get _mapLarge(): boolean { return this._big ?? this._rainAbout(); }
   private _failed = false;
+  /** whether the wind map's site answers: undefined until asked. The map is a page from the internet; without it the frame would show the browser's own error */
+  private _windOk?: boolean;
+  private _windBusy = false;
+  private _windAsk?: number;
   private _timer?: number;
   private _loadedFor = '';
 
@@ -294,7 +299,7 @@ export class FhWeather extends LitElement {
     this._timer = window.setInterval(() => this._load(), 10 * 60000);
     if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this._measure()); this._ro.observe(this); }
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); this._ro?.disconnect(); }
+  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._timer); clearTimeout(this._windAsk); this._windAsk = undefined; this._ro?.disconnect(); }
   protected updated(): void { this.toggleAttribute('data-dry', !!this.entity && !this._mapLarge); this._measure(); }
   /** Size the hour columns so a whole number of them fills the strip, and mark the edges that have more beyond them. */
   private _measure(): void {
@@ -532,6 +537,20 @@ export class FhWeather extends LitElement {
     const q = new URLSearchParams({ lat: String(lat), lon: String(lon), detailLat: String(lat), detailLon: String(lon), zoom: '6', level: 'surface', overlay: 'wind', product: 'ecmwf', menu: '', message: 'true', marker: '', calendar: 'now', pressure: '', type: 'map', location: 'coordinates', detail: '', metricWind: 'km/h', metricTemp: '°C', radarRange: '-1' });
     return `https://embed.windy.com/embed2.html?${q}`;
   }
+  /** Asks whether the wind map's site answers; when it does not, asks again in three minutes while the map is wanted. */
+  private _askWind(): void {
+    if (this._windBusy || this._windAsk !== undefined) return;
+    this._windBusy = true;
+    void reachable(this._windUrl()).then((ok) => {
+      this._windBusy = false; this._windOk = ok;
+      if (!ok && this.isConnected) this._windAsk = window.setTimeout(() => { this._windAsk = undefined; forgetReach(); if (this.isConnected) this._askWind(); }, 3 * 60000);
+    });
+  }
+  private _wind(): TemplateResult {
+    if (this._windOk !== true) this._askWind();
+    return this._windOk === true ? html`<iframe title="Wind map" loading="lazy" referrerpolicy="no-referrer" src=${this._windUrl()}></iframe>`
+      : this._windOk === false ? html`<p class="none" role="status" data-nonet>${NO_INTERNET('The wind map')}</p>` : html`<p class="none" aria-hidden="true"></p>`;
+  }
   private _maps(): TemplateResult | typeof nothing {
     const wantRadar = this.page.radar !== false, wantWind = this.page.wind !== false;
     if (!wantRadar && !wantWind) return nothing;
@@ -540,14 +559,14 @@ export class FhWeather extends LitElement {
     // small, it is the rain radar alone (the wind map is a tap away, with the larger map)
     const tab = !wantRadar ? 'wind' : !wantWind || !large ? 'radar' : this._map;
     const size = rain ? nothing : html`<button class="pill tap mapsize" data-act="mapsize" aria-pressed=${String(large)} @click=${() => { sfx('tap'); this._big = !large; }}>${large ? 'Smaller map' : 'Bigger map'}</button>`;
-    const btn = (id: 'radar' | 'wind', label: string) => html`<button class="tap" aria-pressed=${tab === id} @click=${() => { sfx('tap'); this._map = id; }}>${label}</button>`;
+    const btn = (id: 'radar' | 'wind', label: string) => html`<button class="tap" aria-pressed=${tab === id} @click=${() => { sfx('tap'); this._map = id; if (id === 'wind') this._askWind(); }}>${label}</button>`;
     return html`<section class="glass wmaps" data-size=${large ? 'large' : 'small'}>
       <div class="mhead"><h2>${large ? this._titles()[3] : tab === 'radar' ? 'Rain radar' : 'Wind'}</h2>${large && wantRadar && wantWind ? html`<div class="seg" role="group" aria-label="Which map">${btn('radar', 'Rain radar')}${btn('wind', 'Wind')}</div>` : nothing}${size}</div>
       ${large ? nothing : html`<span class="muted dryline" data-dryline>No rain about for the next few hours.</span>`}
       <div class="mbox">
         ${tab === 'radar'
           ? lat !== undefined && lon !== undefined ? html`<fh-radar .lat=${lat} .lon=${lon} .zoom=${this.page.zoom ?? 6} ?dark=${this._dark}></fh-radar>` : html`<p class="none">The radar needs to know where home is. Set the location in Home Assistant’s settings.</p>`
-          : html`<iframe title="Wind map" loading="lazy" referrerpolicy="no-referrer" src=${this._windUrl()}></iframe>`}
+          : this._wind()}
       </div>
       <span class="credit">${tab === 'radar' ? 'Radar: RainViewer · Map: Esri and its data providers' : 'Wind: Windy.com'}</span>
     </section>`;
