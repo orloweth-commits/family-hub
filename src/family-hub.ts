@@ -28,6 +28,7 @@ import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
 import { forgetLines, houseVoice, lineReady, setVoice, voiceSync } from './voice';
 import { loadFonts } from './fonts';
+import { Watchdog, watchdog, QUIET_MS, type WatchHost } from './watchdog';
 import { DOWN_MORE, DOWN_SHOW_MS, asAt, downFor, downLine, houseUp, keep, keepRange, kept, keptRange, noteKept, onHouse, setHouse } from './house';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -55,7 +56,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.12';
+const VERSION = '0.38.13';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -379,6 +380,9 @@ export class FamilyHubCard extends LitElement {
     // Home Assistant away and back (house.ts): the line comes and goes, and everything is read afresh when it answers again, with no reload
     this._pinger = window.setInterval(() => void this._ping(), 60_000);
     this._offHouse = onHouse((isUp) => this._houseChanged(isUp));
+    // a stuck or strange screen heals itself (R1.3, watchdog.ts); just after one of its reloads the screensaver comes straight back
+    watchdog.attach(this._watchHost);
+    { const r = Watchdog.resume(); if (r?.art) { this._lastTouch = Date.now() - QUIET_MS; this._idle = true; if (r.manual) this._nightManual = true; this._art.enter([]); } }
     this.addEventListener('pointerdown', this._touched, { capture: true });
     this._offDkMode = onDarkMode(() => { this._dkMode = getDarkMode(); this._dkByHand = true; this._dkEval(); });
     document.addEventListener('visibilitychange', this._vis);
@@ -431,7 +435,18 @@ export class FamilyHubCard extends LitElement {
     document.removeEventListener('visibilitychange', this._vis);
     this._offDkMode?.(); clearTimeout(this._dkFadeTimer);
     clearInterval(this._pinger); this._offHouse?.(); this._offHouse = undefined; this._houseT.forEach((t) => clearTimeout(t)); this._houseT = [];
+    watchdog.detach(this._watchHost);
   }
+  /* ---------------- the watchdog (R1.3, watchdog.ts): what it is told about this card ---------------- */
+  private _watchHost: WatchHost = {
+    // nobody touching, and nothing that a reload would cut off: the same things that keep the screensaver away (a timer, typing, a call, a sheet, the PIN)
+    quiet: () => Date.now() - this._lastTouch >= QUIET_MS && !this._fingerDown && !this._artBlocked(),
+    art: () => ({ on: this._art.on, night: this._art.on && this._isNight(), manual: this._nightManual }),
+    hass: () => this.hass,
+    log: () => this._config?.health?.log ?? this._config?.health?.use_log,
+    screen: () => this._use.screen,
+    poke: () => this.requestUpdate(),
+  };
   /* ---------------- Home Assistant out of reach (R1.2, house.ts) ---------------- */
   private _pinger?: number; private _offHouse?: () => void; private _houseT: number[] = [];
   private _wasConn = true; private _pingMiss = 0; private _kickAt = 0;
@@ -572,6 +587,7 @@ export class FamilyHubCard extends LitElement {
   /** the voice in use has been copied to Home Assistant's side since the settings last changed (voice.ts, voiceSync) */
   private _voiceSynced = false; private _cuesWarmed = false;
   protected updated(ch: PropertyValues): void {
+    watchdog.drawn();
     if (!this._voiceSynced && this.hass?.states && this._config?.voice?.sync) { this._voiceSynced = true; void voiceSync(this.hass, this._config.chat?.pipeline); }
     // the spoken cues: have Home Assistant make each line in the house voice before a speaker ever asks for it (cues.ts, warmCues)
     if (!this._cuesWarmed && this.hass?.states && this._config) { this._cuesWarmed = true; void warmCuesOnce(this._config); }

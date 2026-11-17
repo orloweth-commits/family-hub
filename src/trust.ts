@@ -29,6 +29,8 @@ export interface HealthConfig {
   use_log?: string;
   /** a to-do list that keeps the nightly snapshots */
   backup?: string;
+  /** a to-do list for the health log: a dated line each time a screen reloads itself (watchdog.ts). Default: the use log */
+  log?: string;
   /** the notify service for the panel watch (default: the first emergency contact) */
   notify?: string;
 }
@@ -83,7 +85,8 @@ export const BEAT_MS = 5 * 60_000;
 
 /* ---------------- use counts ---------------- */
 
-const screenId = (): string => { let id = lsGet<string>('fh-screen', ''); if (!/^[a-z0-9]{4}$/.test(id)) { id = Math.random().toString(36).slice(2, 6).padEnd(4, '0'); lsSet('fh-screen', id); } return id; };
+/** This screen's own four-letter name (kept in its browser): the use counts and the health log say which screen. */
+export const screenId = (): string => { let id = lsGet<string>('fh-screen', ''); if (!/^[a-z0-9]{4}$/.test(id)) { id = Math.random().toString(36).slice(2, 6).padEnd(4, '0'); lsSet('fh-screen', id); } return id; };
 /** Page names are a fixed alphabet: nothing a person typed can end up in a count. */
 const clean = (page: string): string => page.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 24) || 'other';
 
