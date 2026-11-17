@@ -48,6 +48,10 @@ const down = (page, d) => page.evaluate((d) => window.__haDown(d), d);
   const l = await line(page);
   ok('after ten seconds one plain line says Home Assistant is not answering, as at when it last answered', /Home Assistant isn’t answering/.test(l) && /as at 10:20\s?am/.test(l), l);
   ok('the line takes the place of the header’s chips', await R(page, () => document.querySelector('family-hub-card').shadowRoot.querySelectorAll('header .capsule .cap').length === 1));
+  // the calendars answer over plain web requests even when only the socket is lost: that is not the house back
+  await page.evaluate(() => { window.__restUp = true; }); await R(page, () => { const c = document.querySelector('family-hub-card'); c._fetchedKey = ''; c._refresh(); c._loadSoon(); }); await run(page, 3000);
+  ok('a calendar read over the web while the socket is down does not end the line', /isn’t answering/.test(await line(page)));
+  await page.evaluate(() => { window.__restUp = false; });
   ok('no calendar warning on top of it', await R(page, () => !document.querySelector('family-hub-card').shadowRoot.querySelector('.calnote[data-warn]')));
   // the line is whole at the wall's size (it may wrap, it is never cut)
   const fit = await R(page, () => { const b = document.querySelector('family-hub-card').shadowRoot.querySelector('.cap.house'), s = b.querySelector('span:last-child'), r = b.getBoundingClientRect(), h = b.closest('header').getBoundingClientRect(); return { cut: s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1, inHeader: r.top >= h.top - 1 && r.bottom <= h.bottom + 1, w: Math.round(r.width) }; });
