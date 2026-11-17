@@ -56,7 +56,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.13';
+const VERSION = '0.38.14';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -382,7 +382,7 @@ export class FamilyHubCard extends LitElement {
     this._offHouse = onHouse((isUp) => this._houseChanged(isUp));
     // a stuck or strange screen heals itself (R1.3, watchdog.ts); just after one of its reloads the screensaver comes straight back
     watchdog.attach(this._watchHost);
-    { const r = Watchdog.resume(); if (r?.art) { this._lastTouch = Date.now() - QUIET_MS; this._idle = true; if (r.manual) this._nightManual = true; this._art.enter([]); } }
+    { const r = Watchdog.resume(); if (r?.art) { this._lastTouch = Date.now() - QUIET_MS; if (r.manual) this._nightManual = true; this._art.enter([]); } }
     this.addEventListener('pointerdown', this._touched, { capture: true });
     this._offDkMode = onDarkMode(() => { this._dkMode = getDarkMode(); this._dkByHand = true; this._dkEval(); });
     document.addEventListener('visibilitychange', this._vis);

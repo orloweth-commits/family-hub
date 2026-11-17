@@ -264,6 +264,21 @@ const heap = (page, mb) => R(page, (mb) => { window.__heap = mb * 1e6; if (!wind
   ok('a note from ten minutes ago is ignored (the planner shows)', await R(page, () => document.querySelector('family-hub-card')._art.on === false));
   await page.context().close(); }
 
+// 14b. the screensaver's layer moves (its fade-in is not held by the hub's idle pause), whether it came back after a reload or came up by itself
+const artMoves = (page) => R(page, () => { const r = document.querySelector('family-hub-card').shadowRoot, a = r.querySelector('.artm'); return { idle: r.querySelector('.fh').classList.contains('idle'), art: !!a, states: a ? a.getAnimations().map((x) => x.playState) : [] }; });
+{ const page = await open('page=planner&art=1&artn=3', { init: `sessionStorage.setItem('fh-resume', '${JSON.stringify({ at: T0(), on: true, night: false, manual: false })}')` });
+  await run(page, 30_000, 15_000);
+  const m = await artMoves(page);
+  ok('back after a reload, the screensaver is drawn and moving once the hub goes idle', m.idle && m.art && m.states.length > 0 && m.states.every((x) => x !== 'paused'), m);
+  await page.context().close(); }
+{ const page = await open('page=planner&art=1&artn=3');
+  await run(page, 2 * 60_000, 15_000);
+  ok('the hub is idle a minute after the last touch', (await artMoves(page)).idle);
+  await run(page, 75_000, 15_000);
+  const m = await artMoves(page);
+  ok('the screensaver coming up by itself on an idle hub is moving, not held on its first frame', m.art && m.states.length > 0 && m.states.every((x) => x !== 'paused'), m);
+  await page.context().close(); }
+
 // 15. a reload written by the page that came back, once
 { const init = `if (!localStorage.getItem('fh-reloads')) { localStorage.setItem('fh-reloads', '${JSON.stringify([{ at: T0() - 30_000, why: 'memory', logged: false, note: '700 MB, settled at 90 MB' }])}'); localStorage.setItem('fh-reload', '1'); }`;
   const page = await open('page=planner', { init });

@@ -18735,6 +18735,9 @@ const Mk = (a, t) => {
   /* back to the hub: fast, and the layer keeps taking the touch until it has gone, so the touch that wakes the panel never reaches what is under it */
   .artm[data-closing] { animation: fhout var(--m-3, 240ms) var(--e-in, ease-in) forwards; }
   @keyframes afade { from { opacity: 0; } }
+  /* the hub pauses its own movement once nobody has touched it for a minute (.fh.idle); the artwork comes up after that, and is the one thing meant to move then:
+     without this its fade-in stayed on its first frame, so the layer was there (and took the first touch) but could not be seen */
+  .fh.idle .artm, .fh.idle .artm *, .fh.idle .artm::after { animation-play-state: running !important; }
   /* no artwork yet (or none that can be fetched): the look's own wallpaper and the life behind the page, with the clock */
   .artm[data-bare]:not([data-night]) { background: inherit; }
   .artm[data-bare]:not([data-night])::after { content: ''; position: absolute; inset: 0; z-index: 0; background: rgba(8,10,16,.18); pointer-events: none; }
@@ -19103,7 +19106,7 @@ const Qk = "dinner ", gd = 60, fs = (a) => `${a.getFullYear()}-${String(a.getMon
 }, Zk = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), Ok = d`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, F1 = "0.38.13", n0 = "family-hub-theme", l0 = "family-hub-sounds", d0 = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, F1 = "0.38.14", n0 = "family-hub-theme", l0 = "family-hub-sounds", d0 = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -19444,7 +19447,7 @@ const Qk = "dinner ", gd = 60, fs = (a) => `${a.getFullYear()}-${String(a.getMon
     }, 5 * 6e4), this._pinger = window.setInterval(() => void this._ping(), 6e4), this._offHouse = Vs((t) => this._houseChanged(t)), Vo.attach(this._watchHost);
     {
       const t = M1.resume();
-      t?.art && (this._lastTouch = Date.now() - cd, this._idle = !0, t.manual && (this._nightManual = !0), this._art.enter([]));
+      t?.art && (this._lastTouch = Date.now() - cd, t.manual && (this._nightManual = !0), this._art.enter([]));
     }
     this.addEventListener("pointerdown", this._touched, { capture: !0 }), this._offDkMode = dm(() => {
       this._dkMode = v0(), this._dkByHand = !0, this._dkEval();
