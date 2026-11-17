@@ -68,6 +68,7 @@ const RULES = [
   { suite: 'sounds', when: src('sound|soundtrim') },
   { suite: 'sports', when: /^src\/scenes\//, },
   { suite: 'dark', when: src(`${LOOKS}|settings|ambient|weather|radar|${SHELL}`) },
+  { suite: 'offline', when: src(`online|radar|weather|voice|util|music|fonts`) },
   { suite: 'obsidian', when: src(`${LOOKS}|art|avatar|music|musicviews|scenes/obsidian|${SHELL}`) },
 ];
 // the fit check walks pages, so it is narrowed to the pages the changed files draw; the shared styles and looks mean every page
@@ -80,7 +81,7 @@ const PAGES = [
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark', 'offline'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }
