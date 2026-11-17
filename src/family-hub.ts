@@ -116,7 +116,6 @@ export class FamilyHubCard extends LitElement {
     if (this._config.parent_pin) this._pinAsk = { reason: k ? `Change ${k.name}’s settings?` : 'Change the look?', run: open }; else open();
   }
   protected willUpdate(ch: PropertyValues): void {
-    if (ch.has('hass')) this._houseEval();
     // the bell: read the asks list again whenever Home Assistant says it has changed
     if (this.hass && this._config) { const a = this._asksCfg(), l = a ? this.hass.states[a.list] : undefined, key = `${!!a}|${l?.state ?? ''}|${(l as { last_updated?: string } | undefined)?.last_updated ?? ''}`; if (key !== this._waitSeen) { this._waitSeen = key; void this._loadWaiting(); } }
     // the dinner line is kept on the same list: read it again when the list changes, and when the day does
@@ -541,6 +540,8 @@ export class FamilyHubCard extends LitElement {
   /** Pass fresh hass to the open page without re-rendering the whole card. */
   protected shouldUpdate(ch: PropertyValues): boolean {
     if (ch.has('hass')) setMediaHass(this.hass);
+    // whether Home Assistant is answering is read from every new hass, even one that changes nothing on screen (the line and the pages follow from it)
+    if (ch.has('hass')) { const was = houseUp(); this._houseEval(); if (houseUp() !== was) return true; }
     if (ch.size === 1 && ch.has('hass') && this._config) {
       const old = ch.get('hass') as Hass | undefined;
       this.renderRoot?.querySelectorAll(CHILD_TAGS).forEach((el) => { (el as any).hass = this.hass; });
