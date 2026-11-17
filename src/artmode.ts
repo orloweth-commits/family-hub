@@ -211,6 +211,9 @@ export const artCss = `
   /* back to the hub: fast, and the layer keeps taking the touch until it has gone, so the touch that wakes the panel never reaches what is under it */
   .artm[data-closing] { animation: fhout var(--m-3, 240ms) var(--e-in, ease-in) forwards; }
   @keyframes afade { from { opacity: 0; } }
+  /* the hub pauses its own movement once nobody has touched it for a minute (.fh.idle); the artwork comes up after that, and is the one thing meant to move then:
+     without this its fade-in stayed on its first frame, so the layer was there (and took the first touch) but could not be seen */
+  .fh.idle .artm, .fh.idle .artm *, .fh.idle .artm::after { animation-play-state: running !important; }
   /* no artwork yet (or none that can be fetched): the look's own wallpaper and the life behind the page, with the clock */
   .artm[data-bare]:not([data-night]) { background: inherit; }
   .artm[data-bare]:not([data-night])::after { content: ''; position: absolute; inset: 0; z-index: 0; background: rgba(8,10,16,.18); pointer-events: none; }
