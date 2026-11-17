@@ -9860,7 +9860,7 @@ const Ul = 15, Kf = (a) => {
   }
 }, ir = class ir extends xt {
   constructor() {
-    super(...arguments), this.lookCtl = new ie(this), this.fitCtl = new Oe(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.notes = "", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._jarBase = null, this._jarAsked = "", this._jarTold = fe("fh-jar-told", !1), this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._notes = [], this._notesSeen = "", this._noteSaid = "", this._asked = [], this._asksSeen = "", this._asking = !1, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "";
+    super(...arguments), this.lookCtl = new ie(this), this.fitCtl = new Oe(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.notes = "", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._jarBase = null, this._jarAsked = "", this._jarTold = fe("fh-jar-told", !1), this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._notes = [], this._notesSeen = "", this._noteSaid = "", this._asked = [], this._asksSeen = "", this._asking = !1, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "", this._noList = !1;
   }
   async _loadOwed() {
     const t = this.owed, e = this.kid.name;
@@ -10076,9 +10076,9 @@ const Ul = 15, Kf = (a) => {
       this._unsub?.(), this._unsub = void 0, this._subFor = e.chores, this._chores = [];
       const i = ++this._subGen, s = e.chores;
       this._unsub = md(this.hass.connection, s, (o) => {
-        i === this._subGen && (this._chores = this._withPending(o.map(j0)));
+        i === this._subGen && (this._noList = !1, this._chores = this._withPending(o.map(j0)));
       }, () => {
-        i === this._subGen && (this._chores = []);
+        i === this._subGen && (this._chores = [], this._noList = !0);
       }), this._practice = fe(`fh-practice-${e.slug}`, null);
     }
     this._evFor !== this.kid.name && (this._evFor = this.kid.name, this._tab = "rewards", this._tabPicked = !1, this._showAll = !1, this._feel = "", this._days = !1, this._spend = "", this._held = "", this._owed = [], this._owedSeen = "", this._asked = [], this._asksSeen = "", this._notes = [], this._notesSeen = "", this._lines = [], this._lookSaid = !1, this._loadWeek());
@@ -10479,6 +10479,9 @@ const Ul = 15, Kf = (a) => {
     return { bt: t, slot: e, routineNow: s, jobs: o, grow: r, later: n, visible: l, todo: p, done: l.length - p.length, total: l.length };
   }
   _jobs() {
+    if (this._noList && !this._chores.length) return d`<section class="glass jobs" aria-label="Jobs">
+      <div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><h1 class="t-title">Today</h1></div></div>
+      <div class="list"><div class="wind" data-act="nolist" role="status"><span style="color:var(--ink2)">${A("alert", 44)}</span><span>Your jobs can’t be read just now. They will come back by themselves.</span></div></div></section>`;
     const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: l, done: p, total: c } = this._block();
     this._nowUid = l[0]?.uid ?? "";
     const h = c - p, f = 2 * Math.PI * 22, m = c ? p / c : 0, g = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? h ? `Bedtime jobs: ${h} left · bed at ${Zc(t)}` : "All set for bed. Sleep well 🌙" : h ? `${h} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, x = this._night ? 0 : Math.min(60, dt(t) - ae(this._now));
@@ -10945,6 +10948,7 @@ ir.styles = [Dt, et`
   _showAll: { state: !0 },
   _tabPicked: { state: !0 },
   _chores: { state: !0 },
+  _noList: { state: !0 },
   _events: { state: !0 },
   _saving: { state: !0 },
   _jump: { state: !0 },
@@ -18820,7 +18824,7 @@ const pk = (a, t) => {
 }, uk = (a) => [...new Set(String(a ?? "").split(/\s*(?:,|;|\band\b)\s*/i).map((t) => t.trim()).filter((t) => t.length > 1).map((t) => t.charAt(0).toUpperCase() + t.slice(1)))].slice(0, 12), bk = d`<svg viewBox="0 0 160 110" width="160" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <circle cx="120" cy="32" r="14"></circle><path d="M120 6v6M120 52v6M94 32h6M140 32h6M102 14l4 4M134 46l4 4M102 50l4-4M134 18l4-4"></path>
   <path d="M28 60l24-30 16 24-28 14zM52 30l-12 38M28 60l40-6"></path><path d="M40 68c3 9-9 11-5 20s14 5 19 12"></path>
-  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, c1 = "0.38.11", Yh = "family-hub-theme", Zh = "family-hub-sounds", Oh = {
+  <path d="M6 102c16-8 30-8 46 0s30 8 46 0 30-8 56 0" stroke-width="2.5"></path></svg>`, c1 = "0.38.12", Yh = "family-hub-theme", Zh = "family-hub-sounds", Oh = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",

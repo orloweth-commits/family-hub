@@ -318,7 +318,7 @@ export class FhKid extends LitElement {
   static properties = {
     hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, calRules: { attribute: false }, pin: {}, owed: {}, asks: { attribute: false }, notes: {}, _notes: { state: true }, _asked: { state: true }, jarTarget: { type: Number }, jarReward: {},
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
-    _chores: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
+    _chores: { state: true }, _noList: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
     _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }, _jarBase: { state: true }, _jarTold: { state: true }
   };
@@ -553,7 +553,7 @@ export class FhKid extends LitElement {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
       const gen = ++this._subGen, list = e.chores;
       // followed live; while Home Assistant is away his jobs stay as they were last read (house.ts)
-      this._unsub = followList<Chore>(this.hass.connection, list, (items) => { if (gen === this._subGen) this._chores = this._withPending(items.map(parseChore)); }, () => { if (gen === this._subGen) this._chores = []; });
+      this._unsub = followList<Chore>(this.hass.connection, list, (items) => { if (gen === this._subGen) { this._noList = false; this._chores = this._withPending(items.map(parseChore)); } }, () => { if (gen === this._subGen) { this._chores = []; this._noList = true; } });
       this._practice = lsGet(`fh-practice-${e.slug}`, null);
     }
     if (this._evFor !== this.kid.name) { this._evFor = this.kid.name; this._tab = 'rewards'; this._tabPicked = false; this._showAll = false; this._feel = ''; this._days = false; this._spend = ''; this._held = ''; this._owed = []; this._owedSeen = ''; this._asked = []; this._asksSeen = ''; this._notes = []; this._notesSeen = ''; this._lines = []; this._lookSaid = false; this._loadWeek(); }
@@ -942,7 +942,12 @@ export class FhKid extends LitElement {
     return { bt, slot, routineNow, jobs, grow, later, visible, todo, done: visible.length - todo.length, total: visible.length };
   }
 
+  /** his job list could not be read and nothing was kept (Home Assistant away, a list never read on this screen): said plainly, never "All done" */
+  private _noList = false;
   private _jobs(): TemplateResult {
+    if (this._noList && !this._chores.length) return html`<section class="glass jobs" aria-label="Jobs">
+      <div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><h1 class="t-title">Today</h1></div></div>
+      <div class="list"><div class="wind" data-act="nolist" role="status"><span style="color:var(--ink2)">${icon('alert', 44)}</span><span>Your jobs can’t be read just now. They will come back by themselves.</span></div></div></section>`;
     const { bt, slot, routineNow, jobs, grow, later, visible, todo, done, total } = this._block();
     // the one thing to do now: the first job that is not ticked yet
     this._nowUid = todo[0]?.uid ?? '';
