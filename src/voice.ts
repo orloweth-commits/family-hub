@@ -117,6 +117,23 @@ export async function voiceReady(text: string, e: Engine | null = cfg, ms = 9000
   } catch { return ''; }
 }
 
+/**
+ * Any voice, the built-in one too: make `text` and fetch it here, outside the daily allowance (for voices that cost nothing).
+ * The full address for a speaker, or '' when no sound came (the voice is made on the internet, and the internet may be down).
+ */
+export async function speechReady(text: string, e: Engine, ms = 9000): Promise<string> {
+  const h = hassOf();
+  if (!e?.tts || !h?.callApi || !text.trim()) return '';
+  try {
+    const r = await within(Promise.resolve(h.callApi<{ url?: string; path?: string }>('POST', 'tts_get_url', speechBody(text, e))), ms);
+    const url = r?.path ?? r?.url;
+    if (!url) return '';
+    const res = await within(fetch(full(h, String(url))), ms);
+    if (!res.ok || !(await within(res.blob(), ms)).size) return '';
+    return String(r?.url ?? full(h, String(url)));
+  } catch { return ''; }
+}
+
 /* ---------------- recorded lines ---------------- */
 /** The media id of a recorded line, or '' when no recordings are set. */
 export const lineFile = (line: Line): string => cfg?.files && cfg.files.includes('{line}') ? cfg.files.replace('{line}', line) : '';

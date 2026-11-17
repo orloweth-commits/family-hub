@@ -141,20 +141,28 @@ let voice: SpeechSynthesisVoice | null | undefined;
 let speaker: Element | null = null;
 let saying = 0, sound: HTMLAudioElement | null = null;
 const stopSound = (): void => { try { sound?.pause(); } catch { /* not playing */ } sound = null; };
-/** The screen's own voice: what everything falls back to. */
-const sayOwn = (text: string, by?: Element | null): void => {
+/** The best voice among `vs`: Australian English, then British, then any English. */
+const pickVoice = (vs: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => vs.find((v) => v.lang === 'en-AU') ?? vs.find((v) => v.lang.startsWith('en-GB')) ?? vs.find((v) => v.lang.startsWith('en')) ?? null;
+/** The screen's own voice: what everything falls back to. Some of a browser's voices are made on the internet (Edge's natural
+ *  voices, Chrome's Google voices): when one of those fails, the words are said again in a voice that lives on the screen. */
+const sayOwn = (text: string, by?: Element | null, local = false): void => {
   if (!('speechSynthesis' in window)) { if (speaker === by) { by?.removeAttribute('data-speaking'); speaker = null; } return; }
   try {
     if (voice === undefined) {
       const vs = speechSynthesis.getVoices();
-      voice = vs.find((v) => v.lang === 'en-AU') ?? vs.find((v) => v.lang.startsWith('en-GB')) ?? vs.find((v) => v.lang.startsWith('en')) ?? null;
+      voice = pickVoice(vs);
       if (!vs.length) voice = undefined;
     }
+    const v = local && voice && voice.localService === false ? pickVoice(speechSynthesis.getVoices().filter((x) => x.localService)) : voice;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    if (voice) u.voice = voice;
-    u.lang = voice?.lang ?? 'en-AU'; u.rate = 0.95; u.pitch = 1.1;
-    if (by) { speaker = by; by.setAttribute('data-speaking', ''); const end = (): void => { if (speaker === by) { by.removeAttribute('data-speaking'); speaker = null; } }; u.onend = end; u.onerror = end; window.setTimeout(end, Math.max(4000, text.length * 110)); }
+    if (v) u.voice = v;
+    u.lang = v?.lang ?? 'en-AU'; u.rate = 0.95; u.pitch = 1.1;
+    const end = (): void => { if (by && speaker === by) { by.removeAttribute('data-speaking'); speaker = null; } };
+    let again = false;
+    // a voice from the internet that cannot be reached fails at once ('network', 'synthesis-failed'): once, in a voice on the screen
+    u.onerror = (e: SpeechSynthesisErrorEvent) => { if (!local && !again && v && v.localService === false && e.error !== 'interrupted' && e.error !== 'canceled') { again = true; sayOwn(text, by, true); } else end(); };
+    if (by) { speaker = by; by.setAttribute('data-speaking', ''); u.onend = end; window.setTimeout(end, Math.max(4000, text.length * 110)); }
     speechSynthesis.speak(u);
   } catch { /* speech unavailable */ }
 };

@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing, type TemplateResult } from 'lit';
 import { styles } from './styles';
 import { icon, solid } from './icons';
+import { NO_INTERNET } from './online';
 
 interface Frame { time: number; path: string }
 
@@ -150,7 +151,7 @@ export class FhRadar extends LitElement {
       ${base.map((u, k) => html`<div class="layer ${k ? 'names' : 'map'}">${tiles.map((t) => html`<img alt="" draggable="false" @error=${(e: Event) => { (e.target as HTMLElement).style.visibility = 'hidden'; }} @load=${(e: Event) => { (e.target as HTMLElement).style.visibility = ''; }} style="left:${t.left}px;top:${t.top}px" src=${u.replace('{z}', String(z)).replace('{x}', String(t.x)).replace('{y}', String(t.y))}>`)}</div>`)}
       ${fr.map((f, i) => Math.abs(i - this._i) <= 1 || (this._i === fr.length - 1 && i === 0) || this._play ? html`<div class="layer rain ${f === cur ? 'on' : ''}">${tiles.map((t) => html`<img alt="" draggable="false" @error=${(e: Event) => { (e.target as HTMLElement).style.visibility = 'hidden'; }} @load=${(e: Event) => { (e.target as HTMLElement).style.visibility = ''; }} style="left:${t.left}px;top:${t.top}px" src="${this._host}${f.path}/${TILE}/${z}/${t.x}/${t.y}/2/1_1.png">`)}</div>` : nothing)}
       ${w ? html`<span class="home" style="left:${w / 2 + this._pan[0]}px;top:${h / 2 + this._pan[1]}px" aria-hidden="true"></span>` : nothing}
-      ${this._err ? html`<p class="msg">The radar pictures could not be loaded. It will try again in a few minutes.</p>` : nothing}
+      ${this._err ? html`<p class="msg" role="status">${NO_INTERNET('The rain radar')}</p>` : nothing}
       <div class="key" aria-hidden="true"><b>Light</b><span></span><b>Heavy</b></div>
       <div class="zoom">
         <button class="tap" aria-label="Closer" ?disabled=${z >= MAX_Z} @click=${() => this._zoomBy(1)}><b>+</b></button>
