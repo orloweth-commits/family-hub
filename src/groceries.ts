@@ -5,6 +5,7 @@ import { icon } from './icons';
 import { slotVar, type GroceryRecipient, type Hass } from './types';
 import { keyboard, keysCss, typeKey } from './keys';
 import { flip, getShape, FitController, linger, places, scrollCue, sfx, watched, wasSlow, inTime, SlowError, SLOW_SAY } from './util';
+import { followList, houseUp } from './house';
 /** a row that has just been touched: what it shows, where it sat, whether Home Assistant has answered yet (out), whether its four seconds are up (due) */
 interface Held { to: string; was: string; t: number; n: number; out: boolean; due: boolean; busy: boolean }
 import { spark } from './sparks';
@@ -210,13 +211,8 @@ export class FhGroceries extends LitElement {
     this._subFor = this.entity;
     const conn = this.hass?.connection;
     if (!conn) { this._failed = true; return; }
-    try {
-      const ent = this.entity;
-      const un = await conn.subscribeMessage<{ items: TodoItem[] }>((m) => { this._items = (m.items ?? []).filter((i) => i && typeof i.summary === 'string'); this._failed = false; }, { type: 'todo/item/subscribe', entity_id: ent });
-      // the page may have gone, or moved to another list, while Home Assistant was answering: do not keep a subscription nobody will close
-      if (!this.isConnected || this._subFor !== ent) { un(); return; }
-      this._unsub = un; this._failed = false;
-    } catch (e) { console.warn('Family Hub: grocery subscribe failed', e); this._failed = true; }
+    // followed live; while Home Assistant is away the list stays as it was last read (house.ts), and it is followed afresh when it is back
+    this._unsub = followList<TodoItem>(conn, this.entity, (items) => { this._items = items.filter((i) => i && typeof i.summary === 'string'); this._failed = false; }, () => { this._failed = true; });
   }
 
   /** A message. One marked `stay` (something was not saved) remains until it is dismissed. */
@@ -229,6 +225,7 @@ export class FhGroceries extends LitElement {
     const n = name.trim();
     if (!n) { this._say('Type something first'); return; }
     if (!this.hass) return;
+    if (!houseUp()) { sfx('error'); this._say(SLOW_SAY); return; } // (Home Assistant is not answering: the words stay in the box)
     const nice = n.charAt(0).toUpperCase() + n.slice(1), typed = name === this._typed;
     if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
     // a failed add says so and gives the words back, so nothing typed is lost
@@ -240,6 +237,7 @@ export class FhGroceries extends LitElement {
   private _toggle(i: TodoItem): void {
     // the touch is answered at once: the tick, its sound and the service call all happen now. The row keeps its place for a few seconds, so a slip can be tapped back.
     if (this._tk[i.uid]?.out) return; // a second tap while the first is still on its way is not sent
+    if (!houseUp()) { sfx('error'); this._say(SLOW_SAY); return; }
     const to = this._shown(i) === 'completed' ? 'needs_action' : 'completed';
     sfx(to === 'completed' ? 'tick' : 'untick');
     if (to === 'completed') { const row = [...this.renderRoot.querySelectorAll('button.item')].find((b) => b.querySelector('.strike')?.textContent === i.summary), list = this.renderRoot.querySelector('.items');

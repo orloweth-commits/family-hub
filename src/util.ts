@@ -1,4 +1,5 @@
 import type { Hass } from './types';
+import { DOWN_SAY, houseUp, onHouse } from './house';
 
 /* ------------------------------------------------------------------ *
  * Shared helpers: chore lanes, time windows, change detection, sound, speech.
@@ -239,9 +240,15 @@ export function linger<T>(host: { requestUpdate(): void }, key: string, v: T, ms
   return [e.last as T, true];
 }
 /** A call that Home Assistant never answers is given up after twelve seconds, so nothing on the panel waits for ever. */
-export const SLOW_MS = 12_000, SLOW_SAY = 'Home Assistant is slow. Try again.';
+export const SLOW_MS = 12_000;
+/** The words for a call that was given up (SlowError). While Home Assistant cannot be reached at all they say that instead (house.ts):
+ *  an exported `let`, so every page that shows it reads the words of the moment. */
+export let SLOW_SAY = 'Home Assistant is slow. Try again.';
+const SLOW_WORDS = SLOW_SAY;
+onHouse((isUp) => { SLOW_SAY = isUp ? SLOW_WORDS : DOWN_SAY; });
 export class SlowError extends Error {}
-export const inTime = <T>(p: Promise<T> | T, ms = SLOW_MS): Promise<T> => new Promise<T>((yes, no) => { const t = window.setTimeout(() => no(new SlowError('no answer')), ms); Promise.resolve(p).then((v) => { clearTimeout(t); yes(v); }, (e) => { clearTimeout(t); no(e); }); });
+/** A call that failed while the house was not answering is reported as one given up (so the page says why), never as refused. */
+export const inTime = <T>(p: Promise<T> | T, ms = SLOW_MS): Promise<T> => new Promise<T>((yes, no) => { const t = window.setTimeout(() => no(new SlowError('no answer')), ms); Promise.resolve(p).then((v) => { clearTimeout(t); yes(v); }, (e) => { clearTimeout(t); no(houseUp() ? e : new SlowError('Home Assistant is not answering')); }); });
 let slowLast = false;
 /** True when the `watched` call that has just resolved false gave up waiting (rather than being refused). */
 export const wasSlow = (): boolean => slowLast;

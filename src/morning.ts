@@ -8,6 +8,7 @@ import { avatarCss, decodeLook, renderAvatar } from './avatar';
 import { addDays, fmtTime, sameDay, startOfDay, whenOn } from './dates';
 import { kidEntities, slotVar, type BringRule, type CalEvent, type Hass, type KidConfig } from './types';
 import { changed, FitController, hm, inTime, minsNow, parseChore, say, sfx, SlowError, SLOW_SAY, type Chore, type ParsedChore } from './util';
+import { followList, houseUp } from './house';
 import { picFor } from './kid';
 import { spark } from './sparks';
 
@@ -189,12 +190,9 @@ export class FhMorning extends LitElement {
     const ids = this.kids.map((k) => kidEntities(k).chores), key = ids.join('|');
     if (key === this._subKey) return;
     this._subKey = key; this._unsubs.forEach((u) => u()); this._unsubs = [];
-    for (const id of ids) {
-      try {
-        const u = await this.hass.connection.subscribeMessage<{ items: Chore[] }>((m) => { this._items = { ...this._items, [id]: m.items.map(parseChore).map((c) => this._pending.has(c.uid) ? { ...c, status: this._pending.get(c.uid)! } : c) }; }, { type: 'todo/item/subscribe', entity_id: id });
-        if (this.isConnected && this._subKey === key) this._unsubs.push(u); else u();
-      } catch { /* list missing */ }
-    }
+    // each list followed live; while Home Assistant is away the board keeps the jobs as they were last read (house.ts)
+    if (!this.isConnected) { this._subKey = ''; return; }
+    for (const id of ids) this._unsubs.push(followList<Chore>(this.hass.connection, id, (items) => { this._items = { ...this._items, [id]: items.map(parseChore).map((c) => this._pending.has(c.uid) ? { ...c, status: this._pending.get(c.uid)! } : c) }; }));
   }
   private _list(k: KidConfig): ParsedChore[] { return this._items[kidEntities(k).chores] ?? []; }
   protected willUpdate(ch: PropertyValues): void { if (ch.has('kids') && this._subKey) void this._sub(); }
@@ -244,6 +242,7 @@ export class FhMorning extends LitElement {
     if (!this.hass || this._busy.has(c.uid)) return;
     const el = ev.currentTarget as HTMLElement, done = c.status === 'completed', j = this._just[k.name];
     if (done && (!j || j.uid !== c.uid || Date.now() - j.at < DOUBLE_MS)) return;
+    if (!houseUp()) { sfx('error'); this._msg = { ...this._msg, [k.name]: SLOW_SAY }; window.setTimeout(() => { this._msg = { ...this._msg, [k.name]: '' }; }, 5000); return; } // (Home Assistant is not answering: nothing is ticked that could not be kept)
     // a job worth enough points waits for a parent, as on his own page: the tick and the points come with the yes
     if (!done && askReady(this.hass, this.asks) && c.lane !== 'grow' && c.pts >= jobsFrom(this.asks)) {
       const e = kidEntities(k), tell = (m: string): void => { this._msg = { ...this._msg, [k.name]: m }; window.setTimeout(() => { this._msg = { ...this._msg, [k.name]: '' }; }, 4000); };

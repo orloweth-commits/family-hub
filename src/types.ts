@@ -17,7 +17,10 @@ export interface Hass {
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
   callWS<T>(msg: Record<string, unknown>): Promise<T>;
   services?: Record<string, Record<string, unknown>>;
-  connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => unknown>; /** the websocket itself, for the binary sound frames of a voice pipeline */ socket?: { send(data: ArrayBufferLike | ArrayBufferView): void } };
+  connection?: { subscribeMessage<T>(cb: (msg: T) => void, msg: Record<string, unknown>): Promise<() => unknown>; /** the websocket itself, for the binary sound frames of a voice pipeline */ socket?: { send(data: ArrayBufferLike | ArrayBufferView): void };
+    /** asks Home Assistant for a pong; and drops a socket that has stopped answering so the library makes a new one (house.ts) */ ping?(): Promise<unknown>; reconnect?(force?: boolean): void };
+  /** false while the websocket to Home Assistant is down (Home Assistant's frontend sets it; it reconnects by itself) */
+  connected?: boolean;
   /** makes a path from Home Assistant (such as spoken audio) into a full address */
   hassUrl?: (path?: string) => string;
   fetchWithAuth?: (path: string, init?: RequestInit) => Promise<Response>;

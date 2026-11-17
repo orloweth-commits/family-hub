@@ -28,6 +28,7 @@ import { pinFresh, resumeNow } from './settings-store';
 import { setWeekendExtra } from './util';
 import { forgetLines, houseVoice, lineReady, setVoice, voiceSync } from './voice';
 import { loadFonts } from './fonts';
+import { DOWN_MORE, DOWN_SHOW_MS, asAt, downFor, downLine, houseUp, keep, keepRange, kept, keptRange, noteKept, onHouse, setHouse } from './house';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
 import { avatarCss, decodeLook, renderAvatar } from './avatar';
@@ -54,7 +55,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.9';
+const VERSION = '0.38.10';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -194,6 +195,8 @@ export class FamilyHubCard extends LitElement {
   private _lastTouch = Date.now();
   private _idle = false;
   private _calError = false;
+  /** when the oldest calendar row on screen was read, when some are kept copies (Home Assistant was not answering); 0 when all are fresh */
+  private _calKept = 0;
   /** trust guards (trust.ts): when each calendar last answered, when this screen last stamped the heartbeat, and today's opens and taps */
   private _calSeen: Record<string, number> = {}; private _calSince = Date.now(); private _calTick = 0;
   private _beatAt = 0; private _use = new UseLog(); private _useAt = Date.now() - USE_FLUSH_MS + 60_000;
@@ -373,6 +376,9 @@ export class FamilyHubCard extends LitElement {
     // Settings was open when the dashboard drew the card again (it does after a save): it comes back open, on the same pane
     if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
+    // Home Assistant away and back (house.ts): the line comes and goes, and everything is read afresh when it answers again, with no reload
+    this._pinger = window.setInterval(() => void this._ping(), 60_000);
+    this._offHouse = onHouse((isUp) => this._houseChanged(isUp));
     this.addEventListener('pointerdown', this._touched, { capture: true });
     this._offDkMode = onDarkMode(() => { this._dkMode = getDarkMode(); this._dkByHand = true; this._dkEval(); });
     document.addEventListener('visibilitychange', this._vis);
@@ -424,6 +430,42 @@ export class FamilyHubCard extends LitElement {
     this.removeEventListener('pointerdown', this._touched, { capture: true });
     document.removeEventListener('visibilitychange', this._vis);
     this._offDkMode?.(); clearTimeout(this._dkFadeTimer);
+    clearInterval(this._pinger); this._offHouse?.(); this._offHouse = undefined; this._houseT.forEach((t) => clearTimeout(t)); this._houseT = [];
+  }
+  /* ---------------- Home Assistant out of reach (R1.2, house.ts) ---------------- */
+  private _pinger?: number; private _offHouse?: () => void; private _houseT: number[] = [];
+  private _wasConn = true; private _pingMiss = 0; private _kickAt = 0;
+  /** Whether the house is answering, from Home Assistant's own word on the websocket and this card's ping. */
+  private _houseEval(): void {
+    const c = this.hass?.connected;
+    if (c === false) { this._wasConn = false; this._pingMiss = 0; setHouse(false); return; }
+    if (!this._wasConn) { this._wasConn = true; this._pingMiss = 0; } // a new socket: the ping starts again from nothing
+    if (this._pingMiss < 2) setHouse(true);
+  }
+  /** Once a minute, while the screen is shown: a socket can stay "open" to a computer that has gone (asleep, unplugged) and never say so.
+   *  Two pings unanswered in a row count as the house gone, and the socket is dropped so Home Assistant's library makes a new one (at most every two minutes). */
+  private async _ping(): Promise<void> {
+    const h = this.hass, conn = h?.connection;
+    if (!h || !conn?.ping || h.connected === false || document.hidden) return;
+    try { await inTime(conn.ping(), 10_000); this._pingMiss = 0; this._houseEval(); }
+    catch {
+      if (++this._pingMiss < 2) return;
+      setHouse(false);
+      if (Date.now() - this._kickAt > 120_000) { this._kickAt = Date.now(); try { conn.reconnect?.(true); } catch { /* the library will try by itself */ } }
+    }
+  }
+  private _houseChanged(isUp: boolean): void {
+    this._houseT.forEach((t) => clearTimeout(t)); this._houseT = [];
+    if (!isUp) { this._houseT.push(window.setTimeout(() => this.requestUpdate(), DOWN_SHOW_MS + 50)); this.requestUpdate(); return; }
+    // back: everything that was read once is read again now, and again a little later (just after a restart Home Assistant may still be loading its calendars)
+    const again = (): void => { if (!this.isConnected) return; this._fetchedKey = ''; this._refresh(); void this._loadSoon(); this._waitSeen = ''; this._dnSeen = ''; this.requestUpdate(); };
+    again(); this._houseT.push(window.setTimeout(again, 60_000), window.setTimeout(again, 3 * 60_000));
+  }
+  /** The one plain line while Home Assistant is away, in place of the header's chips (on every page, a child's included). */
+  private _houseLine(): TemplateResult | null {
+    if (houseUp() || downFor() < DOWN_SHOW_MS) return null;
+    const at = new Date(asAt()), when = sameDay(at, new Date()) ? fmtTime(at) : `${fmtDow(at)} ${fmtTime(at)}`;
+    return html`<div class="capsule" aria-live="polite"><button class="cap tap house" data-kind="house" data-p="0" @click=${() => this._say(DOWN_MORE, 9000)}>${icon('alert', 20)}<span>${downLine(when)}</span></button></div>`;
   }
   private _touched = (): void => {
     this._fingerDown = true;
@@ -498,6 +540,8 @@ export class FamilyHubCard extends LitElement {
   /** Pass fresh hass to the open page without re-rendering the whole card. */
   protected shouldUpdate(ch: PropertyValues): boolean {
     if (ch.has('hass')) setMediaHass(this.hass);
+    // whether Home Assistant is answering is read from every new hass, even one that changes nothing on screen (the line and the pages follow from it)
+    if (ch.has('hass')) { const was = houseUp(); this._houseEval(); if (houseUp() !== was) return true; }
     if (ch.size === 1 && ch.has('hass') && this._config) {
       const old = ch.get('hass') as Hass | undefined;
       this.renderRoot?.querySelectorAll(CHILD_TAGS).forEach((el) => { (el as any).hass = this.hass; });
@@ -754,11 +798,13 @@ export class FamilyHubCard extends LitElement {
     if (!cals.length || !this.hass) return [];
     const gen = soon ? 0 : ++this._fetchGen;
     const out: CalEvent[] = [];
-    let failed = 0;
+    let failed = 0, keptAt = 0;
     await Promise.all(cals.map(async (c) => {
       try {
-        const rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`);
-        this._calSeen[c.entity] = Date.now();
+        // a calendar that cannot be read just now shows the rows it last had for these days (house.ts), so a poll while Home Assistant is away keeps the week
+        let rows: any[] | null = null;
+        try { rows = await this.hass!.callApi<any[]>('GET', `calendars/${c.entity}?start=${encodeURIComponent(a.toISOString())}&end=${encodeURIComponent(b.toISOString())}`); this._calSeen[c.entity] = Date.now(); setHouse(true); keepRange(c.entity, soon ? 'soon' : this._view, a, b, rows ?? []); }
+        catch (e) { const k = keptRange(c.entity, ['soon', 'day', 'week', 'month'], a, b); if (!k) throw e; rows = k.rows; keptAt = keptAt ? Math.min(keptAt, k.at) : k.at; noteKept(k.at); console.warn('Family Hub: calendar fetch failed, showing what was kept', c.entity, e); }
         const who = c.name ?? this.hass!.states[c.entity]?.attributes.friendly_name ?? c.entity;
         for (const r of rows ?? []) {
           if (!calShows(c, String(r?.summary ?? ''))) continue;
@@ -767,11 +813,13 @@ export class FamilyHubCard extends LitElement {
           const start = new Date(sv); if (!sv || isNaN(start.getTime())) continue;
           const ev = allDay ? (r.end?.date ? `${r.end.date}T00:00:00` : '') : r.end?.dateTime;
           let end = new Date(ev); if (!ev || isNaN(end.getTime())) end = new Date(start.getTime() + (allDay ? 86_400_000 : 3_600_000));
+          if (start >= b || end <= a) continue; // (a kept row from a wider stretch of days)
           out.push({ title: String(r.summary ?? '').trim() || '(busy)', start, end, allDay, colour: c.colour, who, location: String(r.location ?? '').trim() || undefined, description: String(r.description ?? '').trim() || undefined, entity: c.entity, uid: r.uid ? String(r.uid) : undefined, recurrenceId: r.recurrence_id ? String(r.recurrence_id) : undefined, repeats: !!(r.rrule || r.recurrence_id), rrule: r.rrule ? String(r.rrule) : undefined });
         }
       } catch (e) { failed++; console.warn('Family Hub: calendar fetch failed', c.entity, e); }
     }));
     this._calError = failed === cals.length; this._calTick++;
+    if (!soon) this._calKept = this._calError ? 0 : keptAt;
     if (!soon && gen !== this._fetchGen) return null; // a newer request won
     out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.start.getTime() - y.start.getTime());
     return out;
@@ -784,13 +832,15 @@ export class FamilyHubCard extends LitElement {
       const res = await this.hass.callWS<any>({ type: 'call_service', domain: 'weather', service: 'get_forecasts', service_data: { type: 'daily' }, target: { entity_id: w }, return_response: true });
       const f = res?.response?.[w]?.forecast?.[0];
       this._wx = { max: f?.temperature, min: f?.templow, uv: f?.uv_index, rain: f?.precipitation };
-    } catch { this._wx = {}; }
+      keep('wx-top', { day: ymd(new Date()), wx: this._wx });
+    } catch { const k = kept<{ day: string; wx: FamilyHubCard['_wx'] }>('wx-top'); this._wx = k && k.v.day === ymd(new Date()) ? k.v.wx : {}; if (k && k.v.day === ymd(new Date())) noteKept(k.at); } // today's top and rain, as last read, while the house is away
   }
   /** Ticking a reminder completes it in its to-do list straight away. It stays, struck through, for four seconds; tapping it again in that time puts it back. */
   private _tickReminder(r: { uid: string; summary: string }): void {
     const t = this._config.reminders; if (!t || !this.hass) return;
     // a second tap while the first is still on its way to Home Assistant is not sent
     if (this._remOut.has(r.uid)) return;
+    if (!houseUp()) { sfx('error'); this._say(SLOW_SAY); return; } // (Home Assistant is not answering: the reminder stays as it is)
     const undo = r.uid in this._remTk;
     clearTimeout(this._remTk[r.uid]);
     const drop = (): void => { const { [r.uid]: _, ...rest } = this._remTk; this._remTk = rest; };
@@ -829,7 +879,8 @@ export class FamilyHubCard extends LitElement {
     try {
       const res = await this.hass.callWS<{ items: { uid: string; summary: string; status: string }[] }>({ type: 'todo/item/list', entity_id: t });
       this._reminders = res.items.filter((i) => i.status === 'needs_action' || i.uid in this._remTk); this._remState = 'ok';
-    } catch { this._reminders = []; this._remState = 'failed'; }
+      keep(`rem:${t}`, this._reminders);
+    } catch { const k = kept<{ uid: string; summary: string; status: string }[]>(`rem:${t}`); if (k) { this._reminders = k.v; this._remState = 'ok'; noteKept(k.at); } else { this._reminders = []; this._remState = 'failed'; } }
   }
 
   private _private(title: string): boolean {
@@ -1356,6 +1407,7 @@ export class FamilyHubCard extends LitElement {
 
   /** One fixed row of at most two chips, most urgent first, so the header never changes height. */
   private _capsule(): TemplateResult {
+    const line = this._houseLine(); if (line) return line;
     const c = this._config, chips: [number, TemplateResult][] = [];
     const left = this._timerLeft();
     // the planner already shows the timer in its side card, so only repeat it there in the last minute
@@ -1397,6 +1449,7 @@ export class FamilyHubCard extends LitElement {
 
   /** On a child's page: only his own next event (and the kitchen timer in its last minute). */
   private _kidCapsule(k: KidConfig): TemplateResult {
+    const line = this._houseLine(); if (line) return line;
     const now = Date.now(), chips: TemplateResult[] = [], left = this._timerLeft();
     if (left !== null && left < 60000) chips.push(html`<button class="cap tap hot" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${Math.floor(left / 1000)} seconds left" @click=${() => { this._sheet = 'timer'; }}>${icon('timer', 20)}<b>0:${String(Math.floor(left / 1000)).padStart(2, '0')}</b></button>`);
     const n = k.name.toLowerCase();
@@ -1478,7 +1531,7 @@ export class FamilyHubCard extends LitElement {
   /** The planner's quiet word on how fresh the calendars are, or the plain warning when one has stopped answering. No warning at night: nobody can act on it then. */
   private _calNote(): TemplateResult | typeof nothing {
     const cals = this._config.calendars ?? [];
-    if (!cals.length || this._calError) return nothing;
+    if (!cals.length || this._calError || !houseUp()) return nothing;
     const h = calHealth(this.hass, cals, this._calSeen, this._calSince, Date.now(), this._config.health?.calendar_minutes ?? 30), warn = this._isNight() ? '' : calWarning(h);
     if (warn) return html`<span class="calnote" data-warn role="status">${icon('alert', 18)}<span>${warn}</span><button class="pill tap" data-act="cal-retry" @click=${() => { this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}>Try again</button></span>`;
     return h.age === null ? nothing : html`<span class="calnote" data-act="cal-age">Updated ${agoWords(h.age)}</span>`;

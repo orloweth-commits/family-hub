@@ -155,6 +155,9 @@ export const styles = css`
   /* still waiting after the first hour: amber, steady (no breathing ring), dark ink that reads on it in every look */
   .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   .cap.ok { background: color-mix(in srgb, var(--ok) 25%, var(--glass)); }
+  /* Home Assistant out of reach (house.ts): the one line, in place of the chips. It may take two lines rather than lose its end */
+  .cap.house { flex: 0 1 auto; min-width: 0; max-width: none; border-radius: 26px; height: auto; min-height: 52px; padding: 6px 18px; white-space: normal; text-align: left; line-height: 1.2; cursor: pointer; color: inherit; font-family: inherit; }
+  .cap.house > span { overflow: visible; text-overflow: clip; }
   .presence { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 10px; border-radius: 999px; }
   .presence .phome { display: flex; color: var(--ink2); padding: 0 2px 0 4px; }
   .sos { display: flex; gap: 12px; align-items: stretch; }
