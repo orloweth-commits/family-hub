@@ -95,6 +95,16 @@ const down = (page, d) => page.evaluate((d) => window.__haDown(d), d);
   ok('back: his list is followed afresh and shows a tick made elsewhere', await until(page, (uid) => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid')._chores.find((c) => c.uid === uid)?.status === 'completed', uid, 4000));
   await page.context().close(); }
 
+// 2b. a child's page whose list was never read on this screen: said plainly, never "All done"
+{ const page = await open('page=planner');
+  await page.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('fh-kept-list:todo.charlie')) localStorage.removeItem(k); });
+  await down(page, true); await run(page, 11000); await go(page, 'kid', 1); await run(page, 600);
+  const t = await R(page, () => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'); return f.shadowRoot.querySelector('.jobs')?.textContent.replace(/\s+/g, ' ').trim() ?? ''; });
+  ok('a child’s page with nothing kept says his jobs can’t be read just now, not "All done"', /can’t be read just now/.test(t) && !/All done|Nothing right now/.test(t), t);
+  await down(page, false); await run(page, 3000);
+  ok('and his jobs fill in by themselves when Home Assistant is back', await until(page, () => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'); return f._chores.length > 0 && !f.shadowRoot.querySelector('[data-act="nolist"]'); }, null, 4000));
+  await page.context().close(); }
+
 // 3. the shopping list: kept in the browser; adding while away keeps the words in the box; back, it is followed afresh
 { const page = await open('page=groceries');
   const n = await R(page, () => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries')._items.length);
