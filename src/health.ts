@@ -49,7 +49,7 @@ export const dayWords = (d: Date, now: Date): string => {
   if (sameDay(d, now)) return 'today';
   const y = new Date(now); y.setDate(y.getDate() - 1);
   if (sameDay(d, y)) return 'yesterday';
-  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  return `${d.toLocaleDateString('en-AU', { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString('en-AU', { month: 'short' })}`;
 };
 const dateOf = (ymd: string): Date => { const [y, m, d] = ymd.split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
 /** A line of the health log: "2026-11-17 ab12 reloaded at 03:00: the nightly fresh start" */
@@ -183,7 +183,7 @@ export function healthGroups(i: HealthInput): HealthGroup[] {
     const rows: HealthRow[] = [];
     if (!ha) rows.push(away);
     else if (gone(s)) rows.push({ id: 'voice', name, mark: 'bad', words: 'Not available in Home Assistant: the screen’s own voice speaks instead.' });
-    else rows.push({ id: 'voice', name, mark: 'ok', words: 'Ready in Home Assistant. It is made on the internet: a line said before also plays without it.' });
+    else rows.push({ id: 'voice', name, mark: 'ok', words: 'Ready. It is made on the internet: with the internet down, only lines said before can play.' });
     if (hv) rows.push(used >= cap ? { id: 'allowance', name: 'Today’s allowance', mark: 'warn', words: `Used up (${used.toLocaleString('en-AU')} of ${cap.toLocaleString('en-AU')} new characters): new lines are spoken in the screen’s own voice until midnight.` }
       : { id: 'allowance', name: 'Today’s allowance', mark: 'ok', words: `${used.toLocaleString('en-AU')} of ${cap.toLocaleString('en-AU')} new characters used.` });
     groups.push({ id: 'voice', title: 'The voice', rows });
@@ -225,9 +225,8 @@ export function healthGroups(i: HealthInput): HealthGroup[] {
       : next ? { id: 'next', name: 'A newer build', mark: 'wait', words: `Waiting (${buildShort(next)}): this screen takes it by itself at its next quiet moment.` }
         : { id: 'next', name: 'A newer build', mark: 'ok', words: 'None waiting: this is the build the dashboard names.' });
   const last = me.last;
-  const fault = !!last && last.why !== 'nightly' && last.why !== 'build';
   screen.push(!last ? { id: 'reload', name: 'Its last reload', mark: 'ok', words: 'It has not needed to reload itself.' }
-    : { id: 'reload', name: 'Its last reload', mark: fault && now - last.at < DAY_MS ? 'warn' : 'ok', words: `${dayWords(new Date(last.at), today).replace(/^./, (c) => c.toUpperCase())} at ${fmtTime(new Date(last.at))}: ${WHY_SAY[last.why] ?? last.why}.` });
+    : { id: 'reload', name: 'Its last reload', mark: 'ok', words: `${dayWords(new Date(last.at), today).replace(/^./, (c) => c.toUpperCase())} at ${fmtTime(new Date(last.at))}: ${WHY_SAY[last.why] ?? last.why}.` });
   const wish = me.wish as Why | '', wait = me.wait;
   screen.push(wait === 'held back' && wish ? { id: 'watch', name: 'Its watchdog', mark: 'bad', words: `Held back a reload (${WHY_SAY[wish]}): it has reloaded too often today. A person should look.` }
     : wish ? { id: 'watch', name: 'Its watchdog', mark: 'wait', words: `Will reload (${WHY_SAY[wish]})${wait ? `, waiting ${WAIT_SAY[wait] ?? wait}` : ''}.` }
@@ -241,21 +240,27 @@ export function healthGroups(i: HealthInput): HealthGroup[] {
       : log === 'error' ? [{ id: 'log', name: 'Reloads', mark: 'wait', words: ha ? 'The health log couldn’t be read just now.' : 'Can’t be read while Home Assistant isn’t answering.' }]
         : !log.length ? [{ id: 'log', name: 'Reloads', mark: 'ok', words: 'No screen has reloaded itself this week.' }]
           : log.map((l, n) => {
-            const held = l.words.startsWith('held back'), calm = /the nightly fresh start|a new build was ready/.test(l.words) && !held;
-            return { id: `log:${n}`, name: `${dayWords(dateOf(l.day), today).replace(/^./, (c) => c.toUpperCase())}, ${l.screen === me.screen ? 'this screen' : `screen ${l.screen}`}`, mark: (held ? 'bad' : calm ? 'ok' : 'warn') as Mark, words: l.words.replace(/^./, (c) => c.toUpperCase()) + '.' };
+            // one fault healed by a reload is the watchdog working; two on one screen in a day, or a reload held back, needs a person
+            const held = l.words.startsWith('held back'), fault = (x: LogLine): boolean => x.words.startsWith('reloaded') && !/the nightly fresh start|a new build was ready/.test(x.words);
+            const again = fault(l) && log.filter((x) => x.day === l.day && x.screen === l.screen && fault(x)).length > 1;
+            return { id: `log:${n}`, name: `${dayWords(dateOf(l.day), today).replace(/^./, (c) => c.toUpperCase())}, ${l.screen === me.screen ? 'this screen' : `screen ${l.screen}`}`, mark: (held ? 'bad' : again ? 'warn' : 'ok') as Mark,
+              words: `${l.words.replace(/^./, (c) => c.toUpperCase())}${again ? ' (more than once that day: worth a look)' : held ? ' (a person should look)' : ''}.` };
           });
     groups.push({ id: 'log', title: 'Every screen, this week', rows });
   }
   return groups;
 }
 
-/** The sheet's one-line summary. */
-export const healthSummary = (groups: HealthGroup[]): { mark: Mark; words: string } => {
-  const rows = groups.flatMap((g) => g.rows), bad = rows.filter((r) => r.mark === 'bad').length, warn = rows.filter((r) => r.mark === 'warn').length, wait = rows.some((r) => r.mark === 'wait' && r.words === 'Checking…');
-  if (bad) return { mark: 'bad', words: `${bad === 1 ? 'One thing is' : `${bad} things are`} not working${warn ? `, and ${warn === 1 ? 'one is' : `${warn} are`} worth a look` : ''}.` };
-  if (warn) return { mark: 'warn', words: `Everything is working. ${warn === 1 ? 'One thing is' : `${warn} things are`} worth a look.` };
-  if (wait) return { mark: 'wait', words: 'Checking…' };
-  return { mark: 'ok', words: 'Everything the panel needs is answering.' };
+/** The sheet's summary: one line, and which rows it is about (so the problems are named at the top, wherever they sit below). */
+export const healthSummary = (groups: HealthGroup[]): { mark: Mark; words: string; which: string } => {
+  const all = groups.flatMap((g) => g.rows.map((r) => ({ ...r, g: g.title })));
+  const bad = all.filter((r) => r.mark === 'bad'), warn = all.filter((r) => r.mark === 'warn'), wait = all.some((r) => r.mark === 'wait' && r.words === 'Checking…');
+  const names = (rs: typeof all): string => { const n = rs.slice(0, 4).map((r) => (r.g === 'Every screen, this week' ? `the health log (${r.name.toLowerCase()})` : r.name === r.g || r.g === 'This screen' || r.g.startsWith('Home Assistant') ? r.name : `${r.name} (${r.g.toLowerCase()})`)); return `${n.join('; ')}${rs.length > 4 ? `; and ${rs.length - 4} more` : ''}`; };
+  const which = [bad.length ? `Not working: ${names(bad)}.` : '', warn.length ? `Worth a look: ${names(warn)}.` : ''].filter(Boolean).join(' ');
+  if (bad.length) return { mark: 'bad', words: `${bad.length === 1 ? 'One thing is' : `${bad.length} things are`} not working${warn.length ? `, and ${warn.length === 1 ? 'one is' : `${warn.length} are`} worth a look` : ''}.`, which };
+  if (warn.length) return { mark: 'warn', words: `Everything is working. ${warn.length === 1 ? 'One thing is' : `${warn.length} things are`} worth a look.`, which };
+  if (wait) return { mark: 'wait', words: 'Checking…', which };
+  return { mark: 'ok', words: 'Everything the panel needs is answering.', which };
 };
 
 /** The rows as plain text (for Claude reading a real screen: `window.__fhHealth()`), one per line. */

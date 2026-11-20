@@ -71,6 +71,7 @@ const RULES = [
   { suite: 'offline', when: src(`online|radar|weather|voice|util|music|fonts`) },
   { suite: 'hadown', when: src(`house|util|kid|morning|groceries|weather|${SHELL}`) },
   { suite: 'watchdog', when: src(`watchdog|house|artmode|trust|${SHELL}`) },
+  { suite: 'health', when: src(`health|watchdog|house|settings|trust|voice|online|types`) },
   { suite: 'obsidian', when: src(`${LOOKS}|art|avatar|music|musicviews|scenes/obsidian|${SHELL}`) },
 ];
 // the fit check walks pages, so it is narrowed to the pages the changed files draw; the shared styles and looks mean every page
@@ -79,11 +80,11 @@ const PAGES = [
   [src(SHELL), ['planner', 'planner&view=day', 'planner&view=month', 'planner&events=many', 'planner&sheet=themes', 'planner&sheet=meds', 'planner&sheet=sitter', 'planner&sheet=timer', 'planner&art=1&artn=3', 'planner&night=1@22:30']],
   [src('kid|avatar|studio|wardrobe|rewards|util'), ['kid&kid=0', 'kid&kid=1', 'kid&kid=2', 'kid&kid=0&studio=1', 'kid&kid=0&painted=1&studio=1', 'kid&kid=2&painted=1']],
   [src('music|musicviews|ma'), ['music', 'music&mview=scene', 'music&mview=dial', 'music&mview=desk', 'music&mview=cables', 'music&mview=list', 'music&mtab=shelves', 'music&mtab=juke&juke=1', 'music&mtab=radio', 'music&mtab=call']],
-  [src('settings'), ['planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house', 'planner&sheet=settings&pane=pictures&artn=3', 'planner&sheet=settings&pane=people']],
+  [src('settings'), ['planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house', 'planner&sheet=settings&pane=pictures&artn=3', 'planner&sheet=settings&pane=people', 'planner&sheet=settings&pane=health&trust=1&digest=two&approve=1&voice=1&health=1']],
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark', 'offline', 'hadown', 'watchdog'];
+const ALL = ['click-base', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark', 'offline', 'hadown', 'watchdog', 'health'];
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }

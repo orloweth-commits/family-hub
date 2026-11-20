@@ -200,9 +200,10 @@ export class FhSettings extends LitElement {
     .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: var(--fs-2); }
     .sadv > b { font-weight: var(--w-bold, 700); } .sadv > span { color: var(--ink2); font-weight: 500; overflow-wrap: anywhere; }
     /* Health: a mark, a name and a plain word per row; the mark's colour is never the only cue */
-    .hsum { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-radius: 20px; padding: 12px 16px; background: var(--chip-strong); }
+    .hsum { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-radius: 20px; padding: 12px 16px; background: var(--chip-soft, rgba(255,255,255,.3)); }
     .hsum b { display: block; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
     .hsum .sgrow { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .hsum .hwhich { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink); overflow-wrap: anywhere; }
     .hrows { display: grid; grid-template-columns: 28px minmax(150px, 260px) minmax(0, 1fr); gap: 8px 12px; align-items: start; font-size: var(--fs-2); }
     .hrow { display: contents; }
     .hrow > b { font-weight: var(--w-bold, 700); padding-top: 3px; overflow-wrap: anywhere; }
@@ -1214,7 +1215,7 @@ export class FhSettings extends LitElement {
     (window as Window & { __fhHealth?: () => string }).__fhHealth = () => healthText(healthGroups({ hass: this.hass, cfg: this.config, reads: this._hreads, cals: this.cals, version: this.version }));
     const mark = (m: Mark, size = 22): TemplateResult => html`<span class="hmark" data-mark=${m} role="img" aria-label=${MARK_SAY[m]}>${icon(MARK_IC[m], size)}</span>`;
     const when = this._hreads ? fmtTime(new Date(this._hreads.at)) : '';
-    return html`<div class="hsum" data-mark=${sum.mark} role="status">${mark(sum.mark, 28)}<span class="sgrow"><b>${sum.words}</b><span class="shint">${this._hbusy ? 'Checking now…' : when ? `Checked at ${when}. Everything else is as this screen sees it now.` : 'Checking now…'}</span></span>
+    return html`<div class="hsum" data-mark=${sum.mark} role="status">${mark(sum.mark, 28)}<span class="sgrow"><b>${sum.words}</b>${sum.which ? html`<span class="hwhich">${sum.which}</span>` : nothing}<span class="shint">${this._hbusy ? 'Checking now…' : when ? `Checked at ${when}. Everything else is as this screen sees it now.` : 'Checking now…'}</span></span>
         <button class="pill tap" data-act="health-again" ?disabled=${this._hbusy} @click=${() => { sfx('tap'); void this._healthRead(); }}>Check again</button></div>
       ${groups.map((g) => html`<div class="scard" data-group=${g.id}><h3>${g.title}</h3>
         <div class="hrows">${g.rows.map((r) => html`<div class="hrow" data-row=${r.id} data-mark=${r.mark}>${mark(r.mark)}<b>${r.name}</b><span>${r.words}</span></div>`)}</div></div>`)}
