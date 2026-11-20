@@ -198,6 +198,9 @@ export class FhKid extends LitElement {
     /* one filled button on the page: the timer of the job to do now. Any other timer is an outlined one. */
     .play { height: 44px; /* token */ padding: 0 16px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px var(--primary); font-weight: var(--w-bold, 700); font-size: var(--fs-2); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
     .now .play:not(.going) { background: var(--primary); color: var(--on-primary); box-shadow: none; }
+    /* "Start with me" leads to the tick, it does not compete with it: a quiet button outlined in the action colour, never a second filled one on the row */
+    .now .play.wedge:not(.going) { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 75%, transparent); }
+    .play.wedge .wpl { color: var(--primary); }
     .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: var(--fs-3); }
     .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
     .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
@@ -294,6 +297,20 @@ export class FhKid extends LitElement {
     .feel button:active { background: var(--chip-strong); }
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
+    /* a note from a parent is a card from a person, not a prize: a little tilted, a strip of tape across its top, the words left-aligned and large, Thanks at its foot */
+    .notescrim { background: rgba(0,0,0,.4); }
+    /* the card is the page's own halo colour (white by day, the theme's deepest shade in the dark) with a breath of ink and a warm wash from the corner: paper, not glass */
+    .notecard { position: relative; align-items: stretch; gap: 14px; width: min(640px, calc(100% - 48px)); padding: 34px 36px 24px; border-radius: 18px; transform: rotate(calc(-1.2deg * var(--m-d, 1)));
+      background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%), color-mix(in srgb, var(--ink) 5%, var(--ring-halo, #fff)); -webkit-backdrop-filter: none; backdrop-filter: none;
+      box-shadow: 0 24px 60px -12px rgba(0,0,0,.45), inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent); animation: noteIn var(--mt-4, 400ms) cubic-bezier(.2,1.3,.3,1) backwards; }
+    @keyframes noteIn { from { opacity: 0; transform: translateY(calc(24px * var(--m-d, 1))) rotate(calc(-5deg * var(--m-d, 1))); } }
+    .notecard::before { content: ''; position: absolute; top: -13px; left: 50%; width: 132px; height: 28px; margin-left: -66px; border-radius: 3px; transform: rotate(calc(2.5deg * var(--m-d, 1))); background: color-mix(in srgb, var(--accent) 34%, var(--chip-strong)); box-shadow: 0 2px 6px rgba(0,0,0,.12); opacity: .92; }
+    .notecard .nfrom { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--accent); }
+    .notecard .nwords { margin: 0; text-align: left; line-height: 1.2; overflow-wrap: anywhere; }
+    .notecard .nfoot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
+    .notecard .nmore { margin-right: auto; font-size: var(--fs-2); }
+    .notecard [data-act='note-thanks'] { height: 52px; padding: 0 26px; font-size: var(--fs-3); }
+    :host([data-phone]) .notecard { transform: none; padding: 28px 22px 20px; }
     .unl { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
     .unl > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); animation: avPop var(--m-5, 900ms) cubic-bezier(.2,1.4,.4,1) both; }
     @keyframes avPop { from { opacity: 0; transform: scale(calc(1 - .6 * var(--m-d, 1))); } }
@@ -402,14 +419,14 @@ export class FhKid extends LitElement {
   /** One note at a time, over his page, in a parent's words. It gives no points and counts nothing. */
   private _noticedCard(): TemplateResult {
     const n = this._notes[0], more = this._notes.length - 1;
-    return html`<div class="celebrate" data-noticed>
-      <div class="glass cbox" role="dialog" aria-label="A note from a parent">
-        <span class="rank" style="font-size:var(--fs-2)">A NOTE FROM A PARENT</span>
-        <h1 class="t-title" style="text-align:center;max-width:22em" data-note=${n.id}>${n.text}</h1>
-        <div style="display:flex;gap:12px;align-items:center">
+    return html`<div class="celebrate notescrim" data-noticed>
+      <div class="glass cbox notecard" role="dialog" aria-label="A note from a parent">
+        <span class="nfrom"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"></path></svg>A note from a parent</span>
+        <p class="t-title nwords" data-note=${n.id}>${n.text}</p>
+        <div class="nfoot">
+          ${more > 0 ? html`<span class="muted nmore">${more === 1 ? 'One more note after this' : `${more} more notes after this`}</span>` : nothing}
           ${this._picMode ? html`<button class="round tap" style="font-size:var(--fs-4)" aria-label="Read the note" @click=${(e: Event) => say(n.text, e.currentTarget as Element)}>🔊</button>` : nothing}
-          <button class="pill tap primary" data-act="note-thanks" style="height:52px;padding:0 24px;font-size:var(--fs-3)" @click=${() => this._noteThanks(n)}>Thanks!</button></div>
-        ${more > 0 ? html`<span class="muted" style="font-size:var(--fs-2)">${more === 1 ? 'One more note after this' : `${more} more notes after this`}</span>` : nothing}
+          <button class="pill tap primary" data-act="note-thanks" @click=${() => this._noteThanks(n)}>Thanks!</button></div>
       </div></div>`;
   }
   /** what he has asked a parent's phone for and not yet heard about */
@@ -1015,7 +1032,7 @@ export class FhKid extends LitElement {
       ${d ? nothing : p ? html`<button class="play tap going" ?data-wedge=${!!p.wedge} aria-label="Stop the timer, ${Math.max(1, Math.round(left / 60000))} minutes left" @click=${(e: Event) => { e.stopPropagation(); this._stopPractice(); }}>${lookArt(getLook(), 'timer', { frac: left / (p.mins * 60_000), size: big ? 56 : 36 })}<span>${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}</span></button>`
         : (c.lane === 'grow' || c.song) && c.minutes ? html`<button class="play tap" aria-label="Start ${c.minutes} minute timer" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startPractice(c); }}>▶ ${c.minutes} min</button>`
         // "Start with me": only on the job he is on now, only while no other timer is running, and in the same place a timed job has its timer
-        : c.uid === this._nowUid && !this._practice && !this._night ? html`<button class="play tap" data-act="wedge" aria-label="Start with me: two minutes on ${c.summary}" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startWedge(c); }}>▶ Start with me</button>` : nothing}
+        : c.uid === this._nowUid && !this._practice && !this._night ? html`<button class="play wedge tap" data-act="wedge" aria-label="Start with me: two minutes on ${c.summary}" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startWedge(c); }}><span class="wpl" aria-hidden="true">▶</span>Start with me</button>` : nothing}
       ${!d && this._jobAsked(c) ? html`<span class="plus" data-asked role="status">⏳ Asked</span>` : nothing}
       ${c.lane === 'job' ? html`<span class="mb" role="img" aria-label="Adds one marble to the family jar"><i class="marble" aria-hidden="true"></i>+1</span>${c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing}` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;

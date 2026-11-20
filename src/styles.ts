@@ -339,6 +339,11 @@ export const styles = css`
   .grid3 button:not(.lead) { height: 44px; border-radius: 12px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .rem { display: flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); flex-shrink: 0; }
   .rem .content { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2; }
+  /* the dinner line heads the Reminders card as a row of its own kind: a plate where a reminder has its tick, and an arrow, because it opens the week */
+  .rem.dinline { margin-bottom: 2px; }
+  .rem.dinline .dinmark { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  .rem.dinline .content b { font-weight: var(--w-heavy, 800); }
+  .rem.dinline .dingo { flex-shrink: 0; display: inline-flex; color: var(--ink3, var(--ink2)); }
   .ring { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ink3); flex-shrink: 0; }
 
   /* dock */
@@ -419,11 +424,34 @@ export const styles = css`
   .hb[data-act='more'] svg.i { stroke-width: 3.4; }
   /* the More sheet: what left the header, as big named buttons */
   .moregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  /* the bell's sheet: what is waiting for a parent, one row each */
-  .waitlist { display: flex; flex-direction: column; gap: 10px; }
-  .waitrow { display: flex; align-items: center; gap: 10px; min-height: 56px; flex-wrap: wrap; }
+  /* the bell's sheet: what is waiting for a parent, in a group for each kind (a reward, a job, a chat), each group saying what its buttons do */
+  .waitlist { display: flex; flex-direction: column; gap: 12px; }
+  .waitgrp { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 8px; border-radius: 22px; background: var(--chip-soft, var(--chip)); }
+  .wgh { display: flex; align-items: flex-start; gap: 10px; padding: 0 2px 6px; }
+  .wgi { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--chip-strong); color: var(--accent); }
+  .wgt { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding-top: 1px; }
+  .wgt b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
+  .wgt span { font-size: var(--fs-2); color: var(--ink2); }
+  .waitrow { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 8px 0; flex-wrap: wrap; border-top: 1px solid var(--track); }
+  .waitrow .wface { flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; font-weight: var(--w-heavy, 800); font-size: var(--fs-4); color: #fff; }
   .waitrow .wt { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-3); overflow-wrap: anywhere; }
-  .waitrow .wt span { font-size: var(--fs-2); color: var(--ink2); }
+  .waitrow .wt > span { font-size: var(--fs-2); color: var(--ink2); }
+  .waitrow .wpts { font-style: normal; white-space: nowrap; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
+  .waitrow .wbtns { display: flex; gap: 8px; flex-shrink: 0; margin-left: auto; }
+  .waitrow .wbtns .pill { min-width: 104px; justify-content: center; }
+  /* "A note for …": the six ready lines as small cards, two across; then a parent's own words and the keys */
+  .noticed { display: flex; flex-direction: column; gap: 10px; }
+  .nsays { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 8px; }
+  :host([data-phone]) .nsays { grid-template-columns: 1fr; }
+  .nsay { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 16px 6px 10px; border-radius: 16px; background: var(--chip); color: var(--ink); text-align: left; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.25; }
+  .nsay .nq { flex-shrink: 0; width: 22px; text-align: center; font-family: Georgia, 'Times New Roman', serif; font-size: var(--fs-6); font-weight: 700; line-height: .5; color: var(--accent); transform: translateY(6px); }
+  .nown { display: flex; gap: 8px; }
+  .nown .field { flex: 1; }
+  .nown .pill { height: 48px; padding: 0 22px; }
+  /* a text field on the card's own sheets (a note, a dinner): the same shape as Ask's and Add event's; a look with an underline keeps it */
+  :host(family-hub-card) .field { min-width: 0; height: 48px; border-radius: 14px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+  :host(family-hub-card) .field::placeholder { font-weight: var(--w-semi, 600); }
+  :host(family-hub-card) .field:focus-visible { box-shadow: inset 0 0 0 2.5px var(--primary); }
   .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
   .morebtn > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .morebtn b { font-size: var(--fs-3); font-weight: var(--w-bold, 700); } .morebtn .muted { font-size: var(--fs-2); font-weight: var(--w-semi, 600); }
   .morebtn svg.i { flex-shrink: 0; }
