@@ -11,9 +11,13 @@ const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = new URL('../..', import.meta.url).pathname, PREV = path.join(ROOT, 'preview');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2', '.jpg': 'image/jpeg', '.json': 'application/json' };
 const PORT = Number(process.env.PORT || 4864);
-const net = { ws: 'greet', self: true, probes: 0 };
-const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
-  if (!net.self && u.pathname.endsWith('/family-hub.js') && req.method === 'HEAD') { res.writeHead(404); res.end(); return; }
+const net = { ws: 'greet', self: true, next: true, probes: 0, heads: [] };
+const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x');
+  if (req.method === 'HEAD') net.heads.push(u.pathname);
+  // R1.4: a new build's file, as a deploy leaves it (/next/family-hub.js); net.next = false: not there (yet)
+  if (u.pathname === '/next/family-hub.js') u.pathname = net.next ? '/dist/family-hub.js' : '/nothing-here';
+  const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
+  if (!net.self && u.pathname === '/dist/family-hub.js' && req.method === 'HEAD') { res.writeHead(404); res.end(); return; }
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(req.method === 'HEAD' ? undefined : b); }); }).listen(PORT);
 // a minimal websocket: the handshake, then Home Assistant's first message to a new link
 srv.on('upgrade', (req, sock) => {
@@ -30,7 +34,7 @@ let pass = 0; const fails = [];
 const ok = (name, cond, got = '') => { if (cond) pass++; else fails.push(name); console.log(`${cond ? 'ok  ' : 'FAIL'} ${name}${got !== '' ? `  [${typeof got === 'string' ? got : JSON.stringify(got)}]` : ''}`); };
 
 const open = async (qs = 'page=planner', { time = '2026-11-10T10:20', init } = {}) => {
-  net.ws = 'greet'; net.self = true;
+  net.ws = 'greet'; net.self = true; net.next = true; net.heads = [];
   const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true });
   if (init) await ctx.addInitScript(init);
   const page = await ctx.newPage();
@@ -288,6 +292,86 @@ const artMoves = (page) => R(page, () => { const r = document.querySelector('fam
   ok('and marks it written', await R(page, () => localStorage.getItem('fh-reload') === '0' && JSON.parse(localStorage.getItem('fh-reloads'))[0].logged === true));
   await page.reload(); await page.waitForFunction('window.__ready === true'); await run(page, 30_000, 15_000);
   ok('so a later load does not write it again', (await healthLines(page)).length === 0, await healthLines(page));
+  await page.context().close(); }
+
+/* ================= R1.4: a new build takes itself ================= */
+
+const deploy = (page, url = '/next/family-hub.js') => R(page, (url) => { window.__resources = [{ id: 'fh', type: 'module', url }, { id: 'k', type: 'module', url: '/local/community/kiosk-mode.js' }]; }, url);
+const buildLines = async (page) => (await healthLines(page)).filter((l) => /a new build/.test(l));
+
+// 16. the dashboard still names this page's own file, hours on end: nothing to do (and the dashboard is read, not hammered)
+{ const page = await open();
+  await R(page, () => { window.__resRead = 0; });
+  await run(page, 60 * 60_000);
+  ok('the dashboard names this page’s own file for an hour: no reload, no build waiting', (await reloads(page)).length === 0 && (await state(page)).build === '', await state(page));
+  const n = await R(page, () => window.__resRead);
+  ok('it reads the dashboard’s resources about every five minutes, no more', n >= 9 && n <= 14, n);
+  // nonsense from Home Assistant, a refusal, two other files at once: never a guess
+  await R(page, () => { window.__resources = [{ url: '/local/a/family-hub.js', type: 'module' }, { url: '/local/b/family-hub.js', type: 'module' }]; }); await run(page, 12 * 60_000, 15_000);
+  ok('two other files for the card at once: left alone', (await reloads(page)).length === 0 && (await state(page)).build === '', await state(page));
+  await R(page, () => { window.__resources = [{ url: '/next/family-hub.css', type: 'css' }]; }); await run(page, 12 * 60_000, 15_000);
+  ok('no file for the card at all: left alone', (await reloads(page)).length === 0, await state(page));
+  await R(page, () => { window.__resources = undefined; window.__resFail = true; }); await run(page, 12 * 60_000, 15_000);
+  ok('the resources refused: left alone', (await reloads(page)).length === 0, await state(page));
+  await page.context().close(); }
+
+// 17. a deploy: the dashboard now names a new file. Not under a finger; at the first quiet moment, the new file answering first; written down once
+{ const page = await open();
+  await run(page, 4 * 60_000);
+  for (let i = 0; i < 6; i++) { await touch(page); await run(page, 30_000, 15_000); }
+  await deploy(page);
+  for (let i = 0; i < 16; i++) { await touch(page); await run(page, 30_000, 15_000); }
+  ok('a new build while someone is using the screen: no reload', (await reloads(page)).length === 0, await state(page));
+  ok('but it knows the new build is there', /\/next\/family-hub\.js$/.test((await state(page)).build) && (await state(page)).wish === 'build', await state(page));
+  // the new file not there yet (a deploy half done): it waits, though the old one answers
+  net.next = false;
+  await run(page, 4 * 60_000, 15_000);
+  ok('the new build’s file not answering: no reload', (await reloads(page)).length === 0 && (await state(page)).wait === 'file', await state(page));
+  ok('it asked the new file, not the old one', net.heads.includes('/next/family-hub.js'), [...new Set(net.heads)]);
+  net.next = true;
+  await run(page, 60_000, 15_000);
+  ok('the new file answers and nobody is touching: reloaded for the new build', JSON.stringify(await reloads(page)) === '["build"]', await reloads(page));
+  ok('the line for it goes to the health log, naming the build', await until(page, () => document.querySelector('family-hub-card').hass.callWS({ type: 'todo/item/list', entity_id: 'todo.family_hub_use' }).then((r) => r.items.some((x) => /^2026-11-10 [a-z0-9]{4} reloaded at \d\d:\d\d: a new build was ready$/.test(x.summary) && /next\/family-hub\.js/.test(x.description)))), await healthLines(page));
+  await page.context().close(); }
+
+// 18. Home Assistant away: no reading, no reload; and a new build is not a fault (outside the six-a-day cap and the doubling)
+{ const page = await open('page=planner', { init: `localStorage.setItem('fh-reloads', ${JSON.stringify(JSON.stringify([5, 4, 3, 2, 1.5, 0.5].map((h) => ({ at: T0() - h * 3_600_000, why: 'errors', logged: true }))))})` });
+  await run(page, 4 * 60_000);
+  await R(page, () => window.__haDown(true));
+  await deploy(page);
+  await run(page, 4 * 60_000, 15_000);
+  ok('a new build while Home Assistant is away: no reload', (await reloads(page)).length === 0, await state(page));
+  await R(page, () => window.__haDown(false));
+  await run(page, 10 * 60_000, 15_000);
+  ok('Home Assistant back, six fault reloads today already: the new build still comes in', JSON.stringify(await reloads(page)) === '["build"]', await reloads(page));
+  ok('and nothing "held back" for it', (await healthLines(page)).every((l) => !/held back/.test(l)), await healthLines(page));
+  await page.context().close(); }
+
+// 19. the preview cannot load the new file, so the page "comes back" on the old one (as a stuck cache would): once more after ten minutes, then held back with one line
+{ const page = await open();
+  await run(page, 4 * 60_000);
+  await deploy(page);
+  await run(page, 9 * 60_000, 15_000);
+  ok('the first reload for the new build', JSON.stringify(await reloads(page)) === '["build"]', await reloads(page));
+  await run(page, 3 * 60_000, 15_000);
+  ok('still on the old file: not again within ten minutes', (await reloads(page)).length === 1, await reloads(page));
+  await run(page, 2.5 * 60_000, 15_000);
+  ok('a second try after ten', JSON.stringify(await reloads(page)) === '["build","build"]', await reloads(page));
+  await run(page, 60 * 60_000, 15_000);
+  ok('then no more for that build', (await reloads(page)).length === 2, await reloads(page));
+  const held = (await healthLines(page)).filter((l) => /held back a reload: a new build was ready \(\/next\/family-hub\.js\), but this screen came back on the old one 2 times$/.test(l));
+  ok('one "held back" line for a person', held.length === 1, await healthLines(page));
+  // a later deploy (another file) is tried afresh
+  await deploy(page, '/dist/../next/./family-hub.js?v=2');
+  await run(page, 10 * 60_000, 15_000);
+  ok('a later build is tried afresh', (await reloads(page)).length === 3, await reloads(page));
+  await page.context().close(); }
+
+// 20. a rollback is a new file too; and a page whose build is the dashboard's is left alone after it comes back
+{ const init = `if (!localStorage.getItem('fh-build')) { localStorage.setItem('fh-build', JSON.stringify({ url: location.origin + '/dist/family-hub.js', n: 1 })); }`;
+  const page = await open('page=planner', { init });
+  await run(page, 40 * 60_000);
+  ok('the page came back on the build it was reloaded for: left alone', (await reloads(page)).length === 0 && (await state(page)).build === '', await state(page));
   await page.context().close(); }
 
 await browser.close(); srv.close();

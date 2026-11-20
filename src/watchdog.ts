@@ -10,6 +10,13 @@
  * writes one dated line to the health log in Home Assistant. Every night between 3 and 4 am, with the screensaver up, it
  * reloads once as a fresh start (nightly).
  *
+ * A new build takes itself (R1.4). A deploy points the dashboard's resource at a new file (`/local/family-hub/<commit>/family-hub.js`),
+ * and a page keeps the build it loaded until it reloads. So every 5 minutes, while Home Assistant answers, the watchdog reads the
+ * dashboard's resources; when the one for this card names another file than the one this page was loaded from (a new build, or a
+ * rollback), it reloads by the same rules as the rest (build): at a quiet moment, the new file answering first, not within 10 minutes of
+ * the last reload. A new build is not a fault: it is left out of the doubling and the six-a-day cap, as the nightly one is. If a page
+ * reloaded for a file still comes back on the old one, it tries once more, then stops and writes "held back" for a person.
+ *
  * A false reload of a healthy screen is the failure designed against, so it only ever reloads when:
  *  - the page is shown (a hidden page is left alone: Home Assistant drops its own link on a hidden page on purpose);
  *  - nobody has touched the screen for 3 minutes and nothing is running that must not be cut off (a timer, a count-down,
@@ -25,7 +32,7 @@
 import { houseUp, onHouse } from './house';
 import type { Hass } from './types';
 
-export type Why = 'stalled' | 'errors' | 'memory' | 'socket' | 'nightly';
+export type Why = 'stalled' | 'errors' | 'memory' | 'socket' | 'nightly' | 'build';
 /** What the card tells the watchdog about the moment (it is asked; it never pushes). */
 export interface WatchHost {
   /** nobody is touching the screen and nothing is running that a reload would cut off (a timer, typing, a call, a sheet) */
@@ -46,11 +53,17 @@ export const STALL_MS = 3 * 60_000, POKE_MS = 45_000, QUIET_MS = 3 * 60_000, SOC
 export const GAP_MS = 10 * 60_000, MAX_GAP_MS = 6 * 3_600_000, DAY_MAX = 6;
 export const ERR_WINDOW = 5 * 60_000, ERR_SAME = 10, ERR_ANY = 30;
 export const MEM_WINDOW = 30 * 60_000;
+export const BUILD_MS = 5 * 60_000, BUILD_TRIES = 2;
 const CYCLE_MS = 15_000, JUMP_MS = 50_000;
-const RELOADS = 'fh-reloads', PENDING = 'fh-reload', RESUME = 'fh-resume', NIGHT = 'fh-reload-night';
+const RELOADS = 'fh-reloads', PENDING = 'fh-reload', RESUME = 'fh-resume', NIGHT = 'fh-reload-night', BUILD = 'fh-build';
 
 /** Where the card itself was loaded from: errors are counted only from this file, and it must answer before a reload. */
 const SELF = ((): string => { try { return new URL(import.meta.url).pathname; } catch { return 'family-hub.js'; } })();
+/** The whole address this page loaded the card from, to compare with the dashboard's resource (R1.4). */
+const SELF_HREF = ((): string => { try { return new URL(import.meta.url).href; } catch { return ''; } })();
+const isCard = (u: URL): boolean => u.pathname.split('/').pop() === 'family-hub.js';
+/** A short name for a build's file in the health log: its commit's first seven, or its path. */
+const buildName = (href: string): string => { const m = /[0-9a-f]{40}/.exec(href); if (m) return m[0].slice(0, 7); try { return new URL(href).pathname; } catch { return href.slice(0, 60); } };
 
 const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
@@ -65,6 +78,7 @@ export const WHY_SAY: Record<Why, string> = {
   errors: 'the same error kept coming back',
   memory: 'its memory had kept climbing',
   socket: 'Home Assistant was answering but this screen’s link to it would not come back',
+  build: 'a new build was ready',
 };
 
 type Rec = { at: number; why: Why; logged?: boolean; note?: string };
@@ -74,12 +88,12 @@ export const reloads = (): Rec[] => lsGet<Rec[]>(RELOADS, []).filter((r) => r &&
 export const lastReload = (): Rec | null => reloads().slice(-1)[0] ?? null;
 
 /** How long to wait after the last reload before another for `why`: 10 minutes; doubled for each further time the same fault
- *  brought a reload within three hours of the one after it (10, 20, 40 minutes … at most 6 hours). The nightly one does not count. */
+ *  brought a reload within three hours of the one after it (10, 20, 40 minutes … at most 6 hours). The nightly and build ones do not count. */
 export function gapFor(why: Why, hist: Rec[], now: number): number {
   let n = 0, t = now;
   for (let i = hist.length - 1; i >= 0; i--) {
     const r = hist[i];
-    if (r.why === 'nightly') continue;
+    if (r.why === 'nightly' || r.why === 'build') continue;
     if (r.why !== why || t - r.at > 3 * 3_600_000) break;
     n++; t = r.at;
   }
@@ -94,8 +108,9 @@ export class Watchdog {
   private mem: { at: number; used: number }[] = []; private base = 0;
   private probeAt = 0; private busy = false; private wish: Why | null = null; private heldSaid = '';
   private offHouse: (() => void) | null = null; private touchAt = 0;
-  /** for the tests and the health sheet: what the watchdog last thought, and why it did not act */
-  state = { wish: '' as Why | '', wait: '' };
+  private buildAt = 0; private readAt = 0; private reading = false; private next = '';
+  /** for the tests and the health sheet: what the watchdog last thought, and why it did not act; `build` the new build's file, if one is waiting */
+  state = { wish: '' as Why | '', wait: '', build: '' };
 
   constructor() {
     if (typeof window === 'undefined') return;
@@ -176,16 +191,17 @@ export class Watchdog {
     const now = Date.now();
     if (now - this.lastCycle > JUMP_MS) { this.restart(); return; } // time jumped (asleep, or the page frozen): nothing counted across it
     this.lastCycle = now;
-    if (!visible()) { this.state = { wish: '', wait: 'hidden' }; return; }
+    if (!visible()) { this.state = { ...this.state, wish: '', wait: 'hidden' }; return; }
     if (!this.downShownAt && !houseUp()) this.downShownAt = now;
     this.sampleMemory(now);
     const h = this.host;
     if (!h) return;
     if (now - this.drawnAt > POKE_MS) { try { h.poke(); } catch { /* counted as not drawing */ } }
     this.writePending();
+    if (houseUp() && now - this.upAt >= UP_MS && now - this.buildAt >= BUILD_MS && !this.busy) { this.buildAt = now; void this.readBuild(); }
     const f = this.fault(now);
     const night = this.nightDue(now);
-    const want: { why: Why; note?: string } | null = f ?? (night ? { why: 'nightly' } : null);
+    const want: { why: Why; note?: string } | null = f ?? (this.next ? { why: 'build', note: `to ${buildName(this.next)}` } : night ? { why: 'nightly' } : null);
     this.wish = want?.why ?? null; this.state.wish = this.wish ?? '';
     if (!want) { this.state.wait = ''; return; }
     void this.tryReload(want.why, want.note, now);
@@ -208,9 +224,12 @@ export class Watchdog {
     if (!quiet()) return wait('in use');
     if (why !== 'socket' && (!houseUp() || now - this.upAt < UP_MS)) return wait('house');
     const hist = reloads(), last = hist[hist.length - 1];
-    const today = hist.filter((r) => r.why !== 'nightly' && now - r.at < 24 * 3_600_000).length;
-    if (why !== 'nightly' && today >= DAY_MAX) { this.held(why, note); return wait('held back'); }
-    if (last && now - last.at < (why === 'nightly' ? GAP_MS : gapFor(why, hist, now))) return wait('too soon');
+    const free = why === 'nightly' || why === 'build'; // not faults: outside the doubling and the cap
+    const today = hist.filter((r) => r.why !== 'nightly' && r.why !== 'build' && now - r.at < 24 * 3_600_000).length;
+    if (!free && today >= DAY_MAX) { this.held(why, note); return wait('held back'); }
+    const tried = lsGet<{ url: string; n: number }>(BUILD, { url: '', n: 0 });
+    if (why === 'build' && tried.url === this.next && tried.n >= BUILD_TRIES) { this.held(why, note, `${WHY_SAY.build} (${buildName(this.next)}), but this screen came back on the old one ${tried.n} times`); return wait('held back'); }
+    if (last && now - last.at < (free ? GAP_MS : gapFor(why, hist, now))) return wait('too soon');
     this.busy = true;
     try {
       // the page must come back: the card's own file answers, and (for a lost link) a fresh link of our own is answered
@@ -219,8 +238,14 @@ export class Watchdog {
         this.probeAt = now;
         if (!(await this.probe(h.hass()))) return wait('not answering');
       }
-      if (!(await this.selfAnswers())) return wait('file');
+      if (why === 'build') {
+        // read the dashboard again (a rollback may have come in between), and the new file must answer, not the old one
+        const target = Date.now() - this.readAt < 60_000 ? this.next : await this.readBuild();
+        if (!target) return wait('changed');
+        if (!(await this.answers(target))) return wait('file');
+      } else if (!(await this.answers(import.meta.url))) return wait('file');
       if (!quiet() || this.wish !== why) return wait('changed');
+      if (why === 'build') lsSet(BUILD, { url: this.next, n: tried.url === this.next ? tried.n + 1 : 1 });
       this.reload(why, note, h);
     } finally { this.busy = false; }
   }
@@ -238,9 +263,30 @@ export class Watchdog {
       ws.onerror = () => end(false); ws.onclose = () => end(false);
     });
   }
-  private async selfAnswers(): Promise<boolean> {
+  /** The card's file at `url` answers (a HEAD request: `/local/` files answer it truly). */
+  private async answers(url: string): Promise<boolean> {
     const stop = new AbortController(), t = window.setTimeout(() => stop.abort(), 6000);
-    try { const r = await fetch(import.meta.url, { method: 'HEAD', cache: 'no-store', signal: stop.signal }); return r.ok; } catch { return false; } finally { clearTimeout(t); }
+    try { const r = await fetch(url, { method: 'HEAD', cache: 'no-store', signal: stop.signal }); return r.ok; } catch { return false; } finally { clearTimeout(t); }
+  }
+
+  /** The dashboard's resource for this card, if it names another file than the one this page was loaded from (R1.4). Read from Home
+   *  Assistant (`lovelace/resources`); nothing is changed when the read fails, when the page's own file is still among them, or when
+   *  more than one other file would do (a person is in the middle of something: never guess). */
+  private async readBuild(): Promise<string> {
+    const hass = this.host?.hass();
+    if (!hass || !SELF_HREF || this.reading) return this.next;
+    this.reading = true; this.readAt = Date.now();
+    try {
+      let t = 0;
+      const list = await Promise.race([
+        hass.callWS<{ url?: string; type?: string }[]>({ type: 'lovelace/resources' }),
+        new Promise<never>((_, no) => { t = window.setTimeout(() => no(new Error('slow')), 10_000); }),
+      ]).finally(() => clearTimeout(t));
+      if (!Array.isArray(list)) return this.next;
+      const ours = list.flatMap((r) => { try { const u = new URL(String(r?.url ?? ''), location.href); return r?.type !== 'css' && isCard(u) ? [u.href] : []; } catch { return []; } });
+      this.next = ours.includes(SELF_HREF) || new Set(ours).size !== 1 ? '' : ours[0];
+    } catch { /* Home Assistant slow or refusing: keep what was known */ } finally { this.reading = false; this.state.build = this.next; }
+    return this.next;
   }
 
   private reload(why: Why, note: string | undefined, h: WatchHost): void {
@@ -257,11 +303,11 @@ export class Watchdog {
   }
 
   /** The cap is reached: say so once in the health log, for a person. */
-  private held(why: Why, note?: string): void {
-    const day = ymdOf(new Date());
-    if (this.heldSaid === `${day}|${why}`) return;
-    this.heldSaid = `${day}|${why}`;
-    void this.line(`held back a reload: ${WHY_SAY[why]}, ${DAY_MAX} times today already`, { k: 'held', why, ...(note ? { note } : {}) });
+  private held(why: Why, note?: string, words = `${WHY_SAY[why]}, ${DAY_MAX} times today already`): void {
+    const day = ymdOf(new Date()), key = `${day}|${why}|${why === 'build' ? this.next : ''}`;
+    if (this.heldSaid === key) return;
+    this.heldSaid = key;
+    void this.line(`held back a reload: ${words}`, { k: 'held', why, ...(note ? { note } : {}) });
   }
 
   /** The reloaded page writes the line for the reload that made it, once Home Assistant answers. */
