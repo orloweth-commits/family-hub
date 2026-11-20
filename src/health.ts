@@ -95,11 +95,12 @@ export async function readHealth(hass: Hass | undefined, cfg: FamilyHubConfig, n
 
 /* ---------------- the rows ---------------- */
 
-/** Every speaker the panel uses: those in the house map (and its zones), the configured players and each child's own. */
+/** Every speaker the panel uses: those in the house map (and its zones), else the configured players; and each child's own.
+ *  (With a map, the configured players are often the same speakers under their own integration's names: the map's are the ones played to.) */
 export function speakersOf(cfg: FamilyHubConfig): string[] {
   const ids: string[] = [];
   for (const f of cfg.music_map ?? []) for (const r of f.rooms ?? []) { if (r.player) ids.push(r.player); for (const z of r.zones ?? []) if (z.player) ids.push(z.player); }
-  ids.push(...(cfg.music_players ?? []));
+  if (!ids.length) ids.push(...(cfg.music_players ?? []));
   for (const k of cfg.kids ?? []) if (k.speaker) ids.push(k.speaker);
   return [...new Set(ids.filter((x) => typeof x === 'string' && x.startsWith('media_player.')))];
 }
@@ -172,7 +173,8 @@ export function healthGroups(i: HealthInput): HealthGroup[] {
   if (cfg.calendars?.length) groups.push({ id: 'cals', title: 'Calendars', rows: ha ? calRows : [away] });
 
   // the speakers
-  const spk = speakersOf(cfg);
+  // one row per speaker: the same speaker named twice (its own integration's name and Music Assistant's) is shown once
+  const spk = speakersOf(cfg).filter((e, n, all) => !hass || all.findIndex((x) => nameOf(hass, x).toLowerCase() === nameOf(hass, e).toLowerCase()) === n);
   if (spk.length) groups.push({ id: 'speakers', title: 'Speakers', rows: !ha ? [away] : spk.map((e) => { const s = hass!.states[e], name = nameOf(hass!, e);
     return gone(s) ? { id: `spk:${e}`, name, mark: 'bad' as Mark, words: 'Can’t be reached.' } : { id: `spk:${e}`, name, mark: 'ok' as Mark, words: s!.state === 'playing' ? 'Answering, playing now.' : 'Answering.' }; }) });
 
