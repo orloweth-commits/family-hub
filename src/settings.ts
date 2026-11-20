@@ -1,4 +1,6 @@
 import { DARK_MODES, getDarkMode, setDarkMode, type DarkMode } from './dark';
+import { fmtTime } from './dates';
+import { healthGroups, healthSummary, healthText, readHealth, type CalSeen, type HealthReads, type Mark } from './health';
 import { voiceInUse, voiceList } from './voice';
 import { LitElement, html, css, nothing, svg, type PropertyValues, type TemplateResult } from 'lit';
 import { styles } from './styles';
@@ -31,7 +33,7 @@ import { checkAccess, choreForm, choreItem, clone, dashPath, draftErrors, getNot
  * Children are edited one at a time and never shown side by side.
  * ------------------------------------------------------------------ */
 
-type PaneId = 'children' | 'rewards' | 'morning' | 'medicines' | 'pin' | 'house' | 'pictures' | 'music' | 'people' | 'advanced';
+type PaneId = 'children' | 'rewards' | 'morning' | 'medicines' | 'pin' | 'house' | 'pictures' | 'music' | 'people' | 'health' | 'advanced';
 const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'children', name: 'Children', sub: 'Bedtimes, jobs and how each page looks', ic: 'kid' },
   { id: 'rewards', name: 'Rewards', sub: 'What points can be spent on', ic: 'star' },
@@ -42,10 +44,17 @@ const PANES: { id: PaneId; name: string; sub: string; ic: string }[] = [
   { id: 'pictures', name: 'Pictures', sub: 'The screensaver, the artwork and the children’s characters', ic: 'palette' },
   { id: 'music', name: 'Music', sub: 'Views, moments, the sleep timer and calls', ic: 'music' },
   { id: 'people', name: 'People and safety', sub: 'Parents, the babysitter page, alerts, the evening digest and approvals', ic: 'info' },
+  { id: 'health', name: 'Health', sub: 'Whether everything the panel needs is answering', ic: 'health' },
   { id: 'advanced', name: 'Advanced', sub: 'What is wired up, and earlier versions', ic: 'cog' }
 ];
 const KID_IC = svg`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`;
-const paneIcon = (ic: string, size = 22): TemplateResult => ic === 'kid' ? html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${KID_IC}</svg>` : icon(ic, size);
+/** a pulse line, for Health */
+const HEALTH_IC = svg`<path d="M3 12.5h4l2.5-6 4 11 2.5-5H21"></path>`;
+const paneIcon = (ic: string, size = 22): TemplateResult => ic === 'kid' || ic === 'health' ? html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${ic === 'kid' ? KID_IC : HEALTH_IC}</svg>` : icon(ic, size);
+/** Panes that save nothing, and stay open to read on a screen that cannot save (or before a PIN is set). */
+const READ_ONLY_PANES: PaneId[] = ['health', 'advanced'];
+const MARK_IC: Record<Mark, string> = { ok: 'check', warn: 'alert', bad: 'alert', wait: 'timer' };
+const MARK_SAY: Record<Mark, string> = { ok: 'Working', warn: 'Worth a look', bad: 'Not working', wait: 'Checking or waiting' };
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], WEEK = [['mon', 'Mon'], ['tue', 'Tue'], ['wed', 'Wed'], ['thu', 'Thu'], ['fri', 'Fri']] as const;
 const ROW = 44, HOURS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const pad = (n: number): string => String(n).padStart(2, '0');
@@ -190,6 +199,16 @@ export class FhSettings extends LitElement {
     [aria-pressed='true'] > .sbox2 { background: var(--primary); color: var(--on-primary); box-shadow: none; }
     .sadv { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr); gap: 6px 16px; font-size: var(--fs-2); }
     .sadv > b { font-weight: var(--w-bold, 700); } .sadv > span { color: var(--ink2); font-weight: 500; overflow-wrap: anywhere; }
+    /* Health: a mark, a name and a plain word per row; the mark's colour is never the only cue */
+    .hsum { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-radius: 20px; padding: 12px 16px; background: var(--chip-strong); }
+    .hsum b { display: block; font-size: var(--fs-3); font-weight: var(--w-heavy, 800); }
+    .hsum .sgrow { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .hrows { display: grid; grid-template-columns: 28px minmax(150px, 260px) minmax(0, 1fr); gap: 8px 12px; align-items: start; font-size: var(--fs-2); }
+    .hrow { display: contents; }
+    .hrow > b { font-weight: var(--w-bold, 700); padding-top: 3px; overflow-wrap: anywhere; }
+    .hrow > span { color: var(--ink2); font-weight: 500; line-height: 1.35; padding-top: 3px; overflow-wrap: anywhere; }
+    .hmark { display: inline-flex; align-items: center; justify-content: center; line-height: 0; color: var(--ink3); }
+    .hmark[data-mark='ok'] { color: var(--ok); } .hmark[data-mark='warn'] { color: var(--warn, var(--accent)); } .hmark[data-mark='bad'] { color: var(--danger, #c62828); }
     /* the foot: where the pane stands, and its one Save */
     .sft { grid-column: 2; display: flex; align-items: center; gap: 12px; padding: 12px 24px 16px 12px; border-top: 1px solid color-mix(in srgb, var(--ink2) 20%, transparent); min-height: 82px; }
     .sft .sstate { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.3; display: flex; align-items: center; gap: 10px; }
@@ -242,6 +261,7 @@ export class FhSettings extends LitElement {
     :host([data-phone]) .sft .lead, :host([data-phone]) .sft .pill { flex: 1; }
     :host([data-phone]) .srow > .sctl { justify-content: flex-start; }
     :host([data-phone]) .sin { width: 100%; } :host([data-phone]) .sin.short { width: 96px; } :host([data-phone]) .sin.pic { width: 60px; }
+    :host([data-phone]) .hrows { grid-template-columns: 28px minmax(0, 1fr); } :host([data-phone]) .hrow > span { grid-column: 2; }
     :host([data-phone]) .sadv { grid-template-columns: 1fr; gap: 0 0; } :host([data-phone]) .sadv > span { margin-bottom: 8px; }
     :host([data-phone]) .skeys { display: none; }
     :host([data-phone]) .sjob .sname { white-space: normal; }
@@ -249,12 +269,18 @@ export class FhSettings extends LitElement {
     /* where a row of controls will not fit beside its name, the name takes the first line whole instead of being cut */
     :host([data-n2]) .sitem > .sin.sfull2, :host([data-shape='tall']) .sitem > .sin.sfull2, :host([data-phone]) .sitem > .sin.sfull2 { flex-basis: calc(100% - 68px); }
   `];
-  static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
+  static properties = { hass: { attribute: false }, config: { attribute: false }, forceKeys: { type: Boolean }, cals: { attribute: false }, version: { type: String }, _hreads: { state: true }, _pane: { state: true }, _draft: { state: true }, _access: { state: true }, _busy: { state: true }, _err: { state: true }, _ask: { state: true },
     _kid: { state: true }, _ktab: { state: true }, _rwLive: { state: true }, _time: { state: true }, _kb: { state: true }, _caps: { state: true }, _lists: { state: true }, _job: { state: true }, _pin: { state: true }, _find: { state: true }, _tick: { state: true }, _sure: { state: true }, _hist: { state: true }, _open: { state: true }, _lib: { state: true }, _libBusy: { state: true }, _cam: { state: true }, _camTick: { state: true }, _zap: { state: true }, _libShow: { state: true }, _night: { state: true } };
   hass?: Hass;
   config!: Cfg;
   /** show the on-screen keyboard whatever the pointer is (the preview and the tests) */
   forceKeys = false;
+  /** the card's record of when each calendar was last read on this screen, and the build's version (Health) */
+  cals: CalSeen = { seen: {}, since: Date.now() };
+  version = '';
+  /** Health: what had to be asked for, and whether it is being asked now */
+  private _hreads: HealthReads | null = null;
+  private _hbusy = false;
   private _pane: PaneId = 'children';
   private _draft!: Cfg;
   private _access: Access | null = null;
@@ -292,7 +318,7 @@ export class FhSettings extends LitElement {
     const want = paneWanted() as PaneId; if (PANES.some((p) => p.id === want)) this._pane = want;
     this._hist = history();
     window.addEventListener('keydown', this._keys, true);
-    this._noteT = window.setInterval(() => { this._tick++; }, 1000);
+    this._noteT = window.setInterval(() => { this._tick++; if (this._pane === 'health' && !this._hbusy && (!this._hreads || Date.now() - this._hreads.at > 60_000)) void this._healthRead(); }, 1000);
     pinMark();
   }
   disconnectedCallback(): void {
@@ -309,7 +335,7 @@ export class FhSettings extends LitElement {
       if (this._kid >= (this.config.kids ?? []).length) this._kid = 0;
     }
     if ((ch.has('hass') || ch.has('config')) && this.hass && !this._access && !this._checking) void this._check();
-    if (!this.config?.parent_pin && this._access?.ok && this._pane !== 'pin' && this._pane !== 'advanced') this._pane = 'pin';
+    if (!this.config?.parent_pin && this._access?.ok && this._pane !== 'pin' && !READ_ONLY_PANES.includes(this._pane)) this._pane = 'pin';
   }
   private _checking = false;
   private async _check(): Promise<void> {
@@ -346,7 +372,7 @@ export class FhSettings extends LitElement {
   private _guard(run: () => void): void { if (this._dirty && !this._ro) { this._ask = run; sfx('locked'); } else run(); }
   private _go(p: PaneId): void {
     if (p === this._pane) return;
-    if (!this.config.parent_pin && !this._ro && p !== 'advanced' && p !== 'pin') { this._say('Set a parent PIN first: Settings is for parents.'); return; }
+    if (!this.config.parent_pin && !this._ro && !READ_ONLY_PANES.includes(p) && p !== 'pin') { this._say('Set a parent PIN first: Settings is for parents.'); return; }
     this._guard(() => { this._pane = p; this._job = null; this._err = ''; this._kb = ''; this._sure = ''; this._find = ''; this._open = -1; sfx('nav'); });
   }
   private _close(): void { this._guard(() => { this._closed = true; this.dispatchEvent(new CustomEvent('close')); }); }
@@ -1175,6 +1201,26 @@ export class FhSettings extends LitElement {
       </div>`;
   }
 
+  /* ---------------- Health (R1.5): read only ---------------- */
+
+  private async _healthRead(): Promise<void> {
+    if (this._hbusy) return;
+    this._hbusy = true; this._tick++;
+    try { this._hreads = await readHealth(this.hass, this.config); } finally { this._hbusy = false; this._tick++; }
+  }
+  private _health(): TemplateResult {
+    const groups = healthGroups({ hass: this.hass, cfg: this.config, reads: this._hreads, cals: this.cals, version: this.version });
+    const sum = healthSummary(groups);
+    (window as Window & { __fhHealth?: () => string }).__fhHealth = () => healthText(healthGroups({ hass: this.hass, cfg: this.config, reads: this._hreads, cals: this.cals, version: this.version }));
+    const mark = (m: Mark, size = 22): TemplateResult => html`<span class="hmark" data-mark=${m} role="img" aria-label=${MARK_SAY[m]}>${icon(MARK_IC[m], size)}</span>`;
+    const when = this._hreads ? fmtTime(new Date(this._hreads.at)) : '';
+    return html`<div class="hsum" data-mark=${sum.mark} role="status">${mark(sum.mark, 28)}<span class="sgrow"><b>${sum.words}</b><span class="shint">${this._hbusy ? 'Checking now…' : when ? `Checked at ${when}. Everything else is as this screen sees it now.` : 'Checking now…'}</span></span>
+        <button class="pill tap" data-act="health-again" ?disabled=${this._hbusy} @click=${() => { sfx('tap'); void this._healthRead(); }}>Check again</button></div>
+      ${groups.map((g) => html`<div class="scard" data-group=${g.id}><h3>${g.title}</h3>
+        <div class="hrows">${g.rows.map((r) => html`<div class="hrow" data-row=${r.id} data-mark=${r.mark}>${mark(r.mark)}<b>${r.name}</b><span>${r.words}</span></div>`)}</div></div>`)}
+      <span class="shint">Nothing here changes anything. A screen that has stopped answering altogether can’t say so itself: the wall’s own restart and Home Assistant’s notices cover that.</span>`;
+  }
+
   private _advanced(): TemplateResult {
     const c = this.config as unknown as Record<string, unknown>, a = this._access, kids = this.config.kids ?? [];
     const say = (v: unknown): string => v === undefined ? 'Not set' : typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' ? String(v)
@@ -1209,9 +1255,9 @@ export class FhSettings extends LitElement {
       <button class="pill tap" data-act="stay" @click=${() => { this._ask = null; }}>Keep editing</button><button class="pill tap danger" data-act="discard" @click=${() => { const run = this._ask!; this._ask = null; this._discard(); run(); }}>Discard</button>
       <button class="lead tap" data-act="save" ?data-busy=${busy} ?disabled=${busy} @click=${() => { const run = this._ask!; void this._save(run); }}>${busy ? 'Saving…' : 'Save'}</button></div>`;
     const dirty = this._dirty;
-    return html`<div class="sft"><span class="sstate ${this._err ? 'bad' : ''}" role=${this._err ? 'alert' : 'status'}>${this._err ? this._err : dirty ? html`<i class="sdot" aria-hidden="true"></i>Unsaved changes` : this._pane === 'advanced' ? 'Nothing to save on this page.' : html`${icon('check', 20)}All saved`}</span>
+    return html`<div class="sft"><span class="sstate ${this._err ? 'bad' : ''}" role=${this._err ? 'alert' : 'status'}>${this._err ? this._err : dirty ? html`<i class="sdot" aria-hidden="true"></i>Unsaved changes` : READ_ONLY_PANES.includes(this._pane) ? 'Nothing to save on this page.' : html`${icon('check', 20)}All saved`}</span>
       ${dirty ? html`<button class="pill tap" data-act="discard" ?disabled=${busy} @click=${() => this._discard()}>Discard</button>` : nothing}
-      ${this._pane === 'advanced' && !dirty ? html`<button class="lead tap" data-act="done" @click=${() => this._close()}>Done</button>` : html`<button class="lead tap" data-act="save" ?data-busy=${busy} aria-busy=${busy ? 'true' : 'false'} ?disabled=${!dirty || busy} @click=${() => void this._save()}>${busy ? 'Saving…' : noPin ? 'Set the PIN' : 'Save'}</button>`}</div>`;
+      ${READ_ONLY_PANES.includes(this._pane) && !dirty ? html`<button class="lead tap" data-act="done" @click=${() => this._close()}>Done</button>` : html`<button class="lead tap" data-act="save" ?data-busy=${busy} aria-busy=${busy ? 'true' : 'false'} ?disabled=${!dirty || busy} @click=${() => void this._save()}>${busy ? 'Saving…' : noPin ? 'Set the PIN' : 'Save'}</button>`}</div>`;
   }
   private _keysView(): TemplateResult | typeof nothing {
     const f = this._fields.get(this._kb); if (!this._kb || !f || !this._osk) return nothing;
@@ -1224,15 +1270,15 @@ export class FhSettings extends LitElement {
     if (!this._draft) return nothing;
     this._fields.clear();
     const p = PANES.find((x) => x.id === this._pane)!, ro = this._ro, a = this._access, locked = !this.config.parent_pin && !ro;
-    const body = this._pane === 'children' ? this._children() : this._pane === 'rewards' ? this._rewards() : this._pane === 'morning' ? this._morning() : this._pane === 'medicines' ? this._medicines() : this._pane === 'pin' ? this._pinPane() : this._pane === 'house' ? this._house() : this._pane === 'pictures' ? this._pictures() : this._pane === 'music' ? this._music() : this._pane === 'people' ? this._people() : this._advanced();
+    const body = this._pane === 'children' ? this._children() : this._pane === 'rewards' ? this._rewards() : this._pane === 'morning' ? this._morning() : this._pane === 'medicines' ? this._medicines() : this._pane === 'pin' ? this._pinPane() : this._pane === 'house' ? this._house() : this._pane === 'pictures' ? this._pictures() : this._pane === 'music' ? this._music() : this._pane === 'people' ? this._people() : this._pane === 'health' ? this._health() : this._advanced();
     const note = getNote(); void this._tick;
     const dirty = this._dirty;
     return html`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(e: Event) => e.stopPropagation()}>
       <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${icon('cog', 26)}</span>Settings</h2><span class="muted">For parents. ${p.sub}.</span></div>
         <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${icon('close', 20)}</button></div>
-      <nav class="snav" aria-label="Sections">${PANES.map((x) => { const off = locked && x.id !== 'pin' && x.id !== 'advanced';
+      <nav class="snav" aria-label="Sections">${PANES.map((x) => { const off = locked && x.id !== 'pin' && !READ_ONLY_PANES.includes(x.id);
         return html`<button class="tap" data-pane=${x.id} aria-current=${x.id === this._pane ? 'page' : 'false'} aria-disabled=${off ? 'true' : 'false'} aria-label=${`${x.name}${off ? ' (set a PIN first)' : x.id === this._pane && dirty ? ', unsaved changes' : ''}`} @click=${() => this._go(x.id)}>${paneIcon(x.ic)}<span>${x.name}</span>${x.id === this._pane && dirty && !ro ? html`<i class="sdot" aria-hidden="true"></i>` : nothing}</button>`; })}</nav>
-      <fieldset class="spane" data-pane=${this._pane} aria-label=${p.name} ?disabled=${(ro && this._pane !== 'advanced') || this._busy === 'save' || this._busy === 'undo'}>
+      <fieldset class="spane" data-pane=${this._pane} aria-label=${p.name} ?disabled=${(ro && !READ_ONLY_PANES.includes(this._pane)) || this._busy === 'save' || this._busy === 'undo'}>
         ${ro && a ? html`<div class="snote ro" role="note"><span><b>${BLOCKED[a.why ?? 'offline'][0]}.</b> ${BLOCKED[a.why ?? 'offline'][1]}</span></div>` : nothing}
         ${body}
       </fieldset>

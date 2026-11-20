@@ -56,7 +56,7 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.15';
+const VERSION = '0.38.16';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -200,6 +200,9 @@ export class FamilyHubCard extends LitElement {
   private _calKept = 0;
   /** trust guards (trust.ts): when each calendar last answered, when this screen last stamped the heartbeat, and today's opens and taps */
   private _calSeen: Record<string, number> = {}; private _calSince = Date.now(); private _calTick = 0;
+  /** the same record for the health sheet (R1.5): one object, so Settings is not drawn again for it */
+  private _calsRef: { seen: Record<string, number>; since: number } | null = null;
+  private _calsFor(): { seen: Record<string, number>; since: number } { if (!this._calsRef || this._calsRef.seen !== this._calSeen) this._calsRef = { seen: this._calSeen, since: this._calSince }; return this._calsRef; }
   private _beatAt = 0; private _use = new UseLog(); private _useAt = Date.now() - USE_FLUSH_MS + 60_000;
   private _wifiUntil = 0;
   private _vis = (): void => { if (document.visibilityState === 'hidden') void this._use.flush(this.hass, this._config?.health?.use_log); };
@@ -1763,7 +1766,7 @@ export class FamilyHubCard extends LitElement {
   private _sheetView(s: Sheet, out: boolean): TemplateResult | typeof nothing {
     if (!s) return nothing;
     const close = () => { this._sheet = ''; };
-    if (s === 'settings') return html`<fh-settings .hass=${this.hass} .config=${this._config} ?data-closing=${out} @close=${close} @fh-config=${(e: CustomEvent<FamilyHubConfig>) => this.setConfig(e.detail)}></fh-settings>`;
+    if (s === 'settings') return html`<fh-settings .hass=${this.hass} .config=${this._config} .cals=${this._calsFor()} .version=${VERSION} ?data-closing=${out} @close=${close} @fh-config=${(e: CustomEvent<FamilyHubConfig>) => this.setConfig(e.detail)}></fh-settings>`;
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .edit=${this._editEv} .scope=${this._editEv ? this._editScope : ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { const was = this._editEv; if (this._sheet === 'add') close(); this._say(was ? (e.detail.startsWith('!') ? `The new one was added, but the old “${was.title}” could not be removed. Please delete it by hand.` : `Changed: ${e.detail}`) : `Added: ${e.detail}`, was && e.detail.startsWith('!') ? 10000 : undefined); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not ${this._editEv ? 'changed' : 'added'}: Home Assistant did not answer`, 8000)}></fh-add-event>`;
