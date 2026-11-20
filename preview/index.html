@@ -249,6 +249,24 @@ window.__haDown = (down) => {
 for (const fn of ['callService', 'callWS', 'callApi']) { const real = hass[fn]; hass[fn] = async (...a) => { if (window.__down && !(fn === 'callApi' && window.__restUp)) throw { code: 3, message: 'Connection lost' }; return real(...a); }; }
 { const today = new Date(), day = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return ymd(d); };
   for (let i = 0; i < ARTN; i++) store['todo.family_hub_art'].push({ uid: 'art-' + i, summary: `fhart-demo-${i}.jpg`, status: 'needs_action', description: JSON.stringify({ d: day(i < 3 ? 0 : i), kind: 'art', who: ['Riley', 'Max'].slice(0, 1 + (i % 2)), theme: ART_THEMES[i % ART_THEMES.length], look: 'glass', p: 'A demo prompt' }) }); }
+// the health sheet (R1.5), with &health=1: Alex's phone has a device whose sensors were heard from five minutes ago (&phone=old: three days ago);
+// the nightly snapshot list has last night's (&snap=old: only one from three days ago; &snap=none: none); the use log has this week's health lines from two screens and an old one
+if (q.get('health')) {
+  const ago = (ms) => new Date(Date.now() - ms).toISOString(), dayOf = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  hass.devices = { ...hass.devices, dev_alex: { id: 'dev_alex', name: 'Alex', area_id: null } };
+  hass.services = { ...hass.services, notify: { ...hass.services.notify, mobile_app_demo_one: {}, mobile_app_demo_two: {} } }; // the emergency alert's two phones are known here
+  const heard = q.get('phone') === 'old' ? ago(3 * 86400000) : ago(5 * 60000);
+  for (const id of ['sensor.alex_battery_level', 'device_tracker.alex']) { hass.states[id] = { entity_id: id, state: id.startsWith('sensor') ? '80' : 'home', attributes: { friendly_name: 'Alex' }, last_updated: heard, last_changed: heard }; hass.entities[id] = { entity_id: id, device_id: 'dev_alex' }; }
+  const snap = (d) => ({ uid: 'snap-' + d, summary: d, status: 'needs_action', description: 'snap ' + JSON.stringify({ v: 1, d, jar: 84, kids: {}, owed: [] }) });
+  store['todo.family_hub_backup'] = q.get('snap') === 'none' ? [] : q.get('snap') === 'old' ? [snap(dayOf(3))] : [snap(dayOf(2)), snap(dayOf(1)), snap(dayOf(0))];
+  store['todo.family_hub_use'] = [
+    { uid: 'u0', summary: `${dayOf(10)} wxyz reloaded at 03:00: the nightly fresh start`, status: 'needs_action', description: '{}' },
+    { uid: 'u1', summary: `${dayOf(1)} wxyz reloaded at 14:02: the screen had stopped drawing`, status: 'needs_action', description: '{}' },
+    { uid: 'u2', summary: `${dayOf(0)} use wxyz`, status: 'needs_action', description: '{"planner":[3,4]}' },
+    { uid: 'u3', summary: `${dayOf(0)} wxyz reloaded at 03:00: the nightly fresh start`, status: 'needs_action', description: '{}' },
+    ...(q.get('held') ? [{ uid: 'u4', summary: `${dayOf(0)} wxyz held back a reload: the same error kept coming back, 6 times today already`, status: 'needs_action', description: '{}' }] : []),
+  ];
+}
 let el = document.createElement('family-hub-card');
 const dash = () => (window.__dash ??= { title: 'Home', views: [{ title: 'Family', type: 'sections', sections: [{ cards: [{ type: 'markdown', content: 'Sample' }, { type: 'vertical-stack', cards: [JSON.parse(JSON.stringify(el._config))] }] }] }] });
 el.setConfig({

@@ -6,13 +6,15 @@ export interface HassEntity {
   entity_id: string;
   state: string;
   attributes: Record<string, any>;
+  /** when Home Assistant last heard of it (ISO), as the frontend gives it */
+  last_updated?: string; last_changed?: string;
 }
 export interface Hass {
   states: Record<string, HassEntity>;
   user?: { name: string; is_admin: boolean };
   /** the dashboard being shown, and what Home Assistant knows about each dashboard (Settings uses both to find where the card is saved) */
   panelUrl?: string; panels?: Record<string, { config?: { mode?: string } | null; title?: string | null }>;
-  config?: { latitude?: number; longitude?: number };
+  config?: { latitude?: number; longitude?: number; version?: string };
   callService(domain: string, service: string, data?: Record<string, unknown>, target?: Record<string, unknown>): Promise<unknown>;
   callApi<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T>;
   callWS<T>(msg: Record<string, unknown>): Promise<T>;

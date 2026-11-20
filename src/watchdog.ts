@@ -81,6 +81,28 @@ export const WHY_SAY: Record<Why, string> = {
   build: 'a new build was ready',
 };
 
+/** What the watchdog is waiting for before it reloads (its `state.wait`), in words for the health sheet (R1.5). */
+export const WAIT_SAY: Record<string, string> = {
+  'in use': 'until nobody has touched the screen for three minutes and nothing is open',
+  house: 'for Home Assistant to have answered for a minute',
+  'too soon': 'ten minutes after its last reload',
+  probe: 'to try a new link to Home Assistant again',
+  'not answering': 'for a new link to Home Assistant to be answered',
+  file: 'for the card’s file to answer',
+  changed: 'to look again',
+  hidden: 'until the page is shown',
+  'held back': 'for a person: it has held back',
+};
+
+/** Where this page loaded the card from (R1.5): Home Assistant itself, jsDelivr, or somewhere else, and the build's short name. */
+export function loadedFrom(href = SELF_HREF): { href: string; where: 'house' | 'jsdelivr' | 'other'; name: string } {
+  let where: 'house' | 'jsdelivr' | 'other' = 'other';
+  try { const u = new URL(href); where = u.hostname === 'cdn.jsdelivr.net' ? 'jsdelivr' : typeof location !== 'undefined' && u.origin === location.origin ? 'house' : 'other'; } catch { /* unknown */ }
+  return { href, where, name: href ? buildName(href) : '' };
+}
+/** A build's short name (its commit's first seven, or its path). */
+export const buildShort = (href: string): string => (href ? buildName(href) : '');
+
 type Rec = { at: number; why: Why; logged?: boolean; note?: string };
 /** The reloads this screen has made, newest last (the last 20). */
 export const reloads = (): Rec[] => lsGet<Rec[]>(RELOADS, []).filter((r) => r && typeof r.at === 'number');
@@ -129,6 +151,8 @@ export class Watchdog {
     this.writePending();
   }
   detach(host: WatchHost): void { if (this.host === host) this.host = null; }
+  /** Read the dashboard's resources now (the health sheet, R1.5): the new build's file if one is waiting, else ''. Only while Home Assistant answers. */
+  async checkBuild(): Promise<string> { if (!houseUp()) return this.next; return this.readBuild(); }
   /** The card finished drawing. */
   drawn(): void { this.drawnAt = Date.now(); }
 
