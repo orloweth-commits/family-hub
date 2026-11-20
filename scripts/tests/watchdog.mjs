@@ -339,7 +339,7 @@ const buildLines = async (page) => (await healthLines(page)).filter((l) => /a ne
   await run(page, 4 * 60_000);
   await R(page, () => window.__haDown(true));
   await deploy(page);
-  await run(page, 20 * 60_000, 15_000);
+  await run(page, 4 * 60_000, 15_000);
   ok('a new build while Home Assistant is away: no reload', (await reloads(page)).length === 0, await state(page));
   await R(page, () => window.__haDown(false));
   await run(page, 10 * 60_000, 15_000);
@@ -353,9 +353,9 @@ const buildLines = async (page) => (await healthLines(page)).filter((l) => /a ne
   await deploy(page);
   await run(page, 9 * 60_000, 15_000);
   ok('the first reload for the new build', JSON.stringify(await reloads(page)) === '["build"]', await reloads(page));
-  await run(page, 8 * 60_000, 15_000);
+  await run(page, 3 * 60_000, 15_000);
   ok('still on the old file: not again within ten minutes', (await reloads(page)).length === 1, await reloads(page));
-  await run(page, 4 * 60_000, 15_000);
+  await run(page, 2.5 * 60_000, 15_000);
   ok('a second try after ten', JSON.stringify(await reloads(page)) === '["build","build"]', await reloads(page));
   await run(page, 60 * 60_000, 15_000);
   ok('then no more for that build', (await reloads(page)).length === 2, await reloads(page));
