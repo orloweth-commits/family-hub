@@ -340,7 +340,6 @@ export const styles = css`
   .rem { display: flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-semi, 600); flex-shrink: 0; }
   .rem .content { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2; }
   /* the dinner line heads the Reminders card as a row of its own kind: a plate where a reminder has its tick, and an arrow, because it opens the week */
-  .rem.dinline { margin-bottom: 2px; }
   .rem.dinline .dinmark { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
   .rem.dinline .content b { font-weight: var(--w-heavy, 800); }
   .rem.dinline .dingo { flex-shrink: 0; display: inline-flex; color: var(--ink3, var(--ink2)); }
