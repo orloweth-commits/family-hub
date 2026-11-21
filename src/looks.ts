@@ -76,7 +76,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
       'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
-    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
+    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'wedge', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
@@ -1383,7 +1383,7 @@ const SPORTS = `
   @S .job.done .check { background: var(--ok); border-color: var(--ok); }
   @S .plus { border-radius: 6px; background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: var(--fs-2); }
   @S .play { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 2px 0 var(--ink); font-size: var(--fs-3); }
-  @S .now .play { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
+  @S .now .play:not(.wedge) { background: var(--primary); color: var(--on-primary); box-shadow: inset 0 0 0 2px var(--edge), 0 4px 0 var(--edge); font-weight: 800; }
   @S .play.going { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
   @S .later { background: var(--panel2); border-radius: 10px; }
   @S .rw { background: var(--panel2); color: var(--ink); border-radius: 10px; min-height: 52px; }

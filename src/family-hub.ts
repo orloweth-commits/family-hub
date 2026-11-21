@@ -55,8 +55,16 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
+/** the bell's three kinds of row, in the order they are shown, each with what its buttons do */
+const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say: string }[] = [
+  { k: 'reward', ic: 'star', title: 'Rewards asked for', say: 'Approve takes the points. Not yet changes nothing.' },
+  { k: 'job', ic: 'check', title: 'Jobs said done', say: 'Approve ticks the job and gives its points. Not yet leaves it unticked.' },
+  { k: 'chat', ic: 'ask', title: 'Asked for a chat', say: 'Seen takes it off the list and tells him a parent has seen it.' }
+];
+/** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
+const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.16';
+const VERSION = '0.38.17';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -252,14 +260,26 @@ export class FamilyHubCard extends LitElement {
     catch (err) { this._say(err instanceof SlowError ? SLOW_SAY : 'Home Assistant did not take that. It needs an administrator’s screen.'); }
     finally { this._waitBusy = ''; this.requestUpdate(); }
   }
+  /** a child's face for a row, as the dock draws it (a letter in a look with no faces) */
+  private _faceOf(who: string, slug: string, size: number): TemplateResult {
+    const k = (this._config.kids ?? []).find((x) => kidEntities(x).slug === slug || x.name === who);
+    const raw = k ? this.hass?.states[kidEntities(k).avatar]?.state : undefined, look = k && (raw || k.look) ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
+    return html`<span class="avatar wface" aria-hidden="true" style="width:${size}px;height:${size}px;background:${k ? slotVar(k.colour) : 'var(--chip-strong)'}">${look && k ? renderAvatar(look, { size, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : (k?.name ?? who).slice(0, 1)}</span>`;
+  }
+  /** The bell's sheet: what is waiting, grouped by kind, each kind with its own line on what the buttons do. */
   private _waitingBody(): TemplateResult {
-    return html`${this._sheetHead('Waiting for a parent', this._waiting.every((a) => a.k === 'chat') ? 'Seen takes the note off the list and tells him you have seen it.' : 'Approve takes or gives the points. Not yet changes nothing.', '')}
-      <div class="waitlist">${this._waiting.map((a) => html`<div class="waitrow" data-ask=${a.id}>
-        <span class="wt"><b>${a.who}</b><span>${a.k === 'chat' ? a.name : a.k === 'job' ? `says “${a.name}” is done · ${a.cost} points` : `would like ${a.name} · ${a.cost} points`}</span></span>
-        ${a.k === 'chat' ? html`<button class="pill tap primary" data-act="wait-seen" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Seen</button>`
-          : html`<button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>
-        <button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>`}</div>`)}
-        ${this._waiting.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
+    const W = this._waiting, groups = WAIT_KINDS.map((g) => ({ ...g, rows: W.filter((a) => a.k === g.k).sort((x, y) => x.t - y.t) })).filter((g) => g.rows.length);
+    return html`${this._sheetHead('Waiting for a parent', W.length ? 'Each one waits here and on a parent’s phone until it is answered.' : '', 'bell')}
+      <div class="waitlist">${groups.map((g) => html`<section class="waitgrp" data-kind=${g.k} aria-label=${g.title}>
+        <div class="wgh"><span class="wgi" aria-hidden="true">${icon(g.ic, 20)}</span><span class="wgt"><b>${g.title}</b><span>${g.say}</span></span></div>
+        ${g.rows.map((a) => html`<div class="waitrow" data-ask=${a.id}>
+          ${this._faceOf(a.who, a.kid, 44)}
+          <span class="wt"><b>${a.who}</b><span>${a.k === 'chat' ? a.name : a.k === 'job' ? html`says “${a.name}” is done<i class="wpts">${a.cost} points</i>` : html`would like “${a.name}”<i class="wpts">${a.cost} points</i>`}</span></span>
+          <span class="wbtns">${a.k === 'chat' ? html`<button class="pill tap primary" data-act="wait-seen" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Seen</button>`
+            : html`<button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>
+            <button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>`}</span></div>`)}
+      </section>`)}
+        ${W.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
   }
   /* ---------------- the dinner line: one line a day, feeding the shopping list (dinner.ts) ---------------- */
   private _dinners: Record<string, Dinner> = {}; private _dnSeen = '';
@@ -321,12 +341,12 @@ export class FamilyHubCard extends LitElement {
   private _noticedBody(): TemplateResult {
     const k = this._kidOn, n = this._nt, set = (p: Partial<typeof n>): void => { this._nt = { ...this._nt, ...p }; this.requestUpdate(); };
     if (!k) return html``;
-    return html`${this._sheetHead(`A note for ${k.name}`, `It shows on ${k.name}’s page until ${k.name} taps Thanks. It gives no points.`)}
-      <div class="noticed" style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;flex-wrap:wrap;gap:8px">${NOTICED.map((t) => html`<button class="pill tap" data-act="note-say" style="min-height:48px;height:auto;padding:8px 16px;font-size:var(--fs-2);text-align:left;white-space:normal" ?disabled=${n.busy} @click=${() => void this._leaveNote(t)}>${t}</button>`)}</div>
+    return html`${this._sheetHead(`A note for ${k.name}`, `It shows on ${k.name}’s page until ${k.name} taps Thanks. It gives no points.`, 'note')}
+      <div class="noticed">
+        <div class="nsays" role="group" aria-label="Ready notes: tap one to leave it">${NOTICED.map((t) => html`<button class="nsay tap" data-act="note-say" ?disabled=${n.busy} @click=${() => void this._leaveNote(t)}><span class="nq" aria-hidden="true">“</span><span>${t}</span></button>`)}</div>
         <span class="label">Or in your own words</span>
-        <div style="display:flex;gap:8px"><input class="field" data-act="note-text" style="flex:1;min-width:0;height:48px;font-size:var(--fs-3)" inputmode="none" maxlength=${NOTE_MAX} aria-label="Your note" placeholder="I noticed…" .value=${n.text} @input=${(e: Event) => set({ text: (e.target as HTMLInputElement).value })}>
-          <button class="pill tap primary" data-act="note-send" style="height:48px;padding:0 20px" ?disabled=${n.busy || !noteClean(n.text)} @click=${() => void this._leaveNote(n.text)}>Leave it</button></div>
+        <div class="nown"><input class="field" data-act="note-text" inputmode="none" maxlength=${NOTE_MAX} aria-label="Your note" placeholder="I noticed…" .value=${n.text} @input=${(e: Event) => set({ text: (e.target as HTMLInputElement).value })}>
+          <button class="pill tap primary" data-act="note-send" ?disabled=${n.busy || !noteClean(n.text)} @click=${() => void this._leaveNote(n.text)}>Leave it</button></div>
         ${keyboard((key) => { const [t, caps] = typeKey(n.text, key, n.caps); set({ text: t.slice(0, NOTE_MAX), caps }); }, n.caps, () => set({ caps: !n.caps }), true, false, true)}
       </div>`;
   }
@@ -1673,8 +1693,8 @@ export class FamilyHubCard extends LitElement {
 
       <section class="glass card rems" aria-label="Reminders">
         <span class="label">Reminders</span>
-        ${dinnersReady(this.hass, askList(c)) ? html`<button class="pill tap dinline" data-act="dinner" style="align-self:stretch;justify-content:flex-start;min-height:44px;height:auto;padding:6px 14px;white-space:normal;text-align:left;flex-shrink:0" aria-label=${this._dinnerTonight ? `Dinner tonight: ${this._dinnerTonight}. Tap for the week` : 'No dinner set for tonight. Tap to plan the week'} @click=${() => { this._dn = { ...this._dn, day: '', ok: false }; this._sheet = 'dinner'; }}>
-          <span aria-hidden="true">🍽️</span><span style="min-width:0;overflow-wrap:anywhere">${this._dinnerTonight ? html`Dinner: <b>${this._dinnerTonight}</b>` : html`<span class="muted">Dinner tonight?</span>`}</span></button>` : nothing}
+        ${dinnersReady(this.hass, askList(c)) ? html`<button class="rem tap dinline" data-act="dinner" aria-label=${this._dinnerTonight ? `Dinner tonight: ${this._dinnerTonight}. Tap for the week` : 'No dinner set for tonight. Tap to plan the week'} @click=${() => { this._dn = { ...this._dn, day: '', ok: false }; this._sheet = 'dinner'; }}>
+          <span class="dinmark" aria-hidden="true">${PLATE}</span><span class="content">${this._dinnerTonight ? html`Dinner: <b>${this._dinnerTonight}</b>` : html`<span class="muted">Dinner tonight?</span>`}</span><span class="dingo" aria-hidden="true">${icon('right', 18)}</span></button>` : nothing}
         ${this._remState !== 'ok' ? html`<span class="muted remfail" role="alert" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === 'missing' ? 'The reminders list is not in Home Assistant. Check the card settings.' : 'Can’t load the reminders.'}</span>
           ${this._remState === 'failed' ? html`<button class="pill tap" style="align-self:flex-start" @click=${() => { void this._loadReminders(); }}>Try again</button>` : nothing}`
           : html`<div class="remlist">${this._remList(cut)}</div>`}

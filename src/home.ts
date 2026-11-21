@@ -29,6 +29,10 @@ const DRAWN: Record<string, TemplateResult> = {
   heat: ic(svg`<path d="M10 4a2 2 0 0 1 4 0v9.500a4 4 0 1 1-4 0z"></path><path d="M12 9v7"></path>`)
 };
 
+/** the hold's ring: on the room's chip, and around the icon of the thing being held */
+const HOLD_RING = html`<svg class="hring" viewBox="0 0 24 24" aria-hidden="true"><circle class="trk" cx="12" cy="12" r="8.5"></circle><circle class="arc" cx="12" cy="12" r="8.5" pathLength="1"></circle></svg>`;
+const DEV_RING = html`<svg class="dring" viewBox="0 0 46 46" aria-hidden="true"><circle class="arc" cx="23" cy="23" r="21" pathLength="1"></circle></svg>`;
+
 /** Home: rooms with their devices, scenes (scripts) and automations. */
 export class FhHome extends LitElement {
   readonly lookCtl = new LookController(this);
@@ -65,6 +69,21 @@ export class FhHome extends LitElement {
     .room.lit { box-shadow: 0 0 0 2px color-mix(in srgb, #ffb703 75%, transparent), 0 10px 30px -10px rgba(255,183,3,.55); }
     .rh { display: flex; align-items: center; gap: 8px; min-height: 44px; }
     .rh h2 { flex: 1; min-width: 0; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); overflow-wrap: anywhere; }
+    /* a child's room: a chip says how it is guarded. By day a ring that fills while a finger is held on anything in the room (the hold is 0.6 s);
+       after his bedtime a lock and "Parents" */
+    :host { --hold: 600ms; }
+    .rh .rguard { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px 0 6px; border-radius: 999px; background: var(--chip); color: var(--ink2); font-size: var(--fs-2); font-weight: var(--w-semi, 600); white-space: nowrap; flex-shrink: 0; transition: background-color var(--m-2), color var(--m-2); }
+    .rh .rguard[data-rguard='pin'] { padding-left: 8px; }
+    .rguard svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .hring circle, .dring circle { fill: none; stroke-width: 3; }
+    .hring .trk { stroke: var(--track); }
+    .hring .arc, .dring .arc { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; transform: rotate(-90deg); transform-origin: 50% 50%; }
+    .room[data-holding] .rguard { background: var(--chip-strong); color: var(--ink); }
+    .room[data-holding] .hring .arc, .dev[data-holding] .dring .arc { animation: holdfill var(--hold) linear forwards; }
+    @keyframes holdfill { to { stroke-dashoffset: 0; } }
+    .dev .dicon { position: relative; }
+    .dring { position: absolute; left: -6px; top: -6px; width: 46px; height: 46px; pointer-events: none; opacity: 0; }
+    .dev[data-holding] .dring { opacity: 1; }
     .dev { display: flex; align-items: center; gap: 10px; min-height: 52px; /* token */ padding: 4px 10px; border-radius: 14px; background: var(--chip-soft); width: 100%; text-align: left; }
     .dev .dicon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--track); color: var(--ink2); flex-shrink: 0; transition: background-color var(--m-3, 240ms), color var(--m-3, 240ms), box-shadow var(--m-3, 240ms); }
     .dev.on .dicon { background: #ffd166; color: #7a4b00; box-shadow: 0 0 16px rgba(255,209,102,.8); }
@@ -276,7 +295,7 @@ export class FhHome extends LitElement {
       aria-label=${sw ? name : `${name}: ${this._state(e, on)}${pinned && !off ? '. Needs the parents’ PIN' : ''}`} ?data-busy=${this._busy.includes(e.entity_id)} aria-busy=${this._busy.includes(e.entity_id) ? 'true' : nothing} data-guard=${g === 'free' ? nothing : g} ?data-holding=${this._holding === key}
       @pointerdown=${g === 'hold' ? () => this._holdStart(key, go) : nothing} @pointerup=${g === 'hold' ? () => this._holdEnd() : nothing} @pointerleave=${g === 'hold' ? () => this._holdEnd() : nothing} @pointercancel=${g === 'hold' ? () => this._holdEnd() : nothing}
       @click=${(ev: Event) => { if (this._mayTap(ev, key, r!, g, go)) go(); }}>
-      <span class="dicon">${this._ic(e)}</span><span class="nm"><span class="n">${name}</span><span class="s">${this._state(e, on)}</span></span>
+      <span class="dicon">${this._ic(e)}${g === 'hold' ? DEV_RING : nothing}</span><span class="nm"><span class="n">${name}</span><span class="s">${this._state(e, on)}</span></span>
       ${sw ? html`<span class="toggle"></span>` : pinned && !off ? html`<span class="pinned">${DRAWN.locked}</span>` : nothing}</button>`;
   }
 
@@ -298,8 +317,9 @@ export class FhHome extends LitElement {
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e)), g = this._guardOf(r);
-            return html`<div class="room ${lit ? 'lit' : ''}" data-room=${r.id}>
-              <div class="rh"><h2>${r.name}</h2>${g === 'free' ? nothing : html`<span class="muted rguard" data-rguard=${g} style="font-size:var(--fs-1);font-weight:var(--w-semi, 600);white-space:nowrap">${g === 'pin' ? html`${DRAWN.locked}` : 'Hold to switch'}</span>`}${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} ?data-holding=${this._holding === `room:${r.id}`}
+            const held = !!this._holding && (this._holding === `room:${r.id}` || r.ents.some((e) => e.entity_id === this._holding));
+            return html`<div class="room ${lit ? 'lit' : ''}" data-room=${r.id} ?data-holding=${held}>
+              <div class="rh"><h2>${r.name}</h2>${g === 'free' ? nothing : html`<span class="rguard" data-rguard=${g}>${g === 'pin' ? html`${DRAWN.locked}Parents` : html`${HOLD_RING}Hold to switch`}</span>`}${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} ?data-holding=${this._holding === `room:${r.id}`}
                 @pointerdown=${g === 'hold' ? () => this._holdStart(`room:${r.id}`, () => this._room(r, !lit)) : nothing} @pointerup=${g === 'hold' ? () => this._holdEnd() : nothing} @pointerleave=${g === 'hold' ? () => this._holdEnd() : nothing} @pointercancel=${g === 'hold' ? () => this._holdEnd() : nothing}
                 @click=${(ev: Event) => { if (this._mayTap(ev, `room:${r.id}`, r, g, () => this._room(r, !lit))) this._room(r, !lit); }}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
               ${r.ents.map((e) => this._dev(e, r.name, r, g))}

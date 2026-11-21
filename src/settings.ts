@@ -51,6 +51,8 @@ const KID_IC = svg`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4
 /** a pulse line, for Health */
 const HEALTH_IC = svg`<path d="M3 12.5h4l2.5-6 4 11 2.5-5H21"></path>`;
 const paneIcon = (ic: string, size = 22): TemplateResult => ic === 'kid' || ic === 'health' ? html`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${size}px">${ic === 'kid' ? KID_IC : HEALTH_IC}</svg>` : icon(ic, size);
+/** each group on the health sheet carries a drawing in its heading, as every other card in Settings does */
+const HEALTH_GROUP_IC: Record<string, string> = { house: 'home', cals: 'calendar', speakers: 'music', voice: 'megaphone', phones: 'bell', backup: 'repeat', screen: 'dial', log: 'list' };
 /** Panes that save nothing, and stay open to read on a screen that cannot save (or before a PIN is set). */
 const READ_ONLY_PANES: PaneId[] = ['health', 'advanced'];
 const MARK_IC: Record<Mark, string> = { ok: 'check', warn: 'alert', bad: 'alert', wait: 'timer' };
@@ -118,6 +120,14 @@ export class FhSettings extends LitElement {
     .srow > .slabel { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .srow > .slabel > span { font-size: var(--fs-2); font-weight: 500; color: var(--ink2); }
     .srow > .sctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; max-width: 100%; }
+    /* how a thing written into Home Assistant stands: its own band, a mark (green on, amber to do, grey off; the words say it too) and its buttons */
+    .sstat { justify-content: flex-start; gap: 10px 14px; padding: 10px 12px 10px 16px; border-radius: 16px; background: var(--chip); }
+    .sstat > .slabel { font-size: var(--fs-2); }
+    .sstat > .sctl { margin-left: auto; }
+    .sstat .sdotk { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; background: var(--ink3, var(--ink2)); }
+    .sstat[data-stat='ok'] .sdotk { background: var(--ok); }
+    .sstat[data-stat='warn'] .sdotk { background: var(--warn, #d97706); }
+    .sstat .pill { background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink2) 40%, transparent); }
     .srow.wide > .sctl { flex: 1 1 320px; justify-content: stretch; }
     .srow.wide > .sctl > .sin { flex: 1; }
     .srow.wide > .sctl > .sin.pic { flex: 0 0 60px; }
@@ -346,6 +356,8 @@ export class FhSettings extends LitElement {
   }
   protected firstUpdated(): void { this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.focus({ preventScroll: true }); }
   protected updated(ch: PropertyValues): void {
+    // a pane chosen another way (from a script, or Settings coming back on the pane it was on) takes the focus from the section that had it, so no ring is left on "Children"
+    if (ch.has('_pane')) { const a = (this.renderRoot as ShadowRoot).activeElement as HTMLElement | null; if (a?.closest('.snav') && a.getAttribute('aria-current') !== 'page') this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.focus({ preventScroll: true, focusVisible: false } as FocusOptions); }
     if (ch.has('_pane')) { const p = this.renderRoot.querySelector<HTMLElement>('.spane'); if (p) p.scrollTop = 0; this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
     if (ch.has('_time') && this._time) this.renderRoot.querySelector<HTMLElement>('.drum')?.focus({ preventScroll: true });
     if (ch.has('_ask') && this._ask) this.renderRoot.querySelector<HTMLElement>('.sft [data-act="stay"]')?.focus({ preventScroll: true });
@@ -468,9 +480,9 @@ export class FhSettings extends LitElement {
     const lv = k.leave_by ?? d.morning?.leave_by ?? '08:15', [lh, lm] = lv.split(':').map(Number), lmin = lh * 60 + lm - CUE_LEAVE, bed = (k.bedtime ?? '20:00').split(':').map(Number), wmin = bed[0] * 60 + bed[1] - 60;
     const hhmm = (m: number): string => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
     const block = c.on ? cueBlock(d, k) : '';
-    return html`<div class="scard" data-card="cues"><h3>Spoken cues${own ? html` <span class="muted">on ${k.name}’s own speaker</span>` : nothing}</h3>
+    return html`<div class="scard" data-card="cues"><h3>${icon('megaphone', 20)}Spoken cues${own ? html` <span class="muted">on ${k.name}’s own speaker</span>` : nothing}</h3>
       ${!own ? html`<span class="shint" data-cue="none">${k.name} has no room of his own on the Music map, so there are no spoken cues for him: a cue is only ever spoken on a child’s own speaker, never in a shared room.</span>` : html`
-        ${this._row('Spoken cues', 'A short line in the house voice at the moments that matter, so he does not have to come to the panel to know. Off until you switch it on.', this._sw('Spoken cues', c.on === true, () => set((x) => { if (x.on) delete x.on; else { x.on = true; if (!x.speaker || !choices.includes(x.speaker)) x.speaker = choices[0]; } })))}
+        ${this._row('Say them aloud', 'A short line in the house voice at the moments that matter, so he does not have to come to the panel to know. Off until you switch it on.', this._sw('Spoken cues', c.on === true, () => set((x) => { if (x.on) delete x.on; else { x.on = true; if (!x.speaker || !choices.includes(x.speaker)) x.speaker = choices[0]; } })))}
         ${c.on ? html`
           ${choices.length > 1 ? this._row('Speaker', 'Home Assistant has this speaker under more than one name. Choose the one the announcements use.', html`<div class="schips" role="group" aria-label="Speaker">${choices.map((e) => html`<button class="tap" data-spk=${e} aria-pressed=${String(c.speaker === e)} @click=${() => set((x) => { x.speaker = e; })}>${nameOf(e)}${choices.filter((o) => nameOf(o) === nameOf(e)).length > 1 ? html` <span class="muted">${e.split('.')[1]}</span>` : nothing}</button>`)}</div>`) : nothing}
           ${this._row('When the school morning starts', `“Good morning, ${k.name}. Time to start your morning jobs.” At ${t12(d.morning?.start ?? '06:30')} on a school day.`, this._sw('Morning start', c.morning !== false, () => set((x) => { if (x.morning === false) delete x.morning; else x.morning = false; })))}
@@ -478,8 +490,8 @@ export class FhSettings extends LitElement {
           ${this._row('When wind-down starts', `“${k.name}, it is wind-down time. One hour until bed.” At ${t12(hhmm(wmin))}, later on Friday and Saturday.`, this._sw('Wind-down start', c.wind !== false, () => set((x) => { if (x.wind === false) delete x.wind; else x.wind = false; })))}
           ${block ? html`<span class="shint" data-cue="block" style="color:var(--warn, #b45309)">${block}</span>` : nothing}` : nothing}
         <span class="shint">Only on ${own ? nameOf(c.speaker && choices.includes(c.speaker) ? c.speaker : choices[0] ?? own) : 'his own speaker'}, never in a shared room and never after his bedtime. Nothing is said while that speaker is playing. Each cue counts towards the house voice’s daily allowance. “Start with me” on his page needs none of this: it is always there.</span>
-        ${saved && !block ? html`<div class="srow"><span class="muted" data-cue="state">${!ent ? 'Not set up in Home Assistant yet.' : H?.states[ent]?.state !== 'on' ? 'Switched off in Home Assistant.' : this._cuHeld && !sameCues(this._cuHeld, want) ? 'On, but the settings have changed since it was written.' : 'On.'}</span>
-          ${!ent || H?.states[ent]?.state !== 'on' || (this._cuHeld && !sameCues(this._cuHeld, want)) ? html`<button class="pill tap" data-act="cu-sync" ?disabled=${this._cuBusy} @click=${() => void this._cuesSync(this.config)}>${ent ? 'Update it' : 'Set it up'}</button>` : nothing}</div>` : nothing}`}
+        ${saved && !block ? html`<div class="srow sstat" data-stat=${!ent ? 'warn' : H?.states[ent]?.state !== 'on' ? 'off' : this._cuHeld && !sameCues(this._cuHeld, want) ? 'warn' : 'ok'}><i class="sdotk" aria-hidden="true"></i><span class="slabel" data-cue="state">${!ent ? 'Not set up in Home Assistant yet.' : H?.states[ent]?.state !== 'on' ? 'Switched off in Home Assistant.' : this._cuHeld && !sameCues(this._cuHeld, want) ? 'On, but the settings have changed since it was written.' : 'On.'}</span>
+          <span class="sctl">${!ent || H?.states[ent]?.state !== 'on' || (this._cuHeld && !sameCues(this._cuHeld, want)) ? html`<button class="pill tap" data-act="cu-sync" ?disabled=${this._cuBusy} @click=${() => void this._cuesSync(this.config)}>${ent ? 'Update it' : 'Set it up'}</button>` : nothing}</span></div>` : nothing}`}
     </div>`;
   }
   /* ---------------- the evening digest (digest.ts) ---------------- */
@@ -527,15 +539,15 @@ export class FhSettings extends LitElement {
     if (this._apHeld === undefined && ent) { this._apHeld = null; void this._approveLoad(); }
     const setA = (fn: (g: NonNullable<Cfg['approve']>) => void): void => this._edit((x) => { x.approve = x.approve ?? {}; fn(x.approve); if (!x.approve.notify?.length) delete x.approve.notify; if (!Object.keys(x.approve).length) delete x.approve; });
     const stale = !!ent && !!this._apHeld && !!want && !sameDigest(this._apHeld, want), noList = saved && !S[askList(this.config)];
-    return html`<div class="scard" data-card="approve"><h3>${icon('check', 20)}Approve from a phone</h3>
+    return html`<div class="scard" data-card="approve"><h3>${icon('bell', 20)}Approve from a phone</h3>
         <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
         <div class="spick" role="group" aria-label="Phones that are asked to approve">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-ap=${id} aria-pressed=${String(to.includes(id))} @click=${() => setA((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
         ${to.length ? this._row('Jobs that wait for a parent', 'A job worth this many points or more asks a parent when it is ticked; the tick and the points come with the yes. Smaller jobs are ticked as before.', this._step('Points from which a job waits for a parent', d.approve?.jobs_from ?? JOBS_FROM, (v) => setA((x) => { if (v === JOBS_FROM) delete x.jobs_from; else x.jobs_from = v; }), { min: 0, max: 100, step: 5, say: (v) => (v ? `${v} points and over` : 'No job waits') })) : nothing}
         ${this._dirty ? (to.length || saved ? html`<span class="shint" data-ap-state="unsaved">Save, and Home Assistant ${to.length ? 'is set up to hear the answer' : 'stops asking'}.</span>` : nothing)
-          : !saved ? (ent && S[ent]?.state === 'on' ? this._row('No phone is chosen, but Home Assistant is still listening', '', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Switch it off</button>`) : nothing)
-          : !ent || noList ? this._row('Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: approve from a phone”, and one list, “Family Hub asks”.', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Set it up</button>`)
-          : this._row(S[ent].state === 'on' ? 'On' : 'Switched off in Home Assistant', `${S[ent].attributes.last_triggered ? `Last answered ${new Date(String(S[ent].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Nothing answered yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
+          : !saved ? (ent && S[ent]?.state === 'on' ? this._stat('warn', 'No phone is chosen, but Home Assistant is still listening', '', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Switch it off</button>`) : nothing)
+          : !ent || noList ? this._stat('warn', 'Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: approve from a phone”, and one list, “Family Hub asks”.', html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Set it up</button>`)
+          : this._stat(S[ent].state === 'on' ? (stale ? 'warn' : 'ok') : 'off', S[ent].state === 'on' ? 'On' : 'Switched off in Home Assistant', `${S[ent].attributes.last_triggered ? `Last answered ${new Date(String(S[ent].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}.` : 'Nothing answered yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
               html`${S[ent].state === 'on' ? nothing : html`<button class="pill tap" data-act="ap-on" ?disabled=${this._apBusy} @click=${() => { void Promise.resolve(this.hass?.callService('automation', 'turn_on', {}, { entity_id: ent })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }}>Switch it on</button>`}
                 ${stale ? html`<button class="pill tap" data-act="ap-sync" ?disabled=${this._apBusy} @click=${() => void this._approveSync(this.config)}>Update it</button>` : nothing}`)}
       </div>`;
@@ -546,16 +558,16 @@ export class FhSettings extends LitElement {
     const setD = (fn: (g: NonNullable<Cfg['digest']>) => void): void => this._edit((x) => { x.digest = x.digest ?? {}; fn(x.digest); if (!x.digest.notify?.length) delete x.digest.notify; if (!Object.keys(x.digest).length) delete x.digest; });
     const last = ent && S[ent]?.attributes.last_triggered ? new Date(String(S[ent].attributes.last_triggered)).toLocaleString('en-AU', { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : '';
     const stale = !!ent && !!this._dgHeld && !!want && !sameDigest(this._dgHeld, want);
-    return html`<div class="scard" data-card="digest"><h3>${icon('info', 20)}The evening digest</h3>
+    return html`<div class="scard" data-card="digest"><h3>${icon('moon', 20)}The evening digest</h3>
         <span class="shint">One message a night to a parent’s phone: tomorrow’s events and leaving times, bin night, a daily medicine with no record today, rewards waiting, marbles added today, and anything the panel is unsure of. It only reads: nothing can be changed from it.</span>
         <span class="label">Phones it goes to</span>
         <div class="spick" role="group" aria-label="Phones the evening digest goes to">${[...new Set([...svcs, ...to])].map((id) => html`<button class="tap" data-dg=${id} aria-pressed=${String(to.includes(id))} @click=${() => setD((x) => { const l = x.notify ?? []; x.notify = l.includes(id) ? l.filter((n) => n !== id) : [...l, id]; })}><span class="sbox2" aria-hidden="true">${to.includes(id) ? icon('check', 16) : nothing}</span><span><b>${id.replace(/^notify\.(mobile_app_)?/, '').replace(/_/g, ' ')}</b><small>${svcs.includes(id) ? id : 'Not found in Home Assistant'}</small></span></button>`)}</div>
         ${svcs.length || to.length ? nothing : html`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${to.length ? this._row('It is sent at', '', this._tm('The evening digest is sent at', () => this._draft.digest?.time, (v) => setD((x) => { if (v === DIGEST_TIME) delete x.time; else x.time = v; }), DIGEST_TIME)) : nothing}
         ${this._dirty ? (to.length || saved ? html`<span class="shint" data-dg-state="unsaved">Save, and Home Assistant ${to.length ? 'is told what to send and when' : 'stops sending it'}.</span>` : nothing)
-          : !saved ? (ent && S[ent]?.state === 'on' ? this._row('No phone is chosen, but Home Assistant is still set to send it', '', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Switch it off</button>`) : nothing)
-          : !ent ? this._row('Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: evening digest”.', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Set it up</button>`)
-          : html`${this._row(S[ent].state === 'on' ? `On: every night at ${timeWords(this.config.digest?.time)}` : 'Switched off in Home Assistant', `${last ? `Last sent ${last}.` : 'Not sent yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
+          : !saved ? (ent && S[ent]?.state === 'on' ? this._stat('warn', 'No phone is chosen, but Home Assistant is still set to send it', '', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Switch it off</button>`) : nothing)
+          : !ent ? this._stat('warn', 'Not set up in Home Assistant yet', 'This makes one automation, “Family Hub: evening digest”.', html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Set it up</button>`)
+          : html`${this._stat(S[ent].state === 'on' ? (stale ? 'warn' : 'ok') : 'off', S[ent].state === 'on' ? `On: every night at ${timeWords(this.config.digest?.time)}` : 'Switched off in Home Assistant', `${last ? `Last sent ${last}.` : 'Not sent yet.'}${stale ? ' The settings have changed since it was written.' : ''}`,
               html`${S[ent].state === 'on' ? nothing : html`<button class="pill tap" data-act="dg-on" ?disabled=${!!this._dgBusy} @click=${() => { void Promise.resolve(this.hass?.callService('automation', 'turn_on', {}, { entity_id: ent })).then(() => window.setTimeout(() => this.requestUpdate(), 600)); }}>Switch it on</button>`}
                 ${stale ? html`<button class="pill tap" data-act="dg-sync" ?disabled=${!!this._dgBusy} @click=${() => void this._digestSync(this.config)}>Update it</button>` : nothing}
                 <button class="pill tap" data-act="dg-now" ?disabled=${!!this._dgBusy} @click=${() => void this._digestNow(ent)}>${this._dgBusy === 'now' ? 'Sending…' : 'Send one now'}</button>`)}`}
@@ -589,6 +601,10 @@ export class FhSettings extends LitElement {
 
   /* ---------------- the controls every pane is built from ---------------- */
 
+  /** How something written into Home Assistant stands (the digest, approvals, a child's cues): a band with a mark, the words, and what can be done */
+  private _stat(kind: 'ok' | 'warn' | 'off', label: string, hint: string, ctl: TemplateResult | typeof nothing): TemplateResult {
+    return html`<div class="srow sstat" data-stat=${kind}><i class="sdotk" aria-hidden="true"></i><span class="slabel">${label}${hint ? html`<span>${hint}</span>` : nothing}</span><span class="sctl">${ctl}</span></div>`;
+  }
   private _row(label: string, hint: string, ctl: TemplateResult | typeof nothing, wide = false): TemplateResult {
     return html`<div class="srow ${wide ? 'wide' : ''}"><span class="slabel">${label}${hint ? html`<span>${hint}</span>` : nothing}</span><span class="sctl">${ctl}</span></div>`;
   }
@@ -1217,7 +1233,7 @@ export class FhSettings extends LitElement {
     const when = this._hreads ? fmtTime(new Date(this._hreads.at)) : '';
     return html`<div class="hsum" data-mark=${sum.mark} role="status">${mark(sum.mark, 28)}<span class="sgrow"><b>${sum.words}</b>${sum.which ? html`<span class="hwhich">${sum.which}</span>` : nothing}<span class="shint">${this._hbusy ? 'Checking now…' : when ? `Checked at ${when}. Everything else is as this screen sees it now.` : 'Checking now…'}</span></span>
         <button class="pill tap" data-act="health-again" ?disabled=${this._hbusy} @click=${() => { sfx('tap'); void this._healthRead(); }}>Check again</button></div>
-      ${groups.map((g) => html`<div class="scard" data-group=${g.id}><h3>${g.title}</h3>
+      ${groups.map((g) => html`<div class="scard" data-group=${g.id}><h3>${HEALTH_GROUP_IC[g.id] ? icon(HEALTH_GROUP_IC[g.id], 20) : nothing}${g.title}</h3>
         <div class="hrows">${g.rows.map((r) => html`<div class="hrow" data-row=${r.id} data-mark=${r.mark}>${mark(r.mark)}<b>${r.name}</b><span>${r.words}</span></div>`)}</div></div>`)}
       <span class="shint">Nothing here changes anything. A screen that has stopped answering altogether can’t say so itself: the wall’s own restart and Home Assistant’s notices cover that.</span>`;
   }
