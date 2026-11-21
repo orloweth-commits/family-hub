@@ -69,7 +69,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
   // named regions, by the component that owns them
   parts: {
     'family-hub-card': ['body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
-      'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
+      'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'kn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
       'aclock', 'chrono', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
       // more of the base that Home Ground dresses
@@ -220,7 +220,10 @@ const BALLS: Record<string, string> = {
 const lineG = (inner: string, stroke: string, w = 2): string => `<g fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
 const BIB = 'M5.500 1h3.200c0 2.600 1.200 3.800 3.300 3.800s3.300-1.200 3.300-3.800h3.200c0 3 1 5 3 6v15a1 1 0 0 1-1 1H3.500a1 1 0 0 1-1-1V7c2-1 3-3 3-6z';
 const flag = (staff: string, fill: string): string => sv(`<path fill="${fill}" d="M6.500 3.500L19 8 6.500 12.500z" stroke="${staff}" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 21.500V2.500" stroke="${staff}" stroke-width="2.4" stroke-linecap="round"/>`);
-const WHISTLE = '<circle cx="9" cy="14.500" r="5.500"/><path d="M12.500 10H21v4h-6.500M9 9V5.500M5.500 6l1.200 1.600M12.500 6l-1.200 1.600"/>';
+/** Dinner's whistle as a filled drawing (4e, backlog 16), like the other balls on the touchline: a chrome whistle on its red lanyard */
+const WHISTLE_ART = '<path d="M7.500 8.200l-2-2.300" stroke="#C8372D" stroke-width="1.800" stroke-linecap="round"/><circle cx="4.300" cy="4.700" r="2.400" fill="none" stroke="#C8372D" stroke-width="1.700"/>'
+  + '<path d="M11.200 9.300H20.600a1.200 1.200 0 0 1 1.200 1.200v3a1.200 1.200 0 0 1-1.200 1.200h-6.800" fill="#C9D2DC" stroke="#14201A" stroke-width="1.400" stroke-linejoin="round"/><path d="M15.500 9.300v2.300h3V9.300" fill="#14201A" opacity=".55"/>'
+  + '<circle cx="9.200" cy="14.700" r="6" fill="#E9EDF2" stroke="#14201A" stroke-width="1.400"/><circle cx="9.200" cy="14.700" r="2.500" fill="#FFD60A" stroke="#14201A" stroke-width="1"/><path d="M5.900 12a4.200 4.200 0 0 1 3.200-1.600" fill="none" stroke="#fff" stroke-width="1.400" stroke-linecap="round"/>';
 const CONE = '<path d="M10 4h4l4.500 15h-13zM3.500 20h17M8.400 11h7.200"/>';
 /** The look's small pictures as tokens on the root, so rules (and the evening) can use them; kept out of `vars` so the picker card stays light. */
 const sportsArt = (): string => {
@@ -229,7 +232,7 @@ const sportsArt = (): string => {
   day.push(`--s-ball:var(--s-soccer)`, `--s-bib:${sv(`<path d="${BIB}"/>`)}`, `--s-lock:${sv(lineG('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', '#000'))}`,
     `--s-tick:${sv(lineG('<path d="M5 12.500l4.500 4.500L19 7.500"/>', '#000', 3))}`, `--s-flag:${flag('#14201A', '#14201A')}`, `--s-flag-ok:${flag('#14201A', '#17703A')}`,
     `--s-away:${sv(`<path d="${BIB}" fill="none" stroke="#5C6961" stroke-width="1.8" stroke-dasharray="3 2.5"/>`)}`,
-    `--s-cone:${sv(lineG(CONE, '#B42318'))}`, `--s-pea:${sv(lineG(WHISTLE, '#14201A'))}`,
+    `--s-cone:${sv(lineG(CONE, '#B42318'))}`, `--s-pea:${sv(WHISTLE_ART)}`,
     `--s-clip:${sv('<rect x="1" y="-8" width="118" height="30" rx="8" fill="#9AA59D" stroke="#14201A" stroke-width="2"/><rect x="1" y="16" width="118" height="5" fill="rgba(0,0,0,.14)"/><circle cx="60" cy="9" r="6" fill="#fff" stroke="#14201A" stroke-width="2"/>', '0 0 120 24')}`,
     `--s-bag:${sv('<g stroke="#14201A" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M7.500 7h9l3.300 8.500A4.500 4.500 0 0 1 15.600 22H8.400a4.500 4.500 0 0 1-4.200-6.500z" fill="#fff"/><circle cx="9.500" cy="17" r="2.6" fill="#D4E157"/><circle cx="14.800" cy="17.300" r="2.6" fill="#fff"/><circle cx="12" cy="12.300" r="2.4" fill="#C8372D"/><path d="M9 7c0-2.500 1.200-4 3-4s3 1.500 3 4" fill="none" stroke="#B7814A" stroke-width="2"/></g>')}`,
     `--s-goal:${sv(lineG('<path d="M2 20V5h28v15M2 10h28M2 15h28M9 5v15M16 5v15M23 5v15" stroke-width="1"/><path d="M2 20V5h28v15" stroke-width="2.2"/>', '#14201A'), '0 0 32 24')}`);
@@ -528,23 +531,35 @@ const GLASS = `
   @G[data-shape='wide'] .clock { position: relative; margin: 0; padding: 3px 22px 4px 16px; border-radius: 22px; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
   @G[data-shape='wide'] .fh[data-compact] .clock { padding-top: 4px; padding-bottom: 2px; }
   @G[data-shape='wide'] .clock::after { content: ''; position: absolute; right: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
-  @G[data-shape='wide'] .capsule { justify-content: flex-start; }
+  /* information on the left, actions on the right (4e, backlog 3): the weather stands beside the clock and the chips follow it, so when nothing is urgent the bar's quiet stretch is on one side only, before the buttons.
+     The right-hand group lends its children to the bar (display: contents; its markup, its click and every other look are unchanged) so the bar can order them. */
+  @G[data-shape='wide'] .capsule { order: 2; justify-content: flex-start; }
+  @G[data-shape='wide'] .right { display: contents; }
+  @G[data-shape='wide'] .right > .weather { order: 1; margin-left: -6px; }
+  @G[data-shape='wide'] .right > .round { order: 4; }
+  @G[data-shape='wide'] .right > .round + .round { margin-left: -6px; }
   @G[data-shape='wide'] .cap:not(.hot):not(.ok):not([data-warm]) { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
-  @G[data-shape='wide'] .right { position: relative; padding-left: 14px; gap: 8px; }
-  @G[data-shape='wide'] .right::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 1.5px; border-radius: 1px; background: var(--track); }
+  @G[data-shape='wide'] .right::before { content: ''; order: 3; flex: none; align-self: stretch; width: 1.5px; margin: 8px 0; border-radius: 1px; background: var(--track); }
   @G[data-shape='wide'] .right > .glass { background: var(--chip); -webkit-backdrop-filter: none; backdrop-filter: none; border-color: transparent; box-shadow: none; }
   @G[data-shape='wide'] .right > .weather { background: transparent; padding: 0 12px 0 4px; }
   /* the page sits inside the frame: one panel of the bars' own material runs from the top bar to the bottom bar, and the page's cards are set into it, their outer edges in line with the bars' (the page loses no room to the frame: the bars and the panel take only what the old gaps did) */
-  @G[data-shape='wide'] .fh > .body { padding: 8px 0; background: color-mix(in srgb, var(--glass) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+  /* (4e, backlog 7) the page's cards are set into the panel with the same 8 px of it showing all round, so a card's rounded corner never leaves a wedge of the panel against the frame's straight side;
+     the cards' corners step down inside it: 24 for a card, 12 for what sits in one */
+  @G[data-shape='wide'] .planner { border-radius: 24px; }
+  @G[data-shape='wide'] .week .col { border-radius: 12px; }
+  @G[data-shape='wide'] .fh > .body { padding: 8px; background: color-mix(in srgb, var(--glass) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
   @G[data-dark][data-shape='wide'] .fh > .body { background: color-mix(in srgb, var(--glass) 46%, transparent); }
   @G[data-dark][data-shape='wide'] .fh > header, @G[data-dark][data-shape='wide'] .fh > .dock { background: color-mix(in srgb, var(--glass) 82%, transparent); }
+  /* (4e, backlog 4) the dock's places share the bar's width: each button grows to an even share (up to 150 px) so the three groups (the boys, the places, the house) sit close, parted by their hairlines, with no long empty stretches between them */
   @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(0px - var(--gap)); padding: 8px 16px; border-radius: 0 0 28px 28px; justify-content: center; }
-  @G[data-shape='wide'] .dock .item { height: 70px; }
+  @G[data-shape='wide'] .dock .item { height: 70px; flex: 1 1 0; max-width: 150px; }
   @G[data-shape='wide'] .dock .item svg.i { width: 44px; height: 44px; }
-  @G[data-shape='wide'] .dock[data-kid] { justify-content: flex-start; }
-  @G[data-shape='wide'] .dock .sep { margin: 0 auto 0 12px; height: 40px; width: 1.5px; }
-  @G[data-shape='wide'] .dock .sep.wide { margin: 0 12px 0 auto; }
-  @G[data-shape='wide'] .dock[data-kid] .sep { margin: 0 12px; }
+  @G[data-shape='wide'] .dock .sep { margin: 0 14px; height: 40px; width: 1.5px; }
+  /* (4e, backlog 5) a child's page: his face and the way home are a tab of the frame under his card, not two buttons at the end of an empty bar; the page's panel takes the frame's rounded foot either side of it */
+  @G[data-shape='wide'] .fh:has(> .dock[data-kid]) > .body { border-radius: 0 0 28px 28px; }
+  @G[data-shape='wide'] .fh > .dock[data-kid] { align-self: flex-start; margin-left: 28px; padding: 6px 14px 8px; border-top: 0; justify-content: flex-start; }
+  @G[data-shape='wide'] .dock[data-kid] .item { flex: none; min-width: 112px; }
+  @G[data-shape='wide'] .dock[data-kid] .sep { margin: 0 8px; }
   @G[data-shape='wide'] .dock .item { border-radius: 16px; }
   @G[data-shape='wide'] .dock .item[aria-current='page'] { position: relative; margin-top: -9px; height: 79px; padding-top: 9px; border-radius: 0 0 18px 18px; background: var(--chip-strong); box-shadow: 0 6px 14px rgba(0,0,0,.08); }
   @G[data-shape='wide'] .dock .item[aria-current='page']::before { content: ''; position: absolute; left: 0; right: 0; top: -9px; height: 10px; border-radius: 12px 12px 0 0; background: var(--chip-strong); box-shadow: inset 0 4px 0 var(--primary); pointer-events: none; }
@@ -965,7 +980,9 @@ const ORBIT = `
   @O .dock .item[aria-current='page'] svg.i { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   /* Orbit: the ring takes the button's hue and the drawing fills it */
   @O .dock .item svg.i { padding: 8px; box-shadow: inset 0 0 0 1.5px var(--bo, var(--ctl-line)); }
-  @O .dock .item[aria-current='page'] svg.i { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 2.5px var(--accent); }
+  /* the page you are on (4e, backlog 17): a lit planet in a double ring, its own hue glowing round it, and its name in the accent */
+  @O .dock .item[aria-current='page'] svg.i { background: radial-gradient(circle, color-mix(in srgb, var(--accent) 34%, transparent) 0 58%, color-mix(in srgb, var(--accent) 16%, transparent) 72%); box-shadow: inset 0 0 0 3px var(--accent), 0 0 0 3px #0a0f1e, 0 0 0 4.5px color-mix(in srgb, var(--accent) 55%, transparent), 0 0 22px 2px color-mix(in srgb, var(--accent) 42%, transparent); }
+  @O .dock .item[aria-current='page'] { color: var(--accent); font-weight: 700; }
   @O .right > button.round[data-act='ask'] { box-shadow: inset 0 0 0 1.5px var(--bo); }
   @O .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @O .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #0a0f1e, 0 0 0 4.5px var(--accent); }
@@ -1328,7 +1345,7 @@ const SPORTS = `
   @S .dock .kidbtn[aria-current='page'] .avatar { box-shadow: 0 0 0 2px #14201a, 0 0 0 5px #fff; }
   @S .dock .sep { width: 2px; height: 54px; margin: 0 6px 22px; border-radius: 1px; background: rgba(255,255,255,.55); }
   /* Dinner is the whistle */
-  @S .dock .item[data-nav='dinner'] svg.i { background: var(--s-pea) center / 28px 28px no-repeat, #fff; }
+  @S .dock .item[data-nav='dinner'] svg.i { background: var(--s-pea) center / 34px 34px no-repeat, #fff; }
   @S .dock .item[data-nav='dinner'] svg.i > * { display: none; }
   @S .dock .called { color: #fff; }
   @S .dock .item > span { display: inline-flex; }
@@ -1694,6 +1711,9 @@ const OBSIDIAN = `
   @B .dock .item[aria-current='page']::after { content: ''; position: absolute; left: 14%; right: 14%; bottom: 2px; height: 1.5px; border-radius: 1px; background: var(--blade); box-shadow: 0 0 12px 1px rgba(255,170,40,.7), 0 0 26px rgba(255,140,0,.35); pointer-events: none; animation: obPulse 3.6s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .dock .kidbtn[aria-current='page'] { box-shadow: none; }
   @B .dock .sep { background: linear-gradient(transparent, rgba(255,255,255,.2), transparent); width: 1px; }
+  /* (4e, backlog 132) with the morning's extra place and long names the strip was wider than the screen: a name in its wide capitals gives way first (it ends in "…", as it always could) */
+  @B .dock { max-width: 100%; }
+  @B .dock .kidbtn .kn { max-width: 96px; }
   /* the header's buttons: blue line icons with their words */
   @B .right > button.round > svg.i { color: var(--live); filter: drop-shadow(0 0 3px rgba(56,182,255,.7)); }
   @B[data-n3] .dock .item { font-size: var(--fs-1); letter-spacing: .1em; padding: 0 8px; }

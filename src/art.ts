@@ -61,7 +61,7 @@ const DRAW: Record<string, (d: ArtData) => string> = {
   planner: (d) => `<rect x="5.500" y="8.500" width="29" height="28" rx="6" fill="#0b1f44" opacity=".16"/><rect x="5.500" y="7" width="29" height="28" rx="6" fill="#fff"/>
     <path class="p-band" d="M5.500 17v-4a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v4z" fill="#2f6fed"/><path d="M5.500 17h29v1.600h-29z" fill="#0b1f44" opacity=".1"/>
     <rect x="11.500" y="3.500" width="3.400" height="7.500" rx="1.700" fill="#16233b"/><rect x="25.100" y="3.500" width="3.400" height="7.500" rx="1.700" fill="#16233b"/>
-    ${d.dow ? `<text x="20" y="15.300" text-anchor="middle" font-size="6.200" font-weight="800" letter-spacing=".5" fill="#fff">${esc(d.dow.toUpperCase())}</text>` : ''}
+    ${d.dow ? `<text class="p-dow" x="20" y="15.300" text-anchor="middle" font-size="6.200" font-weight="800" letter-spacing=".5" fill="#fff">${esc(d.dow.toUpperCase())}</text>` : ''}
     ${d.day ? `<text class="p-day" x="20" y="31.200" text-anchor="middle" font-size="14.500" font-weight="800" fill="#16233b">${Math.round(d.day)}</text>` : `<rect class="p-day" x="14" y="22" width="12" height="8" rx="2.500" fill="#2f6fed" opacity=".35"/>`}`,
   groceries: (d) => { const full = (d.count ?? 1) > 0;
     return `<path d="M12 17a8 8 0 0 1 16 0" fill="none" stroke="#b8731c" stroke-width="3" stroke-linecap="round"/>
@@ -115,8 +115,28 @@ const DRAW: Record<string, (d: ArtData) => string> = {
   looks: () => `<path class="p-pal" d="M20 4.500C10.600 4.500 3.500 11 3.500 19.800c0 8.300 6.700 15.700 15.700 15.700 2.200 0 3.300-1.400 3.300-3 0-1.700-1.200-2.400-1.200-4 0-1.700 1.400-2.900 3.100-2.900h4.300c4.300 0 7.800-3.400 7.800-7.700C36.500 10 29.300 4.500 20 4.500z" fill="#f4d9a8"/><path d="M20 4.500C10.600 4.500 3.500 11 3.500 19.800c0 2 .4 4 1.100 5.800C5.500 14.500 12 8.500 22 7.500c4 .2 7.500 1.200 10 2.800C29 6.600 24.800 4.500 20 4.500z" fill="#fff" opacity=".4"/>
     <circle class="p-dot d1" cx="11" cy="20" r="3.200" fill="#3b82f6"/><circle class="p-dot d2" cx="15.500" cy="12.300" r="3.200" fill="#59b96a"/><circle class="p-dot d3" cx="24" cy="10.800" r="3.200" fill="#ffc933"/><circle class="p-dot d4" cx="30.300" cy="16.200" r="3.200" fill="#ff5fa2"/><circle cx="13.500" cy="28" r="2.600" fill="#c9a46a"/>`,
   medicine: () => `<g transform="rotate(-45 20 20)"><rect x="5" y="12.500" width="30" height="15" rx="7.500" fill="#eef1f5" stroke="#8792a2" stroke-width="1.600"/><path d="M20 12.500h7.500a7.500 7.500 0 0 1 0 15H20z" fill="#b9c2ce" stroke="#8792a2" stroke-width="1.600"/></g>`,
-  info: () => `<circle cx="20" cy="21" r="15.500" fill="#0b1f44" opacity=".16"/><circle class="p-disc" cx="20" cy="20" r="15.500" fill="#3b6fd9"/>${shine(20, 20, 15.5, 0.3)}<circle class="p-dot" cx="20" cy="12.300" r="2.600" fill="#fff"/><rect class="p-i" x="17.600" y="17" width="4.800" height="12.500" rx="2.400" fill="#fff"/>`
+  info: () => `<circle cx="20" cy="21" r="15.500" fill="#0b1f44" opacity=".16"/><circle class="p-disc" cx="20" cy="20" r="15.500" fill="#3b6fd9"/>${shine(20, 20, 15.5, 0.3)}<circle class="p-dot" cx="20" cy="12.300" r="2.600" fill="#fff"/><rect class="p-i" x="17.600" y="17" width="4.800" height="12.500" rx="2.400" fill="#fff"/>`,
+  /* 4e (backlog 15): the last outline icons in the frame. More is a little tray of tiles (what it holds: looks, house info, night with its moon, and the rest) */
+  more: () => `<rect x="4" y="5.500" width="32" height="31" rx="8" fill="#0b1f44" opacity=".14"/><rect x="4" y="4" width="32" height="31" rx="8" fill="#fff"/>
+    <rect class="p-dot d1" x="8" y="8" width="11" height="11" rx="3.200" fill="#f0b74f"/><rect class="p-dot d2" x="21" y="8" width="11" height="11" rx="3.200" fill="#3b6fd9"/>
+    <rect class="p-dot d3" x="8" y="21" width="11" height="11" rx="3.200" fill="#39415c"/><rect class="p-dot d4" x="21" y="21" width="11" height="11" rx="3.200" fill="#ff5fa2"/>
+    <path d="M10.200 11.600a3 3 0 0 1 2.600-1.400M23.200 11.600a3 3 0 0 1 2.600-1.400M23.200 24.600a3 3 0 0 1 2.600-1.400" fill="none" stroke="#fff" stroke-width="1.400" stroke-linecap="round" opacity=".6"/><path d="M15.300 23.600a3.300 3.300 0 1 0 .5 5.100 2.700 2.700 0 0 1-.5-5.100z" fill="#ffe28a"/>`,
+  /** the UV badge's sun: small, so fewer, fatter rays */
+  uv: () => `${Array.from({ length: 8 }, (_, i) => `<rect x="18.300" y="1.500" width="3.400" height="7" rx="1.700" fill="#ffab1a" transform="rotate(${i * 45} 20 20)"/>`).join('')}<circle cx="20" cy="20" r="10.500" fill="#ffc933"/>${shine(20, 20, 10.5, 0.5)}`,
+  /** the kitchen timer chip: a stopwatch with its face, its hand at the time left's quarter, and the red button on top */
+  stopwatch: () => `<rect x="17.200" y="2.500" width="5.600" height="5" rx="1.600" fill="#e5484d"/><rect x="28.400" y="6.600" width="4.200" height="4" rx="1.400" fill="#c62828" transform="rotate(45 30.500 8.600)"/>
+    <circle cx="20" cy="23.200" r="14" fill="#0b1f44" opacity=".16"/><circle cx="20" cy="22" r="14" fill="#e5484d"/><circle cx="20" cy="22" r="10.800" fill="#fff"/>
+    <path d="M20 22V14.300" stroke="#16233b" stroke-width="2.400" stroke-linecap="round"/><path class="p-hand" d="M20 22l5.400 3.100" stroke="#e5484d" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="22" r="1.700" fill="#16233b"/>`,
+  /** a private reminder: a small brass padlock, shut */
+  lock: () => `<path d="M12.500 18v-4.500a7.500 7.500 0 0 1 15 0V18" fill="none" stroke="#8792a2" stroke-width="3.400"/><rect x="7.500" y="18.500" width="25" height="18" rx="4.500" fill="#0b1f44" opacity=".16"/>
+    <rect x="7.500" y="17" width="25" height="18" rx="4.500" fill="#e0a82e"/><rect x="7.500" y="17" width="25" height="5" rx="2.500" fill="#fff" opacity=".22"/><circle cx="20" cy="25" r="2.600" fill="#5a3e08"/><rect x="18.900" y="25.500" width="2.200" height="5.400" rx="1.100" fill="#5a3e08"/>`
 };
+/** the bell in the header while something waits for a parent: a gold bell, its clapper, and a swing in the two arcs beside it */
+DRAW.bell = () => `<path class="p-ring" d="M6 9.500a15 15 0 0 1 4.500-4.800M34 9.500a15 15 0 0 0-4.500-4.800" fill="none" stroke="#e39a12" stroke-width="2.600" stroke-linecap="round"/>
+    <g class="p-bell"><circle cx="20" cy="34" r="3.600" fill="#8a5a00"/><path d="M20 6.500c-6.100 0-10 4.700-10 10.800v6.400l-3.200 4.300a1.300 1.300 0 0 0 1 2.100h24.400a1.300 1.300 0 0 0 1-2.100L30 23.700v-6.400c0-6.100-3.900-10.800-10-10.800z" fill="#ffc933"/>
+    <path d="M13.400 12.500c1.400-2.300 3.600-3.600 6.200-3.800" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/><rect x="18.300" y="3.500" width="3.400" height="4.500" rx="1.700" fill="#e0a82e"/><path d="M7 28.800h26" stroke="#e0a82e" stroke-width="1.400"/></g>`;
+/** a drawing with no outline icon behind it in FOR: the line icon a plain look (Obsidian) draws in its place */
+const PLAIN: Record<string, string> = { more: 'more', uv: 'sun', stopwatch: 'timer', lock: 'lock', bell: 'bell' };
 
 /** Which drawing stands for an outline icon's name (the names the dock and header already use). */
 const FOR: Record<string, string> = { sun: 'morning', calendar: 'planner', cart: 'groceries', pencil: 'doodle', music: 'music', cloud: 'weather', home: 'home', bulb: 'allon', bulbOff: 'alloff', megaphone: 'dinner', ask: 'ask', palette: 'looks', pill: 'medicine', info: 'info', moon: 'night' };
@@ -130,7 +150,7 @@ const LINE = Object.fromEntries(Object.entries(FOR).map(([k, v]) => [v, k]));
 export const art = (name: string, size = 22, data: ArtData = {}): TemplateResult => { const n = FOR[name] ?? name;
   if (plainLook()) {
     // the weather keeps telling the sky: sun, moon, cloud or rain from the live condition
-    const l = n === 'weather' && data.cond ? weatherIcon(data.dark && !/rain|pour|storm|lightning|cloud|fog/.test(data.cond) ? 'night' : data.cond) : hasIcon(name) ? name : LINE[n];
+    const l = n === 'weather' && data.cond ? weatherIcon(data.dark && !/rain|pour|storm|lightning|cloud|fog/.test(data.cond) ? 'night' : data.cond) : PLAIN[n] ?? (hasIcon(name) ? name : LINE[n]);
     if (l && hasIcon(l)) return icon(l, size);
   }
   return html`<svg class="i pic2" data-ic=${n} aria-hidden="true" viewBox="0 0 40 40" style="--s:${size}px">${unsafeSVG((DRAW[n] ?? (() => ''))(data))}</svg>`; };

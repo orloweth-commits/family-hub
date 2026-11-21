@@ -141,6 +141,8 @@ export class FhGroceries extends LitElement {
     .field { flex: 1; min-width: 0; width: 0; height: 60px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink);
       box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); outline: none; }
     .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+    /* (4e, backlog 118) in the dark a field waiting to be typed in has a hairline; the theme's ring is for the one being typed in */
+    :host([data-dark]) .field { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink3) 60%, transparent); } :host([data-dark]) .field:focus { box-shadow: inset 0 0 0 2.5px var(--primary); }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
     .entry .lead { height: 60px; padding: 0 26px; font-size: var(--fs-3); flex-shrink: 0; }
     /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */

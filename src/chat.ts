@@ -145,6 +145,8 @@ export class FhChat extends LitElement {
     @keyframes fhc-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 55%, transparent); } 50% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--danger) 0%, transparent); } }
     .send { display: flex; gap: 10px; align-items: center; }
     .field { flex: 1; min-width: 0; height: 56px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-4); font-weight: var(--w-semi, 600); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 50%, transparent); }
+    /* (4e, backlog 118) in the dark a field waiting to be typed in has a hairline; the theme's ring is for the one being typed in */
+    :host([data-dark]) .field { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink3) 60%, transparent); } :host([data-dark]) .field:focus { box-shadow: inset 0 0 0 2.5px var(--primary); }
     .field::placeholder { color: var(--ink2); font-weight: 500; }
     .send .lead { height: 56px; padding: 0 26px; font-size: var(--fs-3); }
     button[disabled] { opacity: .45; }

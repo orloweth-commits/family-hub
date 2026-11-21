@@ -217,6 +217,8 @@ export class FhKid extends LitElement {
     .lowrow { display: flex; gap: 8px; width: 100%; flex-shrink: 0; z-index: 1; }
     .askbtn { flex: 1 1 0; min-width: 0; min-height: 72px; flex-shrink: 0; border-radius: 22px; background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink2); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); z-index: 1; }
     .studio { box-shadow: inset 0 0 0 2px var(--ink2); background: var(--chip-strong); }
+    /* (4e, backlog 118) in the dark the ways on (his studio, a reward he can have) keep an edge of the second ink, a step quieter than the one thing to do now */
+    :host([data-dark]) .studio { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink2) 70%, transparent); } :host([data-dark]) .rw .cost:not(.notyet) { box-shadow: inset 0 0 0 1.5px var(--ink2); }
     /* the card holds his picture, his name and the way into his studio: nothing to count, so the picture takes the room */
     .avbtn { position: relative; flex: 0 1 300px; min-height: 110px; display: flex; justify-content: center; }
     .avbtn .avwrap, .avbtn svg { height: 100% !important; width: auto !important; max-height: 300px; }
