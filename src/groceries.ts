@@ -83,7 +83,7 @@ export class FhGroceries extends LitElement {
     :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
     /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
     :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
-    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 232px; }
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 292px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
     :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
@@ -412,7 +412,7 @@ export class FhGroceries extends LitElement {
       </section>
       ${tray ? html`<section class="glass tray" aria-label="Type an item" ?data-closing=${trayOut}>
         ${entry(true)}
-        ${trayOut ? html`<div class="keysgone" aria-hidden="true"></div>` : keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, false, true, true)}
+        ${trayOut ? html`<div class="keysgone" aria-hidden="true"></div>` : keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, true, true, true)}
       </section>` : nothing}
       <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => { sfx('undo'); this._undo?.(); }}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }

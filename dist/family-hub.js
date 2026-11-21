@@ -8412,7 +8412,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
       [this._typed, this._caps] = ke(this._typed, f, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
-    }, !1, !0, !0)}
+    }, !0, !0, !0)}
       </section>` : g}
       <div class="says" role="status" aria-live="polite">${t ? d`<div class="toast ${t.undo || t.stay ? "act" : ""}" ?data-closing=${e}><span>${t.msg}</span>${t.undo ? d`<button class="undo tap" @click=${() => {
       S("undo"), this._undo?.();
@@ -8466,7 +8466,7 @@ xr.styles = [Xt, ji, st`
     :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
     /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
     :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
-    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 232px; }
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 292px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
     :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
