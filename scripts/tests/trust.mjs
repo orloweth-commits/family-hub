@@ -247,6 +247,12 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     const bins = await C(page).locator('.week .col .binmk').evaluateAll((b) => b.map((x) => [x.closest('.col').querySelector('.dayhead').textContent.trim().slice(0, 3), x.getAttribute('aria-label')]));
     ok(`${look}: bin night is marked on its own day of the week, and only there`, bins.length === 1 && bins[0][0] === 'Mon' && /^Bin night: the .+ go(es)? out$/.test(bins[0][1]), bins);
     await page.context().close(); }
+  for (const [look, w, h] of [['glass', 1920, 1080], ['sports', 1920, 1080], ['obsidian', 1920, 1080], ['glass', 1180, 820]]) {
+    const pg = await open(`look=${look}&page=planner`, '16:20', { w, h });
+    await pg.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, private: ['Netball', 'Gym', 'Kindy', 'Site', 'Trumpet', 'Swimming', 'Beach'] }); }); await pg.waitForTimeout(600); await settle(pg);
+    const b = await C(pg).evaluate((c) => { const col = c.shadowRoot.querySelector('.week .col .binmk').closest('.col'), hd = col.querySelector('.dayhead'), m = hd.querySelector('.binmk'), shown = getComputedStyle(m).display !== 'none'; return { bin: col.getAttribute('data-bin'), over: hd.scrollWidth - hd.clientWidth, shown, inside: !shown || m.getBoundingClientRect().right <= col.getBoundingClientRect().right + 0.5, lock: !!hd.querySelector('.pchip') }; });
+    ok(`${look} at ${w}: on a bin night with a private reminder the lock and the bin mark share the heading inside the column${w < 1920 ? ' (or the mark gives way)' : ''}`, b.lock && b.over <= 1 && b.inside && (w < 1920 || b.shown), b);
+    await pg.context().close(); }
   const none = await open('look=glass&page=planner&jarbase=none'); await settle(none);
   ok('with no history the rail’s jar leaves out today’s count', /^36 marbles to go Every family job adds a marble\.$/.test(norm(await C(none).locator('aside .card.jar').innerText())), norm(await C(none).locator('aside .card.jar').innerText()));
   await none.context().close();

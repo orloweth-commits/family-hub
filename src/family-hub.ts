@@ -65,7 +65,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.19';
+const VERSION = '0.38.20';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -753,6 +753,10 @@ export class FamilyHubCard extends LitElement {
       const evs = [...box.querySelectorAll<HTMLElement>(':scope > .ev')];
       for (const ev of evs) ev.style.display = '';
       col.removeAttribute('data-tight'); col.removeAttribute('data-wrap');
+      // bin night shares the day's heading with the private-reminder lock: where both do not fit, the mark keeps only its bin, and on a
+      // screen narrower than the wall it gives way (the header and House info still say which bins go out)
+      const dh = col.querySelector<HTMLElement>('.dayhead'); col.removeAttribute('data-bin');
+      if (dh?.querySelector('.binmk') && dh.scrollWidth > dh.clientWidth + 1) { col.setAttribute('data-bin', 'small'); if (dh.scrollWidth > dh.clientWidth + 1) col.setAttribute('data-bin', 'none'); }
       // only a word that is longer than its column may be hyphenated; everything else wraps between words
       const pen = (FamilyHubCard._pen ??= document.createElement('canvas').getContext('2d'));
       if (pen) for (const n of box.querySelectorAll<HTMLElement>('.ev .n')) { n.removeAttribute('data-hy'); /* measured at its full size: a marked title is set smaller */ const f = getComputedStyle(n); pen.font = `${f.fontWeight} ${f.fontSize} ${f.fontFamily}`; n.toggleAttribute('data-hy', Math.max(0, ...(n.textContent ?? '').split(/[\s\u2011-]+/).map((w) => pen.measureText(w).width)) > n.clientWidth); }
