@@ -1743,7 +1743,8 @@ const OBSIDIAN = `
   /* a child's page, in the same restraint: one fine ring of his colour behind him, numbers as instruments */
   @B .hero::before { inset: 0; height: auto; background: radial-gradient(80% 50% at 50% 45%, color-mix(in srgb, var(--kid) 10%, transparent), transparent 70%); }
   /* no cartoon: the name alone, set wide in the display face over a hairline of his colour */
-  @B .avbtn { display: none; }
+  /* the hero's figure is a large initial in a hairline ring of his colour (renderAvatar's plain branch), so the column is not empty (batch 5) */
+  @B .avbtn { flex: 0 1 240px; }
   @B .hero { justify-content: center; }
   @B .name { font-family: 'Cormorant Garamond', 'Jost', 'Noto Emoji', serif; font-weight: 400; font-size: var(--fs-d1); letter-spacing: .22em; text-transform: uppercase; padding-bottom: 14px; background: linear-gradient(90deg, transparent, var(--kid), transparent) 50% 100% / 70% 1px no-repeat; }
   @B .rank { background: transparent; color: var(--kid); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 70%, transparent); font-weight: 400; }
