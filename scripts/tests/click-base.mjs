@@ -988,7 +988,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
     await p.close(); }
   console.log('HG4 every page, sheet and view opens in Home Ground:', blank.length ? 'BLANK ' + blank.join(', ') : true, '| nothing throws', errs.filter((e) => !/^404|^failed/.test(e)).length === before);
   page = await open('look=sports&page=weather&wx=rain');
-  console.log('HG5 weather page: the verdict tile comes first:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot, v = r.querySelector('.wnow .verdict'); return v && v.previousElementSibling?.tagName === 'H2' ? v.textContent.trim() : 'MISSING'; }));
+  console.log('HG5 weather page: the verdict tile comes first:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot, v = r.querySelector('.wnow .verdict'); return v && (v.previousElementSibling?.tagName === 'H2' || v.previousElementSibling?.querySelector?.(':scope > h2')) ? v.textContent.trim() : 'MISSING'; }));
   await page.close();
   page = await open('look=sports&page=music&mview=scene');
   console.log('HG6 music scene is the training ground', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, v = r.querySelector('.vscene'); return v?.dataset.kind === 'sports' && r.querySelectorAll('.vscene .actor').length > 0 && !!r.querySelector('.backdrop .bgchalk'); }));

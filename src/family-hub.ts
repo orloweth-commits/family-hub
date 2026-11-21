@@ -29,6 +29,7 @@ import { setWeekendExtra } from './util';
 import { forgetLines, houseVoice, lineReady, setVoice, voiceSync } from './voice';
 import { loadFonts } from './fonts';
 import { Watchdog, watchdog, QUIET_MS, type WatchHost } from './watchdog';
+import { JAR, JAR_RULE, jarAdded, jarBase, jarPic } from './jar';
 import { DOWN_MORE, DOWN_SHOW_MS, asAt, downFor, downLine, houseUp, keep, keepRange, kept, keptRange, noteKept, onHouse, setHouse } from './house';
 import { keyboard, keysCss, typeKey } from './keys';
 import { findRoom, kidSpeaker, play, rooms, sleepIn } from './ma';
@@ -64,7 +65,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.18';
+const VERSION = '0.38.19';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -690,7 +691,9 @@ export class FamilyHubCard extends LitElement {
     const list = root.querySelector<HTMLElement>('.remlist');
     if (list) {
       const total = this._reminders.length; let show = total;
-      if (getShape() !== 'phone' && total * 44 > list.clientHeight + 1) show = Math.max(1, Math.floor((list.clientHeight - 16) / 44));
+      // rows are 44 px; the list's 6 px of padding at the top (room for a focus ring) is counted, and its "+N more" sits in the card's heading, not under the rows (129)
+      const pad = parseFloat(getComputedStyle(list).paddingTop) || 0;
+      if (getShape() !== 'phone' && total * 44 + pad > list.clientHeight + 1) show = Math.max(1, Math.floor((list.clientHeight + 1 - pad) / 44));
       if (show !== this._remShow) this._remShow = show;
     }
     const cell = root.querySelector<HTMLElement>('.month .cell');
@@ -1613,11 +1616,11 @@ export class FamilyHubCard extends LitElement {
       ${days.map((d) => {
         const evs = this._eventsOn(d), isToday = sameDay(d, today);
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
-        const key = ymd(d), hidden = this._clip[key] ?? 0;
+        const key = ymd(d), hidden = this._clip[key] ?? 0, bn = this._bins(d), binNight = !!bn && sameDay(bn.night, d) && bn.bins.length > 0;
         return html`<div class="col ${isToday ? 'today' : ''}">
-          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._lk, 'day', { now: d, arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${icon('lock', 15)}</span>` : nothing}</div>
+          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._lk, 'day', { now: d, arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${icon('lock', 15)}</span>` : nothing}${binNight ? html`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${bn!.bins.join(' and ')} bin${bn!.bins.length > 1 ? 's go' : ' goes'} out`} title="Bin night">${icon('bin', 16)}${this._binDots(bn!.bins)}</span>` : nothing}</div>
           <div class="evs" data-day=${key}>${pub.map((e) => this._evCard(e, d))}</div>
-          ${hidden ? html`<button class="more tap" aria-label="${hidden} more on ${fmtLongDate(d)}" @click=${() => { this._anchor = d; this._view = 'day'; }}><span class="mpill">+${hidden} more</span></button>` : nothing}
+          ${hidden ? html`<button class="more tap" aria-label="${hidden} more on ${fmtLongDate(d)}. Open the day" @click=${() => { this._anchor = d; this._view = 'day'; }}><span class="mpill">+${hidden} more${icon('right', 16)}</span></button>` : nothing}
         </div>`;
       })}
     </div>${none ? html`<div class="quiet"><span>${this._span < 7 ? 'Nothing planned' : 'Nothing planned this week'}</span></div>` : nothing}</div>`;
@@ -1687,12 +1690,10 @@ export class FamilyHubCard extends LitElement {
         ${left === null ? html`<span class="muted hint" style="font-size:var(--fs-1);white-space:nowrap">Tap +1, +5 or +10 to start</span>` : nothing}`}
       </section>
 
-      ${this.hass?.states['input_number.family_jar'] ? html`<section class="glass card jar" aria-label=${`Family jar: ${jar >= target ? 'full' : `${jar} of ${target}`}`}><span class="jarpic" style="line-height:0;color:var(--accent)">${icon('jar', 24)}</span>
-          <span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">Family jar · ${jar >= target ? 'full! 🎉' : `${jar}/${target}`}</span>
-          <div class="xpbar meter"><div style="width:${Math.min(100, (jar / target) * 100)}%"></div></div></span></section>` : nothing}
+      ${this.hass?.states[JAR] ? this._jarCard(jar, target) : nothing}
 
       <section class="glass card rems" aria-label="Reminders">
-        <span class="label">Reminders</span>
+        <div class="remhead"><span class="label">Reminders</span>${cut && this._remState === 'ok' ? html`<span class="remmore">+${cut} more</span>` : nothing}</div>
         ${dinnersReady(this.hass, askList(c)) ? html`<button class="rem tap dinline" data-act="dinner" aria-label=${this._dinnerTonight ? `Dinner tonight: ${this._dinnerTonight}. Tap for the week` : 'No dinner set for tonight. Tap to plan the week'} @click=${() => { this._dn = { ...this._dn, day: '', ok: false }; this._sheet = 'dinner'; }}>
           <span class="dinmark" aria-hidden="true">${PLATE}</span><span class="content">${this._dinnerTonight ? html`Dinner: <b>${this._dinnerTonight}</b>` : html`<span class="muted">Dinner tonight?</span>`}</span><span class="dingo" aria-hidden="true">${icon('right', 18)}</span></button>` : nothing}
         ${this._remState !== 'ok' ? html`<span class="muted remfail" role="alert" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === 'missing' ? 'The reminders list is not in Home Assistant. Check the card settings.' : 'Can’t load the reminders.'}</span>
@@ -1701,11 +1702,20 @@ export class FamilyHubCard extends LitElement {
       </section>
     </aside>`;
   }
+  /** The family jar on the rail, as a child's page draws it (4d): the jar that fills, marbles to go, today's family total and the rule in words. */
+  private _jarCard(jar: number, target: number): TemplateResult {
+    const added = jarAdded(jar, jarBase(this.hass, ymd(this._now), () => this.requestUpdate())), full = jar >= target, left = target - jar;
+    const reward = this._config.jar?.reward;
+    return html`<section class="glass card jar" aria-label=${`Family jar: ${full ? 'full' : `${left} marble${left === 1 ? '' : 's'} to go, ${jar} of ${target}`}${added ? `, ${added} added today` : ''}`}>
+      <span class="jarpic" style="line-height:0">${jarPic(jar / target, 30, 37)}</span>
+      <span class="jartxt"><span class="jartop"><span class="jargo">${full ? html`Full! Time for ${reward ?? 'the treat'} 🎉` : html`${left} marble${left === 1 ? '' : 's'} to go`}</span>${added ? html`<b class="jarnew" data-act="jar-today">+${added} today</b>` : nothing}</span>
+        <span class="jarrule" data-act="jar-why">${JAR_RULE}</span></span></span></section>`;
+  }
   private _remList(cut: number): TemplateResult {
     const c = this._config;
     return html`${this._reminders.length ? this._reminders.slice(0, this._remShow).map((r) => { const done = r.uid in this._remTk; return html`<button class="rem tap ${done ? 'done' : ''}" ?data-just=${this._remJust === r.uid} aria-pressed=${String(done)} @click=${() => this._tickReminder(r)}><span class="ring check">${done ? html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"></path></svg>` : nothing}</span><span class="content"><span class="strike">${r.summary}</span></span></button>`; })
           : html`<span class="muted" style="font-size:var(--fs-2);line-height:1.3">${c.reminders ? 'Nothing to remember' : 'Pick a to-do list for reminders in the card settings.'}</span>`}
-      ${cut ? html`<span class="remmore">+${cut} more</span>` : nothing}`;
+`;
   }
 
   /** What the dock's drawings show of this house, now: only things the card already knows. */

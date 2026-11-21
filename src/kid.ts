@@ -11,6 +11,7 @@ import { calShows, kidEntities, num, slotVar, type CalendarConfig, type Hass, ty
 import { spark } from './sparks';
 import { bedtimeFor, hm, changed, linger, watched, inTime, SlowError, SLOW_SAY, daySlot, FitController, minsNow, parseChore, say, scrollCue, sfx, windDown, motion, ymd, type Chore, type ParsedChore, type Sfx, type Slot } from './util';
 import { followList, houseUp } from './house';
+import { JAR, JAR_RULE, jarAdded, jarBase, jarPic } from './jar';
 import './studio';
 import { catalogueOf, itemEmoji, WARDROBE } from './wardrobe';
 import type { ArtConfig } from './artlib';
@@ -63,7 +64,6 @@ const lsGet = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(
 const WEDGE_MIN = 2;
 /** What the feelings card asks next, shown and (for a child who cannot read) spoken. */
 const FEEL_ASK: Record<'up' | 'mid' | 'down', string> = { up: 'Lovely! Want to tell someone about it?', mid: 'Thanks for telling me. Anything you need?', down: 'Thanks for telling me. That sounds hard. A hug or a chat might help.' };
-const JAR = 'input_number.family_jar';
 const lsSet = (k: string, v: unknown): void => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 export class FhKid extends LitElement {
@@ -367,8 +367,8 @@ export class FhKid extends LitElement {
   private _events: KEvent[] = [];
   private _jump = 0;
   private _bursts: { id: number; text: string }[] = [];
-  /** the jar as it stood at midnight (from Home Assistant's history), so the card can say how many marbles the family has added today: one family total, never whose */
-  private _jarBase: { day: string; v: number } | null = null; private _jarAsked = '';
+  /** bumped when the jar's midnight reading comes in (jar.ts), so the card can say how many marbles the family has added today: one family total, never whose */
+  private _jarBase = 0;
   /** this screen has seen a marble go in: the line that says what adds none is no longer needed */
   private _jarTold = lsGet<boolean>('fh-jar-told', false);
   private _confetti = 0;
@@ -564,7 +564,6 @@ export class FhKid extends LitElement {
     if (ch.has('_spend') && this._spend) this.renderRoot.querySelector<HTMLElement>('.rw.ask')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
     this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
-    void this._loadJarBase();
     const e = this._e;
     if (this._subFor !== e.chores && this.hass.connection) {
       this._unsub?.(); this._unsub = undefined; this._subFor = e.chores; this._chores = [];
@@ -635,17 +634,6 @@ export class FhKid extends LitElement {
   }
 
   /* ---------------- the jar ---------------- */
-  private async _loadJarBase(): Promise<void> {
-    const day = ymd(new Date());
-    if (this._jarAsked === day || !this.hass?.states[JAR]) return;
-    this._jarAsked = day;
-    try {
-      const a = new Date(); a.setHours(0, 0, 0, 0);
-      const r = await this.hass.callWS<Record<string, { s?: string; state?: string }[]>>({ type: 'history/history_during_period', start_time: a.toISOString(), entity_ids: [JAR], minimal_response: true, no_attributes: true, significant_changes_only: false });
-      const first = r?.[JAR]?.[0], v = Number(first?.s ?? first?.state);
-      this._jarBase = Number.isFinite(v) ? { day, v } : null;
-    } catch { this._jarBase = null; /* no history: the card simply does not say how many today */ }
-  }
   /** A marble leaves the ticked family job and lands in the jar. In calm mode nothing travels: the jar just takes its marble. */
   private _flyMarble(row: Element | null): void {
     if (!this._jarTold) { this._jarTold = true; lsSet('fh-jar-told', true); }
@@ -1091,18 +1079,15 @@ export class FhKid extends LitElement {
   }
 
   private _jar(): TemplateResult {
-    const n = num(this.hass, 'input_number.family_jar'), t = this.jarTarget || 120, f = Math.min(1, n / t);
-    if (!this.hass?.states['input_number.family_jar']) return html``;
+    const n = num(this.hass, JAR), t = this.jarTarget || 120;
+    if (!this.hass?.states[JAR]) return html``;
     // one family total since midnight: never whose marbles they were
-    const added = this._jarBase && this._jarBase.day === ymd(this._now) ? Math.max(0, Math.round(n - this._jarBase.v)) : 0;
+    const added = jarAdded(n, jarBase(this.hass, ymd(this._now), () => { this._jarBase++; }));
     return html`<section class="glass card" aria-label="Family jar"><div class="jar">
-      <svg width="34" height="42" viewBox="0 0 48 60" aria-hidden="true"><rect x="8" y="2" width="32" height="7" rx="3" fill="var(--ink3)"></rect>
-        <path d="M6 12 H42 V52 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 Z" fill="var(--chip-strong)" stroke="var(--ink3)" stroke-width="2"></path>
-        <clipPath id="jc"><path d="M8 14 H40 V52 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 Z"></path></clipPath>
-        <rect clip-path="url(#jc)" x="6" y=${58 - 44 * f} width="36" height=${44 * f} fill="var(--accent)" style="transition:y var(--mt-5, 900ms) var(--e-out, ease), height var(--mt-5, 900ms) var(--e-out, ease)"></rect></svg>
+      ${jarPic(n / t)}
       <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="jarhead"><span class="label">Family jar</span>${added > 0 && !this._wind ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}</span>
         <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
-        ${this._wind ? nothing : html`<span class="jarwhy rule" data-act="jar-why">Every family job adds a marble.${this._jarTold ? nothing : html` <span data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}</span>`}
+        ${this._wind ? nothing : html`<span class="jarwhy rule" data-act="jar-why">${JAR_RULE}${this._jarTold ? nothing : html` <span data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}</span>`}
       </span></div></section>`;
   }
 

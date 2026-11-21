@@ -317,9 +317,11 @@ export class FhHome extends LitElement {
         ${rooms.length ? html`<div class="rgrid" data-fits>
           ${cols.map((col) => html`<div class="rcol">${col.map((r) => {
             const lights = r.ents.filter((e) => e.entity_id.startsWith('light.') && !gone(e)), lit = lights.some((e) => this._on(e)), g = this._guardOf(r);
+            // the chip says how a tap is guarded, so it shows only on a room with something a tap switches (a room of HomePods alone has nothing to hold: 133)
+            const chip = g !== 'free' && r.ents.some((e) => SWITCHED.includes(dom(e)) && !gone(e));
             const held = !!this._holding && (this._holding === `room:${r.id}` || r.ents.some((e) => e.entity_id === this._holding));
             return html`<div class="room ${lit ? 'lit' : ''}" data-room=${r.id} ?data-holding=${held}>
-              <div class="rh"><h2>${r.name}</h2>${g === 'free' ? nothing : html`<span class="rguard" data-rguard=${g}>${g === 'pin' ? html`${DRAWN.locked}Parents` : html`${HOLD_RING}Hold to switch`}</span>`}${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} ?data-holding=${this._holding === `room:${r.id}`}
+              <div class="rh"><h2>${r.name}</h2>${!chip ? nothing : html`<span class="rguard" data-rguard=${g}>${g === 'pin' ? html`${DRAWN.locked}Parents` : html`${HOLD_RING}Hold to switch`}</span>`}${lights.length > 1 ? html`<button class="sw tap" role="switch" aria-label="${r.name} lights" aria-checked=${String(lit)} ?data-busy=${this._busy.includes(`room:${r.id}`)} ?data-holding=${this._holding === `room:${r.id}`}
                 @pointerdown=${g === 'hold' ? () => this._holdStart(`room:${r.id}`, () => this._room(r, !lit)) : nothing} @pointerup=${g === 'hold' ? () => this._holdEnd() : nothing} @pointerleave=${g === 'hold' ? () => this._holdEnd() : nothing} @pointercancel=${g === 'hold' ? () => this._holdEnd() : nothing}
                 @click=${(ev: Event) => { if (this._mayTap(ev, `room:${r.id}`, r, g, () => this._room(r, !lit))) this._room(r, !lit); }}><span>Lights</span><span class="toggle"></span></button>` : nothing}</div>
               ${r.ents.map((e) => this._dev(e, r.name, r, g))}

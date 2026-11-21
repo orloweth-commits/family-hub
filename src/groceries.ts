@@ -33,6 +33,14 @@ export const aisleOf = (name: string): [string, string] => {
   for (const [aisle, colour, re] of AISLE_RE) if (re.test(n)) return [aisle, colour];
   return ['Other', '--p-family'];
 };
+/** A group of this many or fewer stays whole in one column (4d: backlog 109); a longer one carries on into the next column under "…, more". */
+const WHOLE = 7;
+/** The open items, already sorted by aisle, as one group per aisle: [aisle, its colour, its items]. */
+const groupsOf = <T extends { summary: string }>(sorted: T[]): [string, string, T[]][] => {
+  const out: [string, string, T[]][] = [];
+  for (const i of sorted) { const [a, c] = aisleOf(i.summary), last = out[out.length - 1]; if (last && last[0] === a) last[2].push(i); else out.push([a, c, [i]]); }
+  return out;
+};
 
 
 export class FhGroceries extends LitElement {
@@ -45,8 +53,12 @@ export class FhGroceries extends LitElement {
     .scroll { flex: 1; min-height: 0; overflow: auto; padding: 6px; margin: -6px; }
     /* the aisles flow down one column and on into the next, so a short list fills the width too and a heading never wastes a row; the page scrolls down, never sideways */
     .items { column-width: 204px; column-gap: 12px; column-fill: balance; }
-    .items > * { break-inside: avoid; margin-bottom: var(--ig, 6px); }
-    .items > .aisle { break-after: avoid; }
+    .items > *, .items > .grp > * { break-inside: avoid; margin-bottom: var(--ig, 6px); }
+    /* each aisle is a group: a short one stays whole in one column, a long one carries on into the next under "…, more" (4d: backlog 109) */
+    .items > .grp { break-inside: auto; margin-bottom: 0; }
+    .items > .grp[data-whole] { break-inside: avoid; }
+    .grp > .aisle { break-after: avoid; }
+    .grp > .cont { break-before: column; }
     .items > .trolley, .items > .empty { column-span: all; }
     /* while the keys are over the lower part of the page, the list can still be scrolled clear of them */
     :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 284px; }
@@ -134,6 +146,9 @@ export class FhGroceries extends LitElement {
     /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+    /* with the keys up the tray covers the lower part of the page: the usuals close up, three across, so every one stays in reach above it (4d: backlog 109) */
+    :host([data-keys][data-shape='wide']:not([data-n3])) .usuals { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    :host([data-keys][data-shape='wide']:not([data-n3])) .add .usuals .chip.quick { min-height: 52px; padding: 4px 10px; border-radius: 16px; font-size: var(--fs-2); }
     .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
     :host([data-phone]) .add .usuals .chip.quick { min-height: 52px; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
@@ -160,7 +175,7 @@ export class FhGroceries extends LitElement {
     _items: { state: true },
     _typed: { state: true },
     _caps: { state: true },
-    _toast: { state: true }, _undo: { state: true }, _sticky: { state: true }, _adding: { state: true }, _failed: { state: true }, _hidden: { state: true }
+    _toast: { state: true }, _undo: { state: true }, _sticky: { state: true }, _adding: { state: true }, _failed: { state: true }, _hidden: { state: true }, _cont: { state: true }
   };
 
   hass?: Hass;
@@ -191,11 +206,17 @@ export class FhGroceries extends LitElement {
   private _undo?: () => void;
   /** the list could not be loaded: say so, rather than showing an empty list */
   private _failed = false;
+  /** where a long aisle carries on into another column: the item at the top of that column → its aisle (it gets a "…, more" heading). Measured after drawing (`_measureCont`) */
+  private _cont: Record<string, string> = {};
+  private _contKey = ''; private _contStep = 0;
   /** ticked items that were just cleared: out of sight at once, removed for good when the Undo window closes */
   private _hidden: string[] = [];
   private _clearTimer?: number;
 
-  disconnectedCallback(): void { super.disconnectedCallback(); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
+  /** a font that arrives after the list was measured moves the columns' breaks: measure again (a look's own hand-written font, Fridge's) */
+  private _fontsIn = (): void => { this._contKey = ''; this.requestUpdate(); };
+  connectedCallback(): void { super.connectedCallback(); document.fonts?.addEventListener?.('loadingdone', this._fontsIn); }
+  disconnectedCallback(): void { super.disconnectedCallback(); document.fonts?.removeEventListener?.('loadingdone', this._fontsIn); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
@@ -204,6 +225,33 @@ export class FhGroceries extends LitElement {
     this.renderRoot.querySelectorAll('.scrolly').forEach(scrollCue);
     // a long list changes without the rows travelling: sixty rows moving at once is a blur, and slow on a wall panel
     if (this._places) { if (this._places.size <= 40) flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
+    this._measureCont();
+  }
+
+  /**
+   * A long aisle that the columns break carries on at the top of the next column under its own heading ("Fruit & veg, more").
+   * Measured, not guessed: each item of a long group that the columns put in another column than the thing before it gets that
+   * heading, and the heading starts its column by itself (a column break before it, where the columns broke anyway), so its own
+   * height cannot move it under the item before. The columns are balanced again with it; a break that then falls elsewhere in a
+   * long group is found the next time round (at most three). Done once for each list, width and font, so it never goes round in circles.
+   */
+  private _measureCont(): void {
+    const box = this.renderRoot.querySelector<HTMLElement>('.items');
+    if (!box) return;
+    const key = `${box.clientWidth}|${box.getAttribute('data-fit') ?? ''}|${[...box.querySelectorAll<HTMLElement>('.grp')].map((g) => `${g.dataset.g}:${[...g.querySelectorAll<HTMLElement>('.row[data-key]')].map((r) => r.dataset.key).join(',')}`).join('/')}`;
+    if (key !== this._contKey) { this._contKey = key; this._contStep = 0; if (Object.keys(this._cont).length) { this._cont = {}; return; } }
+    if (this._contStep >= 3) return;
+    this._contStep++;
+    // (the column a thing sits in, from layout: a row may be part-way through its move (flip), which getBoundingClientRect would include)
+    const x = (e: Element | null): number => (e as HTMLElement | null)?.offsetLeft ?? -1;
+    const next = { ...this._cont };
+    for (const g of box.querySelectorAll<HTMLElement>('.grp:not([data-whole])')) {
+      for (const r of g.querySelectorAll<HTMLElement>('.row[data-key]')) {
+        const prev = r.previousElementSibling;
+        if (prev && !prev.classList.contains('cont') && Math.abs(x(r) - x(prev)) > 20) next[r.dataset.key!] = g.dataset.g!;
+      }
+    }
+    if (JSON.stringify(next) !== JSON.stringify(this._cont)) this._cont = next; else this._contStep = 3;
   }
 
   private async _subscribe(): Promise<void> {
@@ -333,7 +381,10 @@ export class FhGroceries extends LitElement {
           <button class="retry tap" @click=${() => { this._subFor = ''; this._subscribe(); }}>Try again</button></div>` : html`
         <div class="scroll scrolly" @scroll=${scrollCue}><div class="items">
           ${adding.map((n) => html`<div class="item row pending" role="status" aria-busy="true" data-busy><span class="box check"></span><span class="txt content"><span class="strike">${n}</span></span><span class="tag">Adding…</span></div>`)}
-          ${sorted.map((i, n) => html`${heads && (n === 0 || aisleOf(sorted[n - 1].summary)[0] !== aisleOf(i.summary)[0]) ? html`<div class="aisle label" role="heading" aria-level="2" data-aisle=${aisleOf(i.summary)[0]}><i style="background:var(${aisleOf(i.summary)[1]})" aria-hidden="true"></i>${aisleOf(i.summary)[0]}</div>` : nothing}${this._row(i)}`)}
+          ${heads ? groupsOf(sorted).map(([aisle, colour, rows]) => html`<div class="grp" data-g=${aisle} ?data-whole=${rows.length <= WHOLE}>
+              <div class="aisle label" role="heading" aria-level="2" data-aisle=${aisle}><i style="background:var(${colour})" aria-hidden="true"></i>${aisle}</div>
+              ${rows.map((i) => html`${this._cont[i.uid] === aisle ? html`<div class="aisle label cont" data-cont=${aisle} data-for=${i.uid} aria-hidden="true"><i style="background:var(${colour})"></i>${aisle}, more</div>` : nothing}${this._row(i)}`)}</div>`)
+            : sorted.map((i) => this._row(i))}
           ${done.length ? html`<div class="trolley">
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${done.filter((i) => this._shown(i) === 'completed').length})</button></div>

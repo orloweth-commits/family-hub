@@ -9,6 +9,9 @@ import { icon } from './icons';
 import './radar';
 import { reachable, forgetReach, NO_INTERNET } from './online';
 
+/** This screen's choice of map size on a dry day ('big' or 'small'). */
+const MAP_KEY = 'fh-wx-map';
+
 /** What the page reads besides the weather entity. Every part is optional and found by itself where it can be. */
 export interface WeatherPageConfig {
   /** an hourly weather entity, when the daily one does not give hours itself */
@@ -194,6 +197,10 @@ export class FhWeather extends LitElement {
     .hscroll::-webkit-scrollbar { display: none; }
     .hscroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
     /* whole hours only: the columns are sized to the strip, and an edge with more beyond it fades */
+    /* More and Less sit beside the card's name, as the hours card's arrows do: the readings below keep the room (4d: humidity stays when More is open, 94) */
+    .nhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; margin: -8px 0 -6px; flex-shrink: 0; }
+    .nhead h2 { flex: 0 1 auto; min-width: 0; }
+    .nhead .wmore { height: 44px; padding: 0 16px; flex-shrink: 0; }
     .hhead { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: -8px 0 -6px; }
     .hhead h2 { flex: 0 1 auto; min-width: 0; }
     .hhead button { width: 44px; height: 44px; border-radius: 50%; background: var(--chip); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -214,6 +221,8 @@ export class FhWeather extends LitElement {
     .days { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; overflow: auto; }
     .wday { display: grid; grid-template-columns: 52px 40px 1fr; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 14px; min-height: 52px; }
     .wday.today { background: var(--chip); }
+    /* in the dark today is a ring, as on the planner's week, not a lighter fill (4d: backlog 113) */
+    :host([data-dark]) .wday.today { background: var(--chip-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 62%, transparent); }
     .wday .dn { font-size: var(--fs-3); font-weight: var(--w-bold, 700); }
     .wday .dn small { display: block; font-size: var(--fs-2); color: var(--ink2); font-weight: var(--w-semi, 600); }
     .wday .rng { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); font-variant-numeric: tabular-nums; }
@@ -273,8 +282,8 @@ export class FhWeather extends LitElement {
   private _map: 'radar' | 'wind' = 'radar';
   /** humidity, fire danger and sunrise: shown when More is tapped */
   private _more = false;
-  /** the map's size when someone has chosen it; undefined follows the weather (large only while rain is about) */
-  private _big?: boolean;
+  /** the map's size on a dry day, when someone on this screen has chosen it (kept in this browser, 4d: backlog 110); while rain is about the map is large whatever was chosen */
+  private _big?: boolean = (() => { try { const v = localStorage.getItem(MAP_KEY); return v === 'big' ? true : v === 'small' ? false : undefined; } catch { return undefined; } })();
   /** Rain about: it is raining or storming, a warning is current, or the next six hours bring a real chance of it. With no hours to go by, the day's own chance decides. */
   private _rainAbout(): boolean {
     const WET = /rain|pour|lightning|hail|snow/, st = this.hass?.states[this.entity]?.state ?? '';
@@ -286,7 +295,8 @@ export class FhWeather extends LitElement {
     return (num(this._f('rain_chance')) ?? this._today()?.precipitation_probability ?? 0) >= 60;
   }
   /** whether the map is the large piece of the page now */
-  private get _mapLarge(): boolean { return this._big ?? this._rainAbout(); }
+  private get _mapLarge(): boolean { return this._rainAbout() || this._big === true; }
+  private _chooseMap(big: boolean): void { this._big = big; try { localStorage.setItem(MAP_KEY, big ? 'big' : 'small'); } catch { /* not kept: this visit only */ } }
   private _failed = false;
   /** whether the wind map's site answers: undefined until asked. The map is a page from the internet; without it the frame would show the browser's own error */
   private _windOk?: boolean;
@@ -442,7 +452,7 @@ export class FhWeather extends LitElement {
     const more = this._more, hasMore = hum !== undefined || !!fire || !!(rise && set);
     const small = [chance !== undefined, since !== undefined, more && hum !== undefined, more && !!fire].filter(Boolean).length, half = small === 4 || small === 2 ? 'half' : '';
     return html`<section class="glass wnow scrolly" data-fits>
-      <h2>${this._titles()[0]}</h2>
+      <div class="nhead"><h2>${this._titles()[0]}</h2>${hasMore ? html`<button class="pill tap wmore" data-act="wmore" aria-expanded=${String(more)} @click=${() => { sfx('tap'); this._more = !this._more; }}>${more ? 'Less' : 'More'}</button>` : nothing}</div>
       ${getLook() === 'sports' ? verdictTile(this._verdict(tips), true) : nothing}
       ${warns.map((x) => html`<div class="wwarn" role="alert"><span aria-hidden="true">⚠️</span><span>${x.short_title ?? x.title}</span></div>`)}
       ${/* what to wear and bring comes first: it is the line a child needs (UX review 5.9) */ nothing}
@@ -464,12 +474,11 @@ export class FhWeather extends LitElement {
         ${wind !== undefined ? html`<div class="wfact wide">${this._compass(dir)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(wind)} km/h</b><small>Wind${dir !== undefined ? ` from the ${from(dir)}` : ''}${gust !== undefined ? ` · gusts ${Math.round(gust)}` : ''}</small></span></div>` : nothing}
         ${chance !== undefined ? fact(`${Math.round(chance)}%`, range && range !== '0' ? `Rain · ${range} mm` : 'Chance of rain', half) : nothing}
         ${since !== undefined ? fact(`${since} mm`, 'Since 9 am', `${half} x3`) : nothing}
-        ${more && hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity', `${half} x3`) : nothing}
+        ${more && hum !== undefined ? fact(`${Math.round(hum)}%`, 'Humidity', half) : nothing}
         ${more && fire ? fact(fire, 'Fire danger', half) : nothing}
         ${uv.max !== undefined ? fact(`UV ${Math.round(uv.max)} · ${uvWord(uv.max)}`, uv.max >= 3 ? (uv.from && uv.to ? `Cover up ${uv.from} to ${uv.to}` : night ? 'Cover up in the daytime' : 'Cover up today') : 'No sun protection needed', 'wide stack') : nothing}
         ${more && rise && set ? fact(html`${rise} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${set}`, 'Sunrise to sunset', 'wide stack x2') : nothing}
       </div>
-      ${hasMore ? html`<button class="pill tap wmore" data-act="wmore" aria-expanded=${String(more)} style="align-self:flex-start;height:44px;padding:0 16px;flex-shrink:0" @click=${() => { sfx('tap'); this._more = !this._more; }}>${more ? 'Less' : 'More'}</button>` : nothing}
       ${said ? html`<p class="said">${said}</p>` : nothing}
     </section>`;
   }
@@ -564,7 +573,7 @@ export class FhWeather extends LitElement {
     const large = this._mapLarge, rain = this._rainAbout();
     // small, it is the rain radar alone (the wind map is a tap away, with the larger map)
     const tab = !wantRadar ? 'wind' : !wantWind || !large ? 'radar' : this._map;
-    const size = rain ? nothing : html`<button class="pill tap mapsize" data-act="mapsize" aria-pressed=${String(large)} @click=${() => { sfx('tap'); this._big = !large; }}>${large ? 'Smaller map' : 'Bigger map'}</button>`;
+    const size = rain ? nothing : html`<button class="pill tap mapsize" data-act="mapsize" aria-pressed=${String(large)} @click=${() => { sfx('tap'); this._chooseMap(!large); }}>${large ? 'Smaller map' : 'Bigger map'}</button>`;
     const btn = (id: 'radar' | 'wind', label: string) => html`<button class="tap" aria-pressed=${tab === id} @click=${() => { sfx('tap'); this._map = id; if (id === 'wind') this._askWind(); }}>${label}</button>`;
     return html`<section class="glass wmaps" data-size=${large ? 'large' : 'small'}>
       <div class="mhead"><h2>${large ? this._titles()[3] : tab === 'radar' ? 'Rain radar' : 'Wind'}</h2>${large && wantRadar && wantWind ? html`<div class="seg" role="group" aria-label="Which map">${btn('radar', 'Rain radar')}${btn('wind', 'Wind')}</div>` : nothing}${size}</div>
