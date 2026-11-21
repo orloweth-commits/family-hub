@@ -1164,7 +1164,7 @@ export class FhMusic extends LitElement {
     return html`<div class="map snug">${this._floors.map((f) => html`<div class="floor">
       ${f.rooms.map((r) => r.stairs ? html`<div class="mstairs" role="img" aria-label="Stairs"></div>` : html`<div class="mroom" style="--size:${r.size}">${r.zones.map((z) => {
         const id = z.p.entity_id, sel = on(id);
-        return html`<button class="mz tap" data-zone=${id} ?data-offline=${this._off(z.p)} aria-pressed=${String(sel)} aria-label=${z.name} ?data-live=${!!this._leader(z.p)} ?data-hot=${this._carry?.over === id} @click=${() => tap(id)}>
+        return html`<button class="mz tap" data-zone=${id} ?data-offline=${this._off(z.p)} aria-pressed=${String(sel)} aria-label=${z.name} ?data-live=${!call && !!this._leader(z.p)} ?data-hot=${this._carry?.over === id} @click=${() => tap(id)}>
           ${call && sel ? html`<span class="shout">${icon('megaphone', 22)}</span>` : nothing}<b>${r.asleep ? '☾ ' : ''}${z.name}</b></button>`;
       })}</div>`)}</div>`)}</div>`;
   }
@@ -1630,7 +1630,7 @@ export class FhMusic extends LitElement {
     const jlow = this.kids.some((k) => k.mode === 'picture') ? 'jlow' : '';
     return html`${this._dj ? html`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : nothing}
       <div class="coins ${jlow}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((p) => { const w = theirs(p.name); return html`<button class="coin tap" style="--c:${slotVar(p.colour)}" aria-pressed=${String(j.who === p.name)} ?data-next=${p.name === chooser} aria-label="${p.name}${p.name === chooser ? ', chooses next' : ''}${w ? `, ${w.name} is waiting` : ''}" @click=${() => { this._saveJuke({ who: p.name }); this._prev = 'juke'; this._jpick = true; }}>
-        <span class="face"><span class="fpic">${this._face(p.name, 50)}</span>${w ? html`<i class="has" style=${w.img ? `--art:url(${w.img})` : ''}>${w.img ? nothing : solid('play', 12)}</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Next' : ''}</span></button>`; })}</div>
+        <span class="face"><span class="fpic">${this._face(p.name, 50)}</span>${w ? html`<i class="has" style=${w.img ? `--art:url(${w.img})` : ''}>${w.img ? nothing : solid('play', 12)}</i>` : nothing}</span><span class="cname">${p.name}</span><span class="cnext">${p.name === chooser ? 'Picks next' : ''}</span></button>`; })}</div>
       <div class="acts ${jlow}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!j.who} @click=${() => { this._prev = 'juke'; this._jpick = true; }}>＋ ${j.who ? `${j.who} adds a song` : 'Pick who’s choosing'}</button>
         <button class="jsw tap" role="switch" aria-checked=${String(j.on)} style="font-size:var(--fs-2)" @click=${() => { this._saveJuke({ on: !j.on }); if (!j.on) this._feed(); }}><i></i>${j.on ? 'Jukebox is on' : 'Jukebox is off'}</button>
         <span class="soft" style="flex:1;font-size:var(--fs-2)">Everyone gets a turn.</span>

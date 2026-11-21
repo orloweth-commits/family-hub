@@ -412,7 +412,7 @@ export class FhGroceries extends LitElement {
       </section>
       ${tray ? html`<section class="glass tray" aria-label="Type an item" ?data-closing=${trayOut}>
         ${entry(true)}
-        ${trayOut ? html`<div class="keysgone" aria-hidden="true"></div>` : keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; })}
+        ${trayOut ? html`<div class="keysgone" aria-hidden="true"></div>` : keyboard((k) => { [this._typed, this._caps] = typeKey(this._typed, k, this._caps); }, this._caps, () => { this._caps = !this._caps; }, false, true, true)}
       </section>` : nothing}
       <div class="says" role="status" aria-live="polite">${toast ? html`<div class="toast ${toast.undo || toast.stay ? 'act' : ''}" ?data-closing=${toastOut}><span>${toast.msg}</span>${toast.undo ? html`<button class="undo tap" @click=${() => { sfx('undo'); this._undo?.(); }}>Undo</button>` : toast.stay ? html`<button class="undo tap" @click=${() => { this._toast = ''; this._sticky = false; }}>OK</button>` : nothing}</div>` : nothing}</div>`;
   }

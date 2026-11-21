@@ -570,6 +570,8 @@ export const styles = css`
   /* "Overdue" on a medicine: a small filled badge in the amber of the overdue chip, with dark words: pale red text on a dark card was the quietest thing on it */
   :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
+  /* an overdue medicine that has been seen: deep amber glass with amber words in the dark, not a full-strength yellow pill (the brightest thing on a dark page at 9:30 pm, batch 5) */
+  :host([data-dark]) .cap[data-warm] { background: color-mix(in srgb, #f5b301 24%, var(--ring-halo)); color: #ffd98a; border-color: color-mix(in srgb, #f5b301 75%, transparent); }
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
   :host([data-dark]) input.field:focus-visible { outline: 3px solid var(--ink) !important; outline-offset: 2px; box-shadow: inset 0 0 0 3px var(--primary), 0 0 0 5px var(--ring-halo) !important; }

@@ -1103,6 +1103,8 @@ const ORBIT = `
   @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .lamp[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
+  /* the moment pads are Orbit's pale planet colours: their words in the night's ink, not white (white on mint was about 1.5 to 1, batch 5) */
+  @O .hpad { color: #0d1130; }
   @O .fcap { background: color-mix(in srgb, var(--ink) 22%, var(--ground)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 55%, transparent); }
   @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }

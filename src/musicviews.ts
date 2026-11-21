@@ -477,7 +477,7 @@ export const viewsCss = css`
   .vstep[disabled] { opacity: .38; }
   .vstep:focus-visible, .vrail:focus-visible, .cknob:focus-visible, .agrab:focus-visible, .grab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   .vrail { flex: 1 1 0; min-width: 56px; height: 44px; position: relative; touch-action: pan-y; cursor: pointer; border-radius: 12px; outline: none; }
-  .vrail .slot { position: absolute; left: 4px; right: 4px; top: calc(50% - var(--rail-w) / 2); height: var(--rail-w); border-radius: 99px; background: var(--rail, var(--track)); }
+  .vrail .slot { position: absolute; left: 4px; right: 4px; top: calc(50% - var(--rail-w) / 2); height: var(--rail-w); border-radius: 99px; background: var(--rail, var(--track, color-mix(in srgb, var(--ink) 14%, transparent))); /* a faint track where the look sets none: a quiet room's thumb read as floating beside the meter (batch 5) */ }
   .vfill { position: absolute; left: 4px; top: calc(50% - var(--rail-w) / 2); width: calc(12px + (100% - 32px) * var(--v) / 100); height: var(--rail-w); border-radius: 99px; background: var(--vc); transition: width var(--m-3, 240ms) var(--e-out, ease), height var(--m-3, 240ms) var(--e-out, ease); }
   .vs .fcap { position: absolute; left: calc((100% - 32px) * var(--v) / 100); top: 6px; width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--vc), 0 2px 5px rgba(0,0,0,.3);
     transition: left var(--m-3, 240ms) var(--e-out, ease), bottom var(--m-3, 240ms) var(--e-out, ease), transform var(--m-2, 160ms) var(--e-spring, ease); }

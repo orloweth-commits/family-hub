@@ -60,7 +60,7 @@ export class FhMorning extends LitElement {
     /* the jobs still to do, as faces: one a child with jobs left, with how many when more than one */
     .faces { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; min-height: 36px; }
     .faces .fc { position: relative; display: inline-flex; line-height: 0; border-radius: 50%; }
-    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
+    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 22px; font-weight: var(--w-heavy, 800); text-align: center; }
     .faces .fc[data-n] { margin-right: 8px; }
     .label { font-size: var(--fs-2); }
     /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */

@@ -3120,6 +3120,8 @@ const lu = `
   @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .lamp[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
+  /* the moment pads are Orbit's pale planet colours: their words in the night's ink, not white (white on mint was about 1.5 to 1, batch 5) */
+  @O .hpad { color: #0d1130; }
   @O .fcap { background: color-mix(in srgb, var(--ink) 22%, var(--ground)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 55%, transparent); }
   @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
@@ -4592,6 +4594,8 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* "Overdue" on a medicine: a small filled badge in the amber of the overdue chip, with dark words: pale red text on a dark card was the quietest thing on it */
   :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
+  /* an overdue medicine that has been seen: deep amber glass with amber words in the dark, not a full-strength yellow pill (the brightest thing on a dark page at 9:30 pm, batch 5) */
+  :host([data-dark]) .cap[data-warm] { background: color-mix(in srgb, #f5b301 24%, var(--ring-halo)); color: #ffd98a; border-color: color-mix(in srgb, #f5b301 75%, transparent); }
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
   :host([data-dark]) input.field:focus-visible { outline: 3px solid var(--ink) !important; outline-offset: 2px; box-shadow: inset 0 0 0 3px var(--primary), 0 0 0 5px var(--ring-halo) !important; }
@@ -8408,7 +8412,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
       [this._typed, this._caps] = ke(this._typed, f, this._caps);
     }, this._caps, () => {
       this._caps = !this._caps;
-    })}
+    }, !1, !0, !0)}
       </section>` : g}
       <div class="says" role="status" aria-live="polite">${t ? d`<div class="toast ${t.undo || t.stay ? "act" : ""}" ?data-closing=${e}><span>${t.msg}</span>${t.undo ? d`<button class="undo tap" @click=${() => {
       S("undo"), this._undo?.();
@@ -11089,7 +11093,7 @@ yr.styles = [Xt, st`
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
     /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
-    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
+    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
@@ -11954,7 +11958,7 @@ const x1 = async (a) => {
   .vstep[disabled] { opacity: .38; }
   .vstep:focus-visible, .vrail:focus-visible, .cknob:focus-visible, .agrab:focus-visible, .grab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   .vrail { flex: 1 1 0; min-width: 56px; height: 44px; position: relative; touch-action: pan-y; cursor: pointer; border-radius: 12px; outline: none; }
-  .vrail .slot { position: absolute; left: 4px; right: 4px; top: calc(50% - var(--rail-w) / 2); height: var(--rail-w); border-radius: 99px; background: var(--rail, var(--track)); }
+  .vrail .slot { position: absolute; left: 4px; right: 4px; top: calc(50% - var(--rail-w) / 2); height: var(--rail-w); border-radius: 99px; background: var(--rail, var(--track, color-mix(in srgb, var(--ink) 14%, transparent))); /* a faint track where the look sets none: a quiet room's thumb read as floating beside the meter (batch 5) */ }
   .vfill { position: absolute; left: 4px; top: calc(50% - var(--rail-w) / 2); width: calc(12px + (100% - 32px) * var(--v) / 100); height: var(--rail-w); border-radius: 99px; background: var(--vc); transition: width var(--m-3, 240ms) var(--e-out, ease), height var(--m-3, 240ms) var(--e-out, ease); }
   .vs .fcap { position: absolute; left: calc((100% - 32px) * var(--v) / 100); top: 6px; width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: var(--knob, #fff); box-shadow: inset 0 0 0 3px var(--vc), 0 2px 5px rgba(0,0,0,.3);
     transition: left var(--m-3, 240ms) var(--e-out, ease), bottom var(--m-3, 240ms) var(--e-out, ease), transform var(--m-2, 160ms) var(--e-spring, ease); }
@@ -13126,7 +13130,7 @@ const x1 = async (a) => {
     return d`<div class="map snug">${this._floors.map((s) => d`<div class="floor">
       ${s.rooms.map((o) => o.stairs ? d`<div class="mstairs" role="img" aria-label="Stairs"></div>` : d`<div class="mroom" style="--size:${o.size}">${o.zones.map((r) => {
       const n = r.p.entity_id, l = t(n);
-      return d`<button class="mz tap" data-zone=${n} ?data-offline=${this._off(r.p)} aria-pressed=${String(l)} aria-label=${r.name} ?data-live=${!!this._leader(r.p)} ?data-hot=${this._carry?.over === n} @click=${() => e(n)}>
+      return d`<button class="mz tap" data-zone=${n} ?data-offline=${this._off(r.p)} aria-pressed=${String(l)} aria-label=${r.name} ?data-live=${!i && !!this._leader(r.p)} ?data-hot=${this._carry?.over === n} @click=${() => e(n)}>
           ${i && l ? d`<span class="shout">${A("megaphone", 22)}</span>` : g}<b>${o.asleep ? "☾ " : ""}${r.name}</b></button>`;
     })}</div>`)}</div>`)}</div>`;
   }
@@ -13663,7 +13667,7 @@ const x1 = async (a) => {
       return d`<button class="coin tap" style="--c:${Z(m.colour)}" aria-pressed=${String(t.who === m.name)} ?data-next=${m.name === r} aria-label="${m.name}${m.name === r ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
         this._saveJuke({ who: m.name }), this._prev = "juke", this._jpick = !0;
       }}>
-        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${k ? d`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : xt("play", 12)}</i>` : g}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r ? "Next" : ""}</span></button>`;
+        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${k ? d`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : xt("play", 12)}</i>` : g}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r ? "Picks next" : ""}</span></button>`;
     })}</div>
       <div class="acts ${u}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
@@ -15597,7 +15601,7 @@ _r.styles = [Xt, st`
     /* the jobs still to do, as faces: one a child with jobs left, with how many when more than one */
     .faces { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; min-height: 36px; }
     .faces .fc { position: relative; display: inline-flex; line-height: 0; border-radius: 50%; }
-    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
+    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 22px; font-weight: var(--w-heavy, 800); text-align: center; }
     .faces .fc[data-n] { margin-right: 8px; }
     .label { font-size: var(--fs-2); }
     /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */
@@ -18690,7 +18694,7 @@ const K0 = () => Bo && Date.now() < Bo.until ? Bo : null, Hn = (a) => {
     })))}
       </div>
       <div class="scard" data-screen><h3>${A("home", 20)}This screen</h3>
-        ${this._row("Light and dark", "Used when this screen wears the Glass look; the other looks keep their own colours, and the Space Mission background is always dark. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Kept on this screen, not saved with the rest.", this._seg("Light and dark", Y0(), G0, (x) => {
+        ${this._row("Light and dark", "Used only when this screen wears the Glass look; the other looks keep their own colours. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Kept on this screen, not saved with the rest.", this._seg("Light and dark", Y0(), G0, (x) => {
       Z0(x), S("set"), this.requestUpdate();
     }))}
         ${p?.heartbeat ? this._row("This is the wall panel", "Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.", this._sw("This screen is the wall panel", lr(), () => {
