@@ -4227,6 +4227,10 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   .dayhead .binmk { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px 0 4px; border-radius: 999px; background: var(--chip); color: var(--ink2); flex-shrink: 0; line-height: 0; }
   .dayhead .binmk .bin { width: 9px; height: 12px; }
   .dayhead :is(.pchip, .dball) ~ .binmk { margin-left: 4px; }
+  /* where it does not fit beside the lock, the bin alone; narrower still, nothing (set by _measureWeek) */
+  .col[data-bin='small'] .dayhead .binmk { padding: 0 4px; }
+  .col[data-bin='small'] .dayhead .binmk .bin { display: none; }
+  .col[data-bin='none'] .dayhead .binmk { display: none; }
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: var(--fs-2); }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
   /* an event is a button: it opens its details */
@@ -6486,7 +6490,7 @@ const $f = {
     const [W, M] = qt(34, F), V = 830 / F;
     f += `<path d="M${W} ${M}V${Q(M - j * V, 1)}" stroke="${t.post}" stroke-width="${Q(0.3 * V, 1)}" stroke-linecap="round"/><path d="M${W} ${M}V${Q(M - 1.5 * V, 1)}" stroke="${Fi}" stroke-width="${Q(0.55 * V, 1)}" stroke-linecap="round"/>`;
   }
-  const [m, g] = qt(-34, 41.5), [k, b] = qt(-34, 44.5), x = qt(-37.5, 41.5), y = qt(-37.5, 44.5), U = Q(3.4 * 830 / 41.5, 1), v = Q(3.4 * 830 / 44.5, 1), A = `<path d="M${m} ${Q(g - U, 1)}L${x}L${y}L${k} ${Q(b - v, 1)}V${b}L${m} ${g}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${g}V${Q(g - U, 1)}L${k} ${Q(b - v, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, N = `<rect y="${c - 4}" width="1920" height="${Q(1084 - c, 1)}" fill="${t.g1}"/><path d="${p}" fill="${t.g2}"/><g fill="none" stroke="${ei}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${qt(-34, 29.4)}L${qt(-34, 70)}L${qt(34, 70)}L${qt(34, 29.4)}M960 ${c}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${qt(34, 42)}L${qt(27, 42)}L${qt(27, 45)}L${qt(34, 45)}"/><path d="${h}"/><path d="M0 942H1920" stroke-width="6"/></g>${A}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
+  const [m, g] = qt(-34, 41.5), [k, b] = qt(-34, 44.5), x = qt(-37.5, 41.5), y = qt(-37.5, 44.5), K = Q(3.4 * 830 / 41.5, 1), v = Q(3.4 * 830 / 44.5, 1), A = `<path d="M${m} ${Q(g - K, 1)}L${x}L${y}L${k} ${Q(b - v, 1)}V${b}L${m} ${g}z" fill="${t.post}" opacity=".3"/><path d="M${m} ${g}V${Q(g - K, 1)}L${k} ${Q(b - v, 1)}V${b}" fill="none" stroke="${t.post}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`, N = `<rect y="${c - 4}" width="1920" height="${Q(1084 - c, 1)}" fill="${t.g1}"/><path d="${p}" fill="${t.g2}"/><g fill="none" stroke="${ei}" stroke-opacity="${t.chalk}" stroke-width="3.500" stroke-linejoin="round"><path d="M${qt(-34, 29.4)}L${qt(-34, 70)}L${qt(34, 70)}L${qt(34, 29.4)}M960 ${c}V942"/><ellipse cx="960" cy="538" rx="166" ry="58"/><path d="M${qt(34, 42)}L${qt(27, 42)}L${qt(27, 45)}L${qt(34, 45)}"/><path d="${h}"/><path d="M0 942H1920" stroke-width="6"/></g>${A}${f}${i(92, 384, 192, 1)}${i(1828, 384, 192, 1)}`;
   return `<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="gd-sky" x2="0" y2="1"><stop offset=".35" stop-color="${t.s0}"/><stop offset="1" stop-color="${t.s1}"/></linearGradient>${a ? '<radialGradient id="gd-glow"><stop stop-color="#fff3c4" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>' : ""}</defs>${r}${l}${N}</svg>`;
 }, x2 = {}, w2 = `<svg viewBox="0 0 64 64"><ellipse cx="34" cy="57" rx="30" ry="4" opacity=".14"/><path d="M20 30Q20 11 32 11Q44 11 44 30" fill="none" stroke="#b5713a" stroke-width="3.600" stroke-linecap="round"/><rect x="5" y="25" width="54" height="30" rx="12" fill="#35506b"/><path d="M25 25h14v30H25z" fill="${Fi}"/><path d="M12 31H52" stroke="${i2}" stroke-width="1.600" stroke-dasharray="2.500 2"/><path d="M5 43Q5 55 17 55H47Q59 55 59 43Q57 50 47 50H17Q7 50 5 43z" opacity=".22"/><path d="M27 20h10" stroke="#8a5226" stroke-width="5" stroke-linecap="round"/><g transform="translate(40 36) scale(.42)">${Nf}</g></svg>`, k2 = `<rect x="9" y="50" width="46" height="8" rx="2.500" fill="${Fi}"/><path d="M9 54h46v1.500Q55 58 52.500 58H11.500Q9 58 9 55.500z" opacity=".16"/><path d="M26 12Q32 7 38 12L49 51H15z" fill="${Fi}"/><path d="M22 26H42L44.300 34H19.700z" fill="${ei}"/><path d="M32 8.500Q35.500 9 38 12L49 51H32z" opacity=".1"/>`, v2 = `<svg viewBox="0 -14 64 78"><ellipse cx="32" cy="60" rx="28" ry="3.500" opacity=".14"/><g id="gd-cone">${k2}</g><use href="#gd-cone" y="-7"/><use href="#gd-cone" y="-14"/></svg>`, y2 = (a) => {
   const t = a.tod !== "day", e = t ? "eve" : "day", i = !!a.lay && !a.lay.phone && a.lay.corner >= 110;
@@ -7207,7 +7211,7 @@ const R2 = 40, bt = "cubic-bezier(.2,.8,.2,1)", _e = "cubic-bezier(.2,1.4,.4,1)"
       return;
     }
     const g = [[n, l], [n + (o - n) * 0.45, l - 26], [o - 4, r - 70], [o, r - 21]], k = Array.from({ length: 9 }, (b, x) => {
-      const y = x / 8, U = 1 - y, v = (A) => U * U * U * g[0][A] + 3 * U * U * y * g[1][A] + 3 * U * y * y * g[2][A] + y * y * y * g[3][A];
+      const y = x / 8, K = 1 - y, v = (A) => K * K * K * g[0][A] + 3 * K * K * y * g[1][A] + 3 * K * y * y * g[2][A] + y * y * y * g[3][A];
       return [at(v(0), v(1)), 1, y * 1e3 / p];
     });
     _(a, f, z([...k, [at(o + 3, r), 1, 1300 / p, "ease-out"], [at(o + 4, r - 5), 1, 1420 / p, "ease-in"], [at(o + 3, r), 1, 1540 / p], [at(o + 3, r), 1, 0.92], [at(o + 3, r), 0]]), p), _(a, m, [{ transform: "rotate(0deg)" }, { transform: "rotate(460deg)", offset: 0.67 }, { transform: "rotate(460deg)" }], p, 0, "linear", { fill: "both" }), _(a, h, [{ opacity: 0 }, { opacity: 1, offset: 0.07 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }], p), _(a, c, [{ transform: "scaleX(1)" }, { transform: "scaleX(1)", offset: 1e3 / p, easing: bt }, { transform: "scaleX(1.16)", offset: 1140 / p, easing: _e }, { transform: "scaleX(1)", offset: 1500 / p }, { transform: "scaleX(1)" }], p, 0, "linear", { fill: "both" });
@@ -7297,10 +7301,10 @@ function zt(a, t, e = {}) {
     if (!i || !t || typeof document > "u" || !("animate" in Element.prototype)) return null;
     const s = t instanceof Element ? null : t, o = s ? db(s.x, s.y) ?? document.body : t;
     if (!o.isConnected) return null;
-    const r = getComputedStyle(o), n = (T, X = "") => r.getPropertyValue(T).trim() || X, l = o.getRootNode(), p = l instanceof ShadowRoot ? l : document.body, h = e.look ?? hb(o), c = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = cb(p), m = f.getBoundingClientRect(), g = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, x = k !== 1 && b > 8 && Math.abs(g.width / b - 1) < Math.abs(g.width / b - k) ? k : 1, y = n("--ink", "#1b2430"), U = n("--primary", "#0b5fa5"), v = e.colour || n("--kid") || n("--c") || U, A = document.createElement("div");
+    const r = getComputedStyle(o), n = (T, X = "") => r.getPropertyValue(T).trim() || X, l = o.getRootNode(), p = l instanceof ShadowRoot ? l : document.body, h = e.look ?? hb(o), c = e.calm ?? (parseFloat(n("--m-d", "1")) === 0 || !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches), f = cb(p), m = f.getBoundingClientRect(), g = o.getBoundingClientRect(), k = parseFloat(n("--z", "1")) || 1, b = o.offsetWidth, x = k !== 1 && b > 8 && Math.abs(g.width / b - 1) < Math.abs(g.width / b - k) ? k : 1, y = n("--ink", "#1b2430"), K = n("--primary", "#0b5fa5"), v = e.colour || n("--kid") || n("--c") || K, A = document.createElement("div");
     A.className = `spk-fx spk-${h}`, A.setAttribute("data-kind", a);
     const N = s ? s.x - m.left : g.left * x - m.left, F = s ? s.y - m.top : g.top * x - m.top, j = s ? 0 : g.width * x / k, W = s ? 0 : g.height * x / k;
-    A.style.cssText = `left:${N}px;top:${F}px;width:${j}px;height:${W}px;transform:scale(${k});--ink:${y};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${U};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${v};--c0:${v}`;
+    A.style.cssText = `left:${N}px;top:${F}px;width:${j}px;height:${W}px;transform:scale(${k});--ink:${y};--ok:${n("--ok", "#0f8a5f")};--ac:${n("--accent", "#c26a00")};--pr:${K};--pp:${n("--paper", "#fff")};--gd:${n("--ground", "#0a0f1e")};--c:${v};--c0:${v}`;
     const M = {
       look: h,
       calm: c,
@@ -7317,7 +7321,7 @@ function zt(a, t, e = {}) {
       plans: [],
       own: []
     };
-    M.pal.length || (M.pal = [U, v, Nl]);
+    M.pal.length || (M.pal = [K, v, Nl]);
     const V = h === "sports" ? lb[a] : void 0;
     V ? V(M) : (h === "sports" && (M.look = "glass"), i(M));
     const C = () => {
@@ -7401,7 +7405,7 @@ const Wf = {
   pause: "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z",
   prev: "M6 6h2v12H6zM20 6v12L9.5 12z",
   next: "M16 6h2v12h-2zM4 6v12l10.5-6z"
-}, Ih = (a) => !!Wf[a], K = (a, t = 22) => d`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${w`<path d=${Wf[a] ?? ""}></path>`}</svg>`, xt = (a, t = 22) => d`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${w`<path d=${fb[a] ?? ""}></path>`}</svg>`, mb = (a) => /rain|pour|storm|lightning/.test(a) ? "rain" : /cloud|fog/.test(a) ? "cloud" : /night/.test(a) ? "moon" : "sun", Cf = (a, t) => {
+}, Ih = (a) => !!Wf[a], U = (a, t = 22) => d`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${w`<path d=${Wf[a] ?? ""}></path>`}</svg>`, xt = (a, t = 22) => d`<svg aria-hidden="true" viewBox="0 0 24 24" style="width:${t}px;height:${t}px;fill:currentColor">${w`<path d=${fb[a] ?? ""}></path>`}</svg>`, mb = (a) => /rain|pour|storm|lightning/.test(a) ? "rain" : /cloud|fog/.test(a) ? "cloud" : /night/.test(a) ? "moon" : "sun", Cf = (a, t) => {
   const e = t.toLowerCase(), i = (s) => !!s.trim() && e.includes(s.trim().toLowerCase());
   return a.only?.length && !a.only.some(i) ? !1 : !(a.hide ?? []).some(i);
 }, No = (a) => (a ?? []).some((t) => t.ask !== void 0 || t.ask_minutes !== void 0), pa = (a) => ({ mode: a.ask ?? (a.mode === "picture" ? "pictures" : "full"), minutes: Math.max(0, Number.isFinite(a.ask_minutes) ? Number(a.ask_minutes) : 15) }), O = (a) => a === "family" || a === void 0 ? "var(--p-family)" : `var(--p-${a})`, gb = (a) => a.toLowerCase().replace(/[^a-z0-9]+/g, "_"), P = (a) => {
@@ -7570,14 +7574,14 @@ const Wf = {
       i = Of(x, (y) => {
         r || (s === void 0 ? p.length < 40 && p.push(y) : h(y));
       }), n = window.setTimeout(m, e), o = a.connection.subscribeMessage((y) => {
-        const U = y.data ?? {};
+        const K = y.data ?? {};
         if (y.type === "run-start") {
-          const v = U.runner_data?.stt_binary_handler_id;
+          const v = K.runner_data?.stt_binary_handler_id;
           if (typeof v == "number") {
             s = v;
             for (const A of p.splice(0)) h(A);
           }
-        } else y.type === "stt-end" ? f(String(U.stt_output?.text ?? "").trim().slice(0, ui)) : (y.type === "error" || y.type === "run-end") && f("");
+        } else y.type === "stt-end" ? f(String(K.stt_output?.text ?? "").trim().slice(0, ui)) : (y.type === "error" || y.type === "run-end") && f("");
       }, { type: "assist_pipeline/run", start_stage: "stt", end_stage: "stt", input: { sample_rate: 16e3 }, pipeline: t }), o.catch(() => f(""));
     }, (x) => {
       r = !0, b(x);
@@ -7893,7 +7897,7 @@ const Wf = {
       </div>
       <div class="ctl">
         ${e ? d`<div class="voice">
-          <button class="talk tap" aria-pressed=${String(this._listening)} aria-label=${this._listening ? "Listening. Tap to stop" : "Tap to talk"} ?disabled=${this._busy && !this._listening || this._over} @click=${() => this._talk()}>${K("mic", 46)}</button>
+          <button class="talk tap" aria-pressed=${String(this._listening)} aria-label=${this._listening ? "Listening. Tap to stop" : "Tap to talk"} ?disabled=${this._busy && !this._listening || this._over} @click=${() => this._talk()}>${U("mic", 46)}</button>
           <b aria-hidden="true">${this._listening ? "Listening… tap to stop" : s ? "Thinking…" : "Tap to talk"}</b>
           <button class="pill tap opt convo" data-act="convo" aria-pressed=${String(this._convo)} aria-label="Keep talking: listen again after each answer" @click=${() => {
       S("tap"), this._setConvo(!this._convo);
@@ -8322,7 +8326,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
           <h1 class="t-title">Groceries</h1>
           ${this._failed ? u : d`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${s.length} to buy</span>`}
         </div>
-        ${this._failed ? d`<div class="failed" role="alert"><span style="color:var(--ink2)">${K("cart", 40)}</span><span>Can’t reach the shopping list.</span>
+        ${this._failed ? d`<div class="failed" role="alert"><span style="color:var(--ink2)">${U("cart", 40)}</span><span>Can’t reach the shopping list.</span>
           <button class="retry tap" @click=${() => {
       this._subFor = "", this._subscribe();
     }}>Try again</button></div>` : d`
@@ -8335,7 +8339,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
             <span class="label">In the trolley</span>
             <button class="clear tap" @click=${() => this._clearDone()}>Clear ticked (${o.filter((f) => this._shown(f) === "completed").length})</button></div>
             ${o.map((f) => this._row(f))}` : u}
-          ${!s.length && !o.length && !i.length ? d`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${K("cart", 40)}</span><span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:var(--fs-2)">Type an item or tap a usual to add it.</span></div>` : u}
+          ${!s.length && !o.length && !i.length ? d`<div class="empty" style="padding:24px 0"><span style="color:var(--ink2)">${U("cart", 40)}</span><span style="font-size:var(--fs-3);font-weight:var(--w-semi, 600)">Nothing on the list yet</span><span style="font-size:var(--fs-2)">Type an item or tap a usual to add it.</span></div>` : u}
         </div></div>`}
         <span class="muted note">Also live in the Home Assistant app – tick things off in the shop.</span>
       </section>
@@ -9516,9 +9520,9 @@ const bx = async (a, t, e) => {
     return d`<div style="display:contents;--kid:${O(this.kid.colour)}">
       <section class="glass mirror ${this._picMode ? "low" : ""}">
         <div class="shead" style="display:flex;width:100%;align-items:center;gap:10px;z-index:1">
-          <button class="round tap" aria-label=${l && !o ? "Back, and keep this look" : "Back"} @click=${f}>${K("left", 18)}</button>
+          <button class="round tap" aria-label=${l && !o ? "Back, and keep this look" : "Back"} @click=${f}>${U("left", 18)}</button>
           <div style="flex:1;min-width:0"><h1 class="t-title">${this.kid.name}’s studio</h1>${g ? d`<div class="rankline"><span class="rank">${g.rank}</span><span>${g.need - g.into} more to ${g.nextRank}</span></div>` : u}</div>
-          <button class="round tap" aria-label="Surprise look" ?disabled=${h} @click=${() => this._random()}>${K("shuffle", 18)}</button>
+          <button class="round tap" aria-label="Surprise look" ?disabled=${h} @click=${() => this._random()}>${U("shuffle", 18)}</button>
         </div>
         ${o ? d`
           <div class="easel" ?data-old=${l && !p && !h} role="img" aria-label=${h ? "Your new look is being painted" : l && !p ? "The look you are wearing now. Your new one has not been painted yet" : `${this.kid.name}’s look`}>
@@ -9554,15 +9558,15 @@ const bx = async (a, t, e) => {
     })}${b.hidden ? d`<span class="swmore">+${b.hidden} more later</span>` : u}</div>` : u}
         <div class="gridwrap"><div class="grid scrolly" @scroll=${this._cue}>
           ${k.show.map((x) => {
-      const y = !Ta(x, this.life, this.grow), U = Db(this.d, s, x[0]), v = !!x[3];
-      return d`<div class="cell"><button class="tile tap ${y ? "locked shimmer" : ""} ${this._shake === `${s.id}:${x[0]}` ? "shake" : ""}" aria-pressed=${String(U)} @click=${() => this._pick(s, x)}>
+      const y = !Ta(x, this.life, this.grow), K = Db(this.d, s, x[0]), v = !!x[3];
+      return d`<div class="cell"><button class="tile tap ${y ? "locked shimmer" : ""} ${this._shake === `${s.id}:${x[0]}` ? "shake" : ""}" aria-pressed=${String(K)} @click=${() => this._pick(s, x)}>
               <span class="av">${y && v ? d`<span style="display:flex;width:92px;height:${o ? 76 : s.crop === "head" ? 92 : 110}px;align-items:center;justify-content:center;font-size:var(--fs-d1)">🎁</span>` : o ? d`<span class="emo" aria-hidden="true">${Zl(s, x[0])}</span>` : Jt(hs(this.d, s, x[0]), { size: 92, crop: s.crop, still: !0, age: this.kid.age })}</span>${y && v ? "Surprise" : x[1]}
               ${y ? d`<span class="lock">${v ? "🌱" : d`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>${this._picMode ? d`<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="#f5b301" d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>` : x[2]}`}</span>` : m(x[2]) ? d`<span class="new">NEW</span>` : u}
             </button>
               ${y && !v && !this._picMode ? d`<button class="heart tap" aria-pressed=${String(this._goal === x[0])} aria-label=${this._goal === x[0] ? `${x[1]} is my goal` : `Make ${x[1]} my goal`} @click=${() => this._setGoal(x)}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.500C5 15.500 3 12 3 8.800A4.700 4.700 0 0 1 12 6.700 4.700 4.700 0 0 1 21 8.800c0 3.200-2 6.700-9 11.700z" fill=${this._goal === x[0] ? "#e11d48" : "none"} stroke=${this._goal === x[0] ? "#9f1239" : "currentColor"} stroke-width="2" stroke-linejoin="round"></path></svg></button>` : u}</div>`;
     })}
           ${k.hidden ? d`<div class="cell more" role="note" aria-label="${k.hidden} more to discover later"><span class="e" aria-hidden="true">✨</span>${this._picMode ? u : d`<span>${k.hidden} more to discover</span>`}</div>` : u}
-        </div>${this._picMode ? d`<button class="tap rowgo back" aria-label="Go back along the row" @click=${() => this._along(-1)}>${K("left", 30)}</button><button class="tap rowgo fwd" aria-label="More to choose" @click=${() => this._along(1)}>${K("right", 30)}</button>` : u}</div>
+        </div>${this._picMode ? d`<button class="tap rowgo back" aria-label="Go back along the row" @click=${() => this._along(-1)}>${U("left", 30)}</button><button class="tap rowgo fwd" aria-label="More to choose" @click=${() => this._along(1)}>${U("right", 30)}</button>` : u}</div>
       </section>
       ${this._confetti ? rp(this._confetti) : u}
       ${t ? d`<div class="toast" role="status" ?data-closing=${e}>${t}</div>` : u}
@@ -9747,13 +9751,13 @@ const kx = (a) => {
   }
   render() {
     return d`<div class="glass sheet pad ${this._bad ? "bad" : ""}" role="dialog" aria-modal="true" aria-label=${`${this.reason} Enter the parent PIN.`} @click=${(t) => t.stopPropagation()}>
-      <div style="display:flex;width:100%;align-items:center;gap:10px"><span style="line-height:0;color:var(--accent)">${K("lock", 24)}</span><h2 class="t-sub" style="flex:1">${this.reason}</h2>
-        <button class="round tap" style="width:52px;height:52px;margin-right:-10px" aria-label="Cancel" @click=${() => this._leave("cancel")}>${K("close", 20)}</button></div>
+      <div style="display:flex;width:100%;align-items:center;gap:10px"><span style="line-height:0;color:var(--accent)">${U("lock", 24)}</span><h2 class="t-sub" style="flex:1">${this.reason}</h2>
+        <button class="round tap" style="width:52px;height:52px;margin-right:-10px" aria-label="Cancel" @click=${() => this._leave("cancel")}>${U("close", 20)}</button></div>
       <span class="what">Enter the parent PIN to go on.</span>
       <div class="dots" role="img" aria-label="${this._typed.length} of ${this.pin.length} digits entered">${Array.from({ length: this.pin.length }, (t, e) => d`<span class=${e < this._typed.length ? "on" : ""}></span>`)}</div>
       <div class="note" role="alert">${this._wait ? `Too many tries. Ask a parent to help. (${this._wait} s)` : this._note}</div>
       <div class="grid">
-        ${[...this._digits.slice(0, 9), "", this._digits[9], "del"].map((t) => t ? d`<button class="tap" ?disabled=${!!this._wait} aria-label=${t === "del" ? "Delete" : t} @click=${() => this._key(t)}>${t === "del" ? K("backspace", 28) : t}</button>` : d`<span></span>`)}
+        ${[...this._digits.slice(0, 9), "", this._digits[9], "del"].map((t) => t ? d`<button class="tap" ?disabled=${!!this._wait} aria-label=${t === "del" ? "Delete" : t} @click=${() => this._key(t)}>${t === "del" ? U("backspace", 28) : t}</button>` : d`<span></span>`)}
       </div>
     </div>`;
   }
@@ -10554,13 +10558,13 @@ const Il = 15, c1 = (a) => {
       ${this.kid.special_time && !this._picMode ? d`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : u}
       ${this._wind && this._picMode && this.ask ? d`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
       this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
-    }}>${K("ask", 40)}<span>Ask</span></button></div>` : u}
+    }}>${U("ask", 40)}<span>Ask</span></button></div>` : u}
       ${this._wind ? u : (() => {
       const o = this._block().todo.length, r = this.oneAtATime && o > 0, n = this._picMode && this.ask;
       return d`${r ? d`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
           <div class="lowrow" style=${r ? "" : "margin-top:auto"}>${n ? d`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
         this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
-      }}>${K("ask", 40)}<span>Ask</span></button>` : u}
+      }}>${U("ask", 40)}<span>Ask</span></button>` : u}
           <button class="pill tap studio" ?data-locked=${r} aria-label=${r ? `${this._picMode ? "My look" : "Style studio"}: ${o} job${o === 1 ? "" : "s"} to go first` : u} style="height:${n ? 72 : 52}px;flex:1 1 0;min-width:0;justify-content:center;font-size:var(--fs-3);flex-shrink:0" @click=${(l) => {
         if (r) {
           this._sound("locked");
@@ -10569,7 +10573,7 @@ const Il = 15, c1 = (a) => {
           return;
         }
         this._studio = !0, this._sound("tap");
-      }}>${r ? d`${K("lock", 20)}${o} job${o === 1 ? "" : "s"} to go` : d`${K("palette", 20)}${this._picMode ? "My look" : "Style studio"}`}</button></div>`;
+      }}>${r ? d`${U("lock", 20)}${o} job${o === 1 ? "" : "s"} to go` : d`${U("palette", 20)}${this._picMode ? "My look" : "Style studio"}`}</button></div>`;
     })()}
     </section>`;
   }
@@ -10581,7 +10585,7 @@ const Il = 15, c1 = (a) => {
   _jobs() {
     if (this._noList && !this._chores.length) return d`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><h1 class="t-title">Today</h1></div></div>
-      <div class="list"><div class="wind" data-act="nolist" role="status"><span style="color:var(--ink2)">${K("alert", 44)}</span><span>Your jobs can’t be read just now. They will come back by themselves.</span></div></div></section>`;
+      <div class="list"><div class="wind" data-act="nolist" role="status"><span style="color:var(--ink2)">${U("alert", 44)}</span><span>Your jobs can’t be read just now. They will come back by themselves.</span></div></div></section>`;
     const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: l, done: p, total: h } = this._block();
     this._nowUid = l[0]?.uid ?? "";
     const c = h - p, f = 2 * Math.PI * 22, m = h ? p / h : 0, g = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? c ? `Bedtime jobs: ${c} left · bed at ${yc(t)}` : "All set for bed. Sleep well 🌙" : c ? `${c} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, x = this._night ? 0 : Math.min(60, mt(t) - oe(this._now));
@@ -10738,7 +10742,7 @@ const Il = 15, c1 = (a) => {
     return d`<section class="glass card feelcard" data-private aria-label="Ask for a chat"><span class="label">Something on your mind?</span>
       <button class="pill tap" data-act="chat-note" style="height:52px;justify-content:center;font-size:var(--fs-3)" @click=${() => {
       this._feel = "", this._feelReply("chat");
-    }}>${K("ask", 20)}Ask for a chat</button>
+    }}>${U("ask", 20)}Ask for a chat</button>
       <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">It goes to a parent. Nothing shows on the wall.</span></section>`;
   }
   /** Worries often come up at bedtime: a quiet way to ask for a parent during wind-down. */
@@ -10778,7 +10782,7 @@ const Il = 15, c1 = (a) => {
         <div class="unl">${t.slice(0, 8).map((i, s) => d`<div style="animation-delay:${0.15 + s * 0.12}s">
           ${this._itemPic(e, i, 96, i.cat.crop)}${i.label}</div>`)}</div>
         <div style="display:flex;gap:12px"><button class="pill tap" style="height:52px;padding:0 20px" @click=${() => this._closeCelebrate(!1)}>Later</button>
-          ${this._wind ? u : d`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => this._closeCelebrate(!0)}>${K("star", 18)}Try it on</button>`}</div>
+          ${this._wind ? u : d`<button class="pill tap primary" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => this._closeCelebrate(!0)}>${U("star", 18)}Try it on</button>`}</div>
       </div>
     </div>`;
   }
@@ -11245,7 +11249,7 @@ const Cx = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
   }
   _ic(t) {
     const e = di(t), i = `${t.entity_id} ${t.attributes.friendly_name ?? ""} ${t.attributes.device_class ?? ""}`;
-    return e === "light" ? K("bulb", 18) : e === "fan" || /\bfan\b/i.test(i) ? Yt.fan : e === "lock" ? t.state === "locked" ? Yt.locked : Yt.unlocked : e === "cover" ? t.state === "closed" ? Yt.garage : Yt.garageOpen : e === "media_player" ? /tv|television/i.test(i) ? Yt.tv : Yt.speaker : e === "climate" ? Yt.heat : /light|lamp/i.test(i) ? K("bulb", 18) : Yt.plug;
+    return e === "light" ? U("bulb", 18) : e === "fan" || /\bfan\b/i.test(i) ? Yt.fan : e === "lock" ? t.state === "locked" ? Yt.locked : Yt.unlocked : e === "cover" ? t.state === "closed" ? Yt.garage : Yt.garageOpen : e === "media_player" ? /tv|television/i.test(i) ? Yt.tv : Yt.speaker : e === "climate" ? Yt.heat : /light|lamp/i.test(i) ? U("bulb", 18) : Yt.plug;
   }
   _state(t, e) {
     if (_a(t)) return "Not responding";
@@ -11285,7 +11289,7 @@ const Cx = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
               ${f.ents.map((y) => this._dev(y, f.name, f, k))}
             </div>`;
     })}</div>`)}
-        </div>` : d`<div class="none"><span style="color:var(--accent)">${K("home", 44)}</span><b>No rooms to show yet</b>
+        </div>` : d`<div class="none"><span style="color:var(--accent)">${U("home", 44)}</span><b>No rooms to show yet</b>
           <span>In Home Assistant, give your lights, switches and other devices an area (Settings, then Areas). Each area with a device in it appears here as a room.</span></div>`}
       </section>
       <div class="side">
@@ -11293,7 +11297,7 @@ const Cx = ["light", "switch", "fan", "cover", "lock", "climate", "media_player"
           <span class="label">Scenes</span>
           ${o.length ? d`<div class="scenes">
             ${o.map((c) => d`<button class="scene tap ${this._went === c.entity_id ? "go" : ""}" ?data-busy=${this._busy.includes(c.entity_id)} @click=${() => this._scene(c)}>
-              ${/movie|tv/i.test(c.entity_id) ? Yt.tv : /bed|night/i.test(c.entity_id) ? K("moon", 20) : K("star", 20)}${c.attributes.friendly_name ?? c.entity_id}</button>`)}
+              ${/movie|tv/i.test(c.entity_id) ? Yt.tv : /bed|night/i.test(c.entity_id) ? U("moon", 20) : U("star", 20)}${c.attributes.friendly_name ?? c.entity_id}</button>`)}
           </div>` : d`<span class="muted tipline">No scenes yet. Give a script the label “family_hub” in Home Assistant and it appears here as a button.</span>`}
         </section>
         <section class="glass card" style="flex:1;min-height:0" aria-label="Automations">
@@ -11528,14 +11532,14 @@ const x1 = async (a) => {
   const e = t.currentTarget, i = e.getBoundingClientRect(), s = t.clientX, o = t.clientY, r = !!t.target.closest(".fcap"), n = 16, l = (k) => (a.vert ? (i.bottom - n - k.clientY) / Math.max(1, i.height - 2 * n) : (k.clientX - i.left - n) / Math.max(1, i.width - 2 * n)) * 100, p = r ? a.v - l(t) : 0;
   let h = !1, c = !1, f = a.v;
   const m = (k) => {
-    const b = k, x = Math.abs(b.clientX - s), y = Math.abs(b.clientY - o), U = a.vert ? y : x, v = a.vert ? x : y;
+    const b = k, x = Math.abs(b.clientX - s), y = Math.abs(b.clientY - o), K = a.vert ? y : x, v = a.vert ? x : y;
     if (!c) {
       if (!h) {
-        if (v >= or && v > U) {
+        if (v >= or && v > K) {
           c = !0;
           return;
         }
-        if (U < or) return;
+        if (K < or) return;
         h = !0;
       }
       f = xa(l(b) + p), a.set(f, !1);
@@ -11576,10 +11580,10 @@ const x1 = async (a) => {
   const [i, s] = ad(a, t), [o, r] = ad(a, e);
   return `M${i.toFixed(1)} ${s.toFixed(1)} A${a} ${a} 0 ${e - t > 180 ? 1 : 0} 1 ${o.toFixed(1)} ${r.toFixed(1)}`;
 }, Jx = (a) => {
-  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, s = 2 * Math.PI * 106, o = (x, y, U) => (v) => {
+  const t = a.rooms.length, e = 360 / Math.max(t, 3), i = 9, s = 2 * Math.PI * 106, o = (x, y, K) => (v) => {
     const A = v.currentTarget.ownerSVGElement, N = (F) => {
       const j = A.getBoundingClientRect(), M = ((Math.atan2(F.clientY - (j.top + j.height / 2), F.clientX - (j.left + j.width / 2)) * 180 / Math.PI - y) % 360 + 360) % 360;
-      return xa((M > U + (360 - U) / 2 ? 0 : Math.min(M, U)) / U * 100);
+      return xa((M > K + (360 - K) / 2 ? 0 : Math.min(M, K)) / K * 100);
     };
     if (!x.hasVol) {
       Da(v, () => {
@@ -11592,12 +11596,12 @@ const x1 = async (a) => {
       W ? a.drop(x.id) : F ? a.vol(x.id, N(j), !0) : a.toggle(x.id);
     }, or);
   }, r = a.dial, n = r.stops.length, l = r.stops.findIndex((x) => x.on), p = (x) => (x + 0.5) / Math.max(1, n) * 100, h = (x) => {
-    const y = x.currentTarget, U = y.querySelector(".tneedle"), v = y.getBoundingClientRect(), A = (F) => Math.max(0, Math.min(1, (F.clientX - v.left) / v.width)), N = (F) => Math.max(0, Math.min(n - 1, Math.round(A(F) * n - 0.5)));
+    const y = x.currentTarget, K = y.querySelector(".tneedle"), v = y.getBoundingClientRect(), A = (F) => Math.max(0, Math.min(1, (F.clientX - v.left) / v.width)), N = (F) => Math.max(0, Math.min(n - 1, Math.round(A(F) * n - 0.5)));
     n && Da(x, (F) => {
-      U && (U.style.transition = "none", U.style.left = `${A(F) * 100}%`);
+      K && (K.style.transition = "none", K.style.left = `${A(F) * 100}%`);
     }, (F, j, W) => {
       const M = W ? l : N(j);
-      U && (U.style.transition = "", U.style.left = `${M < 0 ? 2 : p(M)}%`), W || r.tune(M);
+      K && (K.style.transition = "", K.style.left = `${M < 0 ? 2 : p(M)}%`), W || r.tune(M);
     }, 4);
   }, c = (x) => {
     const y = x.key === "ArrowRight" || x.key === "ArrowUp" ? 1 : x.key === "ArrowLeft" || x.key === "ArrowDown" ? -1 : 0;
@@ -11612,18 +11616,18 @@ const x1 = async (a) => {
       <circle class="dplate" cx="200" cy="200" r="184"></circle>
       ${a.now.playing ? w`<circle class="dripple" cx="200" cy="200" r="100"></circle><circle class="dripple late" cx="200" cy="200" r="100"></circle>` : u}
       ${a.rooms.map((x, y) => {
-    const U = -90 + y * e + i / 2, v = e - i, A = U + v * Math.max(0.03, x.vol / 100), [N, F] = ad(152, A);
+    const K = -90 + y * e + i / 2, v = e - i, A = K + v * Math.max(0.03, x.vol / 100), [N, F] = ad(152, A);
     return w`<g class="darc" data-zone=${x.id} ?data-live=${x.live} ?data-playing=${x.playing} ?data-asleep=${x.asleep} ?data-offline=${x.offline} ?data-focus=${x.focus} ?data-hot=${a.over === x.id} ?data-held=${a.held === x.id} style=${ai(x)} role="slider" tabindex="0" aria-label="Volume in ${x.name}"
-          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${x.vol} aria-valuetext="${xp(x)}. Enter ${x.on ? "drops" : "adds"} the room." @pointerdown=${o(x, U, v)} @keydown=${bp(a, x)}>
-          <path class="dhit" d=${$n(152, U, U + v)}></path><path class="dtrack" d=${$n(152, U, U + v)}></path>
-          ${x.hasVol ? w`${x.live ? w`<path class="dfill" d=${$n(152, U, A)}></path>` : u}<circle class="dknob" cx=${N} cy=${F} r="15"></circle>` : u}</g>`;
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow=${x.vol} aria-valuetext="${xp(x)}. Enter ${x.on ? "drops" : "adds"} the room." @pointerdown=${o(x, K, v)} @keydown=${bp(a, x)}>
+          <path class="dhit" d=${$n(152, K, K + v)}></path><path class="dtrack" d=${$n(152, K, K + v)}></path>
+          ${x.hasVol ? w`${x.live ? w`<path class="dfill" d=${$n(152, K, A)}></path>` : u}<circle class="dknob" cx=${N} cy=${F} r="15"></circle>` : u}</g>`;
   })}
       <circle class="dprogt" cx="200" cy="200" r="106"></circle>
       <circle class="dprog" cx="200" cy="200" r="106" stroke-dasharray="${a.now.frac * s} ${s}" transform="rotate(-90 200 200)"></circle>
     </svg>
     <button class="dcover tap" ?data-playing=${a.now.playing} style=${a.now.art ? `--art:url(${a.now.art})` : ""} aria-label=${a.now.playing ? "Pause" : "Play"} @click=${() => a.playPause()}><span>${xt(a.now.playing ? "pause" : "play", 30)}</span></button>
     <div class="dlabels">${a.rooms.map((x, y) => {
-    const U = -90 + y * e + e / 2, v = Math.cos(U * Math.PI / 180), A = Math.sin(U * Math.PI / 180), [N, F] = up(a, x), j = v > 0.3 ? "0" : v < -0.3 ? "-100%" : "-50%", W = Math.abs(v) > 0.3 ? "-50%" : A > 0 ? "0" : "-100%";
+    const K = -90 + y * e + e / 2, v = Math.cos(K * Math.PI / 180), A = Math.sin(K * Math.PI / 180), [N, F] = up(a, x), j = v > 0.3 ? "0" : v < -0.3 ? "-100%" : "-50%", W = Math.abs(v) > 0.3 ? "-50%" : A > 0 ? "0" : "-100%";
     return d`<div class="dlabel" data-side=${v > 0.3 ? "r" : v < -0.3 ? "l" : "m"} ?data-held=${a.held === x.id} ?data-offline=${x.offline} style="left:${50 + 50.5 * v + (Math.abs(v) > 0.3 && Math.abs(A) > 0.5 ? 7 * Math.sign(v) : 0)}%;top:${50 + 50.5 * A}%;transform:translate(${j},${W})">
         <button class="dname tap" aria-pressed=${String(x.focus)} aria-label="Show ${x.name} in the player" @click=${() => a.focus(x.id)}><b>${x.asleep ? "☾ " : ""}${x.name}${Br(x)}</b><span>${Qr(x)}</span></button>
         ${x.hasVol && !x.offline ? d`<span class="dstep">${N}<b class="vnum" aria-hidden="true">${x.vol}</b>${F}</span>` : u}</div>`;
@@ -11653,17 +11657,17 @@ const x1 = async (a) => {
       <div class="well"><span class="vu" aria-hidden="true">${Array.from({ length: 10 }, (g, k) => d`<i ?data-lit=${9 - k < c} ?data-peak=${9 - k >= c - 2 && 9 - k < c}></i>`)}</span>
         ${h.hasVol && !h.offline ? Hx(a, h, !0) : d`<span class="sval">${h.offline ? "Offline" : "–"}</span>`}</div></div>`;
   }, r = (h) => {
-    const c = h.currentTarget.getBoundingClientRect(), f = c.left + c.width / 2, m = c.top + c.height / 2, g = (U) => Math.atan2(U.clientY - m, U.clientX - f) * 180 / Math.PI;
+    const c = h.currentTarget.getBoundingClientRect(), f = c.left + c.width / 2, m = c.top + c.height / 2, g = (K) => Math.atan2(K.clientY - m, K.clientX - f) * 180 / Math.PI;
     let k = g(h), b = 0, x = !1;
-    const y = (U) => {
-      const v = g(U);
+    const y = (K) => {
+      const v = g(K);
       let A = v - k;
       return A > 180 ? A -= 360 : A < -180 && (A += 360), k = v, b += A, b;
     };
-    Da(h, (U) => {
-      x = !0, a.jogTo(y(U), !1);
-    }, (U, v, A) => {
-      U && !A ? a.jogTo(y(v), !0) : x && a.jogTo(0, !0);
+    Da(h, (K) => {
+      x = !0, a.jogTo(y(K), !1);
+    }, (K, v, A) => {
+      K && !A ? a.jogTo(y(v), !0) : x && a.jogTo(0, !0);
     }, 6);
   }, n = (h) => {
     const c = h.key === "ArrowRight" || h.key === "ArrowUp" ? 10 : h.key === "ArrowLeft" || h.key === "ArrowDown" ? -10 : 0;
@@ -11686,7 +11690,7 @@ const x1 = async (a) => {
     <div class="dstrips">${a.rooms.map(o)}
     <div class="strip master" ?data-live=${t.length > 0}>
       <span class="sname"><span>Whole house</span></span>
-      <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${K("home", 22)}</button>
+      <button class="lamp tap" data-drop="all" ?data-hot=${a.over === "all"} aria-label="Whole house: play this music in every room" @click=${() => a.all()}>${U("home", 22)}</button>
       <div class="well">${t.length ? s : d`<span class="sval">–</span>`}</div></div></div></div>`;
 }, Nc = 6, Xx = (a) => {
   const t = a.crate, e = t.items.length, i = Math.max(0, Math.min(e - 1, t.at)), s = Math.max(0, Math.min(i - 2, e - Nc)), o = t.items.slice(s, s + Nc), r = t.items[i], n = (g) => (g + 0.5) / a.rooms.length * 100, l = t.who === "Family" ? "Family crate" : `${t.who}’s crate`, p = (g, k) => {
@@ -11698,13 +11702,13 @@ const x1 = async (a) => {
       style="--v:${g.vol}" @pointerdown=${y1(a, g, () => 150)} @keydown=${bp(a, g)}><i></i></span>${x}</span>` : u}
     <button class="sock tap" data-notrack aria-pressed=${String(g.on)} ?disabled=${g.offline} aria-label="${g.on ? "Remove" : "Add"} ${g.name} ${g.on ? "from" : "to"} the music" @click=${() => a.toggle(g.id)}>${g.on ? "" : "＋"}</button></div>`;
   }, h = a.rooms.map((g, k) => [g, k]).filter(([g]) => g.on), c = (g) => 39 + (g - (h.length - 1) / 2) * Math.min(9, 60 / Math.max(1, h.length)), f = h.map(([g, k], b) => {
-    const y = c(b), U = 70, v = n(k), A = 9 + Math.abs(v - y) * 0.18;
-    return w`<path class="wire" ?data-playing=${g.playing} style="${ai(g)};animation-delay:${-b * 0.4}s" d="M${64.6} ${y} C${64.6 + 3.4} ${y + A}, ${U - 3.4} ${v + A}, ${U} ${v}"></path>`;
+    const y = c(b), K = 70, v = n(k), A = 9 + Math.abs(v - y) * 0.18;
+    return w`<path class="wire" ?data-playing=${g.playing} style="${ai(g)};animation-delay:${-b * 0.4}s" d="M${64.6} ${y} C${64.6 + 3.4} ${y + A}, ${K - 3.4} ${v + A}, ${K} ${v}"></path>`;
   }), m = (g, k) => {
     const b = s + k, x = b === i, y = 0.5 + (k - (o.length - 1) / 2) / Math.max(3, o.length - 1);
     return d`<button class="sleeve tap" ?data-front=${x} ?data-lifted=${a.liftedItem === g} style="z-index:${10 - Math.abs(b - i)};--x:${y};--tilt:${(-9 + 17 * y).toFixed(1)}deg;--art:${g.img ? `url(${g.img})` : Cr(b)}"
       aria-label="${g.name}. ${x ? `Tap to play in ${t.room}` : "Tap to bring it to the front"}, or drag it to the turntable or a speaker."
-      @pointerdown=${(U) => a.carryItem(U, g, (v) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(v / 52)))))} @click=${() => t.tap(b)}><span class="sart">${g.img ? "" : g.name[0]}</span></button>`;
+      @pointerdown=${(K) => a.carryItem(K, g, (v) => t.flick(Math.max(0, Math.min(e - 1, i - Math.round(v / 52)))))} @click=${() => t.tap(b)}><span class="sart">${g.img ? "" : g.name[0]}</span></button>`;
   };
   return d`<div class="rig" data-fits>
     <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${f}</svg>
@@ -11859,7 +11863,7 @@ const x1 = async (a) => {
   </div>`;
 }, ho = [36, 58], Fn = 82, Tc = "0 22 100 92", sw = (a, t) => {
   const e = U1[t], i = a.sdrag, s = (p) => ho[Math.min(ho.length - 1, a.streams.indexOf(p))], o = (p) => (h, c) => {
-    const f = h.target.closest(".vscene") ?? document.body, m = getComputedStyle(f), g = Number(m.getPropertyValue("--sq")) || 0.42, k = Number(m.getPropertyValue("--k")) || 1, b = Number(m.getPropertyValue("--cy")) || 0.4, x = Number(m.getPropertyValue("--uh")) || 1, y = Math.hypot(h.clientX - (c.left + c.width / 2), (h.clientY - (c.top + c.height * b)) / g) / Math.min(c.height * x, c.width * 0.56) * 100 / k, U = [...a.streams.map((A) => [s(A), A]), [Fn, ""]], [, v] = U.sort((A, N) => Math.abs(A[0] - y) - Math.abs(N[0] - y))[0];
+    const f = h.target.closest(".vscene") ?? document.body, m = getComputedStyle(f), g = Number(m.getPropertyValue("--sq")) || 0.42, k = Number(m.getPropertyValue("--k")) || 1, b = Number(m.getPropertyValue("--cy")) || 0.4, x = Number(m.getPropertyValue("--uh")) || 1, y = Math.hypot(h.clientX - (c.left + c.width / 2), (h.clientY - (c.top + c.height * b)) / g) / Math.min(c.height * x, c.width * 0.56) * 100 / k, K = [...a.streams.map((A) => [s(A), A]), [Fn, ""]], [, v] = K.sort((A, N) => Math.abs(A[0] - y) - Math.abs(N[0] - y))[0];
     v && v !== p.stream ? a.join(p.id, v) : !v && p.stream && !p.lead && a.leave(p.id);
   }, r = a.rooms.filter((p) => !p.stream), n = (p) => {
     const h = p.stream ? a.rooms.filter((g) => g.stream === p.stream) : r, c = h.indexOf(p), f = p.stream ? a.streams.indexOf(p.stream) : 0, m = p.stream ? (f * 137 + c * 360 / h.length) % 360 : (100 + c * 360 / Math.max(1, h.length)) % 360;
@@ -11883,7 +11887,7 @@ const x1 = async (a) => {
 }}>
   <section class="glass sheet" role="dialog" aria-modal="true" aria-label="Switcheroo: change the view" style="width:min(640px,94%);gap:14px">
     <h2 class="t-head" style="display:flex;align-items:center;gap:12px"><i class="pinw" aria-hidden="true"></i>Switcheroo!</h2><span class="muted" style="margin-top:-8px">Pick a way to see the rooms.</span>
-    <div class="vgrid">${sr.filter((s) => i.includes(s.id)).map((s) => d`<button class="vcard tap" aria-pressed=${String(s.id === a)} @click=${() => t(s.id)}>${K(s.icon, 34)}<b>${s.name}</b><span>${s.about}</span></button>`)}</div>
+    <div class="vgrid">${sr.filter((s) => i.includes(s.id)).map((s) => d`<button class="vcard tap" aria-pressed=${String(s.id === a)} @click=${() => t(s.id)}>${U(s.icon, 34)}<b>${s.name}</b><span>${s.about}</span></button>`)}</div>
     <button class="pill tap" style="align-self:flex-end" @click=${e}>Close</button></section></div>`, nw = st`
   /* Switcheroo: the one button that changes how the rooms are shown. Same name, same pinwheel, on every view. */
   .viewbtn { height: 48px; padding: 0 18px 0 8px; border-radius: 999px; background: var(--chip-strong); display: inline-flex; align-items: center; gap: 10px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); letter-spacing: -.01em; box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 55%, transparent), 0 4px 12px -4px rgba(0,0,0,.3); flex-shrink: 0; }
@@ -12796,7 +12800,7 @@ const x1 = async (a) => {
     this._shelfAsked || (this._shelfAsked = !0, this._loadShelves());
     const m = this.kids.find((q) => q.name === this._shelf), g = !!m && ns(m.bedtime), k = this._items[this._shelf] ?? [], b = g ? k.filter((q) => q.calm) : k, x = Math.max(0, Math.min(b.length - 1, this._crateAt));
     this._mode === "dial" && this._loadRadio();
-    const y = this._juke, U = (q) => y.picks.filter((T) => T.done && T.who === q).length, v = y.on ? y.picks.filter((q) => !q.done).sort((q, T) => +(T.who === this._dj) - +(q.who === this._dj) || U(q.who) - U(T.who) || q.t - T.t) : [], A = v.length ? v.slice(0, 3).map((q) => ({ title: q.name, sub: `${q.who}’s pick`, art: q.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], N = this._everyone, F = new Set(v.map((q) => q.who)), j = [...N].sort((q, T) => Number(F.has(q.name)) - Number(F.has(T.name)) || U(q.name) - U(T.name))[0]?.name ?? "", W = (this._items.Family ?? []).slice(0, 4), M = this._stations.filter((q) => !W.some((T) => T.name.toLowerCase() === q.name.toLowerCase())).slice(0, Math.max(0, 7 - W.length)), V = t && p ? fo[t.entity_id] : "", C = [...W.map((q) => ({ name: q.name, on: p && !V && this._lastUri === q.uri, go: () => {
+    const y = this._juke, K = (q) => y.picks.filter((T) => T.done && T.who === q).length, v = y.on ? y.picks.filter((q) => !q.done).sort((q, T) => +(T.who === this._dj) - +(q.who === this._dj) || K(q.who) - K(T.who) || q.t - T.t) : [], A = v.length ? v.slice(0, 3).map((q) => ({ title: q.name, sub: `${q.who}’s pick`, art: q.img ?? "" })) : this._q?.next ? [{ title: this._q.next.name, sub: this._q.next.sub ?? "From the queue", art: this._q.next.img ?? "" }] : [], N = this._everyone, F = new Set(v.map((q) => q.who)), j = [...N].sort((q, T) => Number(F.has(q.name)) - Number(F.has(T.name)) || K(q.name) - K(T.name))[0]?.name ?? "", W = (this._items.Family ?? []).slice(0, 4), M = this._stations.filter((q) => !W.some((T) => T.name.toLowerCase() === q.name.toLowerCase())).slice(0, Math.max(0, 7 - W.length)), V = t && p ? fo[t.entity_id] : "", C = [...W.map((q) => ({ name: q.name, on: p && !V && this._lastUri === q.uri, go: () => {
       t && this._gentle(t.entity_id, () => {
         delete fo[t.entity_id], this._shelfPlay(q, t);
       });
@@ -12989,12 +12993,12 @@ const x1 = async (a) => {
     const k = (x) => {
       if (!m) {
         if (!f) {
-          const y = Math.abs(x.clientX - n), U = Math.abs(x.clientY - l);
-          if (y >= 10 && y > U) {
+          const y = Math.abs(x.clientX - n), K = Math.abs(x.clientY - l);
+          if (y >= 10 && y > K) {
             m = !0;
             return;
           }
-          if (U < 10) return;
+          if (K < 10) return;
           f = !0;
         }
         g = Math.max(0, Math.min(100, Math.round(s + (l - x.clientY) / c * 100))), this._setVol(r, g, !1);
@@ -13018,8 +13022,8 @@ const x1 = async (a) => {
       const y = (A) => {
         const N = A.getBoundingClientRect();
         return b >= N.left && b <= N.right && x >= N.top && x <= N.bottom;
-      }, U = [...this.renderRoot.querySelectorAll("[data-pin]")].find(y)?.dataset.pin;
-      if (U) return `pin:${U}`;
+      }, K = [...this.renderRoot.querySelectorAll("[data-pin]")].find(y)?.dataset.pin;
+      if (K) return `pin:${K}`;
       if ([...this.renderRoot.querySelectorAll('[data-drop="all"]')].some(y)) return "all";
       const v = s ? this.renderRoot.querySelector('[data-drop="deck"]') : null;
       return v && y(v) ? "deck" : [...this.renderRoot.querySelectorAll("[data-zone]")].find(y)?.dataset.zone ?? "";
@@ -13051,18 +13055,18 @@ const x1 = async (a) => {
         this._pinDrop(x.over.slice(4), s ?? this._nowHit(i));
         return;
       }
-      const y = x.over && x.over !== "all" ? this._list.find((U) => U.entity_id === x.over) ?? this.hass.states[x.over] : void 0;
+      const y = x.over && x.over !== "all" ? this._list.find((K) => K.entity_id === x.over) ?? this.hass.states[x.over] : void 0;
       if (i && x.over === "all") this._wholeHouse(() => {
         this._focus = i.entity_id, this._everywhere(!0, i);
       });
       else if (s && x.over === "all") this._wholeHouse(() => {
-        const U = this._off(this._cur) ? this._list.find((v) => !this._off(v)) : this._cur;
-        U && (this._shelfPlay(s, U), this._everywhere(!0, U));
+        const K = this._off(this._cur) ? this._list.find((v) => !this._off(v)) : this._cur;
+        K && (this._shelfPlay(s, K), this._everywhere(!0, K));
       });
       else if (i && y && y.entity_id !== i.entity_id) this._gentle(y.entity_id, () => this._move(y, i));
       else if (s && x.over === "deck") {
-        const U = this._cur;
-        U && this._gentle(U.entity_id, () => this._shelfPlay(s, U));
+        const K = this._cur;
+        K && this._gentle(K.entity_id, () => this._shelfPlay(s, K));
       } else s && y && this._gentle(y.entity_id, () => {
         this._focus = y.entity_id, this._shelfPlay(s, y);
       });
@@ -13075,19 +13079,19 @@ const x1 = async (a) => {
       ${s.rooms.map((o) => o.stairs ? d`<div class="mstairs" role="img" aria-label="Stairs"></div>` : d`<div class="mroom" style="--size:${o.size}">${o.zones.map((r) => {
       const n = r.p.entity_id, l = t(n);
       return d`<button class="mz tap" data-zone=${n} ?data-offline=${this._off(r.p)} aria-pressed=${String(l)} aria-label=${r.name} ?data-live=${!!this._leader(r.p)} ?data-hot=${this._carry?.over === n} @click=${() => e(n)}>
-          ${i && l ? d`<span class="shout">${K("megaphone", 22)}</span>` : u}<b>${o.asleep ? "☾ " : ""}${r.name}</b></button>`;
+          ${i && l ? d`<span class="shout">${U("megaphone", 22)}</span>` : u}<b>${o.asleep ? "☾ " : ""}${r.name}</b></button>`;
     })}</div>`)}</div>`)}</div>`;
   }
   _house() {
     const t = this._cur, e = t && this._leader(t), i = this._group(e), s = this._floors, o = this._carry, r = [...new Set(this._list.map((l) => this._leader(l)?.entity_id).filter((l) => !!l && l !== e?.entity_id))], n = (l, p) => {
-      const h = l.p, c = h.entity_id, f = this._leader(h), m = f?.state === "playing", g = c === t?.entity_id, k = i.includes(c) && c !== e?.entity_id, b = this._volOf(h), x = this._off(h), y = b !== null && !x, U = !!f && this._group(f).length > 1, v = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", A = x ? "Offline" : f ? m ? String(f.attributes.media_title ?? "Music") : "Paused" : p ? "Asleep" : "Quiet", N = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
-      return d`<div class="mzone" data-zone=${c} ?data-offline=${x} ?data-focus=${g} ?data-live=${!!f} ?data-playing=${m} ?data-asleep=${p} ?data-linked=${U} ?data-held=${this._held === c} ?data-hot=${o?.over === c && o.from !== c} style="${v}--v:${b ?? 0}" @pointerdown=${(F) => this._volDown(F, h)}>
+      const h = l.p, c = h.entity_id, f = this._leader(h), m = f?.state === "playing", g = c === t?.entity_id, k = i.includes(c) && c !== e?.entity_id, b = this._volOf(h), x = this._off(h), y = b !== null && !x, K = !!f && this._group(f).length > 1, v = f && f.entity_id !== e?.entity_id ? `--c:var(--p-${[3, 5, 4, 2][r.indexOf(f.entity_id) % 4]});` : "", A = x ? "Offline" : f ? m ? String(f.attributes.media_title ?? "Music") : "Paused" : p ? "Asleep" : "Quiet", N = f?.attributes.entity_picture ? `--art:url(${f.attributes.entity_picture})` : "";
+      return d`<div class="mzone" data-zone=${c} ?data-offline=${x} ?data-focus=${g} ?data-live=${!!f} ?data-playing=${m} ?data-asleep=${p} ?data-linked=${K} ?data-held=${this._held === c} ?data-hot=${o?.over === c && o.from !== c} style="${v}--v:${b ?? 0}" @pointerdown=${(F) => this._volDown(F, h)}>
         ${f && y ? d`<span class="pool"></span>` : u}
         ${f ? d`<span class="zspk" aria-hidden="true" style="--amp:${(1.15 + (b ?? 40) / 100 * 1.5).toFixed(2)}"><i></i><i></i>${g ? d`<b></b>` : u}</span>` : u}
         ${o && f?.entity_id !== c ? d`<span class="land" aria-hidden="true"></span>` : u}
-        <button class="zname tap" aria-pressed=${String(g)} aria-label="${l.name}: ${A}${b !== null ? `, volume ${b}` : ""}${U ? ", linked with another room" : ""}" @click=${() => {
+        <button class="zname tap" aria-pressed=${String(g)} aria-label="${l.name}: ${A}${b !== null ? `, volume ${b}` : ""}${K ? ", linked with another room" : ""}" @click=${() => {
         this._focus = c;
-      }}><b>${p ? "☾ " : ""}${l.name}${U ? d`<i class="linkd" aria-hidden="true"></i>` : u}</b><span>${A}</span></button>
+      }}><b>${p ? "☾ " : ""}${l.name}${K ? d`<i class="linkd" aria-hidden="true"></i>` : u}</b><span>${A}</span></button>
         ${c === e?.entity_id || x ? u : d`<button class="join tap" aria-pressed=${String(k)} aria-label="${k ? "Remove" : "Add"} ${l.name} ${k ? "from" : "to"} the music" @click=${() => this._join(c)}>${k ? "✓" : "＋"}</button>`}
         ${y ? d`${Vi(l.name, b, !0, () => this._volStep(c, 5))}
           <span class="grab" role="slider" tabindex="0" aria-label="Volume in ${l.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${b} aria-valuetext="${b} per cent${f ? "" : ", quiet"}" @keydown=${gp(b, (F) => this._setVol(c, F, !0))}><i></i></span>
@@ -13123,16 +13127,16 @@ const x1 = async (a) => {
       ${t ? d`<div class="shead"><b>${o ? "🌙 " : ""}${this._shelf === "Family" ? "Family shelf" : `${this._shelf}’s shelf`}</b>
           ${this._shelfNames.map((m) => d`<button class="swho tap" data-pin=${m} ?data-hot=${i?.over === `pin:${m}`} style="--c:${c(m)}" aria-pressed=${String(this._shelf === m)} aria-label=${m === "Family" ? "Family shelf" : `${m}’s shelf`} @click=${() => {
       this._shelf = m;
-    }}><i>${m === "Family" ? K("home", 20) : this._face(m, 36)}</i></button>`)}</div>
+    }}><i>${m === "Family" ? U("home", 20) : this._face(m, 36)}</i></button>`)}</div>
         ${p.length ? d`<div class="srecs" style="--cols:${h};--rows:${Math.ceil(Math.min(n.length, l) / h)}">${p.map((m, g) => d`<button class="srec tap" ?data-lifted=${i?.item === m} aria-label="${m.name}. Tap to play in ${this._name(e)}, or drag it onto a room."
               @pointerdown=${(k) => this._carryDown(k, { item: m })} @click=${() => f(m)}>
               <i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : Cr(g)}"></i><span>${m.name}</span></button>`)}
             ${n.length > l ? d`<button class="srec more tap" aria-label="See the whole shelf" @click=${() => {
       this._tab = "shelves";
-    }}>＋${n.length - p.length}<span>more</span></button>` : u}</div>` : d`<div class="snone">${K("sleeve", 34)}<span>${o ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : d`<span style="flex:1"></span>`}
+    }}>＋${n.length - p.length}<span>more</span></button>` : u}</div>` : d`<div class="snone">${U("sleeve", 34)}<span>${o ? "Nothing calm pinned yet." : "Nothing pinned yet."}<br>Search for music, then tap Pin.</span></div>`}` : d`<span style="flex:1"></span>`}
       ${this._padRow()}
       <button class="wholeh tap" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-joined=${this._allJoined} ?data-open=${!!i} ?data-hot=${i?.over === "all"} @click=${() => this._spread()}>
-        ${this._allJoined ? K("check", 26) : K("home", 26)}<span><b>Whole house</b><span>${i ? "Drop it here" : this._allJoined ? "Playing in every room" : "Drop music here"}</span></span></button>
+        ${this._allJoined ? U("check", 26) : U("home", 26)}<span><b>Whole house</b><span>${i ? "Drop it here" : this._allJoined ? "Playing in every room" : "Drop music here"}</span></span></button>
     </div>`;
   }
   /* ---------------- search ---------------- */
@@ -13302,10 +13306,10 @@ const x1 = async (a) => {
       this._calling = !1, this._lastCall = 0, this.isConnected && this._say("The call didn’t go through: no voice could be made for it. The voice comes from the internet, so try again in a few minutes.");
       return;
     }
-    const b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, x = (M) => !!h.services?.music_assistant?.play_announcement && h.entities?.[M]?.platform === "music_assistant", y = (M) => s ? Promise.resolve(h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0, ...c ? { language: c } : {}, ...f }, { entity_id: s })).catch(() => h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), U = (M) => (b ? Promise.resolve(h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => y(M)) : y(M)).then(() => !0, (V) => (console.warn("Family Hub: call failed", M, V), !1)), v = (M) => Promise.resolve(h.callService("media_player", "play_media", { media_content_id: g, media_content_type: "music", announce: !0, ...x(M) ? { extra: { announce_volume: m } } : {} }, { entity_id: M })).then(() => !0, () => U(M)), A = g ? [] : i.filter(x), N = i.filter((M) => !A.includes(M)).map(g ? v : U);
+    const b = k && o ? { language: o.language, options: o.voice ? { voice: o.voice } : void 0 } : null, x = (M) => !!h.services?.music_assistant?.play_announcement && h.entities?.[M]?.platform === "music_assistant", y = (M) => s ? Promise.resolve(h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0, ...c ? { language: c } : {}, ...f }, { entity_id: s })).catch(() => h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0 }, { entity_id: s })) : Promise.reject(new Error("no built-in voice")), K = (M) => (b ? Promise.resolve(h.callService("tts", "speak", { media_player_entity_id: M, message: e, cache: !0, ...b.language ? { language: b.language } : {}, ...b.options ? { options: b.options } : {} }, { entity_id: o.tts })).catch(() => y(M)) : y(M)).then(() => !0, (V) => (console.warn("Family Hub: call failed", M, V), !1)), v = (M) => Promise.resolve(h.callService("media_player", "play_media", { media_content_id: g, media_content_type: "music", announce: !0, ...x(M) ? { extra: { announce_volume: m } } : {} }, { entity_id: M })).then(() => !0, () => K(M)), A = g ? [] : i.filter(x), N = i.filter((M) => !A.includes(M)).map(g ? v : K);
     if (A.length) {
       const M = k ? Promise.resolve(k) : s ? Promise.resolve(h.callApi("POST", "tts_get_url", { engine_id: s, message: e, cache: !0, ...c ? { language: c } : {}, ...f })).then((V) => V?.url ?? "", () => "") : Promise.resolve("");
-      for (const V of A) N.push(M.then((C) => C ? Promise.resolve(h.callService("music_assistant", "play_announcement", { url: C, announce_volume: m }, { entity_id: V })).then(() => !0, () => U(V)) : U(V)));
+      for (const V of A) N.push(M.then((C) => C ? Promise.resolve(h.callService("music_assistant", "play_announcement", { url: C, announce_volume: m }, { entity_id: V })).then(() => !0, () => K(V)) : K(V)));
     }
     const F = await Promise.all(N), j = i.filter((M) => F[[...i.filter((V) => !A.includes(V)), ...A].indexOf(M)]);
     if (this._calling = !1, !this.isConnected) return;
@@ -13319,13 +13323,13 @@ const x1 = async (a) => {
       g === "search" && this._tab !== "search" && (this._prev = this._tab, this._keys = !0), this._tab = g, this._adding = !1, g === "radio" && this._loadRadio(), g === "shelves" && this._loadShelves();
     }, n = this._tab === "search", l = this._carry, p = this._full, h = this._one, c = this._tab === "rooms";
     this._tab === "rooms" && !this._viewAsk && this._coachFor !== this._mode && hw(this._mode, this._openDay) && (this._coachFor = this._mode, cw(this._mode, this._openDay), window.setTimeout(() => this._showCoach(), 0));
-    const f = d`<div class="tabs ${p ? "inline" : ""}" role="tablist">${o.map(([g, k, b]) => d`<button class="tap" role="tab" aria-label=${k} aria-selected=${String(this._tab === g)} @click=${() => r(g)}>${K(b, 26)}<span>${k}</span></button>`)}</div>`, m = l && s ? d`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((g) => d`<span class="pinto" data-pin=${g} ?data-hot=${l.over === `pin:${g}`} style="--c:${this._shelfColour(g)}"><i aria-hidden="true">${g === "Family" ? K("home", 22) : this._face(g, 44)}</i><b>${g}</b></span>`)}</div>` : u;
+    const f = d`<div class="tabs ${p ? "inline" : ""}" role="tablist">${o.map(([g, k, b]) => d`<button class="tap" role="tab" aria-label=${k} aria-selected=${String(this._tab === g)} @click=${() => r(g)}>${U(b, 26)}<span>${k}</span></button>`)}</div>`, m = l && s ? d`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((g) => d`<span class="pinto" data-pin=${g} ?data-hot=${l.over === `pin:${g}`} style="--c:${this._shelfColour(g)}"><i aria-hidden="true">${g === "Family" ? U("home", 22) : this._face(g, 44)}</i><b>${g}</b></span>`)}</div>` : u;
     return d`${i ? this._hero(i) : d`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
       <section class="glass panel" aria-label="Music" ?data-one=${h} data-teach=${c && this._teach || u} ?data-picking=${this._jpick && this._tab === "juke"} @pointerdown=${{ capture: !0, handleEvent: (g) => {
       this._coach && !g.target.closest(".helpb") && (clearTimeout(this._coachT), this._coach = !1), this._roomAsk && !g.target.closest(".roompop, .roomb") && (this._roomAsk = !1);
     } }}>
         <div class="mhead" ?data-one=${h} ?data-hinting=${h && c && this._coach} ?data-carrying=${h && !!l && s}><h1 class="t-title">Music</h1>${h && !n ? f : u}${h && c ? this._tools() : u}
-          ${n ? this._searchBar() : s ? d`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${K("search", 24)}<span>${h ? "Search…" : "Search songs, stories…"}</span></button>` : d`<span style="flex:1"></span>`}${h ? this._oneNow() : u}${p && !h && !n ? f : u}${h ? m : u}</div>
+          ${n ? this._searchBar() : s ? d`<button class="finder tap" aria-label="Search for music" @click=${() => r("search")}>${U("search", 24)}<span>${h ? "Search…" : "Search songs, stories…"}</span></button>` : d`<span style="flex:1"></span>`}${h ? this._oneNow() : u}${p && !h && !n ? f : u}${h ? m : u}</div>
         ${n || p ? u : f}
         ${ga(this._tab, d`<div class="body">${this._tab === "rooms" ? this._rooms() : this._tab === "search" ? this._searchTab() : this._tab === "shelves" ? this._shelves() : this._tab === "juke" ? this._jukeTab() : this._tab === "radio" ? this._radio() : this._callTab()}</div>`)}
         ${l ? d`<span class="puck fly" style="left:${l.x}%;top:${l.y}%;${l.art ? `--art:url(${l.art})` : ""}"></span>` : u}
@@ -13352,7 +13356,7 @@ const x1 = async (a) => {
       <div class="bg"></div>
       ${this._peek && this._one ? d`<button class="pclose tap" aria-label="Hide the player" @click=${() => {
       this._peek = !1;
-    }}>${K("close", 20)}</button>` : u}
+    }}>${U("close", 20)}</button>` : u}
       <div style="display:flex;align-items:center;gap:8px"><span class="live" style="${i ? "" : "animation:none;background:rgba(255,255,255,.5)"}"></span>
         <span style="font-size:var(--fs-1);font-weight:var(--w-bold, 700);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i ? "Playing in" : "Ready in"} ${this._name(t)}${r ? ` + ${r} more` : ""}</span></div>
       <div class="deck">${f === u ? d`<div class="cover ${i ? "" : "paused"}"></div>` : f}</div>
@@ -13362,7 +13366,7 @@ const x1 = async (a) => {
       </div>
       ${l ? d`<div class="bar" role="progressbar" aria-label="Track progress" aria-valuenow=${Math.round(c * 100)} aria-valuemin="0" aria-valuemax="100"><i style="width:${c * 100}%"></i></div>` : u}
       <div class="ctl">
-        <button class="tap" aria-label="Shuffle" aria-pressed=${String(!!e.shuffle)} @click=${() => this._svc("shuffle_set", { shuffle: !e.shuffle })}>${K("shuffle", 22)}</button>
+        <button class="tap" aria-label="Shuffle" aria-pressed=${String(!!e.shuffle)} @click=${() => this._svc("shuffle_set", { shuffle: !e.shuffle })}>${U("shuffle", 22)}</button>
         <button class="tap" aria-label="Previous" @click=${() => this._svc("media_previous_track")}>${xt("prev", 28)}</button>
         <button class="tap go" aria-label=${i ? "Pause" : "Play"} @click=${() => this._svc("media_play_pause")}>${xt(i ? "pause" : "play", 30)}</button>
         <button class="tap" aria-label="Next" @click=${() => this._svc("media_next_track")}>${xt("next", 28)}</button>
@@ -13388,11 +13392,11 @@ const x1 = async (a) => {
     const t = this._cur, e = t && this._leader(t), i = this._mode, s = this._offline, o = Sa(this.hass), r = !e && t && !this._off(t) && o ? this._source() : void 0, n = this._marks, l = Math.min(this._coachAt, n.length - 1);
     return d`
         <button class="viewbtn tap" aria-haspopup=${this._offered.length > 2 ? "dialog" : u} aria-label="Change the view" data-to=${this._offered.length > 2 ? u : this._offered.find((p) => p !== i) ?? u} @click=${() => this._switch()}><i class="pinw" aria-hidden="true"></i>Switcheroo</button>
-        ${i === "house" ? u : d`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === "all"} @click=${() => this._spread()}>${this._allJoined ? K("check", 20) : K("home", 20)}Whole house</button>`}
+        ${i === "house" ? u : d`<button class="pill tap wholeb" data-drop="all" aria-pressed=${String(this._allJoined)} ?data-hot=${this._carry?.over === "all"} @click=${() => this._spread()}>${this._allJoined ? U("check", 20) : U("home", 20)}Whole house</button>`}
         ${e && this._mix(e).length ? d`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => this._everywhere(!1, e)}>Just ${this._name(e)}</button>` : u}
         ${r && t ? d`<button class="pill tap moveh" style="font-size:var(--fs-2)" @click=${() => this._move(t, r)}>Move the music to ${this._name(t)}</button>` : u}
         ${e && o && i !== "list" ? d`<button class="round tap pinb" aria-label="Pin what is playing to a shelf" @click=${() => this._pinPlaying()}>📌</button>` : u}
-        ${s.length ? d`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${s.map((p) => this._name(p)).join(", ")}`)}>${K("plug", 18)}${s.length === this._list.length ? "Every speaker is offline" : `${s.length} ${s.length === 1 ? "speaker" : "speakers"} offline`}</button>` : u}
+        ${s.length ? d`<button class="offnote tap" data-offnote @click=${() => this._say(`Offline: ${s.map((p) => this._name(p)).join(", ")}`)}>${U("plug", 18)}${s.length === this._list.length ? "Every speaker is offline" : `${s.length} ${s.length === 1 ? "speaker" : "speakers"} offline`}</button>` : u}
         <button class="round tap helpb" aria-label="How this view works" aria-expanded=${String(this._coach)} @click=${() => this._showCoach(!0)}>?</button>
         <span class="hint" role="note" ?data-on=${this._coach}>${n.length > 1 ? d`<i class="hstep">${l + 1} of ${n.length}</i>` : u}${n[l]?.text ?? ""}</span>`;
   }
@@ -13409,7 +13413,7 @@ const x1 = async (a) => {
     const t = this._cur;
     return this._tab === "rooms" && this._mode !== "house" ? d`<button class="round tap peekb" aria-label="Show the full player" @click=${() => {
       this._peek = !0;
-    }}>${K("music", 22)}</button>` : t ? this._nowbar(t) : u;
+    }}>${U("music", 22)}</button>` : t ? this._nowbar(t) : u;
   }
   /** The view's coach marks (three for the House and the Scene, one line for the others). */
   get _marks() {
@@ -13462,10 +13466,10 @@ const x1 = async (a) => {
         <div class="top"><button class="rsel tap" aria-pressed=${String(c)} @click=${() => {
         this._focus = l;
       }}>
-          <span class="thumb ${h ? "eq" : ""}" style=${n.entity_picture ? `--art:url(${n.entity_picture})` : ""}>${h ? d`<i></i><i></i><i></i>` : K("music", 20)}</span>
+          <span class="thumb ${h ? "eq" : ""}" style=${n.entity_picture ? `--art:url(${n.entity_picture})` : ""}>${h ? d`<i></i><i></i><i></i>` : U("music", 20)}</span>
           <span class="rtx"><span class="sn2">${g}${b ? d`<i class="linkd" role="img" aria-label="linked with another room"></i>` : u}</span><span class="rst">${x}</span></span></button>
           ${l === e?.entity_id || k ? u : d`<button class="join tap" aria-pressed=${String(f)} aria-label="${f ? "Remove" : "Add"} ${g} ${f ? "from" : "to"} the music" @click=${() => this._join(l)}>${f ? "✓" : "＋"}</button>`}</div>
-        ${m !== null && !k ? rr({ name: g, v: m, live: !!p, held: this._held === l, set: (y, U) => this._setVol(l, y, U), drop: () => this._volDrop(l) }) : u}
+        ${m !== null && !k ? rr({ name: g, v: m, live: !!p, held: this._held === l, set: (y, K) => this._setVol(l, y, K), drop: () => this._volDrop(l) }) : u}
         ${!c && !f && !k && s && t?.state === "playing" ? d`<button class="pill tap moveb" @click=${() => this._move(r)}>Move the music here</button>` : u}
       </div>`;
     })}</div>`}`;
@@ -13486,14 +13490,14 @@ const x1 = async (a) => {
     }}>Keyboard</button>` : u}
         <button class="round tap" style="width:52px;height:52px" aria-label="Close search" @click=${() => {
       this._tab = this._adding ? "juke" : this._prev, this._adding = !1;
-    }}>${K("close", 22)}</button></div>`;
+    }}>${U("close", 22)}</button></div>`;
   }
   _searchTab() {
     const t = this._hits, e = t?.find((i) => i.uri === this._sel);
     return d`${this._adding ? d`<div class="banner">🎶 Adding to the jukebox for ${this._juke.who || "everyone"}<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
       this._adding = !1, this._tab = "juke";
     }}>Back</button></div>` : u}
-      ${this._keys && !t ? d`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${K("search", 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : u}
+      ${this._keys && !t ? d`<div class="empty" style="flex:1"><span style="color:var(--ink2)">${U("search", 44)}</span><span>Songs, albums, playlists, stories and radio, from every service at once.</span></div>` : u}
       ${this._keys ? d`<div style="margin:auto 0">${Oe((i) => {
       [this._text, this._caps] = we(this._text, i, this._caps);
     }, this._caps, () => {
@@ -13504,7 +13508,7 @@ const x1 = async (a) => {
     }} @click=${() => {
       Date.now() - this._carried > 400 && (this._sel = i.uri);
     }}>
-          <span class="art" style=${i.img ? `--art:url(${i.img})` : ""}>${i.img ? "" : K("music", 18)}</span>
+          <span class="art" style=${i.img ? `--art:url(${i.img})` : ""}>${i.img ? "" : U("music", 18)}</span>
           <span class="tx"><b>${i.name}</b><span>${i.sub ?? ""}</span></span><span class="kind">${mw[i.type] ?? i.type}</span></button>`)}</div>
         <div class="acts">${e ? this._adding ? d`<button class="pill tap primary" style="height:48px;padding:0 20px" @click=${() => this._addPick(e)}>＋ Add to the jukebox</button>` : d`<button class="pill tap primary" style="height:48px;padding:0 20px" @click=${() => this._start(e)}>▶ Play in ${this._name(this._cur)}</button>
             <button class="pill tap" style="height:48px" @click=${() => this._start(e, "next")}>Play next</button>
@@ -13539,7 +13543,7 @@ const x1 = async (a) => {
   _playsIn(t, e) {
     return d`<span class="playsin"><span class="soft">${e}</span><button class="pill tap roomb" aria-haspopup="true" aria-expanded=${String(this._roomAsk)} aria-label="${e} ${this._name(t)}. Choose another room" @click=${() => {
       this._roomAsk = !this._roomAsk;
-    }}>${K("home", 18)}<b>${this._name(t)}</b><i class="chev" aria-hidden="true">${fw}</i></button></span>`;
+    }}>${U("home", 18)}<b>${this._name(t)}</b><i class="chev" aria-hidden="true">${fw}</i></button></span>`;
   }
   /** The little house over the page: while a record is carried (let go on a room to play it there), or when the room's name was tapped (choose where a tap plays). It is not on the page otherwise. */
   _roomPop(t, e, i, s = !1, o = "Tap a room. Or carry a record onto one.") {
@@ -13556,7 +13560,7 @@ const x1 = async (a) => {
       <div class="chiprow dividers">${this._shelfNames.map((l) => d`<button class="pchip tap" data-pin=${l} ?data-hot=${this._carry?.over === `pin:${l}`} style="--c:${n(l)}" aria-pressed=${String(this._shelf === l)} @click=${() => {
       this._shelf = l, this._edit = !1, this._shelfTo = "";
     }}>
-        <span class="avatar" aria-hidden="true">${l === "Family" ? K("home", 18) : this._face(l, 32)}</span>${l}</button>`)}
+        <span class="avatar" aria-hidden="true">${l === "Family" ? U("home", 18) : this._face(l, 32)}</span>${l}</button>`)}
         ${this._playsIn(o, "Tap a record to play it in")}
         ${i.length ? d`<button class="pill tap" @click=${() => {
       this._edit ? this._edit = !1 : this._guard("Change this shelf?", () => {
@@ -13593,7 +13597,7 @@ const x1 = async (a) => {
       this._jpick = !1, this._adding = !0, this._prev = this._prev === "rooms" ? "rooms" : "juke", this._tab = "search", this._keys = !0, this._hits = null, this._text = "", this._caps = !0;
     };
     if (this._jpick && t.who) {
-      const g = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((y) => !g.has(y.uri) && !!g.add(y.uri)), b = this.kids.find((y) => y.name === t.who)?.mode === "picture", x = d`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${n}>${K("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
+      const g = /* @__PURE__ */ new Set(), k = [...this._items[t.who] ?? [], ...this._items.Family ?? []].filter((y) => !g.has(y.uri) && !!g.add(y.uri)), b = this.kids.find((y) => y.name === t.who)?.mode === "picture", x = d`<div class="banner">🎶 ${t.who}: tap a picture to add it<span style="flex:1"></span><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${n}>${U("search", 18)} Search instead</button><button class="pill tap" style="height:44px;font-size:var(--fs-2)" @click=${() => {
         this._jpick = !1, this._prev === "rooms" && (this._tab = "rooms");
       }}>Back</button></div>`;
       return d`${b ? u : x}
@@ -13601,7 +13605,7 @@ const x1 = async (a) => {
           <i class="disc"></i><span class="img" style=${y.img ? `--art:url(${y.img})` : ""}>${y.img ? "" : y.name[0]}</span><span class="lbl">${y.name}</span></button>`)}</div>` : d`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">Nothing pinned to choose from yet</h2><span>A parent can pin music from Search. Until then, use Search instead.</span></div>`}${b ? x : u}`;
     }
     const l = t.picks.filter((g) => !g.done).sort((g, k) => +(k === i) - +(g === i) || g.t - k.t), p = t.picks.filter((g) => g.done).sort((g, k) => k.t - g.t), h = (g) => g.done ? this._q?.next?.name === g.name ? d`<i aria-hidden="true">${xt("next", 14)}</i>Up next` : d`<i aria-hidden="true">✓</i>Played` : g === i ? d`<i aria-hidden="true">${xt("play", 14)}</i>Next` : d`<i aria-hidden="true">⏳</i>Waiting`, c = (g) => d`<div class="pickrow ${g.done ? "played" : ""}" ?data-next=${g === i}>
-      <span class="pcover"><i class="disc"></i><span class="art" style=${g.img ? `--art:url(${g.img})` : ""}>${g.img ? "" : K("music", 26)}</span>
+      <span class="pcover"><i class="disc"></i><span class="art" style=${g.img ? `--art:url(${g.img})` : ""}>${g.img ? "" : U("music", 26)}</span>
         <span class="init avatar" style="--c:${e(g.who)}" role="img" aria-label=${g.who}>${this._face(g.who, 30)}</span></span>
       <span class="nm">${g.name}${g.sub ? d` <span class="muted" style="font-weight:var(--w-semi, 600)">· ${g.sub}</span>` : u}</span>
       <span class="when">${h(g)}</span></div>`, f = (g) => l.find((k) => k.who === g), m = this.kids.some((g) => g.mode === "picture") ? "jlow" : "";
@@ -13624,7 +13628,7 @@ const x1 = async (a) => {
       const g = t.picks;
       this._saveJuke({ picks: [] }), this._say("Jukebox cleared", () => this._saveJuke({ picks: g }));
     }}>Clear</button>` : u}</div>
-      ${t.picks.length ? d`<div class="picks scrolly ${m}" data-fits @scroll=${$t}>${l.map(c)}${p.map(c)}</div>` : d`<div class="empty"><span style="color:var(--ink2)">${K("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
+      ${t.picks.length ? d`<div class="picks scrolly ${m}" data-fits @scroll=${$t}>${l.map(c)}${p.map(c)}</div>` : d`<div class="empty"><span style="color:var(--ink2)">${U("jukebox", 48)}</span><h2 class="t-sub">The jukebox is empty</h2><span>Pick who’s choosing, then add a song.</span></div>`}`;
   }
   _radio() {
     const t = this._cur, e = t && t.state === "playing" ? fo[t.entity_id] : "";
@@ -13658,10 +13662,10 @@ const x1 = async (a) => {
     }} @input=${(r) => {
       this._callMsg = r.target.value;
     }}>
-        <button class="pill tap primary sayit" ?disabled=${this._calling} ?data-busy=${this._calling} aria-busy=${this._calling ? "true" : u} @click=${() => void this._call()}>${K("megaphone", 22)} Say it</button>
+        <button class="pill tap primary sayit" ?disabled=${this._calling} ?data-busy=${this._calling} aria-busy=${this._calling ? "true" : u} @click=${() => void this._call()}>${U("megaphone", 22)} Say it</button>
         ${this._ckeys ? d`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" aria-label="Hide the keyboard" @click=${() => {
       this._ckeys = !1;
-    }}>${K("close", 22)}</button>` : u}</div>
+    }}>${U("close", 22)}</button>` : u}</div>
       ${this._ckeys ? d`<div style="margin:auto 0 0">${Oe((r) => {
       [this._callMsg, this._caps] = we(this._callMsg, r, this._caps);
     }, this._caps, () => {
@@ -14336,7 +14340,7 @@ const R1 = (a) => `${a} comes from the internet, which is not answering just now
         <button class="tap" aria-label="Further away" ?disabled=${e <= Vn} @click=${() => this._zoomBy(-1)}><b>−</b></button>
         ${this._pan[0] || this._pan[1] ? d`<button class="tap" aria-label="Back to home" @click=${() => {
       this._pan = [0, 0];
-    }}>${K("home", 20)}</button>` : u}
+    }}>${U("home", 20)}</button>` : u}
       </div>
       ${r ? d`<div class="bar">
         <button class="tap" aria-label=${this._play ? "Pause the radar" : "Play the radar"} @click=${() => {
@@ -14621,7 +14625,7 @@ const Cc = "fh-wx-map", ld = {
     </svg>`;
   }
   _now() {
-    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = be(this._o("temp")) ?? e.temperature, o = be(this._o("temp_feels_like")) ?? e.apparent_temperature, r = be(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = be(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, l = Xe(this._o("wind_direction")) ?? e.wind_bearing, p = be(this._o("humidity")) ?? e.humidity, h = be(this._o("rain_since_9am")), c = be(this._f("rain_chance")) ?? i?.precipitation_probability, f = Xe(this._f("rain_amount_range")), m = this._uv(), g = Xe(this._f("fire_danger")), k = go(Xe(this._f("astronomical_sunrise_time"))), b = go(Xe(this._f("astronomical_sunset_time"))), x = Xe(this._f("extended_text")), y = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((M) => M.phase !== "cancelled" && (!M.expiry_time || new Date(M.expiry_time).getTime() > Date.now())), U = (M, V, C = "") => d`<div class="wfact ${C}"><b>${M}</b><small>${V}</small></div>`, v = this._tips(), A = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, N = this._more, F = p !== void 0 || !!g || !!(k && b), j = [c !== void 0, h !== void 0, N && p !== void 0, N && !!g].filter(Boolean).length, W = j === 4 || j === 2 ? "half" : "";
+    const t = this.hass?.states[this.entity], e = t?.attributes ?? {}, i = this._today(), s = be(this._o("temp")) ?? e.temperature, o = be(this._o("temp_feels_like")) ?? e.apparent_temperature, r = be(this._o("wind_speed_kilometre")) ?? e.wind_speed, n = be(this._o("gust_speed_kilometre")) ?? e.wind_gust_speed, l = Xe(this._o("wind_direction")) ?? e.wind_bearing, p = be(this._o("humidity")) ?? e.humidity, h = be(this._o("rain_since_9am")), c = be(this._f("rain_chance")) ?? i?.precipitation_probability, f = Xe(this._f("rain_amount_range")), m = this._uv(), g = Xe(this._f("fire_danger")), k = go(Xe(this._f("astronomical_sunrise_time"))), b = go(Xe(this._f("astronomical_sunset_time"))), x = Xe(this._f("extended_text")), y = (this.hass?.states[this._warnId]?.attributes.warnings ?? []).filter((M) => M.phase !== "cancelled" && (!M.expiry_time || new Date(M.expiry_time).getTime() > Date.now())), K = (M, V, C = "") => d`<div class="wfact ${C}"><b>${M}</b><small>${V}</small></div>`, v = this._tips(), A = (/* @__PURE__ */ new Date()).getHours() >= 19 || (/* @__PURE__ */ new Date()).getHours() < 5, N = this._more, F = p !== void 0 || !!g || !!(k && b), j = [c !== void 0, h !== void 0, N && p !== void 0, N && !!g].filter(Boolean).length, W = j === 4 || j === 2 ? "half" : "";
     return d`<section class="glass wnow scrolly" data-fits>
       <div class="nhead"><h2>${this._titles()[0]}</h2>${F ? d`<button class="pill tap wmore" data-act="wmore" aria-expanded=${String(N)} @click=${() => {
       S("tap"), this._more = !this._more;
@@ -14648,12 +14652,12 @@ const Cc = "fh-wx-map", ld = {
       </div>
       <div class="facts">
         ${r !== void 0 ? d`<div class="wfact wide">${this._compass(l)}<span style="display:flex;flex-direction:column;min-width:0"><b>${Math.round(r)} km/h</b><small>Wind${l !== void 0 ? ` from the ${Uw(l)}` : ""}${n !== void 0 ? ` · gusts ${Math.round(n)}` : ""}</small></span></div>` : u}
-        ${c !== void 0 ? U(`${Math.round(c)}%`, f && f !== "0" ? `Rain · ${f} mm` : "Chance of rain", W) : u}
-        ${h !== void 0 ? U(`${h} mm`, "Since 9 am", `${W} x3`) : u}
-        ${N && p !== void 0 ? U(`${Math.round(p)}%`, "Humidity", W) : u}
-        ${N && g ? U(g, "Fire danger", W) : u}
-        ${m.max !== void 0 ? U(`UV ${Math.round(m.max)} · ${Aw(m.max)}`, m.max >= 3 ? m.from && m.to ? `Cover up ${m.from} to ${m.to}` : A ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : u}
-        ${N && k && b ? U(d`${k} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${b}`, "Sunrise to sunset", "wide stack x2") : u}
+        ${c !== void 0 ? K(`${Math.round(c)}%`, f && f !== "0" ? `Rain · ${f} mm` : "Chance of rain", W) : u}
+        ${h !== void 0 ? K(`${h} mm`, "Since 9 am", `${W} x3`) : u}
+        ${N && p !== void 0 ? K(`${Math.round(p)}%`, "Humidity", W) : u}
+        ${N && g ? K(g, "Fire danger", W) : u}
+        ${m.max !== void 0 ? K(`UV ${Math.round(m.max)} · ${Aw(m.max)}`, m.max >= 3 ? m.from && m.to ? `Cover up ${m.from} to ${m.to}` : A ? "Cover up in the daytime" : "Cover up today" : "No sun protection needed", "wide stack") : u}
+        ${N && k && b ? K(d`${k} <span class="muted" style="font-weight:var(--w-semi, 600)">to</span> ${b}`, "Sunrise to sunset", "wide stack x2") : u}
       </div>
       ${x ? d`<p class="said">${x}</p>` : u}
     </section>`;
@@ -14667,8 +14671,8 @@ const Cc = "fh-wx-map", ld = {
     };
     return d`<section class="glass whours">
       <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
-        <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => f(-1)}>${K("left", 20)}</button>
-        <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => f(1)}>${K("right", 20)}</button></div>
+        <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => f(-1)}>${U("left", 20)}</button>
+        <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => f(1)}>${U("right", 20)}</button></div>
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${o} hours: ${e.filter((m, g) => g % 3 === 0).map((m) => `${Lc(new Date(m.datetime))} ${Math.round(m.temperature ?? 0)} degrees`).join(", ")}`}>
         <svg class="hchart" width=${o * i} height=${s} viewBox="0 0 ${o * i} ${s}">
           ${w`<defs><linearGradient id="tg" gradientUnits="userSpaceOnUse" x1="0" x2=${o * i} y1="0" y2="0">${e.map((m, g) => w`<stop offset=${g / (o - 1)} stop-color=${uo(m.temperature ?? n)}></stop>`)}</linearGradient></defs>
@@ -15154,8 +15158,8 @@ const Ei = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
           ${this._blank ? d`<div class="hint">Draw something brilliant</div>` : u}
         </div>
         <div class="acts">
-          <button class="pill tap" @click=${() => this._undoOne()}>${K("left", 18)}Undo</button>
-          <button class="pill tap" @click=${() => this._clear()}>${K("close", 18)}Clear</button>
+          <button class="pill tap" @click=${() => this._undoOne()}>${U("left", 18)}Undo</button>
+          <button class="pill tap" @click=${() => this._clear()}>${U("close", 18)}Clear</button>
           <button class="pill tap" @click=${() => {
       this._chalk = !this._chalk, this._chalk && this._ink === Ei[0] ? this._ink = "#ffffff" : !this._chalk && this._ink === "#ffffff" && (this._ink = Ei[0]);
     }}>${this._chalk ? Ww : jw}${this._chalk ? "Paper" : "Chalkboard"}</button>
@@ -15170,12 +15174,12 @@ const Ei = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
       <section class="glass gallery" aria-label="The fridge">
         <div class="ghead"><span class="label" style="flex:1">The fridge</span>
           ${this._pics.length ? d`<button class="pill tap tidy" aria-pressed=${String(this._tidy)} @click=${() => this._tidyStart()}>${this._tidy ? "Done" : "Tidy up"}</button>` : u}</div>
-        ${this._tidy ? d`<button class="pill tap clearall" @click=${() => this._takeDown(this._pics)}>${K("close", 16)}Take them all down</button>` : u}
+        ${this._tidy ? d`<button class="pill tap clearall" @click=${() => this._takeDown(this._pics)}>${U("close", 16)}Take them all down</button>` : u}
         ${this._pics.length ? d`<div class="snaps">${this._pics.map((i) => {
       const s = /-(\d{6})-([a-z]+)/.exec(i.title)?.[2];
       return d`<span class="snapbox"><button class="snap tap" aria-label="View doodle${s ? ` by ${s}` : ""}" style="background-image:url('${i.url}')" @click=${() => {
         this._view = i.url;
-      }}>${s ? d`<span class="by">${s}</span>` : ""}</button>${this._tidy ? d`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([i])}>${K("close", 18)}</button>` : u}</span>`;
+      }}>${s ? d`<span class="by">${s}</span>` : ""}</button>${this._tidy ? d`<button class="down tap" aria-label="Take this doodle down" @click=${() => this._takeDown([i])}>${U("close", 18)}</button>` : u}</span>`;
     })}</div>` : d`<span class="muted" style="font-size:var(--fs-2);line-height:1.35">Nothing on the fridge yet. Your best doodles go here for everyone to see.</span>`}
       </section>
       ${this._askPin ? d`<fh-pin .pin=${String(this.pin)} @ok=${() => {
@@ -15508,9 +15512,9 @@ const Lw = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Oc = (a, t) => {
       ${k.length ? d`<section class="glass fam" aria-label="Everyone today"><span class="label">Everyone today</span>${k.slice(0, 4).map((b) => d`<span class="fev"><span class="mt">${Se(b, l).label}</span><span>${b.title}</span></span>`)}</section>` : u}
       <div class="kcols" style="--n:${this.kids.length}">
         ${this.kids.map((b) => {
-      const x = f(b), y = this._own(b), U = this._bring(b, y), v = e.find((C) => C.k === b), A = v.at - t, N = A <= -5, F = !N && !!i && v.at !== i.at, j = this._job(b), W = j.c, M = W?.status === "completed", V = this._msg[b.name];
+      const x = f(b), y = this._own(b), K = this._bring(b, y), v = e.find((C) => C.k === b), A = v.at - t, N = A <= -5, F = !N && !!i && v.at !== i.at, j = this._job(b), W = j.c, M = W?.status === "completed", V = this._msg[b.name];
       return d`<section class="glass kcol" data-fits data-kid=${b.name} style="--kid:${O(b.colour)}" aria-label=${b.name}>
-            <button class="khead tap" data-act="open" aria-label=${`${b.name}: ${N ? "has left" : `leaves at ${o(v.at)}`}${U.length ? `. Bring and wear: ${U.map((C) => Pc(C)[1]).join(", ")}` : ""}. Opens ${b.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: b.name }))}>
+            <button class="khead tap" data-act="open" aria-label=${`${b.name}: ${N ? "has left" : `leaves at ${o(v.at)}`}${K.length ? `. Bring and wear: ${K.map((C) => Pc(C)[1]).join(", ")}` : ""}. Opens ${b.name}’s page`} @click=${() => this.dispatchEvent(new CustomEvent("open-kid", { detail: b.name }))}>
               ${Jt(x, { size: 60, crop: "head", jump: this._cheer, age: b.age, ring: O(b.colour), name: b.name })}<h2>${b.name}</h2><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg></span></button>
             ${W ? d`<button class="jobbtn big tap ${M ? "done" : ""}" data-part="job" data-uid=${W.uid} aria-pressed=${M ? "true" : "false"} aria-label=${M ? `${b.name}: ${W.summary}, done. Tap to undo` : `${b.name}, now: ${W.summary}. Tap when it is done`} @click=${(C) => {
         this._tick(b, W, C);
@@ -15523,7 +15527,7 @@ const Lw = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], Oc = (a, t) => {
             ${y.length ? y.slice(0, 3).map((C) => d`<div class="mev2"><span class="mt">${Se(C, l).label}</span><span>${C.title}</span></div>`) : d`<span class="muted" style="font-size:var(--fs-2)">Just school today</span>`}
             <div class="klow">
               ${N ? d`<div class="lchip" data-part="leaves"><span>Left</span></div>` : F ? d`<div class="lchip" data-part="leaves"><span>You leave ${Gw(v.at - i.at)}</span><span class="lt">${o(v.at)}${v.why !== "school" ? ` · ${v.why}` : ""}</span></div>` : u}
-              ${U.length ? d`<div class="tiles" data-part="bring">${U.map((C) => {
+              ${K.length ? d`<div class="tiles" data-part="bring">${K.map((C) => {
         const [G, q] = Pc(C);
         return d`<span class="tile"><span class="te" aria-hidden="true">${G}</span><span class="tl">${q}</span></span>`;
       })}</div>` : u}
@@ -15738,7 +15742,7 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
   const i = V1[a] ?? a;
   if (Rr()) {
     const s = i === "weather" && e.cond ? mb(e.dark && !/rain|pour|storm|lightning|cloud|fog/.test(e.cond) ? "night" : e.cond) : Ih(a) ? a : Jw[i];
-    if (s && Ih(s)) return K(s, t);
+    if (s && Ih(s)) return U(s, t);
   }
   return d`<svg class="i pic2" data-ic=${i} aria-hidden="true" viewBox="0 0 40 40" style="--s:${t}px">${Dw((Hw[i] ?? (() => ""))(e))}</svg>`;
 }, gd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], Ew = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], T1 = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], t0 = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], Xw = ["first", "second", "third", "fourth", "last"], e0 = { DAILY: "day", WEEKLY: "week", MONTHLY: "month", YEARLY: "year" }, Ts = (a) => (a.getDay() + 6) % 7, ud = (a) => {
@@ -15948,9 +15952,9 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }}></div>
       <div class="month top" role="dialog" aria-label=${l ? "Pick the last day" : "Pick a date"}>
         <div class="mnav">
-          <button class="tap" aria-label="Year before" @click=${() => n(-1, 0)}>«</button><button class="tap" aria-label="Month before" @click=${() => n(0, -1)}>${K("left", 18)}</button>
+          <button class="tap" aria-label="Year before" @click=${() => n(-1, 0)}>«</button><button class="tap" aria-label="Month before" @click=${() => n(0, -1)}>${U("left", 18)}</button>
           <b aria-live="polite">${sk[i]} ${e}</b>
-          <button class="tap" aria-label="Month after" @click=${() => n(0, 1)}>${K("right", 18)}</button><button class="tap" aria-label="Year after" @click=${() => n(1, 0)}>»</button>
+          <button class="tap" aria-label="Month after" @click=${() => n(0, 1)}>${U("right", 18)}</button><button class="tap" aria-label="Year after" @click=${() => n(1, 0)}>»</button>
         </div>
         <div class="mgrid">
           ${["M", "T", "W", "T", "F", "S", "S"].map((f) => d`<span aria-hidden="true">${f}</span>`)}
@@ -15999,7 +16003,7 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }, "end-on")}${n("After", e.end === "after", () => o({ end: "after", count: e.count ?? 10 }), "end-after")}</div>
             ${e.end === "on" && p ? d`<button class="tap calbtn" data-act="end-date" aria-haspopup="dialog" @click=${() => {
       this._shown = p, this._pickFor = "until", this._pick = !0;
-    }}>${K("calendar", 20)}<span>${p.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</span></button>` : u}
+    }}>${U("calendar", 20)}<span>${p.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</span></button>` : u}
             ${e.end === "after" ? d`${r("How many times", e.count ?? 10, 1, 99, (h) => o({ count: h }))}<span class="muted">times</span>` : u}</div>` : u}
         <div class="rfoot"><button class="tap lead" data-act="rep-done" @click=${() => {
       S("tap"), this._repOpen = !1;
@@ -16062,7 +16066,7 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
       <div style="display:flex;gap:12px;align-items:center">
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? "Change this event" : "Add to the calendar"}</h2>
         <span class="sum" aria-live="polite">${this._t.trim() ? n : `Add a title · ${n}`}</span>
-        <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${K("close", 20)}</button></div>
+        <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent("close"))}>${U("close", 20)}</button></div>
       <div class="what"><input class="field ${this._in === "what" ? "on" : ""}" inputmode=${l ? "text" : "none"} aria-label="What’s on" aria-invalid=${this._err ? "true" : "false"} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => {
       this._in = "what";
     }} @input=${(h) => {
@@ -16071,7 +16075,7 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
           @keydown=${(h) => {
       h.key === "Enter" && this._save();
     }}>
-      <div class="wherebox"><span class="pin" aria-hidden="true">${K("pin", 24)}</span>
+      <div class="wherebox"><span class="pin" aria-hidden="true">${U("pin", 24)}</span>
         <input class="field where ${this._in === "where" ? "on" : ""}" inputmode=${l ? "text" : "none"} aria-label="Where" placeholder="Where? (optional)" .value=${this._loc}
           @focus=${() => {
       this._in = "where";
@@ -16098,10 +16102,10 @@ const Dw = L0(md), Hc = (a) => String(a ?? "").replace(/[&<>"']/g, (t) => ({ "&"
     }}>${this._date.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short", year: this._date.getFullYear() === t.getFullYear() ? void 0 : "numeric" })}</button>` : u}
             <button class="tap calbtn" aria-label="Pick another date" aria-haspopup="dialog" @click=${() => {
       this._shown = this._date, this._pick = !0;
-    }}>${K("calendar", 22)}<span>Other date</span></button>
+    }}>${U("calendar", 22)}<span>Other date</span></button>
             ${this.scope === "one" ? u : d`<button class="tap calbtn repbtn" data-act="repeat" aria-haspopup="dialog" aria-label=${`Repeat: ${this._repWords()}`} aria-pressed=${String(!!this._rule())} @click=${() => {
       S("tap"), this._repOpen = !0;
-    }}>${K("repeat", 22)}<span>${this._rule() ? this._repWords() : "Repeat"}</span></button>`}</div>
+    }}>${U("repeat", 22)}<span>${this._rule() ? this._repWords() : "Repeat"}</span></button>`}</div>
           <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (h, c) => {
       const f = dt(t, c);
@@ -16943,8 +16947,8 @@ function g0(a) {
     const V = t?.states[x.tts], C = Dd(x)?.name, G = Pd(), q = xf(), T = `The house voice${C ? ` (${C})` : ""}`, X = [];
     c ? Co(V) ? X.push({ id: "voice", name: T, mark: "bad", words: "Not available in Home Assistant: the screen’s own voice speaks instead." }) : X.push({ id: "voice", name: T, mark: "ok", words: "Ready. It is made on the internet: with the internet down, only lines said before can play." }) : X.push(h), y && X.push(G >= q ? { id: "allowance", name: "Today’s allowance", mark: "warn", words: `Used up (${G.toLocaleString("en-AU")} of ${q.toLocaleString("en-AU")} new characters): new lines are spoken in the screen’s own voice until midnight.` } : { id: "allowance", name: "Today’s allowance", mark: "ok", words: `${G.toLocaleString("en-AU")} of ${q.toLocaleString("en-AU")} new characters used.` }), p.push({ id: "voice", title: "The voice", rows: X });
   }
-  const U = Bk(e);
-  if (U.length && p.push({ id: "phones", title: "Phones", rows: c ? U.map((V) => {
+  const K = Bk(e);
+  if (K.length && p.push({ id: "phones", title: "Phones", rows: c ? K.map((V) => {
     const C = V.service.replace(/^notify\./, ""), G = !!t.services?.notify?.[C], q = Yk(t, V.service), T = `phone:${C}`, X = Gk(V.uses);
     if (!G) return { id: T, name: q.name, mark: "bad", words: `Home Assistant no longer knows this phone, so ${X} can’t reach it.` };
     if (!q.at) return { id: T, name: q.name, mark: "ok", words: `Home Assistant can send to it (${X}).` };
@@ -17641,7 +17645,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
   { id: "people", name: "People and safety", sub: "Parents, the babysitter page, alerts, the evening digest and approvals", ic: "info" },
   { id: "health", name: "Health", sub: "Whether everything the panel needs is answering", ic: "health" },
   { id: "advanced", name: "Advanced", sub: "What is wired up, and earlier versions", ic: "cog" }
-], Sv = w`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`, Mv = w`<path d="M3 12.5h4l2.5-6 4 11 2.5-5H21"></path>`, A0 = (a, t = 22) => a === "kid" || a === "health" ? d`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${a === "kid" ? Sv : Mv}</svg>` : K(a, t), q0 = { house: "home", cals: "calendar", speakers: "music", voice: "megaphone", phones: "bell", backup: "repeat", screen: "dial", log: "list" }, mi = ["health", "advanced"], $v = { ok: "check", warn: "alert", bad: "alert", wait: "timer" }, Fv = { ok: "Working", warn: "Worth a look", bad: "Not working", wait: "Checking or waiting" }, Jn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], Rv = [["mon", "Mon"], ["tue", "Tue"], ["wed", "Wed"], ["thu", "Thu"], ["fri", "Fri"]], Fa = 44, En = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], Va = (a) => String(a).padStart(2, "0"), aa = (a) => {
+], Sv = w`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`, Mv = w`<path d="M3 12.5h4l2.5-6 4 11 2.5-5H21"></path>`, A0 = (a, t = 22) => a === "kid" || a === "health" ? d`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${a === "kid" ? Sv : Mv}</svg>` : U(a, t), q0 = { house: "home", cals: "calendar", speakers: "music", voice: "megaphone", phones: "bell", backup: "repeat", screen: "dial", log: "list" }, mi = ["health", "advanced"], $v = { ok: "check", warn: "alert", bad: "alert", wait: "timer" }, Fv = { ok: "Working", warn: "Worth a look", bad: "Not working", wait: "Checking or waiting" }, Jn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], Rv = [["mon", "Mon"], ["tue", "Tue"], ["wed", "Wed"], ["thu", "Thu"], ["fri", "Fri"]], Fa = 44, En = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], Va = (a) => String(a).padStart(2, "0"), aa = (a) => {
   if (!ie(a)) return a ? String(a) : "Not set";
   const [t, e] = String(a).split(":").map(Number);
   return `${t % 12 || 12}:${Va(e)} ${t < 12 ? "am" : "pm"}`;
@@ -17870,8 +17874,8 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       F.cues = F.cues ?? {}, A(F.cues);
     }), p = (A) => String(s?.states[A]?.attributes.friendly_name ?? A.split(".")[1]), h = Y1(s), c = this.config.kids?.[e]?.cues?.on === !0, f = Ga(this.config);
     this._cuHeld === void 0 && h && (this._cuHeld = null, this._cuesLoad());
-    const m = t.leave_by ?? i.morning?.leave_by ?? "08:15", [g, k] = m.split(":").map(Number), b = g * 60 + k - hr, x = (t.bedtime ?? "20:00").split(":").map(Number), y = x[0] * 60 + x[1] - 60, U = (A) => `${String(Math.floor(A / 60)).padStart(2, "0")}:${String(A % 60).padStart(2, "0")}`, v = o.on ? yp(i, t) : "";
-    return d`<div class="scard" data-card="cues"><h3>${K("megaphone", 20)}Spoken cues${r ? d` <span class="muted">on ${t.name}’s own speaker</span>` : u}</h3>
+    const m = t.leave_by ?? i.morning?.leave_by ?? "08:15", [g, k] = m.split(":").map(Number), b = g * 60 + k - hr, x = (t.bedtime ?? "20:00").split(":").map(Number), y = x[0] * 60 + x[1] - 60, K = (A) => `${String(Math.floor(A / 60)).padStart(2, "0")}:${String(A % 60).padStart(2, "0")}`, v = o.on ? yp(i, t) : "";
+    return d`<div class="scard" data-card="cues"><h3>${U("megaphone", 20)}Spoken cues${r ? d` <span class="muted">on ${t.name}’s own speaker</span>` : u}</h3>
       ${r ? d`
         ${this._row("Say them aloud", "A short line in the house voice at the moments that matter, so he does not have to come to the panel to know. Off until you switch it on.", this._sw("Spoken cues", o.on === !0, () => l((A) => {
       A.on ? delete A.on : (A.on = !0, (!A.speaker || !n.includes(A.speaker)) && (A.speaker = n[0]));
@@ -17883,10 +17887,10 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
           ${this._row("When the school morning starts", `“Good morning, ${t.name}. Time to start your morning jobs.” At ${aa(i.morning?.start ?? "06:30")} on a school day.`, this._sw("Morning start", o.morning !== !1, () => l((A) => {
       A.morning === !1 ? delete A.morning : A.morning = !1;
     })))}
-          ${this._row(`${hr} minutes before leaving`, `“${t.name}, ten minutes until it is time to leave.” At ${aa(U(b))} on a school day.`, this._sw("Before leaving", o.leave !== !1, () => l((A) => {
+          ${this._row(`${hr} minutes before leaving`, `“${t.name}, ten minutes until it is time to leave.” At ${aa(K(b))} on a school day.`, this._sw("Before leaving", o.leave !== !1, () => l((A) => {
       A.leave === !1 ? delete A.leave : A.leave = !1;
     })))}
-          ${this._row("When wind-down starts", `“${t.name}, it is wind-down time. One hour until bed.” At ${aa(U(y))}, later on Friday and Saturday.`, this._sw("Wind-down start", o.wind !== !1, () => l((A) => {
+          ${this._row("When wind-down starts", `“${t.name}, it is wind-down time. One hour until bed.” At ${aa(K(y))}, later on Friday and Saturday.`, this._sw("Wind-down start", o.wind !== !1, () => l((A) => {
       A.wind === !1 ? delete A.wind : A.wind = !1;
     })))}
           ${v ? d`<span class="shint" data-cue="block" style="color:var(--warn, #b45309)">${v}</span>` : u}` : u}
@@ -17960,13 +17964,13 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     const p = (f) => this._edit((m) => {
       m.approve = m.approve ?? {}, f(m.approve), m.approve.notify?.length || delete m.approve.notify, Object.keys(m.approve).length || delete m.approve;
     }), h = !!r && !!this._apHeld && !!l && !b0(this._apHeld, l), c = n && !o[Qt(this.config)];
-    return d`<div class="scard" data-card="approve"><h3>${K("bell", 20)}Approve from a phone</h3>
+    return d`<div class="scard" data-card="approve"><h3>${U("bell", 20)}Approve from a phone</h3>
         <span class="shint">When a child asks for a big reward (one that needs a parent), these phones get a message with two buttons, Approve and Not yet. Approve takes the points; Not yet changes nothing. The child’s page says it is waiting, and then what you said. A parent at the wall can still use the PIN.</span>
         <span class="label">Phones that are asked</span>
         <div class="spick" role="group" aria-label="Phones that are asked to approve">${[.../* @__PURE__ */ new Set([...t, ...i])].map((f) => d`<button class="tap" data-ap=${f} aria-pressed=${String(i.includes(f))} @click=${() => p((m) => {
       const g = m.notify ?? [];
       m.notify = g.includes(f) ? g.filter((k) => k !== f) : [...g, f];
-    })}><span class="sbox2" aria-hidden="true">${i.includes(f) ? K("check", 16) : u}</span><span><b>${f.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(f) ? f : "Not found in Home Assistant"}</small></span></button>`)}</div>
+    })}><span class="sbox2" aria-hidden="true">${i.includes(f) ? U("check", 16) : u}</span><span><b>${f.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(f) ? f : "Not found in Home Assistant"}</small></span></button>`)}</div>
         ${i.length ? this._row("Jobs that wait for a parent", "A job worth this many points or more asks a parent when it is ticked; the tick and the points come with the yes. Smaller jobs are ticked as before.", this._step("Points from which a job waits for a parent", e.approve?.jobs_from ?? Il, (f) => p((m) => {
       f === Il ? delete m.jobs_from : m.jobs_from = f;
     }), { min: 0, max: 100, step: 5, say: (f) => f ? `${f} points and over` : "No job waits" })) : u}
@@ -17987,13 +17991,13 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     const l = (c) => this._edit((f) => {
       f.digest = f.digest ?? {}, c(f.digest), f.digest.notify?.length || delete f.digest.notify, Object.keys(f.digest).length || delete f.digest;
     }), p = o && s[o]?.attributes.last_triggered ? new Date(String(s[o].attributes.last_triggered)).toLocaleString("en-AU", { weekday: "short", hour: "numeric", minute: "2-digit" }) : "", h = !!o && !!this._dgHeld && !!n && !b0(this._dgHeld, n);
-    return d`<div class="scard" data-card="digest"><h3>${K("moon", 20)}The evening digest</h3>
+    return d`<div class="scard" data-card="digest"><h3>${U("moon", 20)}The evening digest</h3>
         <span class="shint">One message a night to a parent’s phone: tomorrow’s events and leaving times, bin night, a daily medicine with no record today, rewards waiting, marbles added today, and anything the panel is unsure of. It only reads: nothing can be changed from it.</span>
         <span class="label">Phones it goes to</span>
         <div class="spick" role="group" aria-label="Phones the evening digest goes to">${[.../* @__PURE__ */ new Set([...t, ...i])].map((c) => d`<button class="tap" data-dg=${c} aria-pressed=${String(i.includes(c))} @click=${() => l((f) => {
       const m = f.notify ?? [];
       f.notify = m.includes(c) ? m.filter((g) => g !== c) : [...m, c];
-    })}><span class="sbox2" aria-hidden="true">${i.includes(c) ? K("check", 16) : u}</span><span><b>${c.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(c) ? c : "Not found in Home Assistant"}</small></span></button>`)}</div>
+    })}><span class="sbox2" aria-hidden="true">${i.includes(c) ? U("check", 16) : u}</span><span><b>${c.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${t.includes(c) ? c : "Not found in Home Assistant"}</small></span></button>`)}</div>
         ${t.length || i.length ? u : d`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${i.length ? this._row("It is sent at", "", this._tm("The evening digest is sent at", () => this._draft.digest?.time, (c) => l((f) => {
       c === fr ? delete f.time : f.time = c;
@@ -18083,7 +18087,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     }}><output>${e}%</output></span>`;
   }
   _del(t, e) {
-    return d`<button class="sico tap bad" aria-label=${t} @click=${e}>${K("bin", 20)}</button>`;
+    return d`<button class="sico tap bad" aria-label=${t} @click=${e}>${U("bin", 20)}</button>`;
   }
   _move(t, e, i, s) {
     return d`<button class="sico tap" aria-label=${`Move ${t} up`} ?disabled=${e === 0} @click=${() => s(e - 1)}><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="--s:20px"><path d="M6 15l6-6 6 6"></path></svg></button>
@@ -18094,7 +18098,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     return d`${i.map((r, n) => d`<div class="sitem">${this._txt(`${t}.${n}`, `${e} ${n + 1}`, r, (l) => s(i.map((p, h) => h === n ? l : p)), { cls: "sgrow" })}${this._del(`Remove ${r || e}`, () => s(i.filter((l, p) => p !== n)))}</div>`)}
       <div><button class="pill tap" @click=${() => {
       s([...i, ""]), this._focusSoon(`${t}.${i.length}`);
-    }}>${K("plus", 18)}Add ${e}</button></div>`;
+    }}>${U("plus", 18)}Add ${e}</button></div>`;
   }
   _focusSoon(t) {
     this.updateComplete.then(() => this.renderRoot.querySelector(`[data-f="${t}"]`)?.focus());
@@ -18212,16 +18216,16 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     if (s === "fail") return d`<div class="snote ro" role="note"><span><b>${t.name}’s job list could not be read.</b> Home Assistant has ${o ? "not answered for" : "no to-do list called"} <code>${i}</code>. ${o ? "Try again in a moment." : "Make a to-do list with that name in Home Assistant (Settings, Devices and services, Helpers, To-do list), then come back."}</span></div>`;
     if (!s) return d`<span class="shint" role="status">Reading ${t.name}’s list…</span>`;
     const r = Number(o?.attributes.supported_features ?? 0), n = (r & 8) === 8 && !e, l = this._ro, p = At() === "phone", h = [["am", "Morning"], ["after", "After school"], ["bed", "Bedtime"], ["any", "Any time"]], c = { routine: "Routine", job: "Job", grow: "Practice" }, f = (x) => {
-      const y = x.form, U = (v) => {
+      const y = x.form, K = (v) => {
         this._job = { ...x, form: { ...y, ...v } };
       };
       return d`<div class="sform" role="group" aria-label=${x.uid ? `Change ${y.name}` : "New job"}>
-        ${this._row("Name", "", d`${this._txt("job.pic", "Picture (an emoji)", y.pic, (v) => U({ pic: v }), { cls: "pic", ph: "🙂", pic: !0, max: 16 })}${this._txt("job.name", "Job name", y.name, (v) => U({ name: v }), { ph: "e.g. Feed the fish" })}`, !0)}
-        ${this._row("Kind", y.lane === "routine" ? "Part of the day’s routine." : y.lane === "job" ? "Earns points." : "Practice: earns a growth mark, not points.", this._seg("Kind", y.lane, [["routine", "Routine"], ["job", "Job"], ["grow", "Practice"]], (v) => U({ lane: v })))}
-        ${e ? u : this._row("When", "", this._seg("When", y.slot, h, (v) => U({ slot: v })))}
-        ${y.lane === "grow" ? u : this._row("Points", "", this._step("Points", y.pts, (v) => U({ pts: v }), { max: 500, step: 5 }))}
-        ${this._row("Timer", "A timed job shows a start button.", this._step("Timer minutes", y.minutes, (v) => U({ minutes: v, song: v ? y.song : !1 }), { max: 120, step: 5, say: (v) => v ? `${v} min` : "None" }))}
-        ${y.minutes ? this._row("Music while the timer runs", "The music stops when time is up.", this._sw("Music while the timer runs", y.song, () => U({ song: !y.song }))) : u}
+        ${this._row("Name", "", d`${this._txt("job.pic", "Picture (an emoji)", y.pic, (v) => K({ pic: v }), { cls: "pic", ph: "🙂", pic: !0, max: 16 })}${this._txt("job.name", "Job name", y.name, (v) => K({ name: v }), { ph: "e.g. Feed the fish" })}`, !0)}
+        ${this._row("Kind", y.lane === "routine" ? "Part of the day’s routine." : y.lane === "job" ? "Earns points." : "Practice: earns a growth mark, not points.", this._seg("Kind", y.lane, [["routine", "Routine"], ["job", "Job"], ["grow", "Practice"]], (v) => K({ lane: v })))}
+        ${e ? u : this._row("When", "", this._seg("When", y.slot, h, (v) => K({ slot: v })))}
+        ${y.lane === "grow" ? u : this._row("Points", "", this._step("Points", y.pts, (v) => K({ pts: v }), { max: 500, step: 5 }))}
+        ${this._row("Timer", "A timed job shows a start button.", this._step("Timer minutes", y.minutes, (v) => K({ minutes: v, song: v ? y.song : !1 }), { max: 120, step: 5, say: (v) => v ? `${v} min` : "None" }))}
+        ${y.minutes ? this._row("Music while the timer runs", "The music stops when time is up.", this._sw("Music while the timer runs", y.song, () => K({ song: !y.song }))) : u}
         ${x.uid && n && p ? (() => {
         const v = s, A = v.findIndex((N) => N.uid === x.uid);
         return d`<div class="sbtns" style="justify-content:flex-start"><button class="pill tap" ?disabled=${A <= 0 || !!this._busy} @click=${() => void this._moveJob(i, v, A, A - 1)}>Move up</button><button class="pill tap" ?disabled=${A >= v.length - 1 || !!this._busy} @click=${() => void this._moveJob(i, v, A, A + 1)}>Move down</button></div>`;
@@ -18229,24 +18233,24 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         <div class="sbtns">${x.uid ? d`<button class="pill tap danger" data-act="job-remove" ?disabled=${!!this._busy} @click=${() => {
         const v = s.find((A) => A.uid === x.uid);
         v && this._removeJob(i, v);
-      }}>${K("bin", 18)}Remove</button>` : u}
+      }}>${U("bin", 18)}Remove</button>` : u}
           <span style="flex:1"></span><button class="pill tap" @click=${() => {
         this._job = null;
       }}>Cancel</button>
           <button class="pill tap primary" data-act="job-save" ?data-busy=${this._busy === "job"} ?disabled=${!!this._busy} @click=${() => void this._saveJob()}>${x.uid ? "Save this job" : "Add this job"}</button></div></div>`;
     }, m = (x, y) => {
-      const U = U0(x);
-      return this._job?.uid === x.uid && this._job.entity === i ? f(this._job) : d`<div class="sitem" style="border:0;padding:0"><button class="sjob tap sgrow" ?disabled=${l} aria-label=${`Change ${U.name}`} @click=${() => {
-        this._job = { entity: i, uid: x.uid, form: U };
+      const K = U0(x);
+      return this._job?.uid === x.uid && this._job.entity === i ? f(this._job) : d`<div class="sitem" style="border:0;padding:0"><button class="sjob tap sgrow" ?disabled=${l} aria-label=${`Change ${K.name}`} @click=${() => {
+        this._job = { entity: i, uid: x.uid, form: K };
       }}>
-        <span class="spic" aria-hidden="true">${U.pic || "•"}</span><span class="sname sgrow">${U.name}</span>
-        ${U.minutes ? d`<span class="stag">${U.minutes} min${U.song ? " ♪" : ""}</span>` : u}<span class="stag">${c[U.lane]}</span>${U.pts ? d`<span class="stag">+${U.pts}</span>` : u}</button>
-        ${n && !l && !p ? this._move(U.name, y, s.length, (v) => void this._moveJob(i, s, y, v)) : u}</div>`;
+        <span class="spic" aria-hidden="true">${K.pic || "•"}</span><span class="sname sgrow">${K.name}</span>
+        ${K.minutes ? d`<span class="stag">${K.minutes} min${K.song ? " ♪" : ""}</span>` : u}<span class="stag">${c[K.lane]}</span>${K.pts ? d`<span class="stag">+${K.pts}</span>` : u}</button>
+        ${n && !l && !p ? this._move(K.name, y, s.length, (v) => void this._moveJob(i, s, y, v)) : u}</div>`;
     }, g = s.map((x, y) => ({ c: x, i: y, f: U0(x) })), k = e ? g.filter((x) => x.f.slot === e) : g, b = this._job && this._job.uid === null && this._job.entity === i ? f(this._job) : u;
     return d`<div class="sjobs">
       ${e ? k.map((x) => m(x.c, x.i)) : h.map(([x, y]) => {
-      const U = k.filter((v) => v.f.slot === x);
-      return U.length ? d`<span class="label">${y}</span>${U.map((v) => m(v.c, v.i))}` : u;
+      const K = k.filter((v) => v.f.slot === x);
+      return K.length ? d`<span class="label">${y}</span>${K.map((v) => m(v.c, v.i))}` : u;
     })}
       ${k.length ? u : d`<span class="shint">Nothing here yet.</span>`}
       ${b}
@@ -18256,7 +18260,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     }}>Put the removed job back</button></div>` : u}
       ${this._job || l ? u : d`<div><button class="pill tap" data-act="job-add" @click=${() => {
       this._job = { entity: i, uid: null, form: { name: "", lane: e ? "routine" : "job", slot: e ?? "any", pts: e ? 0 : 10, minutes: 0, pic: "", song: !1, rest: "" } }, this._focusSoon("job.name");
-    }}>${K("plus", 18)}${e ? "Add a morning step" : "Add a job"}</button></div>`}
+    }}>${U("plus", 18)}${e ? "Add a morning step" : "Add a job"}</button></div>`}
       <span class="shint">Jobs are kept in Home Assistant (<code>${i}</code>), so a change here is saved straight away, not with the Save button.</span></div>`;
   }
   /* ---------------- panes ---------------- */
@@ -18357,7 +18361,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         const m = f.kids[s];
         m.rewards = m.rewards_draft, delete m.rewards_draft;
       }), this._rwLive = -1;
-    }}>${K("check", 18)}Put this draft live</button>
+    }}>${U("check", 18)}Put this draft live</button>
           <button class="pill tap" data-act="draft-drop" @click=${() => {
       this._edit((f) => {
         delete f.kids[s].rewards_draft;
@@ -18377,10 +18381,10 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     }), { max: 5e3, step: 5, unit: "pts" })}
           <span class="schips"><button class="tap" aria-pressed=${String(f.approve ?? f.cost >= 60)} aria-label=${`${f.name || "This reward"} needs a parent’s PIN`} @click=${() => h((k) => {
       k[m].approve = !(k[m].approve ?? k[m].cost >= 60);
-    })}><span class="sbox2" aria-hidden="true">${f.approve ?? f.cost >= 60 ? K("check", 16) : u}</span>Needs PIN</button>
+    })}><span class="sbox2" aria-hidden="true">${f.approve ?? f.cost >= 60 ? U("check", 16) : u}</span>Needs PIN</button>
             <button class="tap" data-act="weekly" aria-pressed=${String(!!f.weekly)} aria-label=${`${f.name || "This reward"} can be had once a week`} @click=${() => h((k) => {
       k[m].weekly ? delete k[m].weekly : k[m].weekly = 1;
-    })}><span class="sbox2" aria-hidden="true">${f.weekly ? K("check", 16) : u}</span>${f.weekly && f.weekly > 1 ? `${f.weekly} a week` : "Once a week"}</button></span>
+    })}><span class="sbox2" aria-hidden="true">${f.weekly ? U("check", 16) : u}</span>${f.weekly && f.weekly > 1 ? `${f.weekly} a week` : "Once a week"}</button></span>
           ${this._move(f.name || "reward", m, g.length, (k) => h((b) => {
       const [x] = b.splice(m, 1);
       b.splice(k, 0, x);
@@ -18393,10 +18397,10 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       h((m) => {
         m.push({ name: "", cost: 50 });
       }), this._focusSoon(`rw.${s}.${f}.name`);
-    }}>${K("plus", 18)}Add a reward</button></div>
+    }}>${U("plus", 18)}Add a reward</button></div>
         <span class="shint">A ticked reward asks for the PIN before it is spent. Until you choose, rewards of 60 points or more are ticked. “Once a week” is a limit: after it is had, the row says “Back Monday”. A reward named like “DJ” makes the child tonight’s DJ on the Music page.</span>
       </div>` : u}
-      <div class="scard"><h3>${K("jar", 20)}Family jar <span class="muted">shared by everyone</span></h3>
+      <div class="scard"><h3>${U("jar", 20)}Family jar <span class="muted">shared by everyone</span></h3>
         ${this._row("Marbles to fill the jar", "Every family job a child ticks adds one marble.", this._step("Marbles to fill the jar", c.target ?? 200, (f) => this._edit((m) => {
       m.jar = { ...m.jar ?? {}, target: f };
     }), { min: 10, max: 5e3, step: 10, unit: "marbles" }))}
@@ -18453,7 +18457,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
           const g = m.kids[o];
           g.bring = g.bring ?? {}, (g.bring[h] = g.bring[h] ?? []).push("");
         }), this._focusSoon(`bring.${o}.${h}.${f.length}`);
-      }}>${K("plus", 18)}Add</button>`, !0);
+      }}>${U("plus", 18)}Add</button>`, !0);
     })}
       </div>` : u}
       <div class="scard"><h3>School days</h3>
@@ -18469,7 +18473,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         <div><button class="pill tap" @click=${() => this._edit((h) => {
       const c = (/* @__PURE__ */ new Date()).getFullYear();
       (h.school_terms = h.school_terms ?? []).push([`${c}-02-01`, `${c}-04-10`]);
-    })}>${K("plus", 18)}Add a term</button></div>
+    })}>${U("plus", 18)}Add a term</button></div>
         <span class="label">Public holidays and days off for everyone</span>
         ${l.map((h, c) => d`<div class="sitem"><span class="sgrow"></span>${p(`hol.${c}`, `Holiday ${c + 1}`, h, (f) => this._edit((m) => {
       m.public_holidays[c] = f;
@@ -18479,7 +18483,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         <div><button class="pill tap" @click=${() => this._edit((h) => {
       const c = /* @__PURE__ */ new Date();
       (h.public_holidays = h.public_holidays ?? []).push(`${c.getFullYear()}-${Va(c.getMonth() + 1)}-${Va(c.getDate())}`);
-    })}>${K("plus", 18)}Add a holiday</button></div>
+    })}>${U("plus", 18)}Add a holiday</button></div>
       </div>`;
   }
   _helpers(t) {
@@ -18527,7 +18531,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       })}>${g || "Anyone"}</button>`)}</div>
               ${m ? d`<span class="shint" role="note">New. After you save, it needs two helpers in Home Assistant before it can be recorded; Settings will offer to make them.</span>` : f.length ? d`<div class="snote" role="note"><span><b>Not ready yet.</b> Home Assistant needs ${f.length === 2 ? "two helpers" : "one more helper"} for this medicine, or it cannot be recorded:</span>
                   ${f.map((g) => d`<span><code>${g}</code> ${g.startsWith("input_datetime") ? "(a date and time helper)" : "(a text helper)"}</span>`)}
-                  <div class="sbtns" style="justify-content:flex-start"><button class="pill tap" data-act="med-helpers" ?data-busy=${this._busy === `mk:${l.id}`} ?disabled=${!!this._busy} @click=${() => void this._makeHelpers(l)}>Make ${f.length === 2 ? "them" : "it"} now</button><span class="shint">Or make ${f.length === 2 ? "them" : "it"} by hand: Settings, Devices and services, Helpers.</span></div></div>` : d`<span class="shint">${K("check", 16)} Ready: its helpers are in Home Assistant.</span>`}
+                  <div class="sbtns" style="justify-content:flex-start"><button class="pill tap" data-act="med-helpers" ?data-busy=${this._busy === `mk:${l.id}`} ?disabled=${!!this._busy} @click=${() => void this._makeHelpers(l)}>Make ${f.length === 2 ? "them" : "it"} now</button><span class="shint">Or make ${f.length === 2 ? "them" : "it"} by hand: Settings, Devices and services, Helpers.</span></div></div>` : d`<span class="shint">${U("check", 16)} Ready: its helpers are in Home Assistant.</span>`}
             </div></div>`;
     })}
         ${e.length ? u : d`<span class="shint">No daily medicines yet.</span>`}
@@ -18536,7 +18540,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       r((p) => {
         p.push({ id: _v(l, `med ${p.length + 1}`, p.map((h) => h.id)), label: "", time: "07:00", ...l ? { who: l } : {} });
       }), this._focusSoon(`med.${e.length}.label`);
-    }}>${K("plus", 18)}Add a medicine</button></div>
+    }}>${U("plus", 18)}Add a medicine</button></div>
       </div>
       <div class="scard"><h3>Something else given</h3>
         <span class="shint">The names offered when a parent records another medicine. Names only.</span>
@@ -18575,24 +18579,24 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     const r = this.hass?.states ?? {}, n = this.hass?.entities ?? {}, l = this.hass?.areas ?? {}, p = this._find.trim().toLowerCase(), h = Object.keys(r).filter((m) => s.includes(m.split(".")[0]) && !n[m]?.hidden).map((m) => ({ id: m, name: this._name(m), area: l[n[m]?.area_id ?? ""]?.name ?? "" }));
     for (const m of i) r[m] || h.push({ id: m, name: m, area: "Not found in Home Assistant" });
     const c = (m) => i.includes(m), f = h.filter((m) => !p || `${m.name} ${m.area} ${m.id} ${m.id.replace(/[._]/g, " ")}`.toLowerCase().includes(p)).sort((m, g) => Number(c(g.id)) - Number(c(m.id)) || m.name.localeCompare(g.name));
-    return d`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${K("search", 22)}</span>${this._txt(`${t}.find`, `Search ${e}`, this._find, (m) => {
+    return d`<div class="sitem" style="border:0;padding:0"><span style="line-height:0;color:var(--ink2)">${U("search", 22)}</span>${this._txt(`${t}.find`, `Search ${e}`, this._find, (m) => {
       this._find = m;
     }, { cls: "sgrow", ph: `Search ${e}` })}<span class="stag" role="status">${i.length} chosen</span></div>
-      <div class="spick" role="group" aria-label=${e}>${f.map((m) => d`<button class="tap" data-e=${m.id} aria-pressed=${String(c(m.id))} @click=${() => o(c(m.id) ? i.filter((g) => g !== m.id) : [...i, m.id])}><span class="sbox2" aria-hidden="true">${c(m.id) ? K("check", 16) : u}</span><span><b>${m.name}</b>${m.area ? d`<small>${m.area}</small>` : u}</span></button>`)}</div>
+      <div class="spick" role="group" aria-label=${e}>${f.map((m) => d`<button class="tap" data-e=${m.id} aria-pressed=${String(c(m.id))} @click=${() => o(c(m.id) ? i.filter((g) => g !== m.id) : [...i, m.id])}><span class="sbox2" aria-hidden="true">${c(m.id) ? U("check", 16) : u}</span><span><b>${m.name}</b>${m.area ? d`<small>${m.area}</small>` : u}</span></button>`)}</div>
       ${f.length ? u : d`<span class="shint">Nothing matches “${this._find}”.</span>`}`;
   }
   _house() {
     const t = this._draft, e = t.night, i = t.quiet ?? {}, s = t.bins, o = t.look ?? "glass", r = (b) => this._edit((x) => {
       x.bins = x.bins ?? { day: 1 }, b(x.bins);
-    }), n = Object.keys(Ks), l = [...new Set([...s?.always ?? [], ...s?.alternate ?? []].map((b) => b.toLowerCase()).filter((b) => !ca(b)))], p = t.health, h = (b) => b[0].toUpperCase() + b.slice(1), c = (b) => `Out on ${Jn[b]} night, collected ${Jn[(b + 1) % 7]} morning.`, f = (b, x, y) => d`<div class="schips" role="group" aria-label=${b}>${n.map((U) => d`<button class="tap" aria-pressed=${String(x.map((v) => v.toLowerCase()).includes(U))} @click=${() => y(x.map((v) => v.toLowerCase()).includes(U) ? x.filter((v) => v.toLowerCase() !== U) : [...x, U])}><i class="sw6" style="background:${Ks[U].col}" aria-hidden="true"></i>${h(U)}<span class="muted" style="font-weight:500">${Ks[U].what}</span></button>`)}</div>`, m = t.voice, g = hf(m), k = Dd(m);
+    }), n = Object.keys(Ks), l = [...new Set([...s?.always ?? [], ...s?.alternate ?? []].map((b) => b.toLowerCase()).filter((b) => !ca(b)))], p = t.health, h = (b) => b[0].toUpperCase() + b.slice(1), c = (b) => `Out on ${Jn[b]} night, collected ${Jn[(b + 1) % 7]} morning.`, f = (b, x, y) => d`<div class="schips" role="group" aria-label=${b}>${n.map((K) => d`<button class="tap" aria-pressed=${String(x.map((v) => v.toLowerCase()).includes(K))} @click=${() => y(x.map((v) => v.toLowerCase()).includes(K) ? x.filter((v) => v.toLowerCase() !== K) : [...x, K])}><i class="sw6" style="background:${Ks[K].col}" aria-hidden="true"></i>${h(K)}<span class="muted" style="font-weight:500">${Ks[K].what}</span></button>`)}</div>`, m = t.voice, g = hf(m), k = Dd(m);
     return d`
-      ${g.length ? d`<div class="scard" data-voice><h3>${K("megaphone", 20)}The house voice</h3>
+      ${g.length ? d`<div class="scard" data-voice><h3>${U("megaphone", 20)}The house voice</h3>
         ${this._row("Voice", "Everything the house says aloud: read-aloud on the children’s pages, Ask, Call a room, the dinner call and the kitchen timer.", this._seg("The house voice", k?.name, g.map((b) => [b.name, b.name]), (b) => this._edit((x) => {
       x.voice && (x.voice.use = b);
     })))}
         <span class="shint">${k?.files ? `${k.name} has recordings of the ready messages and the dinner call, and they are used.` : `${k?.name ?? "This voice"} has no recordings, so the ready messages and the dinner call are spoken fresh each time (the first time each day counts towards the daily allowance).`} The other voices’ recordings are kept. A new voice is added to the list under Advanced.</span>
       </div>` : u}
-      <div class="scard"><h3>${K("moon", 20)}Night</h3>
+      <div class="scard"><h3>${U("moon", 20)}Night</h3>
         ${this._row("Night screen", "Between these times the screensaver’s pictures are dimmer and warmer, and the screen is at its lowest. A touch wakes it as usual.", d`${this._sw("Night screen", !!e, () => this._edit((b) => {
       b.night ? delete b.night : b.night = { start: "21:00", end: "06:00" };
     }))}
@@ -18612,7 +18616,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       b.quiet = { ...b.quiet ?? {} }, x ? delete b.quiet.mute : b.quiet.mute = !0, Object.keys(b.quiet).length || delete b.quiet;
     })))}
       </div>
-      <div class="scard" data-screen><h3>${K("home", 20)}This screen</h3>
+      <div class="scard" data-screen><h3>${U("home", 20)}This screen</h3>
         ${this._row("Light and dark", "For the Glass look, on this screen only. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Space Mission is always dark. Kept on this screen, not saved with the rest.", this._seg("Light and dark", Y0(), G0, (b) => {
       Z0(b), S("set"), this.requestUpdate();
     }))}
@@ -18620,7 +18624,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       dk(!nr()), S("set"), this.requestUpdate();
     })) : u}
       </div>
-      <div class="scard"><h3>${K("bin", 20)}Bin night</h3>
+      <div class="scard"><h3>${U("bin", 20)}Bin night</h3>
         ${this._row("Show bin night", "On the planner, the screensaver and House info, on the evening the bins go out.", this._sw("Show bin night", !!s, () => this._edit((b) => {
       b.bins ? delete b.bins : b.bins = { day: 1, always: ["green"], alternate: ["yellow", "red"] };
     })))}
@@ -18639,13 +18643,13 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     })}>`) : u}
           ${l.length ? d`<span class="shint" data-act="bin-extra">${l.map(h).join(" and ")}: not a bin here. ${l.length > 1 ? "They go" : "It goes"} when you save.</span>` : u}` : u}
       </div>
-      <div class="scard"><h3>${K("bulbOff", 20)}All off leaves these on</h3>
+      <div class="scard"><h3>${U("bulbOff", 20)}All off leaves these on</h3>
         <span class="shint">A night light or a fish tank that “All off” on the dock should never switch off.</span>
         ${this._picker("keep", "lights and switches", t.keep_on ?? [], ["light", "switch"], (b) => this._edit((x) => {
       b.length ? x.keep_on = b : delete x.keep_on;
     }))}
       </div>
-      <div class="scard"><h3>${K("palette", 20)}Look and feel <span class="muted">what a screen starts with</span></h3>
+      <div class="scard"><h3>${U("palette", 20)}Look and feel <span class="muted">what a screen starts with</span></h3>
         ${this._row("Look", "", d`<div class="schips" role="group" aria-label="Look">${ma.map((b) => d`<button class="tap" aria-pressed=${String(o === b.id)} @click=${() => this._edit((x) => {
       x.look = b.id;
     })}>${b.name}</button>`)}</div>`)}
@@ -18747,7 +18751,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       nocamera: d`<b>No camera was found on this screen.</b> The panel wakes by touch.`,
       denied: d`<b>The browser has not allowed the camera.</b> Allow it for this address in the browser’s site settings, then test again.`,
       busy: d`<b>The camera could not be opened.</b> Something else may be using it.`
-    }, x = this._camFault || (n === "camera" ? H1() : ""), y = c.filter((v) => v.kind === this._libShow).sort((v, A) => v.d < A.d ? 1 : v.d > A.d ? -1 : 0), U = async (v, A) => {
+    }, x = this._camFault || (n === "camera" ? H1() : ""), y = c.filter((v) => v.kind === this._libShow).sort((v, A) => v.d < A.d ? 1 : v.d > A.d ? -1 : 0), K = async (v, A) => {
       if (!this.hass || this._libBusy) return;
       if (A === "del" && this._zap !== v.uid) {
         this._zap = v.uid;
@@ -18758,7 +18762,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       this._libBusy = "", N || this._say("Home Assistant did not answer. Try again."), await this._loadLib();
     };
     return d`
-      <div class="scard"><h3>${K("moon", 20)}Screensaver</h3>
+      <div class="scard"><h3>${U("moon", 20)}Screensaver</h3>
         <p class="sintro">After a while with nobody using it, the panel fades into the artwork with a clock. A touch brings it straight back, and that touch presses nothing else.</p>
         ${this._row("Show the artwork after", "With no touch, and nobody near.", this._seg("Show the artwork after", o, [[0, "Never"], [1, "1 min"], [3, "3 min"], [5, "5 min"], [10, "10 min"], [15, "15 min"]], (v) => s((A) => {
       A.idle_minutes = v;
@@ -18768,7 +18772,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     }))) : u}
         <span class="shint">${k ? `From ${aa(k)} (the earliest bedtime) until morning, a dim clock shows instead of the artwork.` : ""} It never comes up over a timer, an alarm, a call, an open sheet or the keyboard.</span>
       </div>
-      <div class="scard"><h3>${K("home", 20)}Wake when someone walks up</h3>
+      <div class="scard"><h3>${U("home", 20)}Wake when someone walks up</h3>
         ${this._row("The panel knows someone is there from", "", this._seg("Presence source", n, [["none", "Touch only"], ["sensor", "A sensor"], ["camera", "This screen’s camera"]], (v) => {
       this._camStop(), s((A) => {
         v === "none" ? delete A.presence : A.presence = v;
@@ -18792,7 +18796,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
           ${this._row("Try it", "Shows what the camera sees, on this screen only.", d`<button class="pill tap" data-act="cam-test" @click=${() => void this._camTest()}>${this._cam ? "Stop" : "Test the camera"}</button>`)}
           ${this._cam ? d`<div class="scam" style="--m:${e.camera_margin ?? rt.margin}%"><i class="sarea" aria-hidden="true"></i><span class="smeter" role="status" data-on=${String(Date.now() - this._camSeen < 1500)}>${Date.now() - this._camSeen < 1500 ? "Movement seen" : "Still"} · ${(this._cam.level * 100).toFixed(1)}% (wakes at ${(P1(e.camera_sensitivity) * 100).toFixed(1)}%)</span></div>` : u}` : u}
       </div>
-      <div class="scard"><h3>${K("bulb", 20)}Screen brightness <span class="muted">optional</span></h3>
+      <div class="scard"><h3>${U("bulb", 20)}Screen brightness <span class="muted">optional</span></h3>
         <span class="shint">A light or number in Home Assistant that sets this screen’s backlight. Leave it empty until there is one: nothing happens without it. The screen is never switched off.</span>
         ${this._picker("backlight", "lights and numbers", e.backlight ? [e.backlight] : [], ["light", "number", "input_number"], (v) => s((A) => {
       const N = v.filter((F) => F !== e.backlight).pop();
@@ -18805,7 +18809,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       A.backlight_night = v;
     }), { min: 1, max: 100, step: 1, unit: "%" }))}` : u}
       </div>
-      <div class="scard"><h3>${K("palette", 20)}The painter</h3>
+      <div class="scard"><h3>${U("palette", 20)}The painter</h3>
         ${h ? d`<span class="shint">Pictures are painted by <b>${this._name(h)}</b>, in Home Assistant. The key stays there.</span>` : d`<div class="snote" role="note"><span><b>No painter yet.</b> Add an AI Task entity that can make images (for example through the OpenAI integration) in Home Assistant.</span></div>`}
         ${p ? u : d`<div class="snote" role="note"><span><b>The picture list is missing.</b> Every picture is noted in a to-do list called “${l}”, so its cost can be counted and you can remove any of them.</span><button class="pill tap" data-act="make-list" ?disabled=${!!this._libBusy} @click=${() => void this._makeList()}>Make the list</button></div>`}
         ${this._row("Stop at", `This month: ${f.n} picture${f.n === 1 ? "" : "s"}, about US$${f.usd.toFixed(2)}.`, this._step("Monthly limit", m, (v) => s((A) => {
@@ -18850,9 +18854,9 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         ${y.length ? d`<div class="slib" role="list">${y.slice(0, 60).map((v) => d`<div class="sart" role="listitem" ?data-hidden=${v.hidden}>
           <fh-pic .media=${v.file} .label=${`${v.theme ?? (v.kind === "look" ? "A look" : "Artwork")}, ${v.who.join(" and ")}`}></fh-pic>
           <span class="scap">${v.theme ?? v.who.join(", ")}<small>${v.d}${v.who.length && v.theme ? ` · ${v.who.join(", ")}` : ""}</small></span>
-          <span class="sacts">${v.kind === "art" ? d`<button class="sico tap" aria-pressed=${String(!!v.fav)} aria-label=${v.fav ? "A favourite. Tap to undo" : "Make it a favourite"} @click=${() => void U(v, "fav")}>${K("star", 20)}</button>
-            <button class="sico tap" aria-pressed=${String(v.hidden)} aria-label=${v.hidden ? "Hidden. Tap to show it again" : "Hide it from the screensaver"} @click=${() => void U(v, "hide")}>${K("moon", 20)}</button>` : u}
-            <button class="sico tap bad" data-sure=${String(this._zap === v.uid)} aria-label=${this._zap === v.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void U(v, "del")}>${this._zap === v.uid ? "Sure?" : K("bin", 20)}</button></span></div>`)}</div>` : d`<span class="shint">${p ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
+          <span class="sacts">${v.kind === "art" ? d`<button class="sico tap" aria-pressed=${String(!!v.fav)} aria-label=${v.fav ? "A favourite. Tap to undo" : "Make it a favourite"} @click=${() => void K(v, "fav")}>${U("star", 20)}</button>
+            <button class="sico tap" aria-pressed=${String(v.hidden)} aria-label=${v.hidden ? "Hidden. Tap to show it again" : "Hide it from the screensaver"} @click=${() => void K(v, "hide")}>${U("moon", 20)}</button>` : u}
+            <button class="sico tap bad" data-sure=${String(this._zap === v.uid)} aria-label=${this._zap === v.uid ? "Tap again to delete it for good" : "Delete"} @click=${() => void K(v, "del")}>${this._zap === v.uid ? "Sure?" : U("bin", 20)}</button></span></div>`)}</div>` : d`<span class="shint">${p ? this._libShow === "art" ? "No artwork yet. The screensaver shows the clock on the panel’s own wallpaper until there is some." : "No looks have been painted yet." : ""}</span>`}
       </div>`;
   }
   _speakers() {
@@ -18906,7 +18910,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         r((g) => {
           g.splice(l, 1);
         }), this._open = -1;
-      }}>${K("bin", 18)}Remove</button><span style="flex:1"></span><button class="pill tap" data-act="moment-close" @click=${() => {
+      }}>${U("bin", 18)}Remove</button><span style="flex:1"></span><button class="pill tap" data-act="moment-close" @click=${() => {
         this._open = -1;
       }}>Close</button></div>
           </div>` : d`<div class="sitem" data-moment=${l}><button class="sjob tap sgrow" aria-expanded="false" aria-label=${`Change ${n.name || "this moment"}`} @click=${() => {
@@ -18922,7 +18926,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       r((l) => {
         l.push({ name: "", find: "" });
       }), this._open = n, this._focusSoon(`mo.${n}.name`);
-    }}>${K("plus", 18)}Add a moment</button></div>` : d`<span class="shint">The desk has room for four moments.</span>`}
+    }}>${U("plus", 18)}Add a moment</button></div>` : d`<span class="shint">The desk has room for four moments.</span>`}
         <span class="shint">A pad that was given different music on a screen’s own Music page keeps that music on that screen.</span>
       </div>
       <div class="scard" data-views><h3>Ways to see the rooms</h3>
@@ -18981,7 +18985,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       h.parents = p;
     }))}
       </div>
-      <div class="scard"><h3>${K("info", 20)}The house-info page <span class="muted">for babysitters and visitors</span></h3>
+      <div class="scard"><h3>${U("info", 20)}The house-info page <span class="muted">for babysitters and visitors</span></h3>
         ${this._row("Title", "", this._txt("sit.title", "Title of the house-info page", e.title ?? "", (p) => l((h) => {
       p ? h.title = p : delete h.title;
     }), { ph: "House info" }), !0)}
@@ -19000,7 +19004,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       this._setSitter((p) => {
         p.contacts.push({ name: "", phone: "" });
       }), this._focusSoon(`sit.c.${s.contacts.length}.name`);
-    }}>${K("plus", 18)}Add a contact</button></div>
+    }}>${U("plus", 18)}Add a contact</button></div>
         <span class="label">Wi-Fi for visitors</span>
         ${this._row("Network", "", this._txt("sit.wifi", "Wi-Fi network", e.wifi?.name ?? "", (p) => l((h) => {
       p ? h.wifi = { ...h.wifi ?? {}, name: p } : delete h.wifi;
@@ -19013,7 +19017,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       h.notes = p;
     }))}
       </div>
-      <div class="scard"><h3>${K("alert", 20)}The alert button</h3>
+      <div class="scard"><h3>${U("alert", 20)}The alert button</h3>
         <span class="shint">The red hold-to-send button on the house-info page. It sounds on these phones even on silent.</span>
         ${this._row("It says “Alert …”", "", this._txt("sos.who", "Who the alert button names", i?.who ?? "", (p) => n((h) => {
       p ? h.who = p : delete h.who;
@@ -19021,7 +19025,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
         <span class="label">Phones to alert</span>
         <div class="spick" role="group" aria-label="Phones to alert">${[.../* @__PURE__ */ new Set([...o, ...r])].map((p) => d`<button class="tap" aria-pressed=${String(r.includes(p))} @click=${() => n((h) => {
       h.notify = h.notify.includes(p) ? h.notify.filter((c) => c !== p) : [...h.notify, p];
-    })}><span class="sbox2" aria-hidden="true">${r.includes(p) ? K("check", 16) : u}</span><span><b>${p.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${o.includes(p) ? p : "Not found in Home Assistant"}</small></span></button>`)}</div>
+    })}><span class="sbox2" aria-hidden="true">${r.includes(p) ? U("check", 16) : u}</span><span><b>${p.replace(/^notify\.(mobile_app_)?/, "").replace(/_/g, " ")}</b><small>${o.includes(p) ? p : "Not found in Home Assistant"}</small></span></button>`)}</div>
         ${o.length || r.length ? u : d`<span class="shint">Home Assistant has no phones to notify yet. Install the Home Assistant app on a phone and sign in; it then appears here.</span>`}
         ${r.length ? this._sure === "test" ? d`<div class="snote" role="alertdialog" aria-label="Send a test alert"><span><b>Send a test to ${r.length} phone${r.length === 1 ? "" : "s"} now?</b> It is an ordinary message that says it is only a test.</span><div class="sbtns" style="justify-content:flex-start"><button class="pill tap primary" data-act="test-send" ?disabled=${!!this._busy} @click=${() => void this._testAlert()}>Send the test</button><button class="pill tap" @click=${() => {
       this._sure = "";
@@ -19031,7 +19035,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       </div>
       ${this._digestCard(o)}
       ${this._approveCard(o)}
-      <div class="scard"><h3>${K("ask", 20)}Ask and the internet</h3>
+      <div class="scard"><h3>${U("ask", 20)}Ask and the internet</h3>
         ${t.chat?.agent ? this._row("The helper is called", "The name on the speech-bubble button.", this._txt("chat.name", "What the helper is called", t.chat.name ?? "", (p) => this._edit((h) => {
       p ? h.chat.name = p : delete h.chat.name;
     }), { ph: "Ask" }), !0) : d`<span class="shint">Ask (the children’s AI helper) is not set up. It is added in YAML, with a conversation agent from Home Assistant.</span>`}
@@ -19055,12 +19059,12 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
   _health() {
     const t = g0({ hass: this.hass, cfg: this.config, reads: this._hreads, cals: this.cals, version: this.version }), e = Zk(t);
     window.__fhHealth = () => Ok(g0({ hass: this.hass, cfg: this.config, reads: this._hreads, cals: this.cals, version: this.version }));
-    const i = (o, r = 22) => d`<span class="hmark" data-mark=${o} role="img" aria-label=${Fv[o]}>${K($v[o], r)}</span>`, s = this._hreads ? ot(new Date(this._hreads.at)) : "";
+    const i = (o, r = 22) => d`<span class="hmark" data-mark=${o} role="img" aria-label=${Fv[o]}>${U($v[o], r)}</span>`, s = this._hreads ? ot(new Date(this._hreads.at)) : "";
     return d`<div class="hsum" data-mark=${e.mark} role="status">${i(e.mark, 28)}<span class="sgrow"><b>${e.words}</b>${e.which ? d`<span class="hwhich">${e.which}</span>` : u}<span class="shint">${this._hbusy ? "Checking now…" : s ? `Checked at ${s}. Everything else is as this screen sees it now.` : "Checking now…"}</span></span>
         <button class="pill tap" data-act="health-again" ?disabled=${this._hbusy} @click=${() => {
       S("tap"), this._healthRead();
     }}>Check again</button></div>
-      ${t.map((o) => d`<div class="scard" data-group=${o.id}><h3>${q0[o.id] ? K(q0[o.id], 20) : u}${o.title}</h3>
+      ${t.map((o) => d`<div class="scard" data-group=${o.id}><h3>${q0[o.id] ? U(q0[o.id], 20) : u}${o.title}</h3>
         <div class="hrows">${o.rows.map((r) => d`<div class="hrow" data-row=${r.id} data-mark=${r.mark}>${i(r.mark)}<b>${r.name}</b><span>${r.words}</span></div>`)}</div></div>`)}
       <span class="shint">Nothing here changes anything. A screen that has stopped answering altogether can’t say so itself: the wall’s own restart and Home Assistant’s notices cover that.</span>`;
   }
@@ -19096,7 +19100,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
   _foot() {
     const t = this._ro, e = this._access, i = this._busy === "save" || this._busy === "undo", s = !this.config.parent_pin;
     if (!e) return d`<div class="sft"><span class="sstate" role="status">Checking that this screen can save…</span></div>`;
-    if (t) return d`<div class="sft"><span class="sstate" role="status">${K("lock", 20)}<span>Read only: ${Ao[e.why ?? "offline"][0].toLowerCase()}.</span></span><button class="lead tap" data-act="done" @click=${() => this._close()}>Close</button></div>`;
+    if (t) return d`<div class="sft"><span class="sstate" role="status">${U("lock", 20)}<span>Read only: ${Ao[e.why ?? "offline"][0].toLowerCase()}.</span></span><button class="lead tap" data-act="done" @click=${() => this._close()}>Close</button></div>`;
     if (e.latest) return d`<div class="sft"><span class="sstate bad" role="alert">This card was changed on another screen. Load what the dashboard has now; changes not saved here will be lost.</span><button class="lead tap" data-act="latest" @click=${() => this._loadLatest()}>Load the latest</button></div>`;
     if (this._ask) return d`<div class="sft" role="alertdialog" aria-label="Unsaved changes"><span class="sstate"><i class="sdot" aria-hidden="true"></i><span><b>You have unsaved changes.</b> Save them before leaving?</span></span>
       <button class="pill tap" data-act="stay" @click=${() => {
@@ -19110,7 +19114,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
       this._save(r);
     }}>${i ? "Saving…" : "Save"}</button></div>`;
     const o = this._dirty;
-    return d`<div class="sft"><span class="sstate ${this._err ? "bad" : ""}" role=${this._err ? "alert" : "status"}>${this._err ? this._err : o ? d`<i class="sdot" aria-hidden="true"></i>Unsaved changes` : mi.includes(this._pane) ? "Nothing to save on this page." : d`${K("check", 20)}All saved`}</span>
+    return d`<div class="sft"><span class="sstate ${this._err ? "bad" : ""}" role=${this._err ? "alert" : "status"}>${this._err ? this._err : o ? d`<i class="sdot" aria-hidden="true"></i>Unsaved changes` : mi.includes(this._pane) ? "Nothing to save on this page." : d`${U("check", 20)}All saved`}</span>
       ${o ? d`<button class="pill tap" data-act="discard" ?disabled=${i} @click=${() => this._discard()}>Discard</button>` : u}
       ${mi.includes(this._pane) && !o ? d`<button class="lead tap" data-act="done" @click=${() => this._close()}>Done</button>` : d`<button class="lead tap" data-act="save" ?data-busy=${i} aria-busy=${i ? "true" : "false"} ?disabled=${!o || i} @click=${() => void this._save()}>${i ? "Saving…" : s ? "Set the PIN" : "Save"}</button>`}</div>`;
   }
@@ -19127,7 +19131,7 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     }}>Done</button>`;
     return t.digits ? d`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}><div class="sdig" role="group" aria-label="Number keys">${["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map((s) => s ? d`<button class="key" aria-label=${s === "del" ? "Delete" : s} @click=${() => {
       S(s === "del" ? "del" : "pin"), e(s);
-    }}>${s === "del" ? K("backspace", 24) : s}</button>` : d`<span></span>`)}</div>${i}</div>` : d`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}>${Oe(e, this._caps, () => {
+    }}>${s === "del" ? U("backspace", 24) : s}</button>` : d`<span></span>`)}</div>${i}</div>` : d`<div class="skeys" @pointerdown=${(s) => s.preventDefault()}>${Oe(e, this._caps, () => {
       this._caps = !this._caps;
     }, !0, !0, !0)}${i}</div>`;
   }
@@ -19138,8 +19142,8 @@ const K0 = () => Qo && Date.now() < Qo.until ? Qo : null, Hn = (a) => {
     this._tick;
     const n = this._dirty;
     return d`<div class="glass sheet sbox" ?data-kb=${!!this._kb && this._osk && this._fields.size > 0} role="dialog" aria-modal="true" aria-label="Settings" @click=${(l) => l.stopPropagation()}>
-      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${K("cog", 26)}</span>Settings</h2><span class="muted">For parents. ${t.sub}.</span></div>
-        <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${K("close", 20)}</button></div>
+      <div class="shd"><div style="min-width:0"><h2 class="t-head"><span style="color:var(--accent);line-height:0">${U("cog", 26)}</span>Settings</h2><span class="muted">For parents. ${t.sub}.</span></div>
+        <button class="round tap xbtn" aria-label="Close settings" @click=${() => this._close()}>${U("close", 20)}</button></div>
       <nav class="snav" aria-label="Sections">${rs.map((l) => {
       const p = s && l.id !== "pin" && !mi.includes(l.id);
       return d`<button class="tap" data-pane=${l.id} aria-current=${l.id === this._pane ? "page" : "false"} aria-disabled=${p ? "true" : "false"} aria-label=${`${l.name}${p ? " (set a PIN first)" : l.id === this._pane && n ? ", unsaved changes" : ""}`} @click=${() => this._go(l.id)}>${A0(l.ic)}<span>${l.name}</span>${l.id === this._pane && n && !e ? d`<i class="sdot" aria-hidden="true"></i>` : u}</button>`;
@@ -19641,7 +19645,7 @@ const Cv = (a, t) => {
   { k: "reward", ic: "star", title: "Rewards asked for", say: "Approve takes the points. Not yet changes nothing." },
   { k: "job", ic: "check", title: "Jobs said done", say: "Approve ticks the job and gives its points. Not yet leaves it unticked." },
   { k: "chat", ic: "ask", title: "Asked for a chat", say: "Seen takes it off the list and tells him a parent has seen it." }
-], Iv = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, Rd = "0.38.19", $0 = "family-hub-theme", F0 = "family-hub-sounds", R0 = {
+], Iv = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, Rd = "0.38.20", $0 = "family-hub-theme", F0 = "family-hub-sounds", R0 = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -19854,7 +19858,7 @@ const Cv = (a, t) => {
     const t = this._waiting, e = Dv.map((i) => ({ ...i, rows: t.filter((s) => s.k === i.k).sort((s, o) => s.t - o.t) })).filter((i) => i.rows.length);
     return d`${this._sheetHead("Waiting for a parent", t.length ? "Each one waits here and on a parent’s phone until it is answered." : "", "bell")}
       <div class="waitlist">${e.map((i) => d`<section class="waitgrp" data-kind=${i.k} aria-label=${i.title}>
-        <div class="wgh"><span class="wgi" aria-hidden="true">${K(i.ic, 20)}</span><span class="wgt"><b>${i.title}</b><span>${i.say}</span></span></div>
+        <div class="wgh"><span class="wgi" aria-hidden="true">${U(i.ic, 20)}</span><span class="wgt"><b>${i.title}</b><span>${i.say}</span></span></div>
         ${i.rows.map((s) => d`<div class="waitrow" data-ask=${s.id}>
           ${this._faceOf(s.who, s.kid, 44)}
           <span class="wt"><b>${s.who}</b><span>${s.k === "chat" ? s.name : s.k === "job" ? d`says “${s.name}” is done<i class="wpts">${s.cost} points</i>` : d`would like “${s.name}”<i class="wpts">${s.cost} points</i>`}</span></span>
@@ -19920,7 +19924,7 @@ const Cv = (a, t) => {
             <button class="pill tap primary" data-act="dn-save" style="height:48px;padding:0 22px" ?disabled=${t.busy} @click=${() => void this._dinnerSave()}>${Si(t.text) ? "Save" : this._dinners[t.day] ? "Clear it" : "Save"}</button></div></div>` : d`<div class="dinlist" style="display:flex;flex-direction:column;gap:6px">${i.map((n, l) => {
       const p = ws(n), h = this._dinners[p]?.text;
       return d`<button class="setrow tap" data-day=${p} style="text-align:left;width:100%;min-height:52px" @click=${() => this._dinnerEdit(p)}>
-            <span class="setlabel"><b>${s(n, l)}</b><span class=${h ? "" : "muted"} data-dinner>${h ?? "Not set"}</span></span>${K("pencil", 20)}</button>`;
+            <span class="setlabel"><b>${s(n, l)}</b><span class=${h ? "" : "muted"} data-dinner>${h ?? "Not set"}</span></span>${U("pencil", 20)}</button>`;
     })}</div>`}`;
   }
   async _leaveNote(t) {
@@ -20047,7 +20051,7 @@ const Cv = (a, t) => {
   _houseLine() {
     if (ut() || eg() < Lp) return null;
     const t = new Date(tg()), e = lt(t, /* @__PURE__ */ new Date()) ? ot(t) : `${ki(t)} ${ot(t)}`;
-    return d`<div class="capsule" aria-live="polite"><button class="cap tap house" data-kind="house" data-p="0" @click=${() => this._say(sg, 9e3)}>${K("alert", 20)}<span>${ig(e)}</span></button></div>`;
+    return d`<div class="capsule" aria-live="polite"><button class="cap tap house" data-kind="house" data-p="0" @click=${() => this._say(sg, 9e3)}>${U("alert", 20)}<span>${ig(e)}</span></button></div>`;
   }
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   _artBlocked() {
@@ -20250,40 +20254,42 @@ const Cv = (a, t) => {
       const i = e.querySelector(".evs");
       if (!i) return;
       const s = [...i.querySelectorAll(":scope > .ev")];
-      for (const k of s) k.style.display = "";
+      for (const b of s) b.style.display = "";
       e.removeAttribute("data-tight"), e.removeAttribute("data-wrap");
-      const o = _t._pen ??= document.createElement("canvas").getContext("2d");
-      if (o) for (const k of i.querySelectorAll(".ev .n")) {
-        k.removeAttribute("data-hy");
-        const b = getComputedStyle(k);
-        o.font = `${b.fontWeight} ${b.fontSize} ${b.fontFamily}`, k.toggleAttribute("data-hy", Math.max(0, ...(k.textContent ?? "").split(/[\s\u2011-]+/).map((x) => o.measureText(x).width)) > k.clientWidth);
+      const o = e.querySelector(".dayhead");
+      e.removeAttribute("data-bin"), o?.querySelector(".binmk") && o.scrollWidth > o.clientWidth + 1 && (e.setAttribute("data-bin", "small"), o.scrollWidth > o.clientWidth + 1 && e.setAttribute("data-bin", "none"));
+      const r = _t._pen ??= document.createElement("canvas").getContext("2d");
+      if (r) for (const b of i.querySelectorAll(".ev .n")) {
+        b.removeAttribute("data-hy");
+        const x = getComputedStyle(b);
+        r.font = `${x.fontWeight} ${x.fontSize} ${x.fontFamily}`, b.toggleAttribute("data-hy", Math.max(0, ...(b.textContent ?? "").split(/[\s\u2011-]+/).map((y) => r.measureText(y).width)) > b.clientWidth);
       }
-      const r = getComputedStyle(e), n = parseFloat(r.rowGap) || 0, l = parseFloat(getComputedStyle(i).rowGap) || 0, p = e.querySelector(".dayhead"), h = e.clientHeight - parseFloat(r.paddingTop) - parseFloat(r.paddingBottom) - (p ? p.offsetHeight + n : 0);
-      let c = s.map((k) => k.offsetHeight);
-      const f = s.map(() => !0), m = () => {
-        let k = 0, b = 0;
-        return f.forEach((x, y) => {
-          x && (k += c[y], b++);
-        }), k + Math.max(0, b - 1) * l;
+      const n = getComputedStyle(e), l = parseFloat(n.rowGap) || 0, p = parseFloat(getComputedStyle(i).rowGap) || 0, h = e.querySelector(".dayhead"), c = e.clientHeight - parseFloat(n.paddingTop) - parseFloat(n.paddingBottom) - (h ? h.offsetHeight + l : 0);
+      let f = s.map((b) => b.offsetHeight);
+      const m = s.map(() => !0), g = () => {
+        let b = 0, x = 0;
+        return m.forEach((y, K) => {
+          y && (b += f[K], x++);
+        }), b + Math.max(0, x - 1) * p;
       };
-      if (m() > h + 1)
-        e.setAttribute("data-tight", ""), c = s.map((k) => k.offsetHeight);
+      if (g() > c + 1)
+        e.setAttribute("data-tight", ""), f = s.map((b) => b.offsetHeight);
       else if (i.querySelector(".loc")) {
         e.setAttribute("data-wrap", "");
-        const k = c;
-        c = s.map((b) => b.offsetHeight), m() > h + 1 && (e.removeAttribute("data-wrap"), c = k);
+        const b = f;
+        f = s.map((x) => x.offsetHeight), g() > c + 1 && (e.removeAttribute("data-wrap"), f = b);
       }
-      if (m() > h + 1) {
-        const k = h - 30 - n;
-        for (let b = 0; b < s.length && m() > k + 1; b++) s[b].classList.contains("past") && (f[b] = !1);
-        for (let b = s.length - 1; b >= 0 && m() > k + 1; b--) f[b] = !1;
-        for (let b = s.length - 1; b >= 0; b--) f[b] || (f[b] = !0, m() > k + 1 && (f[b] = !1));
+      if (g() > c + 1) {
+        const b = c - 30 - l;
+        for (let x = 0; x < s.length && g() > b + 1; x++) s[x].classList.contains("past") && (m[x] = !1);
+        for (let x = s.length - 1; x >= 0 && g() > b + 1; x--) m[x] = !1;
+        for (let x = s.length - 1; x >= 0; x--) m[x] || (m[x] = !0, g() > b + 1 && (m[x] = !1));
       }
-      s.forEach((k, b) => {
-        k.style.display = f[b] ? "" : "none";
+      s.forEach((b, x) => {
+        b.style.display = m[x] ? "" : "none";
       });
-      const g = f.filter((k) => !k).length;
-      g && (t[i.dataset.day] = g);
+      const k = m.filter((b) => !b).length;
+      k && (t[i.dataset.day] = k);
     }), JSON.stringify(t) !== JSON.stringify(this._clip) && (this._clip = t, this.requestUpdate());
   }
   // ---------- data ----------
@@ -20500,10 +20506,10 @@ const Cv = (a, t) => {
 `).trim(), r = (n, l, p = "") => d`<div class="evrow ${p}"><span class="evic" aria-hidden="true">${n}</span><span class="evtx">${l}</span></div>`;
     return d`<div class="shead"><h2 class="t-head evtitle" id="evt">${e.title}</h2></div>
       <div class="evd" style="--c:${O(e.colour)}">
-        ${r(K("calendar", 22), Pi(i), "evday")}
-        ${r(K("timer", 22), d`${Hb(e)}${/^(Day|until|continues)/.test(s) ? d`<span class="muted evpart"> · ${s === "continues" ? "continues all day" : s.replace(/^Day/, "day")}</span>` : u}`, "evwhen")}
+        ${r(U("calendar", 22), Pi(i), "evday")}
+        ${r(U("timer", 22), d`${Hb(e)}${/^(Day|until|continues)/.test(s) ? d`<span class="muted evpart"> · ${s === "continues" ? "continues all day" : s.replace(/^Day/, "day")}</span>` : u}`, "evwhen")}
         ${r(this._chip(e.who, e.colour), e.who, "evwho2")}
-        ${e.location ? r(K("pin", 22), e.location, "evplace") : u}
+        ${e.location ? r(U("pin", 22), e.location, "evplace") : u}
         ${o ? d`<div class="evnotebox"><span class="label" id="evnl">Notes</span><p class="evnotes scrolly" aria-labelledby="evnl" tabindex="0" @scroll=${$t}>${o}</p></div>` : u}
       </div>
       ${this._evFoot(e)}`;
@@ -20528,10 +20534,10 @@ const Cv = (a, t) => {
         <button class="lead tap evgo" data-act="ev-del-all" ?disabled=${i} aria-busy=${String(i)} @click=${() => void this._deleteEvent("all")}>${i ? "Deleting…" : t.repeats ? "All of them" : "Delete"}</button></div>` : d`<div class="sfoot"><span class="muted">${!e.del && !e.edit ? "This calendar can only be changed in its own app." : t.repeats ? "This one repeats." : ""}</span>
         ${e.del ? d`<button class="pill tap evdel" data-act="ev-delete" @click=${() => this._evGuard("Delete this event?", () => {
       this._evAsk = "delete";
-    })}>${K("bin", 20)}Delete</button>` : u}
+    })}>${U("bin", 20)}Delete</button>` : u}
         ${e.edit ? d`<button class="pill tap" data-act="ev-edit" @click=${() => this._evGuard("Change this event?", () => {
       s ? this._evAsk = "edit" : o("");
-    })}>${K("pencil", 20)}Change</button>` : u}
+    })}>${U("pencil", 20)}Change</button>` : u}
         <button class="lead tap" data-act="ev-close" @click=${() => {
       this._sheet = "";
     }}>Close</button></div>`;
@@ -20963,7 +20969,7 @@ const Cv = (a, t) => {
   // ---------- render ----------
   render() {
     if (!this._config) return u;
-    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = va(t?.theme ?? this._theme), i = St(this._lk), s = this._darkNow, o = i.themed ? `${Gs(e, s, this._photo)};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", l = this._kp, p = this._page === "music" && this._musicKid ? this._config.kids?.find((v) => v.name === this._musicKid) : void 0, h = this._config.calm === !0 || (l ? l.calm : p ? Hr(p).calm : !1), c = this._now.getHours(), f = this._darkNow ? "transparent" : c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [g, k] = Ye(this, "sheet", this._sheet), [b, x] = Ye(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [y, U] = Ye(this, "art", this._art.on, 250);
+    const t = this._page === "kid" ? this._config.kids?.[this._kid] : void 0, e = va(t?.theme ?? this._theme), i = St(this._lk), s = this._darkNow, o = i.themed ? `${Gs(e, s, this._photo)};` : "", r = this._now.getHours(), n = r >= 21 || r < 6 ? "night" : r >= 18 ? "eve" : "day", l = this._kp, p = this._page === "music" && this._musicKid ? this._config.kids?.find((v) => v.name === this._musicKid) : void 0, h = this._config.calm === !0 || (l ? l.calm : p ? Hr(p).calm : !1), c = this._now.getHours(), f = this._darkNow ? "transparent" : c < 5 || c >= 21 ? "rgba(10,20,60,.28)" : c < 7 ? "rgba(255,170,150,.16)" : c >= 17 && c < 19 ? "rgba(255,150,60,.14)" : c >= 19 ? "rgba(30,40,110,.2)" : "transparent", m = /rain|pour|storm|lightning/.test(this.hass?.states[this._config.weather ?? ""]?.state ?? ""), [g, k] = Ye(this, "sheet", this._sheet), [b, x] = Ye(this, "toast", this._toast ? { msg: this._toast, act: this._toastAct } : null), [y, K] = Ye(this, "art", this._art.on, 250);
     return d`
       <div lang="en-AU" class="fh ${this._idle ? "idle" : ""} ${m ? "rainy" : ""}" data-tod=${n} data-dow=${this._now.getDay()} ?data-calm=${h} ?data-compact=${this._compact} ?data-dark=${s} ?data-dkfade=${this._dkFade} style=${`${o}--tod:${f};--z:${this._z};--top:${this._top}px;--bot:${this._bot}px`}>
         ${this._config.ambient === !1 || this._photo ? u : d`<fh-ambient .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${h} .hold=${!!(g || this._alarm)} .demo=${this._config.ambient_demo ?? ""} ?dark=${s}></fh-ambient><fh-ambient front ?dark=${s} .look=${this._lk} .theme=${e.id} .tod=${n} .calm=${h} .hold=${!!(g || this._alarm)} .demo=${this._config.ambient_demo ?? ""}></fh-ambient>`}
@@ -20978,7 +20984,7 @@ const Cv = (a, t) => {
       const v = this._toastAct;
       this._toast = "", this._toastAct = null, clearTimeout(this._toastTimer), S("undo"), v?.run();
     }}>${b.act.label}</button>` : u}</div>` : u}</div>
-        ${y ? this._artView(U, h, e.id, n) : u}
+        ${y ? this._artView(K, h, e.id, n) : u}
         ${this._alarm ? this._alarmView() : u}
         ${this._pinAsk ? d`<fh-pin .pin=${String(this._config.parent_pin ?? "")} reason=${this._pinAsk.reason} @ok=${() => {
       const v = this._pinAsk.run;
@@ -21052,7 +21058,7 @@ const Cv = (a, t) => {
       const f = Math.floor(s / 6e4), m = Math.floor(s % 6e4 / 1e3);
       i.push([s < 6e4 ? 1 : 2.2, d`<button class="cap tap ${s < 6e4 ? "hot" : ""}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${f} minutes ${m} seconds left" @click=${() => {
         this._sheet = "timer";
-      }}>${K("timer", 20)}<b>${f}:${String(m).padStart(2, "0")}</b></button>`]);
+      }}>${U("timer", 20)}<b>${f}:${String(m).padStart(2, "0")}</b></button>`]);
     }
     const o = Pr(this.hass);
     o && !o.alarm && i.push([4, d`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${o.t}</span></span>`]);
@@ -21061,17 +21067,17 @@ const Cv = (a, t) => {
         this._sheet = "meds", this._loadMedLog();
       };
       if (m.length && Date.now() >= this._medLater) {
-        const x = m.some((v) => v.s.late && !v.s.stale), y = g ? "overdue" : "due", U = x ? 0 : g ? 1.5 : 2;
-        i.push([U, d`<button class="cap tap ${x ? "hot" : ""}" ?data-warm=${g && !x} data-kind="med" data-p=${x ? 0 : 2} aria-label=${`Medicine: ${m.length} ${y}`} @click=${b}>${Te("pill", 22)}<span style="white-space:nowrap">${m.length} ${y}</span></button>`]);
-      } else !m.length && k.length && this._now.getHours() < 12 && i.push([5, d`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${k.length === 1 ? ` at ${ot(k[0].s.given)}` : `: ${k.length}`}`} @click=${b}>${Te("pill", 22)}${K("check", 18)}<span>${k.length === 1 ? ot(k[0].s.given) : `${k.length} given`}</span></button>`]);
+        const x = m.some((v) => v.s.late && !v.s.stale), y = g ? "overdue" : "due", K = x ? 0 : g ? 1.5 : 2;
+        i.push([K, d`<button class="cap tap ${x ? "hot" : ""}" ?data-warm=${g && !x} data-kind="med" data-p=${x ? 0 : 2} aria-label=${`Medicine: ${m.length} ${y}`} @click=${b}>${Te("pill", 22)}<span style="white-space:nowrap">${m.length} ${y}</span></button>`]);
+      } else !m.length && k.length && this._now.getHours() < 12 && i.push([5, d`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${k.length === 1 ? ` at ${ot(k[0].s.given)}` : `: ${k.length}`}`} @click=${b}>${Te("pill", 22)}${U("check", 18)}<span>${k.length === 1 ? ot(k[0].s.given) : `${k.length} given`}</span></button>`]);
     }
     if (this._page !== "kid") for (const f of this._wantsChat) i.push([0.5, d`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${f} would like a chat. Tap to dismiss`} @click=${() => {
       this._wantsChat = this._wantsChat.filter((m) => m !== f);
-    }}>${K("ask", 20)}<span>${f} would like a chat</span></button>`]);
+    }}>${U("ask", 20)}<span>${f} would like a chat</span></button>`]);
     const r = this._bins(this._now);
     if (r && lt(r.night, this._now) && r.bins.length) {
       const f = this._now.getHours() >= 16 ? 2.5 : 5;
-      i.push([f, d`<span class="cap" data-kind="bin" data-p=${f >= 3 ? 5 : 3} role="img" aria-label=${`Bin night: ${r.bins.join(" and ")} bins go out tonight`}>${K("bin", 20)}<span>Bins tonight</span>${this._binDots(r.bins)}<span>${r.bins.join(" + ")}</span></span>`]);
+      i.push([f, d`<span class="cap" data-kind="bin" data-p=${f >= 3 ? 5 : 3} role="img" aria-label=${`Bin night: ${r.bins.join(" and ")} bins go out tonight`}>${U("bin", 20)}<span>Bins tonight</span>${this._binDots(r.bins)}<span>${r.bins.join(" + ")}</span></span>`]);
     }
     const n = Date.now(), l = this._soon.find((f) => !f.allDay && f.start.getTime() > n && f.start.getTime() - n < 12 * 36e5 && !this._private(f.title));
     if (l) {
@@ -21081,7 +21087,7 @@ const Cv = (a, t) => {
     const p = e.music_player ? this.hass?.states[e.music_player] : void 0;
     p?.state === "playing" && this._page !== "music" && this._page !== "planner" && i.push([6, d`<button class="cap tap" data-kind="music" data-p="6" aria-label=${`Playing: ${p.attributes.media_title ?? "music"}. Open Music`} @click=${() => {
       this._page = "music";
-    }}>${K("music", 20)}<span class="ell">${p.attributes.media_title ?? "Playing"}</span></button>`]);
+    }}>${U("music", 20)}<span class="ell">${p.attributes.media_title ?? "Playing"}</span></button>`]);
     const h = i.find((f) => f[0] === 3), c = i.filter((f) => f[0] !== 3).sort((f, m) => f[0] - m[0])[0];
     return d`<div class="capsule" aria-live="polite">${[c, h].filter((f) => !!f).map((f) => f[1])}</div>`;
   }
@@ -21092,7 +21098,7 @@ const Cv = (a, t) => {
     const i = Date.now(), s = [], o = this._timerLeft();
     o !== null && o < 6e4 && s.push(d`<button class="cap tap hot" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${Math.floor(o / 1e3)} seconds left" @click=${() => {
       this._sheet = "timer";
-    }}>${K("timer", 20)}<b>0:${String(Math.floor(o / 1e3)).padStart(2, "0")}</b></button>`);
+    }}>${U("timer", 20)}<b>0:${String(Math.floor(o / 1e3)).padStart(2, "0")}</b></button>`);
     const r = t.name.toLowerCase(), n = this._soon.find((l) => !l.allDay && l.start.getTime() > i && l.start.getTime() - i < 12 * 36e5 && !this._private(l.title) && (l.who === t.name || l.title.toLowerCase().includes(r)));
     if (n) {
       const l = Math.round((n.start.getTime() - i) / 6e4), p = l < 60 ? `in ${l} min` : `${lt(n.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${ot(n.start)}`;
@@ -21121,14 +21127,14 @@ const Cv = (a, t) => {
                 <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${R0[o.state] ?? (["unavailable", "unknown", ""].includes(o.state) ? "No weather" : o.state)}${n.rain ? ` · ${n.rain} mm` : ""}</span>
               </span>
               ${he(this._lk, "wx", { wx: { state: o.state, uv: n.uv, rain: n.rain, max: n.max } })}
-              ${(n.uv ?? 0) >= 3 ? d`<span class="badge" title="UV ${n.uv}">${K("sun", 14)}UV ${Math.round(n.uv)}</span>` : u}
-              ${(n.max ?? 0) >= 35 ? d`<span class="badge hot">${K("thermo", 14)}Hot</span>` : u}
+              ${(n.uv ?? 0) >= 3 ? d`<span class="badge" title="UV ${n.uv}">${U("sun", 14)}UV ${Math.round(n.uv)}</span>` : u}
+              ${(n.max ?? 0) >= 35 ? d`<span class="badge hot">${U("thermo", 14)}Hot</span>` : u}
             </button>` : u}
-          ${this._waiting.length && !this._kidOn ? d`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${K("bell")}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : u}
+          ${this._waiting.length && !this._kidOn ? d`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${U("bell")}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : u}
           ${t.chat?.agent && !(this._kidOn && No(t.kids) && pa(this._kidOn).mode === "off") ? d`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${Te("ask", 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : u}
-          ${l ? d`<button class="glass tap round hb" data-act="looks" aria-label=${`${l.name}’s settings`} @click=${() => this._openLooks()}>${K("cog")}<span class="rl" aria-hidden="true">Settings</span></button>` : d`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${t.meds?.length || t.med_log ? "medicine, " : ""}house info, night${p.length ? " and who is home" : ""}" aria-haspopup="dialog" @click=${() => {
+          ${l ? d`<button class="glass tap round hb" data-act="looks" aria-label=${`${l.name}’s settings`} @click=${() => this._openLooks()}>${U("cog")}<span class="rl" aria-hidden="true">Settings</span></button>` : d`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${t.meds?.length || t.med_log ? "medicine, " : ""}house info, night${p.length ? " and who is home" : ""}" aria-haspopup="dialog" @click=${() => {
       this._sheet = "more";
-    }}>${K("more")}<span class="rl" aria-hidden="true">More</span></button>`}
+    }}>${U("more")}<span class="rl" aria-hidden="true">More</span></button>`}
         </div>
       </header>`;
   }
@@ -21143,14 +21149,14 @@ const Cv = (a, t) => {
             <h1 class="t-title">${s[0]}</h1>
             <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${s[1]}</span>
           </div>
-          <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${K("left", 20)}</button>
-          <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${K("right", 20)}</button>
+          <button class="round tap" aria-label="Previous" @click=${() => this._shift(-1)}>${U("left", 20)}</button>
+          <button class="round tap" aria-label="Next" @click=${() => this._shift(1)}>${U("right", 20)}</button>
           <button class="pill tap" @click=${() => {
       this._anchor = /* @__PURE__ */ new Date();
     }}>Today</button>
           ${o.length ? d`<button class="tap lead" data-act="add" @click=${() => {
       this._editEv = null, this._sheet = "add";
-    }}>${K("plus", 22)}Add</button>` : u}
+    }}>${U("plus", 22)}Add</button>` : u}
           <span style="flex:1"></span>
           <div class="seg" role="group" aria-label="View">
             ${["day", "week", "month"].map((r) => d`<button class="tap" aria-pressed=${String(t === r)} @click=${() => {
@@ -21162,10 +21168,10 @@ const Cv = (a, t) => {
       const n = r.name ?? this.hass?.states[r.entity]?.attributes.friendly_name ?? r.entity;
       return d`<span style="display:flex;align-items:center;gap:6px">${this._chip(n, r.colour)}${n}</span>`;
     })}${this._calNote()}</div>` : u}
-        ${o.length ? this._calError ? d`<div class="empty calfail" role="alert"><span class="pic">${K("calendar", 44)}</span><h2 class="t-sub">Can’t reach the calendars.</h2>
+        ${o.length ? this._calError ? d`<div class="empty calfail" role="alert"><span class="pic">${U("calendar", 44)}</span><h2 class="t-sub">Can’t reach the calendars.</h2>
             <button class="pill tap" style="height:52px;padding:0 24px;font-size:var(--fs-3)" @click=${() => {
       this._fetchedKey = "", this._refresh(), this._loadSoon();
-    }}>Try again</button></div>` : t === "week" ? this._week(e) : t === "day" ? this._day(e) : this._month() : d`<div class="empty"><span style="color:var(--accent)">${K("calendar", 40)}</span><h2 class="t-sub">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
+    }}>Try again</button></div>` : t === "week" ? this._week(e) : t === "day" ? this._day(e) : this._month() : d`<div class="empty"><span style="color:var(--accent)">${U("calendar", 40)}</span><h2 class="t-sub">Connect your calendars</h2><span>Add Google Calendar in Home Assistant, then list the calendars in this card's settings.</span></div>`}
       </section>`;
   }
   /** The planner's quiet word on how fresh the calendars are, or the plain warning when one has stopped answering. No warning at night: nobody can act on it then. */
@@ -21173,7 +21179,7 @@ const Cv = (a, t) => {
     const t = this._config.calendars ?? [];
     if (!t.length || this._calError || !ut()) return u;
     const e = rk(this.hass, t, this._calSeen, this._calSince, Date.now(), this._config.health?.calendar_minutes ?? 30), i = this._isNight() ? "" : lk(e);
-    return i ? d`<span class="calnote" data-warn role="status">${K("alert", 18)}<span>${i}</span><button class="pill tap" data-act="cal-retry" @click=${() => {
+    return i ? d`<span class="calnote" data-warn role="status">${U("alert", 18)}<span>${i}</span><button class="pill tap" data-act="cal-retry" @click=${() => {
       this._fetchedKey = "", this._refresh(), this._loadSoon();
     }}>Try again</button></span>` : e.age === null ? u : d`<span class="calnote" data-act="cal-age">Updated ${xd(e.age)}</span>`;
   }
@@ -21196,11 +21202,11 @@ const Cv = (a, t) => {
   }
   _evCard(t, e) {
     const i = Se(t, e).label;
-    return this._private(t.title) ? d`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${t.allDay ? "" : i}</span>${K("lock", 16)}</div>` : d`<button class="ev tap ${this._evState(t)}" style="--c:${O(t.colour)}" aria-label=${this._evName(t, e)} @click=${() => this._openEvent(t, e)}>
+    return this._private(t.title) ? d`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${t.allDay ? "" : i}</span>${U("lock", 16)}</div>` : d`<button class="ev tap ${this._evState(t)}" style="--c:${O(t.colour)}" aria-label=${this._evName(t, e)} @click=${() => this._openEvent(t, e)}>
       <span class="t">${i}</span>
       <span class="n content">${t.title.replace(/(\S)-(\S)/g, "$1‑$2")}</span>
       <span class="w">${t.who}</span>
-      ${t.location ? d`<span class="loc">${K("pin", 14)}<span class="ell">${t.location}</span></span>` : u}
+      ${t.location ? d`<span class="loc">${U("pin", 14)}<span class="ell">${t.location}</span></span>` : u}
     </button>`;
   }
   _week(t) {
@@ -21209,23 +21215,23 @@ const Cv = (a, t) => {
       ${i.map((n) => {
       const l = this._eventsOn(n), p = lt(n, e), h = l.filter((b) => !this._private(b.title)), c = l.filter((b) => this._private(b.title)), f = pe(n), m = this._clip[f] ?? 0, g = this._bins(n), k = !!g && lt(g.night, n) && g.bins.length > 0;
       return d`<div class="col ${p ? "today" : ""}">
-          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${ki(n)}</span><span class="num">${n.getDate()}</span>${he(this._lk, "day", { now: n, arcs: this._arcs(h) })}${c.length ? d`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${K("lock", 15)}</span>` : u}${k ? d`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${g.bins.join(" and ")} bin${g.bins.length > 1 ? "s go" : " goes"} out`} title="Bin night">${K("bin", 16)}${this._binDots(g.bins)}</span>` : u}</div>
+          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${ki(n)}</span><span class="num">${n.getDate()}</span>${he(this._lk, "day", { now: n, arcs: this._arcs(h) })}${c.length ? d`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${U("lock", 15)}</span>` : u}${k ? d`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${g.bins.join(" and ")} bin${g.bins.length > 1 ? "s go" : " goes"} out`} title="Bin night">${U("bin", 16)}${this._binDots(g.bins)}</span>` : u}</div>
           <div class="evs" data-day=${f}>${h.map((b) => this._evCard(b, n))}</div>
           ${m ? d`<button class="more tap" aria-label="${m} more on ${Pi(n)}. Open the day" @click=${() => {
         this._anchor = n, this._view = "day";
-      }}><span class="mpill">+${m} more${K("right", 16)}</span></button>` : u}
+      }}><span class="mpill">+${m} more${U("right", 16)}</span></button>` : u}
         </div>`;
     })}
     </div>${r ? d`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : u}</div>`;
   }
   _day(t) {
     const e = this._eventsOn(t), i = lt(t, /* @__PURE__ */ new Date()), s = d`<div class="daylist scrolly" data-fits @scroll=${$t}>
-      ${e.length ? e.map((r) => this._private(r.title) ? d`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${Se(r, t).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${K("lock", 18)}Private</span></div>` : d`
+      ${e.length ? e.map((r) => this._private(r.title) ? d`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${Se(r, t).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${U("lock", 18)}Private</span></div>` : d`
         <button class="dayrow tap ${this._evState(r)}" style="--c:${O(r.colour)}" aria-label=${this._evName(r, t)} @click=${() => this._openEvent(r, t)}>
           <span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-bold, 700)" class="muted dwhen">${Se(r, t).label}</span>
           <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:var(--fs-4);font-weight:var(--w-bold, 700)">${r.title}</span>
           <span class="muted evwho" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);display:flex;align-items:center;gap:6px">${this._chip(r.who, r.colour, !0)}${r.who}</span>
-          ${r.location ? d`<span class="muted loc">${K("pin", 16)}<span class="ell">${r.location}</span></span>` : u}</span>
+          ${r.location ? d`<span class="muted loc">${U("pin", 16)}<span class="ell">${r.location}</span></span>` : u}</span>
         </button>`) : this._evKey !== this._fetchedKey ? u : d`<div class="empty freeday"><span class="pic">${Ov}</span><h2 class="t-sub">Nothing on.</h2><span style="font-size:var(--fs-3)">A free day!</span></div>`}
     </div>`, o = he(this._lk, "dayview", { arcs: this._arcs(e), now: i ? this._now : void 0, size: 340 });
     return o === u ? s : d`<div class="dayview"><div class="dayart">${o}</div>${s}</div>`;
@@ -21286,7 +21292,7 @@ const Cv = (a, t) => {
         ${M0(this.hass, Qt(t)) ? d`<button class="rem tap dinline" data-act="dinner" aria-label=${this._dinnerTonight ? `Dinner tonight: ${this._dinnerTonight}. Tap for the week` : "No dinner set for tonight. Tap to plan the week"} @click=${() => {
       this._dn = { ...this._dn, day: "", ok: !1 }, this._sheet = "dinner";
     }}>
-          <span class="dinmark" aria-hidden="true">${Iv}</span><span class="content">${this._dinnerTonight ? d`Dinner: <b>${this._dinnerTonight}</b>` : d`<span class="muted">Dinner tonight?</span>`}</span><span class="dingo" aria-hidden="true">${K("right", 18)}</span></button>` : u}
+          <span class="dinmark" aria-hidden="true">${Iv}</span><span class="content">${this._dinnerTonight ? d`Dinner: <b>${this._dinnerTonight}</b>` : d`<span class="muted">Dinner tonight?</span>`}</span><span class="dingo" aria-hidden="true">${U("right", 18)}</span></button>` : u}
         ${this._remState !== "ok" ? d`<span class="muted remfail" role="alert" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);line-height:1.3">${this._remState === "missing" ? "The reminders list is not in Home Assistant. Check the card settings." : "Can’t load the reminders."}</span>
           ${this._remState === "failed" ? d`<button class="pill tap" style="align-self:flex-start" @click=${() => {
       this._loadReminders();
@@ -21383,14 +21389,14 @@ const Cv = (a, t) => {
   _dinnerView() {
     const t = Math.max(1, Math.ceil(((this._dinner?.at ?? 0) - Date.now()) / 1e3));
     return d`<div class="scrim"><section class="glass sheet" data-w="s" style="width:min(520px,100%);align-items:center;text-align:center" role="alertdialog" aria-modal="true" aria-label="Calling dinner">
-      <span style="color:var(--accent);line-height:0">${K("megaphone", 56)}</span><h2 class="t-head">Calling everyone in ${t}…</h2>
+      <span style="color:var(--accent);line-height:0">${U("megaphone", 56)}</span><h2 class="t-head">Calling everyone in ${t}…</h2>
       <span class="muted">${So(this._now, "19:30", "07:00") ? "Quiet hours: kitchen and lounge only" : "Lounge, kitchen and bedrooms"}</span>
       <button class="pill tap" style="height:60px;padding:0 28px;font-size:var(--fs-3)" @click=${() => this._dinnerCancel()}>Cancel</button></section></div>`;
   }
   _offView() {
     const t = Math.max(1, Math.ceil(((this._off?.at ?? 0) - Date.now()) / 1e3));
     return d`<div class="scrim"><section class="glass sheet" data-w="s" data-offwait style="width:min(520px,100%);align-items:center;text-align:center" role="alertdialog" aria-modal="true" aria-label="Turning the lights off">
-      <span style="color:var(--accent);line-height:0">${K("bulbOff", 56)}</span><h2 class="t-head">Lights off in ${t}…</h2>
+      <span style="color:var(--accent);line-height:0">${U("bulbOff", 56)}</span><h2 class="t-head">Lights off in ${t}…</h2>
       <span class="muted">Every light in the house${(this._config.keep_on ?? []).length ? ", except the ones kept on" : ""}</span>
       <button class="pill tap" style="height:60px;padding:0 28px;font-size:var(--fs-3)" @click=${() => this._offCancel()}>Cancel</button></section></div>`;
   }
@@ -21398,7 +21404,7 @@ const Cv = (a, t) => {
     return d`<button class="alarm" @click=${() => {
       this._alarm = 0, this._call("input_text", "set_value", { entity_id: "input_text.fh_panel_message", value: "" });
     }}>
-      <span style="line-height:0">${K("timer", 96)}</span><span class="display" style="font-size:var(--fs-d3);font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${Pr(this.hass)?.t || "Timer’s done!"}</span><span style="font-size:var(--fs-4);font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
+      <span style="line-height:0">${U("timer", 96)}</span><span class="display" style="font-size:var(--fs-d3);font-weight:var(--w-heavy, 800);text-align:center;padding:0 40px">${Pr(this.hass)?.t || "Timer’s done!"}</span><span style="font-size:var(--fs-4);font-weight:var(--w-semi, 600)">Tap to stop</span></button>`;
   }
   /** Settings is for parents: the PIN is asked every time, except within a minute of the last time it was given for Settings. With no PIN yet, Settings opens on its first step: setting one. */
   _openSettings() {
@@ -21436,7 +21442,7 @@ const Cv = (a, t) => {
         };
         S("tap"), this._config.parent_pin ? this._pinAsk = { reason: "Ask as a parent?", run: g, sheet: "chat" } : g();
       }}>
-            <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${K("lock", 40)}</span><span class="wn">A parent</span></button>
+            <span class="avatar" style="width:104px;height:104px;background:var(--chip-strong);color:var(--ink)">${U("lock", 40)}</span><span class="wn">A parent</span></button>
         </div>` : u;
       return d`<div class="scrim" ?data-closing=${e} @click=${(g) => {
         g.target === g.currentTarget && i();
@@ -21474,15 +21480,15 @@ const Cv = (a, t) => {
     })}
       </div>
       ${i.length ? d`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
-        <span class="phome" aria-hidden="true">${K("home", 18)}</span>${i.map((o) => this._face(o, e?.states[o.entity]?.state === "home"))}<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : u}`;
+        <span class="phome" aria-hidden="true">${U("home", 18)}</span>${i.map((o) => this._face(o, e?.states[o.entity]?.state === "home"))}<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : u}`;
   }
   _sheetHead(t, e = "", i = "", s = u) {
     return d`<div class="shead">
-      <div style="flex:1;min-width:0"><h2 class="t-head">${i ? d`<span style="color:var(--accent);line-height:0">${K(i, 26)}</span>` : u}${t}</h2>${e ? d`<span class="muted">${e}</span>` : u}</div>
+      <div style="flex:1;min-width:0"><h2 class="t-head">${i ? d`<span style="color:var(--accent);line-height:0">${U(i, 26)}</span>` : u}${t}</h2>${e ? d`<span class="muted">${e}</span>` : u}</div>
       ${s}
       <button class="round tap xbtn" aria-label="Close" @click=${() => {
       this._sheet = "";
-    }}>${K("close", 20)}</button></div>`;
+    }}>${U("close", 20)}</button></div>`;
   }
   _themeBody() {
     return d`${this._sheetHead("Pick a look", "Changes the whole panel.", "palette")}
@@ -21510,7 +21516,7 @@ const Cv = (a, t) => {
         ${St(this._look).themed ? d`<button class="pill tap" style="height:52px;padding:0 22px;font-size:var(--fs-3)" @click=${() => {
       const t = Ea.filter((e) => e.id !== this._theme);
       this._setTheme(t[Math.floor(Math.random() * t.length)].id);
-    }}>${K("shuffle", 20)}Surprise me</button>` : d`<span></span>`}
+    }}>${U("shuffle", 20)}Surprise me</button>` : d`<span></span>`}
         <span class="muted" style="font-size:var(--fs-1)">Family Hub v${Rd}</span>
       </div>`;
   }
@@ -21539,7 +21545,7 @@ const Cv = (a, t) => {
     return d`${this._sheetHead(`${t.name}’s settings`, `Only for ${t.name}’s page.`, "", r)}
       <div class="themes kidlooks">
         ${o.map(([n, l, p]) => d`<button class="tcard tap" aria-pressed=${String(e.look === n)} @click=${() => this._setKidPref({ look: n })}>
-          ${n === "panel" ? d`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${K("home", 30)}</span>` : oh(St(n), 84, Gs(va(this._theme), this._dk), this._dk && Li(va(this._theme)))}
+          ${n === "panel" ? d`<span class="tprev" style="height:84px;background:var(--chip);align-items:center;justify-content:center">${U("home", 30)}</span>` : oh(St(n), 84, Gs(va(this._theme), this._dk), this._dk && Li(va(this._theme)))}
           <span style="font-size:var(--fs-3);font-weight:var(--w-bold, 700)">${l}</span><span class="muted" style="font-size:var(--fs-1)">${p}</span></button>`)}
       </div>
       ${s ? this._optRow(s, e.font === "hand", () => this._setKidPref({ font: e.font === "hand" ? "print" : "hand" })) : u}
@@ -21559,9 +21565,9 @@ const Cv = (a, t) => {
       const y = Math.max(0, Math.round((r.getTime() - x.getTime()) / 6e4));
       return y < 60 ? `${y} min ago` : y < 2880 ? `${Math.floor(y / 60)} h ${y % 60} min ago` : "";
     }, c = (x) => {
-      const [y, U] = x.split(":").map(Number);
-      return `${y % 12 || 12}:${String(U).padStart(2, "0")} ${y < 12 ? "am" : "pm"}`;
-    }, f = (x, y, U) => d`<button class="tap mchip" aria-pressed=${String(x)} @click=${U}>${y}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), g = (t.meds ?? []).some((x) => {
+      const [y, K] = x.split(":").map(Number);
+      return `${y % 12 || 12}:${String(K).padStart(2, "0")} ${y < 12 ? "am" : "pm"}`;
+    }, f = (x, y, K) => d`<button class="tap mchip" aria-pressed=${String(x)} @click=${K}>${y}</button>`, m = !(t.med_log && this.hass?.states[t.med_log]), g = (t.meds ?? []).some((x) => {
       const y = this._medStatus(x.id, x.time);
       return y.due && !y.missing;
     }), k = Date.now() < this._medLater, b = g ? k ? d`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${`The reminder is put away until ${ot(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${ot(new Date(this._medLater))} · </span>show now</span></button>` : d`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard("Remind us about the medicine later?", () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>` : u;
@@ -21572,27 +21578,27 @@ const Cv = (a, t) => {
           ${(t.meds ?? []).map((x) => {
       const y = this._medStatus(x.id, x.time);
       return d`<div class="card" style="background:var(--chip);border-radius:18px;gap:8px">
-              <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${K("pill", 24)}</span>
+              <div style="display:flex;align-items:center;gap:10px"><span style="line-height:0;color:var(--ink2)">${U("pill", 24)}</span>
                 <span style="flex:1;display:flex;flex-direction:column;min-width:0"><b style="font-size:var(--fs-3)">${x.who ? `${x.who} – ` : ""}${x.label}</b><span class="muted">Due ${c(x.time)}</span></span>
                 ${this._medBusy === x.id ? d`<b style="font-size:var(--fs-2);color:var(--ink2)" role="status" data-saving>Saving… · ${this._medBy}</b>` : d`<b class="mstate" ?data-late=${!y.given && !y.missing && !!y.late} style="font-size:var(--fs-2);color:${y.given ? "var(--ok)" : y.late ? "var(--danger, #dc2626)" : "var(--ink2)"}">${y.given ? `✓ ${ot(y.given)}${y.by ? ` · ${y.by}` : ""}` : y.missing ? "Not set up" : y.late ? "Overdue" : "Not yet"}</b>`}</div>
-              ${y.missing ? d`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A parent can finish setting it up in Settings, under Medicines.</span>` : y.given && this._medBusy !== x.id ? u : d`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((U) => d`<button class="pill tap ${y.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:var(--fs-2)" ?disabled=${this._medBusy === x.id} @click=${() => this._medGuard("Record this medicine?", () => {
-        this._giveMed(x.id, U);
-      })}>Given by ${U}</button>`)}</div>`}
+              ${y.missing ? d`<span class="muted" role="note">Not set up yet, so it cannot be recorded here. A parent can finish setting it up in Settings, under Medicines.</span>` : y.given && this._medBusy !== x.id ? u : d`<div style="display:flex;gap:8px;flex-wrap:wrap">${e.map((K) => d`<button class="pill tap ${y.late ? "primary" : "ghost"}" data-act="given" style="height:52px;padding:0 18px;font-size:var(--fs-2)" ?disabled=${this._medBusy === x.id} @click=${() => this._medGuard("Record this medicine?", () => {
+        this._giveMed(x.id, K);
+      })}>Given by ${K}</button>`)}</div>`}
             </div>`;
     })}
           <span class="label">${m ? "Kept on this screen only" : "Given in the last two days"}</span>
           ${p.length ? p.map((x) => d`<div class="irow" data-at=${x.at.toISOString()}><span style="min-width:0"><b>${x.who}</b> · ${x.what}<br><small class="muted">${x.at.toLocaleDateString("en-AU", { weekday: "short" })} ${ot(x.at)}${x.by ? ` · ${x.by}` : ""} · ${h(x.at)}</small></span>
             <button class="tap" style="width:44px;height:44px;border-radius:50%;flex-shrink:0" aria-label=${`Remove ${x.what} for ${x.who} from the record`} @click=${() => this._medGuard("Remove this from the record?", () => {
       this._unlogMed(x);
-    })}>${K("close", 16)}</button></div>`) : d`<span class="iline muted">Nothing else has been given.</span>`}
+    })}>${U("close", 16)}</button></div>`) : d`<span class="iline muted">Nothing else has been given.</span>`}
         </div>
         <div class="icol">
           <span class="label">Something else given</span>
           <div class="mrow">${o.map((x) => f(s.what === x, x, () => n({ what: x })))}${f(s.what === "other", "Other…", () => n({ what: "other" }))}</div>
           ${s.what === "other" ? d`<input class="field" style="height:48px;font-size:var(--fs-3)" inputmode="none" aria-label="Which medicine" placeholder="Which medicine?" .value=${s.other} @input=${(x) => n({ other: x.target.value })}>
             ${Oe((x) => {
-      const [y, U] = we(s.other, x, s.caps);
-      n({ other: y, caps: U });
+      const [y, K] = we(s.other, x, s.caps);
+      n({ other: y, caps: K });
     }, s.caps, () => n({ caps: !s.caps }), !0)}` : u}
           <span class="label">For</span>
           <div class="mrow">${i.map((x) => f(s.who === x, x, () => n({ who: x })))}</div>
@@ -21662,8 +21668,8 @@ const Cv = (a, t) => {
       const [x, y] = b.split(":").map(Number);
       return `${x % 12 || 12}:${String(y).padStart(2, "0")} ${x < 12 ? "am" : "pm"}`;
     }, c = (b) => d`<span class="label">${b}</span>`, f = this._bins(s), m = (t.people ?? []).some((b) => b.entity), g = [];
-    r.length && g.push(d`${c("Who to ring")}${r.map((b) => d`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && g.push(d`${c("Bedtimes tonight")}${l.map((b) => d`<div class="irow"><b>${b.name}</b><span>${h(b.at)}</span></div>`)}`), p.length && g.push(d`${c("Still on today")}${p.map((b) => d`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Se(b, s).label}</span></div>`)}`), f && g.push(d`${c("Bin night")}<div class="irow"><b>${lt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && g.push(d`${c("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? d`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? d`<b>${e.wifi.password}</b>` : d`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${K("lock", 16)}Show</button>`}</div>` : u}`), m && g.push(d`${c("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && g.push(d`${c("Good to know")}${n.map((b) => d`<div class="iline">${b}</div>`)}`);
-    const k = d`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for parents" @click=${() => this._openSettings()}>${K("cog", 22)}</button>`;
+    r.length && g.push(d`${c("Who to ring")}${r.map((b) => d`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && g.push(d`${c("Bedtimes tonight")}${l.map((b) => d`<div class="irow"><b>${b.name}</b><span>${h(b.at)}</span></div>`)}`), p.length && g.push(d`${c("Still on today")}${p.map((b) => d`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Se(b, s).label}</span></div>`)}`), f && g.push(d`${c("Bin night")}<div class="irow"><b>${lt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && g.push(d`${c("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? d`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? d`<b>${e.wifi.password}</b>` : d`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${U("lock", 16)}Show</button>`}</div>` : u}`), m && g.push(d`${c("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && g.push(d`${c("Good to know")}${n.map((b) => d`<div class="iline">${b}</div>`)}`);
+    const k = d`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for parents" @click=${() => this._openSettings()}>${U("cog", 22)}</button>`;
     return d`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", k)}
       <div class="sos">
         <div class="sos000"><b>In an emergency call 000</b><span>Ambulance, fire or police. Poisons Information: 13 11 26.</span>
@@ -21673,7 +21679,7 @@ const Cv = (a, t) => {
           @keydown=${(b) => {
       (b.key === "Enter" || b.key === " ") && !b.repeat && this._sosDown();
     }} @keyup=${() => this._sosUp()} @contextmenu=${(b) => b.preventDefault()}>
-          <i aria-hidden="true"></i><span aria-hidden="true" style="line-height:0">${K("alert", 30)}</span>
+          <i aria-hidden="true"></i><span aria-hidden="true" style="line-height:0">${U("alert", 30)}</span>
           <span><b>${this._sos === "sending" ? "Sending…" : this._sos === "sent" ? "Alert sent" : `Alert ${i.who ?? "the parents"}`}</b><small>${this._sos === "sent" ? "Hold again to send another" : "Press and hold"}</small></span></button>` : u}
       </div>
       <span id="sosnote" role="status" class="sosnote">${this._sosNote}</span>

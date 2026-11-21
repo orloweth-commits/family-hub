@@ -236,6 +236,10 @@ export const styles = css`
   .dayhead .binmk { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px 0 4px; border-radius: 999px; background: var(--chip); color: var(--ink2); flex-shrink: 0; line-height: 0; }
   .dayhead .binmk .bin { width: 9px; height: 12px; }
   .dayhead :is(.pchip, .dball) ~ .binmk { margin-left: 4px; }
+  /* where it does not fit beside the lock, the bin alone; narrower still, nothing (set by _measureWeek) */
+  .col[data-bin='small'] .dayhead .binmk { padding: 0 4px; }
+  .col[data-bin='small'] .dayhead .binmk .bin { display: none; }
+  .col[data-bin='none'] .dayhead .binmk { display: none; }
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: var(--fs-2); }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
   /* an event is a button: it opens its details */
