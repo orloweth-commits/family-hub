@@ -61,7 +61,7 @@ export class FhGroceries extends LitElement {
     .grp > .cont { break-before: column; }
     .items > .trolley, .items > .empty { column-span: all; }
     /* while the keys are over the lower part of the page, the list can still be scrolled clear of them */
-    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 284px; }
+    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 318px; }
     .item { display: flex; align-items: center; gap: 10px; min-height: 44px; /* token */ padding: 7px 10px; border-radius: 14px; background: var(--chip); width: 100%; min-width: 0; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
@@ -83,14 +83,14 @@ export class FhGroceries extends LitElement {
     :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
     /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
     :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
-    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 292px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 266px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
     :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
     :host([data-shape='wide']:not([data-n3])) .tray .hidekeys { flex: 1 1 100%; }
     :host([data-shape='wide'][data-n1]:not([data-n3])) .tray .entry { flex-basis: 290px; }
     :host([data-shape='wide']:not([data-n3])) .tray[data-closing] { animation: traydown var(--mt-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
-    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 52px; max-height: none; }
+    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 48px; max-height: none; }
     @keyframes trayup { from { transform: translateY(104%); } }
     @keyframes traydown { to { transform: translateY(104%); } }
     :host([data-shape='wide'][data-n3]) .tray { order: -1; flex: none; }
@@ -149,6 +149,8 @@ export class FhGroceries extends LitElement {
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
     /* with the keys up the tray covers the lower part of the page: the usuals close up, three across, so every one stays in reach above it (4d: backlog 109) */
+    /* while typing, "Send the list to" steps aside so every usual stays above the taller key tray (batch 5: five rows of keys) */
+    :host([data-keys][data-shape='wide']:not([data-n3])) .sendrow { display: none !important; }
     :host([data-keys][data-shape='wide']:not([data-n3])) .usuals { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     :host([data-keys][data-shape='wide']:not([data-n3])) .add .usuals .chip.quick { min-height: 52px; padding: 4px 10px; border-radius: 16px; font-size: var(--fs-2); }
     .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
@@ -397,7 +399,7 @@ export class FhGroceries extends LitElement {
       </section>
 
       <section class="glass add" aria-label="Add an item">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="sendrow" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted sendl" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((r) => html`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === r.name} aria-busy=${this._sending === r.name ? 'true' : nothing} @click=${() => void this._send(r)}>
             <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${slotVar(r.colour)}">${r.name[0]}</span>${r.name}</button>`)}

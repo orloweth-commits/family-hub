@@ -8393,7 +8393,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
       </section>
 
       <section class="glass add" aria-label="Add an item">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="sendrow" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="muted sendl" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600);flex:1 1 auto">Send the list to</span>
           ${this.recipients.map((f) => d`<button class="who glass tap" ?disabled=${!!this._sending} ?data-busy=${this._sending === f.name} aria-busy=${this._sending === f.name ? "true" : g} @click=${() => void this._send(f)}>
             <span class="avatar" style="width:34px;height:34px;font-size:var(--fs-2);background:${Z(f.colour)}">${f.name[0]}</span>${f.name}</button>`)}
@@ -8444,7 +8444,7 @@ xr.styles = [Xt, ji, st`
     .grp > .cont { break-before: column; }
     .items > .trolley, .items > .empty { column-span: all; }
     /* while the keys are over the lower part of the page, the list can still be scrolled clear of them */
-    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 284px; }
+    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 318px; }
     .item { display: flex; align-items: center; gap: 10px; min-height: 44px; /* token */ padding: 7px 10px; border-radius: 14px; background: var(--chip); width: 100%; min-width: 0; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
@@ -8466,14 +8466,14 @@ xr.styles = [Xt, ji, st`
     :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
     /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
     :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
-    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 292px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 266px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
     :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
     :host([data-shape='wide']:not([data-n3])) .tray .hidekeys { flex: 1 1 100%; }
     :host([data-shape='wide'][data-n1]:not([data-n3])) .tray .entry { flex-basis: 290px; }
     :host([data-shape='wide']:not([data-n3])) .tray[data-closing] { animation: traydown var(--mt-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
-    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 52px; max-height: none; }
+    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 48px; max-height: none; }
     @keyframes trayup { from { transform: translateY(104%); } }
     @keyframes traydown { to { transform: translateY(104%); } }
     :host([data-shape='wide'][data-n3]) .tray { order: -1; flex: none; }
@@ -8532,6 +8532,8 @@ xr.styles = [Xt, ji, st`
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
     /* with the keys up the tray covers the lower part of the page: the usuals close up, three across, so every one stays in reach above it (4d: backlog 109) */
+    /* while typing, "Send the list to" steps aside so every usual stays above the taller key tray (batch 5: five rows of keys) */
+    :host([data-keys][data-shape='wide']:not([data-n3])) .sendrow { display: none !important; }
     :host([data-keys][data-shape='wide']:not([data-n3])) .usuals { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     :host([data-keys][data-shape='wide']:not([data-n3])) .add .usuals .chip.quick { min-height: 52px; padding: 4px 10px; border-radius: 16px; font-size: var(--fs-2); }
     .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
@@ -10812,7 +10814,7 @@ const Il = 15, c1 = (a) => {
         return d`<button class="soonpic tap" aria-label="${n.title}: ${r(l)}" @click=${(p) => {
           this._sound("tap"), D(`${n.title}. ${l === 0 ? "Today!" : r(l) + "."}`, p.currentTarget);
         }}>
-          <span class="e" aria-hidden="true">${Rx(n.title)}</span><span class="pt">${n.title}</span>
+          <span class="e" aria-hidden="true">${Rx(n.title)}</span><span class="pt">${n.title.split(/\s[–—-]\s/)[0]}</span>
           <span class="moons" aria-hidden="true">${l === 0 ? "☀️" : l <= 7 ? Array.from({ length: l }, () => d`<span>🌙</span>`) : "🌙"}</span><span class="sl">${r(l)}</span></button>`;
       })}</div>` : d`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
     }
@@ -11068,7 +11070,8 @@ yr.styles = [Xt, st`
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
     /* a note from a parent is a card from a person, not a prize: a little tilted, a strip of tape across its top, the words left-aligned and large, Thanks at its foot */
-    .notescrim { background: rgba(0,0,0,.4); }
+    /* dim and soften the page under a note, so its words do not read through beside the card (batch 5: the job under it read as text over text, most in the dark looks) */
+    .notescrim { background: rgba(0,0,0,.58); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
     /* the card is the page's own halo colour (white by day, the theme's deepest shade in the dark) with a breath of ink and a warm wash from the corner: paper, not glass */
     .notecard { position: relative; align-items: stretch; gap: 14px; width: min(640px, calc(100% - 48px)); padding: 34px 36px 24px; border-radius: 18px; transform: rotate(calc(-1.2deg * var(--m-d, 1)));
       background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%), color-mix(in srgb, var(--ink) 5%, var(--ring-halo, #fff)); -webkit-backdrop-filter: none; backdrop-filter: none;
@@ -11092,7 +11095,8 @@ yr.styles = [Xt, st`
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
-    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
+    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls);
+       only the part before a dash is shown ("Bins out – recycling week" is "Bins out": the tile is narrow, batch 5), and the tap reads the whole title */
     .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
@@ -13664,10 +13668,10 @@ const x1 = async (a) => {
     return d`${this._dj ? d`<div class="banner">🎧 ${this._dj} is the DJ tonight: ${this._dj}’s picks play first.</div>` : g}
       <div class="coins ${u}" role="group" aria-label="Who’s choosing?"><span class="soft" style="font-size:var(--fs-2)">Who’s choosing?</span>${this._everyone.map((m) => {
       const k = f(m.name);
-      return d`<button class="coin tap" style="--c:${Z(m.colour)}" aria-pressed=${String(t.who === m.name)} ?data-next=${m.name === r} aria-label="${m.name}${m.name === r ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
+      return d`<button class="coin tap" style="--c:${Z(m.colour)}" aria-pressed=${String(t.who === m.name)} ?data-next=${m.name === r && !t.who} aria-label="${m.name}${m.name === r && !t.who ? ", chooses next" : ""}${k ? `, ${k.name} is waiting` : ""}" @click=${() => {
         this._saveJuke({ who: m.name }), this._prev = "juke", this._jpick = !0;
       }}>
-        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${k ? d`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : xt("play", 12)}</i>` : g}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r ? "Picks next" : ""}</span></button>`;
+        <span class="face"><span class="fpic">${this._face(m.name, 50)}</span>${k ? d`<i class="has" style=${k.img ? `--art:url(${k.img})` : ""}>${k.img ? g : xt("play", 12)}</i>` : g}</span><span class="cname">${m.name}</span><span class="cnext">${m.name === r && !t.who ? "Your turn" : ""}</span></button>`;
     })}</div>
       <div class="acts ${u}"><button class="pill tap primary" style="height:48px;padding:0 20px;font-size:var(--fs-2)" ?disabled=${!t.who} @click=${() => {
       this._prev = "juke", this._jpick = !0;
@@ -16228,6 +16232,8 @@ Ki.styles = [Xt, ji, st`
     /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); }
     :host([data-under]) { padding-top: var(--top, 110px); }
+    /* too tall to sit under the header: it starts at the top and covers the header whole, rather than centring and leaving the chips cut in half above it (batch 5) */
+    :host(:not([data-under]):not([data-phone])) { align-items: flex-start; }
     :host([data-phone]) { position: fixed; align-items: flex-start; padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px)); }
     :host([data-phone]) .box { width: 100%; padding: 14px 14px 0; }
     :host([data-phone]) .keys, :host([data-keys='off']) .keys { display: none; }

@@ -25,6 +25,8 @@ export class FhAddEvent extends LitElement {
     /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); }
     :host([data-under]) { padding-top: var(--top, 110px); }
+    /* too tall to sit under the header: it starts at the top and covers the header whole, rather than centring and leaving the chips cut in half above it (batch 5) */
+    :host(:not([data-under]):not([data-phone])) { align-items: flex-start; }
     :host([data-phone]) { position: fixed; align-items: flex-start; padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px)); }
     :host([data-phone]) .box { width: 100%; padding: 14px 14px 0; }
     :host([data-phone]) .keys, :host([data-keys='off']) .keys { display: none; }

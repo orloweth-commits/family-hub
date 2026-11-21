@@ -300,7 +300,8 @@ export class FhKid extends LitElement {
     .celebrate { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); border-radius: 28px; }
     .cbox { border-radius: 32px; padding: 26px 30px; display: flex; flex-direction: column; align-items: center; gap: 16px; max-width: 720px; animation: sheet var(--m-4, 400ms) cubic-bezier(.2,1.3,.3,1) both; }
     /* a note from a parent is a card from a person, not a prize: a little tilted, a strip of tape across its top, the words left-aligned and large, Thanks at its foot */
-    .notescrim { background: rgba(0,0,0,.4); }
+    /* dim and soften the page under a note, so its words do not read through beside the card (batch 5: the job under it read as text over text, most in the dark looks) */
+    .notescrim { background: rgba(0,0,0,.58); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
     /* the card is the page's own halo colour (white by day, the theme's deepest shade in the dark) with a breath of ink and a warm wash from the corner: paper, not glass */
     .notecard { position: relative; align-items: stretch; gap: 14px; width: min(640px, calc(100% - 48px)); padding: 34px 36px 24px; border-radius: 18px; transform: rotate(calc(-1.2deg * var(--m-d, 1)));
       background: linear-gradient(170deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%), color-mix(in srgb, var(--ink) 5%, var(--ring-halo, #fff)); -webkit-backdrop-filter: none; backdrop-filter: none;
@@ -324,7 +325,8 @@ export class FhKid extends LitElement {
     .soon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-shrink: 0; }
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
-    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
+    /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls);
+       only the part before a dash is shown ("Bins out – recycling week" is "Bins out": the tile is narrow, batch 5), and the tap reads the whole title */
     .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
@@ -1137,7 +1139,7 @@ export class FhKid extends LitElement {
       const words = (n: number): string => (n === 0 ? 'Today' : `${n} sleep${n > 1 ? 's' : ''}`);
       return html`${this._wind ? html`<span class="label">Coming up</span>` : nothing}
         ${evs.length ? html`<div class="soon">${evs.slice(0, 3).map((e) => { const n = sleeps(e.start); return html`<button class="soonpic tap" aria-label="${e.title}: ${words(n)}" @click=${(x: Event) => { this._sound('tap'); say(`${e.title}. ${n === 0 ? 'Today!' : words(n) + '.'}`, x.currentTarget as Element); }}>
-          <span class="e" aria-hidden="true">${eventPic(e.title)}</span><span class="pt">${e.title}</span>
+          <span class="e" aria-hidden="true">${eventPic(e.title)}</span><span class="pt">${e.title.split(/\s[–—-]\s/)[0]}</span>
           <span class="moons" aria-hidden="true">${n === 0 ? '☀️' : n <= 7 ? Array.from({ length: n }, () => html`<span>🌙</span>`) : '🌙'}</span><span class="sl">${words(n)}</span></button>`; })}</div>`
           : html`<span class="muted" style="font-size:var(--fs-2)">Nothing on this week.</span>`}`;
     }
