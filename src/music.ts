@@ -536,7 +536,7 @@ export class FhMusic extends LitElement {
     .roompop .map.snug .floor { height: 112px; } .roompop .mz b { font-size: var(--fs-3); }
     @keyframes popin { from { opacity: 0; transform: translateY(-6px); } }
     :host([data-phone]) .roompop { left: 0; right: 0; width: auto; }
-    :host([data-dark]) .roompop.glass { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); }
+    :host([data-dark]) .roompop.glass { background: color-mix(in srgb, var(--primary) 7%, color-mix(in srgb, var(--ink) 10%, var(--ring-halo))); }
     /* Shelves: the records have the page, and the row of names carries where a tap plays and Edit */
     .crate .chiprow .pill { font-size: var(--fs-2); }
     /* Radio: a few stations stand together in the middle, larger, low on the page */

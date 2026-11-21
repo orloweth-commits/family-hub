@@ -133,7 +133,7 @@ export class FhSettings extends LitElement {
     .srow.wide > .sctl > .sin.pic { flex: 0 0 60px; }
     .srow + .srow, .sitem + .sitem { border-top: 1px solid color-mix(in srgb, var(--ink2) 18%, transparent); padding-top: 10px; }
     /* text boxes */
-    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 35%, transparent); text-overflow: ellipsis; }
+    .sin { height: 48px; min-width: 0; width: 240px; max-width: 100%; border-radius: 14px; border: 0; padding: 0 14px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 48%, transparent); text-overflow: ellipsis; }
     .sin.on { box-shadow: inset 0 0 0 3px var(--primary); }
     .sin.short { width: 96px; text-align: center; } .sin.pic { width: 60px; text-align: center; padding: 0 4px; font-size: var(--fs-4); } .sin.long { width: 100%; }
     .sin[type='date'] { width: 176px; }

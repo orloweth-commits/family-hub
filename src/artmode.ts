@@ -249,6 +249,8 @@ export const artCss = `
   .aframe::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 3px 10px rgba(0,0,0,.34), inset 0 0 2px rgba(0,0,0,.4); pointer-events: none; }
   /* matte, not glossy: a little colour and contrast taken out, as a print behind glass has */
   .artm[data-mat] .aimg { filter: saturate(.8) contrast(.9) brightness(.97); }
+  /* (4e, backlog 114) the dark mat is cut with a bevel, as a real one is: the lip catches the light along its top and left and falls into shade along its bottom and right */
+  :host([data-dark]) .artm[data-mat]:not([data-night]) .aframe { box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 0 9px var(--mat-lip), -1.5px -1.5px 0 9.5px rgba(255,255,255,.16), 1.5px 1.5px 0 9.5px rgba(0,0,0,.4); }
   /* paper: one fine grain over mat and picture alike */
   .agrain { position: absolute; inset: 0; pointer-events: none; opacity: .16; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
   .acap { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; transition: transform calc(15s * var(--m-d, 1)) linear; }

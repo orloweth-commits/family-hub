@@ -65,7 +65,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.20';
+const VERSION = '0.38.21';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1459,7 +1459,7 @@ export class FamilyHubCard extends LitElement {
     // the planner already shows the timer in its side card, so only repeat it there in the last minute
     if (left !== null && (this._page !== 'planner' || left < 60000)) {
       const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
-      chips.push([left < 60000 ? 1 : 2.2, html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${mm} minutes ${ss} seconds left" @click=${() => { this._sheet = 'timer'; }}>${icon('timer', 20)}<b>${mm}:${String(ss).padStart(2, '0')}</b></button>`]);
+      chips.push([left < 60000 ? 1 : 2.2, html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${mm} minutes ${ss} seconds left" @click=${() => { this._sheet = 'timer'; }}>${art('stopwatch', 24)}<b>${mm}:${String(ss).padStart(2, '0')}</b></button>`]);
     }
     const msg = panelMsg(this.hass);
     if (msg && !msg.alarm) chips.push([4, html`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${msg.t}</span></span>`]);
@@ -1497,7 +1497,7 @@ export class FamilyHubCard extends LitElement {
   private _kidCapsule(k: KidConfig): TemplateResult {
     const line = this._houseLine(); if (line) return line;
     const now = Date.now(), chips: TemplateResult[] = [], left = this._timerLeft();
-    if (left !== null && left < 60000) chips.push(html`<button class="cap tap hot" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${Math.floor(left / 1000)} seconds left" @click=${() => { this._sheet = 'timer'; }}>${icon('timer', 20)}<b>0:${String(Math.floor(left / 1000)).padStart(2, '0')}</b></button>`);
+    if (left !== null && left < 60000) chips.push(html`<button class="cap tap hot" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${Math.floor(left / 1000)} seconds left" @click=${() => { this._sheet = 'timer'; }}>${art('stopwatch', 24)}<b>0:${String(Math.floor(left / 1000)).padStart(2, '0')}</b></button>`);
     const n = k.name.toLowerCase();
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title) && (e.who === k.name || e.title.toLowerCase().includes(n)));
     if (next) {
@@ -1532,13 +1532,13 @@ export class FamilyHubCard extends LitElement {
                 <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${COND[w.state] ?? (['unavailable', 'unknown', ''].includes(w.state) ? 'No weather' : w.state)}${wx.rain ? ` · ${wx.rain} mm` : ''}</span>
               </span>
               ${lookArt(this._lk, 'wx', { wx: { state: w.state, uv: wx.uv, rain: wx.rain, max: wx.max } })}
-              ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${icon('sun', 14)}UV ${Math.round(wx.uv!)}</span>` : nothing}
+              ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${art('uv', 17)}UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
             </button>` : nothing}
-          ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${icon('bell')}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
+          ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${art('bell', 26)}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
           ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`
-            : html`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${c.meds?.length || c.med_log ? 'medicine, ' : ''}house info, night${tracked.length ? ' and who is home' : ''}" aria-haspopup="dialog" @click=${() => { this._sheet = 'more'; }}>${icon('more')}<span class="rl" aria-hidden="true">More</span></button>`}
+            : html`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${c.meds?.length || c.med_log ? 'medicine, ' : ''}house info, night${tracked.length ? ' and who is home' : ''}" aria-haspopup="dialog" @click=${() => { this._sheet = 'more'; }}>${art('more', 26)}<span class="rl" aria-hidden="true">More</span></button>`}
         </div>
       </header>`;
   }
@@ -1600,7 +1600,7 @@ export class FamilyHubCard extends LitElement {
 
   private _evCard(e: CalEvent, d: Date): TemplateResult {
     const when = whenOn(e, d).label;
-    if (this._private(e.title)) return html`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${e.allDay ? '' : when}</span>${icon('lock', 16)}</div>`;
+    if (this._private(e.title)) return html`<div class="ev priv" role="img" aria-label="Private reminder"><span class="t">${e.allDay ? '' : when}</span>${art('lock', 18)}</div>`;
     return html`<button class="ev tap ${this._evState(e)}" style="--c:${slotVar(e.colour)}" aria-label=${this._evName(e, d)} @click=${() => this._openEvent(e, d)}>
       <span class="t">${when}</span>
       <span class="n content">${e.title.replace(/(\S)-(\S)/g, '$1\u2011$2')}</span>
@@ -1622,7 +1622,7 @@ export class FamilyHubCard extends LitElement {
         const pub = evs.filter((e) => !this._private(e.title)), priv = evs.filter((e) => this._private(e.title));
         const key = ymd(d), hidden = this._clip[key] ?? 0, bn = this._bins(d), binNight = !!bn && sameDay(bn.night, d) && bn.bins.length > 0;
         return html`<div class="col ${isToday ? 'today' : ''}">
-          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._lk, 'day', { now: d, arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${icon('lock', 15)}</span>` : nothing}${binNight ? html`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${bn!.bins.join(' and ')} bin${bn!.bins.length > 1 ? 's go' : ' goes'} out`} title="Bin night">${icon('bin', 16)}${this._binDots(bn!.bins)}</span>` : nothing}</div>
+          <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${fmtDow(d)}</span><span class="num">${d.getDate()}</span>${lookArt(this._lk, 'day', { now: d, arcs: this._arcs(pub) })}${priv.length ? html`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${art('lock', 17)}</span>` : nothing}${binNight ? html`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${bn!.bins.join(' and ')} bin${bn!.bins.length > 1 ? 's go' : ' goes'} out`} title="Bin night">${icon('bin', 16)}${this._binDots(bn!.bins)}</span>` : nothing}</div>
           <div class="evs" data-day=${key}>${pub.map((e) => this._evCard(e, d))}</div>
           ${hidden ? html`<button class="more tap" aria-label="${hidden} more on ${fmtLongDate(d)}. Open the day" @click=${() => { this._anchor = d; this._view = 'day'; }}><span class="mpill">+${hidden} more${icon('right', 16)}</span></button>` : nothing}
         </div>`;
@@ -1633,7 +1633,7 @@ export class FamilyHubCard extends LitElement {
   private _day(a: Date): TemplateResult {
     const evs = this._eventsOn(a), today = sameDay(a, new Date());
     const list = html`<div class="daylist scrolly" data-fits @scroll=${scrollCue}>
-      ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${whenOn(e, a).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${icon('lock', 18)}Private</span></div>` : html`
+      ${evs.length ? evs.map((e) => this._private(e.title) ? html`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${whenOn(e, a).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${art('lock', 20)}Private</span></div>` : html`
         <button class="dayrow tap ${this._evState(e)}" style="--c:${slotVar(e.colour)}" aria-label=${this._evName(e, a)} @click=${() => this._openEvent(e, a)}>
           <span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-bold, 700)" class="muted dwhen">${whenOn(e, a).label}</span>
           <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span class="content" style="font-size:var(--fs-4);font-weight:var(--w-bold, 700)">${e.title}</span>
@@ -1642,8 +1642,8 @@ export class FamilyHubCard extends LitElement {
         </button>`) : this._evKey !== this._fetchedKey ? nothing : html`<div class="empty freeday"><span class="pic">${FREE_DAY}</span><h2 class="t-sub">Nothing on.</h2><span style="font-size:var(--fs-3)">A free day!</span></div>`}
     </div>`;
     // a look may picture the whole day (a clock, a strip…); the list then sits beside it
-    const art = lookArt(this._lk, 'dayview', { arcs: this._arcs(evs), now: today ? this._now : undefined, size: 340 });
-    return art === nothing ? list : html`<div class="dayview"><div class="dayart">${art}</div>${list}</div>`;
+    const pic = lookArt(this._lk, 'dayview', { arcs: this._arcs(evs), now: today ? this._now : undefined, size: 340 });
+    return pic === nothing ? list : html`<div class="dayview"><div class="dayart">${pic}</div>${list}</div>`;
   }
 
   private _month(): TemplateResult {

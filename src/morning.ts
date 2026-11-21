@@ -96,7 +96,9 @@ export class FhMorning extends LitElement {
     /* his current morning job: one big button, a picture, the words and a circle to tick. It is the only thing on the board a child presses in the morning */
     /* in the dark a child's colour is lifted wherever it is drawn as a line (the bar over his column, the ring round his job), so teal still shows on a teal panel */
     :host([data-dark]) .kcol { border-top-color: color-mix(in srgb, var(--kid) 58%, #fff); }
-    :host([data-dark]) .jobbtn { background: color-mix(in oklab, var(--kid) 46%, var(--ring-halo)); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 58%, #fff); }
+    :host([data-dark]) .jobbtn { background: color-mix(in oklab, var(--kid) 46%, var(--ring-halo)); background: oklch(from var(--kid) calc(l * .62) calc(c * .6) h); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 58%, #fff); }
+    /* (4e, backlog 116) above: the child's own hue taken down in lightness, not mixed into the panel (an orange went brown, a teal sank into Reef's teal). Below: what to bring sits on the theme's own tone with a hairline of the accent, not amber mixed into blue */
+    :host([data-dark]) .tile, :host([data-dark]) .bring span { background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
     .jobbtn { display: flex; align-items: center; gap: 12px; min-height: 96px; padding: 10px 14px; border-radius: 22px; text-align: left; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--kid); flex-shrink: 0; }
     .jobbtn .jpic { font-size: var(--fs-d2); line-height: 1; flex-shrink: 0; }
     .jobbtn .jtx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

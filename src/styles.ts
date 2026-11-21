@@ -132,6 +132,8 @@ export const styles = css`
   .fh:not([data-compact]) .right > .round.hb { width: auto; min-width: 58px; height: 52px; padding: 4px 9px 5px; border-radius: 18px; flex-direction: column; justify-content: center; gap: 1px; }
   .fh:not([data-compact]) .right > .round.hb .rl { display: block; font-size: var(--fs-1); line-height: 1.15; font-weight: var(--w-semi, 600); white-space: nowrap; }
   .fh:not([data-compact]) .right > .round.hb > svg { width: 22px; height: 22px; flex-shrink: 0; }
+  /* a drawing on a header button (Ask, More, the bell: 4e) is a size up from a line icon, as Ask's always was in Glass, so the little tray of More can be read */
+  .fh:not([data-compact]) .right > .round.hb > svg.pic2 { width: 26px; height: 26px; }
   /* when the row is too full the weather chip and who-is-home give way, a step at a time (data-fit is set after measuring) */
   header[data-fit~='nobadge'] .weather .badge, header[data-fit~='slim'] .weather .wsub, header[data-fit~='slim'] .weather .wtop { display: none; }
   header[data-fit~='nowho'] .presence, header[data-fit~='nowx'] .weather { display: none; }
@@ -231,7 +233,8 @@ export const styles = css`
   .col.today { background: var(--chip-strong); box-shadow: 0 4px 14px rgba(0,0,0,.06); }
   .dayhead { display: flex; align-items: center; gap: 6px; padding: 2px 2px 4px; }
   .num { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); padding: 0 4px; }
-  .pchip { margin-left: auto; font-size: var(--fs-1); opacity: .7; }
+  .pchip { margin-left: auto; font-size: var(--fs-1); opacity: .7; line-height: 0; }
+  .pchip:has(> svg.pic2) { opacity: 1; }
   /* bin night on its own day of the week (4d): the header gives way to anything more urgent, the week does not */
   .dayhead .binmk { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px 0 4px; border-radius: 999px; background: var(--chip); color: var(--ink2); flex-shrink: 0; line-height: 0; }
   .dayhead .binmk .bin { width: 9px; height: 12px; }
@@ -378,6 +381,10 @@ export const styles = css`
      a look may use it for a magnet or a ring. The drawings carry their own colours and need no tile. */
   svg.i.pic2 { stroke: none; fill: none; overflow: visible; box-sizing: border-box; font-family: inherit; }
   svg.pic2 text { font-family: inherit; font-variant-numeric: tabular-nums; }
+  /* (4e, backlog 10) where the card is not zoomed up (a laptop, an iPad, a phone: --z under the wall's 1.35), a count's badge grows from its corner so its number stays about 12 px,
+     and the calendar's weekday (7 px there) gives way to the date: it shows only from a zoom of 1.2 */
+  .fh svg.pic2 .p-badge { transform-origin: right top; scale: max(1, calc(1.3 / var(--z, 1))); }
+  .fh svg.pic2 .p-dow { opacity: clamp(0, calc((var(--z, 1) - 1.2) * 50), 1); }
   .dock .item:is([data-nav='sun'], [data-nav='home']) { --bt: #ffe7c2; --bl: #7a3a06; --bo: #ffcf9a; }
   .dock .item:is([data-nav='calendar'], [data-nav='cloud']) { --bt: #d6e4ff; --bl: #1d3f8f; --bo: #a9c1ff; }
   .dock .item:is([data-nav='cart'], [data-nav='music']) { --bt: #d3efdb; --bl: #14592c; --bo: #9be3b1; }
@@ -467,7 +474,7 @@ export const styles = css`
   .nown .field { flex: 1; }
   .nown .pill { height: 48px; padding: 0 22px; }
   /* a text field on the card's own sheets (a note, a dinner): the same shape as Ask's and Add event's; a look with an underline keeps it */
-  :host(family-hub-card) .field { min-width: 0; height: 48px; border-radius: 14px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+  :host(family-hub-card) .field { min-width: 0; height: 48px; border-radius: 14px; background: var(--chip-strong); border: 0; padding: 0 16px; font: inherit; font-size: var(--fs-3); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 48%, transparent); }
   :host(family-hub-card) .field::placeholder { font-weight: var(--w-semi, 600); }
   :host(family-hub-card) .field:focus-visible { box-shadow: inset 0 0 0 2.5px var(--primary); }
   .morebtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: 20px; background: var(--chip); text-align: left; }
@@ -524,7 +531,8 @@ export const styles = css`
      Family stays a neutral slate, and every event still to come is lighter than its day's column (only a past one sits below it). A past event keeps its hue at a third of the strength, its bar still the person's colour, its words in the second ink. */
   :host([data-dark]) .fh .ev { background: color-mix(in oklab, color-mix(in srgb, var(--c) 78%, #fff) 62%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 72%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 46%, transparent); }
   /* a past event sinks below its column and keeps its hue, its bar and a hairline of the person's colour */
-  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
+  /* (4e, backlog 117) the person's own hue taken down in lightness and a little in chroma, not mixed towards the panel, so a past pink and a past orange stay two colours on Sunset's plum (the mix is the fallback) */
+  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); background: oklch(from var(--c) calc(l * .5) calc(c * .5) h); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
   /* the next event keeps its ring (the theme's own colour), as the chip in the top bar names it */
   :host([data-dark]) .fh .ev.next { box-shadow: inset 0 0 0 2.5px var(--primary); }
   :host([data-dark]) .fh .ev.past :is(.t, .w, .n, .content, span, b) { color: var(--ink2); }
@@ -544,7 +552,8 @@ export const styles = css`
     --radar-bar: color-mix(in srgb, var(--ring-halo) 88%, transparent); --radar-ink: var(--ink);
     /* music with no picture: a deep tile of the theme's two colours, not a pale square */
     --art-none: linear-gradient(135deg, color-mix(in oklab, var(--accent) 45%, #b4530a), color-mix(in oklab, var(--primary) 40%, #1f5488)); }
-  :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
+  /* (4e, backlog 114) a breath of the theme's own colour in the sheet, so it is the theme's dusk and not a neutral slate */
+  :host([data-dark]) .sheet { background: color-mix(in srgb, var(--primary) 7%, color-mix(in srgb, var(--ink) 10%, var(--ring-halo))); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
   /* today in the month view is marked as in the week, by a ring, not a lighter fill (4d: backlog 113); days outside the month lose their tiles and keep a hairline */
   :host([data-dark]) .fh .cell.today { background: var(--chip-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 62%, transparent); }
   :host([data-dark]) .fh .cell.out { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent); }
@@ -577,7 +586,8 @@ export const styles = css`
   :host([data-shape='tall']) .setpair, :host([data-n2]) .setpair { grid-template-columns: 1fr; }
   .setlabel { display: flex; flex-direction: column; line-height: 1.25; font-size: var(--fs-3); }
   .setlabel .muted { font-size: var(--fs-2); font-weight: 500; }
-  .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); }
+  .opt .sw { width: 46px; height: 28px; border-radius: 14px; background: var(--track); position: relative; flex-shrink: 0; transition: background-color var(--m-2); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink2) 50%, transparent); }
+  .opt[aria-checked='true'] .sw { box-shadow: none; }
   .opt .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform var(--mt-2); }
   .opt[aria-checked='true'] .sw { background: var(--ok); }
   .opt[aria-checked='true'] .sw::after { transform: translateX(18px); }

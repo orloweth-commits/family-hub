@@ -30,7 +30,7 @@ const C = (page) => page.locator('family-hub-card');
 // 1. drawings and hues, in every look
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner`, '07:10'); const b = await read(page);
   ok(`${look}: every dock button is a drawing of its own`, b.dock.length === 10 && new Set(b.dock.map((x) => x.ic)).size === 10 && b.dock.map((x) => x.ic).join(',') === 'morning,planner,groceries,doodle,music,weather,home,allon,alloff,dinner', b.dock.map((x) => x.ic));
-  ok(`${look}: Ask in the header is a drawing; More is three dots (since 0.33.0 the other drawings are in the More sheet)`, b.head.map((x) => x.id).join(',') === 'ask,more' && b.head[0].ic === 'ask', b.head.map((x) => x.id));
+  ok(`${look}: Ask and More in the header are drawings (More a tray of tiles since 4e)`, b.head.map((x) => x.id).join(',') === 'ask,more' && b.head[0].ic === 'ask' && b.head[1].ic === 'more', b.head.map((x) => `${x.id} ${x.ic}`));
   { const mp = await open(`look=${look}&page=planner&sheet=more`, '07:10'); ok(`${look}: More's buttons are drawings of their own`, (await mp.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.sheet[data-sheet="more"] .morebtn svg.pic2')].map((x) => x.dataset.ic))).join(',') === 'looks,medicine,info,night'); await mp.context().close(); }
   ok(`${look}: every button is still 44 px or more, and the header is no taller`, [...b.dock, ...b.head].filter((x) => x.w > 0).every((x) => x.w >= 44 && x.h >= 44) && b.head.every((x) => x.h <= 52), [...b.dock, ...b.head].map((x) => `${x.id} ${x.w}x${x.h}`));
   ok(`${look}: the dock is inside the screen and its labels rest on one line`, b.dockIn && b.labels.length === 1, b.labels);
@@ -84,6 +84,32 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
 // 3. small screens: the dock still fits with the morning's place and long names
 for (const look of ['glass', 'fridge', 'orbit']) for (const [w, h] of [[1180, 820], [1024, 768]]) { const page = await open(`look=${look}&page=morning&stress=1`, '07:10', { w, h }); const b = await read(page);
   ok(`${look} at ${w} x ${h}, long names, morning: the dock is inside the screen, labels on one line`, b.dockIn && b.labels.length === 1 && b.dock.every((x) => x.w >= 44), b.labels); await page.context().close(); }
+// 4. batch 4e: the frame and the drawings
+{ const q = (page, f) => page.evaluate(f);
+  let page = await open('look=glass&page=planner');
+  const g = await q(page, () => { const r = document.querySelector('family-hub-card').shadowRoot, z = Number(getComputedStyle(r.querySelector('.fh')).zoom) || 1, x = (s) => r.querySelector(s)?.getBoundingClientRect();
+    const it = [...r.querySelectorAll('nav.dock > *')].map((e) => e.getBoundingClientRect()), gaps = it.slice(1).map((b, i) => Math.round((b.left - it[i].right) / z));
+    return { wx: x('.right > .weather').left, cap: x('.capsule').left, ask: x('.right > [data-act=ask]').left, gaps, uv: !!r.querySelector('.weather .badge svg.pic2[data-ic=uv]'), timer: r.querySelectorAll('.capsule [data-kind=timer] svg.pic2').length,
+      body: getComputedStyle(r.querySelector('.fh > .body')).paddingLeft, pl: x('.planner').left - x('.fh > .body').left }; });
+  ok('4e Glass: the weather stands beside the clock, before the chips and the buttons', g.wx < g.cap && g.cap < g.ask, g);
+  ok('4e Glass: the dock has no long empty stretch (every gap under 40 px)', Math.max(...g.gaps) < 40, g.gaps);
+  ok('4e Glass: the page\'s cards sit 8 px into the panel', g.body === '8px' && g.pl > 0, g.body);
+  ok('4e: the UV badge carries a drawn sun', g.uv);
+  await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, private: ['Gym'] }); }); await page.waitForTimeout(500);
+  ok('4e: a private reminder\'s lock on the week is a drawing', await q(page, () => document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.week .pchip svg.pic2[data-ic=lock], .week .ev.priv svg.pic2[data-ic=lock]').length > 0));
+  await page.context().close();
+  page = await open('look=glass&page=kid&kid=0');
+  const k = await q(page, () => { const r = document.querySelector('family-hub-card').shadowRoot, d = r.querySelector('nav.dock').getBoundingClientRect(), f = r.querySelector('.fh').getBoundingClientRect(); return { w: d.width / f.width, left: d.left - f.left }; });
+  ok('4e Glass: a child\'s dock is a tab under his card, not a full-width bar', k.w < 0.4 && k.left < 120, k); await page.context().close();
+  page = await open('look=obsidian&page=planner');
+  ok('4e Obsidian: More stays a line icon (no drawings in the parents\' look)', await q(page, () => !document.querySelector('family-hub-card').shadowRoot.querySelector('.right [data-act=more] svg.pic2'))); await page.context().close();
+  page = await open('look=obsidian&page=morning&stress=1', '07:10');
+  ok('4e Obsidian (132): with the morning\'s place and long names the dock stays inside the screen', await q(page, () => { const d = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock').getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth; })); await page.context().close();
+  page = await open('look=glass&page=planner', '16:20', { w: 1280, h: 800 });
+  const sm = await q(page, () => { const r = document.querySelector('family-hub-card').shadowRoot; return { badge: r.querySelector('.dock [data-nav=cart] .p-badge text').getBoundingClientRect().height, dow: getComputedStyle(r.querySelector('.dock [data-nav=calendar] .p-dow')).opacity }; });
+  ok('4e at 1280 x 800: the badge\'s count grows (about 12 px), the calendar\'s weekday gives way', sm.badge >= 11 && sm.dow === '0', sm); await page.context().close();
+  page = await open('look=glass&page=planner');
+  ok('4e at 1920: the calendar keeps its weekday', await q(page, () => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.dock [data-nav=calendar] .p-dow')).opacity === '1')); await page.context().close(); }
 ok('the bundle carries its version', /0\.3\d\.\d/.test(fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8')));
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);

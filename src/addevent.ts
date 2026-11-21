@@ -47,7 +47,7 @@ export class FhAddEvent extends LitElement {
     .box .keys .key, .box .keys.compact .key { flex: 1 1 0; width: auto; min-width: 0; }
     .box .keys .key.wide, .box .keys.compact .key.wide { flex: 1.5 1 0; width: auto; }
     .box .keys .key.space, .box .keys.compact .key.space { flex: 0 1 62%; width: auto; }
-    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 30%, transparent); }
+    .field { flex: 1; min-width: 0; height: 54px; border-radius: 16px; background: var(--chip-strong); border: 0; padding: 0 18px; font: inherit; font-size: var(--fs-5); font-weight: var(--w-semi, 600); color: var(--ink); outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink2) 48%, transparent); }
     .field { text-overflow: ellipsis; }
     .box .xbtn { margin-left: auto; }
     .field.on { box-shadow: inset 0 0 0 3px var(--primary); }
