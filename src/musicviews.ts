@@ -41,7 +41,7 @@ export const viewMarks = (id: ViewId, look: string, theme: string): Mark[] => (i
 
 export interface Room { id: string; name: string; /** the speaker this room's music comes from, or '' */ stream: string; vol: number; hasVol: boolean; live: boolean; playing: boolean; focus: boolean; inmix: boolean; /** plays the music in the player (the room that leads it included) */ on: boolean; /** grouped with at least one other room, whichever room is selected */ linked: boolean; /** a home speaker that cannot be reached right now */ offline: boolean; asleep: boolean; lead: boolean; colour: string; title: string }
 export interface Ctx {
-  rooms: Room[]; look: string; theme: string; /** a narrow screen: the shelf runs along the bottom, so the rooms have the full width */ phone: boolean; /** a phone or a portrait tablet: rooms stand in rows rather than one line */ narrow: boolean; over: string; lifted: string; liftedItem: ShelfItem | null;
+  rooms: Room[]; look: string; theme: string; /** the moment pads, drawn by the page: the Scene stands them at the end of its shelf on a wide screen */ pads?: TemplateResult | typeof nothing; /** a narrow screen: the shelf runs along the bottom, so the rooms have the full width */ phone: boolean; /** a phone or a portrait tablet: rooms stand in rows rather than one line */ narrow: boolean; over: string; lifted: string; liftedItem: ShelfItem | null;
   /** the pieces of music playing, the one in the player first (each named by its leading speaker) */
   streams: string[];
   /** a room being carried round the scene, in percent of the scene */
@@ -375,6 +375,7 @@ const sceneShelf = (c: Ctx, kind: string): TemplateResult => {
     <button class="slabel tap" aria-label="${whose} ${SHELF_NAME[kind] ?? 'shelf'}. Show ${next === 'Family' ? 'the family' : `${next}’s`} shelf" @click=${() => k.pick(next)}><b>${k.calm ? '🌙 ' : ''}${whose} ${SHELF_NAME[kind] ?? 'shelf'}</b><span>${items.length ? 'Carry one to a room' : 'Pin music from Search'}</span></button>
     <div class="sitems" style="--n:${n}">${items.length > 1 && (stars || strung) ? html`<svg class="sline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d=${line}></path></svg>` : nothing}${items.map((m, i) => html`<button class="sitem tap" style="--i:${i};animation-delay:${-i * 0.55}s" ?data-lifted=${c.liftedItem === m} aria-label="${m.name}. Tap to play in ${k.room}, or drag it to a room or to the music."
       @pointerdown=${(e: PointerEvent) => c.carryItem(e, m)} @click=${() => k.play(m)}><i class="sdeco" aria-hidden="true"></i><i class="puck onshelf" style="--art:${m.img ? `url(${m.img})` : blank(i)}"></i></button>`)}</div>
+    ${c.pads ?? nothing}
   </div>`;
 };
 const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" data-drop="deck" ?data-hot=${c.over === 'deck'} ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
@@ -619,6 +620,11 @@ export const viewsCss = css`
   .lamp[data-other] { background: var(--c); font-size: var(--fs-1); width: auto; min-width: 48px; padding: 0 9px; border-radius: 24px; letter-spacing: 0; }
   .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .master .lamp[data-hot] { box-shadow: 0 0 0 5px var(--accent); }
+  /* dark (Glass): OFF is a quiet lamp with an edge, ON the theme's own green with dark words, PLAYING the room's colour as a deep tone with its ring (backlog 119) */
+  :host([data-dark]) .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink3); }
+  :host([data-dark]) .lamp[aria-pressed='true'] { background: var(--ok); color: var(--on-ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent); }
+  :host([data-dark]) .lamp[data-other] { background: color-mix(in srgb, var(--c) 42%, var(--ring-halo)); color: var(--ink); box-shadow: inset 0 0 0 2px var(--c); }
+  :host([data-dark]) .master .lamp { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--accent); }
   .well { flex: 1; min-height: 60px; width: 100%; display: flex; justify-content: center; gap: 2px; }
   .vu { width: 10px; display: flex; flex-direction: column; gap: 3px; margin: 48px 0 70px; }
   .vu i { flex: 1; border-radius: 3px; background: var(--track); }
