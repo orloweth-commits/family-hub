@@ -46,7 +46,7 @@ export const tileOf = (item: string): [string, string] => {
 /**
  * "Out the door": the school-morning board, the one screen the morning can be run from.
  * Each child's card carries his current morning job as one big button he can tick from here (the next one follows), what is on
- * today and what to bring. The jobs still to do are shown once, for the family, as small faces: one face for each job. No card
+ * today and what to bring. The jobs still to do are shown once, for the family, as small faces: one face a child, with how many when more than one (batch 5: a face for each job read as a child twice). No card
  * has a bar, a score or a count of jobs. Time is shown once: one clock that empties towards the next time anyone leaves. A card
  * says a time only when its child leaves at a different one ("You leave 20 minutes later").
  */
@@ -57,10 +57,10 @@ export class FhMorning extends LitElement {
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; position: relative; }
     .board { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
     .team { flex: 1.4; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    /* the jobs still to do, as faces: one for each job, whoever's it is (more than twelve: one face a child, with how many) */
+    /* the jobs still to do, as faces: one a child with jobs left, with how many when more than one */
     .faces { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 6px; min-height: 36px; }
     .faces .fc { position: relative; display: inline-flex; line-height: 0; border-radius: 50%; }
-    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 20px; font-weight: var(--w-heavy, 800); text-align: center; }
+    .faces .fc b { position: absolute; right: -8px; bottom: -4px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--chip-strong); box-shadow: 0 0 0 1.5px var(--ink3); font-size: var(--fs-1); line-height: 22px; font-weight: var(--w-heavy, 800); text-align: center; }
     .faces .fc[data-n] { margin-right: 8px; }
     .label { font-size: var(--fs-2); }
     /* the one clock for the whole family: a face that empties as leaving time comes (for someone who cannot read), the minutes left, and the time on the clock in words and numerals */
@@ -130,7 +130,8 @@ export class FhMorning extends LitElement {
     .bring span { padding: 7px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, var(--chip)); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
     /* a card says a time only when its child does not leave with the clock above: how much later, in plain words, then the time */
     .lchip { font-size: var(--fs-2); font-weight: var(--w-heavy, 800); padding: 8px 12px; border-radius: 12px; background: var(--chip); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
-    .lchip .lt { font-weight: var(--w-semi, 600); color: var(--ink2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* the time follows the chip's own ink (Sports draws the chip as a black scoreboard: the second ink there was dark on black, batch 5) */
+    .lchip .lt { font-weight: var(--w-semi, 600); color: color-mix(in srgb, currentColor 78%, transparent); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     /* what the whole family has on is said once, across the top, not in every column */
     .fam { border-radius: 22px; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; flex-shrink: 0; }
     .fam .fev { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--chip); font-size: var(--fs-2); font-weight: var(--w-bold, 700); }
@@ -309,9 +310,9 @@ export class FhMorning extends LitElement {
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
           <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}${this.dinner ? html` · <span data-part="dinner">Dinner tonight: ${this.dinner}</span>` : nothing}</span></div>
         ${team.total ? html`<div class="team" data-part="team" role="img" aria-label=${ready ? 'Morning jobs: all done' : `Morning jobs to go: ${togo.map((g) => `${g.k.name} ${g.n}`).join(', ')}`}>
-          ${ready ? nothing : html`<div class="faces" aria-hidden="true">${team.total - team.done <= 12
-            ? togo.flatMap((g) => Array.from({ length: g.n }, () => html`<span class="fc" data-who=${g.k.name}>${face(g.k)}</span>`))
-            : togo.map((g) => html`<span class="fc" data-who=${g.k.name} data-n=${g.n}>${face(g.k)}<b>${g.n}</b></span>`)}</div>`}
+          ${ready ? nothing : html`<div class="faces" aria-hidden="true">${togo.map((g) => g.n > 1
+            ? html`<span class="fc" data-who=${g.k.name} data-n=${g.n}>${face(g.k)}<b>${g.n}</b></span>`
+            : html`<span class="fc" data-who=${g.k.name}>${face(g.k)}</span>`)}</div>`}
           <span class="nextstep ${ready ? 'set' : ''}">${ready ? 'Morning jobs: all done. Go team! 🎉' : `Morning jobs: ${team.total - team.done} to go between us`}</span></div>` : nothing}
         <div class="goclock ${left > 0 && left <= 10 ? 'soon' : ''}" data-part="goclock" role="timer" aria-label=${left > 0 ? `Time to leave: ${minWords(left)} until ${who} at ${t12(next!.at)}` : left > -5 ? 'Time to go' : 'Everyone has left'}>
           <span class="face" aria-hidden="true">${lookArt(getLook(), 'timer', { frac: left > 0 ? Math.min(1, left / 60) : 0, size: 96 })}<b>${left > -5 ? '🚪' : '👋'}</b></span>

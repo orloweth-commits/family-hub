@@ -964,7 +964,7 @@ export class FhSettings extends LitElement {
         ${this._row('Silent in quiet hours', 'Turns the panel’s touch sounds off in quiet hours. Timers and alarms always sound.', this._sw('Silent in quiet hours', q.mute === true, () => this._edit((x) => { const m = x.quiet?.mute === true; x.quiet = { ...(x.quiet ?? {}) }; if (m) delete x.quiet.mute; else x.quiet.mute = true; if (!Object.keys(x.quiet).length) delete x.quiet; })))}
       </div>
       <div class="scard" data-screen><h3>${icon('home', 20)}This screen</h3>
-        ${this._row('Light and dark', 'For the Glass look, on this screen only. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Space Mission is always dark. Kept on this screen, not saved with the rest.', this._seg<DarkMode>('Light and dark', getDarkMode(), DARK_MODES, (v) => { setDarkMode(v); sfx('set'); this.requestUpdate(); }))}
+        ${this._row('Light and dark', 'Used only when this screen wears the Glass look; the other looks keep their own colours. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Kept on this screen, not saved with the rest.', this._seg<DarkMode>('Light and dark', getDarkMode(), DARK_MODES, (v) => { setDarkMode(v); sfx('set'); this.requestUpdate(); }))}
         ${!hc?.heartbeat ? nothing : this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
       </div>
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>

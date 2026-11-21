@@ -37,7 +37,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) {
   const page = await open(`look=${look}&page=morning`); const b = await board(page);
   ok(`${look}: each card carries its child's current morning job as a button`, b.cols.length === 3 && b.cols.map((c) => c.job).join(' | ') === 'Brush teeth | Get dressed | Breakfast' && b.cols.every((c) => c.tag === 'button' && c.label.toLowerCase() === 'now' && c.pressed === 'false'), b.cols.map((c) => `${c.kid}: ${c.job}`));
   ok(`${look}: the job is a large picture button (96 px, 12 mm on the wall or more)`, b.cols.every((c) => c.h >= 96 && c.mm >= 12 && c.pic.length > 0), b.cols.map((c) => `${c.h}px ${c.mm.toFixed(1)}mm ${c.pic}`));
-  ok(`${look}: the jobs to go are faces, one a job, in the children's order`, b.faces.join(',') === 'Riley,Charlie,Charlie,Max' && b.faceMin >= 30 && b.team === 'Morning jobs to go: Riley 1, Charlie 2, Max 1' && b.line === 'Morning jobs: 4 to go between us', [b.faces, b.team, b.line]);
+  ok(`${look}: the jobs to go are faces, one a child with how many, in the children's order`, b.faces.join(',') === 'Riley,Charlie,Max' && b.faceMin >= 30 && b.team === 'Morning jobs to go: Riley 1, Charlie 2, Max 1' && b.line === 'Morning jobs: 4 to go between us', [b.faces, b.team, b.line]);
   ok(`${look}: no stars or team bar anywhere on the board`, b.stars === 0);
   ok(`${look}: no bar, ring or count of jobs on any card`, b.cols.every((c) => c.bars === 0 && !c.count));
   ok(`${look}: one clock; only the two who leave later say a time, as a difference`, b.clocks === 1 && /20 min/.test(b.clock) && /Leave at 7:30 am/.test(b.clock) && b.cols.map((c) => c.chip.replace('later7', 'later 7')).join(' | ') === 'You leave 20 minutes later 7:50 am | You leave 20 minutes later 7:50 am | ', b.cols.map((c) => c.chip));
@@ -59,7 +59,7 @@ for (const [w, h] of [[1280, 800], [1312, 668], [1180, 820], [1024, 768]]) for (
   ok('a tick on the board ticks the job in his own list', c.length === 1 && /todo\.charlie_chores/.test(c[0]) && /"status":"completed"/.test(c[0]), c);
   ok('a job with no points awards none', (await calls(page, 'fh_add_points')).length === 0);
   ok('the ticked job stays on his card for a moment, done, with a way back', b.cols[1].job === 'Get dressed' && b.cols[1].done && b.cols[1].pressed === 'true' && /Tap to undo/.test(await tx(job(page, 'Charlie'))), await tx(job(page, 'Charlie')));
-  ok('one face fewer, and the line counts down', b.faces.join(',') === 'Riley,Charlie,Max' && b.line === 'Morning jobs: 3 to go between us', [b.faces, b.line]);
+  ok('one fewer on his face, and the line counts down', b.faces.join(',') === 'Riley,Charlie,Max' && b.line === 'Morning jobs: 3 to go between us', [b.faces, b.line]);
   // a second tap straight away is a double tap, not an undo
   await job(page, 'Charlie').click(); await page.waitForTimeout(300);
   ok('a double tap does not take the tick back', (await calls(page, '^todo\\.update_item')).length === 1 && (await board(page)).cols[1].done);
@@ -87,7 +87,7 @@ for (const [w, h] of [[1280, 800], [1312, 668], [1180, 820], [1024, 768]]) for (
 { // Home Assistant does not answer: the tick comes back off and the card says so
   const page = await open('look=glass&page=morning&fail=1', '07:10', { quietErrs: true });
   await job(page, 'Riley').click(); await page.clock.runFor(800); await page.waitForTimeout(500); const b = await board(page);
-  ok('a tick that cannot be saved comes back off, and the card says so', b.cols[0].job === 'Brush teeth' && !b.cols[0].done && b.faces.length === 4 && /Couldn’t save that one/.test(await tx(col(page, 'Riley').locator('.jmsg'))), b.cols[0]);
+  ok('a tick that cannot be saved comes back off, and the card says so', b.cols[0].job === 'Brush teeth' && !b.cols[0].done && b.faces.length === 3 && /Couldn’t save that one/.test(await tx(col(page, 'Riley').locator('.jmsg'))), b.cols[0]);
   await page.context().close(); }
 { // the name still opens his page; the job button does not
   const page = await open('look=glass&page=morning');
@@ -121,7 +121,7 @@ for (const look of ['fridge', 'orbit', 'glass']) for (const [w, h] of [[1180, 82
   const b = await board(page);
   ok(`${look} at ${w} x ${h}, long names: the dock is inside the screen`, d.l >= 0 && d.r >= 0 && d.name >= 2, d);
   ok(`${look} at ${w} x ${h}, long names: a name stays inside its card`, b.cols.every((c) => c.nameOut <= 0), b.cols.map((c) => c.nameOut));
-  ok(`${look} at ${w} x ${h}, long names: the cards still carry their jobs, with nothing cut off`, b.cols.every((c) => c.job && c.cut <= 0) && b.faces.length === 4, b.cols.map((c) => `${c.job} ${c.cut} fit${c.fit}`));
+  ok(`${look} at ${w} x ${h}, long names: the cards still carry their jobs, with nothing cut off`, b.cols.every((c) => c.job && c.cut <= 0) && b.faces.length === 3, b.cols.map((c) => `${c.job} ${c.cut} fit${c.fit}`));
   await page.context().close(); }
 
 // 5. a child's page in the small hours is night, not last evening's wind-down

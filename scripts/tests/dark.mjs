@@ -97,7 +97,7 @@ for (const look of ['fridge', 'orbit', 'sports', 'obsidian']) { const ctx = awai
   ok('Settings, House, "This screen" has the same three choices, and Dark there darkens the panel behind it at once', !!got && got.before.join() === 'Light:true,Dark:false,Auto:false' && got.dark && got.st && got.saved === 'dark', got);
   ok('it is this screen\'s own: it does not make Settings ask to be saved', !!got && !got.dirty, got?.dirty); await shut(page); }
 { const page = await open('theme=space&page=planner&sheet=themes'); const t = await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('.seg[data-set="dark"]')?.closest('.setrow')?.textContent ?? '');
-  ok('on Space the control says Space is always dark', /Space Mission is always dark/.test(t), t.slice(0, 80)); await shut(page); }
+  ok('on Space the control says Space is always dark', /Space Mission background is always dark/.test(t), t.slice(0, 80)); await shut(page); }
 { const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } }); const page = await ctx.newPage(); await page.clock.setFixedTime(new Date('2026-11-10T16:20:00+08:00')); await page.goto(`http://localhost:${PORT}/?look=orbit&page=planner&sheet=themes`); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(500);
   ok('a look with no dark mode does not offer the control', await page.evaluate(() => !document.querySelector('family-hub-card').shadowRoot.querySelector('.seg[data-set="dark"]'))); await ctx.close(); }
 

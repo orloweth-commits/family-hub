@@ -68,7 +68,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'row', 'check', 'content', 'done', 'now', 'big', 'past', 'next', 'meter', 'tab', 'tabs', 'field', 'key', 'today', 'away', 'playing', 'on', 'hot', 'i', 'seg', 'init', 'sm', 'verdict'],
   // named regions, by the component that owns them
   parts: {
-    'family-hub-card': ['body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
+    'family-hub-card': ['sos000', 'body', 'clock', 'wide', 'hm', 'cap', 'weather', 'badge', 'presence', 'right', 'planner', 'legend', 'week', 'col', 'dayhead', 'num', 'ev', 't', 'w', 'more',
       'cell', 'out', 'dayrow', 'np', 'np-row', 'art', 'timerrow', 'hint', 'rem', 'dock', 'item', 'kidbtn', 'kn', 'sep', 'tcard', 'capsule', 'mchip', 'med2', 'opt', 'sw',
       // drawings a look adds through art
       'aclock', 'chrono', 'dial', 'nowdot', 'tface', 'dayview', 'dayart', 'ddial', 'dh', 'dp', 'nart', 'sboard', 'dg', 'colon', 'dball', 'tmeter',
@@ -78,7 +78,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
     'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'wedge', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
-    'fh-music': ['stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
+    'fh-music': ['hpad', 'stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
       'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
     'fh-home': ['rooms', 'room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
@@ -872,7 +872,8 @@ const FRIDGE = `
 
   /* night: the kitchen clock keeps watch */
   /* the screensaver: the time is a note under a magnet, a little crooked */
-  @F .artm[data-mat] { --mat: #f1ecdf; --mat-lip: #fffdf6; }
+  /* by day only: at night the base's dark mat and lip win (a white lip round a dim print was the brightest thing in the room, batch 5) */
+  @F .artm[data-mat]:not([data-night]) { --mat: #f1ecdf; --mat-lip: #fffdf6; }
   @F .artm[data-bare]:not([data-night]) { --ink: #23262b; --ink2: #4a4f57; --ink3: #7a808a; --track: rgba(35,38,43,.2); --accent: #d6453d; }
   @F .artm:not([data-night]) .aplate { background: #fffdf6; color: #23262b; border: 0; border-radius: 5px; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 12px 22px rgba(0,0,0,.34); rotate: -1.4deg; }
   @F .artm .atime .big { font-weight: 600; }
@@ -1001,8 +1002,8 @@ const ORBIT = `
   @O .row.now { background: color-mix(in srgb, var(--accent) 9%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--accent); }
   @O .row.big { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 22px; border-bottom: 0; }
   @O .field { background: transparent; box-shadow: none; border-bottom: 2px solid var(--ctl-line); border-radius: 0; font-weight: 400; font-size: var(--fs-5); padding: 0 4px; min-width: 0; }
-  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it) */
-  @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  /* a text field with the keyboard's focus shows the ring every other control has (the look's underline has no shadow to carry it); rounded, as everything in Orbit is (a square ring read as a browser control, batch 5) */
+  @O .field:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 14px; }
   @O .key { background: var(--chip); box-shadow: inset 0 0 0 1.5px var(--ctl-line); border-radius: 999px; font-weight: 400; }
   /* outlined controls light their line when pressed; they never shrink. Shift is a ring, and yellow only while it is latched */
   @O .key:active { background: var(--chip-strong); transform: none; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -1102,7 +1103,9 @@ const ORBIT = `
   @O .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .lamp[aria-pressed='true'] { background: var(--accent); color: #0a0f1e; box-shadow: none; }
   @O .strip[data-live] .fcap { background: var(--c); box-shadow: none; }
-  @O .fcap { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
+  /* the moment pads are Orbit's pale planet colours: their words in the night's ink, not white (white on mint was about 1.5 to 1, batch 5) */
+  @O .hpad { color: #0d1130; }
+  @O .fcap { background: color-mix(in srgb, var(--ink) 22%, var(--ground)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 55%, transparent); }
   @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .mpad { box-shadow: none; }
@@ -1742,7 +1745,8 @@ const OBSIDIAN = `
   /* a child's page, in the same restraint: one fine ring of his colour behind him, numbers as instruments */
   @B .hero::before { inset: 0; height: auto; background: radial-gradient(80% 50% at 50% 45%, color-mix(in srgb, var(--kid) 10%, transparent), transparent 70%); }
   /* no cartoon: the name alone, set wide in the display face over a hairline of his colour */
-  @B .avbtn { display: none; }
+  /* the hero's figure is a large initial in a hairline ring of his colour (renderAvatar's plain branch), so the column is not empty (batch 5) */
+  @B .avbtn { flex: 0 1 240px; }
   @B .hero { justify-content: center; }
   @B .name { font-family: 'Cormorant Garamond', 'Jost', 'Noto Emoji', serif; font-weight: 400; font-size: var(--fs-d1); letter-spacing: .22em; text-transform: uppercase; padding-bottom: 14px; background: linear-gradient(90deg, transparent, var(--kid), transparent) 50% 100% / 70% 1px no-repeat; }
   @B .rank { background: transparent; color: var(--kid); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kid) 70%, transparent); font-weight: 400; }
@@ -1820,6 +1824,9 @@ const OBSIDIAN = `
   @B .mzone[data-playing] .pool { animation: breathe 4.2s ease-in-out infinite; animation-iteration-count: var(--loops, infinite); }
   @B .puck { border: 1px solid var(--ink); box-shadow: 0 0 10px -2px var(--live); }
   @B .mshelf { background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  /* the moment pads: smoked glass with the pad's colour in its edge and its drawing, not four pastel blocks on black (batch 5) */
+  @B .hpad { background: color-mix(in srgb, var(--c) 10%, transparent); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent); font-weight: 500; }
+  @B .hpad[data-on] { box-shadow: inset 0 0 0 1.5px var(--c), 0 0 26px -8px var(--c); }
   @B .wholeh { border-width: 1px; border-color: var(--ctl-line); }
   @B .viewbtn { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); letter-spacing: .03em; }
   @B .vcard { background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-line); }
@@ -1835,7 +1842,8 @@ const OBSIDIAN = `
   @B .lamp { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @B .lamp[aria-pressed='true'] { background: color-mix(in srgb, var(--live) 24%, transparent); color: #fff; box-shadow: inset 0 0 0 1px var(--live), 0 0 18px -4px var(--live); }
   @B .strip[data-live] .fcap { background: var(--c); box-shadow: 0 0 14px -2px var(--c); }
-  @B .fcap { background: #000; box-shadow: inset 0 0 0 1px var(--ctl-line); }
+  /* a quiet room's thumb: smoked grey with a light hairline, dim but in sight (black on a black rail was lost, batch 5) */
+  @B .fcap { background: #2a2c33; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.42); }
   @B .slot { --rail-w: 1px; }
   @B .jog { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @B .mpad { box-shadow: inset 0 0 0 1px var(--glass-line); }
@@ -1891,6 +1899,8 @@ const OBSIDIAN = `
   @B .opt[aria-checked='true'] .sw { background: color-mix(in srgb, var(--live) 45%, #000); box-shadow: 0 0 14px -3px var(--live); }
   /* the chosen look or picture: a champagne hairline and a tick, never a fill */
   @B .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
+  /* the emergency card stays red and first, as deep red glass with pale words: a pale pink box was the one light box left on black (batch 5) */
+  @B .sos000 { background: color-mix(in srgb, #b91c1c 26%, #0b0b0d); color: #ffe4e0; box-shadow: inset 0 0 0 1px rgba(248,113,113,.55); }
   @B .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 1px var(--accent), 0 0 30px -10px var(--accent); }
   @B .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #000; font-size: var(--fs-2); font-weight: 600; line-height: 28px; text-align: center; box-shadow: 0 0 0 3px #000; }
   /* sheets: chips are hairline rings; the chosen one is champagne */

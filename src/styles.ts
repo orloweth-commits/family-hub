@@ -570,13 +570,16 @@ export const styles = css`
   /* "Overdue" on a medicine: a small filled badge in the amber of the overdue chip, with dark words: pale red text on a dark card was the quietest thing on it */
   :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
+  /* an overdue medicine that has been seen: deep amber glass with amber words in the dark, not a full-strength yellow pill (the brightest thing on a dark page at 9:30 pm, batch 5) */
+  :host([data-dark]) .cap[data-warm] { background: color-mix(in srgb, #f5b301 24%, var(--ring-halo)); color: #ffd98a; border-color: color-mix(in srgb, #f5b301 75%, transparent); }
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
   :host([data-dark]) input.field:focus-visible { outline: 3px solid var(--ink) !important; outline-offset: 2px; box-shadow: inset 0 0 0 3px var(--primary), 0 0 0 5px var(--ring-halo) !important; }
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev[data-dark] { background: var(--dim), var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
-  .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* the five looks stand in one row on a wide screen, so the backgrounds under them are in sight without scrolling (batch 5: their row was cut at the sheet's foot) */
+  .looks { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   /* a child's own picker: "Same as the panel" and every look */
   .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }

@@ -25,6 +25,8 @@ export class FhAddEvent extends LitElement {
     /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); }
     :host([data-under]) { padding-top: var(--top, 110px); }
+    /* too tall to sit under the header: it starts at the top and covers the header whole, rather than centring and leaving the chips cut in half above it (batch 5) */
+    :host(:not([data-under]):not([data-phone])) { align-items: flex-start; }
     :host([data-phone]) { position: fixed; align-items: flex-start; padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px)); }
     :host([data-phone]) .box { width: 100%; padding: 14px 14px 0; }
     :host([data-phone]) .keys, :host([data-keys='off']) .keys { display: none; }
@@ -432,7 +434,7 @@ export class FhAddEvent extends LitElement {
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? 'Change this event' : 'Add to the calendar'}</h2>
         <span class="sum" aria-live="polite">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>
         <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 20)}</button></div>
-      <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
+      <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
           @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') void this._save(); }}>
       <div class="wherebox"><span class="pin" aria-hidden="true">${icon('pin', 24)}</span>
         <input class="field where ${this._in === 'where' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="Where" placeholder="Where? (optional)" .value=${this._loc}
