@@ -232,6 +232,10 @@ export const styles = css`
   .dayhead { display: flex; align-items: center; gap: 6px; padding: 2px 2px 4px; }
   .num { font-size: var(--fs-3); font-weight: var(--w-heavy, 800); padding: 0 4px; }
   .pchip { margin-left: auto; font-size: var(--fs-1); opacity: .7; }
+  /* bin night on its own day of the week (4d): the header gives way to anything more urgent, the week does not */
+  .dayhead .binmk { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px 0 4px; border-radius: 999px; background: var(--chip); color: var(--ink2); flex-shrink: 0; line-height: 0; }
+  .dayhead .binmk .bin { width: 9px; height: 12px; }
+  .dayhead :is(.pchip, .dball) ~ .binmk { margin-left: 4px; }
   .today .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: var(--fs-2); }
   .ev { border-radius: 12px; padding: 7px 9px 7px 10px; display: flex; flex-direction: column; gap: 2px; background: color-mix(in srgb, var(--c) 24%, var(--chip-soft)); border-left: 5px solid var(--c); }
   /* an event is a button: it opens its details */
@@ -266,7 +270,9 @@ export const styles = css`
   .dayrow.past { background: color-mix(in srgb, var(--c, transparent) 8%, transparent); border-left-color: color-mix(in srgb, var(--c, transparent) 45%, transparent); }
   /* "+N more": a small pill directly under the last event shown; the button around it is a full 44 px target that reaches into the column's padding */
   .more { height: 44px; margin-bottom: -14px; flex-shrink: 0; padding: 0; background: transparent; text-align: left; display: flex; align-items: flex-start; }
-  .more .mpill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
+  .more .mpill { display: inline-flex; align-items: center; gap: 2px; height: 30px; padding: 0 6px 0 12px; border-radius: 999px; background: var(--chip-strong); color: var(--ink); font-size: var(--fs-2); font-weight: var(--w-bold, 700); white-space: nowrap; }
+  /* on today's column (already the strongest chip) the pill stands out with the card's own white and a hairline (4d: it vanished there) */
+  .col.today .more .mpill { background: var(--ring-halo, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent); }
   .ev .loc, .dayrow .loc { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.2; }
   .ev .loc svg, .dayrow .loc svg { flex: 0 0 auto; }
   .col[data-tight] .ev .loc { display: none; }
@@ -317,10 +323,19 @@ export const styles = css`
   /* the hint under the buttons keeps the same room below it as the label has above, in every look (a look's timer can be taller) */
   aside > .card.tmr { padding-bottom: 16px; }
   aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
+  /* the jar on the rail reads as a child's page does (4d): marbles to go, today's family total, and the rule in words where the rail has the height; two lines, so Reminders keeps its rows */
+  .jartxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .jartop { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+  .jargo { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; min-width: 0; }
+  .jartop .jarnew { font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink); white-space: nowrap; flex-shrink: 0; }
+  .jarrule { display: none; font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+  @media (min-height: 900px) and (orientation: landscape) { .jarrule { display: block; } }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
   .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 12px; margin: -6px -12px; }
-  .remmore { height: 16px; line-height: 16px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); flex-shrink: 0; }
+  /* how many more there are sits beside the card's name, so the list keeps all its height for rows (129) */
+  .remhead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+  .remmore { line-height: 1.2; font-size: var(--fs-2); font-weight: var(--w-bold, 700); color: var(--ink2); white-space: nowrap; flex-shrink: 0; }
   .troll { display: inline-block; animation: troll var(--m-2) var(--e-out); }
   @keyframes troll { from { transform: translateY(calc(12px * var(--m-d, 1))); opacity: 0; } }
   [data-bump] { --ring-t: var(--mt-3); --ring-e: var(--e-out); }
@@ -526,6 +541,9 @@ export const styles = css`
     /* music with no picture: a deep tile of the theme's two colours, not a pale square */
     --art-none: linear-gradient(135deg, color-mix(in oklab, var(--accent) 45%, #b4530a), color-mix(in oklab, var(--primary) 40%, #1f5488)); }
   :host([data-dark]) .sheet { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); border-color: color-mix(in srgb, var(--ink) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 22%, transparent), 0 0 0 1px rgba(0,0,0,.55), 0 30px 80px rgba(0,0,0,.6); }
+  /* today in the month view is marked as in the week, by a ring, not a lighter fill (4d: backlog 113); days outside the month lose their tiles and keep a hairline */
+  :host([data-dark]) .fh .cell.today { background: var(--chip-soft); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 62%, transparent); }
+  :host([data-dark]) .fh .cell.out { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent); }
   /* "+3" on a month's day: a quiet raised chip, not the brightest thing on the page */
   :host([data-dark]) .cell .mmore { background: var(--chip); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); }
   /* drawings on the dock made for a pale bar (a black record, a grey bulb) keep a thin light edge on a dark one */

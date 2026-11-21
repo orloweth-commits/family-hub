@@ -162,6 +162,22 @@ for (const theme of ['sea', 'sunset', 'reef', 'bush']) { const page = await open
   const t = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; const cs = getComputedStyle(r.querySelector('.fh > .body')); return { prop: cs.transitionProperty, dur: cs.transitionDuration, dim: getComputedStyle(r.querySelector('.dkdim')).transitionDuration }; });
   ok('while it changes, every colour crosses over 1.6 s (and nothing but colour)', /background-color/.test(t.prop) && !/transform|all/.test(t.prop) && /1\.6s/.test(t.dur) && /1\.6s/.test(t.dim), t); await shut(page); }
 
+// 4d (113): in the dark "today" in the month view and on Weather's week is a ring, as on the planner's week, not a lighter fill; days outside the month lose their tiles
+{ const page = await open('page=planner&view=month&dark=1');
+  const m = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, t = r.querySelector('.month .cell.today'), o = r.querySelector('.month .cell:not(.today):not(.out)'), out = r.querySelector('.month .cell.out'); const cs = (e) => getComputedStyle(e);
+    return { ring: /inset/.test(cs(t).boxShadow) && /2px/.test(cs(t).boxShadow), same: cs(t).backgroundColor === cs(o).backgroundColor, out: cs(out).backgroundColor }; });
+  ok('dark: today in the month view is a ring on an ordinary tile', m.ring && m.same, m);
+  ok('dark: days outside the month have no tile', /rgba\(0, 0, 0, 0\)|transparent/.test(m.out), m.out);
+  await shut(page);
+  const w = await open('page=weather&dark=1');
+  const d = await w.evaluate(() => { const q = [document]; let wx; while (q.length) { const r = q.shift(); wx = r.querySelector('fh-weather'); if (wx) break; r.querySelectorAll('*').forEach((x) => x.shadowRoot && q.push(x.shadowRoot)); } const t = wx.shadowRoot.querySelector('.wday.today'); return getComputedStyle(t).boxShadow; });
+  ok('dark: today on Weather’s week is a ring', /inset/.test(d) && /2px/.test(d), d);
+  await shut(w);
+  const lt = await open('page=planner&view=month');
+  const l = await lt.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.month .cell.today')).boxShadow);
+  ok('light: the month view’s today is as it was (a fill, no ring)', l === 'none', l);
+  await shut(lt); }
+
 await browser.close(); srv.close();
 console.log(`\n${pass} passed, ${fails.length} failed`);
 console.log(errs.length ? `page errors:\n${[...new Set(errs)].map((e) => ' - ' + e.slice(0, 300)).join('\n')}` : 'page errors: none');

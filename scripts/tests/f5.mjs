@@ -28,7 +28,7 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   ok('the list comes first: no keys until the box is touched, and a line says how', await G.locator('.keys').count() === 0 && await G.locator('[data-keyhint]').count() === 1);
   const heads = await G.locator('[data-aisle]').evaluateAll((h) => h.map((x) => x.getAttribute('data-aisle')));
   ok('the list is grouped by aisle, each group under its heading, in order', heads.length >= 3 && JSON.stringify(heads) === JSON.stringify([...heads].sort()) && new Set(heads).size === heads.length, heads);
-  const order = await G.locator('.items > *').evaluateAll((n) => n.map((x) => (x.hasAttribute('data-aisle') ? '#' + x.getAttribute('data-aisle') : x.classList.contains('item') ? x.querySelector('.strike')?.textContent : '')).filter(Boolean));
+  const order = await G.locator('.items > :not(.grp), .items > .grp > *').evaluateAll((n) => n.map((x) => (x.hasAttribute('data-aisle') ? '#' + x.getAttribute('data-aisle') : x.classList.contains('item') ? x.querySelector('.strike')?.textContent : '')).filter(Boolean));
   ok('every heading has something under it', order.every((x, i) => !x.startsWith('#') || (order[i + 1] && !order[i + 1].startsWith('#'))), order.slice(0, 8));
   // 0.38.3, the layout: the list has the room, the usuals are large chips, the keys slide up over the lower part of the page
   const box = (sel) => G.locator(sel).first().evaluate((e) => { const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height, b: b.bottom, r: b.right }; });
@@ -194,6 +194,46 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   await sw.click(); await page.waitForTimeout(250); await S2.locator('.sft [data-act="save"]').click(); await page.waitForTimeout(900);
   const made = await page.evaluate(() => ({ calls: (window.__calls ?? []).filter((c) => /api\.POST/.test(c)), body: window.__term, jar: document.querySelector('family-hub-card')._config.jar }));
   ok('switching it on and saving writes the automation, at 10 points a marble', made.calls.join() === 'api.POST config/automation/config/family_hub_term' && made.body?.id === 'family_hub_term' && made.jar.term_points === 10, [made.calls, made.jar]);
+  await page.context().close(); }
+
+// 6. polish batch 4d: Groceries keeps a short aisle whole and gives a long one "…, more" at the top of each column it carries into;
+// with the keys up every usual is still above the tray; Weather keeps "Bigger map" per screen and humidity behind More; Home's
+// hold chip only on a room with something to switch (133)
+{ const page = await open('look=glass&page=groceries&long=1'); const G = page.locator('fh-groceries');
+  const cols = () => G.evaluate((g) => [...g.shadowRoot.querySelectorAll('.grp')].map((x) => ({ g: x.dataset.g, whole: x.hasAttribute('data-whole'), cols: new Set([...x.querySelectorAll('.row[data-key]')].map((r) => r.offsetLeft)).size, cont: [...x.querySelectorAll('.cont')].map((c) => ({ top: !c.previousElementSibling || c.previousElementSibling.offsetLeft !== c.offsetLeft, withNext: c.nextElementSibling?.offsetLeft === c.offsetLeft })) })));
+  const a = await cols();
+  ok('a short aisle stays whole in one column', a.filter((x) => x.whole).length >= 4 && a.filter((x) => x.whole).every((x) => x.cols === 1 && !x.cont.length), a);
+  for (const n of ['Pears', 'Grapes', 'Lettuce', 'Onions', 'Potatoes', 'Lemons', 'Avocado', 'Spinach', 'Cucumber', 'Kiwi fruit']) await page.evaluate((item) => document.querySelector('family-hub-card').hass.callService('todo', 'add_item', { item }, { entity_id: 'todo.shopping_list' }), n);
+  await page.waitForTimeout(900);
+  const b = await cols(), fv = b.find((x) => x.g === 'Fruit & veg');
+  ok('a long aisle carries on under “…, more” at the top of each column it reaches, and nowhere else', !!fv && !fv.whole && fv.cols >= 2 && fv.cont.length === fv.cols - 1 && fv.cont.every((c) => c.top && c.withNext) && b.filter((x) => x !== fv).every((x) => !x.cont.length), fv);
+  ok('the “…, more” heading is for the eye only (a screen reader reads the list as one)', await G.locator('.cont').evaluateAll((c) => c.length > 0 && c.every((x) => x.getAttribute('aria-hidden') === 'true' && !x.hasAttribute('role'))) && /Fruit & veg, more/i.test(await G.locator('.cont').first().innerText()));
+  await G.locator('.entry .field').dispatchEvent('pointerdown'); await page.waitForTimeout(600); await G.evaluate((g) => g.shadowRoot.getAnimations().forEach((x) => x.finish()));
+  const u = await G.evaluate((g) => { const t = g.shadowRoot.querySelector('.tray').getBoundingClientRect().top; return [...g.shadowRoot.querySelectorAll('.usuals .quick')].map((c) => Math.round(t - c.getBoundingClientRect().bottom)); });
+  ok('with the keys up every usual is above the tray, in reach', u.length >= 6 && u.every((d) => d >= 0), u);
+  await page.context().close(); }
+{ const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true }); const page = await ctx.newPage(); await page.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') });
+  const go = async (qs) => { await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page.locator('fh-weather'); };
+  let W = await go('look=glass&page=weather');
+  await W.locator('[data-act="mapsize"]').click(); await page.waitForTimeout(300);
+  W = await go('look=glass&page=weather');
+  ok('“Bigger map” is kept on this screen: the next visit opens with the large map', await W.locator('.wmaps').getAttribute('data-size') === 'large' && (await W.locator('[data-act="mapsize"]').innerText()).trim() === 'Smaller map');
+  await W.locator('[data-act="mapsize"]').click(); await page.waitForTimeout(300);
+  W = await go('look=glass&page=weather');
+  ok('and “Smaller map” is kept too', await W.locator('.wmaps').getAttribute('data-size') === 'small');
+  for (const look of ['glass', 'obsidian', 'sports', 'fridge', 'orbit']) {
+    W = await go(`look=${look}&page=weather`); const now = W.locator('.wnow');
+    await now.locator('[data-act="wmore"]').click(); await page.waitForTimeout(300);
+    const r = await now.evaluate((n) => { const shown = (e) => e.offsetParent !== null; const smalls = [...n.querySelectorAll('.wfact')].filter(shown).map((f) => f.querySelector('small')?.textContent ?? ''); const b = n.querySelector('[data-act="wmore"]').getBoundingClientRect(), nb = n.getBoundingClientRect(); return { smalls, inside: b.bottom <= nb.bottom && b.top >= nb.top, head: !!n.querySelector('.nhead [data-act="wmore"]'), over: n.scrollHeight - n.clientHeight }; });
+    ok(`${look}: with More open, humidity, fire danger and sunrise all show, and Less sits beside the heading inside the card`, ['Humidity', 'Fire danger', 'Sunrise to sunset'].every((k) => r.smalls.includes(k)) && r.inside && r.head && r.over <= 1, r); }
+  W = await go('look=glass&page=weather&wx=rain');
+  ok('while rain is about the map is large whatever was chosen', await W.locator('.wmaps').getAttribute('data-size') === 'large' && await W.locator('[data-act="mapsize"]').count() === 0);
+  await ctx.close(); }
+{ const page = await open('look=glass&page=home'); const H = page.locator('fh-home');
+  ok('a child’s room with something a tap switches has its chip', await H.locator('.room[data-room="riley"] [data-rguard="hold"]').count() === 1);
+  await page.evaluate(() => { const c = document.querySelector('family-hub-card'), st = { ...c.hass.states }; for (const id of Object.keys(st)) if (c.hass.entities?.[id]?.area_id === 'riley' || /riley/.test(id)) if (/^(light|switch|fan|input_boolean|climate)\./.test(id)) st[id] = { ...st[id], state: 'unavailable' }; c.hass = { ...c.hass, states: st }; });
+  await page.waitForTimeout(400);
+  ok('one with nothing a tap switches (only speakers, or nothing answering) has none', await H.locator('.room[data-room="riley"]').count() === 1 && await H.locator('.room[data-room="riley"] .rguard').count() === 0 && await H.locator('.room[data-room="charlie"] .rguard').count() === 1);
   await page.context().close(); }
 
 await browser.close(); srv.close();

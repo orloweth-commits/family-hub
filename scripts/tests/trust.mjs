@@ -234,6 +234,32 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('a house with no PIN shows it as before', /welcome-in/.test(await C(open1).evaluate((c) => c.shadowRoot.querySelector('.sheet').textContent)));
   await open1.context().close(); }
 
+// 4d: the planner's rail and week. The jar reads as a child's page does; Reminders says how many more beside its name and cuts no row
+// (129); bin night is marked on its own day; "+N more" on a busy day stands out on today's column and opens the day
+{ const norm = (t) => t.replace(/\s+/g, ' ').trim();
+  for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) { const page = await open(`look=${look}&page=planner&trust=1&digest=two&approve=1&voice=1`); await settle(page);
+    const jar = norm(await C(page).locator('aside .card.jar').innerText());
+    ok(`${look}: the rail’s jar says marbles to go, today’s family total and the rule`, /^36 marbles to go \+3 today Every family job adds a marble\.$/.test(jar) && await C(page).locator('aside .card.jar .jarpic svg rect[clip-path]').count() === 1, jar);
+    const r = await C(page).evaluate((c) => { const root = c.shadowRoot, list = root.querySelector('.remlist'), card = root.querySelector('.card.rems'), more = root.querySelector('.remmore'), lb = list.getBoundingClientRect(), cb = card.getBoundingClientRect();
+      const rows = [...list.querySelectorAll('.rem')].map((e) => e.getBoundingClientRect());
+      return { shown: rows.length, more: more?.textContent.trim() ?? '', inHead: !!more?.closest('.remhead'), cut: rows.filter((b) => b.bottom > lb.bottom + 0.5 || b.bottom > cb.bottom + 0.5).length, moreIn: more ? more.getBoundingClientRect().bottom <= cb.bottom : true, total: c._reminders.length }; });
+    ok(`${look}: Reminders says how many more beside its name, and no row is cut`, r.inHead && r.cut === 0 && r.moreIn && r.shown >= 1 && r.more === `+${r.total - r.shown} more`, r);
+    const bins = await C(page).locator('.week .col .binmk').evaluateAll((b) => b.map((x) => [x.closest('.col').querySelector('.dayhead').textContent.trim().slice(0, 3), x.getAttribute('aria-label')]));
+    ok(`${look}: bin night is marked on its own day of the week, and only there`, bins.length === 1 && bins[0][0] === 'Mon' && /^Bin night: the .+ go(es)? out$/.test(bins[0][1]), bins);
+    await page.context().close(); }
+  const none = await open('look=glass&page=planner&jarbase=none'); await settle(none);
+  ok('with no history the rail’s jar leaves out today’s count', /^36 marbles to go Every family job adds a marble\.$/.test(norm(await C(none).locator('aside .card.jar').innerText())), norm(await C(none).locator('aside .card.jar').innerText()));
+  await none.context().close();
+  const small = await open('look=glass&page=planner', '16:20', { w: 1312, h: 668 }); await settle(small);
+  ok('on a smaller screen the rail’s jar keeps two short lines: no rule', /^36 marbles to go \+3 today$/.test(norm(await C(small).locator('aside .card.jar').innerText())), norm(await C(small).locator('aside .card.jar').innerText()));
+  await small.context().close();
+  const busy = await open('look=glass&page=planner&events=many'); await settle(busy);
+  const pill = await C(busy).evaluate((c) => { const col = c.shadowRoot.querySelector('.week .col.today'), b = col.querySelector('.more'), p = b?.querySelector('.mpill'); return b ? { label: b.getAttribute('aria-label'), bg: getComputedStyle(p).backgroundColor, col: getComputedStyle(col).backgroundColor, arrow: !!p.querySelector('svg'), text: p.textContent.trim() } : null; });
+  ok('a busy day says how many more on a pill that stands out on today’s column, with an arrow', !!pill && /^\+\d+ more$/.test(pill.text) && pill.bg !== pill.col && pill.arrow && /Open the day$/.test(pill.label), pill);
+  await C(busy).locator('.week .col.today .more').click(); await busy.waitForTimeout(300);
+  ok('and opens the day', await C(busy).evaluate((c) => c._view) === 'day');
+  await busy.context().close(); }
+
 await browser.close(); srv.close();
 console.log(`\n${pass} passed, ${fails.length} failed${errs.length ? `, ${errs.length} page errors` : ''}`);
 for (const f of fails) console.log('FAILED: ' + f);
