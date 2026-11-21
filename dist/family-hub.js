@@ -4390,9 +4390,10 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
      a look may use it for a magnet or a ring. The drawings carry their own colours and need no tile. */
   svg.i.pic2 { stroke: none; fill: none; overflow: visible; box-sizing: border-box; font-family: inherit; }
   svg.pic2 text { font-family: inherit; font-variant-numeric: tabular-nums; }
-  /* (4e, backlog 10) where the drawings are small (the compact frame: a laptop, an iPad), a count's badge grows from its corner so its number stays about 12 px, and the calendar's weekday (7 px there) gives way to the date */
-  .fh[data-compact] svg.pic2 .p-badge, :host([data-phone]) svg.pic2 .p-badge { transform-origin: right top; scale: 1.3; }
-  .fh[data-compact] svg.pic2 .p-dow, :host([data-phone]) svg.pic2 .p-dow { display: none; }
+  /* (4e, backlog 10) where the card is not zoomed up (a laptop, an iPad, a phone: --z under the wall's 1.35), a count's badge grows from its corner so its number stays about 12 px,
+     and the calendar's weekday (7 px there) gives way to the date: it shows only from a zoom of 1.2 */
+  .fh svg.pic2 .p-badge { transform-origin: right top; scale: max(1, calc(1.3 / var(--z, 1))); }
+  .fh svg.pic2 .p-dow { opacity: clamp(0, calc((var(--z, 1) - 1.2) * 50), 1); }
   .dock .item:is([data-nav='sun'], [data-nav='home']) { --bt: #ffe7c2; --bl: #7a3a06; --bo: #ffcf9a; }
   .dock .item:is([data-nav='calendar'], [data-nav='cloud']) { --bt: #d6e4ff; --bl: #1d3f8f; --bo: #a9c1ff; }
   .dock .item:is([data-nav='cart'], [data-nav='music']) { --bt: #d3efdb; --bl: #14592c; --bo: #9be3b1; }
@@ -4540,7 +4541,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-dark]) .fh .ev { background: color-mix(in oklab, color-mix(in srgb, var(--c) 78%, #fff) 62%, var(--ring-halo)); border-left-color: color-mix(in srgb, var(--c) 72%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 46%, transparent); }
   /* a past event sinks below its column and keeps its hue, its bar and a hairline of the person's colour */
   /* (4e, backlog 117) the person's own hue taken down in lightness and a little in chroma, not mixed towards the panel, so a past pink and a past orange stay two colours on Sunset's plum (the mix is the fallback) */
-  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); background: oklch(from var(--c) calc(l * .5) calc(c * .78) h); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
+  :host([data-dark]) .fh .ev.past { background: color-mix(in oklab, var(--c) 34%, var(--ring-halo)); background: oklch(from var(--c) calc(l * .5) calc(c * .5) h); border-left-color: color-mix(in srgb, var(--c) 80%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, color-mix(in srgb, var(--c) 55%, #fff) 34%, transparent); }
   /* the next event keeps its ring (the theme's own colour), as the chip in the top bar names it */
   :host([data-dark]) .fh .ev.next { box-shadow: inset 0 0 0 2.5px var(--primary); }
   :host([data-dark]) .fh .ev.past :is(.t, .w, .n, .content, span, b) { color: var(--ink2); }
@@ -15614,7 +15615,7 @@ qr.styles = [Xt, st`
     /* his current morning job: one big button, a picture, the words and a circle to tick. It is the only thing on the board a child presses in the morning */
     /* in the dark a child's colour is lifted wherever it is drawn as a line (the bar over his column, the ring round his job), so teal still shows on a teal panel */
     :host([data-dark]) .kcol { border-top-color: color-mix(in srgb, var(--kid) 58%, #fff); }
-    :host([data-dark]) .jobbtn { background: color-mix(in oklab, var(--kid) 46%, var(--ring-halo)); background: oklch(from var(--kid) calc(l * .6) calc(c * .85) h); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 58%, #fff); }
+    :host([data-dark]) .jobbtn { background: color-mix(in oklab, var(--kid) 46%, var(--ring-halo)); background: oklch(from var(--kid) calc(l * .62) calc(c * .6) h); box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--kid) 58%, #fff); }
     /* (4e, backlog 116) above: the child's own hue taken down in lightness, not mixed into the panel (an orange went brown, a teal sank into Reef's teal). Below: what to bring sits on the theme's own tone with a hairline of the accent, not amber mixed into blue */
     :host([data-dark]) .tile, :host([data-dark]) .bring span { background: var(--chip-strong); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
     .jobbtn { display: flex; align-items: center; gap: 12px; min-height: 96px; padding: 10px 14px; border-radius: 22px; text-align: left; background: color-mix(in srgb, var(--kid) 16%, var(--chip)); box-shadow: inset 0 0 0 2.5px var(--kid); flex-shrink: 0; }
