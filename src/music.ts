@@ -1,4 +1,4 @@
-import { LitElement, html, css, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
+import { LitElement, html, svg, css, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { styles } from './styles';
 import { LookController, getLook, lookArt, plainLook } from './looks';
@@ -36,6 +36,10 @@ const COACH_MS = 4000;
 const COACH_KEY = 'fh-music-coach';
 const coachDue = (view: string, day: string): boolean => { const r = ls<{ d?: string; v?: string[] }>(COACH_KEY, {}); return r.d !== day || !(r.v ?? []).includes(view); };
 const coachSeen = (view: string, day: string): void => { const r = ls<{ d?: string; v?: string[] }>(COACH_KEY, {}); lsSet(COACH_KEY, { d: day, v: [...new Set([...(r.d === day ? r.v ?? [] : []), view])] }); };
+/** Where a tab's or a view's fade starts: never at nothing, which shows an empty page while a heavy view draws (backlog 64). */
+const FADE_FROM = 0.4;
+/** The small chevron on a room's name that opens the little house (drawn here: used in one place). */
+const CHEV = svg`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>`;
 const TYPE_LABEL: Record<string, string> = { track: 'Song', album: 'Album', playlist: 'Playlist', artist: 'Artist', radio: 'Radio', podcast: 'Podcast', audiobook: 'Story' };
 const today = (): string => new Date().toDateString();
 const ls = <T>(k: string, d: T): T => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) as T; } catch { return d; } };
@@ -142,7 +146,7 @@ export class FhMusic extends LitElement {
     .sbar .field { border-radius: 27px; padding: 0 22px; }
     /* calling: speech bubbles and a house to tap */
     .callrow { flex: 1; min-height: 0; display: flex; gap: 16px; }
-    .callside, .dropside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .callside { flex: 0 0 50%; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
     .bubbles { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; align-content: start; }
     .bubble { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 8px 14px; border-radius: 22px 22px 22px 6px; background: var(--chip); font-size: var(--fs-3); font-weight: var(--w-semi, 600); text-align: left; line-height: 1.2; transition: transform var(--mt-2, 160ms) cubic-bezier(.2,1.4,.4,1), background var(--m-2, 160ms); }
     .bubble:nth-child(even) { border-radius: 22px 22px 6px 22px; }
@@ -192,7 +196,7 @@ export class FhMusic extends LitElement {
     .presets .st.on { box-shadow: none; }
     .presets .st.on .img { box-shadow: 0 0 0 5px var(--ok), 0 8px 16px -8px rgba(0,0,0,.5); }
     :host([data-phone]) .callrow, :host([data-phone]) .shelfrow { flex-direction: column; flex: none; }
-    :host([data-phone]) .callside, :host([data-phone]) .dropside { flex: none; }
+    :host([data-phone]) .callside { flex: none; }
     :host([data-phone]) .bubbles { grid-template-columns: 1fr; }
     :host([data-phone]) { flex: none; }
     :host([data-phone]) .mhead { flex-wrap: wrap; }
@@ -513,13 +517,50 @@ export class FhMusic extends LitElement {
     .qpic { width: 44px; height: 44px; border-radius: 12px; background: var(--chip); font-size: var(--fs-4); display: inline-flex; align-items: center; justify-content: center; } .qpic[aria-pressed='true'] { background: var(--sel-bg); box-shadow: var(--sel-ring); }
     .rchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .rchip { font-size: var(--fs-2); } .rchip[aria-pressed='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); font-weight: var(--w-bold, 700); }
     :host([data-phone]) .sayrow { flex-wrap: wrap; } :host([data-phone]) .qpics { flex: 1 1 100%; justify-content: space-between; }
+    /* ---- batch 4c ---- */
+    /* the full player over the House stops short of the shelf, so a record can still be tapped or carried while it is open (the scrim stops there too) */
+    :host([data-full][data-peek]) .stage { right: var(--peek-r, 0px); } .pscrim { right: var(--peek-r, 0px); }
+    /* the TV's sound, in the full player (the one place every view reaches) */
+    .tvsnd { flex: 1 1 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; } .tvsnd > span { font-size: var(--fs-1); font-weight: var(--w-bold, 700); letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.78); }
+    /* where a tapped record or station plays: its room's name, and a tap on the name brings the little house up to choose another */
+    .playsin { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; } .playsin .soft { font-size: var(--fs-2); }
+    .roomb { height: 44px; padding: 0 12px 0 10px; gap: 6px; font-size: var(--fs-2); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent); flex-shrink: 0; }
+    .roomb .chev { display: inline-flex; transition: transform var(--mt-2, 160ms) ease; } .roomb[aria-expanded='true'] { background: var(--sel-bg); color: var(--sel-ink); box-shadow: var(--sel-ring); } .roomb[aria-expanded='true'] .chev { transform: rotate(180deg); }
+    .panel[data-one] .playsin .soft { font-size: var(--fs-3); }
+    .chiprow .playsin { margin-left: auto; }
+    /* the little house over the page: only while a record is carried, or while choosing a room */
+    .roompop { position: absolute; z-index: 5; top: 56px; width: min(48%, 600px); padding: 12px 14px 14px; border-radius: 22px; display: flex; flex-direction: column; gap: 10px; animation: popin var(--m-2, 160ms) ease-out; }
+    .roompop.glass { background: linear-gradient(var(--glass), var(--glass)), linear-gradient(var(--glass), var(--glass)), var(--glass); box-shadow: inset 0 1px 0 var(--glass-line), 0 22px 50px -18px rgba(0,0,0,.5); }
+    .roompop[data-at='right'] { right: 0; } .roompop[data-at='left'] { left: 0; } .roompop[data-low] { top: auto; bottom: 60px; }
+    .roompop.glass[data-carrying] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary), 0 22px 50px -18px rgba(0,0,0,.5); }
+    .roompop .map.snug .floor { height: 112px; } .roompop .mz b { font-size: var(--fs-3); }
+    @keyframes popin { from { opacity: 0; transform: translateY(-6px); } }
+    :host([data-phone]) .roompop { left: 0; right: 0; width: auto; }
+    :host([data-dark]) .roompop.glass { background: color-mix(in srgb, var(--ink) 11%, var(--ring-halo)); }
+    /* Shelves: the records have the page, and the row of names carries where a tap plays and Edit */
+    .crate .chiprow .pill { font-size: var(--fs-2); }
+    /* Radio: a few stations stand together in the middle, larger, low on the page */
+    .rhead { display: flex; align-items: center; }
+    .panel[data-one] .presets { grid-template-columns: repeat(auto-fit, minmax(168px, 190px)); justify-content: center; }
+    .panel[data-one] .presets[data-few] { grid-template-columns: repeat(auto-fit, minmax(214px, 236px)); gap: 24px 40px; }
+    /* the Jukebox on a full page: the night's picks are records as big as the shelves', and where the coins are under them they stand just above the coins */
+    .panel[data-one] .picks { grid-template-columns: repeat(auto-fill, minmax(184px, 208px)); gap: 20px 16px; }
+    .panel[data-one] .pickrow { font-size: var(--fs-3); padding: 10px; gap: 8px; }
+    .panel[data-one] .picks.jlow { align-content: safe end; }
+    /* the moment pads in the Scene, at the end of its shelf */
+    .sshelf .hpads { margin-left: auto; flex: 0 0 clamp(280px, 27cqw, 400px); }
+    /* dark: the record behind each sleeve has a rim and its grooves catch the light, so it does not vanish into the panel */
+    :host([data-dark]) .disc { background: radial-gradient(circle, #f4efe3 0 3%, var(--accent) 3.5% 16%, transparent 16.5%), repeating-radial-gradient(circle, #17140f 0 3px, #2a2620 3px 4px); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 46%, transparent), 0 0 0 1px rgba(0,0,0,.45); }
+    /* dark: the player wears the theme's own deep tone under the cover, not a plain black */
+    :host([data-dark]) { --stage-deep: var(--ring-halo); }
+    :host([data-dark]) .stage { background: var(--stage-deep); box-shadow: inset 0 0 0 1px var(--glass-line); } :host([data-dark]) .stage .bg::after { background: color-mix(in srgb, var(--stage-deep) 86%, transparent); }
     /* calm mode and "reduce motion": nothing on the Music page moves by itself, not even once */
     :host([data-still]) *, :host([data-still]) *::before, :host([data-still]) *::after { animation: none !important; }
   `];
 
   static properties = { hass: { attribute: false }, players: { attribute: false }, stations: { attribute: false }, source: {}, preferred: {}, kids: { attribute: false }, people: { attribute: false }, pin: {}, quiet: { attribute: false }, sleepMinutes: { type: Number }, map: { attribute: false }, hide: { attribute: false }, lock: { type: Boolean }, views: { attribute: false }, moments: { attribute: false }, callVolume: { type: Number }, callLanguage: {}, callVoice: {}, _jog: { state: true }, _sleepAt: { state: true }, _momentOn: { state: true }, _padSet: { state: true }, _momentBusy: { state: true }, theme: { reflect: true, attribute: 'data-theme' }, _view: { state: true }, _dv: { state: true }, _held: { state: true }, _viewAsk: { state: true }, _sd: { state: true }, _peek: { state: true }, _carry: { state: true }, _shelfTo: { state: true }, _crateAt: { state: true },
     _tab: { state: true }, _focus: { state: true }, _thumbs: { state: true }, _resolved: { state: true }, _msg: { state: true }, _q: { state: true }, _text: { state: true }, _caps: { state: true }, _hits: { state: true }, _busy: { state: true }, _keys: { state: true },
-    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true }, _coachAt: { state: true } };
+    _sel: { state: true }, _shelf: { state: true }, _items: { state: true }, _edit: { state: true }, _juke: { state: true }, _keep: { state: true }, _callTo: { state: true }, _calling: { state: true }, _callMsg: { state: true }, _pinAsk: { state: true }, _pinTo: { state: true }, _adding: { state: true }, _jpick: { state: true }, _now: { state: true }, _ckeys: { state: true }, _coach: { state: true }, _coachAt: { state: true }, _roomAsk: { state: true } };
   hass?: Hass;
   players: string[] = [];
   stations: (string | StationConfig)[] = [];
@@ -575,6 +616,8 @@ export class FhMusic extends LitElement {
   private _shelfTo = '';
   private _tab: Tab = 'rooms';
   private _focus = '';
+  /** The little house is up on Shelves or Radio, to choose where a tap plays. */
+  private _roomAsk = false;
   /** The bedroom a parent has just allowed (set only while that one action runs). */
   private _cleared = '';
   private _thumbs: Record<string, string> = {};
@@ -705,7 +748,7 @@ export class FhMusic extends LitElement {
   /** A wide screen: every tab is a full page under one bar, and the full player comes over the page when asked for (polish block, batch 2). */
   private get _wide(): boolean { return shp() !== 'phone' && shp() !== 'tall'; }
   private get _full(): boolean { if (!this._cur) return false; return this._tab === 'rooms' ? this._mode !== 'list' && (this._wide || !this._peek) : this._wide; }
-  protected willUpdate(): void { this.toggleAttribute('data-full', !!this.hass && this._full); this.toggleAttribute('data-peek', !!this.hass && this._peek && this._wide && this._full); }
+  protected willUpdate(ch: PropertyValues): void { if (ch.has('_tab')) this._roomAsk = false; this.toggleAttribute('data-full', !!this.hass && this._full); this.toggleAttribute('data-peek', !!this.hass && this._peek && this._wide && this._full); }
   /** Beside a full-page view the tabs are icons; they get their words back whenever the row has room for them (the search field may shrink to make it). */
   private _fitTabs(): void {
     const tabs = this.renderRoot.querySelector<HTMLElement>('.mhead[data-one] .tabs.inline'), head = tabs?.parentElement;
@@ -734,6 +777,14 @@ export class FhMusic extends LitElement {
     const rows = Math.ceil(n / cols);
     box.style.setProperty('--cols', String(cols)); box.style.setProperty('--rows', String(rows)); box.toggleAttribute('data-tight', rows > 1);
   }
+  /** The full player over the House stops at the shelf's edge, so the shelf can still be used while it is open (backlog 102). */
+  private _fitPeek(): void {
+    const sh = this.hasAttribute('data-peek') && this._tab === 'rooms' && this._mode === 'house' ? this.renderRoot.querySelector<HTMLElement>('.mshelf') : null;
+    // measured on screen, set in the page's own pixels (the card may be zoomed to fill the screen)
+    const box = this.getBoundingClientRect(), z = this.offsetWidth ? box.width / this.offsetWidth : 1;
+    const r = sh ? Math.max(0, Math.round((box.right - sh.getBoundingClientRect().left) / z + 12)) : 0;
+    if (this.style.getPropertyValue('--peek-r') !== `${r}px`) this.style.setProperty('--peek-r', `${r}px`);
+  }
   /** A hint that is still cut after that borrows the small player's place; as a last resort it runs to a third line where it is. */
   private _fitHint(): void {
     const hint = this.renderRoot.querySelector<HTMLElement>('.hint[data-on]'), cut = (): boolean => !!hint && hint.scrollHeight > hint.clientHeight + 1;
@@ -743,10 +794,10 @@ export class FhMusic extends LitElement {
   protected updated(ch: PropertyValues): void {
     // a change of tab fades its body in and its icon nods; arriving on the page does neither (the page itself is what arrives)
     if (ch.has('_tab') && ch.get('_tab') !== undefined) { const m = motion(this, '--m-3');
-      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
+      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: FADE_FROM, transform: `translateY(${m.travel ? 8 : 0}px)` }, { opacity: 1, transform: 'none' }], { duration: m.ms || 240, easing: 'ease-out' });
       this.renderRoot.querySelectorAll('.tabs button').forEach((b) => b.toggleAttribute('data-nod', b.getAttribute('aria-selected') === 'true')); }
     this.renderRoot.querySelectorAll('.hint[data-wrap]').forEach((h) => h.removeAttribute('data-wrap')); this.renderRoot.querySelector('.mhead[data-hintwide]')?.removeAttribute('data-hintwide');
-    this._fitTabs(); this._fitHint(); this._fitShelf();
+    this._fitTabs(); this._fitHint(); this._fitShelf(); this._fitPeek();
     const p = this._cur;
     if (!this.hass || !p) return;
     // refresh "up next" when the track or the room changes
@@ -881,8 +932,9 @@ export class FhMusic extends LitElement {
     const was = this._mode; this._view = v; lsSet('fh-music-view', v); this._viewAsk = false; if (v === was) return;
     clearTimeout(this._coachT); this._coach = false;
     this.updateComplete.then(() => { const b = this.renderRoot.querySelector('.viewbtn'); if (b) spark('party', b, { burst: true }); sfx('done');
-      // the stage cross-fades to the new view (opacity only, --m-3)
-      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: motion(this, '--m-3').ms || 240, easing: 'ease-out' }); });
+      // the stage fades up to the new view (opacity only, --m-3). Never from nothing: a view can take a few frames to draw (the Scene's world),
+      // and a fade that starts at 0 shows an empty page all that time (backlog 64)
+      this.renderRoot.querySelector('.panel > .body')?.animate([{ opacity: FADE_FROM }, { opacity: 1 }], { duration: motion(this, '--m-3').ms || 240, easing: 'ease-out' }); });
   }
   /** The view button: with two views one tap swaps them; with more it opens the picker. */
   private _switch(): void { const o = this._offered; sfx('tap'); if (o.length > 2) { this._viewAsk = true; return; } const next = o.find((v) => v !== this._mode); if (next) this._setView(next); }
@@ -953,6 +1005,8 @@ export class FhMusic extends LitElement {
         play: (m) => { if (Date.now() - this._carried < 400 || !cur) return; this._gentle(cur.entity_id, () => this._shelfPlay(m, cur)); }, flick: (i) => { if (i !== this._crateAt) sfx('sleeve'); this._crateAt = i; }, tap: (i) => { if (Date.now() - this._carried < 400) return; if (i !== front) { sfx('sleeve'); this._crateAt = i; } else if (cur && crate[i]) this._gentle(cur.entity_id, () => this._shelfPlay(crate[i], cur)); } }, streams: [...(curLead ? [curLead.entity_id] : []), ...others], sdrag: this._sd, setDrag: (d) => { this._sd = d; },
       join: (id, lead) => { if (id !== lead) this._gentle(id, () => { this._h.callService('media_player', 'join', { group_members: [id] }, { entity_id: lead }).catch((e: unknown) => this._oops('Couldn’t add that room', e)); }); },
       leave: (id) => { this._h.callService('media_player', 'unjoin', {}, { entity_id: id }).catch((e: unknown) => this._oops('Couldn’t take that room out', e)); },
+      // the moment pads stand at the end of the Scene's shelf on a wide screen (a phone's shelf has no room for them; the House has them there)
+      pads: shape === 'phone' || shape === 'tall' ? nothing : this._padRow(),
       look: getLook(), theme: this.theme, phone: shape === 'phone', narrow: shape === 'phone' || shape === 'tall', over: this._carry?.over ?? '', lifted: this._carry?.from ?? '', liftedItem: this._carry?.item ?? null, shelf: this._items.Family ?? [],
       now: { title: String(a.media_title ?? (curLead ? 'Music' : 'Nothing playing')), artist: String(a.media_artist ?? a.media_album_name ?? ''), art: a.entity_picture ? String(a.entity_picture) : '', playing, frac, lead: curLead?.entity_id ?? '' },
       vol: (id, v, commit) => this._setVol(id, v, commit), step: (id, by) => this._volStep(id, by), drop: (id) => this._volDrop(id), held: this._held,
@@ -1341,7 +1395,7 @@ export class FhMusic extends LitElement {
     // while something is carried: every shelf by name, to let go on. Under one bar the names stand in the bar itself; otherwise they float at the top of the page
     const strip = c && ma ? html`<div class="pinstrip" role="group" aria-label="Pin to a shelf"><span class="pinlbl">📌 Pin to</span>${this._shelfNames.map((n) => html`<span class="pinto" data-pin=${n} ?data-hot=${c.over === `pin:${n}`} style="--c:${this._shelfColour(n)}"><i aria-hidden="true">${n === 'Family' ? icon('home', 22) : this._face(n, 44)}</i><b>${n}</b></span>`)}</div>` : nothing;
     return html`${p ? this._hero(p) : html`<section class="glass stage"><div class="deck">No speakers found</div></section>`}
-      <section class="glass panel" aria-label="Music" ?data-one=${one} data-teach=${(rooms && this._teach) || nothing} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${{ capture: true, handleEvent: (e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } } }}>
+      <section class="glass panel" aria-label="Music" ?data-one=${one} data-teach=${(rooms && this._teach) || nothing} ?data-picking=${this._jpick && this._tab === 'juke'} @pointerdown=${{ capture: true, handleEvent: (e: PointerEvent) => { if (this._coach && !(e.target as HTMLElement).closest('.helpb')) { clearTimeout(this._coachT); this._coach = false; } if (this._roomAsk && !(e.target as HTMLElement).closest('.roompop, .roomb')) this._roomAsk = false; } }}>
         <div class="mhead" ?data-one=${one} ?data-hinting=${one && rooms && this._coach} ?data-carrying=${one && !!c && ma}><h1 class="t-title">Music</h1>${one && !searching ? tabrow : nothing}${one && rooms ? this._tools() : nothing}
           ${searching ? this._searchBar() : ma ? html`<button class="finder tap" aria-label="Search for music" @click=${() => open('search')}>${icon('search', 24)}<span>${one ? 'Search…' : 'Search songs, stories…'}</span></button>` : html`<span style="flex:1"></span>`}${one ? this._oneNow() : nothing}${full && !one && !searching ? tabrow : nothing}${one ? strip : nothing}</div>
         ${searching || full ? nothing : tabrow}
@@ -1383,6 +1437,7 @@ export class FhMusic extends LitElement {
       <div class="mini">
         <button class="tog tap" aria-pressed=${String(this._keep)} title="When the music runs out, carry on with similar songs" @click=${() => { this._keep = !this._keep; lsSet('fh-keep', this._keep); this._say(this._keep ? 'When the music runs out, I’ll keep it going' : 'The music will stop at the end'); }}>∞ Keep going</button>
         ${this._off(p) ? nothing : html`<button class="tog tap" aria-pressed=${String(this._sleepLeft(p) !== null)} @click=${() => this._sleep()}>🌙 ${this._sleepLeft(p) !== null ? `${this._name(p)}: ${this._sleepLeft(p)} min left · Cancel` : `Sleep ${this.sleepMinutes}`}</button>`}
+        ${this._tvSound()}
       </div>
       ${vol !== null && !this._off(p) ? volCtl({ name: this._name(p), v: vol, live: !!this._leader(p), held: this._held === p.entity_id, set: (v, commit) => this._setVol(p.entity_id, v, commit), drop: () => this._volDrop(p.entity_id) }) : nothing}
     </section>`;
@@ -1432,20 +1487,25 @@ export class FhMusic extends LitElement {
     if (this._coach) this._coachT = window.setTimeout(next, COACH_MS);
   }
 
-  private _rooms(): TemplateResult {
-    const cur = this._cur, mine = cur && this._leader(cur), grp = this._group(mine), ma = hasMa(this.hass!);
+  /** The TV's sound (Night, Clear speech) while a Sonos is playing the TV: in the full player, the one place every view and every screen reaches (backlog 101). */
+  private _tvSound(): TemplateResult | typeof nothing {
     const sonos = Object.keys(this.hass!.states).find((id) => id.startsWith('media_player.') && (this.hass!.entities?.[id] as { platform?: string } | undefined)?.platform === 'sonos');
     const tv = sonos && this.hass!.states[sonos].attributes.source === 'TV' ? sonos : '';
     const sw = (re: RegExp, label: string): TemplateResult | typeof nothing => {
       const id = tv && sibling(this.hass!, tv, re); if (!id) return nothing;
       const on = this.hass!.states[id].state === 'on';
-      return html`<button class="pill tap" style="font-size:var(--fs-2)" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
+      return html`<button class="tog tap" aria-pressed=${String(on)} @click=${() => { this._h.callService('switch', on ? 'turn_off' : 'turn_on', {}, { entity_id: id }).catch((e: unknown) => this._oops('The TV sound didn’t change', e)); }}>${label} ${on ? 'on' : 'off'}</button>`;
     };
+    const night = sw(/^switch\..*night_sound$/, 'Night'), clear = sw(/^switch\..*speech_enhancement$/, 'Clear speech');
+    return night === nothing && clear === nothing ? nothing : html`<span class="tvsnd" role="group" aria-label="TV sound"><span>TV sound</span>${night}${clear}</span>`;
+  }
+
+  private _rooms(): TemplateResult {
+    const cur = this._cur, mine = cur && this._leader(cur), grp = this._group(mine), ma = hasMa(this.hass!);
     const mode = this._mode;
     return html`${this._viewAsk ? viewPicker(mode, (v) => this._setView(v), () => { this._viewAsk = false; }, this._offered) : nothing}${this._one ? nothing : html`<div class="acts">
         ${this._tools()}
         ${mode === 'house' && cur ? this._nowbar(cur) : mode !== 'list' && cur ? this._oneNow() : nothing}
-        ${tv ? html`<span class="soft">TV sound</span>${sw(/^switch\..*night_sound$/, 'Night')}${sw(/^switch\..*speech_enhancement$/, 'Clear speech')}` : nothing}
       </div>`}
       ${mode === 'house' ? this._house() : mode === 'dial' ? dialView(this._vctx()) : mode === 'desk' ? deskView(this._vctx()) : mode === 'cables' ? crateView(this._vctx()) : mode === 'scene' ? sceneView(this._vctx()) : html`<div class="grid scrolly" data-fits @scroll=${scrollCue}>${this._list.map((p) => {
       const a = p.attributes, id = p.entity_id, lead = this._leader(p), playing = p.state === 'playing', focus = id === cur?.entity_id, inmix = grp.includes(id) && id !== mine?.entity_id;
@@ -1501,15 +1561,31 @@ export class FhMusic extends LitElement {
         <button class="pill tap" style="align-self:flex-end" @click=${() => { this._pinTo = null; }}>Cancel</button></section></div>`;
   }
 
+  /** Where a tapped record or station plays: a word, then the room's name. A tap on the name brings the little house up to choose another room (backlog 105, 107). */
+  private _playsIn(room: HassEntity | undefined, lead: string): TemplateResult {
+    return html`<span class="playsin"><span class="soft">${lead}</span><button class="pill tap roomb" aria-haspopup="true" aria-expanded=${String(this._roomAsk)} aria-label="${lead} ${this._name(room)}. Choose another room" @click=${() => { this._roomAsk = !this._roomAsk; }}>${icon('home', 18)}<b>${this._name(room)}</b><i class="chev" aria-hidden="true">${CHEV}</i></button></span>`;
+  }
+  /** The little house over the page: while a record is carried (let go on a room to play it there), or when the room's name was tapped (choose where a tap plays). It is not on the page otherwise. */
+  private _roomPop(on: (id: string) => boolean, pick: (id: string) => void, at: 'left' | 'right', low = false, line = 'Tap a room. Or carry a record onto one.'): TemplateResult | typeof nothing {
+    const carrying = !!this._carry?.item;
+    if (!carrying && !this._roomAsk) return nothing;
+    return html`<div class="roompop glass" data-at=${at} ?data-low=${low} ?data-carrying=${carrying} role="group" aria-label="Rooms">
+      <span class="soft">${carrying ? 'Let go on a room to play it there.' : line}</span>
+      ${this._mini(on, (id) => { pick(id); this._roomAsk = false; })}</div>`;
+  }
+
   private _shelves(): TemplateResult {
     const kid = this.kids.find((k) => k.name === this._shelf), wind = !!kid && windDown(kid.bedtime);
     const all = this._items[this._shelf] ?? [], list = wind ? all.filter((x) => x.calm) : all;
-    const room = this._shelfRoom(kid);
+    const room = this._shelfRoom(kid), low = kid?.mode === 'picture';
     const colour = (n: string): string => slotVar(this.kids.find((k) => k.name === n)?.colour ?? 'family');
-    // the youngest reaches the lower half of a wall panel only: on his shelf the records sit low and the row of faces goes under them
-    return html`<div class="shelfrow"><div class="crate ${kid?.mode === 'picture' ? 'low' : ''}">
+    // the youngest reaches the lower half of a wall panel only: on his shelf the records sit low and the row of faces goes under them.
+    // The records have the page; the little house comes up only while one is carried, or when the room's name is tapped (UX review 5.8)
+    return html`<div class="shelfrow"><div class="crate ${low ? 'low' : ''}">
       <div class="chiprow dividers">${this._shelfNames.map((n) => html`<button class="pchip tap" data-pin=${n} ?data-hot=${this._carry?.over === `pin:${n}`} style="--c:${colour(n)}" aria-pressed=${String(this._shelf === n)} @click=${() => { this._shelf = n; this._edit = false; this._shelfTo = ''; }}>
         <span class="avatar" aria-hidden="true">${n === 'Family' ? icon('home', 18) : this._face(n, 32)}</span>${n}</button>`)}
+        ${this._playsIn(room, 'Tap a record to play it in')}
+        ${all.length ? html`<button class="pill tap" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}
 </div>
       ${wind ? html`<div class="banner">🌙 Wind-down: calm picks only, fading out after ${this.sleepMinutes} minutes.</div>` : nothing}
       ${list.length ? html`<div class="covers scrolly" data-fits @scroll=${scrollCue}>${list.map((m) => html`<button class="st tap" ?data-lifted=${this._carry?.item === m} @pointerdown=${(e: PointerEvent) => { if (!this._edit) this._carryDown(e, { item: m }); }} @click=${() => { if (!this._edit && Date.now() - this._carried > 400) this._shelfPlay(m); }}>
@@ -1517,11 +1593,8 @@ export class FhMusic extends LitElement {
           ${this._edit ? html`<span class="x tap" role="button" tabindex="0" aria-label="Remove ${m.name}" @click=${(e: Event) => { e.stopPropagation(); this._unpin(m); }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._unpin(m); } }}>✕</span>
             <span class="x pinx tap" role="button" tabindex="0" aria-label="Pin ${m.name} to another shelf" @click=${(e: Event) => { e.stopPropagation(); this._pinTo = m; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this._pinTo = m; } }}>📌</span>` : nothing}</button>`)}</div>`
         : html`<div class="empty"><span style="font-size:var(--fs-d1)">📚</span><h2 class="t-sub">${wind ? 'Nothing calm pinned yet' : 'Nothing pinned yet'}</h2>
-          <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}</div>
-      <div class="dropside"><span class="soft" style="font-size:var(--fs-2)">Tap a record to play it in <b>${this._name(room)}</b>, or drag it to a room. Drag it onto a name to pin it there.</span>
-        ${this._mini((id) => id === room?.entity_id, (id) => { this._shelfTo = id; })}
-        <span style="flex:1"></span><span style="align-self:flex-end">
-        ${all.length ? html`<button class="pill tap" style="font-size:var(--fs-2)" @click=${() => { if (this._edit) this._edit = false; else this._guard('Change this shelf?', () => { this._edit = true; }); }}>${this._edit ? 'Done' : 'Edit'}</button>` : nothing}</span></div></div>`;
+          <span>${this.hass!.states[shelfEntity(this._shelf)] ? 'Search for an album, a playlist or a story, then tap Pin.' : `This shelf needs the to-do list ${shelfEntity(this._shelf)} in Home Assistant.`}</span></div>`}</div></div>
+      ${this._roomPop((id) => id === room?.entity_id, (id) => { this._shelfTo = id; }, 'right', low && shp() !== 'phone')}`;
   }
 
   private _jukeTab(): TemplateResult {
@@ -1565,8 +1638,10 @@ export class FhMusic extends LitElement {
 
   private _radio(): TemplateResult {
     const cur = this._cur, playingName = cur && cur.state === 'playing' ? LAST[cur.entity_id] : '';
-    return html`<span class="muted rnote" style="font-size:var(--fs-2)">Tap a station to play it in <b>${this._name(cur)}</b>. Pick a different room in the Rooms tab.</span>
-      <div class="grid presets">${this._stations.map((s) => {
+    // the room it plays in is chosen here, on the little house that comes up from its name (backlog 105); a few stations stand together, larger
+    return html`<div class="rhead rnote">${this._playsIn(cur, 'Tap a station to play it in')}</div>
+      ${this._roomPop((id) => id === cur?.entity_id, (id) => { this._focus = id; }, 'left', false, 'Tap the room the stations should play in.')}
+      <div class="grid presets" ?data-few=${this._stations.length <= 4}>${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
           <span class="img" style=${th ? `--art:url(${th})` : plainLook() ? 'background:linear-gradient(160deg, #23272e, #0b0e13);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--glass-line)' : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;

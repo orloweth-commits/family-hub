@@ -305,6 +305,74 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'music'; }); await page.waitForTimeout(700);
   ok('the first time Music is opened the next day, they play again', /^1 of 3/.test(await text(page)), await text(page));
   await shut(page); }
+// 12. batch 4c (0.38.18): what was left of Music
+{ const page = await open('page=music&mview=house'); await page.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); m._coach = false; }); await page.waitForTimeout(300);
+  const bx = (sel) => M(page).locator(sel).first().boundingBox();
+  // the full player over the House stops at the shelf, which stays in reach
+  await M(page).getByRole('button', { name: 'Show the full player' }).click(); await page.waitForTimeout(400);
+  const st = await bx('.stage'), sh = await bx('.mshelf');
+  ok('the full player over the House stops short of the shelf (backlog 102)', !!st && !!sh && st.x + st.width <= sh.x + 1, st && sh && [Math.round(st.x + st.width), Math.round(sh.x)]);
+  await clear(page); await M(page).locator('.mshelf .srec').first().click(); await page.waitForTimeout(500);
+  ok('and a record on the shelf still plays on a tap while it is open', (await calls(page, /play_media/)).length > 0 && await M(page).locator('.stage').isVisible());
+  // the TV's sound is in the full player, not in the bar
+  const tv = M(page).locator('.stage .tvsnd button');
+  ok('the TV sound switches are in the full player (backlog 101)', await tv.count() === 2 && /Night (on|off)/.test(await tv.first().innerText()), await tv.allInnerTexts());
+  await clear(page); await tv.first().click(); await page.waitForTimeout(300);
+  ok('and Night switches the Sonos night sound', (await calls(page, /switch\.turn_on/)).some((c) => /night_sound/.test(c)), await calls(page, /switch\./));
+  await M(page).getByRole('button', { name: 'Hide the player', exact: true }).first().click(); await page.waitForTimeout(300);
+  ok('nothing about the TV in the bar', await M(page).locator('.mhead .tvsnd, .acts .tvsnd').count() === 0);
+  // the swap to the Scene fades up from a dimmed page, never from nothing
+  await viewBtn(page).click(); await page.waitForTimeout(60);
+  const from = await page.evaluate(() => { const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.panel > .body'); const a = b.getAnimations()[0]; return a ? Number(a.effect.getKeyframes()[0].opacity) : -1; });
+  ok('House to Scene: the page fades up from a dimmed view, not from blank (backlog 64)', from >= 0.3, from);
+  await page.waitForTimeout(500);
+  // the moment pads at the end of the Scene's shelf
+  const pads = M(page).locator('.vscene .sshelf .hpad');
+  ok('the Scene has the four moment pads at the end of its shelf (backlog 102)', await pads.count() === 4, await pads.allInnerTexts());
+  const pb = await pads.first().boundingBox(), sc = await bx('.vscene');
+  ok('each a finger wide, inside the scene', !!pb && pb.height >= 44 && pb.width >= 44 && pb.y + pb.height <= sc.y + sc.height + 1, pb && [Math.round(pb.width), Math.round(pb.height)]);
+  await clear(page); await pads.nth(1).click(); await page.waitForTimeout(900);
+  ok('and one tap starts its music', (await calls(page, /play_media/)).length > 0);
+  await shut(page); }
+{ const page = await open('page=music&mtab=shelves&shelf=Family'); await page.waitForTimeout(500);
+  ok('Shelves: no little house beside the records until it is wanted (backlog 107)', await M(page).locator('.map.snug').count() === 0);
+  const rb = M(page).locator('.crate .roomb');
+  ok('the row of names says where a tap plays', await rb.count() === 1 && /Kitchen/.test(await rb.innerText()), await rb.innerText().catch(() => 'none'));
+  await rb.click(); await page.waitForTimeout(300);
+  ok('a tap on the room brings the little house up', await M(page).locator('.roompop .mz').count() >= 4);
+  await M(page).locator('.roompop .mz[data-zone="media_player.office"]').click(); await page.waitForTimeout(300);
+  ok('choosing a room there puts it away and the row names it', await M(page).locator('.roompop').count() === 0 && /Office/.test(await rb.innerText()), await rb.innerText());
+  await clear(page); await M(page).locator('.covers .st').first().click(); await page.waitForTimeout(500);
+  ok('and a tapped record plays there', (await calls(page, /play_media/)).some((c) => /media_player\.office/.test(c)), await calls(page, /play_media/));
+  await rb.click(); await page.waitForTimeout(200); await M(page).locator('.crate .pchip').first().click(); await page.waitForTimeout(250);
+  ok('a tap anywhere else puts the little house away', await M(page).locator('.roompop').count() === 0);
+  // carrying a record brings it up to let go on
+  const rec = await mid(M(page).locator('.covers .st').nth(1)); await clear(page);
+  const seen = await drag(page, rec, async () => mid(M(page).locator('.roompop .mz[data-zone="media_player.lounge_room_sonos"]')), async () => M(page).locator('.roompop[data-carrying]').count());
+  ok('carrying a record brings the little house up, and letting go on a room plays it there', seen === 1 && (await calls(page, /play_media/)).some((c) => /lounge_room_sonos/.test(c)) && await M(page).locator('.roompop').count() === 0, [seen, await calls(page, /play_media/)]);
+  await shut(page); }
+{ const page = await open('page=music'); await page.waitForTimeout(300); await M(page).getByRole('tab', { name: 'Radio' }).click(); await page.waitForTimeout(500);
+  const rb = M(page).locator('.rhead .roomb');
+  ok('Radio: the line names the room and lets it be changed there (backlog 105)', await rb.count() === 1 && /Kitchen/.test(await rb.innerText()) && !/Rooms tab/.test(await M(page).locator('.body').innerText()), await rb.innerText().catch(() => 'none'));
+  await rb.click(); await page.waitForTimeout(300); await M(page).locator('.roompop .mz[data-zone="media_player.office"]').click(); await page.waitForTimeout(300);
+  await clear(page); await M(page).locator('.presets .st').first().click(); await page.waitForTimeout(500);
+  ok('a station then plays in the room chosen', /Office/.test(await rb.innerText()) && (await calls(page, /play_media/)).some((c) => /media_player\.office/.test(c)), await calls(page, /play_media/));
+  const body = await M(page).locator('.panel > .body').boundingBox(), sts = await M(page).locator('.presets .st').evaluateAll((n) => n.map((e) => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.width]; }));
+  const mid0 = (Math.min(...sts.map((x) => x[0])) + Math.max(...sts.map((x) => x[1]))) / 2;
+  ok('a few stations stand together in the middle, larger', sts.length <= 4 && Math.abs(mid0 - (body.x + body.width / 2)) < 30 && sts.every((x) => x[2] >= 200), [Math.round(mid0 - (body.x + body.width / 2)), sts.map((x) => Math.round(x[2]))]);
+  await shut(page); }
+{ const page = await open('page=music&mtab=juke'); await page.waitForTimeout(500);
+  const w = await M(page).locator('.picks .pickrow .art').first().evaluate((e) => e.offsetWidth).catch(() => 0);
+  ok('the Jukebox on a full page: the night’s picks are records as big as the shelves’ (160 px or more)', w >= 160, w);
+  await shut(page); }
+for (const qs of ['page=music&mtab=shelves&shelf=Family&dark=1', 'page=music&mview=desk&mviews=all&dark=1', 'page=music&mview=list&mviews=all&dark=1']) { const page = await open(qs); await page.waitForTimeout(500);
+  if (/shelves/.test(qs)) { const d = await M(page).locator('.covers .disc').first().evaluate((e) => getComputedStyle(e).boxShadow);
+    ok('dark: the record behind each sleeve has a rim (backlog 115)', /inset/.test(d), d.slice(0, 60)); }
+  if (/desk/.test(qs)) { const l = await M(page).locator('.lamp[aria-pressed="false"]:not([data-other])').first().evaluate((e) => getComputedStyle(e).backgroundColor);
+    ok('dark: the Desk’s OFF lamp is not the light grey of the day (backlog 119)', l !== 'rgb(91, 100, 114)', l); }
+  if (/list/.test(qs)) { const b = await M(page).locator('.stage').evaluate((e) => getComputedStyle(e).backgroundColor);
+    ok('dark: the List’s player wears the theme’s deep tone, not black (backlog 119)', b !== 'rgb(17, 17, 17)', b); }
+  await shut(page); }
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 

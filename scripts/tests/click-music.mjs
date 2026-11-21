@@ -47,8 +47,11 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
   await M(p).getByRole('button', { name: 'Max’s shelf' }).click(); await p.waitForTimeout(300); console.log('Max’s shelf on the map:', await M(p).locator('.mshelf .srec').count());
   // shelves: carry a record from the crate to a room on the little house
   await M(p).getByRole('tab', { name: 'Shelves' }).click(); await p.waitForTimeout(600);
-  const rec = await M(p).locator('.crate .st').first().boundingBox(), off = await M(p).locator('.mz[data-zone="media_player.office"]').boundingBox();
-  await drag(rec.x + rec.width / 2, rec.y + rec.height / 3, off.x + off.width / 2, off.y + off.height / 2);
+  // (since 0.38.18 the little house comes up only while a record is carried: measure the room once it is up)
+  const rec = await M(p).locator('.crate .st').first().boundingBox(); console.log('little house before carrying:', await M(p).locator('.map.snug').count());
+  await p.mouse.move(rec.x + rec.width / 2, rec.y + rec.height / 3); await p.mouse.down(); await p.mouse.move(rec.x + rec.width / 2 + 40, rec.y + rec.height / 3 - 30, { steps: 4 }); await p.waitForTimeout(200);
+  const off = await M(p).locator('.roompop .mz[data-zone="media_player.office"]').boundingBox();
+  await p.mouse.move(off.x + off.width / 2, off.y + off.height / 2, { steps: 6 }); await p.mouse.up(); await p.waitForTimeout(350);
   console.log('record to a room:', (await calls(p, /music_assistant\.play_media/)).split(' || ').pop(), '| records:', await M(p).locator('.crate .st').count());
   await M(p).getByRole('tab', { name: 'Call a room' }).click(); await p.waitForTimeout(300);
   console.log('call house rooms:', await M(p).locator('.mz').count(), '| bubbles:', await M(p).locator('.bubble').count());
