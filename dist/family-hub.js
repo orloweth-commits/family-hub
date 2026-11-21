@@ -2567,12 +2567,15 @@ const du = `
   @G[data-shape='wide'] .planner { border-radius: 24px; }
   @G[data-shape='wide'] .week .col { border-radius: 12px; }
   @G[data-shape='wide'] .fh > .body { padding: 8px; background: color-mix(in srgb, var(--glass) 62%, transparent); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+  /* Music's views fill the page edge to edge, as they always have (its stage is not a card set into the panel) */
+  @G[data-shape='wide'] .fh > .body:has(> fh-music) { padding: 8px 0; }
   @G[data-dark][data-shape='wide'] .fh > .body { background: color-mix(in srgb, var(--glass) 46%, transparent); }
   @G[data-dark][data-shape='wide'] .fh > header, @G[data-dark][data-shape='wide'] .fh > .dock { background: color-mix(in srgb, var(--glass) 82%, transparent); }
   /* (4e, backlog 4) the dock's places share the bar's width: each button grows to an even share (up to 150 px) so the three groups (the boys, the places, the house) sit close, parted by their hairlines, with no long empty stretches between them */
   @G[data-shape='wide'] .fh > .dock { align-self: stretch; margin-top: calc(0px - var(--gap)); padding: 8px 16px; border-radius: 0 0 28px 28px; justify-content: center; }
   @G[data-shape='wide'] .dock .item { height: 70px; flex: 1 1 0; max-width: 150px; }
   @G[data-shape='wide'] .dock .item svg.i { width: 44px; height: 44px; }
+  @G[data-shape='wide'] .dock .item .kn { max-width: 100%; }
   @G[data-shape='wide'] .dock .sep { margin: 0 14px; height: 40px; width: 1.5px; }
   /* (4e, backlog 5) a child's page: his face and the way home are a tab of the frame under his card, not two buttons at the end of an empty bar; the page's panel takes the frame's rounded foot either side of it */
   @G[data-shape='wide'] .fh:has(> .dock[data-kid]) > .body { border-radius: 0 0 28px 28px; }
