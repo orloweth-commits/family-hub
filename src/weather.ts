@@ -148,6 +148,13 @@ export class FhWeather extends LitElement {
     :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet { grid-area: wet; margin-top: 0; white-space: nowrap; }
     /* a day's column is too narrow for the millimetres as well: the chance is what decides the raincoat */
     :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet .mm { display: none; }
+    /* (the full check, 0.38.23) a day narrower than "27° 14°" with its padding (a tablet, 1280 x 800: 54 to 67 px) shows the top over the low, so both stay in its tile; the wall's days are wider and keep the two side by side */
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday { container-type: inline-size; }
+    @container (max-width: 72px) {
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng { grid-template-columns: 1fr; grid-template-areas: 'hi' 'lo' 'track' 'wet'; grid-template-rows: auto auto auto 20px; gap: 2px; padding: 0; }
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng > span:nth-child(3), :host([data-dry][data-shape='wide']:not([data-n3])) .wday .lo { text-align: center; }
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .track { margin-top: 4px; }
+    }
     .mapsize { height: 44px; padding: 0 16px; flex-shrink: 0; font-size: var(--fs-2); white-space: nowrap; }
     .dryline { font-size: var(--fs-2); font-weight: var(--w-semi, 600); padding: 0 6px; }
     :host([data-phone]) { display: flex; flex-direction: column; flex: none; }

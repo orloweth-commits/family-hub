@@ -148,6 +148,8 @@ export class FhGroceries extends LitElement {
     /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+    /* (the full check, 0.38.23) in the narrow panel always two across: on a tablet the panel is 330 px and one across ran the usuals under the dock */
+    :host([data-shape='wide']:not([data-n3])) .usuals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     /* with the keys up the tray covers the lower part of the page: the usuals close up, three across, so every one stays in reach above it (4d: backlog 109) */
     /* while typing, "Send the list to" steps aside so every usual stays above the taller key tray (batch 5: five rows of keys) */
     :host([data-keys][data-shape='wide']:not([data-n3])) .sendrow { display: none !important; }
@@ -219,8 +221,16 @@ export class FhGroceries extends LitElement {
 
   /** a font that arrives after the list was measured moves the columns' breaks: measure again (a look's own hand-written font, Fridge's) */
   private _fontsIn = (): void => { this._contKey = ''; this.requestUpdate(); };
-  connectedCallback(): void { super.connectedCallback(); document.fonts?.addEventListener?.('loadingdone', this._fontsIn); }
-  disconnectedCallback(): void { super.disconnectedCallback(); document.fonts?.removeEventListener?.('loadingdone', this._fontsIn); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
+  /** (the full check, 0.38.23) the hint under the usuals is the least needed line in the panel: shown only where it fits whole (a tablet, or the wall with long usuals, ran it past the panel's foot) */
+  private _hintRo?: ResizeObserver;
+  private _fitHint(): void {
+    const add = this.renderRoot.querySelector<HTMLElement>('.add'), hint = add?.querySelector<HTMLElement>('[data-keyhint]');
+    if (!add || !hint) return;
+    hint.style.display = '';
+    if (add.scrollHeight > add.clientHeight + 1) hint.style.display = 'none';
+  }
+  connectedCallback(): void { super.connectedCallback(); document.fonts?.addEventListener?.('loadingdone', this._fontsIn); if (typeof ResizeObserver !== 'undefined') { this._hintRo ??= new ResizeObserver(() => this._fitHint()); this._hintRo.observe(this); } }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._hintRo?.disconnect(); document.fonts?.removeEventListener?.('loadingdone', this._fontsIn); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }
 
   protected updated(c: PropertyValues): void {
     if ((c.has('hass') || c.has('entity')) && this.hass && this._subFor !== this.entity) this._subscribe();
@@ -230,6 +240,7 @@ export class FhGroceries extends LitElement {
     // a long list changes without the rows travelling: sixty rows moving at once is a blur, and slow on a wall panel
     if (this._places) { if (this._places.size <= 40) flip(this.renderRoot, '.row[data-key]', this._places); this._places = null; }
     this._measureCont();
+    this._fitHint();
   }
 
   /**

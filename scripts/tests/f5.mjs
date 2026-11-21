@@ -236,6 +236,20 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   ok('one with nothing a tap switches (only speakers, or nothing answering) has none', await H.locator('.room[data-room="riley"]').count() === 1 && await H.locator('.room[data-room="riley"] .rguard').count() === 0 && await H.locator('.room[data-room="charlie"] .rguard').count() === 1);
   await page.context().close(); }
 
+// 7. the full check (0.38.23): on a tablet Groceries' usuals are two across and nothing runs past the panel's foot (the hint gives way
+// where it does not fit whole, eight long usuals at the wall included); Weather's narrow days put the top over the low inside the tile
+for (const [w, h] of [[1180, 820], [1024, 768], [1920, 1080]]) for (const look of ['glass', 'obsidian', 'sports']) for (const eight of [false, true]) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true }); const page = await ctx.newPage(); await page.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') });
+  await page.goto(`http://localhost:${PORT}/?look=${look}&page=groceries`); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700);
+  if (eight) { await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, grocery_usuals: ['Milk', 'Bread', 'Eggs', 'Bananas', 'Cheese', 'Coffee', 'Dishwasher tablets', 'Greek yoghurt'] }); }); await page.clock.runFor(800); }
+  const r = await page.locator('fh-groceries').evaluate((g) => { const a = g.shadowRoot.querySelector('.add'), q = [...a.querySelectorAll('.quick')].map((b) => b.getBoundingClientRect()), hint = a.querySelector('[data-keyhint]');
+    return { across: new Set(q.map((b) => Math.round(b.top))).size < q.length ? 2 : 1, over: a.scrollHeight - a.clientHeight, hint: hint ? getComputedStyle(hint).display : 'none', n: q.length }; });
+  ok(`${look} ${w}x${h}${eight ? ', eight usuals' : ''}: the usuals two across, nothing past the panel's foot (the hint shown only whole)`, r.across === 2 && r.over <= 4 && (r.hint === 'none' || r.over <= 1), r);
+  if (!eight && w < 1920) { await page.goto(`http://localhost:${PORT}/?look=${look}&page=weather`); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700);
+    const d = await page.locator('fh-weather').evaluate((x) => { const t = x.shadowRoot.querySelector('.wday.today'), b = t.getBoundingClientRect(), sp = [...t.querySelectorAll('.rng > span')].filter((e) => e.textContent.trim()).map((e) => { const g = document.createRange(); g.selectNodeContents(e); const q = g.getBoundingClientRect(); return { l: q.left - b.left, r: b.right - q.right }; }); return sp; });
+    ok(`${look} ${w}x${h}: Weather's today keeps its top and low inside its tile`, d.length >= 2 && d.every((q) => q.l >= 0 && q.r >= 0), d); }
+  await ctx.close(); }
+
 await browser.close(); srv.close();
 console.log(`\n${pass} passed, ${fails.length} failed${errs.length ? `, ${errs.length} page errors` : ''}`);
 for (const f of fails) console.log('FAILED: ' + f);
