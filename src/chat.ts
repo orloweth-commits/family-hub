@@ -164,7 +164,7 @@ export class FhChat extends LitElement {
     .nomic { font-size: var(--fs-2); font-weight: 500; line-height: 1.35; color: var(--ink2); padding: 10px 14px; border-radius: 16px; background: var(--chip-soft, var(--chip)); }
     .starters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .starter { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 8px 12px; border-radius: 20px; background: var(--chip-strong); color: var(--ink); text-align: left; font-size: var(--fs-2); line-height: 1.2; font-weight: var(--w-semi, 600); }
-    .starter span { font-size: var(--fs-d1); line-height: 1; width: 44px; flex-shrink: 0; text-align: center; }
+    .starter span { font-size: var(--fs-d1); line-height: 1; min-width: 52px; flex-shrink: 0; text-align: center; margin-right: 4px; } /* a wide emoji face (Obsidian's line emoji) ran into the words in a 44 px box (batch 5) */
     .opts { display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; }
     /* three options on one row in every look: 15 px whatever size the look gives its pills, which leaves each about 12 px of side padding */
     :host([data-look]) .opts .pill { font-size: var(--fs-2); }

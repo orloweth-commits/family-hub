@@ -222,9 +222,9 @@ export const deskView = (c: Ctx): TemplateResult => {
   const start = live.map((r) => [r.id, r.vol] as [string, number]);
   const master = volCtl({ name: 'the whole house', v: avg, live: live.length > 0, vert: true, set: (v, commit) => { for (const [id, v0] of start) c.vol(id, clamp(v0 + v - avg), commit); }, drop: () => { for (const [id] of start) c.drop(id); } });
   const strip = (r: Room): TemplateResult => {
-    const lit = r.live ? Math.max(1, Math.round(r.vol / 10)) : 0;
-    // a lamp says ON only for a room playing the music on this desk; a room with other music shows a note
-    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? 'PLAYING' : r.asleep ? '☾' : 'OFF';
+    const lit = r.live && r.playing ? Math.max(1, Math.round(r.vol / 10)) : 0;
+    // a lamp says ON only for a room playing the music on this desk; a room with other music says whether it is playing or paused, as the other views do (batch 5)
+    const lamp = r.offline ? '–' : r.on ? 'ON' : r.live ? (r.playing ? 'PLAYING' : 'PAUSED') : r.asleep ? '☾' : 'OFF';
     const says = r.offline ? `${r.name} is offline` : r.on ? (r.lead ? `ON: ${r.name} plays this music. ${r.playing ? 'Pause' : 'Play'}` : `ON. Remove ${r.name} from the music`) : r.live ? `${r.name} has other music. Swap it for this music` : `OFF. Add ${r.name} to the music`;
     return html`<div class="strip" data-zone=${r.id} ?data-live=${r.live} ?data-playing=${r.playing} ?data-asleep=${r.asleep} ?data-offline=${r.offline} ?data-focus=${r.focus} ?data-hot=${c.over === r.id} style=${col(r)}>
       <button class="sname tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @click=${() => c.focus(r.id)}><span>${r.name}</span>${link(r)}</button>
@@ -381,11 +381,13 @@ const sceneShelf = (c: Ctx, kind: string): TemplateResult => {
 const sun = (c: Ctx): TemplateResult => html`<button class="puck spot" data-drop="deck" ?data-hot=${c.over === 'deck'} ?data-playing=${c.now.playing} ?data-lifted=${!!c.lifted && c.lifted === c.now.lead} style=${c.now.art ? `--art:url(${c.now.art})` : ''}
   aria-label="${c.now.title}. Tap to ${c.now.playing ? 'pause' : 'play'}${c.now.lead ? ', drag onto a room to move the music there' : ''}." @pointerdown=${(e: PointerEvent) => { if (c.now.lead) c.carry(e, c.now.lead); }} @click=${() => { if (!c.now.lead) c.playPause(); }}></button>`;
 /** A room in the scene: its creature (pick it up to move it; a tap adds or drops it), a 44 px volume handle with a speaker on it, and a name chip that nothing shows through, with quieter and louder at its ends. */
+/** the Scene's volume grab on the mast slides up and down: drawn as up-and-down arrows, so it is not a second "louder" beside the label's (batch 5) */
+const GRIP = svg`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.5l5-5 5 5M7 14.5l5 5 5-5"></path></svg>`;
 const figure = (c: Ctx, r: Room, draw: (r: Room, v: number) => TemplateResult, vb = '0 0 100 120'): TemplateResult => { const [quieter, louder] = steps(c, r), vol = r.hasVol && !r.offline;
   return html`
   <svg viewBox=${vb} role="button" tabindex="0" aria-label="${r.on ? 'Remove' : 'Add'} ${r.name} ${r.on ? 'from' : 'to'} the music" @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.toggle(r.id); } }}>${r.asleep ? moon : nothing}${draw(r, r.vol / 100)}</svg>
   ${vol ? html`<span class="agrab" role="slider" tabindex="0" aria-label="Volume in ${r.name}" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${r.vol} aria-valuetext=${vtext(r)} ?data-idle=${!r.live}
-    @pointerdown=${(e: PointerEvent) => { e.stopPropagation(); slide(c, r, () => 150)(e); }} @keydown=${keys(c, r)}><i>${spk(true)}</i></span>` : nothing}
+    @pointerdown=${(e: PointerEvent) => { e.stopPropagation(); slide(c, r, () => 150)(e); }} @keydown=${keys(c, r)}><i>${GRIP}</i></span>` : nothing}
   <span class="aname" data-notrack>${vol ? quieter : nothing}<button class="atx tap" aria-pressed=${String(r.focus)} aria-label="Show ${r.name} in the player" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${() => c.focus(r.id)}><b>${r.name}${link(r)}</b><span>${vol ? html`<b class="vnum">${r.vol}</b> ` : nothing}${state(r)}</span></button>${vol ? louder : nothing}</span>`; };
 const pct = (m: PointerEvent, b: DOMRect): [number, number] => [((m.clientX - b.left) / b.width) * 100, ((m.clientY - b.top) / b.height) * 100];
 /** Pick a room up by its body. A press that moves less than 16 px is a tap, and adds or drops it; where it is let go decides the rest. */

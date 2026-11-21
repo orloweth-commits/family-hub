@@ -1,6 +1,6 @@
 import { LitElement, html, css, svg, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { styles } from './styles';
-import { LookController } from './looks';
+import { LookController, plainLook } from './looks';
 import { glassDark } from './dark';
 import { FitController, linger, sfx } from './util';
 import { icon } from './icons';
@@ -157,8 +157,8 @@ export class FhDoodle extends LitElement {
   private _askWho = false;
   private _esc = (e: KeyboardEvent): void => { if (e.key !== 'Escape' || (!this._view && !this._askWho)) return; e.stopPropagation(); this._view = ''; this._askWho = false; };
   connectedCallback(): void { super.connectedCallback(); window.addEventListener('keydown', this._esc, true);
-    // on a dark panel the pad starts as the chalkboard (white paper is a third of the screen and glares); "Chalkboard" still swaps it, and the chalk is white to start
-    if (glassDark() && !this._strokes.length) { this._chalk = true; if (this._ink === INKS[0]) this._ink = '#ffffff'; } }
+    // on a dark panel (Glass in the dark, or Obsidian, the plain look: batch 5) the pad starts as the chalkboard (white paper is a third of the screen and glares); "Chalkboard" still swaps it, and the chalk is white to start
+    if ((glassDark() || plainLook()) && !this._strokes.length) { this._chalk = true; if (this._ink === INKS[0]) this._ink = '#ffffff'; } }
   private _strokes: (Stroke | null)[] = [];
   private _cur: Stroke | null = null;
   private _ctx?: CanvasRenderingContext2D;

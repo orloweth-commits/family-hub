@@ -65,7 +65,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.21';
+const VERSION = '0.38.22';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1512,7 +1512,9 @@ export class FamilyHubCard extends LitElement {
     const c = this._config, h = this.hass, now = this._now, clk = fmtClock(now);
     const w = c.weather ? h?.states[c.weather] : undefined;
     const temp = w?.attributes.temperature;
-    const wx = this._wx, kid = this._kidOn;
+    const kid = this._kidOn, night = !this._sunUp();
+    // after dark the day's UV and top are past: leave them out (the moon is already drawn)
+    const wx = night ? { ...this._wx, uv: undefined, max: undefined } : this._wx;
     // who-is-home only knows about people Home Assistant tracks
     const tracked = (c.people ?? []).filter((p) => p.entity);
     return html`
@@ -1529,7 +1531,7 @@ export class FamilyHubCard extends LitElement {
               ${art('cloud', 34, this._artData(false))}
               <span style="display:flex;flex-direction:column;line-height:1.15">
                 <span style="font-weight:var(--w-bold, 700);font-size:var(--fs-4)">${temp !== undefined ? `${Math.round(temp)}°` : '–'}${wx.max !== undefined ? html`<span class="muted wtop" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)"> · top ${Math.round(wx.max)}°</span>` : nothing}</span>
-                <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${COND[w.state] ?? (['unavailable', 'unknown', ''].includes(w.state) ? 'No weather' : w.state)}${wx.rain ? ` · ${wx.rain} mm` : ''}</span>
+                <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${night && w.state === 'sunny' ? 'Clear' : COND[w.state] ?? (['unavailable', 'unknown', ''].includes(w.state) ? 'No weather' : w.state)}${wx.rain ? ` · ${wx.rain} mm` : ''}</span>
               </span>
               ${lookArt(this._lk, 'wx', { wx: { state: w.state, uv: wx.uv, rain: wx.rain, max: wx.max } })}
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${art('uv', 17)}UV ${Math.round(wx.uv!)}</span>` : nothing}
@@ -1723,10 +1725,16 @@ export class FamilyHubCard extends LitElement {
   }
 
   /** What the dock's drawings show of this house, now: only things the card already knows. */
+  /** the sun is up (from `sun.sun`, else 6 am to 7 pm): after dark the top bar says "Clear", not "Sunny", and leaves out the UV and the day's top */
+  private _sunUp(): boolean {
+    const st = this.hass?.states ?? {}, now = this._now;
+    return st['sun.sun'] ? st['sun.sun'].state === 'above_horizon' : now.getHours() >= 6 && now.getHours() < 19;
+  }
+
   private _artData(playing: boolean): ArtData {
     const c = this._config, st = this.hass?.states ?? {}, now = this._now, mins = now.getHours() * 60 + now.getMinutes();
     const w = c.weather ? st[c.weather] : undefined, mpS = c.music_player ? st[c.music_player] : undefined;
-    const sunUp = st['sun.sun'] ? st['sun.sun'].state === 'above_horizon' : now.getHours() >= 6 && now.getHours() < 19;
+    const sunUp = this._sunUp();
     const pic = playing ? (mpS?.attributes.entity_picture as string | undefined) : undefined;
     const g = c.groceries ? Number(st[c.groceries]?.state) : NaN;
     const m0 = hm(c.morning?.start ?? '06:30'), m1 = hm(c.morning?.end ?? '08:45');
@@ -1822,7 +1830,7 @@ export class FamilyHubCard extends LitElement {
             .mode=${pics ? 'pictures' : 'full'} .who=${kid ? kidEntities(kid).slug : ''} .minutes=${rule?.minutes ?? 0} @close=${close} @pin=${(e: CustomEvent<{ reason: string; run: () => void }>) => { this._pinAsk = { ...e.detail, sheet: 'chat' }; }}></fh-chat>`)}</section></div>`; }
     const body = s === 'dinner' ? this._dinnerBody() : s === 'noticed' ? this._noticedBody() : s === 'waiting' ? this._waitingBody() : s === 'more' ? this._moreBody() : s === 'event' ? this._eventBody() : s === 'themes' ? this._themeBody() : s === 'kidprefs' ? this._kidPrefsBody() : s === 'meds' ? this._medsBody() : s === 'timer' ? this._timerBody() : this._sitterBody();
     return html`<div class="scrim" ?data-closing=${out} @click=${(e: Event) => { if (e.target === e.currentTarget) close(); }}>
-      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ dinner: 'Dinners this week', noticed: 'Leave a note', waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medication', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
+      <section class="glass sheet scrolly" tabindex="-1" role="dialog" aria-modal="true" aria-label=${{ dinner: 'Dinners this week', noticed: 'Leave a note', waiting: 'Waiting for a parent', more: 'More', themes: 'Pick a look', kidprefs: 'Settings', meds: 'Medicine', timer: 'Kitchen timer', sitter: 'House info', event: this._evOpen ? `${this._evOpen.ev.title}, details` : 'Event' }[s] ?? 'Panel'}
         data-sheet=${s} data-w=${s === 'themes' || s === 'sitter' ? 'l' : s === 'timer' || s === 'event' || s === 'more' ? 's' : 'm'} @scroll=${scrollCue}>${body}</section></div>`;
   }
   /** "More": what left the header to keep it calm. Looks, medicine, house info and night as big named buttons, and who is home. */
@@ -1838,7 +1846,7 @@ export class FamilyHubCard extends LitElement {
         ${go('night', 'moon', 'Night', 'Dim the screen now', () => { this._sheet = ''; this._nightManual = true; this._art.enter(this._eventsOn(this._now, this._soon).map((e) => e.title)); })}
       </div>
       ${tracked.length ? html`<button class="glass presence tap" style="align-self:flex-start" aria-label=${`Who is home. ${this._whoHome()}`} @click=${() => this._say(this._whoHome())}>
-        <span class="phome" aria-hidden="true">${icon('home', 18)}</span>${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this._whoHome()}</span></button>` : nothing}`;
+        <span class="phome" aria-hidden="true">${icon('home', 18)}</span>${tracked.map((p) => this._face(p, h?.states[p.entity!]?.state === 'home'))}</button>` : nothing}`;
   }
   private _sheetHead(title: string, sub = '', ic = '', extra: TemplateResult | typeof nothing = nothing): TemplateResult {
     return html`<div class="shead">
@@ -1858,7 +1866,7 @@ export class FamilyHubCard extends LitElement {
       <div class="setpair">
         <div class="setrow"><span class="setlabel"><b>Sounds</b><span class="muted">${this._look === 'obsidian' ? 'Obsidian is soft and sparing: nothing for keys or scrolling. Timers always sound.' : 'Taps, ticks and keys from this screen. Timers always sound.'}</span></span>
         <div class="seg" role="group" aria-label="Sounds" data-set="sounds">${([['off', 'Off'], ['quiet', 'Soft'], ['on', 'On']] as const).map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._snd === v)} @click=${() => this._setSounds(v)}>${l}</button>`)}</div></div>
-        ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'Space Mission is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Dark from sunset to sunrise, and in a dim room.' : 'For this screen. Auto follows the sun and the room.'}</span></span>
+        ${!lookById(this._look).themed ? nothing : html`<div class="setrow"><span class="setlabel"><b>Light and dark</b><span class="muted">${this._theme === 'space' ? 'The Space Mission background is always dark. The other backgrounds follow this.' : this._dkMode === 'auto' ? 'Dark from sunset to sunrise, and in a dim room.' : 'For this screen. Auto follows the sun and the room.'}</span></span>
         <div class="seg" role="group" aria-label="Light and dark" data-set="dark">${DARK_MODES.map(([v, l]) => html`<button class="tap" aria-pressed=${String(this._dkMode === v)} @click=${() => this._setDark(v)}>${l}</button>`)}</div></div>`}
       </div>
       ${!lookById(this._look).themed ? nothing : html`      <span class="label">Background</span>
@@ -1921,7 +1929,7 @@ export class FamilyHubCard extends LitElement {
     const due = (c.meds ?? []).some((d) => { const s = this._medStatus(d.id, d.time); return s.due && !s.missing; }), away = Date.now() < this._medLater;
     const later = !due ? nothing : away ? html`<button class="pill tap ghost" data-act="med-back" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label=${`The reminder is put away until ${fmtTime(new Date(this._medLater))}. Show it now`} @click=${() => this._medSnooze(0)}><span><span class="lt30">Back at ${fmtTime(new Date(this._medLater))} · </span>show now</span></button>`
       : html`<button class="pill tap ghost" data-act="med-later" style="height:48px;padding:0 16px;font-size:var(--fs-2);flex-shrink:0" aria-label="Remind us later: put the reminder away for 30 minutes" @click=${() => this._medGuard('Remind us about the medicine later?', () => this._medSnooze(30))}><span>Later<span class="lt30">&nbsp;(30 min)</span></span></button>`;
-    return html`${this._sheetHead('Medication', 'Kept off the kids’ pages and the night screen.', 'pill', later)}
+    return html`${this._sheetHead('Medicine', 'Kept off the kids’ pages and the night screen.', 'pill', later)}
       <div class="med2">
         <div class="icol">
           <span class="label">Every day</span>
@@ -2039,7 +2047,7 @@ export class FamilyHubCard extends LitElement {
     if (contacts.length) secs.push(html`${h3('Who to ring')}${contacts.map((p) => html`<a class="irow tap" href=${`tel:${p.phone.replace(/[^\d+]/g, '')}`} aria-label=${`Ring ${p.name} on ${p.phone}`}><b>${p.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${p.phone}</span></a>`)}`);
     if (beds.length) secs.push(html`${h3('Bedtimes tonight')}${beds.map((k) => html`<div class="irow"><b>${k.name}</b><span>${t12(k.at)}</span></div>`)}`);
     if (tonight.length) secs.push(html`${h3('Still on today')}${tonight.map((x) => html`<div class="irow"><b class="ell">${x.title}</b><span style="white-space:nowrap">${whenOn(x, now).label}</span></div>`)}`);
-    if (bins) secs.push(html`${h3('Bin night')}<div class="irow"><b>${sameDay(bins.night, now) ? 'Tonight' : `${bins.night.toLocaleDateString('en-AU', { weekday: 'long' })} night`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(bins.bins)}${bins.bins.join(' + ')}</span></div>`);
+    if (bins) secs.push(html`${h3('Bin night')}<div class="irow"><b>${sameDay(bins.night, now) ? 'Tonight' : `${bins.night.toLocaleDateString('en-AU', { weekday: 'long' })} night, ${bins.night.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(bins.bins)}${bins.bins.join(' + ')}</span></div>`);
     if (b.wifi) secs.push(html`${h3('Wi-Fi')}<div class="irow"><span>Network</span><b>${b.wifi.name}</b></div>${b.wifi.password ? html`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!c.parent_pin || Date.now() < this._wifiUntil ? html`<b>${b.wifi.password}</b>` : html`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${icon('lock', 16)}Show</button>`}</div>` : nothing}`);
     if (tracked) secs.push(html`${h3('Who is home')}<div class="iline">${this._whoHome()}</div>`);
     if (notes.length) secs.push(html`${h3('Good to know')}${notes.map((l) => html`<div class="iline">${l}</div>`)}`);

@@ -325,7 +325,7 @@ export class FhKid extends LitElement {
     .soonpic { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; min-height: 112px; padding: 8px 8px; border-radius: 18px; background: var(--chip); text-align: center; }
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
     /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls) */
-    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
+    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; hyphens: auto; text-wrap: balance; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
@@ -914,7 +914,7 @@ export class FhKid extends LitElement {
     const e = this._e, h = this.hass!, look = this._look, pts = num(h, e.points);
     return html`<section class="glass hero" aria-label="${this.kid.name}’s avatar">
       <button class="tap avbtn" aria-label="Make ${this.kid.name} jump" @click=${() => { this._jump++; this._sound((this.kid.sound as Sfx) ?? 'tap'); if (this._picMode) say(`Hi ${this.kid.name}! You have ${Math.floor(pts / this._star)} stars.`); }}>
-        ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age }) : html`<span class="avph"></span>`}</button>
+        ${this._drawn ? renderAvatar(look, { size: 186, jump: this._jump, label: `${this.kid.name}’s avatar`, age: this.kid.age, ring: slotVar(this.kid.colour) }) : html`<span class="avph"></span>`}</button>
       <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;max-width:100%;z-index:1"><h1 class="name" style="--nl:${Math.max(1, this.kid.name.length)}">${this.kid.name}</h1></div>
       ${this._wind ? html`<div class="nextup"><span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);padding:6px">🌙 Studio opens in the morning</span></div>` : nothing}
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}

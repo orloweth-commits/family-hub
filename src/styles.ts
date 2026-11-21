@@ -576,7 +576,8 @@ export const styles = css`
   .tprev { height: 96px; border-radius: 16px; display: flex; align-items: flex-end; gap: 5px; padding: 10px; background: var(--bg) center / cover; }
   .tprev[data-dark] { background: var(--dim), var(--bg) center / cover; }
   .tprev span { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
-  .looks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* the five looks stand in one row on a wide screen, so the backgrounds under them are in sight without scrolling (batch 5: their row was cut at the sheet's foot) */
+  .looks { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   /* a child's own picker: "Same as the panel" and every look */
   .kidlooks { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .opt { min-width: 56px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }

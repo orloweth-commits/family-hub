@@ -432,7 +432,7 @@ export class FhAddEvent extends LitElement {
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? 'Change this event' : 'Add to the calendar'}</h2>
         <span class="sum" aria-live="polite">${this._t.trim() ? sum : `Add a title · ${sum}`}</span>
         <button class="round tap xbtn" aria-label="Close" @click=${() => this.dispatchEvent(new CustomEvent('close'))}>${icon('close', 20)}</button></div>
-      <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming lesson" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
+      <div class="what"><input class="field ${this._in === 'what' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="What’s on" aria-invalid=${this._err ? 'true' : 'false'} placeholder="What’s on? e.g. Swimming" .value=${this._t} @focus=${() => { this._in = 'what'; }} @input=${(e: Event) => { this._t = (e.target as HTMLInputElement).value; this._err = ''; }}
           @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter') void this._save(); }}>
       <div class="wherebox"><span class="pin" aria-hidden="true">${icon('pin', 24)}</span>
         <input class="field where ${this._in === 'where' ? 'on' : ''}" inputmode=${soft ? 'text' : 'none'} aria-label="Where" placeholder="Where? (optional)" .value=${this._loc}

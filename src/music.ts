@@ -51,6 +51,9 @@ const shp = (): 'wide' | 'tall' | 'phone' => { const s = getShape(); return s ==
  * Music: what is playing and where, one search across every service, a shelf of favourites per child,
  * a take-turns jukebox, radio, and a way to call a room.
  */
+/** a station's letters when it has no picture: the first letter of each word that starts with a capital or a digit ("ABC Kids listen" is AK, not AKl: batch 5) */
+const stationInitials = (name: string): string => (name.split(/\s+/).filter((w) => /^[\p{Lu}\d]/u.test(w)).map((w) => w[0]).join('') || name.trim().charAt(0).toUpperCase()).slice(0, 3);
+
 export class FhMusic extends LitElement {
   readonly stackNarrow = true;
   readonly lookCtl = new LookController(this);
@@ -1644,7 +1647,7 @@ export class FhMusic extends LitElement {
       <div class="grid presets" ?data-few=${this._stations.length <= 4}>${this._stations.map((s) => {
         const th = this._thumbs[s.name], on = playingName === s.name;
         return html`<button class="st tap ${on ? 'on' : ''}" @click=${() => this._play(s)}>
-          <span class="img" style=${th ? `--art:url(${th})` : plainLook() ? 'background:linear-gradient(160deg, #23272e, #0b0e13);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--glass-line)' : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : s.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}</span>${s.name}</button>`;
+          <span class="img" style=${th ? `--art:url(${th})` : plainLook() ? 'background:linear-gradient(160deg, #23272e, #0b0e13);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--glass-line)' : `background:linear-gradient(135deg, color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 72%, #000), color-mix(in srgb, var(--p-${(s.name.length % 5) + 1}) 46%, #000));color:#fff`}>${th ? '' : stationInitials(s.name)}</span>${s.name}</button>`;
       })}</div>`;
   }
 

@@ -207,6 +207,8 @@ export class FhWeather extends LitElement {
     .hchart { display: block; }
     .hchart text { font-size: var(--fs-2); font-weight: 600; fill: var(--ink2); text-anchor: middle; }
     .hchart .wind { font-size: var(--fs-2); }
+    /* a wind figure carries its unit under it, so a row that turns from rain to wind still says which it is (batch 5) */
+    .hchart .wunit { font-size: var(--fs-1); fill: var(--ink2); }
     /* the unit is said once, here, so the hours below carry the number alone */
     .hkey { flex: 1 1 0; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .hchart .tv { font-size: var(--fs-2); font-weight: 800; fill: var(--ink); }
@@ -487,13 +489,16 @@ export class FhWeather extends LitElement {
     const now = Date.now() - 30 * 60000;
     const hs = this._hours.filter((h) => new Date(h.datetime).getTime() >= now).slice(0, 24);
     if (hs.length < 2) return html`<section class="glass whours"><h2>${this._titles()[1]}</h2><p class="muted" style="font-size:var(--fs-2);margin:0">Hour-by-hour weather is not available from this forecast.</p></section>`;
+    // the first column says "Now": it shows the reading now, as "Right now" and the top bar do, not the forecast's hour (batch 5)
+    const cur = Number(this.hass?.states[this.entity ?? '']?.attributes.temperature);
+    if (Number.isFinite(cur)) hs[0] = { ...hs[0], temperature: cur };
     const W = this._hw, H = 158, n = hs.length, temps = hs.map((h) => h.temperature ?? 0);
     const lo = Math.min(...temps), hi = Math.max(...temps), y = (t: number) => 98 - ((t - lo) / Math.max(1, hi - lo)) * 24;
     const x = (i: number) => i * W + W / 2;
     const pts = hs.map((h, i) => `${x(i)} ${y(h.temperature ?? lo)}`);
     const step = (dir: number): void => { const el = this.renderRoot.querySelector<HTMLElement>('.hscroll'); if (el) el.scrollTo({ left: Math.round((el.scrollLeft + dir * el.clientWidth) / this._hw) * this._hw, behavior: motion(this).travel ? 'smooth' : 'auto' }); };
     return html`<section class="glass whours">
-      <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain % or wind km/h</span>
+      <div class="hhead"><h2>${this._titles()[1]}</h2><span class="hkey">Rain chance %, else wind km/h</span>
         <button class="tap" data-act="earlier" aria-label="Earlier hours" ?disabled=${!this._moreL} @click=${() => step(-1)}>${icon('left', 20)}</button>
         <button class="tap" data-act="later" aria-label="Later hours" ?disabled=${!this._moreR} @click=${() => step(1)}>${icon('right', 20)}</button></div>
       <div class="hscroll" tabindex="0" role="img" @scroll=${this._hscrolled} aria-label=${`Next ${n} hours: ${hs.filter((_, i) => i % 3 === 0).map((h) => `${hourLabel(new Date(h.datetime))} ${Math.round(h.temperature ?? 0)} degrees`).join(', ')}`}>
@@ -509,7 +514,7 @@ export class FhWeather extends LitElement {
               <svg class="sky" x=${x(i) - 15} y="30" width="30" height="30" viewBox="0 0 64 64">${glyph(h.condition)}</svg>
               <circle cx=${x(i)} cy=${y(h.temperature ?? lo)} r="3.5" fill=${tcol(h.temperature ?? lo)}></circle>
               <text class="tv" x=${x(i)} y=${y(h.temperature ?? lo) - 9}>${Math.round(h.temperature ?? 0)}°</text>
-              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : svg`<text class="wind" x=${x(i)} y="146">${h.wind_speed !== undefined ? Math.round(h.wind_speed) : ''}</text>`}`;
+              ${p >= 10 ? svg`<rect class="rainbar" x=${x(i) - 13} y=${150 - (p / 100) * 14} width="26" height=${(p / 100) * 14 + 2} rx="2"></rect><text class="raintxt" x=${x(i)} y="133">${Math.round(p)}%</text>` : h.wind_speed !== undefined ? svg`<text class="wind" x=${x(i)} y="139">${Math.round(h.wind_speed)}</text><text class="wunit" x=${x(i)} y="153">km/h</text>` : nothing}`;
           })}`}
         </svg>
       </div>
