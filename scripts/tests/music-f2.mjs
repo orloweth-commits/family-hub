@@ -351,7 +351,7 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   const seen = await drag(page, rec, async () => mid(M(page).locator('.roompop .mz[data-zone="media_player.lounge_room_sonos"]')), async () => M(page).locator('.roompop[data-carrying]').count());
   ok('carrying a record brings the little house up, and letting go on a room plays it there', seen === 1 && (await calls(page, /play_media/)).some((c) => /lounge_room_sonos/.test(c)) && await M(page).locator('.roompop').count() === 0, [seen, await calls(page, /play_media/)]);
   await shut(page); }
-{ const page = await open('page=music&mtab=radio'); await page.waitForTimeout(500);
+{ const page = await open('page=music'); await page.waitForTimeout(300); await M(page).getByRole('tab', { name: 'Radio' }).click(); await page.waitForTimeout(500);
   const rb = M(page).locator('.rhead .roomb');
   ok('Radio: the line names the room and lets it be changed there (backlog 105)', await rb.count() === 1 && /Kitchen/.test(await rb.innerText()) && !/Rooms tab/.test(await M(page).locator('.body').innerText()), await rb.innerText().catch(() => 'none'));
   await rb.click(); await page.waitForTimeout(300); await M(page).locator('.roompop .mz[data-zone="media_player.office"]').click(); await page.waitForTimeout(300);
