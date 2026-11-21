@@ -8444,7 +8444,7 @@ xr.styles = [Xt, ji, st`
     .grp > .cont { break-before: column; }
     .items > .trolley, .items > .empty { column-span: all; }
     /* while the keys are over the lower part of the page, the list can still be scrolled clear of them */
-    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 318px; }
+    :host([data-shape='wide']:not([data-n3])[data-keys]) .scroll { padding-bottom: 308px; }
     .item { display: flex; align-items: center; gap: 10px; min-height: 44px; /* token */ padding: 7px 10px; border-radius: 14px; background: var(--chip); width: 100%; min-width: 0; text-align: left; }
     .box { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ink2); }
     .done .box { background: var(--ok); border-color: var(--ok); color: var(--on-ok, #fff); }
@@ -8466,14 +8466,14 @@ xr.styles = [Xt, ji, st`
     :host([data-shape='wide']:not([data-n3])) .tray::before, :host([data-shape='wide']:not([data-n3])) .tray::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--glass); z-index: -1; }
     /* on a wide page the keys sit under the list and the box under its own panel, so the tray is only as tall as the keys */
     :host([data-shape='wide']:not([data-n3])) .tray { flex-direction: row; align-items: center; gap: 16px; padding: 16px 22px; }
-    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 266px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
+    :host([data-shape='wide']:not([data-n3])) .tray .keys, :host([data-shape='wide']:not([data-n3])) .tray .keysgone { order: -1; flex: 1 1 0; min-width: 0; height: 256px; } /* five rows since batch 5: numbers and ? ! ' , . as well as the letters */
     :host([data-shape='wide']:not([data-n3])) .tray .entry { flex: 0 0 340px; width: auto; flex-wrap: wrap; align-content: center; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .field { flex: 1 1 100%; }
     :host([data-shape='wide']:not([data-n3])) .tray .entry .lead, :host([data-shape='wide']:not([data-n3])) .tray .entry .sayit { flex: 1 1 0; padding: 0 12px; }
     :host([data-shape='wide']:not([data-n3])) .tray .hidekeys { flex: 1 1 100%; }
     :host([data-shape='wide'][data-n1]:not([data-n3])) .tray .entry { flex-basis: 290px; }
     :host([data-shape='wide']:not([data-n3])) .tray[data-closing] { animation: traydown var(--mt-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
-    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 48px; max-height: none; }
+    :host([data-shape='wide']:not([data-n3])) .tray .krow { flex: 0 0 46px; max-height: none; }
     @keyframes trayup { from { transform: translateY(104%); } }
     @keyframes traydown { to { transform: translateY(104%); } }
     :host([data-shape='wide'][data-n3]) .tray { order: -1; flex: none; }
