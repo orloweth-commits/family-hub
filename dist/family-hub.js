@@ -8166,11 +8166,15 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
       }
     );
   }
+  _fitHint() {
+    const t = this.renderRoot.querySelector(".add"), e = t?.querySelector("[data-keyhint]");
+    !t || !e || (e.style.display = "", t.scrollHeight > t.clientHeight + 1 && (e.style.display = "none"));
+  }
   connectedCallback() {
-    super.connectedCallback(), document.fonts?.addEventListener?.("loadingdone", this._fontsIn);
+    super.connectedCallback(), document.fonts?.addEventListener?.("loadingdone", this._fontsIn), typeof ResizeObserver < "u" && (this._hintRo ??= new ResizeObserver(() => this._fitHint()), this._hintRo.observe(this));
   }
   disconnectedCallback() {
-    super.disconnectedCallback(), document.fonts?.removeEventListener?.("loadingdone", this._fontsIn), this._hearing?.stop(), this._hearing = null, this._commitClear(), this._unsub?.(), this._unsub = void 0, this._subFor = "";
+    super.disconnectedCallback(), this._hintRo?.disconnect(), document.fonts?.removeEventListener?.("loadingdone", this._fontsIn), this._hearing?.stop(), this._hearing = null, this._commitClear(), this._unsub?.(), this._unsub = void 0, this._subFor = "";
   }
   updated(t) {
     if ((t.has("hass") || t.has("entity")) && this.hass && this._subFor !== this.entity && this._subscribe(), t.has("_keys")) {
@@ -8178,7 +8182,7 @@ const Mb = (a) => [...new Set(String(a ?? "").replace(/[.!?]+$/g, "").split(/\s*
       const e = this.renderRoot.querySelector(".entry .field");
       this._keys ? e?.focus({ preventScroll: !0 }) : e?.blur();
     }
-    this.renderRoot.querySelectorAll(".scrolly").forEach(Ft), this._places && (this._places.size <= 40 && Og(this.renderRoot, ".row[data-key]", this._places), this._places = null), this._measureCont();
+    this.renderRoot.querySelectorAll(".scrolly").forEach(Ft), this._places && (this._places.size <= 40 && Og(this.renderRoot, ".row[data-key]", this._places), this._places = null), this._measureCont(), this._fitHint();
   }
   /**
    * A long aisle that the columns break carries on at the top of the next column under its own heading ("Fruit & veg, more").
@@ -8531,6 +8535,8 @@ xr.styles = [Xt, ji, st`
     /* the usuals are large chips, one tap each: big enough for the smallest hand and to read from across the kitchen */
     .usuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: start; }
     .usuals > span { grid-column: 1 / -1; font-size: var(--fs-1); font-weight: var(--w-bold, 700); }
+    /* (the full check, 0.38.23) in the narrow panel always two across: on a tablet the panel is 330 px and one across ran the usuals under the dock */
+    :host([data-shape='wide']:not([data-n3])) .usuals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     /* with the keys up the tray covers the lower part of the page: the usuals close up, three across, so every one stays in reach above it (4d: backlog 109) */
     /* while typing, "Send the list to" steps aside so every usual stays above the taller key tray (batch 5: five rows of keys) */
     :host([data-keys][data-shape='wide']:not([data-n3])) .sendrow { display: none !important; }
@@ -14860,6 +14866,13 @@ Ar.styles = [Xt, st`
     :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet { grid-area: wet; margin-top: 0; white-space: nowrap; }
     /* a day's column is too narrow for the millimetres as well: the chance is what decides the raincoat */
     :host([data-dry][data-shape='wide']:not([data-n3])) .wday .wet .mm { display: none; }
+    /* (the full check, 0.38.23) a day narrower than "27° 14°" with its padding (a tablet, 1280 x 800: 54 to 67 px) shows the top over the low, so both stay in its tile; the wall's days are wider and keep the two side by side */
+    :host([data-dry][data-shape='wide']:not([data-n3])) .wday { container-type: inline-size; }
+    @container (max-width: 72px) {
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng { grid-template-columns: 1fr; grid-template-areas: 'hi' 'lo' 'track' 'wet'; grid-template-rows: auto auto auto 20px; gap: 2px; padding: 0; }
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .rng > span:nth-child(3), :host([data-dry][data-shape='wide']:not([data-n3])) .wday .lo { text-align: center; }
+      :host([data-dry][data-shape='wide']:not([data-n3])) .wday .track { margin-top: 4px; }
+    }
     .mapsize { height: 44px; padding: 0 16px; flex-shrink: 0; font-size: var(--fs-2); white-space: nowrap; }
     .dryline { font-size: var(--fs-2); font-weight: var(--w-semi, 600); padding: 0 6px; }
     :host([data-phone]) { display: flex; flex-direction: column; flex: none; }
@@ -19730,7 +19743,7 @@ const Bv = (a, t) => {
   { k: "reward", ic: "star", title: "Rewards asked for", say: "Approve takes the points. Not yet changes nothing." },
   { k: "job", ic: "check", title: "Jobs said done", say: "Approve ticks the job and gives its points. Not yet leaves it unticked." },
   { k: "chat", ic: "ask", title: "Asked for a chat", say: "Seen takes it off the list and tells him a parent has seen it." }
-], Jv = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, Rd = "0.38.22", $0 = "family-hub-theme", F0 = "family-hub-sounds", R0 = {
+], Jv = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, Rd = "0.38.23", $0 = "family-hub-theme", F0 = "family-hub-sounds", R0 = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
