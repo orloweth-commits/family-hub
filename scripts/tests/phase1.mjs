@@ -22,24 +22,76 @@ const med = (page) => C(page).locator('.cap[data-kind="med"]');
 const bg = (loc) => loc.evaluate((e) => getComputedStyle(e).backgroundColor);
 const NAMES = /Riley|Charlie|Max/;
 
-// 1. the medication chip: a count, never a name; red for the first overdue hour, then amber
-for (const look of ['glass', 'fridge', 'orbit', 'sports']) {
+// 1. the medication chip: a count, never a name. Since 0.38.25 (the second review, item 1) it is amber for two hours after the time and never red;
+//    then a plain "…not recorded: check before giving" until noon (a morning dose); then off the header. The sheet still says Overdue
+const chipOf = (page) => med(page).evaluate((e) => ({ txt: e.innerText.replace(/\s+/g, ' ').trim(), label: e.getAttribute('aria-label'), hot: e.classList.contains('hot'), warm: e.hasAttribute('data-warm'), bg: getComputedStyle(e).backgroundColor, ink: getComputedStyle(e).color, anim: getComputedStyle(e).animationName }));
+for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) {
   let page = await open(`look=${look}&page=planner&timer=0`, '07:30');
-  let txt = (await med(page).innerText()).replace(/\s+/g, ' ').trim(), label = await med(page).getAttribute('aria-label');
-  ok(`${look}: 7:30 am, the chip reads "2 overdue" and names nobody`, txt === '2 overdue' && !NAMES.test(txt + label) && label === 'Medicine: 2 overdue', `${txt} / ${label}`);
-  ok(`${look}: in its first overdue hour it is the urgent chip`, await med(page).evaluate((e) => e.classList.contains('hot') && !e.hasAttribute('data-warm')));
+  let r = await chipOf(page);
+  ok(`${look}: 7:30 am, the chip reads "2 overdue" and names nobody`, r.txt === '2 overdue' && !NAMES.test(r.txt + r.label) && r.label === 'Medicine: 2 overdue', `${r.txt} / ${r.label}`);
+  ok(`${look}: in its two hours it is amber, never red, and does not pulse`, !r.hot && r.warm && !/hot/i.test(r.anim) && (look === 'obsidian' || (r.bg === 'rgb(245, 179, 1)' && r.ink === 'rgb(42, 26, 0)')), r);
   const head = (await C(page).locator('header').innerText()).replace(/\s+/g, ' ');
   ok(`${look}: no child is named anywhere in the header`, !NAMES.test(head), head);
   await page.context().close();
-  page = await open(`look=${look}&page=planner&timer=0`, '16:20');
-  txt = (await med(page).innerText()).replace(/\s+/g, ' ').trim();
-  const c = await bg(med(page)), ink = await med(page).evaluate((e) => getComputedStyle(e).color);
-  ok(`${look}: by the afternoon it has settled to amber with dark ink, and no longer pulses`, txt === '2 overdue' && c === 'rgb(245, 179, 1)' && ink === 'rgb(42, 26, 0)' && await med(page).evaluate((e) => !e.classList.contains('hot') && getComputedStyle(e).animationName === 'none'), `${c} ${ink}`);
+  page = await open(`look=${look}&page=planner&timer=0`, '09:00');
+  r = await chipOf(page);
+  ok(`${look}: 9 am, two hours on, it is plain: "2 morning doses not recorded: check before giving"`, r.txt === '2 morning doses not recorded: check before giving' && !r.hot && !r.warm && !NAMES.test(r.txt + r.label), r);
+  await page.context().close();
+  page = await open(`look=${look}&page=planner&timer=0`, '12:30');
+  ok(`${look}: after noon it is off the header`, await med(page).count() === 0);
   await page.context().close();
 }
 { const page = await open('look=glass&page=planner&timer=0', '06:00');
-  const txt = (await med(page).innerText()).replace(/\s+/g, ' ').trim();
-  ok('before the time it reads "2 due", plain', txt === '2 due' && await med(page).evaluate((e) => !e.classList.contains('hot') && !e.hasAttribute('data-warm')), txt);
+  const r = await chipOf(page);
+  ok('before the time it reads "2 due", plain', r.txt === '2 due' && !r.hot && !r.warm, r);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&timer=0', '06:50');
+  const r = await chipOf(page);
+  ok('from the time it is amber; "2 due" until 45 minutes on', r.txt === '2 due' && r.warm && !r.hot, r);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&timer=0&sheet=meds', '16:20');
+  ok('in the afternoon the sheet still says Overdue, with the "Given by" buttons', (await C(page).locator('.sheet .med2 .mstate[data-late]').count()) === 2 && (await C(page).locator('.sheet [data-act="given"]').count()) >= 2);
+  await page.context().close(); }
+
+// 1b. one order for the header's chips (0.38.25, the second review, item 3): a running timer, then a dose while it matters, then the next event;
+//     a Bureau warning takes the weather chip (no chip of its own) and the morning board's line
+const caps = (page) => C(page).evaluate((c) => [...c.shadowRoot.querySelectorAll('header .capsule .cap')].filter((e) => !e.hidden && e.offsetParent).map((e) => e.dataset.kind));
+const wxChip = (page) => C(page).evaluate((c) => { const w = c.shadowRoot.querySelector('header .weather'); return w ? { warn: w.hasAttribute('data-warn'), txt: w.innerText.replace(/\s+/g, ' ').trim(), label: w.getAttribute('aria-label'), badges: w.querySelectorAll('.badge').length, shown: !!w.offsetParent } : null; });
+{ const page = await open('look=glass&page=groceries', '07:10');
+  ok('7:10 am on Groceries with the kitchen timer running: the timer, then the amber dose; the next event steps aside', JSON.stringify(await caps(page)) === '["timer","med"]', await caps(page));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=groceries&timer=0', '08:00');
+  ok('8 am with no timer: the amber dose, then the next event', JSON.stringify(await caps(page)) === '["med","next"]', await caps(page));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=groceries', '16:20');
+  ok('4:20 pm with the timer running: the timer, then the next event', JSON.stringify(await caps(page)) === '["timer","next"]', await caps(page));
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=0&calm=1', '16:20');
+  ok('on a child’s page a running timer shows too, not only in its last minute', (await caps(page))[0] === 'timer', await caps(page));
+  await page.context().close(); }
+for (const look of ['glass', 'obsidian', 'sports']) {
+  const page = await open(`look=${look}&page=groceries&wx=rain&timer=0`, '12:30');
+  const w = await wxChip(page), k = await caps(page);
+  ok(`${look}: a Bureau warning takes the weather chip: its words, a filled mark, no UV or Hot badge`, !!w && w.warn && /Severe Thunderstorm Warning/.test(w.txt) && w.label === 'Weather warning: Severe Thunderstorm Warning. Open Weather' && w.badges === 0 && w.shown, w);
+  ok(`${look}: and no new chip: the capsule holds only its usual kinds`, k.length <= 2 && !k.some((x) => /warn|wx/.test(x)), k);
+  await page.context().close();
+}
+{ const page = await open('look=glass&page=groceries&wx=rain&timer=0', '12:30');
+  await page.setViewportSize({ width: 1280, height: 800 }); await page.waitForTimeout(600);
+  ok('at 1280 x 800 the warning stays when the row is tight', (await wxChip(page))?.shown === true, await C(page).evaluate((c) => c.shadowRoot.querySelector('header').dataset.fit ?? ''));
+  // (the expiry is set from the page's own clock, which the test has fixed)
+  for (const [name, phase, ahead] of [['cancelled', 'cancelled', 3600000], ['past its expiry', 'update', -60000]]) {
+    await C(page).evaluate((c, [ph, ms]) => { const S = { ...c.hass.states }; S['sensor.home_warnings'] = { ...S['sensor.home_warnings'], attributes: { warnings: [{ short_title: 'Severe Thunderstorm Warning', phase: ph, expiry_time: new Date(Date.now() + ms).toISOString() }] } }; c.hass = { ...c.hass, states: S }; }, [phase, ahead]);
+    await page.waitForTimeout(400);
+    ok(`a ${name} warning does not show: the weather chip is the sky again`, (await wxChip(page))?.warn === false, await wxChip(page));
+  }
+  await page.context().close(); }
+{ const page = await open('look=glass&page=morning&wx=rain&timer=0', '07:10');
+  const line = await C(page).evaluate((c) => { const m = c.shadowRoot.querySelector('fh-morning'), w = m.shadowRoot.querySelector('[data-part="warn"]'); return { warn: w?.textContent.trim() ?? '', line: (w?.parentElement?.textContent ?? '').replace(/\s+/g, ' ') }; });
+  ok('the morning board’s line under "Out the door" carries the warning in the UV’s place', line.warn === 'Severe Thunderstorm Warning' && !/UV \d/.test(line.line), line);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=morning&timer=0', '07:10');
+  ok('with no warning the line keeps the UV', /UV 9/.test(await C(page).evaluate((c) => c.shadowRoot.querySelector('fh-morning').shadowRoot.querySelector('.board .muted')?.textContent ?? '')));
   await page.context().close(); }
 
 // 2. "Later" in the sheet: behind the PIN, puts the chip away for half an hour on this screen, and can be brought back
