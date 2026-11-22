@@ -127,6 +127,21 @@ const WANT = { obSweepX: 14000, obFlow: 9000, obEdge: 12000, obGlint: 7000, obPu
   ok('the screensaver at its night level shows the look’s chronograph', !!art && art.night && art.chrono, art);
   await shut(page); }
 
+// the leftovers (0.38.24, backlog 144): the sheets that are their own backdrop blur it too, what to wear is drawn in line, and House info fits its sheet
+{ const page = await open('page=planner&sheet=settings&pane=house');
+  const f = await page.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings')).backdropFilter);
+  ok('Settings blurs the page behind it, as the other sheets do (144)', /blur/.test(f), f); await shut(page); }
+{ const page = await open('page=planner&sheet=add');
+  const f = await page.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-add-event')).backdropFilter);
+  ok('so does Add event (144)', /blur/.test(f), f); await shut(page); }
+{ const page = await open('page=weather');
+  const r = await page.evaluate(() => { const w = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot; const els = [...w.querySelectorAll('.tipone svg *')];
+    return { n: els.length, filled: els.filter((e) => getComputedStyle(e).fill !== 'none').length }; });
+  ok('what to wear and bring is drawn in line, with no colour fill (144)', r.n > 0 && r.filled === 0, r); await shut(page); }
+{ const page = await open('page=planner&sheet=sitter');
+  const r = await page.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('section.sheet'); return [s.scrollHeight, s.clientHeight]; });
+  ok('House info fits its sheet, the last bedtime clear of the foot fade (144)', r[0] <= r[1] + 1, r); await shut(page); }
+
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

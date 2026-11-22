@@ -226,8 +226,12 @@ for (const view of ['house', 'scene']) { const page = await open(`page=music&mvi
   ok('so does a finger coming down on the record in a room', gone);
   await shut(page);
   const sc = await open('page=music&mview=scene'); await sc.waitForTimeout(500);
-  const s1 = await M(sc).locator('.hint[data-on]').innerText(); await sc.waitForTimeout(4000); const s2 = await M(sc).locator('.hint[data-on]').innerText();
+  const ringS = (sel) => M(sc).locator(sel).evaluateAll((els) => els.length > 0 && els.every((e) => getComputedStyle(e).outlineStyle !== 'none' && parseFloat(getComputedStyle(e).outlineWidth) >= 2)).catch(() => false);
+  const s1 = await M(sc).locator('.hint[data-on]').innerText(), t1 = await M(sc).locator('.panel').getAttribute('data-teach'), r1 = await ringS('.actor:not([data-offline]) .aname');
+  await sc.waitForTimeout(4000); const s2 = await M(sc).locator('.hint[data-on]').innerText();
+  const r2 = await ringS('.actor:not([data-live]):not([data-offline]) .aname'), r2live = await ringS('.actor[data-live] .aname');
   ok('the Scene has three too: its own game first, then the tap', /^1 of 3/.test(s1) && /together/.test(s1) && /^2 of 3/.test(s2) && /Tap a quiet room, then Move the music/.test(s2), [s1, s2]);
+  ok('the Scene\'s first mark rings every name it is about, the second the quiet ones (backlog 149)', t1 === 'join' && r1 && r2 && !r2live, [t1, r1, r2, r2live]);
   await shut(sc);
   const dl = await open('page=music&mview=dial'); await dl.waitForTimeout(500);
   ok('a view with one line shows it without a count', await M(dl).locator('.hint[data-on]').count() === 1 && await M(dl).locator('.hstep').count() === 0, await M(dl).locator('.hint[data-on]').innerText().catch(() => ''));

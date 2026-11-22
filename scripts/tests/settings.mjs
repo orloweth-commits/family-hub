@@ -361,6 +361,45 @@ for (const [w, h] of [[1920, 1080], [1312, 668], [1024, 768], [768, 1024], [390,
   await c2.close();
 }
 
+// 22. the drum's own race (backlog 152, fixed in 0.38.24): a value chosen by a key or a tap stands until the drum rests on it, and only a finger takes over
+{ const page = await open('look=glass&sheet=settings&pane=children');
+  const done = async () => (await S(page).locator('[data-act="time-done"]').innerText()).replace(/\s+/g, ' ').trim();
+  // (1) a key in the 90 ms after the dial's own opening scroll: it used to be put back when that wait ended
+  const first = await page.evaluate(async () => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings'), r = st.shadowRoot;
+    [...r.querySelectorAll('button')].find((b) => /Riley’s bedtime/.test(b.getAttribute('aria-label') ?? b.textContent)).click(); await st.updateComplete;
+    const h = r.querySelector('.drum[data-d="h"]'); h.scrollTop = 0; // the drum's own scroll, as the dial's opening makes
+    await new Promise((res) => h.addEventListener('scroll', res, { once: true }));
+    const inWait = !!st._spin.h; h.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })); return inWait; });
+  await page.waitForTimeout(600);
+  ok('a key pressed in the drum\'s own 90 ms wait is kept (152)', first && /Done: 7:00 pm/.test(await done()), [first, await done()]);
+  // (2) a scroll from a roll still under way (the drum part-way to the key's value) is not read as a choice
+  // (the suite's scrolling is instant, so the roll is held part-way by hand: the drum's own roll is stopped, the key pressed, and the drum put at 4 pm as if still rolling up from 7)
+  await page.evaluate(async () => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings'), h = st.shadowRoot.querySelector('.drum[data-d="h"]');
+    h.scrollTo = () => {}; h.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })); await st.updateComplete; h.scrollTop = 3 * 44; });
+  await page.waitForTimeout(700); // past the old 600 ms guard
+  await page.evaluate(() => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]'); h.scrollTop = 2 * 44; });
+  await page.waitForTimeout(400);
+  ok('a drum still rolling to a key\'s value does not put another value in its place (152)', /Done: 6:00 pm/.test(await done()), await done());
+  await page.evaluate(() => { delete document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]').scrollTo; });
+  // (3) a finger on the drum takes over at once
+  await page.evaluate(() => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]'); h.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); h.scrollTop = 8 * 44; h.dispatchEvent(new Event('scroll')); }); // the scroll told at once, as a finger's is, so a redraw before the browser's own scroll event cannot put the drum back
+  // wait for the drum to take it (its 90 ms rest after the scroll), not a fixed time: beside another suite 400 ms was not enough
+  await page.waitForFunction(() => /9:00 pm/.test(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('[data-act="time-done"]')?.textContent ?? ''), null, { timeout: 4000 }).catch(() => {});
+  ok('a finger spinning the drum still chooses where it rests (152)', /Done: 9:00 pm/.test(await done()), await done());
+  await page.close(); }
+
+// 23. the footer (0.38.24, backlog 142): no ring on the section Settings opens on, Save rests while nothing has changed, and what runs on under the footer fades
+{ const page = await open('look=glass&sheet=settings&pane=children');
+  const r = await page.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot, cur = s.querySelector('.snav [aria-current="page"]'), sv = s.querySelector('.sft [data-act="save"]'), p = s.querySelector('.spane');
+    return { focused: s.activeElement === cur, ring: cur.matches(':focus-visible'), save: sv?.disabled && Number(getComputedStyle(sv).opacity), fade: /gradient/.test(getComputedStyle(p).maskImage || getComputedStyle(p).webkitMaskImage), over: p.scrollHeight > p.clientHeight }; });
+  ok('Settings opens with the focus on its section, and no ring round it (142)', r.focused && !r.ring, r);
+  ok('Save rests, dimmed, beside "All saved" (142)', r.save > 0 && r.save < 0.7, r);
+  ok('the pane fades out above the footer when it runs on (142)', r.fade && r.over, r);
+  await S(page).locator('button', { hasText: /^Middle$/ }).first().click().catch(() => {}); await page.waitForTimeout(250);
+  const o = await S(page).locator('.sft [data-act="save"]').evaluate((b) => { b.getAnimations().forEach((a) => a.finish()); return [b.disabled, Number(getComputedStyle(b).opacity), b.getAnimations().map((a) => a.transitionProperty ?? a.animationName)]; });
+  ok('once something changes Save is whole again (142)', o[0] === false && o[1] === 1, o);
+  await page.close(); }
+
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ':\n - ' + fails.join('\n - ') : ''}`);
 console.log('errors:', errs.length ? [...new Set(errs)].join('\n') : 'none');
 await browser.close(); srv.close();

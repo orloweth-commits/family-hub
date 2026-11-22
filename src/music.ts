@@ -96,6 +96,8 @@ export class FhMusic extends LitElement {
     /* three coach marks share the hint's place, one at a time: which one this is, then its words */
     .hstep { font-style: normal; font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink); background: var(--chip-strong); border-radius: 999px; padding: 1px 8px; margin-right: 8px; white-space: nowrap; }
     /* and what the line is about wears a ring while it shows (it holds still: nothing moves under a reader) */
+    /* the Scene's names ring as the House's do: every boat (or planet) for "sail two together", the quiet ones for "tap a quiet room" (backlog 149) */
+    .panel[data-teach='join'] .actor:not([data-offline]) .aname, .panel[data-teach='move'] .actor:not([data-live]):not([data-offline]) .aname,
     .panel[data-teach='move'] .mzone:not([data-live]):not([data-offline]) .zname, .panel[data-teach='move'] .moveh, .panel[data-teach='vol'] .mzone .grab i, .panel[data-teach='vol'] .mzone .vstep,
     .panel[data-teach='pin'] .pinb, .panel[data-teach='pin'] .swho i { outline: 3px solid var(--accent); outline-offset: 2px; }
     .mhead[data-one] .hint:not([data-on]) { display: none; }
@@ -119,7 +121,7 @@ export class FhMusic extends LitElement {
     .panel[data-one] .crate .st .lbl { font-size: var(--fs-3); }
     /* the moment pads beside the House */
     .hpads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: none; }
-    .hpad { min-width: 0; min-height: 64px; padding: 7px 2px 5px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
+    .hpad { min-width: 0; min-height: 64px; padding: 7px 4px 5px; border-radius: 14px; flex-direction: column; line-height: 1.1; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-1); font-weight: var(--w-bold, 700); display: flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 4px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 120ms) ease; }
     .hpad span { font-size: var(--fs-4); line-height: 1; } .hpad b { font-weight: inherit; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
     .hpad:active, .hpad[data-busy] { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
     .hpad[data-on] { box-shadow: 0 4px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); }

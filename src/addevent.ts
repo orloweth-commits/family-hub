@@ -23,7 +23,7 @@ export class FhAddEvent extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, keysCss, css`
     /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
-    :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); }
+    :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); /* a look that blurs its sheets' backdrop (Obsidian's .scrim) blurs this one too: backlog 144 */ -webkit-backdrop-filter: var(--scrim-filter, none); backdrop-filter: var(--scrim-filter, none); }
     :host([data-under]) { padding-top: var(--top, 110px); }
     /* too tall to sit under the header: it starts at the top and covers the header whole, rather than centring and leaving the chips cut in half above it (batch 5) */
     :host(:not([data-under]):not([data-phone])) { align-items: flex-start; }
@@ -275,15 +275,19 @@ export class FhAddEvent extends LitElement {
     if (which === 'h') this._h = HOURS[Math.max(0, Math.min(HOURS.length - 1, i))]; else this._m = MINS[Math.max(0, Math.min(MINS.length - 1, i))];
     if ((which === 'h' ? this._h : this._m) !== was) sfx('step');
   }
+  /** A drum a key or a tap has just set rolls to that value: its scroll is not a choice until it rests there (backlog 152). A finger on it takes over at once. */
+  private _want: Record<string, number> = {};
+  private _pickAt(which: 'h' | 'm', i: number): void { clearTimeout(this._spin[which]); this._spin[which] = 0; this._want[which] = Date.now(); this._setDrum(which, i); }
   private _scrolled(which: 'h' | 'm', e: Event): void {
-    const el = e.currentTarget as HTMLElement;
+    const el = e.currentTarget as HTMLElement, w = this._want[which];
+    if (w) { const row = which === 'h' ? HOURS.indexOf(this._h) : MINS.indexOf(this._m as never); if (Math.abs(el.scrollTop - row * ROW) <= 1 || Date.now() - w > 2000) this._want[which] = 0; if (Date.now() - w <= 2000) return; }
     clearTimeout(this._spin[which]);
     this._spin[which] = window.setTimeout(() => { this._spin[which] = 0; this._setDrum(which, Math.round(el.scrollTop / ROW)); }, 90);
   }
   private _nudge(which: 'h' | 'm', d: number, e?: KeyboardEvent): void {
     e?.preventDefault();
     const list = which === 'h' ? HOURS : MINS, cur = list.indexOf(which === 'h' ? this._h : this._m);
-    this._setDrum(which, (cur + d + list.length) % list.length);
+    this._pickAt(which, (cur + d + list.length) % list.length);
   }
   protected updated(_ch: PropertyValues): void {
     // sit under the header when the sheet fits there; hide the on-screen keyboard on a short screen that has a real one
@@ -306,11 +310,11 @@ export class FhAddEvent extends LitElement {
   private _drum(which: 'h' | 'm'): TemplateResult {
     const list = which === 'h' ? HOURS : MINS, v = which === 'h' ? this._h : this._m, label = which === 'h' ? 'Hour' : 'Minutes';
     return html`<div class="drum" data-d=${which} tabindex="0" role="spinbutton" aria-label=${label} aria-valuenow=${v} aria-valuetext=${which === 'h' ? `${v} ${this._pm ? 'pm' : 'am'}` : `${pad(v)} minutes`} aria-valuemin=${list[0]} aria-valuemax=${list[list.length - 1]}
-      @scroll=${(e: Event) => this._scrolled(which, e)} @keydown=${(e: KeyboardEvent) => { if (e.key === 'ArrowUp') this._nudge(which, -1, e); else if (e.key === 'ArrowDown') this._nudge(which, 1, e);
+      @scroll=${(e: Event) => this._scrolled(which, e)} @pointerdown=${() => { this._want[which] = 0; }} @wheel=${() => { this._want[which] = 0; }} @keydown=${(e: KeyboardEvent) => { if (e.key === 'ArrowUp') this._nudge(which, -1, e); else if (e.key === 'ArrowDown') this._nudge(which, 1, e);
         // Page Up and Page Down move three places (three hours, a quarter of an hour); Home and End go to the first and the last
-        else if (e.key === 'PageUp' || e.key === 'PageDown') { e.preventDefault(); this._setDrum(which, list.indexOf(v as never) + (e.key === 'PageUp' ? -3 : 3)); }
-        else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._setDrum(which, e.key === 'Home' ? 0 : list.length - 1); } }}>
-      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => this._setDrum(which, i)}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
+        else if (e.key === 'PageUp' || e.key === 'PageDown') { e.preventDefault(); this._pickAt(which, list.indexOf(v as never) + (e.key === 'PageUp' ? -3 : 3)); }
+        else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._pickAt(which, e.key === 'Home' ? 0 : list.length - 1); } }}>
+      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => this._pickAt(which, i)}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
   }
 
   private _monthGrid(): TemplateResult {

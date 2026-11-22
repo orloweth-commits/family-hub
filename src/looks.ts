@@ -88,7 +88,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-chat': ['thread', 'bubble', 'asker', 'starter', 'talk'],
     'fh-add-event': ['box', 'chips', 'durs', 'ampm', 'allday', 'dialbox', 'drums'],
     'fh-morning': ['board', 'kcol', 'khead', 'nextstep', 'set', 'lchip', 'soon', 'leave'],
-    'fh-weather': ['wnow', 'wtemp', 'wtip', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
+    'fh-weather': ['wnow', 'wtemp', 'wtip', 'tipone', 'wfact', 'wwarn', 'wcomp', 'whours', 'wweek', 'wday', 'wbar', 'wmaps', 'sky', 'hchart', 'mbox', 'disc', 'moon', 'rays', 'bolt', 'drop', 'cloud', 'area', 'line']
   }
 };
 
@@ -460,7 +460,7 @@ export const LOOKS: LookDef[] = [
       '--accent': '#ffaa28', '--primary': '#ffb43c', '--on-primary': '#140a00', '--primary-edge': '#e07800', '--live': '#38b6ff', '--ok': '#7fd3ff', '--on-ok': '#000000',
       '--danger': '#ff8a7d', '--on-danger': '#120403',
       '--sel-bg': 'rgba(255,170,40,.14)', '--sel-ink': '#ffd894', '--sel-ring': 'inset 0 0 0 1px #ffaa28', '--mark': '#ffaa28', '--on-mark': '#140a00',
-      '--timer': '#ffaa28', '--timer-face': 'transparent', '--timer-rim': 'var(--ctl-line)', '--ring-halo': '#000000', '--scrim': 'rgba(0,0,0,.74)', '--bg': 'none',
+      '--timer': '#ffaa28', '--timer-face': 'transparent', '--timer-rim': 'var(--ctl-line)', '--ring-halo': '#000000', '--scrim': 'rgba(0,0,0,.74)', '--scrim-filter': 'blur(6px) saturate(80%)', '--bg': 'none',
       '--blade': 'linear-gradient(90deg, transparent, #ffaa28 18%, #fff0c8 50%, #ffaa28 82%, transparent)',
       '--w-title': '300', '--w-sub': '400', '--w-heavy': '500', '--w-bold': '500', '--w-semi': '400',
       '--font-content': "'Jost', 'Noto Emoji', 'Outfit', sans-serif", '--content-weight': '300'
@@ -1882,6 +1882,8 @@ const OBSIDIAN = `
   @B .wtemp { font-family: 'Jost', 'Noto Emoji', 'Outfit', sans-serif; font-weight: 400; font-size: var(--fs-d3); letter-spacing: .02em; }
   @B .wtip { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); border-radius: 999px; padding: 10px 16px; font-weight: 400; }
   @B .wfact { background: transparent; }
+  /* what to wear and bring is drawn in line, as the sky is: the colour pictures belong to the other looks (backlog 144) */
+  @B .tipone svg * { fill: none; stroke: var(--ink); stroke-width: 1.5px; }
   @B .wday.today { background: linear-gradient(180deg, rgba(255,170,40,.1), transparent); box-shadow: inset 0 0 0 1px var(--accent); }
   @B .wbar { box-shadow: 0 0 10px color-mix(in srgb, var(--live) 50%, transparent); }
   @B .wwarn { background: rgba(255,138,125,.08); color: var(--danger); box-shadow: inset 0 0 0 1px var(--danger), inset 3px 0 0 var(--danger); }
@@ -1900,6 +1902,8 @@ const OBSIDIAN = `
   /* the chosen look or picture: a champagne hairline and a tick, never a fill */
   @B .tcard { position: relative; background: transparent; box-shadow: inset 0 0 0 1px var(--glass-line); }
   /* the emergency card stays red and first, as deep red glass with pale words: a pale pink box was the one light box left on black (batch 5) */
+  /* Jost's taller line box made House info 22 px taller than its sheet, so the last bedtime sat under the foot fade (backlog 144) */
+  @B .irow, @B .sos000 { line-height: 1.25; }
   @B .sos000 { background: color-mix(in srgb, #b91c1c 26%, #0b0b0d); color: #ffe4e0; box-shadow: inset 0 0 0 1px rgba(248,113,113,.55); }
   @B .tcard[aria-pressed='true'] { background: transparent; color: var(--ink); box-shadow: 0 0 0 1px var(--accent), 0 0 30px -10px var(--accent); }
   @B .tcard[aria-pressed='true']::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #000; font-size: var(--fs-2); font-weight: 600; line-height: 28px; text-align: center; box-shadow: 0 0 0 3px #000; }
