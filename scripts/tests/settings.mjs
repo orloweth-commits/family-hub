@@ -382,8 +382,9 @@ for (const [w, h] of [[1920, 1080], [1312, 668], [1024, 768], [768, 1024], [390,
   ok('a drum still rolling to a key\'s value does not put another value in its place (152)', /Done: 6:00 pm/.test(await done()), await done());
   await page.evaluate(() => { delete document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]').scrollTo; });
   // (3) a finger on the drum takes over at once
-  await page.evaluate(() => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]'); h.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); h.scrollTop = 8 * 44; });
-  await page.waitForTimeout(400);
+  await page.evaluate(() => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('.drum[data-d="h"]'); h.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); h.scrollTop = 8 * 44; h.dispatchEvent(new Event('scroll')); }); // the scroll told at once, as a finger's is, so a redraw before the browser's own scroll event cannot put the drum back
+  // wait for the drum to take it (its 90 ms rest after the scroll), not a fixed time: beside another suite 400 ms was not enough
+  await page.waitForFunction(() => /9:00 pm/.test(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot.querySelector('[data-act="time-done"]')?.textContent ?? ''), null, { timeout: 4000 }).catch(() => {});
   ok('a finger spinning the drum still chooses where it rests (152)', /Done: 9:00 pm/.test(await done()), await done());
   await page.close(); }
 
