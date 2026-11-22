@@ -145,15 +145,21 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('with no list in the configuration nothing is counted in Home Assistant', (await list(off, 'todo.family_hub_use')).length === 0);
   await off.context().close(); }
 
-// 5. the jar, tied to the jobs
+// 5. the jar, tied to the jobs (the second review's cut, item 7: one reward shown per family job; the jar card one line, how it fills behind a tap)
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=kid&kid=0`); const kid = K(page); // a child's page is animated unless calm is chosen (0.33.3)
-  const rows = await kid.locator('.job.row').evaluateAll((els) => els.map((e) => ({ t: e.querySelector('.t').textContent.trim(), mb: e.querySelector('.mb')?.textContent.trim() ?? '', label: e.querySelector('.mb')?.getAttribute('aria-label') ?? '', pts: e.querySelector('.plus')?.textContent.trim() ?? '' })));
+  const rows = await kid.locator('.job.row').evaluateAll((els) => els.map((e) => ({ t: e.querySelector('.t').textContent.trim(), marble: e.querySelectorAll('.marble, .mb').length, pts: e.querySelector('.plus')?.textContent.trim() ?? '' })));
   const job = rows.find((x) => x.t === 'Unpack the dishwasher'), routine = rows.find((x) => x.t === 'Homework'), grow = rows.find((x) => /Clarinet/.test(x.t));
-  ok(`${look}: a family job carries a marble and “+1”, with its points beside it`, job?.mb === '+1' && job.label === 'Adds one marble to the family jar' && job.pts === '+10', job);
-  ok(`${look}: routines and growing carry no marble`, routine?.mb === '' && grow?.mb === '', [routine, grow]);
+  // (the second review's cut, item 7) one reward shown per family job: its points; the lane's heading says each adds a marble
+  ok(`${look}: a family job shows one reward, its points; no “+1” marble beside them`, job?.marble === 0 && job.pts === '+10' && !rows.some((x) => /\+1$/.test(x.pts)), job);
+  ok(`${look}: routines and growing carry no marble either`, routine?.marble === 0 && grow?.marble === 0, [routine, grow]);
   ok(`${look}: the lane says where marbles come from`, (await kid.locator('.sec', { hasText: 'Family jobs' }).innerText()).replace(/\s+/g, ' ').trim() === 'Family jobs each one adds a marble to the jar');
   const jar = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-  ok(`${look}: the jar card says it in marbles, with one family total for today`, /^Family jar 3 added today 36 marbles to .+ Every family job adds a marble\. Routines and growing add none\.$/i.test(jar), jar);
+  ok(`${look}: the jar card is one line, how many marbles to the treat`, /^36 marbles to a family treat$/i.test(jar) && await kid.locator('section[aria-label="Family jar"] .jarwhy').count() === 0, jar);
+  await kid.locator('[data-act="jar-open"]').click(); await page.waitForTimeout(300);
+  const jo = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
+  ok(`${look}: a tap on it says how it fills, with one family total for today`, /^36 marbles to a family treat 3 added today\. Every family job adds a marble\. Routines and growing add none\.$/i.test(jo) && await kid.locator('[data-act="jar-open"]').getAttribute('aria-expanded') === 'true', jo);
+  await page.clock.runFor(13_000); await page.waitForTimeout(200);
+  ok(`${look}: and it closes by itself after a while`, await kid.locator('section[aria-label="Family jar"] .jarwhy').count() === 0 && await kid.locator('[data-act="jar-open"]').getAttribute('aria-expanded') === 'false');
   if (look === 'glass') {
     await kid.locator('.job.row', { hasText: 'Homework' }).click(); await page.waitForTimeout(500);
     ok('ticking a routine adds no marble', (await calls(page, /script\.fh_add_points/)).length === 0 && await state(page, 'input_number.family_jar') === '84' && await kid.locator('.marble.fly').count() === 0);
@@ -161,12 +167,17 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     ok('ticking a growing job adds no marble', (await calls(page, /script\.fh_add_points .*"jar":1/)).length === 0 && await state(page, 'input_number.family_jar') === '84');
     await kid.locator('.job.row', { hasText: 'Unpack the dishwasher' }).click(); await page.waitForTimeout(150);
     ok('ticking a family job sends a marble on its way from the row', await kid.locator('.marble.fly').count() === 1);
+    const from = await kid.evaluate((k) => { const m = k.shadowRoot.querySelector('.marble.fly'), an = m.getAnimations()[0]; an.pause(); an.currentTime = 0; const o = m.getBoundingClientRect(), box = [...k.shadowRoot.querySelectorAll('.job.row')].find((r) => /Unpack the dishwasher/.test(r.textContent)).querySelector('.check').getBoundingClientRect(); const d = { dx: Math.abs(o.left + o.width / 2 - (box.left + box.width / 2)), dy: Math.abs(o.top + o.height / 2 - (box.top + box.height / 2)) }; an.currentTime = an.effect.getComputedTiming().duration - 1; const e = m.getBoundingClientRect(), j = k.shadowRoot.querySelector('.jar svg').getBoundingClientRect(); d.endIn = e.left + e.width / 2 >= j.left && e.left + e.width / 2 <= j.right && e.top + e.height / 2 >= j.top - 4 && e.top + e.height / 2 <= j.bottom; an.currentTime = 0; an.play(); return d; });
+    ok('it leaves from the ticked box and lands in the jar (measured in the zoomed card: 0.38.27)', from.dx < 3 && from.dy < 3 && from.endIn, from);
     await page.waitForTimeout(500); await settle(page); await page.waitForTimeout(300);
     const adds = await calls(page, /script\.fh_add_points .*"jar":1/);
     ok('and adds exactly one marble', adds.length === 1 && await state(page, 'input_number.family_jar') === '85', adds);
     ok('the marble lands and is cleared away', await kid.locator('.marble.fly').count() === 0);
     const jar2 = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-    ok('the jar card counts it: one fewer to go, one more today, and the first-use line has done its job', /^Family jar 4 added today 35 marbles to .+ Every family job adds a marble\.$/i.test(jar2), jar2);
+    ok('the jar card counts it: one fewer to go', /^35 marbles to a family treat$/i.test(jar2), jar2);
+    await kid.locator('[data-act="jar-open"]').click(); await page.waitForTimeout(300);
+    const jar3 = (await kid.locator('section[aria-label="Family jar"] .jarwhy').innerText()).replace(/\s+/g, ' ').trim();
+    ok('and one more today, behind the tap', /^4 added today\. Every family job adds a marble\./.test(jar3), jar3);
     ok('the points still go to the child who did it', await state(page, 'input_number.riley_points') === '130');
   }
   await page.context().close(); }
@@ -175,21 +186,25 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('in calm mode (a child’s own choice) nothing flies; the marble is still added', await kid.locator('.marble.fly').count() === 0 && (await calls(page, /script\.fh_add_points .*"jar":1/)).length === 1);
   await page.context().close();
   const nohist = await open('look=glass&page=kid&kid=0&jarbase=none');
+  await K(nohist).locator('[data-act="jar-open"]').click(); await nohist.waitForTimeout(300);
   const j = (await K(nohist).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
   ok('without history the card makes no claim about today', /Every family job adds a marble\. Routines/.test(j) && !/added today/.test(j), j);
   await nohist.context().close();
-  const older = await open('look=glass&page=kid&kid=0&older=1');
+  const older = await open('look=glass&page=kid&kid=0&older=1'); await K(older).locator('[data-act="jar-open"]').click(); await older.waitForTimeout(300);
   ok('an older child reads the same rule', (await K(older).locator('.sec', { hasText: 'Family jobs' }).innerText()).replace(/\s+/g, ' ').trim() === 'Family jobs each one adds a marble to the jar' && /Routines and practice add none\./.test(await K(older).locator('section[aria-label="Family jar"]').innerText()));
   await older.context().close();
-  const all = await open('look=glass&page=kid&kid=1'); const t = await all.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; return r.querySelector('section[aria-label="Family jar"]').textContent; });
+  const all = await open('look=glass&page=kid&kid=1'); await K(all).locator('[data-act="jar-open"]').click(); await all.waitForTimeout(300); const t = await all.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; return r.querySelector('section[aria-label="Family jar"]').textContent; });
   ok('the total is the family’s: no name beside it', /3 added today/.test(t) && !/Riley|Charlie|Max/.test(t), t.replace(/\s+/g, ' ').trim());
   await all.context().close();
   const small = await open('look=glass&page=kid&kid=0', '16:20', { w: 1312, h: 668 }); const sj = (await K(small).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-  ok('on a smaller screen the jar card stays as short as it was: today’s count, no extra line', /^Family jar 3 added today 36 marbles to [^.]+$/i.test(sj), sj);
-  ok('and the rule is still on the lane and on each job', (await K(small).locator('.sec', { hasText: 'Family jobs' }).innerText()).includes('each one adds a marble to the jar') && await K(small).locator('.job.row .mb').count() >= 2);
+  ok('on a smaller screen the jar card is the same one line', /^36 marbles to [^.]+$/i.test(sj), sj);
+  ok('and the rule is still on the lane', (await K(small).locator('.sec', { hasText: 'Family jobs' }).innerText()).includes('each one adds a marble to the jar'));
   await small.context().close();
   const wind = await open('look=glass&page=kid&kid=0', '19:20'); const w = (await K(wind).locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
-  ok('near bedtime the jar card is its short self: nothing to earn, nothing to count', /^Family jar 36 marbles to [^.]+$/i.test(w), w);
+  ok('near bedtime the jar card is its one line', /^36 marbles to [^.]+$/i.test(w), w);
+  await K(wind).locator('[data-act="jar-open"]').click(); await wind.waitForTimeout(300);
+  const w2 = (await K(wind).locator('section[aria-label="Family jar"] .jarwhy').innerText()).replace(/\s+/g, ' ').trim();
+  ok('and behind the tap the rule, with nothing to count near bedtime', /^Every family job adds a marble\. Routines and growing add none\.$/.test(w2), w2);
   await wind.context().close(); }
 { const page = await open('look=glass&page=planner&sheet=settings&pane=rewards'); const txt = await page.locator('fh-settings').evaluate((e) => e.shadowRoot.textContent);
   ok('Settings says marbles too', /Marbles to fill the jar/.test(txt) && /\d+ marbles/.test(txt) && !/Points to fill the jar/.test(txt));
@@ -234,12 +249,16 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('a house with no PIN shows it as before', /welcome-in/.test(await C(open1).evaluate((c) => c.shadowRoot.querySelector('.sheet').textContent)));
   await open1.context().close(); }
 
-// 4d: the planner's rail and week. The jar reads as a child's page does; Reminders says how many more beside its name and cuts no row
+// 4d: the planner's rail and week. The jar is one line, the rest behind a tap (the second review's cut, item 7); Reminders says how many more beside its name and cuts no row
 // (129); bin night is marked on its own day; "+N more" on a busy day stands out on today's column and opens the day
 { const norm = (t) => t.replace(/\s+/g, ' ').trim();
   for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) { const page = await open(`look=${look}&page=planner&trust=1&digest=two&approve=1&voice=1`); await settle(page);
     const jar = norm(await C(page).locator('aside .card.jar').innerText());
-    ok(`${look}: the rail’s jar says marbles to go, today’s family total and the rule`, /^36 marbles to go \+3 today Every family job adds a marble\.$/.test(jar) && await C(page).locator('aside .card.jar .jarpic svg rect[clip-path]').count() === 1, jar);
+    const jh = await C(page).evaluate((c) => { const g = c.shadowRoot.querySelector('aside .card.jar .jargo'); return { lines: Math.round(g.getBoundingClientRect().height / parseFloat(getComputedStyle(g).lineHeight) / (g.getBoundingClientRect().width / g.offsetWidth)) }; });
+    ok(`${look}: the rail’s jar is one line, marbles to go, on one line`, /^36 marbles to go$/.test(jar) && jh.lines === 1 && await C(page).locator('aside .card.jar .jarpic svg rect[clip-path]').count() === 1, [jar, jh]);
+    if (look === 'glass') { await C(page).locator('aside .card.jar').click(); await page.waitForTimeout(400);
+      const said = norm(await C(page).locator('.toasts .toast').innerText().catch(() => ''));
+      ok('a tap on the rail’s jar says today’s family total, the rule and the treat', /^3 added today\. Every family job adds a marble\. Routines and practice add none\.( When it is full: .+\.)?$/.test(said), said); }
     const r = await C(page).evaluate((c) => { const root = c.shadowRoot, list = root.querySelector('.remlist'), card = root.querySelector('.card.rems'), more = root.querySelector('.remmore'), lb = list.getBoundingClientRect(), cb = card.getBoundingClientRect();
       const rows = [...list.querySelectorAll('.rem')].map((e) => e.getBoundingClientRect());
       return { shown: rows.length, more: more?.textContent.trim() ?? '', inHead: !!more?.closest('.remhead'), cut: rows.filter((b) => b.bottom > lb.bottom + 0.5 || b.bottom > cb.bottom + 0.5).length, moreIn: more ? more.getBoundingClientRect().bottom <= cb.bottom : true, total: c._reminders.length }; });
@@ -254,10 +273,11 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     ok(`${look} at ${w}: on a bin night with a private reminder the lock and the bin mark share the heading inside the column${w < 1920 ? ' (or the mark gives way)' : ''}`, b.lock && b.over <= 1 && b.inside && (w < 1920 || b.shown), b);
     await pg.context().close(); }
   const none = await open('look=glass&page=planner&jarbase=none'); await settle(none);
-  ok('with no history the rail’s jar leaves out today’s count', /^36 marbles to go Every family job adds a marble\.$/.test(norm(await C(none).locator('aside .card.jar').innerText())), norm(await C(none).locator('aside .card.jar').innerText()));
+  await C(none).locator('aside .card.jar').click(); await none.waitForTimeout(400);
+  ok('with no history the rail’s jar leaves out today’s count', /^Every family job adds a marble\./.test(norm(await C(none).locator('.toasts .toast').innerText())), norm(await C(none).locator('.toasts .toast').innerText()));
   await none.context().close();
   const small = await open('look=glass&page=planner', '16:20', { w: 1312, h: 668 }); await settle(small);
-  ok('on a smaller screen the rail’s jar keeps two short lines: no rule', /^36 marbles to go \+3 today$/.test(norm(await C(small).locator('aside .card.jar').innerText())), norm(await C(small).locator('aside .card.jar').innerText()));
+  ok('on a smaller screen the rail’s jar is the same one line', /^36 marbles to go$/.test(norm(await C(small).locator('aside .card.jar').innerText())), norm(await C(small).locator('aside .card.jar').innerText()));
   await small.context().close();
   const busy = await open('look=glass&page=planner&events=many'); await settle(busy);
   const pill = await C(busy).evaluate((c) => { const col = c.shadowRoot.querySelector('.week .col.today'), b = col.querySelector('.more'), p = b?.querySelector('.mpill'); return b ? { label: b.getAttribute('aria-label'), bg: getComputedStyle(p).backgroundColor, col: getComputedStyle(col).backgroundColor, arrow: !!p.querySelector('svg'), text: p.textContent.trim() } : null; });

@@ -177,7 +177,7 @@ export class FhKid extends LitElement {
     .readrow .readme { position: static; }
     .pic.big .e { font-size: 124px; line-height: 1; } :host([data-phone]) .pic.big .e { margin-top: 6px; }
     .pic.big .pt { font-size: var(--fs-5); }
-    .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 20px; opacity: .85; }
+    .pic.small { min-height: 0; flex: 0 0 112px; flex-direction: row; justify-content: flex-start; gap: 16px; padding: 10px 76px 10px 20px; opacity: .85; }
     .pic.small .e { font-size: var(--fs-d4); }
     .pic.small .pt { font-size: var(--fs-4); }
     .allset { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
@@ -202,6 +202,10 @@ export class FhKid extends LitElement {
     .now .play.wedge:not(.going) { background: var(--chip-strong); color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 75%, transparent); }
     .play.wedge .wpl { color: var(--primary); }
     .play.going { height: auto; min-height: 44px; padding: 4px 14px 4px 4px; background: var(--chip-strong); color: var(--ink); font-variant-numeric: tabular-nums; font-size: var(--fs-3); }
+    /* (the second review's cut, item 9) on a phone a row with a timer button gives the job's words the whole width and the button a line of its own under them: beside them it covered the title */
+    :host([data-phone]) .job:has(> .play) { flex-wrap: wrap; row-gap: 8px; }
+    :host([data-phone]) .job:has(> .play) > .hit { flex: 1 1 100%; }
+    :host([data-phone]) .job:has(> .play) > .play { margin-left: auto; }
     .later { padding: 10px 14px; border-radius: 16px; background: var(--chip-soft); font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); display: flex; justify-content: space-between; }
     .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-content: start; }
     .pic { border-radius: 24px; background: var(--chip); padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; min-height: 190px; justify-content: center; }
@@ -209,7 +213,12 @@ export class FhKid extends LitElement {
     .pic .e { font-size: var(--fs-d5); line-height: 1.1; transition: transform var(--mt-3, 240ms) cubic-bezier(.2,1.6,.4,1); }
     .pic.done { background: color-mix(in srgb, var(--ok) 25%, var(--chip)); }
     .pic.done .e { transform: scale(.85) rotate(-8deg); opacity: .6; }
-    .pic .tick { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
+    .pic .tick { position: absolute; top: 12px; right: 12px; width: 52px; height: 52px; box-sizing: border-box; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); display: flex; align-items: center; justify-content: center; font-size: var(--fs-4); font-weight: var(--w-heavy, 800); animation: avPop var(--m-4, 400ms) cubic-bezier(.2,1.4,.4,1); }
+    /* (the second review's cut, item 8) not done yet: the morning board's hollow circle, 3 px of the second ink, nothing inside */
+    .pic .tick[data-off] { background: transparent; border: 3px solid var(--ink2); animation: none; }
+    .pic.small .tick { width: 44px; height: 44px; top: 50%; right: 16px; translate: 0 -50%; }
+    .pic.big .tick { width: 64px; height: 64px; top: 16px; right: 16px; } .pic.big .tick[data-off] { border-width: 3.5px; }
+    .pics .pic .tick { width: 44px; height: 44px; top: 10px; right: 10px; }
     .stars { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px; line-height: 0; }
     .sstar path { fill: none; stroke: var(--ink2); stroke-width: 1.800; stroke-linejoin: round; }
     .sstar.lit path { fill: #f5b301; stroke: #8a5a00; stroke-width: 1.500; }
@@ -265,19 +274,16 @@ export class FhKid extends LitElement {
     .rw.ask .q { flex: 1 1 100%; font-size: var(--fs-3); font-weight: var(--w-bold, 700); line-height: 1.25; }
     .rw button { flex: 1; height: 52px; /* token */ padding: 0 12px; border-radius: 999px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); background: var(--chip-strong); box-shadow: inset 0 0 0 2.500px var(--ink); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
-    .jar { display: flex; align-items: center; gap: 12px; }
-    .jarwhy { font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
+    /* (the second review's cut, item 7) the jar card is one line, how far to the treat; the whole card is the button that opens how it fills */
+    .jarcard { gap: 8px; }
+    .jar { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; text-align: left; border-radius: 16px; }
+    .jar .jargo { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; }
+    .jar .jari { flex-shrink: 0; line-height: 0; color: var(--ink2); }
+    .jarwhy { margin: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.35; }
     .jarwhy b { font-weight: var(--w-bold, 700); color: var(--ink); }
-    /* the label and today's count share one line; where the card is too narrow for both, the count drops out of sight and the card keeps its height */
-    .jarhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 8px; height: 18px; overflow: hidden; }
-    .jarhead > * { line-height: 18px; white-space: nowrap; }
-    /* the rule in words belongs to the wall panel, where the card has the room; smaller screens keep the lane heading, the marble on each job and today's count */
-    .jarwhy.rule { display: none; }
-    @media (min-height: 900px) and (orientation: landscape) { .jarwhy.rule { display: block; } }
-    /* a marble: the same small glass ball on a family-job row, in flight and in the jar */
+    /* a marble: the small glass ball that flies from a ticked family job into the jar */
     .marble { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, transparent 42%), var(--accent); box-shadow: inset 0 -2px 3px rgba(0,0,0,.22); }
     .marble.fly { position: fixed; left: 0; top: 0; width: 16px; height: 16px; z-index: 60; pointer-events: none; }
-    .mb { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-2); font-weight: var(--w-heavy, 800); white-space: nowrap; }
     .wk { display: flex; gap: 10px; font-size: var(--fs-2); align-items: baseline; min-width: 0; }
     .wk > span:last-child { min-width: 0; overflow-wrap: anywhere; } .wk > span:last-child > span:last-child { min-width: 0; }
     .wk .init { min-width: 22px; height: 22px; font-size: var(--fs-2); }
@@ -344,7 +350,7 @@ export class FhKid extends LitElement {
     privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _noList: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
-    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }, _jarBase: { state: true }, _jarTold: { state: true }
+    _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }, _jarBase: { state: true }, _jarOpen: { state: true }
   };
 
   hass?: Hass;
@@ -376,8 +382,9 @@ export class FhKid extends LitElement {
   private _bursts: { id: number; text: string }[] = [];
   /** bumped when the jar's midnight reading comes in (jar.ts), so the card can say how many marbles the family has added today: one family total, never whose */
   private _jarBase = 0;
-  /** this screen has seen a marble go in: the line that says what adds none is no longer needed */
-  private _jarTold = lsGet<boolean>('fh-jar-told', false);
+  /** the jar card's explanation is open (the second review's cut, item 7: one line, the rest behind a tap); it closes by itself */
+  private _jarOpen = false;
+  private _jarShut = 0;
   private _confetti = 0;
   private _studio = false;
   private _lookSaid = false;
@@ -537,7 +544,7 @@ export class FhKid extends LitElement {
     super.connectedCallback();
     this._tick = window.setInterval(() => { this._now = new Date(); this._checkPractice(); }, 1000);
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; clearInterval(this._tick); }
+  disconnectedCallback(): void { super.disconnectedCallback(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; clearInterval(this._tick); clearTimeout(this._jarShut); }
 
   private get _e() { return kidEntities(this.kid); }
   private get _star(): number { return this.kid.star ?? 10; }
@@ -652,8 +659,7 @@ export class FhKid extends LitElement {
   /* ---------------- the jar ---------------- */
   /** A marble leaves the ticked family job and lands in the jar. In calm mode nothing travels: the jar just takes its marble. */
   private _flyMarble(row: Element | null): void {
-    if (!this._jarTold) { this._jarTold = true; lsSet('fh-jar-told', true); }
-    const jar = this.renderRoot.querySelector('.jar svg'), from = row?.querySelector('.mb i') ?? row;
+    const jar = this.renderRoot.querySelector('.jar svg'), from = row?.querySelector('.check') ?? row;
     if (!jar || !from) return;
     const m = motion(this, '--m-5');
     if (!m.travel || !m.ms) { spark('marble', jar); return; }
@@ -661,7 +667,9 @@ export class FhKid extends LitElement {
     dot.className = 'marble fly'; dot.setAttribute('aria-hidden', 'true');
     (this.renderRoot as ShadowRoot).appendChild(dot);
     // wherever "fixed" is measured from here (a glass panel above can move it), the marble starts on the row and ends on the jar
-    const o = dot.getBoundingClientRect(), x0 = a.left + a.width / 2 - o.left - 8, y0 = a.top + a.height / 2 - o.top - 8, x1 = b.left + b.width / 2 - o.left - 8, y1 = b.top + 6 - o.top - 8;
+    // (and the card is zoomed to fill the screen: the measured screen pixels are divided by the zoom before they become the marble's own)
+    const o = dot.getBoundingClientRect(), z = o.width / (dot.offsetWidth || 16) || 1;
+    const x0 = (a.left + a.width / 2 - o.left) / z - 8, y0 = (a.top + a.height / 2 - o.top) / z - 8, x1 = (b.left + b.width / 2 - o.left) / z - 8, y1 = (b.top + 6 - o.top) / z - 8;
     const lift = Math.min(y0, y1) - 46;
     const fly = dot.animate([{ transform: `translate(${x0}px, ${y0}px) scale(1)`, opacity: 1 }, { transform: `translate(${(x0 + x1) / 2}px, ${lift}px) scale(1.25)`, opacity: 1, offset: 0.5 }, { transform: `translate(${x1}px, ${y1}px) scale(.9)`, opacity: 1 }], { duration: m.ms * 0.8, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
     const land = (): void => { dot.remove(); if (jar.isConnected) spark('marble', jar); };
@@ -1038,7 +1046,7 @@ export class FhKid extends LitElement {
         // "Start with me": only on the job he is on now, only while no other timer is running, and in the same place a timed job has its timer
         : c.uid === this._nowUid && !this._practice && !this._night ? html`<button class="play wedge tap" data-act="wedge" aria-label="Start with me: two minutes on ${c.summary}" @pointerdown=${(e: Event) => e.stopPropagation()} @click=${(e: Event) => { e.stopPropagation(); this._startWedge(c); }}><span class="wpl" aria-hidden="true">▶</span>Start with me</button>` : nothing}
       ${!d && this._jobAsked(c) ? html`<span class="plus" data-asked role="status">⏳ Asked</span>` : nothing}
-      ${c.lane === 'job' ? html`<span class="mb" role="img" aria-label="Adds one marble to the family jar"><i class="marble" aria-hidden="true"></i>+1</span>${c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing}` : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
+      ${c.lane === 'job' ? (c.pts ? html`<span class="plus">+${c.pts}</span>` : nothing) : c.lane === 'grow' && (d || !c.minutes) && !this.kid.older ? html`<span class="plus grow">🌱</span>` : nothing}
     </div>`;
   }
 
@@ -1046,7 +1054,9 @@ export class FhKid extends LitElement {
     const d = c.status === 'completed', stars = Math.max(1, Math.round(c.pts / this._star));
     return html`<button class="pic tap ${d ? 'done' : ''} ${c.uid === this._nowUid ? 'now' : ''} ${size}" data-uid=${c.uid} aria-pressed=${String(d)} @pointerdown=${this._press} @click=${() => this._toggle(c)}>
       <span class="e" aria-hidden="true">${picFor(c)}</span><span class="pt">${c.summary}</span>
-      ${c.pts && size !== 'small' && !this._wind ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${d ? html`<span class="tick">${tickSvg(22)}</span>` : !d && this._jobAsked(c) ? html`<span class="tick" data-asked role="status" aria-label="Asked a parent">⏳</span>` : nothing}</button>`;
+      ${c.pts && size !== 'small' && !this._wind ? html`<span class="stars" role="img" aria-label="${stars} star${stars === 1 ? '' : 's'}">${Array.from({ length: stars }, () => starSvg(true, size === 'big' ? 26 : 20))}</span>` : nothing}${!d && this._jobAsked(c) ? html`<span class="tick" data-asked role="status" aria-label="Asked a parent">⏳</span>`
+        // (the second review's cut, item 8) the large hollow circle his card on the morning board has: what to press to say "done". The whole card is still the button
+        : html`<span class="tick" ?data-off=${!d} aria-hidden="true">${d ? tickSvg(size === 'small' ? 22 : 28) : nothing}</span>`}</button>`;
   }
   /** "Read my jobs", for a child who cannot: 72 px, in the lower corner of the job he is looking at. */
   private _reader(): TemplateResult {
@@ -1081,11 +1091,11 @@ export class FhKid extends LitElement {
 
   private _tabs(): TemplateResult {
     const older = !!this.kid.older, wait = this.oneAtATime && !this._tabPicked && this._block().todo.length > 0;
-    // older mode: his week comes first, in the order of the tabs and in what the card opens on
+    // (the second review's cut, item 9) every child's two buttons read in one order, his week then rewards; older mode also opens on his week
     const t = wait || (older && !this._tabPicked) ? 'week' : this._tab, tab = (id: 'rewards' | 'week', label: string) => html`<button class="tab tap" data-tab=${id} aria-pressed=${String(t === id)} @click=${() => { this._tab = id; this._tabPicked = true; this._sound('tap'); if (this._picMode) say(label); }}>${label}</button>`;
     const rw = tab('rewards', this._picMode ? '⭐ My stars' : older ? 'Rewards' : '🎁 Rewards'), wk = tab('week', this._picMode ? '📅 Coming up' : older ? 'My week' : '📅 My week');
     return html`<section class="glass card tabcard" aria-label=${t === 'rewards' ? 'Rewards' : 'Week'}>
-      <div class="tabs">${older ? html`${wk}${rw}` : html`${rw}${wk}`}</div>
+      <div class="tabs">${wk}${rw}</div>
       <div class="tabbody scrolly" @scroll=${scrollCue}>${t === 'rewards' ? this._rewards() : this._weekBody()}</div></section>`;
   }
 
@@ -1099,12 +1109,21 @@ export class FhKid extends LitElement {
     if (!this.hass?.states[JAR]) return html``;
     // one family total since midnight: never whose marbles they were
     const added = jarAdded(n, jarBase(this.hass, ymd(this._now), () => { this._jarBase++; }));
-    return html`<section class="glass card" aria-label="Family jar"><div class="jar">
-      ${jarPic(n / t)}
-      <span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span class="jarhead"><span class="label">Family jar</span>${added > 0 && !this._wind ? html`<span class="jarwhy" data-act="jar-today"><b>${added} added today</b></span>` : nothing}</span>
-        <span style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${n >= t ? 'Full! Time for ' + this.jarReward : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`}</span>
-        ${this._wind ? nothing : html`<span class="jarwhy rule" data-act="jar-why">${JAR_RULE}${this._jarTold ? nothing : html` <span data-act="jar-first">${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.</span>`}</span>`}
-      </span></div></section>`;
+    // (the second review's cut, item 7) one line: how far to the treat. How the jar fills, and today's count, are behind a tap, so the rule is not read out four times a page
+    const line = n >= t ? `Full! Time for ${this.jarReward}` : `${t - n} marble${t - n === 1 ? '' : 's'} to ${this.jarReward}`;
+    const none = `${this.kid.older ? 'Routines and practice' : 'Routines and growing'} add none.`, today = added > 0 && !this._wind ? `${added} added today.` : '';
+    const open = this._jarOpen;
+    return html`<section class="glass card jarcard" aria-label="Family jar" ?data-open=${open}>
+      <button class="jar tap" data-act="jar-open" aria-expanded=${String(open)} aria-label=${`Family jar: ${line}. ${open ? 'Close' : 'How it fills'}`} @click=${(e: Event) => this._jarTap(e.currentTarget as Element, `${line}. ${today} ${JAR_RULE} ${none}`)}>
+        ${jarPic(n / t)}<span class="jargo">${line}</span><span class="jari" aria-hidden="true">${icon(open ? 'close' : 'info', 20)}</span></button>
+      ${open ? html`<p class="jarwhy" data-act="jar-why">${today ? html`<b data-act="jar-today">${today}</b> ` : nothing}${JAR_RULE} ${none}</p>` : nothing}
+    </section>`;
+  }
+  /** A tap on the jar opens how it fills (and the youngest hears it); a second tap, or 12 seconds, closes it. */
+  private _jarTap(el: Element, words: string): void {
+    this._jarOpen = !this._jarOpen; this._sound('tap');
+    clearTimeout(this._jarShut);
+    if (this._jarOpen) { this._jarShut = window.setTimeout(() => { this._jarOpen = false; }, 12_000); if (this._picMode) say(words.replace(/\s+/g, ' '), el); }
   }
 
   private _feelCard(): TemplateResult {
