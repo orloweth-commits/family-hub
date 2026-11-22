@@ -76,11 +76,13 @@ for (const look of ['fridge', 'orbit', 'sports', 'obsidian']) { const ctx = awai
   const seg = () => page.evaluate(() => { const g = document.querySelector('family-hub-card').shadowRoot.querySelector('.seg[data-set="dark"]'); return g ? [...g.querySelectorAll('button')].map((b) => `${b.textContent.trim()}:${b.getAttribute('aria-pressed')}`) : null; });
   ok('More, Looks has one control with three choices: Light, Dark, Auto', JSON.stringify(await seg()) === JSON.stringify(['Light:true', 'Dark:false', 'Auto:false']), await seg());
   const tap = (word) => page.evaluate((w) => { [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.seg[data-set="dark"] button')].find((b) => b.textContent.trim() === w).click(); }, word);
-  await tap('Dark'); await page.waitForTimeout(200); let s = await state(page);
+  // (the fade lasts 1.8 s of real time: read it in the same step as the tap, not after a wait that a busy machine can stretch past it)
+  const fadeAtTap = await page.evaluate(async (w) => { const c = document.querySelector('family-hub-card'); [...c.shadowRoot.querySelectorAll('.seg[data-set="dark"] button')].find((b) => b.textContent.trim() === w).click(); await c.updateComplete; return c.shadowRoot.querySelector('.fh').hasAttribute('data-dkfade'); }, 'Dark');
+  let s = { ...(await state(page)), fade: fadeAtTap };
   ok('Dark: the panel goes dark at once (with the fade), and the choice is kept on this screen', s.dark && s.fade && s.saved === 'dark' && s.mode === 'dark', s);
   const prev = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; return { glass: r.querySelector('.lookprev[data-prev="glass"]').hasAttribute('data-dark'), sea: r.querySelector('.tprev').hasAttribute('data-dark'), space: [...r.querySelectorAll('.tprev')].pop().hasAttribute('data-dark') }; });
   ok('the pictures in the Looks sheet show what will be worn: Glass and the backgrounds dimmed, Space as it is', prev.glass && prev.sea && !prev.space, prev);
-  await page.waitForTimeout(2100); s = await state(page); ok('the fade ends by itself', s.dark && !s.fade, s.fade);
+  await page.waitForFunction(() => !document.querySelector('family-hub-card').shadowRoot.querySelector('.fh').hasAttribute('data-dkfade'), null, { timeout: 6000 }).catch(() => {}); s = await state(page); ok('the fade ends by itself', s.dark && !s.fade, s.fade);
   await tap('Light'); await page.waitForTimeout(200); s = await state(page); ok('Light: back again, and kept', !s.dark && s.saved === 'light', s);
   await shut(page); }
 { // the preview clears the saved choice when it is not in the address: so "kept" is read from the card's own start
@@ -106,8 +108,10 @@ for (const look of ['fridge', 'orbit', 'sports', 'obsidian']) { const ctx = awai
   ok('Auto with the sun up: light', s.mode === 'auto' && !s.dark, s);
   await setState(page, 'sun.sun', 'below_horizon', { elevation: -1 }); await page.clock.runFor(5000); s = await state(page);
   ok('sunset: nothing changes in the first seconds (the wish must stand)', !s.dark, s.dark);
-  await page.clock.runFor(27000); s = await state(page);
-  ok('half a minute after sunset the panel goes dark, in one slow fade', s.dark && s.fade, s);
+  // (step a second at a time and look as soon as it is dark: the clock also runs between steps, so a single jump of 27 s could land
+  // after the 1.8 s fade had ended, depending on where the panel's one-second tick fell)
+  let secs = 5; for (; secs < 45 && !(s = await state(page)).dark; secs++) await page.clock.runFor(1000);
+  ok('half a minute after sunset the panel goes dark, in one slow fade', s.dark && s.fade && secs >= 29, { ...s, secs });
   await page.clock.runFor(2500); s = await state(page); ok('and the fade ends', s.dark && !s.fade, s.fade);
   await setState(page, 'sun.sun', 'above_horizon', { elevation: 1 }); await page.clock.runFor(32000); s = await state(page);
   ok('sunrise: light again', !s.dark, s.dark); await shut(page); }

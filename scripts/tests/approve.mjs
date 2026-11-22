@@ -183,13 +183,14 @@ else {
   // the bell, on the shared pages
   await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
   const C = page.locator('family-hub-card'), bell = C.locator('header [data-act="bell"]');
+  await bell.waitFor({ timeout: 5000 }).catch(() => {}); // (the waiting list is read when the shared pages open: wait for it, not a fixed time, backlog 67)
   ok('the header has a bell that says how many are waiting', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''), await bell.getAttribute('aria-label').catch(() => ''));
   await bell.click(); await page.waitForTimeout(400);
   ok('the bell opens behind the PIN', await C.locator('fh-pin').count() === 1 && await C.locator('.sheet[data-sheet="waiting"]').count() === 0);
   for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
   const rowW = C.locator('.sheet[data-sheet="waiting"] .waitrow');
   ok('it lists what is waiting, with Approve and Not yet', await rowW.count() === 1 && /Riley/.test(await rowW.innerText()) && /Set the table/.test(await rowW.innerText()) && await rowW.locator('button').count() === 2, await rowW.innerText().catch(() => ''));
-  await rowW.locator('[data-act="wait-ok"]').click(); await page.waitForTimeout(900);
+  await rowW.locator('[data-act="wait-ok"]').click(); await page.waitForTimeout(900); await bell.waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
   ok('Approve on the panel sends the same answer a phone’s button does', (await calls(page, /^api\.event FH_OK_a[a-z0-9]+$/)).length === 1, await calls(page, /api\.event/));
   ok('the job is ticked, the points are given, the sheet closes and the bell goes', Number(await state(page, PTS)) === before + 10 && await C.locator('.sheet[data-sheet="waiting"]').count() === 0 && await bell.count() === 0 && (await list(page, 'todo.riley_chores')).find((x) => x.summary === 'Set the table')?.status === 'completed', [await state(page, PTS)]);
   await page.context().close(); }
@@ -197,6 +198,7 @@ else {
   ok('no bell when nothing is waiting', await page.locator('family-hub-card header [data-act="bell"]').count() === 0);
   await page.evaluate(async () => { const h = document.querySelector('family-hub-card').hass; await h.callService('todo', 'add_item', { item: 'Riley: Pick the family movie', description: 'ask {"v":1,"id":"abell01","k":"reward","kid":"riley","who":"Riley","name":"Pick the family movie","cost":100,"t":1}' }, { entity_id: 'todo.family_hub_asks' }); }); await page.waitForTimeout(600);
   const C = page.locator('family-hub-card'), bell = C.locator('header [data-act="bell"]');
+  await bell.waitFor({ timeout: 5000 }).catch(() => {}); // (the list is followed: wait for the bell, not a fixed 600 ms, backlog 67)
   ok('an ask made on another screen brings the bell up here', await bell.count() === 1);
   await bell.click(); await page.waitForTimeout(300); for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
   await page.evaluate(() => { window.__eventFail = true; }); await C.locator('[data-act="wait-no"]').click(); await page.waitForTimeout(600);

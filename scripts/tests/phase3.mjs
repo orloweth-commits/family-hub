@@ -54,14 +54,15 @@ for (const [w, h] of [[1280, 800], [1312, 668], [1180, 820], [1024, 768]]) for (
 // 2. ticking from the board
 { const page = await open('look=glass&page=morning');
   await page.evaluate(() => { window.__calls = []; });
-  await job(page, 'Charlie').click(); await page.waitForTimeout(400);
+  // (the second tap of a double tap follows the first at once: the guard is 1.5 s of the page's time, and the checks between the
+  // two taps used to stretch them past it on a busy machine, backlog 146)
+  await job(page, 'Charlie').click(); await job(page, 'Charlie').click({ delay: 0 }); await page.waitForTimeout(400);
   let c = await calls(page, '^todo\\.update_item'); let b = await board(page);
   ok('a tick on the board ticks the job in his own list', c.length === 1 && /todo\.charlie_chores/.test(c[0]) && /"status":"completed"/.test(c[0]), c);
   ok('a job with no points awards none', (await calls(page, 'fh_add_points')).length === 0);
   ok('the ticked job stays on his card for a moment, done, with a way back', b.cols[1].job === 'Get dressed' && b.cols[1].done && b.cols[1].pressed === 'true' && /Tap to undo/.test(await tx(job(page, 'Charlie'))), await tx(job(page, 'Charlie')));
   ok('one fewer on his face, and the line counts down', b.faces.join(',') === 'Riley,Charlie,Max' && b.line === 'Morning jobs: 3 to go between us', [b.faces, b.line]);
-  // a second tap straight away is a double tap, not an undo
-  await job(page, 'Charlie').click(); await page.waitForTimeout(300);
+  // a second tap straight away (above) is a double tap, not an undo
   ok('a double tap does not take the tick back', (await calls(page, '^todo\\.update_item')).length === 1 && (await board(page)).cols[1].done);
   await page.clock.runFor(5200); await page.waitForTimeout(300); b = await board(page);
   ok('after a few seconds his next job takes its place', b.cols[1].job === 'Pack lunch box' && !b.cols[1].done && b.cols[1].label.toLowerCase() === 'now', b.cols[1]);

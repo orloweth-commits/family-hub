@@ -76,6 +76,8 @@ await page.evaluate(() => { for (const n of [1, 2, 3]) { const f = `2026-11-10_0
 await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); const any = document.createElement('canvas'); any.width = 300; any.height = 200; any.getContext('2d').fillRect(0, 0, 300, 200); const url = any.toDataURL('image/png');
   for (const n of [1, 2, 3]) { const f = `2026-11-10_02010${n}_family_hub_art_2026_11_10_${n}.png`; window.__media[f] = url; await c.hass.callService('todo', 'add_item', { item: 'media-source://ai_task/image/' + f, description: JSON.stringify({ d: '2026-11-10', kind: 'art', who: ['Riley'], theme: 'T' + n }) }, { entity_id: 'todo.family_hub_art' }); } });
 await ahead(page, '01:10'); await page.waitForTimeout(1500);
+// (the three are fetched and saved one after another: wait for them, not a fixed 1.5 s, which a busy machine outran: backlog, "art" beside another suite)
+await page.waitForFunction(() => Object.keys(window.__media).filter((n) => /^fhart-20261110-/.test(n)).length >= 3, null, { timeout: 15000 }).catch(() => {});
 { const names = (await page.evaluate(() => Object.keys(window.__media))).filter((n) => /^fhart-20261110-/.test(n));
   ok('three new pictures become three files of their own', names.length === 3 && new Set(names).size === 3, names); }
 await page.close();
@@ -141,6 +143,8 @@ await page.clock.runFor(1500); await page.waitForTimeout(900);
   ok('the painter was asked once, with his sheet', c.length === 1 && /sheet-riley\.png/.test(c[0]), c.length);
   ok('the words name what he picked', /party hat/.test(c[0]) && /About him: A tall twelve-year-old\./.test(c[0]));
   ok('nothing a child typed reaches the painter (there is nowhere to type)', await studio.locator('input').count() === 0); }
+// (the picture is made, saved and recorded after the painter answers: on a busy machine 900 ms was not enough, so run on until the button says Done)
+for (let i = 0; i < 20 && (await paintBtn.innerText()).trim() !== 'Done'; i++) { await page.clock.runFor(500); await page.waitForTimeout(250); }
 ok('the picture is kept in Home Assistant’s media', (await page.evaluate(() => Object.keys(window.__media))).some((n) => /^fhlook-riley-[a-z0-9]+\.jpg$/.test(n)));
 ok('it is noted in the record', (await calls(page, 'todo.add_item todo.family_hub_art .*fhlook-riley-.*kind.*look')).length === 1);
 ok('and he is wearing it', /img=fhlook-riley-[a-z0-9]+\.jpg/.test(await card(page, (c) => c.hass.states['input_text.riley_avatar'].state)));

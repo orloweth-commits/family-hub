@@ -8,7 +8,10 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/
 const PORT = Number(process.env.PORT || 4798);
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
-const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
+// --disable-smooth-scrolling: a drum rolls smoothly to a key's value and, from 600 ms after the key, takes its value from where it has rolled to.
+// On a busy machine the roll started late and was read part-way, which put the hour back (the bedtime lines that failed beside other suites
+// and once alone, backlog 31 and 88; the drum's own race is backlog 152). With the roll instant the test reads only what the keys chose
+const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox', '--disable-smooth-scrolling'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 const errs = []; let pass = 0; const fails = [];
 const ok = (name, cond, got = '') => { if (cond) pass++; else fails.push(name); console.log(`${cond ? 'ok  ' : 'FAIL'} ${name}${got !== '' ? `  [${typeof got === 'string' ? got : JSON.stringify(got)}]` : ''}`); };
@@ -25,12 +28,16 @@ const state = async (page) => (await S(page).locator('.sft .sstate').innerText()
 const toast = async (page) => ((await S(page).locator('.toast').count()) ? (await S(page).locator('.toast span').first().innerText()).trim() : '');
 const pin = async (page, digits) => { for (const d of digits) await page.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(450); };
 /** Opens the time dial behind a time button and moves the hour by `dh` and the minutes by `dm` steps with the arrow keys. */
+// Opening the dial scrolls each drum to its value, and a scroll leaves a 90 ms wait before the drum reads its value from where it rests,
+// during which it is not moved to a key's choice: a key pressed then was undone (backlog 152). Wait for the drums to be still before
+// the keys, and again before Done
+const still = (page) => page.waitForTimeout(150).then(() => page.waitForFunction(() => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings'); return !!st && !st._spin?.h && !st._spin?.m; }, null, { timeout: 3000 }).catch(() => {}));
 const dial = async (page, button, dh = 0, dm = 0, half = '') => { await button.click(); await page.waitForTimeout(250);
-  const h = S(page).locator('.drum[data-d="h"]'), m = S(page).locator('.drum[data-d="m"]');
+  const h = S(page).locator('.drum[data-d="h"]'), m = S(page).locator('.drum[data-d="m"]'); await h.waitFor(); await still(page);
   await h.focus(); for (let i = 0; i < Math.abs(dh); i++) await page.keyboard.press(dh < 0 ? 'ArrowUp' : 'ArrowDown');
   await m.focus(); for (let i = 0; i < Math.abs(dm); i++) await page.keyboard.press(dm < 0 ? 'ArrowUp' : 'ArrowDown');
   if (half) await S(page).locator('.sampm button', { hasText: half }).click();
-  await S(page).locator('[data-act="time-done"]').click(); await page.waitForTimeout(250); };
+  await still(page); await S(page).locator('[data-act="time-done"]').click(); await page.waitForTimeout(250); };
 
 // 1. the PIN gate: the cog on the house-info sheet asks for the PIN every time, except within a minute of the last time
 let page = await open('look=glass');
@@ -96,7 +103,7 @@ ok('nothing was saved by looking', await saves(page) === 0 && (await state(page)
 // 3. bedtime: edit, Save, and the running card has it at once (Settings stays open on the same pane)
 await go(page, 'children');
 await dial(page, S(page).getByRole('button', { name: /Riley’s bedtime/ }), -1, 6);
-ok('bedtime edit is staged', (await S(page).getByRole('button', { name: /Riley’s bedtime/ }).innerText()).trim() === '7:30 pm' && (await state(page)) === 'Unsaved changes' && await saves(page) === 0);
+{ const t = (await S(page).getByRole('button', { name: /Riley’s bedtime/ }).innerText()).trim(), st = await state(page); ok('bedtime edit is staged', t === '7:30 pm' && st === 'Unsaved changes' && await saves(page) === 0, [t, st]); }
 await save(page);
 ok('bedtime saved to the dashboard', await dashCard(page, '(c) => c.kids[0].bedtime') === '19:30' && await saves(page) === 1);
 ok('the running card adopted it', await cfg(page, '(c) => c.kids[0].bedtime') === '19:30');
@@ -344,9 +351,12 @@ await page.close();
 for (const [w, h] of [[1920, 1080], [1312, 668], [1024, 768], [768, 1024], [390, 844]]) {
   const c2 = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: w < 500, isMobile: w < 500 }); const p = await c2.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
   await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto(`http://localhost:${PORT}/?look=glass&sheet=settings&pane=rewards`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(700);
-  const r = await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot; const box = s.querySelector('.sbox').getBoundingClientRect(); let off = 0, small = 0;
-    s.querySelectorAll('button, input').forEach((e) => { const b = e.getBoundingClientRect(); if (!b.width) return; if (b.right > innerWidth + 1 || b.left < -1) { if (!e.closest('.snav')) off++; } if (e.matches('button') && (b.width < 43.5 || b.height < 43.5)) small++; });
-    return { fits: box.right <= innerWidth + 1 && box.bottom <= innerHeight + 1 && box.top >= -1, off, small, nav: getComputedStyle(s.querySelector('.snav')).flexDirection, save: !!s.querySelector('.sft [data-act="save"]').getBoundingClientRect().width, sideways: s.querySelector('.spane').scrollWidth > s.querySelector('.spane').clientWidth + 2 }; });
+  // the sheet's entrance scales it in, and the fake clock can hold it part-way: a button measured mid-entrance read under 44 px
+  // (28 of them at once, at whichever size the moment fell on: backlog 28). Finish every finite animation first
+  await p.evaluate(() => { const walk = (r) => { for (const a of r.getAnimations?.() ?? []) { if (a.effect?.getComputedTiming().iterations !== Infinity) a.finish(); } r.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); }); await p.waitForTimeout(100);
+  const r = await p.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings').shadowRoot; const box = s.querySelector('.sbox').getBoundingClientRect(); let off = 0, small = 0; const smalls = [];
+    s.querySelectorAll('button, input').forEach((e) => { const b = e.getBoundingClientRect(); if (!b.width) return; if (b.right > innerWidth + 1 || b.left < -1) { if (!e.closest('.snav')) off++; } if (e.matches('button') && (b.width < 43.5 || b.height < 43.5)) { small++; if (small <= 3) smalls.push(`${(e.getAttribute('aria-label') || e.textContent).trim().slice(0, 24)} ${Math.round(b.width)}x${Math.round(b.height)}`); } });
+    return { fits: box.right <= innerWidth + 1 && box.bottom <= innerHeight + 1 && box.top >= -1, off, small, smalls, nav: getComputedStyle(s.querySelector('.snav')).flexDirection, save: !!s.querySelector('.sft [data-act="save"]').getBoundingClientRect().width, sideways: s.querySelector('.spane').scrollWidth > s.querySelector('.spane').clientWidth + 2 }; });
   ok(`${w}x${h}: fits, nothing off the side, targets 44 px, Save in view`, r.fits && !r.off && !r.small && r.save && !r.sideways && r.nav === (w <= 768 ? 'row' : 'column'), r);
   await c2.close();
 }
