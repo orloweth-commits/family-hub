@@ -164,6 +164,9 @@ export const styles = css`
   /* still waiting after the first hour: amber, steady (no breathing ring), dark ink that reads on it in every look */
   .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   .cap.ok { background: color-mix(in srgb, var(--ok) 25%, var(--glass)); }
+  /* a dose not recorded, after its amber hours (0.38.25): plain, on two short lines */
+  .cap .mq { display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.15; min-width: 0; }
+  .cap .mq b { font-size: var(--fs-2); } .cap .mq span { font-size: var(--fs-1); font-weight: var(--w-semi, 600); }
   /* Home Assistant out of reach (house.ts): the one line, in place of the chips. It may take two lines rather than lose its end */
   .cap.house { flex: 0 1 auto; min-width: 0; max-width: none; border-radius: 26px; height: auto; min-height: 52px; padding: 6px 18px; white-space: normal; text-align: left; line-height: 1.2; cursor: pointer; color: inherit; font-family: inherit; }
   .cap.house > span { overflow: visible; text-overflow: clip; }
@@ -681,6 +684,7 @@ export const styles = css`
   :host([data-phone]) .weather { padding: 0 12px; height: 44px; }
   :host([data-phone]) .weather .wsub, :host([data-phone]) .weather .wtop { display: none; }
   :host([data-phone]) .weather .wwt { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+  :host([data-phone]) .cap .mq span { display: none; }
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
   :host([data-phone]) header { flex-wrap: wrap; }
   :host([data-phone]) .capsule { height: auto; min-height: 0; flex-wrap: wrap; flex-basis: 100%; gap: 8px; }

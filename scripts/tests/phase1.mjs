@@ -35,7 +35,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) {
   await page.context().close();
   page = await open(`look=${look}&page=planner&timer=0`, '09:00');
   r = await chipOf(page);
-  ok(`${look}: 9 am, two hours on, it is plain: "2 morning doses not recorded: check before giving"`, r.txt === '2 morning doses not recorded: check before giving' && !r.hot && !r.warm && !NAMES.test(r.txt + r.label), r);
+  ok(`${look}: 9 am, two hours on, it is plain, on two lines: "2 morning doses not recorded" and "Check before giving"`, r.txt === '2 morning doses not recorded Check before giving' && r.label === 'Medicine: 2 morning doses not recorded: check before giving' && !r.hot && !r.warm && !NAMES.test(r.txt + r.label), r);
   await page.context().close();
   page = await open(`look=${look}&page=planner&timer=0`, '12:30');
   ok(`${look}: after noon it is off the header`, await med(page).count() === 0);

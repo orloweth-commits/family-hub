@@ -1493,8 +1493,9 @@ export class FamilyHubCard extends LitElement {
       } else if (soon.length && !away) {
         chips.push([2, html`<button class="cap tap" data-kind="med" data-p="2" aria-label=${`Medicine: ${soon.length} due`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${soon.length} due</span></button>`]);
       } else if (quiet.length && !away) {
-        const part = medPart(hm(quiet[0].m.time)), words = `${quiet.length === 1 ? `${part} dose` : `${quiet.length} ${part.toLowerCase()} doses`} not recorded: check before giving`;
-        chips.push([3.5, html`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${words}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${words}</span></button>`]);
+        const part = medPart(hm(quiet[0].m.time)), what = `${quiet.length === 1 ? `${part} dose` : `${quiet.length} ${part.toLowerCase()} doses`} not recorded`;
+        // two short lines rather than one long one: the header is the tightest row on the panel
+        chips.push([3.5, html`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${what}: check before giving`} @click=${open}>${art('pill', 22)}<span class="mq"><b>${what}</b><span>Check before giving</span></span></button>`]);
       }
       else if (!warm.length && !soon.length && !quiet.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${art('pill', 22)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
     }

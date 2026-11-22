@@ -4193,6 +4193,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   /* still waiting after the first hour: amber, steady (no breathing ring), dark ink that reads on it in every look */
   .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   .cap.ok { background: color-mix(in srgb, var(--ok) 25%, var(--glass)); }
+  /* a dose not recorded, after its amber hours (0.38.25): plain, on two short lines */
+  .cap .mq { display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.15; min-width: 0; }
+  .cap .mq b { font-size: var(--fs-2); } .cap .mq span { font-size: var(--fs-1); font-weight: var(--w-semi, 600); }
   /* Home Assistant out of reach (house.ts): the one line, in place of the chips. It may take two lines rather than lose its end */
   .cap.house { flex: 0 1 auto; min-width: 0; max-width: none; border-radius: 26px; height: auto; min-height: 52px; padding: 6px 18px; white-space: normal; text-align: left; line-height: 1.2; cursor: pointer; color: inherit; font-family: inherit; }
   .cap.house > span { overflow: visible; text-overflow: clip; }
@@ -4710,6 +4713,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .weather { padding: 0 12px; height: 44px; }
   :host([data-phone]) .weather .wsub, :host([data-phone]) .weather .wtop { display: none; }
   :host([data-phone]) .weather .wwt { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+  :host([data-phone]) .cap .mq span { display: none; }
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
   :host([data-phone]) header { flex-wrap: wrap; }
   :host([data-phone]) .capsule { height: auto; min-height: 0; flex-wrap: wrap; flex-basis: 100%; gap: 8px; }
@@ -21251,8 +21255,8 @@ const Ov = (a, t) => {
       } else if (f.length && !x)
         i.push([2, d`<button class="cap tap" data-kind="med" data-p="2" aria-label=${`Medicine: ${f.length} due`} @click=${k}>${At("pill", 22)}<span style="white-space:nowrap">${f.length} due</span></button>`]);
       else if (u.length && !x) {
-        const b = ey(pt(u[0].m.time)), y = `${u.length === 1 ? `${b} dose` : `${u.length} ${b.toLowerCase()} doses`} not recorded: check before giving`;
-        i.push([3.5, d`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${y}`} @click=${k}>${At("pill", 22)}<span style="white-space:nowrap">${y}</span></button>`]);
+        const b = ey(pt(u[0].m.time)), y = `${u.length === 1 ? `${b} dose` : `${u.length} ${b.toLowerCase()} doses`} not recorded`;
+        i.push([3.5, d`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${y}: check before giving`} @click=${k}>${At("pill", 22)}<span class="mq"><b>${y}</b><span>Check before giving</span></span></button>`]);
       } else !c.length && !f.length && !u.length && m.length && this._now.getHours() < 12 && i.push([5, d`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${m.length === 1 ? ` at ${ot(m[0].s.given)}` : `: ${m.length}`}`} @click=${k}>${At("pill", 22)}${U("check", 18)}<span>${m.length === 1 ? ot(m[0].s.given) : `${m.length} given`}</span></button>`]);
     }
     if (this._page !== "kid") for (const h of this._wantsChat) i.push([1.5, d`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${h} would like a chat. Tap to dismiss`} @click=${() => {
