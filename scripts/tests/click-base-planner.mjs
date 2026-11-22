@@ -1,5 +1,6 @@
 // click-base, planner part (split from click-base.mjs by page, 23 Nov 2026: plan section 3, backlog 52 and 34): the planner and the shared header and sheets: the time dial, date picker, place finder, emergency button, medicine, Ask, the header, a failed read, the rail, the kitchen timer, sheets, the add sheet, the PIN pad, undo, events.
 // Each section runs in its own block: one that stops (a missing element) prints a FAIL line naming it and the next section carries on (backlog 34).
+import fs from 'node:fs'; import path from 'node:path';
 import { browser, ctx, srv, errs, PORT, PREV, ROOT, HOME, MORE, open, openAt, shot, ok, calls, toastOf, sr, srStudio, ratio, section, finish } from './lib/click.mjs';
 let page;
 

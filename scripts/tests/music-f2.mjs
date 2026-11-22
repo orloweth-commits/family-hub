@@ -392,7 +392,7 @@ for (const qs of ['page=music&mtab=shelves&shelf=Family&dark=1', 'page=music&mvi
 // 13. batch 5 (0.38.22): the Desk's PAUSED lamp, Call a room without the music fill, the jukebox's one turn mark, the Scene's drawn grab
 { const page = await open('page=music&mview=desk&mviews=all');
   const lamps = await mus(page, (m) => [...m.shadowRoot.querySelectorAll('*')].filter((e) => !e.children.length && /^(PLAYING|PAUSED|ON|OFF)$/.test(e.textContent.trim())).map((e) => e.textContent.trim()));
-  ok('the Desk says PAUSED for a room with its music paused (batch 5)', lamps.includes('PAUSED') && lamps.includes('PLAYING'), lamps);
+  ok('the Desk says PAUSED for a room with its music paused (batch 5)', lamps.filter((l) => l === 'PAUSED').length === 1, lamps);
   await shut(page); }
 { const page = await open('page=music&mtab=call');
   const c = await mus(page, (m) => ({ rooms: m.shadowRoot.querySelectorAll('.mz').length, live: m.shadowRoot.querySelectorAll('.mz[data-live]').length }));

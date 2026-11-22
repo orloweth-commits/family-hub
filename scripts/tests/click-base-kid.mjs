@@ -1,5 +1,6 @@
 // click-base, kid part (split from click-base.mjs by page, 23 Nov 2026: plan section 3, backlog 52 and 34): a child's page: days off, the row tap, practice, wind-down, rewards, feelings, the youngest's page, the studio, a chat asked for, Ask from his page.
 // Each section runs in its own block: one that stops (a missing element) prints a FAIL line naming it and the next section carries on (backlog 34).
+import fs from 'node:fs'; import path from 'node:path';
 import { browser, ctx, srv, errs, PORT, PREV, ROOT, HOME, MORE, open, openAt, shot, ok, calls, toastOf, sr, srStudio, ratio, section, finish } from './lib/click.mjs';
 let page;
 

@@ -1,5 +1,6 @@
 // click-base, shell part (split from click-base.mjs by page, 23 Nov 2026: plan section 3, backlog 52 and 34): the frame and the looks: fonts, scaling and reflow, one grammar per look, motion, the cold reviewers' round 5, Home Ground, a few looks' colours.
 // Each section runs in its own block: one that stops (a missing element) prints a FAIL line naming it and the next section carries on (backlog 34).
+import fs from 'node:fs'; import path from 'node:path';
 import { browser, ctx, srv, errs, PORT, PREV, ROOT, HOME, MORE, open, openAt, shot, ok, calls, toastOf, sr, srStudio, ratio, section, finish } from './lib/click.mjs';
 let page;
 
@@ -93,7 +94,8 @@ await section('motion (polish round 2)', async () => {
     r = await timed(`(() => { const c = document.querySelector('family-hub-card'); c._toast = ''; })()`, '.toasts .toast'); console.log('toast exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
     await MORE(p); await p.locator('family-hub-card .sheet [data-act="night"]').click(); await p.waitForTimeout(600); await p.evaluate(deep); await p.locator('family-hub-card .artm').click({ timeout: 4000 }).catch(() => console.log('FAIL NIGHT-WAKE: “Night” did not bring up the screensaver here, so its wake was not tried (this line was edited for 0.33.5 and first run on 15 Nov)'));
     await p.waitForTimeout(60); const started = await p.evaluate(() => cssAnims()); const n80 = await p.locator('family-hub-card .artm[data-closing]').count(), n600 = await at('family-hub-card .artm', 560);
-    console.log('night wake: the screensaver fading at 60 ms', n80, '| animations started:', started.join(',') || 'none', '(expect fhout only) | gone at 620 ms', n600 === 0); await p.close(); }
+    // (backlog 153, decided 23 Nov: the art layer's picture fade, afade, runs inside the leaving layer, so it is part of the way out, not a second movement)
+    console.log('night wake: the screensaver fading at 60 ms', n80, '| animations started:', started.join(',') || 'none', '(expect fhout, and afade inside it) | gone at 620 ms', n600 === 0, ok(!!n80 && started.includes('fhout') && started.every((a) => a === 'fhout' || a === 'afade') && n600 === 0)); await p.close(); }
   // calm mode: nothing travels on a page change, and looks' loops are stopped
   { const p = await open('look=fridge&page=planner&calm=1'); await p.evaluate(deep);
     await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim().endsWith('Groceries')).click()); await p.waitForTimeout(40);

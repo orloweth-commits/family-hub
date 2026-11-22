@@ -11,8 +11,10 @@ export const browser = await chromium.launch({ executablePath: process.env.CHROM
 export const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' });
 export const errs = [];
 const card = "document.querySelector('family-hub-card')";
-/** The page has drawn: the card's frame is there, the fonts are in and every animation that ends has ended (at most 2 s). It replaces
- *  the fixed 700 ms (open) and 900 ms (openAt) after `__ready` (backlog 52): waits for the thing, not a time. */
+/** Every animation that has started and ends has ended (at most 2 s). Used after a wait that let the page draw: under the fake clock
+ *  (`clock.install`) the page's own frames and timers are faked too, so "nothing is moving" can be read before anything has been drawn.
+ *  That is why open() and openAt() keep their fixed 700 and 900 ms (tried without them on 23 Nov: R5-9 measured a sheet mid-arrival and
+ *  R5-14 tapped a list not yet read). */
 export const settle = (p) => p.evaluate(() => Promise.race([
   (async () => { await document.fonts.ready; const c = document.querySelector('family-hub-card'); for (let i = 0; i < 40 && !c?.shadowRoot?.querySelector('.fh'); i++) await new Promise((r) => requestAnimationFrame(r));
     const fin = () => document.getAnimations().filter((a) => a.playState === 'running' && Number.isFinite(a.effect?.getComputedTiming().endTime));
@@ -20,17 +22,17 @@ export const settle = (p) => p.evaluate(() => Promise.race([
   new Promise((r) => setTimeout(r, 2000))]));
 // since 0.33.0 (Phase 4): a child's page has only his face and Everyone in the dock, and Looks, Medicine, House info, Night and who-is-home are in the More sheet
 export const HOME = async (p) => { if (await p.locator('family-hub-card nav.dock[data-kid]').count()) { await p.locator('family-hub-card nav.dock [data-nav="home"]').click();
-  await p.waitForFunction(`!${card}.shadowRoot.querySelector('nav.dock[data-kid]')`, null, { timeout: 3000 }).catch(() => {}); await settle(p); } };
+  await p.waitForFunction(`!${card}.shadowRoot.querySelector('nav.dock[data-kid]')`, null, { timeout: 3000 }).catch(() => {}); await p.waitForTimeout(400); } };
 export const MORE = async (p) => { await p.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'more'; });
-  await p.waitForFunction(`!!${card}.shadowRoot.querySelector('.sheet[data-sheet="more"]')`, null, { timeout: 3000 }).catch(() => {}); await settle(p); };
+  await p.waitForFunction(`!!${card}.shadowRoot.querySelector('.sheet[data-sheet="more"]')`, null, { timeout: 3000 }).catch(() => {}); await p.waitForTimeout(400); };
 const watch = (page) => { page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
   page.on('requestfailed', (r) => errs.push('failed ' + r.url())); page.on('response', (r) => { if (r.status() === 404 && !/favicon/.test(r.url())) errs.push('404 ' + r.url()); }); };
 // `init`: a script run before the page's own (since R1.2 a read that fails shows what this browser kept, so "never read here" starts the page with its kept copies forgotten: backlog 131)
 export const open = async (qs, time = '16:20', init) => { const page = await ctx.newPage(); if (init) await page.addInitScript(init); watch(page);
-  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await settle(page); return page; };
+  await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 /** A page in a context of its own at a given size (round 4 on). */
 export const openAt = async (w, h, qs, time = '16:20') => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
-  await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await settle(p); return p; };
+  await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
 export const shot = (page, n) => page.screenshot({ path: path.join(PREV, 'shots', n + '.png') });
 // a printed value checked against its expectation says ok or FAIL, so the check reads it (an unmet "expect" printed no FAIL until 22 Nov: backlog 151)
 export const ok = (b) => (b ? 'ok' : 'FAIL');
