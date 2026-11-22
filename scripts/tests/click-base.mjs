@@ -280,8 +280,10 @@ console.log('no timer helper:', (await rail('.tmr').innerText()).replace(/\s+/g,
 await page.close(); page = await open('look=glass&fail=1'); const toast = async () => (await page.locator('family-hub-card .toast').innerText().catch(() => '(no toast)')).replace(/\s+/g, ' ');
 await rail('.quick').first().click(); await page.waitForTimeout(700); console.log('timer add fails:', await toast());
 await rail('.tcancel').click(); await page.waitForTimeout(700); console.log('timer cancel fails:', await toast());
-await page.locator('family-hub-card [data-nav=lights-on]').click(); await page.waitForTimeout(700); console.log('all on fails:', await toast());
-await page.locator('family-hub-card [data-nav=lights-off]').click(); await page.waitForTimeout(700); console.log('all off fails:', await toast());
+// (since 0.38.26 All on is gone and All off is the first of Home's Scenes)
+await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'home'; }); await page.waitForTimeout(500);
+await page.locator('family-hub-card fh-home [data-act=alloff]').click(); await page.waitForTimeout(700); console.log('all off fails:', await toast());
+await page.evaluate(() => { document.querySelector('family-hub-card')._page = 'planner'; }); await page.waitForTimeout(500);
 await page.getByRole('button', { name: 'Pause' }).click(); await page.waitForTimeout(700); console.log('pause fails:', await toast());
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, announce_script: 'script.dinner' }); return c._dinnerGo(); }); await page.waitForTimeout(300); console.log('dinner fails:', await toast());
 await page.close();
@@ -524,7 +526,8 @@ await page.close();
     const rm = await p.evaluate(() => new Promise((done) => { const r = {}; deepAll('button.rem')[0].click(); const n = (s) => deepAll('button' + s).length;
       setTimeout(() => { r.busy = n('.rem[data-busy]'); }, 500); setTimeout(() => { r.held = n('.rem.done'); }, 4500); setTimeout(() => { r.gone = n('.rem.done') === 0; done(r); }, 5600); }));
     console.log('slow reminder (5 s): busy at 500 ms', rm.busy, '| still struck through at 4.5 s, past its four seconds, because the answer is not in', rm.held, '| gone once it is', rm.gone);
-    await p.locator('family-hub-card nav [data-nav="lights-off"]').click(); await p.waitForTimeout(500); console.log('slow "All off": dock button busy', await p.locator('family-hub-card nav [data-nav="lights-off"][data-busy]').count());
+    await p.evaluate(() => { document.querySelector('family-hub-card')._page = 'home'; }); await p.waitForTimeout(500);
+    await p.locator('family-hub-card fh-home [data-act="alloff"]').click(); await p.waitForTimeout(500); console.log('slow "All off": Home\'s All off scene busy', await p.locator('family-hub-card fh-home [data-act="alloff"][data-busy]').count());
     await p.close();
     p = await open('look=glass&page=planner&slow=400&fail=1'); await p.locator('family-hub-card .rem').first().click(); await p.waitForTimeout(900);
     const ts = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 reminder: put back', await p.locator('family-hub-card .rem.done').count() === 0, '| says:', ts, '| raw error shown:', /did not answer|Error/.test(ts));
@@ -646,21 +649,17 @@ await page.close(); page = await open('look=glass&sheet=meds', '08:10');
   await page.getByRole('button', { name: 'Given by Alex' }).first().click(); await page.waitForTimeout(500); await page.locator('family-hub-card .sheet').press('Escape'); await page.waitForTimeout(400);
   await tb.click(); await page.waitForTimeout(400); console.log('R3b Undo after the sheet is closed asks for the PIN:', await page.locator('family-hub-card fh-pin').count()); }
 await page.close(); page = await open('look=glass&page=home');
+// (since 0.38.26 All on is gone; All off, the first of Home's Scenes, keeps its Undo)
 { const lit = () => page.evaluate(() => Object.values(document.querySelector('family-hub-card').hass.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').map((s) => s.entity_id).sort().join(',')), on0 = await lit();
-  const allOn = page.locator('family-hub-card .dock [data-nav=lights-on]'), tb = page.locator('family-hub-card .toast button', { hasText: 'Undo' });
-  await allOn.click(); await page.waitForTimeout(600); const on1 = await lit();
-  console.log('R3c All on: lights on', on0.split(',').filter(Boolean).length, '->', on1.split(',').length, '| Undo:', await tb.count());
+  const allOff = page.locator('family-hub-card fh-home [data-act=alloff]'), tb = page.locator('family-hub-card .toast button', { hasText: 'Undo' });
+  await allOff.click(); await page.waitForTimeout(600); const on1 = await lit();
+  console.log('R3c All off: lights on', on0.split(',').filter(Boolean).length, '->', on1.split(',').filter(Boolean).length, '| Undo:', await tb.count(), ok(on0.length > 0 && on1 === '' && await tb.count() === 1));
   await tb.click(); await page.waitForTimeout(600); const on2 = await lit();
-  console.log('R3c Undo turns off only what it turned on:', on2 === on0, '| turn_off named:', ((await calls(page)).split('\n').filter((c) => /light\.turn_off/.test(c)).pop() || '').slice(0, 110)); }
+  console.log('R3c Undo turns on only what it turned off:', on2 === on0, ok(on2 === on0)); }
 await page.close(); page = await open('look=glass&page=home&slow=1200');
-{ await page.evaluate(() => { window.__calls = []; }); const allOn = page.locator('family-hub-card .dock [data-nav=lights-on]'), allOff = page.locator('family-hub-card .dock [data-nav=lights-off]');
-  await allOn.click(); await page.waitForTimeout(100); await allOn.click(); await allOff.click(); await page.waitForTimeout(1800);
-  console.log('R3c three taps while in flight: calls sent', (await calls(page)).split('\n').filter((c) => /^light\./.test(c)).length); }
-await page.close(); page = await open('look=glass&page=home', '19:45');
-{ await page.evaluate(() => { window.__calls = []; }); await page.locator('family-hub-card .dock [data-nav=lights-on]').click(); await page.waitForTimeout(400);
-  console.log('R3c All on after a bedtime: PIN pad', await page.locator('family-hub-card > fh-pin, family-hub-card fh-pin').count(), (await page.locator('family-hub-card fh-pin h2').first().innerText()).trim(), '| called before the PIN:', /light\.turn_on/.test(await calls(page)));
-  for (const d of '1234') await page.locator('family-hub-card fh-pin').first().getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
-  console.log('R3c after the PIN:', /light\.turn_on/.test(await calls(page)), '|', await toastOf(page, 'family-hub-card')); }
+{ await page.evaluate(() => { window.__calls = []; }); const allOff = page.locator('family-hub-card fh-home [data-act=alloff]');
+  await allOff.click(); await page.waitForTimeout(100); await allOff.click(); await allOff.click(); await page.waitForTimeout(1800);
+  const n = (await calls(page)).split('\n').filter((c) => /^light\./.test(c)).length; console.log('R3c three taps while in flight: calls sent', n, '(expect 1)', ok(n === 1)); }
 await page.close();
 // R4. rewards: after Yes the row keeps its place and a second tap in the list does nothing for 600 ms; a spend that needs a parent leaves a line
 page = await open('look=glass&page=kid&kid=0');
@@ -733,7 +732,7 @@ for (const [w, h] of [[1280, 800], [1312, 668]]) { page = await open('look=glass
   await page.setViewportSize({ width: 1280, height: 800 }); await page.close(); }
 // R17. small things: the PIN pad does not open over a sheet that did not ask; a stale timer is over; the weather chip has words
 page = await open('look=glass&page=planner&sheet=timer', '19:45');
-{ await page.evaluate(() => document.querySelector('family-hub-card')._allOn()); await page.waitForTimeout(400); // the dock is under the scrim; a toast's Undo is the way a PIN could be asked for over a sheet
+{ await page.evaluate(() => document.querySelector('family-hub-card')._openWaiting()); await page.waitForTimeout(400); // (the bell's PIN since 0.38.26: All on, which this used, is gone) the dock is under the scrim; a toast's Undo is the way a PIN could be asked for over a sheet
   console.log('R17 a PIN asked for while the timer sheet is open: PIN pad', await page.locator('family-hub-card fh-pin').count(), '| says:', await toastOf(page, 'family-hub-card'));
   await page.evaluate(() => { const c = document.querySelector('family-hub-card'), h = c.hass; c.hass = { ...h, states: { ...h.states, 'timer.kitchen': { ...h.states['timer.kitchen'], state: 'active', attributes: { ...h.states['timer.kitchen'].attributes, finishes_at: new Date(Date.now() - 90_000).toISOString() } }, 'weather.home': { ...h.states['weather.home'], state: 'unavailable' } } }; }); await page.waitForTimeout(500);
   console.log('R17 timer that finished 90 s ago: treated as running', await page.evaluate(() => document.querySelector('family-hub-card')._timerLeft() !== null), '| weather chip:', (await page.locator('family-hub-card header .wsub').innerText().catch(() => '(chip hidden)')).trim()); }
@@ -850,8 +849,9 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
 { const p = await openAt(1280, 800, 'look=glass&page=music&mview=house'); await p.waitForTimeout(12600);
   const sh = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const a = [...r.querySelectorAll('.srec span')].filter((e) => e.offsetWidth); return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cutBelow: a.filter((e) => e.getBoundingClientRect().bottom > e.closest('.mshelf, .srecs').getBoundingClientRect().bottom + 1).length }; });
   console.log('R4-5 House shelf labels:', JSON.stringify(sh), ok(sh.n > 0 && sh.fs >= 14 && !sh.cutBelow));
-  // the dock scenes: two taps in the same instant make one call
-  await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock [data-nav="lights-off"]'); b.click(); b.click(); }); await p.waitForTimeout(600);
+  // All off (the first of Home's Scenes since 0.38.26): two taps in the same instant make one call
+  await p.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._page = 'home'; await c.updateComplete; }); await p.waitForTimeout(500);
+  await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot.querySelector('[data-act="alloff"]'); b.click(); b.click(); }); await p.waitForTimeout(600);
   { const n = await p.evaluate(() => window.__calls.filter((x) => /^light\.turn_off/.test(x)).length); console.log('R4-5 "All off" tapped twice at once: calls', n, '(expect 1)', ok(n === 1)); }
   await p.keyboard.press('Escape'); await p.context().close();
   const d = await openAt(1280, 800, 'look=glass&page=music&mview=dial'); await d.waitForTimeout(600);
@@ -888,7 +888,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
     console.log('R5-7 on a touch screen the field is not focused (no system keyboard):', ok(await p.evaluate(() => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.tagName !== 'INPUT'; }))); await c.close(); }
   // R5-8 repeat taps while a call is out: Home scene, timer Cancel, a reminder and a grocery tick each send one call, and show they are waiting
   { const p = await openAt(1280, 800, 'look=glass&page=home&slow=1500');
-    const r = await p.evaluate(async () => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot, b = h.querySelector('.scene'); window.__calls = []; b.click(); b.click(); await new Promise((r) => setTimeout(r, 450)); const busy = b.hasAttribute('data-busy'); b.click(); await new Promise((r) => setTimeout(r, 1800)); return { busy, calls: window.__calls.filter((c) => /^script\.turn_on/.test(c)).length }; });
+    const r = await p.evaluate(async () => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot, b = h.querySelector('.scene:not([data-act="alloff"])') /* a script's scene: All off is the first since 0.38.26 */; window.__calls = []; b.click(); b.click(); await new Promise((r) => setTimeout(r, 450)); const busy = b.hasAttribute('data-busy'); b.click(); await new Promise((r) => setTimeout(r, 1800)); return { busy, calls: window.__calls.filter((c) => /^script\.turn_on/.test(c)).length }; });
     console.log('R5-8 Home scene tapped three times on a slow link:', JSON.stringify(r), ok(r.busy && r.calls === 1));
     const sw = await p.evaluate(async () => { const h = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot, b = h.querySelector('.rh .sw'); if (!b) return null; window.__calls = []; b.click(); b.click(); await new Promise((r) => setTimeout(r, 380)); const busyBy400 = b.hasAttribute('data-busy') && getComputedStyle(b).cursor === 'progress'; await new Promise((r) => setTimeout(r, 1600)); return { busyBy400, calls: window.__calls.filter((c) => /^light\.turn_/.test(c)).length }; });
     console.log('R5-14 Home room switch on a slow link:', JSON.stringify(sw), ok(sw && sw.busyBy400 && sw.calls === 1)); await p.context().close(); }
@@ -1195,17 +1195,17 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await ope
   console.log('D4 calm mode: looping animations on the board', r.loops, '| the face changes in', r.ringT, '(a plain update, no sweep)', ok(r.calm && r.loops === 0 && parseFloat(r.ringT) === 0)); await p.context().close(); }
 
 // D10. keep_on: All off leaves those on (and anything in a group named there, and any group holding one), and says how many it kept
-{ const run = async (qs) => { const p = await openAt(1280, 800, 'look=glass&page=planner' + qs); await p.evaluate(() => { window.__calls = []; }); await p.locator('family-hub-card .dock [data-nav=lights-off]').click(); await p.waitForTimeout(700);
+{ const run = async (qs) => { const p = await openAt(1280, 800, 'look=glass&page=home' + qs); await p.evaluate(() => { window.__calls = []; }); await p.locator('family-hub-card fh-home [data-act=alloff]').click(); await p.waitForTimeout(700);
     const r = await p.evaluate(() => ({ off: (window.__calls || []).filter((c) => /^light\.turn_off/.test(c)).join(' || '), toast: (document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.innerText ?? '').replace(/\s+/g, ' ').trim() })); await p.context().close(); return r; };
   const none = await run(''), one = await run('&keep=1'), grp = await run('&keep=group');
   console.log('D10 no keep_on (as before):', none.toast, ok(/^Lights off/.test(none.toast) && /light\.max/.test(none.off)));
   console.log('D10 keep_on: [light.max]:', one.toast, '|', one.off.slice(0, 120), ok(/^All off \(1 thing kept on\)/.test(one.toast) && /Undo/.test(one.toast) && !/light\.max/.test(one.off) && /light\.kitchen/.test(one.off) && /light\.lounge/.test(one.off)));
   console.log('D10 keep_on: a group:', grp.toast, '|', grp.off.slice(0, 120), ok(/^All off \(2 things kept on\)/.test(grp.toast) && !/light\.(max|stairs_night|night_lights|bedrooms)/.test(grp.off) && /light\.kitchen/.test(grp.off) && /light\.lounge/.test(grp.off)));
-  const p = await openAt(1280, 800, 'look=glass&page=planner&keep=1');
+  const p = await openAt(1280, 800, 'look=glass&page=home&keep=1');
   const v = await p.evaluate(() => { const c = document.querySelector('family-hub-card'), tryIt = (k) => { try { document.createElement('family-hub-card').setConfig({ ...c._config, keep_on: k }); return 'accepted'; } catch (e) { return String(e.message); } }; return [tryIt('light.max'), tryIt([1, 2]), tryIt([]), tryIt(['light.a'])]; });
   console.log('D10 setConfig: a string', JSON.stringify(v[0]), '| numbers', JSON.stringify(v[1]), '| empty list', v[2], '| list of ids', v[3], ok(/keep_on should be a list/.test(v[0]) && /keep_on should be a list/.test(v[1]) && v[2] === 'accepted' && v[3] === 'accepted'));
   // everything kept: nothing to switch, and it says so
-  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, keep_on: ['light.max', 'light.kitchen', 'light.lounge', 'light.panel_backlight'] }); window.__calls = []; }); await p.locator('family-hub-card .dock [data-nav=lights-off]').click(); await p.waitForTimeout(500);
+  await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.setConfig({ ...c._config, keep_on: ['light.max', 'light.kitchen', 'light.lounge', 'light.panel_backlight'] }); window.__calls = []; }); await p.locator('family-hub-card fh-home [data-act=alloff]').click(); await p.waitForTimeout(500);
   const t = await p.evaluate(() => ({ toast: (document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.innerText ?? '').trim(), n: (window.__calls || []).filter((c) => /^light\.turn_off/.test(c)).length }));
   console.log('D10 every light that is on is kept:', t.toast, '| calls', t.n, ok(/^Nothing else to turn off \(4 things kept on\)$/.test(t.toast) && t.n === 0)); await p.context().close(); }
 

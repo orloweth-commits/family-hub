@@ -59,17 +59,17 @@ const noMeds = async (page) => { await page.evaluate(async () => { const c = doc
 // 3. a child's page: his face and Home
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=kid&kid=1`); const card = C(page);
   const d = await card.locator('nav.dock .item').evaluateAll((els) => els.map((e) => e.textContent.trim()));
-  ok(`${look}, a child's page: the dock is his face and Home`, d.join(',') === 'Charlie,Home', d);
+  ok(`${look}, a child's page: the dock is his face and Everyone (0.38.26: not a second "Home"), drawn as the planner`, d.length === 2 && d[0] === 'Charlie' && /Everyone$/.test(d[1]) && await card.locator('nav.dock[data-kid] .item[data-nav="home"] svg.pic2[data-ic="planner"]').count() === 1, d);
   ok(`${look}, a child's page: the header keeps Ask and his Settings`, (await head(page)).right.join(',') === 'ask,looks', (await head(page)).right);
   await card.locator('nav.dock .item[data-nav="home"]').click(); await page.waitForTimeout(400);
-  ok(`${look}: Home goes back to the family's page, with the whole dock`, await page.evaluate(() => document.querySelector('family-hub-card')._page) === 'planner' && await card.locator('nav.dock .item').count() >= 12);
+  ok(`${look}: Everyone goes back to the family's page, with the whole dock`, await page.evaluate(() => document.querySelector('family-hub-card')._page) === 'planner' && await card.locator('nav.dock .item').count() >= 10);
   await page.context().close(); }
 { const page = await open('look=glass&page=kid&kid=2', '07:10'); await C(page).locator('nav.dock .item[data-nav="home"]').click(); await page.waitForTimeout(400);
-  ok('on a school morning Home is the morning board', await page.evaluate(() => document.querySelector('family-hub-card')._page) === 'morning'); await page.context().close(); }
+  ok('on a school morning Everyone is the morning board', await page.evaluate(() => document.querySelector('family-hub-card')._page) === 'morning'); await page.context().close(); }
 
 // 4. places and house actions stand apart
 for (const [w, h, min] of [[1920, 1080, 30], [1180, 820, 14]]) { const page = await open('look=glass&page=planner', '07:10', { w, h });
-  const g = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, z = Number(getComputedStyle(r.querySelector('.fh')).zoom) || 1, a = r.querySelector('nav.dock .item[data-nav="home"]').getBoundingClientRect(), b = r.querySelector('nav.dock .item[data-nav="lights-on"]').getBoundingClientRect(), d = r.querySelector('nav.dock').getBoundingClientRect(), p = r.querySelector('nav.dock .item[data-nav="calendar"]').getBoundingClientRect(), q = r.querySelector('nav.dock .item[data-nav="cart"]').getBoundingClientRect();
+  const g = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, z = Number(getComputedStyle(r.querySelector('.fh')).zoom) || 1, a = r.querySelector('nav.dock .item[data-nav="home"]').getBoundingClientRect(), b = r.querySelector('nav.dock .item[data-nav="dinner"]').getBoundingClientRect(), d = r.querySelector('nav.dock').getBoundingClientRect(), p = r.querySelector('nav.dock .item[data-nav="sun"]').getBoundingClientRect(), q = r.querySelector('nav.dock .item[data-nav="cart"]').getBoundingClientRect();
     return { gap: Math.round((b.left - a.right) / z), between: Math.round((q.left - p.right) / z), inside: d.left >= 0 && d.right <= innerWidth }; });
   ok(`${w} x ${h}: the gap before the house actions is wider than between places, and the dock is inside the screen`, g.gap >= min && g.gap > g.between + 8 && g.inside, g); await page.context().close(); }
 
@@ -81,6 +81,31 @@ for (const [w, h, min] of [[1920, 1080, 30], [1180, 820, 14]]) { const page = aw
   ok('after a minute untouched: today is larger and the other days step back', b.rest && b.today > a.today * 1.2 && Number(b.fade) <= 0.55 && b.todayFade === '1', b);
   await card.locator('.week').click({ position: { x: 5, y: 5 } }); await page.waitForTimeout(300); await page.clock.runFor(3000); await page.waitForTimeout(300); await page.clock.runFor(1000); const c = await cols();
   ok('a touch brings the whole week back', !c.rest && c.fade === '1' && Math.abs(c.today - a.today) <= 2, c);
+  await page.context().close(); }
+// 6. 0.38.26 (the second review's cut, items 4 and 5): a school morning stays on the morning board until the last child leaves (no screensaver,
+//    no Ask); Morning takes Planner's place in the dock while the morning window lasts; All on is gone and All off is the first of Home's Scenes
+{ const dockOf = (page) => page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('nav.dock .item:not(.kidbtn)')].map((b) => b.dataset.nav));
+  const askOf = (page) => page.evaluate(() => !!document.querySelector('family-hub-card').shadowRoot.querySelector('header [data-act="ask"]'));
+  const artUp = async (page) => { await page.evaluate(() => { document.querySelector('family-hub-card')._lastTouch = Date.now() - 200_000; }); for (let i = 0; i < 8; i++) { await page.clock.runFor(5000); await page.waitForTimeout(100); } return page.evaluate(() => !!document.querySelector('family-hub-card')._art.on); };
+  let page = await open('look=glass&page=morning&art=1&artn=3&timer=0', '07:10');
+  let d = await dockOf(page);
+  ok('6 7:10 on a school day: Morning stands where Planner does (no Planner, nothing inserted)', d.join(',') === 'sun,cart,pencil,music,cloud,home,dinner', d);
+  ok('6 7:10: no Ask in the header', !(await askOf(page)));
+  ok('6 7:10: left untouched past three minutes, the screensaver does not come up', !(await artUp(page)));
+  await page.context().close();
+  page = await open('look=glass&page=kid&kid=0&calm=1', '07:49'); ok('6 7:49, a child\'s page: still no Ask (the last child leaves at 7:50)', !(await askOf(page))); await page.context().close();
+  page = await open('look=glass&page=morning&art=1&artn=3&timer=0', '07:51');
+  ok('6 7:51, once the last child has left: Ask is back', await askOf(page));
+  d = await dockOf(page); ok('6 7:51: Morning still holds Planner\'s place while the morning window lasts', d[0] === 'sun' && !d.includes('calendar'), d);
+  ok('6 7:51: the screensaver comes up as usual', await artUp(page));
+  await page.context().close();
+  page = await open('look=glass&page=planner&timer=0');
+  d = await dockOf(page); ok('6 4:20 pm: Planner and no Morning; neither All on nor All off in the dock', d.join(',') === 'calendar,cart,pencil,music,cloud,home,dinner', d);
+  await page.context().close();
+  page = await open('look=glass&page=home&offwait=0'); await page.evaluate(() => { window.__calls = []; });
+  await C(page).locator('fh-home [data-act="alloff"]').click(); await page.waitForTimeout(600);
+  const off = await page.evaluate(() => (window.__calls || []).filter((c) => /^light\.turn_off/.test(c)).length), t = (await C(page).locator('.toast').innerText().catch(() => '')).replace(/\s+/g, ' ');
+  ok('6 Home\'s All off turns the lights off once and offers Undo', off === 1 && /Undo/.test(t), { off, t });
   await page.context().close(); }
 ok('the bundle carries its version', /0\.3\d\.\d/.test(fs.readFileSync(path.join(ROOT, 'dist', 'family-hub.js'), 'utf8')));
 console.log('errors:', errs.length ? errs.join('\n') : 'none');

@@ -362,11 +362,10 @@ console.log('errors:', errs.length ? errs.join('\n') : 'none');
     const WHY = /^It is after bedtime\. .+ \/ Enter the parent PIN to go on\.$/;
     console.log('D9 after bedtime (7:45 pm), the PIN pad says why: Whole house', JSON.stringify(w1), okk(WHY.test(w1.pad) && /bedrooms/.test(w1.pad) && w1.joins === 0), 'then with the PIN: joins', w2.joins, okk(!w2.pad && w2.joins > 0),
       '| all-rooms pad', JSON.stringify(p1), okk(WHY.test(p1.pad) && p1.plays === 0), 'then', p2, okk(p2 > 0), '| call the parents’ room', JSON.stringify(c1), okk(WHY.test(c1.pad) && c1.said === 0), 'then', c2, okk(c2 > 0));
-    // the test is the card's one test: Ask and All on ask at the same minute
-    const hub = await atv(1280, 800, 'look=glass&page=planner', '19:45'); await hub.locator('family-hub-card .dock [data-nav=lights-on]').click(); await hub.waitForTimeout(400);
-    const allOn = await hub.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-pin')?.getAttribute('reason') ?? ''); const late = await hub.evaluate(() => document.querySelector('family-hub-card')._chatLate()); await hub.context().close();
+    // the test is the card's one test: Ask is late at the same minute (All on, which asked the same, left the dock in 0.38.26)
+    const hub = await atv(1280, 800, 'look=glass&page=planner', '19:45'); const late = await hub.evaluate(() => document.querySelector('family-hub-card')._chatLate()); await hub.context().close();
     const day = await atv(1280, 800, 'look=glass&page=planner', '16:20'); const dayLate = await day.evaluate(() => document.querySelector('family-hub-card')._chatLate()); await day.context().close();
-    console.log('D9 the same minute for All on and Ask: All on asks', JSON.stringify(allOn), '| Ask late', late, '| by day', dayLate, okk(/after bedtime/.test(allOn) && late === true && dayLate === false)); }
+    console.log('D9 the same minute as the music\'s PIN for Ask: Ask late', late, '| by day', dayLate, okk(late === true && dayLate === false)); }
 
   // D12. a child's calm setting comes with him to Music when Music is opened from his page: nothing loops, the record stands still. From any other page Music moves as usual
   { const loops = (p) => p.evaluate(() => { const c = document.querySelector('family-hub-card'), m = c.shadowRoot.querySelector('fh-music'); const all = []; const walk = (root) => { all.push(...root.getAnimations()); for (const e of root.querySelectorAll('*')) if (e.shadowRoot) walk(e.shadowRoot); }; if (m) walk(m.shadowRoot);

@@ -54,14 +54,26 @@ const viewBtn = (page) => M(page).getByRole('button', { name: 'Change the view',
   const S = page.locator('fh-settings'), box = S.locator('[data-views]');
   ok('Settings, Music has a card for the ways to see the rooms', await box.count() === 1);
   const sw = box.getByRole('switch');
-  ok('with a switch each for Dial, Desk, Crate and List, all off', await sw.count() === 4 && (await sw.evaluateAll((n) => n.map((x) => x.getAttribute('aria-checked')))).every((v) => v === 'false'), await sw.count());
+  // (since 0.38.26 Scene has a switch too, on unless the list leaves it out)
+  ok('with a switch each for Scene (on), Dial, Desk, Crate and List (off)', await sw.count() === 5 && (await sw.evaluateAll((n) => n.map((x) => x.getAttribute('aria-checked')))).join(',') === 'true,false,false,false,false', await sw.count());
   await box.getByRole('switch', { name: 'Desk view' }).click(); await page.waitForTimeout(200);
   await box.getByRole('switch', { name: 'Dial view' }).click(); await page.waitForTimeout(200);
   const draft = await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings')._draft.music_views);
   ok('switching two on writes them to the card, in the page’s order', JSON.stringify(draft) === '["dial","desk"]', draft);
   await box.getByRole('switch', { name: 'Desk view' }).click(); await box.getByRole('switch', { name: 'Dial view' }).click(); await page.waitForTimeout(200);
   ok('and switching them off again leaves nothing behind', await page.evaluate(() => !('music_views' in document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings')._draft)));
+  // 0.38.26 (the second review's cut, item 6): Scene off writes the whole list, House and the others; on again goes back to the list of the others alone
+  const dr = () => page.evaluate(() => JSON.stringify(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings')._draft.music_views ?? null));
+  await box.getByRole('switch', { name: 'Desk view' }).click(); await box.getByRole('switch', { name: 'List view' }).click(); await box.getByRole('switch', { name: 'Scene view' }).click(); await page.waitForTimeout(200);
+  ok('0.38.26: Desk and List on, Scene off: the list is House, Desk and List', await dr() === '["house","desk","list"]' && await box.getByRole('switch', { name: 'Scene view' }).getAttribute('aria-checked') === 'false', await dr());
+  await box.getByRole('switch', { name: 'Scene view' }).click(); await page.waitForTimeout(200);
+  ok('0.38.26: Scene on again: the list is Desk and List alone, as before', await dr() === '["desk","list"]', await dr());
   await shut(page); }
+{ const offer = async (v) => { const page = await open(`page=music&mviews=${v}`); const o = await mus(page, (m) => m._offered.join(',')); await shut(page); return o; };
+  const live = await offer('house,desk,list'), old = await offer('desk,list'), withScene = await offer('house,scene,desk');
+  ok('0.38.26: music_views [house, desk, list] offers House, Desk and List: no Scene', live === 'house,desk,list', live);
+  ok('0.38.26: a list of the others alone keeps Scene, as before', old === 'house,scene,desk,list', old);
+  ok('0.38.26: a whole list naming Scene offers it', withScene === 'house,scene,desk', withScene); }
 
 // 3. a tap for carrying the music to a room, in both views
 for (const view of ['house', 'scene']) { const page = await open(`page=music&mview=${view}`);

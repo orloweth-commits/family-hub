@@ -2,6 +2,7 @@ import { LitElement, html, css, svg, nothing, type PropertyValues, type Template
 import { styles } from './styles';
 import { LookController } from './looks';
 import { icon } from './icons';
+import { art } from './art';
 import type { Hass, HassEntity } from './types';
 import { FitController, bedtimeFor, getNarrow, getShape, hm, inTime, minsNow, SlowError, SLOW_SAY } from './util';
 import './pin';
@@ -305,6 +306,7 @@ export class FhHome extends LitElement {
     const labelled = (id: string): boolean => !!h.entities?.[id]?.labels?.includes('family_hub');
     const scripts = Object.values(h.states).filter((s) => s.entity_id.startsWith('script.') && !this.hideScripts.includes(s.entity_id) && labelled(s.entity_id));
     const autos = Object.values(h.states).filter((s) => s.entity_id.startsWith('automation.') && (this._all || labelled(s.entity_id)));
+    const lit = Object.values(h.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length;
     const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
     const lost = rooms.reduce((n, r) => n + r.ents.filter(gone).length, 0);
     const left = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1000));
@@ -332,10 +334,12 @@ export class FhHome extends LitElement {
       <div class="side">
         <section class="glass card" aria-label="Scenes">
           <span class="label">Scenes</span>
-          ${scripts.length ? html`<div class="scenes">
+          <div class="scenes">
+            ${/* All off is the first scene (0.38.26: it left the dock, out of the youngest's reach beside All on, which went). The card runs it: its three-second wait with Cancel, what it keeps on, its Undo */ html`<button class="scene tap" data-act="alloff" aria-label=${lit ? `All off: ${lit} light${lit === 1 ? '' : 's'} on` : 'All off'} @click=${() => this.dispatchEvent(new CustomEvent('alloff'))}>${art('bulbOff', 28, { lit })}All off</button>`}
             ${scripts.map((s) => html`<button class="scene tap ${this._went === s.entity_id ? 'go' : ''}" ?data-busy=${this._busy.includes(s.entity_id)} @click=${() => this._scene(s)}>
               ${/movie|tv/i.test(s.entity_id) ? DRAWN.tv : /bed|night/i.test(s.entity_id) ? icon('moon', 20) : icon('star', 20)}${s.attributes.friendly_name ?? s.entity_id}</button>`)}
-          </div>` : html`<span class="muted tipline">No scenes yet. Give a script the label “family_hub” in Home Assistant and it appears here as a button.</span>`}
+          </div>
+          ${scripts.length ? nothing : html`<span class="muted tipline">Give a script the label “family_hub” in Home Assistant and it appears here as a scene.</span>`}
         </section>
         <section class="glass card" style="flex:1;min-height:0" aria-label="Automations">
           <div style="display:flex;align-items:center"><span class="label" style="flex:1">Automations</span>

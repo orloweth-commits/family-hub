@@ -155,7 +155,7 @@ export interface FamilyHubConfig {
   music_hide?: string[];
   /** with a music_map, show only the speakers it names (so speakers discovered elsewhere never appear) and keep one that cannot be reached in its place, marked offline. On unless set to false. */
   music_lock?: boolean;
-  /** the extra ways of seeing the rooms offered by the Music page's view button, beside House and Scene which are always there: any of dial, desk, cables (the Crate) and list. None unless named. */
+  /** the ways of seeing the rooms offered by the Music page's view button: any of dial, desk, cables (the Crate) and list, beside House (always) and Scene. A list that names `house` or `scene` is the whole list, so `[house, desk, list]` leaves Scene out (0.38.26); one that names neither keeps Scene, as before. None of the others unless named. */
   music_views?: string[];
   /** touch sounds from the panel's own speaker (taps, ticks, keys): true (default), 'quiet' (softer) or false. The kitchen timer's alarm always sounds. Each screen can also choose in the look sheet. */
   sounds?: boolean | 'quiet';
@@ -194,9 +194,9 @@ export interface FamilyHubConfig {
   jar?: { target?: number; reward?: string; script?: string; /** end of term: this many unspent points become one marble (term.ts). Absent or 0 = off */ term_points?: number };
   /** the PIN pad puts its digits in a new order each time it opens, so the PIN cannot be learnt by watching where a finger goes (default true) */
   pin_shuffle?: boolean;
-  /** seconds "All off" waits, with a Cancel button, before the lights go out (default 3; 0 = at once) */
+  /** seconds "All off" (the first of Home's Scenes since 0.38.26) waits, with a Cancel button, before the lights go out (default 3; 0 = at once) */
   all_off_wait?: number;
-  /** lights switched by "All on" (defaults to every light) */
+  /** lights "All on" switched: unused since 0.38.26, when All on left the dock (kept so an older config still loads) */
   all_on?: string[];
   /** things "All off" leaves on (a night light, a fish tank): entity ids. A group named here keeps everything in it on. Absent: All off turns every light off. */
   keep_on?: string[];

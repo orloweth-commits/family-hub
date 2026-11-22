@@ -93,5 +93,14 @@
       "look": "^obsidian$",
       "vp": "^phone$"
     }
+  },
+  {
+    "name": "fit: Settings, Music's section icon (🎵) on the iPad and a phone, on main too (backlog 156)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^fh-settings span\\.spic$",
+      "vp": "^(ipad|phone)$",
+      "page": "pane=music"
+    }
   }
 ]
