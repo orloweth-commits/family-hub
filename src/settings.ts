@@ -13,7 +13,7 @@ import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, sy
 import { haTerm, syncTerm, termEnds, termRate } from './term';
 import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues, warmCues } from './cues';
 import { DIGEST_ID, DIGEST_TIME, digestEntity, digestOn, haDigest, sameDigest, syncDigest, timeWords } from './digest';
-import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
+import { BINS, isBin, askByChild, askFor, kidEntities, slotVar, type ColourSlot, type FamilyHubConfig, type Hass, type KidConfig, type MedConfig, type MomentConfig, type RewardConfig } from './types';
 import { getShape, inTime, sfx, SlowError, SLOW_SAY, type Chore } from './util';
 import { isPin, isTime } from './validate';
 import { ART_DEFAULTS, artListOf, deleteArt, loadArt, markArt, monthSpend, type ArtConfig, type ArtItem } from './artlib';
@@ -1159,9 +1159,12 @@ export class FhSettings extends LitElement {
         <span class="shint">A pad that was given different music on a screen’s own Music page keeps that music on that screen.</span>
       </div>
       <div class="scard" data-views><h3>Ways to see the rooms</h3>
-        <span class="shint">House and Scene are always on the Music page, and its view button swaps between them. Switch on any of these and the button offers them too.</span>
-        ${([['dial', 'Dial', 'One big knob and a tuner.'], ['desk', 'Desk', 'Faders, a jog wheel and the four moment pads.'], ['cables', 'Crate', 'Records, a turntable and cables.'], ['list', 'List', 'Plain tiles.']] as const).map(([id, name, about]) =>
-          this._row(name, about, this._sw(`${name} view`, (d.music_views ?? []).includes(id), () => this._edit((x) => { const on = new Set(x.music_views ?? []); if (on.has(id)) on.delete(id); else on.add(id); const next = ['dial', 'desk', 'cables', 'list'].filter((v) => on.has(v)); if (next.length) x.music_views = next; else delete x.music_views; }))))}
+        <span class="shint">House is always on the Music page. Switch on any of these and its view button offers them too.</span>
+        ${(() => { /* a list naming House or Scene is the whole list (Scene off: House and the others); otherwise it holds only the others and Scene is on, as it always was */
+          const sceneOn = (v: string[] | undefined): boolean => !(v ?? []).some((x) => x === 'house' || x === 'scene') || (v ?? []).includes('scene');
+          const write = (x: FamilyHubConfig, scene: boolean, on: Set<string>): void => { const next = ['dial', 'desk', 'cables', 'list'].filter((v) => on.has(v)); if (!scene) x.music_views = ['house', ...next]; else if (next.length) x.music_views = next; else delete x.music_views; };
+          return ([['scene', 'Scene', 'The theme comes alive: boats or planets, sailed to play together.'], ['dial', 'Dial', 'One big knob and a tuner.'], ['desk', 'Desk', 'Faders, a jog wheel and the four moment pads.'], ['cables', 'Crate', 'Records, a turntable and cables.'], ['list', 'List', 'Plain tiles.']] as const).map(([id, name, about]) =>
+            this._row(name, about, this._sw(`${name} view`, id === 'scene' ? sceneOn(d.music_views) : (d.music_views ?? []).includes(id), () => this._edit((x) => { const on = new Set(x.music_views ?? []), scene = sceneOn(x.music_views); if (id === 'scene') { write(x, !scene, on); return; } if (on.has(id)) on.delete(id); else on.add(id); write(x, scene, on); })))); })()}
       </div>
       <div class="scard"><h3>Timers and calls</h3>
         ${this._row('Sleep timer', 'How long the Music page’s sleep timer runs.', this._step('Sleep timer', d.music_sleep_minutes ?? 30, (v) => this._edit((x) => { x.music_sleep_minutes = v; }), { min: 5, max: 180, step: 5, unit: 'min' }))}

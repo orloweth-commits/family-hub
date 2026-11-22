@@ -703,8 +703,6 @@ const FRIDGE = `
   @F .dock .item { font-weight: 600; font-size: var(--fs-2); height: 80px; gap: 7px; border-radius: 0; }
   @F .dock .item svg.i { width: 52px; height: 52px; padding: 13px; border-radius: 50%; background: var(--magnet); color: var(--ink); stroke-width: 2; box-shadow: 0 4px 5px rgba(0,0,0,.28), inset 0 -4px 0 rgba(0,0,0,.14); }
   @F .dock .item svg.i { padding: 8px; background: var(--bt, var(--magnet)); }
-  @F .dock .item[data-nav='lights-on'] svg.i { background: #fff3c4; }
-  @F .dock .item[data-nav='lights-off'] svg.i { background: #dfe3e8; }
   @F .dock .item[data-nav='dinner'] svg.i { background: #ffe1dc; }
   @F .dock .item[aria-current='page'] { background: transparent; }
   @F .dock .item[aria-current='page'] svg.i { background: var(--ink); color: var(--paper); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5.5px var(--ink); }

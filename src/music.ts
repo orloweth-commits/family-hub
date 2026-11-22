@@ -875,7 +875,7 @@ export class FhMusic extends LitElement {
     this._gentle(id, () => { this._h.callService('media_player', 'join', { group_members: [id] }, { entity_id: src.entity_id })
       .then(() => { if (!mine) this._say(`${this._name(this.hass!.states[id])} joined the music in ${this._name(src)}`); }).catch((e: unknown) => this._oops('Couldn’t add that room', e)); });
   }
-  /** After bedtime: the same test the card uses for Ask and All on (quiet hours, or any child's bedtime has passed). */
+  /** After bedtime: the same test the card uses for Ask (quiet hours, or any child's bedtime has passed). */
   private get _late(): boolean { return afterBedtime(this.kids, this.quiet); }
   /** Music for every room at once ("Whole house", an all-rooms pad, a record dropped on the whole house): anyone may by day; after bedtime it reaches the bedrooms, so it asks a parent (when a PIN is set). */
   private _wholeHouse(run: () => void): void { if (this._late) this._guard('It is after bedtime. Whole-house music plays in the bedrooms too.', () => { this._cleared = '*'; try { run(); } finally { this._cleared = ''; } }); else run(); }
@@ -930,7 +930,8 @@ export class FhMusic extends LitElement {
 
   /* ---------------- the house ---------------- */
   /** The room views this screen offers: House and Scene, then whichever of the other four Settings has switched on. A house with no map is a list, so List is offered there too. */
-  private get _offered(): ViewId[] { const extra = new Set<string>([...(this.views ?? []), ...(this.map.length ? [] : ['list'])]); return VIEWS.map((v) => v.id).filter((id) => id === 'house' || id === 'scene' || extra.has(id)); }
+  /** House always; Scene unless `music_views` is a whole list (it names House or Scene) that leaves it out (0.38.26: the live house has House, Desk and List); the rest as listed */
+  private get _offered(): ViewId[] { const v = this.views ?? [], scene = !v.some((x) => x === 'house' || x === 'scene') || v.includes('scene'), extra = new Set<string>([...v, ...(this.map.length ? [] : ['list'])]); return VIEWS.map((x) => x.id).filter((id) => id === 'house' || (id === 'scene' ? scene : extra.has(id))); }
   private get _mode(): ViewId { return this._offered.includes(this._view as ViewId) ? this._view as ViewId : this.map.length ? 'house' : 'list'; }
   /** Change the view, with the small celebration on the view button and a cross-fade of the stage. */
   private _setView(v: ViewId): void {

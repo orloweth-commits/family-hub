@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.25';
+const VERSION = '0.38.26';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -534,6 +534,8 @@ export class FamilyHubCard extends LitElement {
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   private _artBlocked(): boolean {
+    // a school morning, from the board's start to the last child's leaving time: the morning board stays in sight (the second review's cut, item 4)
+    if (this._morningHold()) return true;
     if (this._timerLeft() !== null || this._dinner || this._off || this._alarm || this._sheet || this._pinAsk) return true;
     // someone choosing music is given longer, but only while something is actually playing
     if (this._page === 'music' && Date.now() - this._musicAt < 10 * 60_000 && Object.values(this.hass?.states ?? {}).some((x) => x.entity_id.startsWith('media_player.') && x.state === 'playing')) return true;
@@ -1020,6 +1022,15 @@ export class FamilyHubCard extends LitElement {
     if (!m || !c.kids?.length) return false;
     return isSchoolDay(d, c.school_terms, c.public_holidays) && inWindow(d, m.start ?? '06:30', m.end ?? '08:45');
   }
+  /**
+   * The school morning until the last child has left (his own leaving time, else the board's): no screensaver and no Ask, so the morning
+   * board is what the kitchen sees (0.38.26). The morning window itself (the board as the home page, Morning in the dock) runs to its end as before.
+   */
+  private _morningHold(d = new Date()): boolean {
+    if (!this._morningWindow(d)) return false;
+    const c = this._config, last = Math.max(...(c.kids ?? []).map((k) => hm(k.leave_by ?? c.morning?.leave_by ?? '08:15')));
+    return minsNow(d) < last;
+  }
   private _termLabel(d = new Date()): string {
     const s = ymd(d), terms = this._config.school_terms ?? [];
     const i = terms.findIndex(([a, b]) => s >= a && s <= b);
@@ -1287,25 +1298,8 @@ export class FamilyHubCard extends LitElement {
     const a = this._anchor;
     this._anchor = this._view === 'day' ? addDays(a, dir) : this._view === 'week' ? addDays(a, this._span * dir) : new Date(a.getFullYear(), a.getMonth() + dir, 1);
   }
-  /** One dock scene at a time: further taps wait until Home Assistant has answered. */
+  /** One light scene at a time: further taps wait until Home Assistant has answered. (All on left the dock in 0.38.26; All off is the first of Home's Scenes.) */
   private _sceneBusy = false;
-  private async _allOn(checked = false): Promise<void> {
-    if (this._sceneBusy) return;
-    // after any child's bedtime a wall of light is a parent's call
-    const c = this._config, late = afterBedtime(c.kids, c.quiet);
-    if (!checked && late && c.parent_pin) { this._pinAsk = { reason: 'It is after bedtime. Turn the lights on?', run: () => void this._allOn(true) }; return; }
-    const ids = c.all_on, S = this.hass?.states ?? {};
-    // only what this tap turns on can be undone: lights that were already on stay on
-    const off = (ids?.length ? ids : Object.keys(S).filter((id) => id.startsWith('light.'))).filter((id) => S[id] && S[id].state !== 'on' && S[id].state !== 'unavailable');
-    sfx('tap');
-    this._sceneBusy = true;
-    const ok = await this._call('light', 'turn_on', { entity_id: ids?.length ? ids : 'all' });
-    this._sceneBusy = false;
-    if (!ok) return;
-    const what = ids?.length ? 'Living areas on' : 'All lights on';
-    if (!off.length) { this._say(what); return; }
-    this._say(what, 10_000, { label: 'Undo', run: () => { void this._call('light', 'turn_off', { entity_id: off }).then((done) => { if (done) this._say('Back off'); }); } });
-  }
   /**
    * What "All off" leaves alone: everything named in `keep_on`, anything inside a group named there, and any group that has one of
    * those inside it (switching the group off would switch its kept member off with it; its other members are still switched off one by one).
@@ -1334,7 +1328,7 @@ export class FamilyHubCard extends LitElement {
     const wait = Math.max(0, Number(this._config.all_off_wait ?? 3)) * 1000;
     if (!go && wait) { if (this._off) return; sfx('tap'); this._off = { at: Date.now() + wait, timer: window.setTimeout(() => { this._off = null; void this._allOff(true); }, wait) }; return; }
     this._sceneBusy = true;
-    const ok = await this._call('light', 'turn_off', { entity_id: on }, undefined, ...(go ? [this.renderRoot.querySelector('nav [data-nav="lights-off"]')] : []));
+    const ok = await this._call('light', 'turn_off', { entity_id: on }, undefined, ...(go ? [this.renderRoot.querySelector('fh-home')?.shadowRoot?.querySelector('[data-act="alloff"]') ?? null] : []));
     this._sceneBusy = false;
     if (!ok) return;
     sfx('untick');
@@ -1444,7 +1438,7 @@ export class FamilyHubCard extends LitElement {
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
       case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .kids=${c.kids ?? []} .me=${this._homeKid} .bedrooms=${c.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
-        @say=${(e: CustomEvent<string>) => this._say(e.detail)} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
+        @say=${(e: CustomEvent<string>) => this._say(e.detail)} @alloff=${() => void this._allOff()} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .views=${c.music_views ?? []} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
       case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
@@ -1588,7 +1582,7 @@ export class FamilyHubCard extends LitElement {
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
             </button>`}` : nothing}
           ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${art('bell', 26)}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
-          ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
+          ${c.chat?.agent && !this._morningHold(this._now) && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`
             : html`<button class="glass tap round hb" data-act="more" aria-label="More: looks, ${c.meds?.length || c.med_log ? 'medicine, ' : ''}house info, night${tracked.length ? ' and who is home' : ''}" aria-haspopup="dialog" @click=${() => { this._sheet = 'more'; }}>${art('more', 26)}<span class="rl" aria-hidden="true">More</span></button>`}
         </div>
@@ -1796,15 +1790,15 @@ export class FamilyHubCard extends LitElement {
   private _dock(): TemplateResult {
     const mp = this._config.music_player, playing = !!mp && this.hass?.states[mp]?.state === 'playing';
     const live = this._artData(playing);
-    const item = (ic: string, label: string, on: () => void, current = false) =>
-      html`<button class="item tap" data-nav=${ic} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26, live)}<span class="lb" data-t=${label}>${label}</span></button>`;
+    const item = (ic: string, label: string, on: () => void, current = false, nav = ic) =>
+      html`<button class="item tap" data-nav=${nav} aria-current=${current ? 'page' : 'false'} ?data-playing=${ic === 'music' && playing} @click=${() => { sfx('nav'); on(); }}>${art(ic, 26, live)}<span class="lb" data-t=${label}>${label}</span></button>`;
     const kids = this._config.kids ?? [];
     // on a child's page the dock is his face and the way home: nothing else to look at or press
     if (this._page === 'kid' && kids[this._kid]) { const k = kids[this._kid], e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
       return html`<nav class="glass dock" data-kid aria-label="Main" @click=${this._btnJust}>
         <button class="item kidbtn tap" style="--kidc:${slotVar(k.colour)}" aria-current="page"><span class="avatar" style="width:44px;height:44px;background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 44, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span><span class="lb kn" data-t=${k.name}>${k.name}</span></button>
         <span class="sep" aria-hidden="true"></span>
-        ${item('home', 'Home', () => { this._page = this._morningWindow() ? 'morning' : 'planner'; }, false)}
+        ${item('calendar', 'Everyone', () => { this._page = this._morningWindow() ? 'morning' : 'planner'; }, false, 'home')}
       </nav>`; }
     return html`<nav class="glass dock" aria-label="Main" @click=${this._btnJust} @scroll=${(e: Event) => { const d = e.currentTarget as HTMLElement; d.toggleAttribute('data-more', d.scrollWidth - d.scrollLeft - d.clientWidth > 6); }}>
       ${kids.map((k, i) => {
@@ -1815,16 +1809,13 @@ export class FamilyHubCard extends LitElement {
           <span class="avatar" style="width:44px;height:44px;background:${slotVar(k.colour)}">${look ? renderAvatar(look, { size: 44, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : k.name[0]}</span><span class="lb kn" data-t=${k.name}>${k.name}</span></button>`;
       })}
       ${kids.length ? html`<span class="sep" aria-hidden="true"></span>` : nothing}
-      ${this._morningWindow() ? item('sun', 'Morning', () => { this._page = 'morning'; }, this._page === 'morning') : nothing}
-      ${item('calendar', 'Planner', () => { this._page = 'planner'; }, this._page === 'planner')}
+      ${this._morningWindow() ? item('sun', 'Morning', () => { this._page = 'morning'; }, this._page === 'morning') : item('calendar', 'Planner', () => { this._page = 'planner'; }, this._page === 'planner')}
       ${item('cart', 'Groceries', () => { this._page = 'groceries'; }, this._page === 'groceries')}
       ${item('pencil', 'Doodle', () => { this._page = 'doodle'; }, this._page === 'doodle')}
       ${item('music', 'Music', () => { this._page = 'music'; }, this._page === 'music')}
       ${this._config.weather && this._config.weather_page !== false ? item('cloud', 'Weather', () => { this._page = 'weather'; }, this._page === 'weather') : nothing}
       ${item('home', 'Home', () => { this._page = 'home'; }, this._page === 'home')}
       <span class="sep wide" aria-hidden="true"></span>
-      <button class="item tap" data-nav="lights-on" @click=${() => this._allOn()}>${art('bulb', 26, live)}All on</button>
-      <button class="item tap" data-nav="lights-off" @click=${() => this._allOff()}>${art('bulbOff', 26, live)}All off</button>
       ${this._config.announce_script ? html`<button class="item tap ${Date.now() < this._dinnerCooldown ? 'called' : ''}" data-nav="dinner" @click=${() => this._dinnerStart()}>${art('megaphone', 26)}${Date.now() < this._dinnerCooldown ? 'Called ✓' : 'Dinner'}</button>` : nothing}
     </nav>`;
   }

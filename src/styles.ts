@@ -399,8 +399,6 @@ export const styles = css`
   .dock .item:is([data-nav='calendar'], [data-nav='cloud']) { --bt: #d6e4ff; --bl: #1d3f8f; --bo: #a9c1ff; }
   .dock .item:is([data-nav='cart'], [data-nav='music']) { --bt: #d3efdb; --bl: #14592c; --bo: #9be3b1; }
   .dock .item[data-nav='pencil'] { --bt: #e6dbff; --bl: #4a2a99; --bo: #c9b6ff; }
-  .dock .item[data-nav='lights-on'] { --bt: #ffd75a; --bl: #3d2c00; --bo: #ffe08a; }
-  .dock .item[data-nav='lights-off'] { --bt: #3a4250; --bl: #ffffff; --bo: #e8ecf7; }
   .dock .item[data-nav='dinner'] { --bt: #c62828; --bl: #ffffff; --bo: #ff8a7a; }
   .right > .hb[data-act='ask'] { --bt: #d9f2ef; --bl: #0c5a52; --bo: #6ee7c0; }
   /* the parts of a drawing turn and grow about their own middle, unless they hang from an edge */
@@ -429,8 +427,6 @@ export const styles = css`
   .item:is([data-just], [data-arrive]) [data-ic='music'] .p-disc { animation: bTurn var(--mt-5) var(--e-out); }
   .item:is([data-just], [data-arrive]) [data-ic='weather'] .p-cloud { animation: bDrift var(--mt-4) var(--e-out); }
   .item[data-just] [data-ic='home'] .p-door { animation: bDoor var(--mt-4) var(--e-out); }
-  .item[data-just] [data-ic='allon'] .p-ray { animation: bPop var(--mt-4) var(--e-spring); }
-  .item[data-just] [data-ic='alloff'] .p-bulb { animation: bDim var(--mt-4) var(--e-out); }
   .item[data-just] [data-ic='dinner'] .p-fork { animation: bWig var(--mt-4) var(--e-out); } .item[data-just] [data-ic='dinner'] .p-knife { animation: bWig var(--mt-4) var(--e-out) reverse; }
   .item[data-just] [data-ic='dinner'] .p-ring { animation: bPop var(--mt-4) var(--e-out); }
   /* arrived (data-arrive): the place whose page has just opened */
