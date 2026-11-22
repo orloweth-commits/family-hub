@@ -269,18 +269,21 @@ const heap = (page, mb) => R(page, (mb) => { window.__heap = mb * 1e6; if (!wind
   await page.context().close(); }
 
 // 14b. the screensaver's layer moves (its fade-in is not held by the hub's idle pause), whether it came back after a reload or came up by itself
-const artMoves = (page) => R(page, () => { const r = document.querySelector('family-hub-card').shadowRoot, a = r.querySelector('.artm'); return { idle: r.querySelector('.fh').classList.contains('idle'), art: !!a, states: a ? a.getAnimations().map((x) => x.playState) : [] }; });
+const artMoves = (page) => R(page, () => { const r = document.querySelector('family-hub-card').shadowRoot, a = r.querySelector('.artm'); return { idle: r.querySelector('.fh').classList.contains('idle'), art: !!a, states: a ? a.getAnimations().map((x) => x.playState) : [], shown: a ? Number(getComputedStyle(a).opacity) : 0 }; });
+// moving, or already through its fade-in: the 2.5 s fade runs in real time, and on a busy machine the fake clock's steps took longer than that, so
+// the fade had finished (no animation left to read) by the time it was looked at ("beside another suite", 20 Nov). Held is a paused animation
+const moving = (m) => m.art && m.states.every((x) => x !== 'paused') && (m.states.length > 0 || m.shown >= 0.99);
 { const page = await open('page=planner&art=1&artn=3', { init: `sessionStorage.setItem('fh-resume', '${JSON.stringify({ at: T0(), on: true, night: false, manual: false })}')` });
   await run(page, 30_000, 15_000);
   const m = await artMoves(page);
-  ok('back after a reload, the screensaver is drawn and moving once the hub goes idle', m.idle && m.art && m.states.length > 0 && m.states.every((x) => x !== 'paused'), m);
+  ok('back after a reload, the screensaver is drawn and moving once the hub goes idle', m.idle && moving(m), m);
   await page.context().close(); }
 { const page = await open('page=planner&art=1&artn=3');
   await run(page, 2 * 60_000, 15_000);
   ok('the hub is idle a minute after the last touch', (await artMoves(page)).idle);
   await run(page, 75_000, 15_000);
   const m = await artMoves(page);
-  ok('the screensaver coming up by itself on an idle hub is moving, not held on its first frame', m.art && m.states.length > 0 && m.states.every((x) => x !== 'paused'), m);
+  ok('the screensaver coming up by itself on an idle hub is moving, not held on its first frame', moving(m), m);
   await page.context().close(); }
 
 // 15. a reload written by the page that came back, once

@@ -12,10 +12,13 @@ const errs = [];
 // since 0.33.0 (Phase 4): a child's page has only his face and Home in the dock, and Looks, Medicine, House info, Night and who-is-home are in the More sheet
 const HOME = async (p) => { if (await p.locator('family-hub-card nav.dock[data-kid]').count()) { await p.locator('family-hub-card nav.dock [data-nav="home"]').click(); await p.waitForTimeout(400); } };
 const MORE = async (p) => { await p.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'more'; }); await p.waitForTimeout(400); };
-const open = async (qs, time = '16:20') => { const page = await ctx.newPage(); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
+// `init`: a script run before the page's own (since R1.2 a read that fails shows what this browser kept, so "never read here" starts the page with its kept copies forgotten: backlog 131)
+const open = async (qs, time = '16:20', init) => { const page = await ctx.newPage(); if (init) await page.addInitScript(init); page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/404/.test(m.text())) errs.push(m.text()); });
   page.on('requestfailed', (r) => errs.push('failed ' + r.url())); page.on('response', (r) => { if (r.status() === 404 && !/favicon/.test(r.url())) errs.push('404 ' + r.url()); });
   await page.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await page.goto('http://localhost:' + PORT + '/?' + qs); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(700); return page; };
 const shot = (page, n) => page.screenshot({ path: path.join(PREV, 'shots', n + '.png') });
+// a printed value checked against its expectation says ok or FAIL, so the check reads it (an unmet "expect" printed no FAIL until 22 Nov: backlog 151)
+const ok = (b) => (b ? 'ok' : 'FAIL');
 
 // 1. fonts load from beside the card, nothing from a font service
 let page = await open('look=fridge');
@@ -27,7 +30,7 @@ await page.close();
 
 // 2. days off: not a button on the child's page any more; it lives in the child's settings (behind the PIN), then one big button per day
 page = await open('look=glass&page=kid&kid=0');
-console.log('good days is a button (expect 0):', await page.getByRole('button', { name: /Good days/ }).count(), '| empty day slots (expect 0):', await page.locator('fh-kid .dots i:not(.g)').count());
+{ const a = await page.getByRole('button', { name: /Good days/ }).count(), b = await page.locator('fh-kid .dots i:not(.g)').count(); console.log('good days is a button (expect 0):', a, '| empty day slots (expect 0):', b, ok(a === 0 && b === 0)); }
 await page.getByRole('button', { name: 'Riley’s settings' }).click(); await page.waitForTimeout(300);
 for (const d of '1234') await page.getByRole('button', { name: d, exact: true }).click();
 await page.waitForTimeout(400);
@@ -214,7 +217,7 @@ for (const d of '1234') await page.getByRole('button', { name: d, exact: true })
 console.log('chat at 20:30: sheet after the PIN:', await page.locator('fh-chat').count());
 await page.close();
 page = await open('look=glass&page=kid&kid=2');
-console.log('chat on a picture-mode child’s page: buttons (expect 2: the header’s and the big Ask in reach):', await page.getByRole('button', { name: 'Ask a question' }).count());
+{ const n = await page.getByRole('button', { name: 'Ask a question' }).count(); console.log('chat on a picture-mode child’s page: buttons (expect 2: the header’s and the big Ask in reach):', n, ok(n === 2)); }
 await page.close();
 page = await open('look=glass&chat=off');
 console.log('chat=off: Ask button:', await page.getByRole('button', { name: 'Ask a question' }).count(), '| old microphone button:', await page.locator('family-hub-card [data-act="assist"]').count());
@@ -234,10 +237,13 @@ await page.evaluate(() => { const c = document.querySelector('family-hub-card'),
 await page.setViewportSize({ width: 1280, height: 800 }); await page.close();
 
 // 14. planner: a failed load is not an empty week; empty week and empty day say so; Try again loads
+// (since R1.2 a read that fails keeps the week this browser last read; a week never read here says it cannot reach the calendars)
 page = await open('look=glass');
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'); window.__api = c.hass.callApi; c.hass.callApi = async () => { throw new Error('offline'); }; c._fetchedKey = ''; c._refresh(); }); await page.waitForTimeout(400);
+{ const n = await page.locator('family-hub-card .week .ev').count(), f = await page.locator('family-hub-card .calfail').count(); console.log('calendars failed after a good read: the week kept', n > 0 && f === 0 ? 'ok' : 'FAIL', `(events ${n}, error ${f})`); }
+await page.close(); page = await open('look=glass', '16:20', () => { for (const k of Object.keys(localStorage)) if (k.startsWith('fh-kept-cal:')) localStorage.removeItem(k); window.__calFail = 'all'; });
 console.log('calendars failed:', (await page.locator('family-hub-card .calfail').innerText()).replace(/\s+/g, ' '), '| empty state shown:', await page.locator('family-hub-card .quiet, family-hub-card .freeday').count());
-await page.evaluate(() => { document.querySelector('family-hub-card').hass.callApi = window.__api; }); await page.getByRole('button', { name: 'Try again' }).click(); await page.waitForTimeout(400);
+await page.evaluate(() => { window.__calFail = []; }); await page.getByRole('button', { name: 'Try again' }).click(); await page.waitForTimeout(400);
 console.log('after Try again: events', await page.locator('family-hub-card .week .ev').count(), '| error left:', await page.locator('family-hub-card .calfail').count());
 await page.close(); page = await open('look=glass&events=none');
 console.log('empty week:', (await page.locator('family-hub-card .quiet').innerText()).replace(/\s+/g, ' '));
@@ -253,6 +259,8 @@ console.log('reminders shown:', await rail('.rem').count(), '| jar is its own ca
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c._reminders = Array.from({ length: 8 }, (_, i) => ({ uid: 'x' + i, summary: 'Reminder ' + (i + 1) })); }); await page.waitForTimeout(400);
 console.log('eight reminders:', await rail('.rem').count(), 'shown,', await rail('.remmore').innerText(), '| cut off:', await rail('.remlist').evaluate((e) => e.scrollHeight > e.clientHeight + 1));
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c.hass.callWS = async () => { throw new Error('offline'); }; return c._loadReminders(); }); await page.waitForTimeout(300);
+{ const n = await rail('.rem:not(.dinline)').count(), f = await rail('.remfail').count(); console.log('reminders failed after a good read: the list kept', n > 0 && f === 0 ? 'ok' : 'FAIL', `(rows ${n}, error ${f})`); }
+await page.close(); page = await open('look=glass', '16:20', () => { for (const k of Object.keys(localStorage)) if (k.startsWith('fh-kept-rem:')) localStorage.removeItem(k); window.__listFail = ['todo.reminders']; });
 console.log('reminders failed:', (await rail('.remfail').innerText()).replace(/\s+/g, ' '), '| says All done:', await rail('.rems').getByText('All done').count());
 await page.evaluate(() => { const c = document.querySelector('family-hub-card'), S = { ...c.hass.states }; delete S['todo.reminders']; c.hass = { ...c.hass, states: S }; return c._loadReminders(); }); await page.waitForTimeout(300);
 console.log('reminders list missing:', (await rail('.remfail').innerText()).replace(/\s+/g, ' '));
@@ -368,7 +376,7 @@ console.log('clear button:', (await clear.innerText()).trim(), Math.round(cb.hei
 await clear.click(); await page.waitForTimeout(300);
 console.log('after clear: ticked rows', await gDone(), '| toast:', await toastOf(page, 'fh-groceries'), '| removed in Home Assistant yet:', /remove_/.test(await calls(page)));
 await page.getByRole('button', { name: 'Undo' }).click(); await page.waitForTimeout(300);
-console.log('after undo: ticked rows', await gDone(), '(expect 2) | removed:', /remove_/.test(await calls(page)));
+{ const n = await gDone(), rm = /remove_/.test(await calls(page)); console.log('after undo: ticked rows', n, '(expect 2) | removed:', rm, ok(n === 2 && !rm)); }
 await page.getByRole('button', { name: /Clear ticked/ }).click(); await page.waitForTimeout(6600);
 console.log('clear left alone: ticked rows', await gDone(), '| call:', (await calls(page)).split('\n').filter((c) => /remove_/.test(c)).join(' ; ').slice(0, 120));
 await page.getByRole('button', { name: 'Add', exact: true }).click(); await page.waitForTimeout(200);
@@ -383,6 +391,8 @@ const after = await page.evaluate(() => { const r = document.querySelector('fami
 console.log('ticked row keeps its place at first:', before, '| in the trolley after 4 s:', after);
 await page.close();
 page = await open('look=glass&page=groceries&listfail=1');
+{ const n = await page.locator('fh-groceries button.item').count(), f = await page.locator('fh-groceries .retry').count(); console.log('list not reachable after a good read: the list kept', n > 0 && f === 0 ? 'ok' : 'FAIL', `(rows ${n}, Try again ${f})`); }
+await page.close(); page = await open('look=glass&page=groceries&listfail=1', '16:20', () => { for (const k of Object.keys(localStorage)) if (k.startsWith('fh-kept-list:')) localStorage.removeItem(k); });
 console.log('list not reachable:', (await page.locator('fh-groceries .list').innerText()).replace(/\s+/g, ' ').slice(0, 80));
 await page.evaluate(() => { window.__listOk = true; }); await page.getByRole('button', { name: 'Try again' }).click(); await page.waitForTimeout(400);
 console.log('after Try again: rows', await page.locator('fh-groceries button.item').count());
@@ -455,7 +465,7 @@ await page.close();
   const rd = await p.getByRole('button', { name: 'Read my jobs' }).boundingBox(), tabs = await p.locator('fh-kid .tabcard').boundingBox(), feel = await p.locator('fh-kid section[aria-label="How are you feeling"]').boundingBox();
   console.log('Max on the wall: reader', Math.round(rd.width) + ' px, centre y', Math.round(rd.y + rd.height / 2), '(> 540) | feelings card under the stars panel, in the lower half:', feel.y > tabs.y && feel.y > 540, '| reward pictures:', (await p.locator('fh-kid .rw .rpic').allInnerTexts()).join(' '), '| reward stars drawn:', await p.locator('fh-kid .rw .sstar').count());
   await p.getByRole('button', { name: /My look/ }).click(); await p.waitForTimeout(300);
-  console.log('My look with a job left: studio open', await p.locator('fh-studio').count(), '| toast (expect none):', JSON.stringify(await toastOf(p, 'fh-kid')), '| button reads:', (await p.locator('fh-kid .studio').innerText()).trim(), '| padlock:', await p.locator('fh-kid .studio[data-locked] svg').count());
+  console.log('My look with a job left: studio open', await p.locator('fh-studio').count(), '| toast (expect none):', JSON.stringify(await toastOf(p, 'fh-kid')), ok(!(await toastOf(p, 'fh-kid'))), '| button reads:', (await p.locator('fh-kid .studio').innerText()).trim(), '| padlock:', await p.locator('fh-kid .studio[data-locked] svg').count());
   await p.locator('fh-kid .pic.big').click(); await p.waitForTimeout(1200);
   const see = p.getByRole('button', { name: 'See what I did' }), sb2 = await see.boundingBox(), tb = await p.locator('fh-kid .toast').boundingBox().catch(() => null);
   console.log('Max all done: picture', await p.locator('fh-kid .party svg').count() > 0, '| button', Math.round(sb2.height) + ' px high | toast over the button:', !!tb && tb.y < sb2.y + sb2.height && tb.y + tb.height > sb2.y && tb.x < sb2.x + sb2.width && tb.x + tb.width > sb2.x);
@@ -482,7 +492,8 @@ await page.close();
     for (const nav of ['Groceries', 'Music', 'Home', 'Planner', 'Riley']) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim().endsWith(n)).click(), nav); await p.waitForTimeout(40); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`); await p.waitForTimeout(700); }
     console.log(`animations per navigation (${look}; expect the page’s two, plus since 0.32.1 the one movement of the dock button whose page opened: Music’s has two parts):`, out.join(' | '), '| page wrapper at rest: transform', await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform)); await p.close(); }
   // exits: a sheet, the PIN pad, a toast and the night screen fade out before they go
-  { const p = await open('look=glass&page=planner&sheet=timer'); await p.evaluate(deep); const at = async (sel, ms) => { await p.waitForTimeout(ms); return p.locator(sel).count(); };
+  // (timer=0: a running kitchen timer holds the screensaver back, so with the preview's sample timer "Night" was woken at once: NIGHT-WAKE, backlog 136)
+  { const p = await open('look=glass&page=planner&sheet=timer&timer=0'); await p.evaluate(deep); const at = async (sel, ms) => { await p.waitForTimeout(ms); return p.locator(sel).count(); };
     // timed inside the page, so the test's own round trips do not blur the 80 ms and 300 ms marks
     const timed = (act, sel) => p.evaluate(([act, sel]) => new Promise((done) => { const n = () => deepAll(sel).length, t0 = performance.now(); (0, eval)(act); const r = {};
       setTimeout(() => { r.at80 = n(); r.closing = deepAll(sel).filter((e) => e.hasAttribute('data-closing')).length; }, 80); setTimeout(() => { r.at300 = n(); r.ms = Math.round(performance.now() - t0); done(r); }, 300); }), [act, sel]);
@@ -534,15 +545,15 @@ await page.close();
   const label = await chip.getAttribute('aria-label').catch(() => 'MISSING'), h = (await chip.boundingBox().catch(() => null))?.height;
   await HOME(p); await p.getByRole('button', { name: 'Groceries' }).click(); await p.waitForTimeout(400); const kept = await chip.count();
   await chip.click(); await p.waitForTimeout(300);
-  console.log('chat chip: on his own page', onKid, '| on a brother’s page', onOther, '(expect 0 0) | on the planner:', label, '| height', Math.round(h ?? 0), '| still there on Groceries', kept, '| after a tap', await chip.count());
+  console.log('chat chip: on his own page', onKid, '| on a brother’s page', onOther, '(expect 0 0)', ok(onKid === 0 && onOther === 0), '| on the planner:', label, '| height', Math.round(h ?? 0), '| still there on Groceries', kept, '| after a tap', await chip.count());
   await p.close();
   // the studio: the goal heart is a button of its own (not inside the tile), and the tabs say which is chosen
   const s = await open('look=glass&page=kid&kid=1&studio=1'); const heart = s.locator('fh-studio button.heart').first(), hb = await heart.boundingBox();
   const nested = await s.locator('fh-studio .tile .heart').count(), name0 = await heart.getAttribute('aria-label'); await heart.focus(); await s.keyboard.press('Enter'); await s.waitForTimeout(300);
-  console.log('studio heart: a button', await s.locator('fh-studio button.heart').count() > 0, '| inside a tile', nested, '(expect 0) | size', Math.round(hb.width) + 'x' + Math.round(hb.height), '| name:', name0, '→', await heart.getAttribute('aria-label'), '| pressed', await heart.getAttribute('aria-pressed'),
+  console.log('studio heart: a button', await s.locator('fh-studio button.heart').count() > 0, '| inside a tile', nested, '(expect 0)', ok(nested === 0), '| size', Math.round(hb.width) + 'x' + Math.round(hb.height), '| name:', name0, '→', await heart.getAttribute('aria-label'), '| pressed', await heart.getAttribute('aria-pressed'),
     '| tabs selected:', await s.locator('fh-studio [role=tab][aria-selected="true"]').count(), 'of', await s.locator('fh-studio [role=tab]').count(), '| swatch', await s.locator('fh-studio .sw button').first().evaluate((e) => e.offsetWidth + 'x' + e.offsetHeight).catch(() => 'none on this tab'));
   await s.close();
-  const k = await open('look=glass&page=kid&kid=2'); console.log('My look icons (expect 1 drawn, no emoji):', await k.locator('fh-kid .studio svg').count(), '|', (await k.locator('fh-kid .studio').innerText()).trim()); await k.close(); }
+  const k = await open('look=glass&page=kid&kid=2'); { const n = await k.locator('fh-kid .studio svg').count(), t = (await k.locator('fh-kid .studio').innerText()).trim(); console.log('My look icons (expect 1 drawn, no emoji):', n, '|', t, ok(n === 1 && !/\p{Extended_Pictographic}/u.test(t))); } await k.close(); }
 // ---- the timer's digits roll and its ring sweeps when time is added; a ticked grocery row travels to the trolley (polish round 2) ----
 { const lib = `window.deepAll = (sel) => { const out = []; const walk = (r) => { r.querySelectorAll('*').forEach((e) => { if (e.matches(sel)) out.push(e); if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return out; };`;
   let p = await open('look=glass&page=planner'); await p.evaluate(lib);
@@ -559,7 +570,7 @@ await page.close();
 page = await open('look=glass&page=kid&kid=0');
 await page.getByRole('button', { name: /Extra screen time/ }).click(); await page.waitForTimeout(250);
 { const yes = page.locator('fh-kid').getByRole('button', { name: 'Yes' }); await yes.evaluate((b) => { b.click(); b.click(); b.click(); }); await page.waitForTimeout(600);
-  console.log('reward tapped three times: spends', await page.evaluate(() => (window.__calls || []).filter((c) => c.includes('fh_add_points') && c.includes('-50')).length), '(expect 1)'); }
+  { const n = await page.evaluate(() => (window.__calls || []).filter((c) => c.includes('fh_add_points') && c.includes('-50')).length); console.log('reward tapped three times: spends', n, '(expect 1)', ok(n === 1)); } }
 console.log('medicine with no time:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); try { c.setConfig({ ...c._config, meds: [{ id: 'x', who: 'Riley', label: 'x' }] }); return 'ACCEPTED'; } catch (e) { return String(e.message); } }));
 console.log('odd calendar row:', await page.evaluate(async () => { const c = document.querySelector('family-hub-card'), real = c.hass.callApi; c.hass.callApi = async (m, p, b) => { const r = await real(m, p, b); return /calendars\/calendar.family/.test(p) ? [{ summary: 'No end', start: { dateTime: new Date().toISOString() } }, { summary: 'No start' }, ...r] : r; }; const a = new Date(); a.setHours(0, 0, 0, 0); const ev = await c._loadEvents(a, new Date(a.getTime() + 7 * 864e5)); c.hass.callApi = real; return ev.filter((e) => e.who === 'Family').map((e) => e.title).join(', '); }));
 await page.close();
@@ -691,7 +702,7 @@ page = await open('look=glass&page=music&mview=dial');
 { const M = page.locator('fh-music'), wh = M.locator('.wholeb');
   console.log('R11 tab words beside the icons at 1280x800 (Dial; while the hint shows they give way to it):', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')), '| row overflows:', await M.locator('.mhead').evaluate((h) => h.scrollWidth > h.clientWidth + 1));
   // R4-5: while the hint shows it is never cut (the tab words give way first); the words come back when it goes
-  console.log('R4-5 hint cut while showing (expect false):', await M.locator('.hint[data-on]').evaluateAll((els) => els.some((h) => h.scrollHeight > h.clientHeight + 1)));
+  { const cut = await M.locator('.hint[data-on]').evaluateAll((els) => els.some((h) => h.scrollHeight > h.clientHeight + 1)); console.log('R4-5 hint cut while showing (expect false):', cut, ok(!cut)); }
   await page.waitForTimeout(4600);
   console.log('R4-5 tab words once the hint has gone:', await M.locator('.tabs.inline[data-words] button span').evaluateAll((els) => els.filter((e) => e.offsetWidth > 0).map((e) => e.textContent).join(', ')));
   const before = await wh.getAttribute('aria-pressed'); await wh.click(); await page.waitForTimeout(900);
@@ -732,7 +743,6 @@ await page.close();
 // ---- round 4 ----
 const openAt = async (w, h, qs, time = '16:20') => { const c = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); p.on('pageerror', (e) => errs.push(String(e)));
   await p.clock.install({ time: new Date(`2026-11-10T${time}:00+08:00`) }); await p.goto('http://localhost:' + PORT + '/?' + qs); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900); return p; };
-const ok = (b) => (b ? 'ok' : 'FAIL');
 // R4-1. the card is never scaled below 1: tablets reflow instead (and the dock stays on the screen)
 for (const [w, h] of [[1024, 768], [1180, 820], [800, 600], [768, 1024], [820, 1180]]) for (const look of ['glass', 'fridge', 'orbit']) {
   const p = await openAt(w, h, `look=${look}&page=planner`);
@@ -803,7 +813,7 @@ for (const [w, h] of [[1024, 768], [1180, 820], [800, 600], [768, 1024], [820, 1
     return { fam: [...r.querySelectorAll('.fam .fev')].map(tx), cols: [...r.querySelectorAll('.kcol')].map((k) => [...k.querySelectorAll('.mev2')].map(tx).join(' ; ')), tiles: tiles.length, tileMin: Math.round(Math.min(...tiles.map((b) => Math.min(b.width, b.height))) / z), tileTop: Math.round(Math.min(...tiles.map((b) => b.top))), bars: bars.length, clocks, kids: r.querySelectorAll('.kcol').length, gotx: [...r.querySelectorAll('.kcol .lchip')].map(tx), half: innerHeight / 2, progress: r.querySelectorAll('.kcol .stars, .kcol .teambar, .kcol [role="progressbar"]').length }; });
   console.log('R4-3 morning board family strip:', mb.fam.join(' ; '), ok(mb.fam.some((x) => /^until 6:00 am ?Road works/.test(x))), '| Riley:', mb.cols[0], ok(/continues ?Camp/.test(mb.cols[0])));
   console.log('R4-4a family events once across the top, not in the columns:', ok(mb.fam.some((x) => /Bins out/.test(x)) && !mb.cols.some((c) => /Bins out|Road works/.test(c))), '| picture tiles:', mb.tiles, 'smallest', mb.tileMin, 'px (expect >= 72)', ok(mb.tiles > 0 && mb.tileMin >= 72), '| tiles in the lower half: top', mb.tileTop, '>', mb.half, ok(mb.tileTop > mb.half),
-    '| D4 one clock for the family, none in a column:', mb.clocks, 'clock,', mb.bars, 'bars in columns,', mb.gotx.join(' ; '), ok(mb.clocks === 1 && mb.bars === 0 && mb.gotx.length === mb.kids - 1 && mb.gotx.every((x) => /^You leave 20 minutes later ?7:50 am/.test(x) && !/%/.test(x))), '| per-child job progress (expect 0):', mb.progress);
+    '| D4 one clock for the family, none in a column:', mb.clocks, 'clock,', mb.bars, 'bars in columns,', mb.gotx.join(' ; '), ok(mb.clocks === 1 && mb.bars === 0 && mb.gotx.length === mb.kids - 1 && mb.gotx.every((x) => /^You leave 20 minutes later ?7:50 am/.test(x) && !/%/.test(x))), '| per-child job progress (expect 0):', mb.progress, ok(!mb.progress));
   await m.context().close();
   // on the wall the header has room for the "next up" chip: it is a button that opens its event
   const w = await openAt(1920, 1080, 'look=glass&page=planner'); const chip2 = w.locator('family-hub-card header button.cap[data-kind="next"]');
@@ -842,11 +852,11 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
   console.log('R4-5 House shelf labels:', JSON.stringify(sh), ok(sh.n > 0 && sh.fs >= 14 && !sh.cutBelow));
   // the dock scenes: two taps in the same instant make one call
   await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock [data-nav="lights-off"]'); b.click(); b.click(); }); await p.waitForTimeout(600);
-  console.log('R4-5 "All off" tapped twice at once: calls', await p.evaluate(() => window.__calls.filter((x) => /^light\.turn_off/.test(x)).length), '(expect 1)');
+  { const n = await p.evaluate(() => window.__calls.filter((x) => /^light\.turn_off/.test(x)).length); console.log('R4-5 "All off" tapped twice at once: calls', n, '(expect 1)', ok(n === 1)); }
   await p.keyboard.press('Escape'); await p.context().close();
   const d = await openAt(1280, 800, 'look=glass&page=music&mview=dial'); await d.waitForTimeout(600);
   await d.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.wholeb'); b.click(); b.click(); b.click(); }); await d.waitForTimeout(900);
-  console.log('R4-5 "Whole house" tapped three times at once: join calls', await d.evaluate(() => window.__calls.filter((x) => /^media_player\.join/.test(x)).length), '(expect 1)');
+  { const n = await d.evaluate(() => window.__calls.filter((x) => /^media_player\.join/.test(x)).length); console.log('R4-5 "Whole house" tapped three times at once: join calls', n, '(expect 1)', ok(n === 1)); }
   await d.context().close(); }
 { const p = await openAt(390, 844, 'look=fridge&page=planner&sheet=sitter');
   const rows = await p.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.sheet a.irow')].map((e) => Math.round(e.getBoundingClientRect().height)));
@@ -954,7 +964,7 @@ for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newCo
     console.log('R5-15 room for a reminder’s focus ring inside the clip (px each side, need 6):', JSON.stringify(r), ok(r.left >= 6 && r.right >= 6));
     const dock = await p.evaluate(`(() => { const out = {}; for (const b of ${SR}.querySelectorAll('nav.dock .item')) { const rg = document.createRange(); const tn = [...b.childNodes].reverse().find((n) => n.textContent.trim()); rg.selectNodeContents(tn); out[b.textContent.trim()] = Math.round(rg.getBoundingClientRect().bottom); } return out; })()`);
     console.log('R5-16 dock labels on one line (bottoms):', JSON.stringify(dock), ok(Math.max(...Object.values(dock)) - Math.min(...Object.values(dock)) <= 1), '| Dinner shown with an announce script:', ok('Dinner' in dock)); await p.context().close(); }
-  { const p = await openAt(1280, 800, 'look=glass&page=planner&dinner=0'); console.log('R5-17 no announce script: Dinner in the dock (expect 0):', await p.evaluate(`${SR}.querySelectorAll('nav.dock [data-nav="dinner"]').length`)); await p.context().close(); }
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&dinner=0'); { const n = await p.evaluate(`${SR}.querySelectorAll('nav.dock [data-nav="dinner"]').length`); console.log('R5-17 no announce script: Dinner in the dock (expect 0):', n, ok(n === 0)); } await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=sitter'); const w = await p.evaluate(`[...${SR}.querySelectorAll('.sheet .irow')].map((x) => x.textContent.trim()).filter((t) => /^(Network|Password)/.test(t)).map((t) => t.slice(0, 8))`); console.log('R5-17 House info Wi-Fi rows:', JSON.stringify(w), ok(w.length === 2 && /^Network/.test(w[0]) && /^Password/.test(w[1]))); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=planner&empty=1'); const t = await p.evaluate(`${SR}.querySelector('.rems')?.textContent.replace(/\\s+/g, ' ').trim() ?? ''`); console.log('R5-17 empty reminders:', JSON.stringify(t.slice(0, 60)), ok(/Nothing to remember/.test(t) || !/All done/.test(t))); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=weather'); const r = await p.evaluate(() => { const w = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot; return { winds: [...w.querySelectorAll('.hchart .wind')].map((t) => t.textContent.trim()).filter(Boolean).slice(0, 4), key: w.querySelector('.hkey')?.textContent.trim() }; }); console.log('R5-16 hourly wind labels:', JSON.stringify(r), ok(r.winds.every((t) => /^\d+$/.test(t)) && /km\/h/.test(r.key ?? ''))); await p.context().close(); }
@@ -1032,7 +1042,7 @@ for (const [look, pg, w, h] of [['sports', 'kid&kid=2', 1280, 800], ['glass', 'k
     return { keys: keys.length, covered, thread: Math.round(sr.querySelector('.thread').getBoundingClientRect().height) }; });
   for (const c of 'dogs ok') { const pt = await page.evaluate((c) => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot, k = [...sr.querySelectorAll('.key')].find((k) => c === ' ' ? k.classList.contains('space') : k.textContent.trim().toLowerCase() === c), r = k.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, c); await page.mouse.click(pt[0], pt[1]); await page.waitForTimeout(60); }
   const typed = await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.field').value);
-  console.log(`R6-H2 ${look} ${pg} ${w}x${h}: keys covered (expect 0 of 44):`, kb.covered, 'of', kb.keys, '| typed by tapping:', JSON.stringify(typed), typed.toLowerCase() === 'dogs ok', '| conversation at least 80 px high:', kb.thread >= 80, kb.thread);
+  console.log(`R6-H2 ${look} ${pg} ${w}x${h}: keys covered (expect 0 of 44):`, kb.covered, 'of', kb.keys, ok(kb.covered === 0), '| typed by tapping:', JSON.stringify(typed), ok(typed.toLowerCase() === 'dogs ok'), '| conversation at least 80 px high:', kb.thread, ok(kb.thread >= 80));
   await page.locator('fh-chat').getByRole('button', { name: 'Keyboard' }).click(); await page.waitForTimeout(300);
   console.log('   keys closed: the pictures are back:', await page.evaluate(() => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-chat').shadowRoot.querySelector('.starters'); return getComputedStyle(st).display !== 'none' && st.getBoundingClientRect().height > 60; }));
   await page.close(); }
@@ -1049,13 +1059,13 @@ for (const look of ['sports', 'fridge', 'orbit', 'glass']) for (const time of ['
   await page.close(); }
 // R6-H4. the youngest on the wall panel (1920x1080) reaches the lower half only: his studio's way back, colours and kinds of thing, and the jukebox's coins and "adds a song", are all below the middle
 page = await open('look=sports&page=kid&kid=2&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
-console.log('R6-H4 studio tops (expect all >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { back: y('[aria-label^="Back"]'), surprise: y('[aria-label="Surprise look"]'), kinds: y('.tabs'), colours: y('.sw'), done: y('.sfoot') }; })));
+{ const t = await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { back: y('[aria-label^="Back"]'), surprise: y('[aria-label="Surprise look"]'), kinds: y('.tabs'), colours: y('.sw'), done: y('.sfoot') }; }); console.log('R6-H4 studio tops (expect all >= 540):', JSON.stringify(t), ok(Object.values(t).every((y) => y >= 540))); }
 await page.close();
 page = await open('look=sports&page=kid&kid=0&studio=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
 console.log('   an older child’s studio keeps its tabs and Back at the top:', await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('fh-studio').shadowRoot, y = (q) => sr.querySelector(q).getBoundingClientRect().top; return y('.tabs') < 300 && y('[aria-label^="Back"]') < 300; }));
 await page.close();
 page = await open('look=sports&page=music&mtab=juke&juke=1'); await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(700);
-console.log('R6-H4 jukebox tops (expect both >= 540):', JSON.stringify(await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { coins: y('.coin'), adds: y('.acts .primary') }; })));
+{ const t = await page.evaluate(() => { const sr = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot, y = (q) => Math.round(sr.querySelector(q).getBoundingClientRect().top); return { coins: y('.coin'), adds: y('.acts .primary') }; }); console.log('R6-H4 jukebox tops (expect both >= 540):', JSON.stringify(t), ok(Object.values(t).every((y) => y >= 540))); }
 await page.close();
 // R6-H6. five quick ticks on a slow connection (each answer takes 3 s): the count of done jobs never goes back, and every tick is kept
 for (const kid of [0, 1]) { page = await open(`look=sports&page=kid&kid=${kid}&slow=3000`);
@@ -1072,11 +1082,13 @@ for (const look of ['sports', 'fridge', 'orbit']) { page = await open(`look=${lo
   await page.close(); }
 // R6-H9. Home Ground at 1024x768: a seven-letter name stays on one line in the page title
 page = await open('look=sports&page=kid&kid=1'); await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(600);
-console.log('R6-H9 lines in the name (expect 1):', await page.evaluate(() => { const n = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.name'), g = document.createRange(); g.selectNodeContents(n); return new Set([...g.getClientRects()].map((r) => Math.round(r.top))).size; }));
-// R6-H10/H11. the same screen's rail: the small player's second line is not cut, and "+10 min" keeps clear of its pill's edge
+{ const n = await page.evaluate(() => { const n = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.name'), g = document.createRange(); g.selectNodeContents(n); return new Set([...g.getClientRects()].map((r) => Math.round(r.top))).size; }); console.log('R6-H9 lines in the name (expect 1):', n, ok(n === 1)); }
+// R6-H10/H11. the same screen's rail: the small player's second line is not cut without an ellipsis, and "+10 min" keeps clear of its pill's edge
+// (the artist and room line is clamped to one line by design and ends in "…" when long: backlog 151, decided 22 Nov to accept it)
 await HOME(page); await page.getByRole('button', { name: 'Planner', exact: true }).click(); await page.waitForTimeout(700);
-console.log('R6-H10 small player lines cut (expect 0):', await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1).length),
-  '| R6-H11 least room beside a quick pill’s words (expect >= 6):', await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); })))));
+{ const cut = await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => { const c = getComputedStyle(s), ell = c.textOverflow === 'ellipsis' || (c.webkitLineClamp && c.webkitLineClamp !== 'none'); return (s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1) && !ell; }).length);
+  const room = await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); }))));
+  console.log('R6-H10 small player lines cut without an ellipsis (expect 0):', cut, ok(cut === 0), '| R6-H11 least room beside a quick pill’s words (expect >= 6):', room, ok(room >= 6)); }
 await page.close();
 // ---------- round 7 ----------
 const sr = (sel) => `document.querySelector('family-hub-card').shadowRoot.querySelector('${sel}').shadowRoot`;

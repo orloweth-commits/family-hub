@@ -112,7 +112,7 @@ if (arg('list')) process.exit(0);
 
 /* ---------------- run ---------------- */
 fs.mkdirSync(LOGS, { recursive: true });
-const known = JSON.parse(fs.readFileSync(path.join(T, 'known.json'), 'utf8')).map((k) => ({ ...k, re: new RegExp(k.match) }));
+const known = JSON.parse(fs.readFileSync(path.join(T, 'known.json'), 'utf8')).filter((k) => k.match).map((k) => ({ ...k, re: new RegExp(k.match) })); // (entries with "fit" are the fit check's own: clearance.mjs reads them)
 const envBase = { ...process.env, PLAYWRIGHT: process.env.PLAYWRIGHT || '/opt/node-tools/node_modules/playwright-core/index.mjs', CHROME: process.env.CHROME || (fs.existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : '') };
 let port = 4900;
 const run = (p) => new Promise((done) => { const t0 = Date.now(); let out = '';

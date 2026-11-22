@@ -15,11 +15,6 @@
     "match": "empty grocery list is an empty basket"
   },
   {
-    "name": "click-base NIGHT-WAKE: Night does not start the screensaver in this test (the sample kitchen timer holds it back; line edited in 0.33.5, first run 15 Nov)",
-    "suite": "click-base",
-    "match": "NIGHT-WAKE"
-  },
-  {
     "name": "click-base: the wind map (embed.windy.com) cannot load where the tests have no internet",
     "suite": "click-base",
     "match": "embed\\.windy\\.com"
@@ -28,5 +23,76 @@
     "name": "click-base R5-12: the youngest's shelf at the wall expects every record's top in the lower half; since 0.38.1's bigger records the top is 10 px above it (530 of 1080), the record's middle is well below (backlog 103; on main too)",
     "suite": "click-base",
     "match": "R5-12 Max’s shelf at the wall"
+  },
+  {
+    "name": "fit: Obsidian's small initials on the planner's day and month views (backlog 108)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^card span\\.init\\.sm$",
+      "look": "^obsidian$"
+    }
+  },
+  {
+    "name": "fit: Obsidian's month view \"+2\" chip (backlog 108)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^card span\\.mmore$",
+      "look": "^obsidian$"
+    }
+  },
+  {
+    "name": "fit: Obsidian's morning-board tile (backlog 108)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^fh-morning span\\.tile$",
+      "look": "^obsidian$"
+    }
+  },
+  {
+    "name": "fit: Obsidian's medicine sheet footnote with long words (backlog 108)",
+    "fit": {
+      "kind": "^(TIGHT|TEXT OUT|CLIPPED)$",
+      "where": "^card section\\.sheet$",
+      "look": "^obsidian$",
+      "page": "sheet=meds"
+    }
+  },
+  {
+    "name": "fit: the Scene's \"Wind down\" pad on the iPad (backlog 150)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^fh-music button\\.hpad$",
+      "vp": "^ipad$",
+      "page": "mview=scene"
+    }
+  },
+  {
+    "name": "fit: Orbit's Looks sheet footnote on a phone (backlog 150)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^card section\\.sheet$",
+      "look": "^orbit$",
+      "vp": "^phone$",
+      "page": "sheet=themes"
+    }
+  },
+  {
+    "name": "fit: Obsidian's \"Morning\" dock button on the iPad with long words (backlog 150)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^card button\\.item$",
+      "word": "^Morning",
+      "look": "^obsidian$",
+      "vp": "^ipad$"
+    }
+  },
+  {
+    "name": "fit: Obsidian's teddy on the youngest's \"now\" button on a phone, the line-emoji font's tall box (backlog 150)",
+    "fit": {
+      "kind": "^TEXT OUT$",
+      "where": "^fh-kid button\\.pic\\.now\\.big$",
+      "look": "^obsidian$",
+      "vp": "^phone$"
+    }
   }
 ]
