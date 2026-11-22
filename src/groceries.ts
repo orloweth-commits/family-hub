@@ -9,6 +9,8 @@ import { followList, houseUp } from './house';
 /** a row that has just been touched: what it shows, where it sat, whether Home Assistant has answered yet (out), whether its four seconds are up (due) */
 interface Held { to: string; was: string; t: number; n: number; out: boolean; due: boolean; busy: boolean }
 import { spark } from './sparks';
+/** the tick on a usual that is already on the list */
+const USUAL_TICK = html`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>`;
 import { canListen, hearOnce } from './chat';
 
 /** What was said, as things to buy: "milk and eggs, and some bread" is three. At most eight, so a misheard sentence cannot fill the list. */
@@ -157,6 +159,9 @@ export class FhGroceries extends LitElement {
     :host([data-keys][data-shape='wide']:not([data-n3])) .add .usuals .chip.quick { min-height: 52px; padding: 4px 10px; border-radius: 16px; font-size: var(--fs-2); }
     .add .usuals .chip.quick { height: auto; min-height: 64px; padding: 6px 16px; border-radius: 20px; font-size: var(--fs-3); font-weight: var(--w-bold, 700); text-align: left; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
     :host([data-phone]) .add .usuals .chip.quick { min-height: 52px; }
+    /* (the second review's cut, item 9) a usual already on the list: a tick in the colour every tick on the page has, in place of the plus */
+    .add .usuals .chip.quick[data-on] { display: inline-flex; align-items: center; gap: 8px; color: var(--ink2); }
+    .uon { display: inline-grid; place-items: center; flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--ok); color: var(--on-ok, #fff); line-height: 0; }
     /* the keyboard takes the room that is left: taller keys, not an empty band above them */
     .keys { flex: 1; min-height: 0; justify-content: center; }
     :host(:not([data-shape='tall']):not([data-phone])) .krow { flex: 1 1 52px; max-height: 78px; min-height: 44px; }
@@ -290,7 +295,7 @@ export class FhGroceries extends LitElement {
     if (!this.hass) return;
     if (!houseUp()) { sfx('error'); this._say(SLOW_SAY); return; } // (Home Assistant is not answering: the words stay in the box)
     const nice = n.charAt(0).toUpperCase() + n.slice(1), typed = name === this._typed;
-    if (this._items.some((i) => i.status === 'needs_action' && i.summary.toLowerCase() === nice.toLowerCase())) { this._say(`${nice} is already on the list`); this._typed = ''; this._caps = true; return; }
+    if (this._onList(nice)) { this._say(`${nice} is already on the list`); if (typed) { this._typed = ''; this._caps = true; } return; }
     // a failed add says so and gives the words back, so nothing typed is lost
     if (this._adding.includes(nice)) return; // already on its way
     this._adding = [...this._adding, nice]; sfx('send');
@@ -329,6 +334,8 @@ export class FhGroceries extends LitElement {
   private _just = '';
   /** what the row shows (the touch wins until Home Assistant catches up) and which group it sits in (where it was, for a few seconds) */
   private _shown(i: TodoItem): string { return this._tk[i.uid]?.to ?? i.status; }
+  /** (the second review's cut, item 9) whether a thing is on the list still to buy, or on its way there: a usual that is shows a tick, and a tap does not add it twice */
+  private _onList(name: string): boolean { const n = name.trim().toLowerCase(); return this._adding.some((a) => a.toLowerCase() === n) || this._items.some((i) => this._shown(i) === 'needs_action' && i.summary.trim().toLowerCase() === n); }
   private _group(i: TodoItem): string { return this._tk[i.uid]?.was ?? i.status; }
   /** Clearing takes the ticked items out of sight at once; they are only removed when the Undo window closes (or the page is left). */
   private _clearDone(): void {
@@ -419,7 +426,9 @@ export class FhGroceries extends LitElement {
         ${tray ? nothing : entry(false)}
         <div class="usuals">
           <span class="muted">Usuals</span>
-          ${this.usuals.map((u) => html`<button class="chip quick tap" aria-label="Add ${u}" @click=${(e: Event) => this._add(u, e.currentTarget as Element)}>+ ${u}</button>`)}
+          ${this.usuals.map((u) => this._onList(u)
+            ? html`<button class="chip quick tap" data-on aria-label="${u}: on the list already" @click=${() => { sfx('tap'); this._say(`${u.charAt(0).toUpperCase() + u.slice(1)} is already on the list`); }}><span class="uon" aria-hidden="true">${USUAL_TICK}</span>${u}</button>`
+            : html`<button class="chip quick tap" aria-label="Add ${u}" @click=${(e: Event) => this._add(u, e.currentTarget as Element)}>+ ${u}</button>`)}
         </div>
         ${this._keys ? nothing : html`<span class="muted keyhint" data-keyhint>Touch the box to type. Usuals are one tap.</span>`}
       </section>

@@ -339,14 +339,10 @@ export const styles = css`
   aside > .card.np .ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
   /* the hint under the buttons keeps the same room below it as the label has above, in every look (a look's timer can be taller) */
   aside > .card.tmr { padding-bottom: 16px; }
-  aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 44px; }
-  /* the jar on the rail reads as a child's page does (4d): marbles to go, today's family total, and the rule in words where the rail has the height; two lines, so Reminders keeps its rows */
-  .jartxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .jartop { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
-  .jargo { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; min-width: 0; }
-  .jartop .jarnew { font-size: var(--fs-1); font-weight: var(--w-bold, 700); color: var(--ink); white-space: nowrap; flex-shrink: 0; }
-  .jarrule { display: none; font-size: var(--fs-1); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.3; }
-  @media (min-height: 900px) and (orientation: landscape) { .jarrule { display: block; } }
+  /* the jar on the rail (4d; the second review's cut, item 7): the jar that fills and one line, how many marbles to go; the whole card is the button for how it fills */
+  aside > .card.jar { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; min-height: 52px; text-align: left; width: 100%; }
+  aside > .card.jar .jargo { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; }
+  aside > .card.jar .jari { flex-shrink: 0; line-height: 0; color: var(--ink2); }
   aside > .card.rems { flex: 1 1 0; min-height: 0; overflow: hidden; }
   /* the padding (taken back by the margin) leaves room for a row's focus ring inside the clip */
   .remlist { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 12px; margin: -6px -12px; }

@@ -250,6 +250,31 @@ for (const [w, h] of [[1180, 820], [1024, 768], [1920, 1080]]) for (const look o
     ok(`${look} ${w}x${h}: Weather's today keeps its top and low inside its tile`, d.length >= 2 && d.every((q) => q.l >= 0 && q.r >= 0), d); }
   await ctx.close(); }
 
+// 8. the second review's cut, item 9: a usual already on the list shows a tick, and a tap does not add it twice (in every look)
+for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) { const page = await open(`look=${look}&page=groceries`); const G = page.locator('fh-groceries');
+  const chips = async () => G.locator('.usuals .quick').evaluateAll((n) => n.map((b) => ({ t: b.textContent.replace(/\s+/g, ' ').trim(), on: b.hasAttribute('data-on'), tick: !!b.querySelector('.uon svg'), label: b.getAttribute('aria-label') })));
+  const open1 = (await list(page, 'todo.shopping_list')).filter((i) => i.status === 'needs_action').map((i) => i.summary.toLowerCase());
+  let u = await chips();
+  ok(`${look}: a usual on the list has a tick in place of its plus, and says so; the rest keep their plus`, u.length >= 6 && u.every((x) => open1.includes(x.t.replace(/^\+ /, '').toLowerCase()) ? x.on && x.tick && /: on the list already$/.test(x.label) && !x.t.startsWith('+') : !x.on && x.t.startsWith('+ ')) && u.some((x) => x.on), u);
+  if (look !== 'glass') { await page.context().close(); continue; }
+  const on = u.find((x) => x.on).t, off = u.find((x) => !x.on).t.replace(/^\+ /, '');
+  await G.locator('.entry .field').fill('kiw'); await page.waitForTimeout(100);
+  await page.evaluate(() => { window.__calls = []; });
+  await G.locator('.usuals .quick[data-on]').filter({ hasText: on }).click(); await page.waitForTimeout(400);
+  ok('a tap on it adds nothing and says it is already there, and the typed words stay', (await calls(page, /todo\.add_item/)).length === 0 && new RegExp(`^${on} is already on the list$`).test(await G.evaluate((g) => g._toast)) && await G.locator('.entry .field').inputValue() === 'kiw', await G.evaluate((g) => g._toast));
+  await G.locator('.usuals .quick').filter({ hasText: off }).click(); await page.waitForTimeout(500);
+  ok('a usual not on the list is still one tap', (await calls(page, new RegExp(`todo\\.add_item todo\\.shopping_list.*${off}`))).length === 1);
+  u = await chips();
+  ok('and once it is there its chip shows the tick', u.find((x) => x.t.endsWith(off))?.on === true, u);
+  await page.evaluate(() => { window.__calls = []; });
+  await G.locator('.usuals .quick').filter({ hasText: off }).click(); await page.waitForTimeout(400);
+  ok('so a second tap does not add it twice', (await calls(page, /todo\.add_item/)).length === 0);
+  // ticked into the trolley, it is no longer on the list to buy: the plus comes back
+  const row = G.locator('button.item').filter({ hasText: off }).first(); await row.click(); await page.waitForTimeout(5000);
+  u = await chips();
+  ok('a usual ticked off into the trolley gets its plus back', u.find((x) => x.t.endsWith(off))?.on === false, u);
+  await page.context().close(); }
+
 await browser.close(); srv.close();
 console.log(`\n${pass} passed, ${fails.length} failed${errs.length ? `, ${errs.length} page errors` : ''}`);
 for (const f of fails) console.log('FAILED: ' + f);

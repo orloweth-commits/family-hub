@@ -67,6 +67,41 @@ for (const kid of [0, 1, 2]) { const page = await open(`look=glass&page=kid&kid=
   ok('Settings: "One job at a time" starts on for a child who reads words', (await sw.getAttribute('aria-checked')) === 'true');
   await page.context().close(); }
 
+// 2b. the second review's cut, items 8 and 9: every child's two buttons in one order (his week, then rewards); the youngest's job card
+// has the morning board's large hollow circle, filled with a tick once done (Home Ground's Now card keeps its own "I did it!" alone);
+// on a phone "Start with me" sits under the job's words, not over them
+for (const [kid, want] of [[0, ['📅 My week', '🎁 Rewards']], [1, ['📅 My week', '🎁 Rewards']], [2, ['📅 Coming up', '⭐ My stars']]]) { const page = await open(`look=glass&page=kid&kid=${kid}&nownext=1`);
+  const tabs = await K(page).locator('.tab').evaluateAll((l) => l.map((b) => b.textContent.trim()));
+  ok(`child ${kid}: the two buttons read his week, then rewards`, JSON.stringify(tabs) === JSON.stringify(want), tabs);
+  await page.context().close(); }
+for (const look of ['glass', 'fridge', 'orbit', 'obsidian', 'sports']) { const page = await open(`look=${look}&page=kid&kid=2`);
+  const r = await page.evaluate(`(() => { const k = ${kidEl}.shadowRoot, card = k.querySelector('.pic.big'), t = card.querySelector('.tick'), cs = getComputedStyle(t), b = t.getBoundingClientRect(), c = card.getBoundingClientRect(), z = b.width / t.offsetWidth;
+    return { off: t.hasAttribute('data-off'), shown: cs.display !== 'none', w: Math.round(t.offsetWidth), ring: parseFloat(cs.borderTopWidth), fill: cs.backgroundColor, inside: b.left >= c.left && b.right <= c.right && b.top >= c.top && b.bottom <= c.bottom, z }; })()`);
+  if (look === 'sports') ok('sports: the Now card keeps its own "I did it!" alone (no second circle)', r.off && !r.shown, r);
+  else ok(`${look}: the youngest's Now card has a large hollow circle inside it`, r.off && r.shown && r.w >= 52 && r.ring >= 2.5 && /rgba\(0, 0, 0, 0\)|transparent/.test(r.fill) && r.inside, r);
+  await K(page).getByRole('button', { name: /Show all/ }).click(); await page.waitForTimeout(300);
+  const g = await page.evaluate(`(() => [...${kidEl}.shadowRoot.querySelectorAll('.pics .pic')].map((p) => ({ t: p.querySelector('.pt').textContent.trim(), done: p.classList.contains('done'), off: p.querySelector('.tick')?.hasAttribute('data-off'), tick: !!p.querySelector('.tick svg'), w: p.querySelector('.tick')?.offsetWidth })))()`);
+  ok(`${look}: every picture card has the circle: hollow to do, filled with a tick when done`, g.length >= 2 && g.every((x) => x.done ? x.off === false && x.tick : x.off === true && !x.tick && x.w >= 44), g);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=2'); const before = (await calls(page, 'todo')).length;
+  await K(page).locator('.pic.big').click(); await page.waitForTimeout(500);
+  ok('the whole card is still the button: a tap anywhere on it ticks the job', (await calls(page, 'todo')).length > before);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=2');
+  await K(page).locator('[data-act="jar-open"]').click(); await page.waitForTimeout(400);
+  const heard = (await said(page)).join(' | ');
+  ok('the youngest hears how the jar fills when he taps it (item 7)', /36 marbles to .+\. 3 added today\. Every family job adds a marble\. Routines and growing add none\./.test(heard), heard);
+  await page.context().close(); }
+for (const kid of [0, 1]) { const page = await open(`look=glass&page=kid&kid=${kid}&nownext=1`, '16:20', { w: 390, h: 844 });
+  const r = await page.evaluate(`(() => { const row = ${kidEl}.shadowRoot.querySelector('.job.big'), t = row.querySelector('.t').getBoundingClientRect(), p = row.querySelector('.play').getBoundingClientRect(), r = row.getBoundingClientRect();
+    const hit = !(t.right <= p.left || p.right <= t.left || t.bottom <= p.top || p.bottom <= t.top); return { hit, under: p.top >= t.bottom - 1, inRow: p.right <= r.right + 0.5 && p.bottom <= r.bottom + 0.5 && t.right <= r.right + 0.5 }; })()`);
+  ok(`phone, child ${kid}: "Start with me" no longer covers the job's title`, !r.hit && r.under && r.inRow, r);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=kid&kid=0&nownext=1', '16:20', { w: 1920, h: 1080 });
+  const one = await page.evaluate(`(() => { const row = ${kidEl}.shadowRoot.querySelector('.job.big'), t = row.querySelector('.t').getBoundingClientRect(), p = row.querySelector('.play').getBoundingClientRect(); return Math.abs((t.top + t.bottom) / 2 - (p.top + p.bottom) / 2) < 12; })()`);
+  ok('on the wall "Start with me" stays beside the title, on its line', one);
+  await page.context().close(); }
+
 // 3. older mode: a plainer page, his week first, a private "Ask for a chat"
 { let page = await open('look=glass&page=kid&kid=0&nownext=1&older=1');
   const tabs = await K(page).locator('.tab').evaluateAll((l) => l.map((b) => [b.textContent.trim(), b.getAttribute('aria-pressed')]));

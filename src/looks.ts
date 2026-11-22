@@ -76,7 +76,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
       // the screensaver (artmode.ts)
       'artm', 'aplate', 'atime', 'aampm', 'adate', 'ainfo', 'awords', 'ashade',
       'tmr', 'ok', 'called', 'mtop', 'tread', 'tcancel', 'jarpic', 'calfail', 'remfail', 'daylist', 'mpill', 'quiet', 'freeday', 'irow', 'sosbtn', 'themes', 'setrow'],
-    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'wedge', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio'],
+    'fh-kid': ['hero', 'avbtn', 'name', 'rank', 'stat', 'dots', 'g', 't', 'nextup', 'jobs', 'sec', 'plus', 'play', 'wedge', 'later', 'side', 'rw', 'ask', 'n', 'save', 'pic', 'wk', 'job', 'ring', 'going', 'e', 'pt', 'stars', 'small', 'cost', 'notyet', 'readme', 'seedone', 'studio', 'tick'],
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['hpad', 'stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
@@ -1431,6 +1431,8 @@ const SPORTS = `
   @S .pic.small .e { font-size: var(--fs-d2); }
   @S .pic.small { flex-basis: 76px; opacity: 1; border-style: dashed; border-color: var(--ink3); }
   @S .pic.big.done::after { display: none; }
+  /* (the second review's cut, item 8) Home Ground's Now card already has its big "I did it!": the hollow circle would be a second one */
+  @S .pic.big .tick[data-off] { display: none; }
   @S .readme, @S .seedone { background: var(--panel); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
   @S .studio[data-locked] { background: transparent; color: var(--ink3); box-shadow: none; outline: 2px dashed var(--ink3); outline-offset: -2px; }
   @S .sec h2 { font-size: var(--fs-3); }

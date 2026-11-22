@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.26';
+const VERSION = '0.38.27';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1753,14 +1753,19 @@ export class FamilyHubCard extends LitElement {
       </section>
     </aside>`;
   }
-  /** The family jar on the rail, as a child's page draws it (4d): the jar that fills, marbles to go, today's family total and the rule in words. */
+  /**
+   * The family jar on the rail (4d; the second review's cut, item 7): the jar that fills and one line, how many marbles to go
+   * (the treat's name is too long for the rail: it is on each child's page). Today's family total, the rule and the treat are behind a tap,
+   * in a passing message, so the rail keeps its rows for Reminders.
+   */
   private _jarCard(jar: number, target: number): TemplateResult {
     const added = jarAdded(jar, jarBase(this.hass, ymd(this._now), () => this.requestUpdate())), full = jar >= target, left = target - jar;
     const reward = this._config.jar?.reward;
-    return html`<section class="glass card jar" aria-label=${`Family jar: ${full ? 'full' : `${left} marble${left === 1 ? '' : 's'} to go, ${jar} of ${target}`}${added ? `, ${added} added today` : ''}`}>
+    const line = full ? `Full! Time for ${reward ?? 'the treat'} 🎉` : `${left} marble${left === 1 ? '' : 's'} to go`;
+    const why = `${added ? `${added} added today. ` : ''}${JAR_RULE} Routines and practice add none.${reward && !full ? ` When it is full: ${reward}.` : ''}`;
+    return html`<button class="glass card jar tap" data-act="jar-open" aria-label=${`Family jar: ${full ? 'full' : `${left} marble${left === 1 ? '' : 's'} to go, ${jar} of ${target}`}. How it fills`} @click=${() => { sfx('tap'); this._say(why); }}>
       <span class="jarpic" style="line-height:0">${jarPic(jar / target, 30, 37)}</span>
-      <span class="jartxt"><span class="jartop"><span class="jargo">${full ? html`Full! Time for ${reward ?? 'the treat'} 🎉` : html`${left} marble${left === 1 ? '' : 's'} to go`}</span>${added ? html`<b class="jarnew" data-act="jar-today">+${added} today</b>` : nothing}</span>
-        <span class="jarrule" data-act="jar-why">${JAR_RULE}</span></span></span></section>`;
+      <span class="jargo">${line}</span><span class="jari" aria-hidden="true">${icon('info', 18)}</span></button>`;
   }
   private _remList(cut: number): TemplateResult {
     const c = this._config;
