@@ -156,6 +156,20 @@ const down = (page, d) => page.evaluate((d) => window.__haDown(d), d);
   ok('and fills in by itself when Home Assistant is back', await until(page, () => { const f = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries'); return !f._failed && f._items.length > 0; }, null, 4000));
   await page.context().close(); }
 
+// 8. the card made afresh after a reconnect, as Home Assistant's frontend does (backlog 124): it opens on the planner with the week it kept,
+// never "can't reach", and the page's watchdog is the same one
+{ const page = await open('page=planner');
+  const wd0 = await R(page, () => { window.__wd0 = window.__fhWatchdog; return !!window.__fhWatchdog; });
+  await go(page, 'groceries'); await run(page, 1000);
+  await down(page, true); await run(page, 12000);
+  await R(page, () => { window.__haDown(false); window.__remake(); }); await page.waitForTimeout(400);
+  const st = await R(page, () => { const c = document.querySelector('family-hub-card'), r = c.shadowRoot; return { page: c._page, ev: (c._events ?? []).length, calfail: !!r.querySelector('.calfail'), fresh: c !== window.__same, wd: window.__fhWatchdog === window.__wd0 }; });
+  ok('made afresh after a reconnect, the card opens on the planner with its kept week at once (124)', st.page === 'planner' && st.ev > 5 && !st.calfail, st);
+  ok('and the page keeps its one watchdog', !wd0 || st.wd, st);
+  await run(page, 3000);
+  ok('then the line is gone and the week is read again', (await line(page)) === '' && await R(page, () => document.querySelector('family-hub-card')._events.length > 5));
+  await page.context().close(); }
+
 console.log(`\nerrors: ${errs.length ? '\n' + [...new Set(errs)].map((e) => ' - ' + e).join('\n') : 'none'}`);
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ':\n - ' + fails.join('\n - ') : ''}`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

@@ -389,6 +389,25 @@ for (const qs of ['page=music&mtab=shelves&shelf=Family&dark=1', 'page=music&mvi
   if (/list/.test(qs)) { const b = await M(page).locator('.stage').evaluate((e) => getComputedStyle(e).backgroundColor);
     ok('dark: the List’s player wears the theme’s deep tone, not black (backlog 119)', b !== 'rgb(17, 17, 17)', b); }
   await shut(page); }
+// 13. batch 5 (0.38.22): the Desk's PAUSED lamp, Call a room without the music fill, the jukebox's one turn mark, the Scene's drawn grab
+{ const page = await open('page=music&mview=desk&mviews=all');
+  const lamps = await mus(page, (m) => [...m.shadowRoot.querySelectorAll('*')].filter((e) => !e.children.length && /^(PLAYING|PAUSED|ON|OFF)$/.test(e.textContent.trim())).map((e) => e.textContent.trim()));
+  ok('the Desk says PAUSED for a room with its music paused (batch 5)', lamps.includes('PAUSED') && lamps.includes('PLAYING'), lamps);
+  await shut(page); }
+{ const page = await open('page=music&mtab=call');
+  const c = await mus(page, (m) => ({ rooms: m.shadowRoot.querySelectorAll('.mz').length, live: m.shadowRoot.querySelectorAll('.mz[data-live]').length }));
+  ok('Call a room\'s rooms carry no "music on" fill (batch 5)', c.rooms > 0 && c.live === 0, c);
+  await shut(page); }
+{ const page = await open('page=music&mtab=juke&juke=1');
+  const a = await mus(page, (m) => [...m.shadowRoot.querySelectorAll('.cnext')].map((e) => e.textContent.trim()).filter(Boolean));
+  await mus(page, (m) => { m._saveJuke({ who: '' }); }); await page.waitForTimeout(300);
+  const b = await mus(page, (m) => [...m.shadowRoot.querySelectorAll('.cnext')].map((e) => e.textContent.trim()).filter(Boolean));
+  ok('the jukebox marks whose turn only while nobody is choosing, once (batch 5)', a.length === 0 && b.length === 1 && b[0] === 'Your turn', { choosing: a, nobody: b });
+  await shut(page); }
+{ const page = await open('page=music&mview=scene&mviews=all');
+  const g = await mus(page, (m) => { const r = m.shadowRoot.querySelector('fh-music-scene')?.shadowRoot ?? m.shadowRoot, all = [...r.querySelectorAll('.agrab')]; return { grabs: all.length, drawn: all.filter((e) => e.querySelector('svg path')).length }; });
+  ok('the Scene\'s volume grab is drawn as up and down arrows (batch 5)', g.grabs > 0 && g.drawn === g.grabs, g);
+  await shut(page); }
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 

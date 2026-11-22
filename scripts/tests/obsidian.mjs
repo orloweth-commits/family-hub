@@ -142,6 +142,26 @@ const WANT = { obSweepX: 14000, obFlow: 9000, obEdge: 12000, obGlint: 7000, obPu
   const r = await page.evaluate(() => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('section.sheet'); return [s.scrollHeight, s.clientHeight]; });
   ok('House info fits its sheet, the last bedtime clear of the foot fade (144)', r[0] <= r[1] + 1, r); await shut(page); }
 
+// (23 Nov) the bell's sheet and a parent's note in Obsidian, now that the preview can open with them waiting (backlog 71, 79)
+{ const page = await open('page=planner&asks=reward,job,chat&sheet=waiting');
+  const b = await deep(page, (all) => { const g = all.filter((e) => e.matches?.('.waitgrp')).map((e) => e.dataset.kind), faces = all.filter((e) => e.matches?.('.waitrow .avwrap')); return { g, faces: faces.length, mono: faces.filter((e) => e.matches('.avmono')).length }; });
+  ok('the bell\'s sheet opens with its groups, the chat kept private on the wall, each face an initial', b.g.join() === 'reward,job,private' && b.faces > 0 && b.mono === b.faces, b);
+  await shut(page); }
+{ const page = await open('page=kid&kid=0&note=You helped Max without being asked.');
+  const n = await deep(page, (all) => { const c = all.find((e) => e.matches?.('.notecard')); return c ? { text: c.textContent.replace(/\s+/g, ' ').trim(), w: Math.round(c.getBoundingClientRect().width) } : null; });
+  ok('a parent\'s note shows over his page in Obsidian', !!n && /You helped Max/.test(n.text) && n.w > 200, n);
+  await shut(page); }
+
+// batch 5 (0.38.22): a child's full figure is a large initial in a ring of his colour; the Style Studio draws his choices
+{ const page = await open('page=kid&kid=0');
+  const f = await deep(page, (all) => all.filter((e) => e.matches?.('.avwrap.avmono') && e.getBoundingClientRect().width >= 120).map((e) => ({ w: Math.round(e.getBoundingClientRect().width), t: e.textContent.trim(), ring: /inset/.test(e.style.boxShadow) })));
+  ok('in Obsidian a child\'s page shows a large initial in a hairline ring where the figure was (batch 5)', f.length >= 1 && f.every((x) => /^[A-Z]$/.test(x.t) && x.ring), f);
+  await shut(page); }
+{ const page = await open('page=kid&kid=0&studio=1');
+  const s = await deep(page, (all) => { const st = all.find((e) => e.localName === 'fh-studio'); const r = st?.shadowRoot; return r ? { tiles: r.querySelectorAll('.tile, .cell').length, drawn: r.querySelectorAll('.tile svg, .tile img, .cell svg, .cell img, .tile .avwrap, .cell .avwrap').length } : null; });
+  ok('and its Style Studio draws the choices, not an empty grid (batch 5)', !!s && s.tiles > 0 && s.drawn > 0, s);
+  await shut(page); }
+
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ': ' + fails.join(' | ') : ''}`);
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

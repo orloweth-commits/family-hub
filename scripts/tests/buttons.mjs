@@ -66,15 +66,17 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
 
 // 2. movement: one button, once
 { const page = await open('look=glass&page=planner&timer=0'); const card = C(page);
-  await card.locator('nav.dock .item[data-nav="cart"]').click(); await page.waitForTimeout(120); let b = await read(page);
+  // (a fixed 120 ms after the click failed beside another suite: wait up to a second for the movement the line is about, then read)
+  const after = async (want) => { let r; for (let i = 0; i < 25; i++) { r = await read(page); if (want(r)) break; await page.waitForTimeout(40); } return r; };
+  await card.locator('nav.dock .item[data-nav="cart"]').click(); let b = await after((r) => by(r.dock, 'cart').arrive);
   ok('a place that opens plays its arrival, and only it moves', by(b.dock, 'cart').arrive && !by(b.dock, 'cart').just && by(b.dock, 'cart').moving >= 1 && [...b.dock, ...b.head].filter((x) => x.moving).length === 1, by(b.dock, 'cart'));
   await page.clock.runFor(1000); await page.waitForTimeout(200); b = await read(page);
   ok('then it is still again', [...b.dock, ...b.head].every((x) => x.moving === 0 && !x.arrive && !x.just));
-  await card.locator('nav.dock .item[data-nav="cart"]').click(); await page.waitForTimeout(120); b = await read(page);
+  await card.locator('nav.dock .item[data-nav="cart"]').click(); b = await after((r) => by(r.dock, 'cart').just);
   ok('a press on the page you are on answers the finger', by(b.dock, 'cart').just && by(b.dock, 'cart').moving >= 1);
-  await card.locator('nav.dock .item[data-nav="calendar"]').click(); await page.waitForTimeout(120); b = await read(page);
+  await card.locator('nav.dock .item[data-nav="calendar"]').click(); b = await after((r) => by(r.dock, 'calendar').just || by(r.dock, 'calendar').arrive);
   ok('a second button takes the movement from the first: never two at once', [...b.dock, ...b.head].filter((x) => x.just || x.arrive).map((x) => x.id).join() === 'calendar');
-  await page.clock.runFor(1000); await card.locator('.right .hb[data-act="more"]').click(); await page.waitForTimeout(120); b = await read(page);
+  await page.clock.runFor(1000); await card.locator('.right .hb[data-act="more"]').click(); b = await after((r) => by(r.head, 'more').just);
   ok('a header button answers the finger too', by(b.head, 'more').just);
   await page.context().close(); }
 { // Music sways only while music plays, and never in calm mode
