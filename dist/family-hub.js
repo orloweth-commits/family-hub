@@ -21078,7 +21078,7 @@ const Ov = (a, t) => {
       return;
     }
     this._sceneBusy = !0;
-    const h = await this._call("light", "turn_off", { entity_id: s }, void 0, ...t ? [this.renderRoot.querySelector("fh-home")?.shadowRoot?.querySelector('[data-act="alloff"]') ?? null] : []);
+    const h = await this._call("light", "turn_off", { entity_id: s }, void 0, this.renderRoot.querySelector("fh-home")?.shadowRoot?.querySelector('[data-act="alloff"]') ?? null);
     this._sceneBusy = !1, h && (S("untick"), this._say(n ? `All off${l}` : "Lights off", 1e4, { label: "Undo", run: () => {
       this._call("light", "turn_on", { entity_id: s }).then((c) => {
         c && this._say("Back on");

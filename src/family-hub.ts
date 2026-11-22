@@ -1328,7 +1328,8 @@ export class FamilyHubCard extends LitElement {
     const wait = Math.max(0, Number(this._config.all_off_wait ?? 3)) * 1000;
     if (!go && wait) { if (this._off) return; sfx('tap'); this._off = { at: Date.now() + wait, timer: window.setTimeout(() => { this._off = null; void this._allOff(true); }, wait) }; return; }
     this._sceneBusy = true;
-    const ok = await this._call('light', 'turn_off', { entity_id: on }, undefined, ...(go ? [this.renderRoot.querySelector('fh-home')?.shadowRoot?.querySelector('[data-act="alloff"]') ?? null] : []));
+    // Home's All off scene shows it is waiting (inside fh-home, so the card's own note of the pressed control cannot find it)
+    const ok = await this._call('light', 'turn_off', { entity_id: on }, undefined, this.renderRoot.querySelector('fh-home')?.shadowRoot?.querySelector('[data-act="alloff"]') ?? null);
     this._sceneBusy = false;
     if (!ok) return;
     sfx('untick');

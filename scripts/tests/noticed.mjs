@@ -68,7 +68,7 @@ const PTS = 'input_number.charlie_points';
 { const page = await open('look=glass&page=kid&kid=0&approve=1&shuffle=0');
   await add(page, 'charlie', 'Charlie', 'For Charlie only.', 'ncharl1'); await page.waitForTimeout(600);
   ok('a note for one child is not shown on, or cleared by, his brother’s page', await card(page).count() === 0 && (await list(page)).length === 1);
-  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /(Everyone|Home)$/ }).first().click(); await page.waitForTimeout(600);
   ok('the bell does not count a note', await C(page).locator('header [data-act="bell"]').count() === 0);
   const words = await page.evaluate(() => { const out = []; const walk = (r) => { for (const n of r.querySelectorAll('*')) if (n.shadowRoot) walk(n.shadowRoot); out.push(r.textContent ?? ''); }; walk(document.querySelector('family-hub-card').shadowRoot); return out.join(' '); });
   ok('nothing about it shows on the shared pages', !/For Charlie only/.test(words));

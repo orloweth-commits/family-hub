@@ -112,7 +112,7 @@ const typeKeys = async (root, word) => { for (const k of word) await root.locato
   ok('a shared room is one tap, as before', (await calls(page, /homeassistant\.toggle/)).length === 2);
   await page.context().close(); }
 { const page = await open('look=glass&page=kid&kid=0'); 
-  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(700);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /(Everyone|Home)$/ }).first().click(); await page.waitForTimeout(700);
   await page.locator('family-hub-card nav.dock .item').filter({ hasText: /^\s*Home\s*$/ }).last().click(); await page.waitForTimeout(700);
   const H = page.locator('fh-home');
   const guards = await H.locator('.room').evaluateAll((r) => Object.fromEntries(r.map((x) => [x.getAttribute('data-room'), x.querySelector('[data-rguard]')?.getAttribute('data-rguard') ?? 'free'])));

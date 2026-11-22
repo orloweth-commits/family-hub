@@ -181,7 +181,7 @@ else {
   await small.locator('.hit').click(); await page.waitForTimeout(500);
   ok('a job with no points is ticked at once, as before', await small.locator('.hit').getAttribute('aria-pressed') === 'true' && (await list(page, ASKS)).length === 1);
   // the bell, on the shared pages
-  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /(Everyone|Home)$/ }).first().click(); await page.waitForTimeout(600);
   const C = page.locator('family-hub-card'), bell = C.locator('header [data-act="bell"]');
   await bell.waitFor({ timeout: 5000 }).catch(() => {}); // (the waiting list is read when the shared pages open: wait for it, not a fixed time, backlog 67)
   ok('the header has a bell that says how many are waiting', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''), await bell.getAttribute('aria-label').catch(() => ''));
@@ -223,7 +223,7 @@ else {
   await K(page).locator('.feelcard .feel button').first().click(); await page.waitForTimeout(300);
   await K(page).locator('.feelcard button').filter({ hasText: /Chat later|Leave a note/i }).first().click(); await page.waitForTimeout(600);
   ok('asking again while one waits sends nothing more', (await list(page, ASKS)).length === 1 && (await calls(page, /^notify\./)).length === 1);
-  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /(Everyone|Home)$/ }).first().click(); await page.waitForTimeout(600);
   const bell = C.locator('header [data-act="bell"]');
   ok('the bell counts it', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''));
   ok('the header shows the count only: no name', !/Charlie/.test(await C.locator('header').innerText()), await C.locator('header').innerText());
@@ -244,7 +244,7 @@ else {
   await K(page).locator('[data-act="chat-note"]').click(); await page.waitForTimeout(700);
   ok('older mode: the note goes to the phone and the list, and the page says nothing shows on the wall', (await list(page, ASKS)).length === 1 && (await calls(page, /^notify\.mobile_app_alex/)).length === 1 && /Nothing shows on the wall/.test(await msg(page)), await msg(page));
   ok('his own page shows nothing waiting', await K(page).locator('[data-asks]').count() === 0 && await K(page).locator('[data-asked]').count() === 0);
-  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /Home$/ }).first().click(); await page.waitForTimeout(600);
+  await page.locator('family-hub-card nav.dock[data-kid] .item, family-hub-card nav.dock .item').filter({ hasText: /(Everyone|Home)$/ }).first().click(); await page.waitForTimeout(600);
   const shown = await page.evaluate(() => { const out = []; const walk = (r) => { for (const n of r.querySelectorAll('*')) { if (n.shadowRoot) walk(n.shadowRoot); } out.push(r.textContent ?? ''); }; walk(document.querySelector('family-hub-card').shadowRoot); return out.join(' '); });
   ok('on the shared pages only the bell’s count shows: the word chat is nowhere', await C.locator('header [data-act="bell"]').count() === 1 && !/would like a chat/i.test(shown));
   await page.context().close(); }

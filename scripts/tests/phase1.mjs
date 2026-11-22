@@ -140,9 +140,9 @@ for (const [kid, name, time] of [[0, 'Riley', '19:20'], [1, 'Charlie', '19:20'],
   await day.context().close(); await page.context().close();
 }
 
-// 5. All off waits three seconds, with Cancel; Undo is kept
-{ const page = await open('look=glass&page=planner&offwait=3');
-  const off = C(page).locator('.dock [data-nav=lights-off]');
+// 5. All off waits three seconds, with Cancel; Undo is kept (since 0.38.26 All off is the first of Home's Scenes, not in the dock)
+{ const page = await open('look=glass&page=home&offwait=3');
+  const off = C(page).locator('fh-home [data-act="alloff"]');
   await page.evaluate(() => { window.__calls = []; }); await off.click(); await page.waitForTimeout(500);
   const box = C(page).locator('[data-offwait]');
   ok('one tap turns nothing off: a countdown with Cancel', await box.count() === 1 && /Lights off in 3/.test(await box.innerText()) && !(await calls(page, '^light\\.turn_off')).length, (await box.innerText().catch(() => '')).replace(/\s+/g, ' '));
@@ -155,8 +155,8 @@ for (const [kid, name, time] of [[0, 'Riley', '19:20'], [1, 'Charlie', '19:20'],
   ok('left alone, the lights go off once, after the three seconds', mid === 0 && (await calls(page, '^light\\.turn_off')).length === 1 && await box.count() === 0, { mid, after: (await calls(page, '^light\\.turn_off')).length });
   ok('and Undo is still offered', /Undo/.test(await C(page).locator('.toast').innerText()), await toast(page));
   await page.context().close();
-  const none = await open('look=glass&page=planner&offwait=0'); await none.evaluate(() => { window.__calls = []; });
-  await C(none).locator('.dock [data-nav=lights-off]').click(); await none.waitForTimeout(500);
+  const none = await open('look=glass&page=home&offwait=0'); await none.evaluate(() => { window.__calls = []; });
+  await C(none).locator('fh-home [data-act="alloff"]').click(); await none.waitForTimeout(500);
   ok('all_off_wait: 0 goes at once', (await calls(none, '^light\\.turn_off')).length === 1 && await C(none).locator('[data-offwait]').count() === 0);
   await none.context().close(); }
 
