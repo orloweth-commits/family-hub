@@ -18,11 +18,15 @@ const ok = (name, cond, got = '') => { if (cond) pass++; else fails.push(name); 
 
 const WIRED = 'trust=1&digest=two&approve=1&voice=1&health=1';
 /** `net`: whether the two sites asked for the internet answer. `before`: a script run before the page (localStorage). */
-const open = async (qs, { net = true, before = null, time = '2026-11-10T16:20', w = 1920, h = 1080 } = {}) => {
+/** `voices`: the voices this screen's browser has (0.38.28's row names the one it falls back to); by default one Australian voice,
+ *  as the house's Windows Chrome has (headless Chrome may have none). `null` leaves the browser's own list. */
+const AU = [{ name: 'Microsoft James - English (Australia)', lang: 'en-AU', localService: true }];
+const open = async (qs, { net = true, before = null, time = '2026-11-10T16:20', w = 1920, h = 1080, voices = AU } = {}) => {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, timezoneId: 'Australia/Perth', locale: 'en-AU', hasTouch: true });
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errs.push(String(e)));
   await page.route(/cdn\.jsdelivr\.net|api\.rainviewer\.com/, (r) => (net ? r.fulfill({ status: 200, body: 'ok' }) : r.abort('internetdisconnected')));
+  if (voices) await page.addInitScript((vs) => { try { speechSynthesis.getVoices = () => vs; } catch { /* no speech */ } }, voices);
   if (before) await page.addInitScript(before);
   await page.clock.install({ time: new Date(`${time}:00+08:00`) });
   await page.goto('http://localhost:' + PORT + '/?' + qs + '&net=off&calm=1'); await page.waitForFunction('window.__ready === true', null, { timeout: 20000 }); await page.waitForTimeout(600);
@@ -167,6 +171,26 @@ const again = async (page) => { await S(page, (s) => s.shadowRoot.querySelector(
 { const page = await open(`page=planner&${WIRED}&nopin=1`); await health(page);
   ok('with no PIN set yet, Health can be read (as Advanced can)', await S(page, (s) => s._pane === 'health' && s.shadowRoot.querySelectorAll('.hrow').length > 10), await S(page, (s) => s._pane));
   await page.context().close(); }
+
+// 6b. this screen's own voice (0.38.28): named in the voice group; Australian or British a tick, American or none worth a look.
+// The list is read whenever the sheet asks again, so a voice that loads later is seen.
+{ const page = await open(`page=planner&${WIRED}`); await health(page);
+  const r = await row(page, 'ownvoice'), g = await S(page, (s) => [...s.shadowRoot.querySelectorAll('.scard[data-group="voice"] .hrow')].map((x) => x.dataset.row));
+  ok('the voice group names this screen’s own voice: Australian, a tick', r?.mark === 'ok' && r.words === 'James - English (Australia) (Australian): it speaks when the house voice can’t.' && g.join(',') === 'voice,allowance,ownvoice', [r, g]);
+  await page.context().close(); }
+for (const [label, vs, mark, re] of [
+  ['an American voice first in the list, a British one later: the British one, a tick', [{ name: 'Google US English', lang: 'en-US', localService: false }, { name: 'Microsoft Hazel - English (United Kingdom)', lang: 'en-GB', localService: true }], 'ok', /^Hazel - English \(United Kingdom\) \(British\): it speaks when the house voice can’t\. No Australian voice on this screen\.$/],
+  ['both Australian and American: the Australian one, whatever the order', [{ name: 'Microsoft David - English (United States)', lang: 'en-US', localService: true }, { name: 'Karen', lang: 'en_AU', localService: true }], 'ok', /^Karen \(Australian\)/],
+  ['only American voices: worth a look, and what to do', [{ name: 'Microsoft David - English (United States)', lang: 'en-US', localService: true }, { name: 'Microsoft Zira - English (United States)', lang: 'en-US', localService: true }], 'warn', /^David - English \(United States\) \(American\): no Australian or British voice on this screen\. Add the English \(Australia\) speech pack\.$/],
+  ['no English voice at all: worth a look', [{ name: 'Microsoft Hortense - French (France)', lang: 'fr-FR', localService: true }], 'warn', /^None in English on this screen/]]) {
+  const page = await open(`page=planner&${WIRED}`, { voices: vs }); await health(page);
+  const r = await row(page, 'ownvoice');
+  ok(`this screen’s own voice, ${label}`, r?.mark === mark && re.test(r.words), r);
+  await page.context().close(); }
+{ const page = await open(`page=planner&${WIRED}`); await page.evaluate(() => window.__haDown(true)); await run(page, 12000); await health(page);
+  const r = await row(page, 'ownvoice');
+  ok('this screen’s own voice is still named while Home Assistant is away (it is the screen’s, not the house’s)', r?.mark === 'ok', r);
+  await page.evaluate(() => window.__haDown(false)); await page.context().close(); }
 
 // 7. fit: at the wall's size every row's name and words are whole and inside the pane, in light and in dark; and on a phone
 for (const [label, qs, w, h] of [['glass, wall', 'look=glass', 1920, 1080], ['glass dark, wall', 'look=glass&dark=1', 1920, 1080], ['obsidian, wall', 'look=obsidian', 1920, 1080], ['phone', 'look=glass', 390, 844]]) {

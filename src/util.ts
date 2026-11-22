@@ -142,8 +142,21 @@ let voice: SpeechSynthesisVoice | null | undefined;
 let speaker: Element | null = null;
 let saying = 0, sound: HTMLAudioElement | null = null;
 const stopSound = (): void => { try { sound?.pause(); } catch { /* not playing */ } sound = null; };
-/** The best voice among `vs`: Australian English, then British, then any English. */
-const pickVoice = (vs: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => vs.find((v) => v.lang === 'en-AU') ?? vs.find((v) => v.lang.startsWith('en-GB')) ?? vs.find((v) => v.lang.startsWith('en')) ?? null;
+/** A voice's language, written one way ('en_AU' on some systems, 'en-AU' on others). */
+const langOf = (v: SpeechSynthesisVoice): string => String(v.lang || '').replace('_', '-').toLowerCase();
+/** The best voice among `vs`: Australian English, then British, then New Zealand, then any other English but American, and an
+ *  American voice only when the screen has no other English at all (the health sheet says so). */
+export const pickVoice = (vs: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => vs.find((v) => langOf(v) === 'en-au') ?? vs.find((v) => langOf(v).startsWith('en-gb'))
+  ?? vs.find((v) => langOf(v) === 'en-nz') ?? vs.find((v) => /^en(-|$)/.test(langOf(v)) && !langOf(v).startsWith('en-us')) ?? vs.find((v) => /^en(-|$)/.test(langOf(v))) ?? null;
+/** What kind of English a voice speaks, for people: Australian, British, American, or just English. */
+export const accentOf = (lang: string): string => { const l = lang.replace('_', '-').toLowerCase(); return l === 'en-au' ? 'Australian' : l.startsWith('en-gb') ? 'British' : l === 'en-nz' ? 'New Zealand' : l.startsWith('en-us') ? 'American' : l.startsWith('en') ? 'English' : lang; };
+// a browser loads its voices in stages (its own first, the internet's later, or none until asked): choose again whenever the list
+// changes, so an early pick from a part of the list is never kept for good
+try { if (typeof speechSynthesis !== 'undefined') speechSynthesis.addEventListener('voiceschanged', () => { voice = undefined; }); } catch { /* speech unavailable */ }
+/** The voice this screen falls back to, as it would choose it now: null when the screen has no English voice of its own, undefined when it cannot speak at all. */
+export const ownVoice = (): { name: string; lang: string; local: boolean } | null | undefined => {
+  try { if (typeof speechSynthesis === 'undefined') return undefined; const v = pickVoice(speechSynthesis.getVoices()); return v ? { name: v.name, lang: v.lang, local: v.localService !== false } : null; } catch { return undefined; }
+};
 /** The screen's own voice: what everything falls back to. Some of a browser's voices are made on the internet (Edge's natural
  *  voices, Chrome's Google voices): when one of those fails, the words are said again in a voice that lives on the screen. */
 const sayOwn = (text: string, by?: Element | null, local = false): void => {

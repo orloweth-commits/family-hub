@@ -34,6 +34,21 @@ const st = (page) => page.evaluate(() => ({ said: window.__said, played: window.
   const s = await st(page);
   ok('with no voice set, the screen reads the answer itself, as before', (await calls(page, 'tts_get_url')).length === 0 && s.said.length === 1 && s.played.length === 0, s);
   await page.context().close(); }
+// 0.38.28 (Oliver's bug, 22 Nov): Ask with no voice of its own speaks in the house voice as chosen in Settings (voice.voices and voice.use),
+// never with no voice id at all (ElevenLabs then uses its own default, an American voice). The live config has no voice.voice.
+{ const page = await open('look=glass&page=planner&voice=1&voices=Robin', { tts: false });
+  await CH(page).locator('.starter').first().click(); await page.waitForTimeout(1800);
+  const t = await calls(page, 'tts_get_url'), s = await st(page);
+  ok('with no voice of its own, Ask speaks in the house voice in use (Robin), not the list\'s first or the config\'s old voice', t.length === 1 && /"engine_id":"tts.demo_voice"/.test(t[0]) && /"voice":"demo-robin"/.test(t[0]) && /"language":"en"/.test(t[0]) && s.played.length === 1, [t, s]);
+  await page.context().close(); }
+{ const page = await open('look=glass&page=planner&voice=1&voices=Robin', { tts: false });
+  // the live house's shape: the voices named in a list and no voice.voice
+  await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); const { voice: _v, ...rest } = c._config.voice; c.setConfig({ ...c._config, voice: rest }); await c.updateComplete; c._sheet = ''; await c.updateComplete; c._sheet = 'chat'; });
+  await page.waitForTimeout(600); await page.evaluate(() => { window.__calls = []; window.__played = []; });
+  await CH(page).locator('.starter').first().click(); await page.waitForTimeout(1800);
+  const t = await calls(page, 'tts_get_url'), v = await CH(page).evaluate((c) => c.ttsVoice);
+  ok('with no voice.voice in the config (as the house has it), Ask\'s speech request still names the voice in use', t.length === 1 && /"voice":"demo-robin"/.test(t[0]) && v === 'demo-robin', [t, v]);
+  await page.context().close(); }
 { const page = await open('look=glass&page=planner'); await page.evaluate(() => { window.__audioFail = true; });
   await CH(page).locator('.starter').first().click(); await page.waitForTimeout(1800);
   const s = await st(page);
