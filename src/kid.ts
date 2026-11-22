@@ -327,7 +327,10 @@ export class FhKid extends LitElement {
     .soonpic .e { font-size: var(--fs-d1); line-height: 1.1; }
     /* the words are for a parent glancing over his shoulder: they wrap in full and are never cut (a long one makes its picture taller, and the card scrolls);
        only the part before a dash is shown ("Bins out – recycling week" is "Bins out": the tile is narrow, batch 5), and the tap reads the whole title */
-    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; overflow-wrap: break-word; text-wrap: balance; }
+    .soonpic .pt { font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.15; max-width: 100%; text-wrap: balance; }
+    /* a word wider than the tile ("FaceTime" in a narrow window) takes the step below rather than breaking inside it; only a word too long for that breaks (backlog 145) */
+    .soonpic .pt[data-fit] { font-size: var(--fs-1); }
+    .soonpic .pt[data-fit='2'] { overflow-wrap: break-word; }
     .soonpic .moons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; max-width: 64px; font-size: var(--fs-2); line-height: 1.1; margin-top: auto; }
     .soonpic .sl { font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); white-space: nowrap; }
     .wind { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--ink2); }
@@ -562,10 +565,19 @@ export class FhKid extends LitElement {
     return true;
   }
 
+  /** Coming up's picture tiles: a title whose longest word is wider than the tile goes a step smaller, and breaks inside the word only if it still does not fit. */
+  private _fitSoon(): void {
+    for (const pt of this.renderRoot.querySelectorAll<HTMLElement>('.soonpic .pt')) {
+      const key = `${pt.textContent}|${pt.parentElement?.clientWidth ?? 0}`; if (pt.dataset.fitFor === key) continue;
+      pt.removeAttribute('data-fit'); if (pt.scrollWidth > pt.clientWidth + 1) { pt.dataset.fit = '1'; if (pt.scrollWidth > pt.clientWidth + 1) pt.dataset.fit = '2'; }
+      pt.dataset.fitFor = key;
+    }
+  }
   protected updated(ch: PropertyValues): void {
     if (!this.hass || !this.kid) return;
     // a question that opens in a row ("Ask a parent?", "Spend 50 points?") is brought wholly into view: at the wall's size its last button was under the card's bottom edge
     if (ch.has('_spend') && this._spend) this.renderRoot.querySelector<HTMLElement>('.rw.ask')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    this._fitSoon();
     // near bedtime and in quiet hours his page keeps quiet: plain buttons make no sound either
     this.toggleAttribute('data-hush', !!this.quiet || !!this._wind);
     const e = this._e;

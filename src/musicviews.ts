@@ -28,13 +28,13 @@ export const sceneKind = (look: string, theme: string): string => (look === 'gla
 export const viewHint = (id: ViewId, look: string, theme: string): string => (id === 'scene' ? SCENE_HINT[sceneKind(look, theme)] : VIEWS.find((v) => v.id === id)?.hint ?? '');
 /** A view's coach marks: short lines shown one at a time in the hint's place, the first time the view is opened and again from "?".
  *  The House and the Scene have three; each names the tap first and the drag second. `teach` names what the page rings while the line shows. */
-export interface Mark { text: string; teach: '' | 'move' | 'vol' | 'pin' }
+export interface Mark { text: string; teach: '' | 'join' | 'move' | 'vol' | 'pin' }
 export const viewMarks = (id: ViewId, look: string, theme: string): Mark[] => (id === 'house' ? [
   { text: 'Tap a quiet room, then Move the music. Or carry the record there.', teach: 'move' },
   { text: 'Tap the speaker buttons for louder or softer. Or slide the bar.', teach: 'vol' },
   { text: 'Tap the pin, then a name, to keep the music. Or carry it onto a name.', teach: 'pin' }]
   : id === 'scene' ? [
-    { text: viewHint(id, look, theme), teach: '' },
+    { text: viewHint(id, look, theme), teach: 'join' },
     { text: 'Tap a quiet room, then Move the music.', teach: 'move' },
     { text: 'Tap the pin, then a name, to keep the music.', teach: 'pin' }]
     : [{ text: viewHint(id, look, theme), teach: '' }]).filter((m): m is Mark => !!m.text);

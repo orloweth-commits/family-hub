@@ -58,15 +58,6 @@
     }
   },
   {
-    "name": "fit: the Scene's \"Wind down\" pad on the iPad (backlog 150)",
-    "fit": {
-      "kind": "^TIGHT$",
-      "where": "^fh-music button\\.hpad$",
-      "vp": "^ipad$",
-      "page": "mview=scene"
-    }
-  },
-  {
     "name": "fit: Orbit's Looks sheet footnote on a phone (backlog 150)",
     "fit": {
       "kind": "^TIGHT$",

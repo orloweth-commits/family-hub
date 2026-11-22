@@ -84,7 +84,7 @@ interface JobEdit { entity: string; uid: string | null; form: ChoreForm; was?: C
 export class FhSettings extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, keysCss, css`
-    :host { position: absolute; inset: 0; z-index: 30; display: flex; align-items: stretch; justify-content: center; padding: 16px; background: var(--scrim, rgba(6,16,28,.52)); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
+    :host { position: absolute; inset: 0; z-index: 30; display: flex; align-items: stretch; justify-content: center; padding: 16px; background: var(--scrim, rgba(6,16,28,.52)); /* a look that blurs its sheets' backdrop (Obsidian's .scrim) blurs this one too: backlog 144 */ -webkit-backdrop-filter: var(--scrim-filter, none); backdrop-filter: var(--scrim-filter, none); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     :host([data-phone]) { position: fixed; padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)); }
     .sheet.sbox, :host([data-phone]) .sheet.sbox { width: min(1240px, 100%); height: 100%; max-height: none; padding: 0; gap: 0; overflow: visible; display: grid; grid-template-columns: 264px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
@@ -104,7 +104,7 @@ export class FhSettings extends LitElement {
     .snav .sdot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: spop var(--m-3, 240ms) var(--e-spring, ease) backwards; }
     @keyframes spop { from { transform: scale(calc(1 - var(--m-d, 1))); opacity: 0; } }
     /* the pane */
-    .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 20px 12px; display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
+    .spane { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 24px 40px 12px; /* what runs on under the footer fades out over its last 36 px; at the end only the padding is there (backlog 142) */ -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; animation: pgfade var(--m-2, 160ms) var(--e-out, ease) backwards, pgmove var(--m-3, 240ms) var(--e-out, ease) backwards; }
     .spane > * { flex-shrink: 0; }
     .spane > .seg { align-self: flex-start; max-width: 100%; }
     /* a choice of several, with words too long for one line on a phone: the choices wrap, and each keeps its words whole */
@@ -226,6 +226,8 @@ export class FhSettings extends LitElement {
     .sft .sstate.bad { color: var(--danger, #c62828); font-weight: var(--w-bold, 700); }
     .sft .lead { min-width: 132px; }
     .sft .lead[disabled] { background: var(--chip-strong); color: var(--ink2); opacity: 1; box-shadow: inset 0 0 0 1.5px var(--ink3) !important; }
+    /* nothing to save: Save rests, plainly not a button to press beside "All saved" (backlog 142) */
+    .sft .lead[disabled]:not([data-busy]) { opacity: .5; }
     .sft .sdot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
     /* the keyboard sits under the pane on a touch panel */
     .skeys { grid-column: 1 / -1; padding: 10px 16px 14px; border-top: 1px solid color-mix(in srgb, var(--ink2) 20%, transparent); display: flex; gap: 10px; align-items: flex-end; justify-content: center; animation: fadeIn var(--m-3, 240ms) var(--e-out, ease); }
@@ -263,7 +265,7 @@ export class FhSettings extends LitElement {
     :host([data-shape='tall']) .snav, :host([data-phone]) .snav { grid-row: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 12px 10px; gap: 6px; scroll-snap-type: x proximity; }
     :host([data-shape='tall']) .snav button, :host([data-phone]) .snav button { flex: 0 0 auto; min-height: 48px; padding: 0 14px; border-radius: 999px; background: var(--chip); scroll-snap-align: center; white-space: nowrap; gap: 8px; }
     :host([data-shape='tall']) .snav button[aria-current='page'], :host([data-phone]) .snav button[aria-current='page'] { background: var(--sel-bg); }
-    :host([data-shape='tall']) .spane, :host([data-phone]) .spane { padding: 4px 14px 16px; }
+    :host([data-shape='tall']) .spane, :host([data-phone]) .spane { padding: 4px 14px 36px; }
     :host([data-shape='tall']) .sft, :host([data-phone]) .sft { grid-column: 1; padding: 10px 14px 12px; }
     :host([data-phone]) .shd { padding: 12px 10px 8px 16px; gap: 8px; }
     :host([data-phone]) .shd .muted { display: none; }
@@ -354,7 +356,7 @@ export class FhSettings extends LitElement {
     this._access = await checkAccess(this.hass, this.config);
     this._checking = false;
   }
-  protected firstUpdated(): void { this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.focus({ preventScroll: true }); }
+  protected firstUpdated(): void { this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.focus({ preventScroll: true, focusVisible: false } as FocusOptions); /* the focus is there for a keyboard, without a ring on first open (backlog 142) */ }
   protected updated(ch: PropertyValues): void {
     // a pane chosen another way (from a script, or Settings coming back on the pane it was on) takes the focus from the section that had it, so no ring is left on "Children"
     if (ch.has('_pane')) { const a = (this.renderRoot as ShadowRoot).activeElement as HTMLElement | null; if (a?.closest('.snav') && a.getAttribute('aria-current') !== 'page') this.renderRoot.querySelector<HTMLElement>('.snav button[aria-current="page"]')?.focus({ preventScroll: true, focusVisible: false } as FocusOptions); }
@@ -652,7 +654,15 @@ export class FhSettings extends LitElement {
 
   /* ---------------- the time dial ---------------- */
 
-  private _setAt = 0;
+  /** A drum a key or a tap has just set: its scroll is the roll to that value, not a choice, until it rests there (backlog 152). A finger on it takes over at once. */
+  private _want: Record<string, number> = {};
+  private _wantRow(which: 'h' | 'm'): number { const [h, m] = this._hmOf(); return which === 'h' ? HOURS.indexOf(h % 12 || 12) : this._mins(m).indexOf(m); }
+  private _pick(which: 'h' | 'm', i: number): void { clearTimeout(this._spin[which]); this._spin[which] = 0; this._want[which] = Date.now(); this._drumTo(which, i); }
+  private _rolled(which: 'h' | 'm', el: HTMLElement): void {
+    const w = this._want[which];
+    if (w) { if (Math.abs(el.scrollTop - this._wantRow(which) * ROW) <= 1 || Date.now() - w > 2000) this._want[which] = 0; if (Date.now() - w <= 2000) return; }
+    clearTimeout(this._spin[which]); this._spin[which] = window.setTimeout(() => { this._spin[which] = 0; this._drumTo(which, Math.round(el.scrollTop / ROW)); }, 90);
+  }
   private _hmOf(): [number, number] { const v = this._time?.get() ?? ''; const [h, m] = isTime(v) ? v.split(':').map(Number) : [7, 0]; return [h, m]; }
   private _mins(m: number): number[] { const l = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]; return l.includes(m) ? l : [...l, m].sort((a, b) => a - b); }
   private _setTime(h: number, m: number): void { const [h0, m0] = this._hmOf(); if (h === h0 && m === m0) return; sfx('step'); this._time?.set(`${pad(h)}:${pad(m)}`); this.requestUpdate(); }
@@ -663,10 +673,10 @@ export class FhSettings extends LitElement {
   private _drum(which: 'h' | 'm'): TemplateResult {
     const [h, m] = this._hmOf(), list = which === 'h' ? HOURS : this._mins(m), v = which === 'h' ? h % 12 || 12 : m, at = list.indexOf(v);
     return html`<div class="drum" data-d=${which} tabindex="0" role="spinbutton" aria-label=${which === 'h' ? 'Hour' : 'Minutes'} aria-valuenow=${v} aria-valuetext=${which === 'h' ? `${v} ${h < 12 ? 'am' : 'pm'}` : `${pad(v)} minutes`} aria-valuemin=${list[0]} aria-valuemax=${list[list.length - 1]}
-      @scroll=${(e: Event) => { const el = e.currentTarget as HTMLElement; if (Date.now() - this._setAt < 600) return; /* the drum is still rolling to a value set by a key or a tap */ clearTimeout(this._spin[which]); this._spin[which] = window.setTimeout(() => { this._spin[which] = 0; this._drumTo(which, Math.round(el.scrollTop / ROW)); }, 90); }}
+      @scroll=${(e: Event) => this._rolled(which, e.currentTarget as HTMLElement)} @pointerdown=${() => { this._want[which] = 0; }} @wheel=${() => { this._want[which] = 0; }}
       @keydown=${(e: KeyboardEvent) => { const d = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : e.key === 'PageUp' ? -3 : e.key === 'PageDown' ? 3 : 0;
-        if (d) { e.preventDefault(); this._setAt = Date.now(); this._drumTo(which, Math.abs(d) === 1 ? (at + d + list.length) % list.length : at + d); } else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._setAt = Date.now(); this._drumTo(which, e.key === 'Home' ? 0 : list.length - 1); } else if (e.key === 'Enter') { e.preventDefault(); this._time = null; } }}>
-      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => { this._setAt = Date.now(); this._drumTo(which, i); }}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
+        if (d) { e.preventDefault(); this._pick(which, Math.abs(d) === 1 ? (at + d + list.length) % list.length : at + d); } else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); this._pick(which, e.key === 'Home' ? 0 : list.length - 1); } else if (e.key === 'Enter') { e.preventDefault(); this._time = null; } }}>
+      ${list.map((n, i) => html`<i ?data-on=${n === v} @click=${() => this._pick(which, i)}>${which === 'h' ? n : pad(n)}</i>`)}</div>`;
   }
   private _dial(): TemplateResult {
     const t = this._time!, [h, m] = this._hmOf(), pm = h >= 12;
