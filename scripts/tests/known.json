@@ -25,10 +25,10 @@
     "match": "R5-12 Max’s shelf at the wall"
   },
   {
-    "name": "fit: Obsidian's small initials on the planner's day and month views (backlog 108)",
+    "name": "fit: Obsidian's small initials on the planner's day and month views and a child's page (backlog 108)",
     "fit": {
       "kind": "^TIGHT$",
-      "where": "^card span\\.init\\.sm$",
+      "where": "^(card|fh-kid) span\\.init\\.sm$",
       "look": "^obsidian$"
     }
   },
@@ -45,6 +45,14 @@
     "fit": {
       "kind": "^TIGHT$",
       "where": "^fh-morning span\\.tile$",
+      "look": "^obsidian$"
+    }
+  },
+  {
+    "name": "fit: Obsidian's Style Studio \"more\" cell (backlog 108; on main, seen 22 Nov in 0.38.24's batch check)",
+    "fit": {
+      "kind": "^TIGHT$",
+      "where": "^fh-studio div\\.cell\\.more$",
       "look": "^obsidian$"
     }
   },
