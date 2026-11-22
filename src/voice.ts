@@ -19,14 +19,15 @@ import type { Hass } from './types';
  * EVERY PLACE THE APP SPEAKS (keep this list true; a new one must go through say(), voiceUrl() or voiceReady()):
  *   1. Read-aloud on a screen: say() in util.ts. The youngest's page (jobs, stars, rewards, feelings), the morning board's "Done!",
  *      the Style Studio, the weather's "what to wear", Settings' "hear it".                         -> the house voice, then the screen's own
- *   2. Ask, typed and tapped answers: FhChat._speak.                                                -> `chat.tts` if set, otherwise the house voice
+ *   2. Ask, typed and tapped answers, its daily note and its time-up line: FhChat._speak.         -> `chat.tts` if set, otherwise the house voice
+ *      (as resolved: houseVoice(), never the raw config's voice.voice, which is empty with voice.voices; 0.38.28)
  *   3. Ask, spoken conversations (microphone): Home Assistant's Assist pipeline makes the speech.   -> the pipeline's own voice (voice.sync.pipeline)
  *   4. Call a room, a ready message: FhMusic._call plays the voice's recording (lineReady) when that voice has one.
  *   5. Call a room, a typed message or a ready one with no recording: voiceReady().                 -> the house voice, then the built-in voice
  *   6. The dinner call: the Dinner button runs `announce_script` with fh_line, fh_file and fh_voice. -> the recording, else the script speaks
  *   7. Anything Home Assistant says by itself through the announce script (the kitchen timer).      -> the script reads voice.sync's helpers
- *   Fallbacks, which are not the house voice and do not change with it: the screen's own voice (the browser's, Australian when it
- *   has one) and Home Assistant's built-in voice on a speaker (`call_language`, `call_voice`).
+ *   Fallbacks, which are not the house voice and do not change with it: the screen's own voice (the browser's: Australian, else British,
+ *   else any English but American, American last; chosen again when the browser's voices change; named on the health sheet) and Home Assistant's built-in voice on a speaker (`call_language`, `call_voice`).
  *
  * Every paid voice call has a cap and a fallback. A phrase this screen has heard before costs nothing (Home Assistant
  * keeps the sound), so it is always allowed; a new phrase is allowed while the day's allowance lasts. Past that, or

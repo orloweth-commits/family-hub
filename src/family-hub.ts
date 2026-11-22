@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.27';
+const VERSION = '0.38.28';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1859,9 +1859,11 @@ export class FamilyHubCard extends LitElement {
     if (s === 'add') return html`<fh-add-event .hass=${this.hass} .calendars=${this._config.calendars ?? []} .defaultCal=${this._config.add_calendar ?? ''} .edit=${this._editEv} .scope=${this._editEv ? this._editScope : ''} .places=${this._config.address_search !== false}
       ?data-closing=${out} @click=${close} @close=${close} @saved=${(e: CustomEvent<string>) => { const was = this._editEv; if (this._sheet === 'add') close(); this._say(was ? (e.detail.startsWith('!') ? `The new one was added, but the old “${was.title}” could not be removed. Please delete it by hand.` : `Changed: ${e.detail}`) : `Added: ${e.detail}`, was && e.detail.startsWith('!') ? 10000 : undefined); this._fetchedKey = ''; this._refresh(); void this._loadSoon(); }}
       @failed=${(e: CustomEvent<string>) => this._say(`${e.detail} was not ${this._editEv ? 'changed' : 'added'}: Home Assistant did not answer`, 8000)}></fh-add-event>`;
-    if (s === 'chat') { const ch = this._config.chat, hv = this._config.voice, name = ch?.name || 'Ask', kids = this._config.kids ?? [];
+    if (s === 'chat') { const ch = this._config.chat, hv = houseVoice(), name = ch?.name || 'Ask', kids = this._config.kids ?? [];
       if (!ch?.agent) return nothing;
       const who = this._asker, kid = who ? kids.find((k) => k.name === who) : undefined, rule = kid ? askFor(kid) : undefined, pics = rule?.mode === 'pictures';
+      // Ask speaks in the house voice as resolved (voice.voices and voice.use give the voice in use: the raw config's voice.voice is empty then,
+      // and ElevenLabs given no voice speaks in its own default, an American one, 22 Nov), unless `chat.tts` gives Ask a voice of its own
       // set by child and opened from a shared page: first, who is asking? Each child then gets his own kind of Ask and his own time; a parent goes through the PIN
       const pick = who === null ? html`<div class="askwho" role="group" aria-label="Who is asking?">
           ${kids.filter((k) => askFor(k).mode !== 'off').map((k) => { const e = kidEntities(k), raw = this.hass?.states[e.avatar]?.state, look = raw || k.look ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;

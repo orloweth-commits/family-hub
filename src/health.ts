@@ -18,6 +18,7 @@ import { agoWords, forWords, isWall, screenId } from './trust';
 import { lastReload, loadedFrom, buildShort, watchdog, WAIT_SAY, WHY_SAY, type Why } from './watchdog';
 import { houseVoice, voiceCap, voiceInUse, voiceUsed } from './voice';
 import { fmtTime, sameDay } from './dates';
+import { accentOf, ownVoice } from './util';
 import type { FamilyHubConfig, Hass, HassEntity } from './types';
 
 export type Mark = 'ok' | 'warn' | 'bad' | 'wait';
@@ -188,6 +189,13 @@ export function healthGroups(i: HealthInput): HealthGroup[] {
     else rows.push({ id: 'voice', name, mark: 'ok', words: 'Ready. It is made on the internet: with the internet down, only lines said before can play.' });
     if (hv) rows.push(used >= cap ? { id: 'allowance', name: 'Today’s allowance', mark: 'warn', words: `Used up (${used.toLocaleString('en-AU')} of ${cap.toLocaleString('en-AU')} new characters): new lines are spoken in the screen’s own voice until midnight.` }
       : { id: 'allowance', name: 'Today’s allowance', mark: 'ok', words: `${used.toLocaleString('en-AU')} of ${cap.toLocaleString('en-AU')} new characters used.` });
+    // the screen's own voice: what speaks here when the house voice can't (over the allowance, slow, the internet down). Read from
+    // this screen, so it is shown while Home Assistant is away too. American only when the screen has no other English voice.
+    if (hv) { const o = ownVoice(), acc = o ? accentOf(o.lang) : '';
+      rows.push(o === undefined ? { id: 'ownvoice', name: 'This screen’s own voice', mark: 'warn', words: 'This browser can’t speak: when the house voice can’t say something, nothing is said.' }
+        : o === null ? { id: 'ownvoice', name: 'This screen’s own voice', mark: 'warn', words: 'None in English on this screen: when the house voice can’t say something, the browser chooses. Add the English (Australia) speech pack.' }
+          : acc === 'Australian' || acc === 'British' ? { id: 'ownvoice', name: 'This screen’s own voice', mark: 'ok', words: `${o.name.replace(/^Microsoft /, '')} (${acc}${o.local ? '' : ', made on the internet'}): it speaks when the house voice can’t.${acc === 'British' ? ' No Australian voice on this screen.' : ''}` }
+            : { id: 'ownvoice', name: 'This screen’s own voice', mark: 'warn', words: `${o.name.replace(/^Microsoft /, '')} (${acc}): no Australian or British voice on this screen. Add the English (Australia) speech pack.` }); }
     groups.push({ id: 'voice', title: 'The voice', rows });
   }
 

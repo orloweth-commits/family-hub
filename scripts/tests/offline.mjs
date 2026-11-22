@@ -104,6 +104,25 @@ const FAKE = () => {
   ok('and only once each time (no endless retrying)', (await page.evaluate(() => window.__said)).length === 4, await page.evaluate(() => window.__said));
   await page.context().close(); }
 
+// 5b. (0.38.28) a browser that loads its voices in stages: the first list holds only an American voice; when the rest arrive
+// ('voiceschanged') the screen chooses again, and the Australian voice speaks. With both, never the American one.
+const STAGED = () => {
+  window.__said = [];
+  let vs = [{ name: 'Google US English', lang: 'en-US', localService: false, voiceURI: 'us', default: true }];
+  window.SpeechSynthesisUtterance = class { constructor(t) { this.text = t; } };
+  const ss = new EventTarget(); ss.getVoices = () => vs; ss.cancel = () => {}; ss.speak = (u) => { window.__said.push(`${u.voice?.name}: ${u.text}`); setTimeout(() => u.onend?.({}), 5); };
+  Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: ss });
+  window.__moreVoices = () => { vs = [...vs, { name: 'Microsoft James - English (Australia)', lang: 'en-AU', localService: true, voiceURI: 'au', default: false }]; ss.dispatchEvent(new Event('voiceschanged')); };
+};
+{ const { page } = await open('look=glass&page=kid&kid=2', { before: STAGED });
+  await page.locator('family-hub-card fh-kid .readme').click(); await page.clock.runFor(300); await page.waitForTimeout(200);
+  const first = await page.evaluate(() => window.__said.slice());
+  await page.evaluate(() => { window.__said = []; window.__moreVoices(); });
+  await page.locator('family-hub-card fh-kid .readme').click(); await page.clock.runFor(300); await page.waitForTimeout(200);
+  const then = await page.evaluate(() => window.__said);
+  ok('voices that arrive later are chosen from again: the Australian voice speaks once it is there, not the American one picked first', /^Google US English/.test(first[0] ?? '') && then.length === 1 && /^Microsoft James/.test(then[0]), [first, then]);
+  await page.context().close(); }
+
 console.log(`\nerrors: ${errs.length ? '\n' + [...new Set(errs)].map((e) => ' - ' + e).join('\n') : 'none'}`);
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ':\n - ' + fails.join('\n - ') : ''}`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);
