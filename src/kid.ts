@@ -276,7 +276,8 @@ export class FhKid extends LitElement {
     .rw button.save { background: var(--chip); box-shadow: inset 0 0 0 1.500px var(--ink2); color: var(--ink); }
     /* (the second review's cut, item 7) the jar card is one line, how far to the treat; the whole card is the button that opens how it fills */
     .jarcard { gap: 8px; }
-    .jar { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; text-align: left; border-radius: 16px; }
+    /* the card keeps the height it had (the jar's 42 px drawing sets the row); the button reaches 8 px out into the card's padding, so the whole card is easy to hit */
+    .jar { display: flex; align-items: center; gap: 12px; box-sizing: border-box; width: calc(100% + 16px); min-height: 42px; margin: -8px; padding: 8px; text-align: left; border-radius: 16px; }
     .jar .jargo { flex: 1; min-width: 0; font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.25; }
     .jar .jari { flex-shrink: 0; line-height: 0; color: var(--ink2); }
     .jarwhy { margin: 0; font-size: var(--fs-2); font-weight: var(--w-semi, 600); color: var(--ink2); line-height: 1.35; }

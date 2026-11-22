@@ -374,7 +374,7 @@ const toastOf = async (p, host) => (await p.locator(`${host} .toast`).allInnerTe
 page = await open('look=glass&page=groceries');
 const gDone = () => page.locator('fh-groceries button.item.done').count();
 const clear = page.getByRole('button', { name: /Clear ticked/ }); const cb = await clear.boundingBox();
-console.log('clear button:', (await clear.innerText()).trim(), Math.round(cb.height) + ' px high', '| usual chip height:', Math.round((await page.getByRole('button', { name: 'Add Milk' }).boundingBox()).height));
+console.log('clear button:', (await clear.innerText()).trim(), Math.round(cb.height) + ' px high', '| usual chip height:', Math.round((await page.getByRole('button', { name: 'Add Bread' }) /* (0.38.27: Milk is on the preview's list, so its usual reads "Milk: on the list already") */.boundingBox()).height));
 await clear.click(); await page.waitForTimeout(300);
 console.log('after clear: ticked rows', await gDone(), '| toast:', await toastOf(page, 'fh-groceries'), '| removed in Home Assistant yet:', /remove_/.test(await calls(page)));
 await page.getByRole('button', { name: 'Undo' }).click(); await page.waitForTimeout(300);
