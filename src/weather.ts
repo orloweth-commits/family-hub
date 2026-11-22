@@ -37,6 +37,28 @@ const COND: Record<string, string> = {
   'clear-night': 'Clear night', cloudy: 'Cloudy', exceptional: 'Wild weather', fog: 'Foggy', hail: 'Hail', lightning: 'Storms', 'lightning-rainy': 'Storms and rain',
   partlycloudy: 'Partly cloudy', pouring: 'Heavy rain', rainy: 'Rain', snowy: 'Snow', 'snowy-rainy': 'Sleet', sunny: 'Sunny', windy: 'Windy', 'windy-variant': 'Windy'
 };
+/** A Bureau warning as the warnings sensor lists it. */
+export interface Warning { short_title?: string; title?: string; phase?: string; expiry_time?: string }
+/** The Bureau's forecast sensors' prefix (`sensor.<prefix>_uv_max_index_0`), found by itself unless the page names it. */
+export function forecastPrefix(hass: Hass | undefined, entity: string, page: WeatherPageConfig | false | undefined): string {
+  if (page && page.forecast) return page.forecast;
+  const own = entity.split('.')[1] ?? '';
+  if (hass?.states[`sensor.${own}_short_text_0`] || hass?.states[`sensor.${own}_extended_text_0`]) return own;
+  const id = Object.keys(hass?.states ?? {}).find((k) => k.startsWith('sensor.') && /_(extended_text|uv_max_index|rain_chance)_0$/.test(k));
+  return id ? id.slice(7).replace(/_(extended_text|uv_max_index|rain_chance)_0$/, '') : '';
+}
+/** The warnings sensor, found by itself unless the page names it ('' when there is none). */
+export function warnSensor(hass: Hass | undefined, entity: string, page: WeatherPageConfig | false | undefined): string {
+  if (page && page.warnings) return page.warnings;
+  const guess = `sensor.${forecastPrefix(hass, entity, page)}_warnings`;
+  return hass?.states[guess] ? guess : Object.keys(hass?.states ?? {}).find((k) => k.startsWith('sensor.') && k.endsWith('_warnings') && Array.isArray(hass!.states[k].attributes.warnings)) ?? '';
+}
+/** The warnings in force now: never a cancelled one, never one past its expiry. The header, the morning board and the Weather page all read these. */
+export function activeWarnings(hass: Hass | undefined, id: string, now = Date.now()): Warning[] {
+  const list = hass?.states[id]?.attributes.warnings;
+  return (Array.isArray(list) ? list as Warning[] : []).filter((x) => x && x.phase !== 'cancelled' && (!x.expiry_time || new Date(x.expiry_time).getTime() > now));
+}
+
 const POINTS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
 const WORDS: Record<string, string> = { N: 'north', NE: 'north-east', E: 'east', SE: 'south-east', S: 'south', SW: 'south-west', W: 'west', NW: 'north-west' };
 const deg = (b: unknown): number | undefined => typeof b === 'number' ? b : typeof b === 'string' && POINTS.includes(b.toUpperCase()) ? POINTS.indexOf(b.toUpperCase()) * 22.5 : undefined;
@@ -297,8 +319,7 @@ export class FhWeather extends LitElement {
   private _rainAbout(): boolean {
     const WET = /rain|pour|lightning|hail|snow/, st = this.hass?.states[this.entity]?.state ?? '';
     if (WET.test(st)) return true;
-    const warns = (this.hass?.states[this._warnId]?.attributes.warnings ?? []) as { phase?: string; expiry_time?: string }[];
-    if (warns.some((x) => x.phase !== 'cancelled' && (!x.expiry_time || new Date(x.expiry_time).getTime() > Date.now()))) return true;
+    if (activeWarnings(this.hass, this._warnId).length) return true;
     const now = Date.now(), soon = this._hours.filter((h) => { const t = new Date(h.datetime).getTime(); return t >= now - 30 * 60000 && t <= now + 6 * 3600000; });
     if (soon.length) return soon.some((h) => (h.precipitation_probability ?? 0) >= 40 || WET.test(h.condition ?? ''));
     return (num(this._f('rain_chance')) ?? this._today()?.precipitation_probability ?? 0) >= 60;
@@ -348,18 +369,8 @@ export class FhWeather extends LitElement {
     const id = Object.keys(this.hass?.states ?? {}).find((k) => k.startsWith('sensor.') && k.endsWith('_temp_feels_like'));
     return id ? id.slice(7, -16) : '';
   }
-  private get _fc(): string {
-    if (this.page.forecast) return this.page.forecast;
-    const own = this.entity.split('.')[1] ?? '';
-    if (this.hass?.states[`sensor.${own}_short_text_0`] || this.hass?.states[`sensor.${own}_extended_text_0`]) return own;
-    const id = Object.keys(this.hass?.states ?? {}).find((k) => k.startsWith('sensor.') && /_(extended_text|uv_max_index|rain_chance)_0$/.test(k));
-    return id ? id.slice(7).replace(/_(extended_text|uv_max_index|rain_chance)_0$/, '') : '';
-  }
-  private get _warnId(): string {
-    if (this.page.warnings) return this.page.warnings;
-    const guess = `sensor.${this._fc}_warnings`;
-    return this.hass?.states[guess] ? guess : Object.keys(this.hass?.states ?? {}).find((k) => k.startsWith('sensor.') && k.endsWith('_warnings') && Array.isArray(this.hass!.states[k].attributes.warnings)) ?? '';
-  }
+  private get _fc(): string { return forecastPrefix(this.hass, this.entity, this.page); }
+  private get _warnId(): string { return warnSensor(this.hass, this.entity, this.page); }
   private get _hourlyId(): string {
     if (this.page.hourly) return this.page.hourly;
     const guess = `${this.entity}_hourly`;
@@ -452,8 +463,7 @@ export class FhWeather extends LitElement {
     const range = txt(this._f('rain_amount_range')), uv = this._uv(), fire = txt(this._f('fire_danger'));
     const rise = clock(txt(this._f('astronomical_sunrise_time'))), set = clock(txt(this._f('astronomical_sunset_time')));
     const said = txt(this._f('extended_text'));
-    const warns = ((this.hass?.states[this._warnId]?.attributes.warnings ?? []) as { short_title?: string; title?: string; phase?: string; expiry_time?: string }[])
-      .filter((x) => x.phase !== 'cancelled' && (!x.expiry_time || new Date(x.expiry_time).getTime() > Date.now()));
+    const warns = activeWarnings(this.hass, this._warnId);
     const fact = (big: unknown, small: string, cls = '') => html`<div class="wfact ${cls}"><b>${big}</b><small>${small}</small></div>`;
     const tips = this._tips(), night = new Date().getHours() >= 19 || new Date().getHours() < 5;
     // three thirds when they fit; with the fire danger (a long word that must not be cut) the small readings pair up in halves

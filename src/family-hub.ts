@@ -10,7 +10,7 @@ import './groceries';
 import './kid';
 import './home';
 import './music';
-import './weather';
+import { activeWarnings, warnSensor } from './weather';
 import './doodle';
 import './morning';
 import { art, moonAge, type ArtData } from './art';
@@ -56,6 +56,11 @@ const FREE_DAY = html`<svg viewBox="0 0 160 110" width="160" height="110" fill="
 
 type View = 'day' | 'week' | 'month';
 type Page = 'planner' | 'groceries' | 'kid' | 'doodle' | 'music' | 'home' | 'morning' | 'weather';
+/** a daily dose's header chip is amber for this many minutes after its time (second review, item 1) */
+const MED_WARM = 120;
+/** the end of a dose's part of the day, in minutes: noon for a morning dose, 5 pm for an afternoon one, midnight for an evening one */
+const medPartEnd = (t: number): number => (t < 720 ? 720 : t < 1020 ? 1020 : 1440);
+const medPart = (t: number): string => (t < 720 ? 'Morning' : t < 1020 ? 'Afternoon' : 'Evening');
 /** the bell's three kinds of row, in the order they are shown, each with what its buttons do */
 const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say: string }[] = [
   { k: 'reward', ic: 'star', title: 'Rewards asked for', say: 'Approve takes the points. Not yet changes nothing.' },
@@ -65,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.24';
+const VERSION = '0.38.25';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -267,9 +272,14 @@ export class FamilyHubCard extends LitElement {
     const raw = k ? this.hass?.states[kidEntities(k).avatar]?.state : undefined, look = k && (raw || k.look) ? decodeLook(raw, k.look ? decodeLook(k.look) : {}) : null;
     return html`<span class="avatar wface" aria-hidden="true" style="width:${size}px;height:${size}px;background:${k ? slotVar(k.colour) : 'var(--chip-strong)'}">${look && k ? renderAvatar(look, { size, crop: 'head', still: true, label: k.name, age: k.age, ring: slotVar(k.colour) }) : (k?.name ?? who).slice(0, 1)}</span>`;
   }
-  /** The bell's sheet: what is waiting, grouped by kind, each kind with its own line on what the buttons do. */
+  /**
+   * The bell's sheet: what is waiting, grouped by kind, each kind with its own line on what the buttons do.
+   * A child's request for a chat stays off the wall (second review, item 2; the eldest's page promises "Nothing shows on the wall"): on a shared
+   * screen it is one line, "1 private message, on your phone", with no name, face or Seen; a phone-sized screen (a parent's own) shows the rows.
+   */
   private _waitingBody(): TemplateResult {
-    const W = this._waiting, groups = WAIT_KINDS.map((g) => ({ ...g, rows: W.filter((a) => a.k === g.k).sort((x, y) => x.t - y.t) })).filter((g) => g.rows.length);
+    const W = this._waiting, own = getShape() === 'phone', chats = W.filter((a) => a.k === 'chat').length;
+    const groups = WAIT_KINDS.map((g) => ({ ...g, rows: W.filter((a) => a.k === g.k && (own || g.k !== 'chat')).sort((x, y) => x.t - y.t) })).filter((g) => g.rows.length);
     return html`${this._sheetHead('Waiting for a parent', W.length ? 'Each one waits here and on a parent’s phone until it is answered.' : '', 'bell')}
       <div class="waitlist">${groups.map((g) => html`<section class="waitgrp" data-kind=${g.k} aria-label=${g.title}>
         <div class="wgh"><span class="wgi" aria-hidden="true">${icon(g.ic, 20)}</span><span class="wgt"><b>${g.title}</b><span>${g.say}</span></span></div>
@@ -279,7 +289,9 @@ export class FamilyHubCard extends LitElement {
           <span class="wbtns">${a.k === 'chat' ? html`<button class="pill tap primary" data-act="wait-seen" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Seen</button>`
             : html`<button class="pill tap" data-act="wait-no" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, false)}>Not yet</button>
             <button class="pill tap primary" data-act="wait-ok" ?disabled=${!!this._waitBusy} @click=${() => void this._answer(a, true)}>Approve</button>`}</span></div>`)}
-      </section>`)}
+      </section>`)}${!own && chats ? html`<section class="waitgrp" data-kind="private" aria-label="Private messages">
+        <div class="wgh"><span class="wgi" aria-hidden="true">${icon('lock', 20)}</span><span class="wgt"><b>${chats} private message${chats === 1 ? '' : 's'}, on your phone</b><span>Who sent it, and Seen, are on a parent’s phone, not the wall.</span></span></div>
+      </section>` : nothing}
         ${W.length ? nothing : html`<span class="muted">Nothing is waiting.</span>`}</div>`;
   }
   /* ---------------- the dinner line: one line a day, feeding the shopping list (dinner.ts) ---------------- */
@@ -591,7 +603,7 @@ export class FamilyHubCard extends LitElement {
   private _watch(): string[] {
     const c = this._config;
     // (the asks list: the bell, and the dinner line kept on it, must not wait for the next minute's tick)
-    return [askList(c), c.weather, c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
+    return [askList(c), c.weather, this._warnId(), c.music_player, c.reminders, 'timer.kitchen', 'input_text.fh_panel_message', 'input_number.family_jar',
       ...(c.people ?? []).map((p) => p.entity), ...(c.kids ?? []).map((k) => kidEntities(k).avatar),
       ...(c.meds ?? []).flatMap((m) => [`input_datetime.fh_med_${m.id}`, `input_text.fh_med_${m.id}_by`])].filter((x): x is string => !!x);
   }
@@ -1083,17 +1095,22 @@ export class FamilyHubCard extends LitElement {
       const rep = window.setInterval(() => { if (!this._alarm || ++n > 12) { clearInterval(rep); this._alarm = 0; return; } sfx('alarm'); }, 5000);
     }
   }
-  /** Where a daily medicine stands. A helper that has never been set reads as midnight today, given by "unknown": that is not a dose. */
-  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean; stale: boolean; missing: boolean } {
+  /**
+   * Where a daily medicine stands. A helper that has never been set reads as midnight today, given by "unknown": that is not a dose.
+   * The header's chip (second review, item 1): `soon` in the hour before the time (plain), `warm` for two hours after it (amber), then `quiet`
+   * ("…dose not recorded: check before giving", plain) until the end of that part of the day (noon for a morning dose, 5 pm for an
+   * afternoon one, midnight for an evening one), then nothing on the header: the 7:30 pm digest names it. The sheet still says Overdue all day.
+   */
+  private _medStatus(id: string, time: string): { given: Date | null; by: string; due: boolean; late: boolean; soon: boolean; warm: boolean; quiet: boolean; missing: boolean } {
     const st = this.hass?.states[`input_datetime.fh_med_${id}`];
     const raw = this.hass?.states[`input_text.fh_med_${id}_by`]?.state ?? '';
     const by = ['unknown', 'unavailable'].includes(raw) ? '' : raw;
     const ts = st?.attributes.timestamp ? new Date(st.attributes.timestamp * 1000) : null;
     const neverSet = !!ts && !by && ts.getHours() === 0 && ts.getMinutes() === 0 && ts.getSeconds() === 0;
     const given = ts && !neverSet && sameDay(ts, new Date()) ? ts : null;
-    const n = minsNow(this._now), t = hm(time);
-    // overdue is red for its first hour; after that it has been seen, and it settles to amber
-    return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, stale: !given && n > t + 105, missing: !st || st.state === 'unavailable' };
+    const n = minsNow(this._now), t = hm(time), off = Math.max(t + MED_WARM, medPartEnd(t));
+    return { given, by, due: !given && n >= t - 60, late: !given && n > t + 45, soon: !given && n >= t - 60 && n < t, warm: !given && n >= t && n < t + MED_WARM,
+      quiet: !given && n >= t + MED_WARM && n < off, missing: !st || st.state === 'unavailable' };
   }
   /** Recording or removing a dose is a parent's job: ask for the PIN once each time the sheet is opened (meds_pin: false turns this off). */
   private _medOpen = false;
@@ -1433,7 +1450,7 @@ export class FamilyHubCard extends LitElement {
       case 'weather': return html`<fh-weather .hass=${this.hass} .entity=${c.weather ?? ''} .page=${c.weather_page ?? {}} .theme=${this._theme}></fh-weather>`;
       case 'doodle': return html`<fh-doodle .hass=${this.hass} ?low=${this._doodleLow} .artists=${(c.kids ?? []).map((k) => k.name)} .kids=${c.kids ?? []} .pin=${String(c.parent_pin ?? '')}></fh-doodle>`;
       case 'morning': return html`<fh-morning .hass=${this.hass} .kids=${c.kids ?? []} .dinner=${this._dinnerTonight} .events=${this._soon} .asks=${this._asksCfg()} .leaveBy=${c.morning?.leave_by ?? '08:15'} .rules=${c.bring_rules ?? []}
-        .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
+        .privateWords=${c.private ?? []} .uv=${this._wx.uv ?? 0} .warning=${this._warning()} .termLabel=${this._termLabel()} .travel=${c.morning?.travel ?? 15} @open-kid=${(e: CustomEvent<string>) => this._openKid(e.detail)}></fh-morning>`;
       default: break;
     }
     return html`${this._planner()}${this._aside()}`;
@@ -1451,33 +1468,40 @@ export class FamilyHubCard extends LitElement {
     return this._nightManual || (!!n && inWindow(this._now, n.start, n.end)) || artNight(this._config.kids, this._config.quiet, this._now);
   }
 
-  /** One fixed row of at most two chips, most urgent first, so the header never changes height. */
+  /**
+   * One fixed row of at most two chips, so the header never changes height. One order for all of them (second review, item 3):
+   * a running kitchen timer, then a dose while it matters (amber, or due within the hour), then the next event, then the rest
+   * (bins after 4 pm, a dose not recorded, a message, a dose given, the music). A Bureau warning has no chip of its own: it takes the weather chip.
+   */
   private _capsule(): TemplateResult {
     const line = this._houseLine(); if (line) return line;
     const c = this._config, chips: [number, TemplateResult][] = [];
     const left = this._timerLeft();
     // the planner already shows the timer in its side card, so only repeat it there in the last minute
-    if (left !== null && (this._page !== 'planner' || left < 60000)) {
-      const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
-      chips.push([left < 60000 ? 1 : 2.2, html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${mm} minutes ${ss} seconds left" @click=${() => { this._sheet = 'timer'; }}>${art('stopwatch', 24)}<b>${mm}:${String(ss).padStart(2, '0')}</b></button>`]);
-    }
+    if (left !== null && (this._page !== 'planner' || left < 60000)) chips.push([1, this._timerChip(left)]);
     const msg = panelMsg(this.hass);
     if (msg && !msg.alarm) chips.push([4, html`<span class="cap" data-kind="msg" data-p="4"><span class="ell">${msg.t}</span></span>`]);
     {
       const all = (c.meds ?? []).map((m) => ({ m, s: this._medStatus(m.id, m.time) }));
-      const due = all.filter((x) => x.s.due), late = due.some((x) => x.s.late), done = all.filter((x) => x.s.given);
+      const warm = all.filter((x) => x.s.warm), soon = all.filter((x) => x.s.soon), quiet = all.filter((x) => x.s.quiet), done = all.filter((x) => x.s.given);
       const open = () => { this._sheet = 'meds'; void this._loadMedLog(); };
       // a shared wall: the chip says how many, never who (names are inside the sheet). "Later" in the sheet puts it away for half an hour.
-      if (due.length && Date.now() >= this._medLater) {
-        const red = due.some((x) => x.s.late && !x.s.stale), word = late ? 'overdue' : 'due', p = red ? 0 : late ? 1.5 : 2;
-        chips.push([p, html`<button class="cap tap ${red ? 'hot' : ''}" ?data-warm=${late && !red} data-kind="med" data-p=${red ? 0 : 2} aria-label=${`Medicine: ${due.length} ${word}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${due.length} ${word}</span></button>`]);
+      const away = Date.now() < this._medLater;
+      if (warm.length && !away) {
+        const word = warm.some((x) => x.s.late) ? 'overdue' : 'due';
+        chips.push([2, html`<button class="cap tap" data-warm data-kind="med" data-p="2" aria-label=${`Medicine: ${warm.length} ${word}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${warm.length} ${word}</span></button>`]);
+      } else if (soon.length && !away) {
+        chips.push([2, html`<button class="cap tap" data-kind="med" data-p="2" aria-label=${`Medicine: ${soon.length} due`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${soon.length} due</span></button>`]);
+      } else if (quiet.length && !away) {
+        const part = medPart(hm(quiet[0].m.time)), words = `${quiet.length === 1 ? `${part} dose` : `${quiet.length} ${part.toLowerCase()} doses`} not recorded: check before giving`;
+        chips.push([3.5, html`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${words}`} @click=${open}>${art('pill', 22)}<span style="white-space:nowrap">${words}</span></button>`]);
       }
-      else if (!due.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${art('pill', 22)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
+      else if (!warm.length && !soon.length && !quiet.length && done.length && this._now.getHours() < 12) chips.push([5, html`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${done.length === 1 ? ` at ${fmtTime(done[0].s.given!)}` : `: ${done.length}`}`} @click=${open}>${art('pill', 22)}${icon('check', 18)}<span>${done.length === 1 ? fmtTime(done[0].s.given!) : `${done.length} given`}</span></button>`]);
     }
-    // a child tapped "Chat with a parent": shown to the parents on the shared pages (never on a child's page), until one of them taps it away
-    if (this._page !== 'kid') for (const n of this._wantsChat) chips.push([0.5, html`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${n} would like a chat. Tap to dismiss`} @click=${() => { this._wantsChat = this._wantsChat.filter((x) => x !== n); }}>${icon('ask', 20)}<span>${n} would like a chat</span></button>`]);
+    // a child tapped "Chat with a parent" and the phones could not be reached (the old way): shown to the parents on the shared pages (never on a child's page, never an older child's), until one of them taps it away
+    if (this._page !== 'kid') for (const n of this._wantsChat) chips.push([1.5, html`<button class="cap tap" data-kind="chat" data-p="1" aria-label=${`${n} would like a chat. Tap to dismiss`} @click=${() => { this._wantsChat = this._wantsChat.filter((x) => x !== n); }}>${icon('ask', 20)}<span>${n} would like a chat</span></button>`]);
     const bn = this._bins(this._now);
-    if (bn && sameDay(bn.night, this._now) && bn.bins.length) { const p = this._now.getHours() >= 16 ? 2.5 : 5; chips.push([p, html`<span class="cap" data-kind="bin" data-p=${p >= 3 ? 5 : 3} role="img" aria-label=${`Bin night: ${bn.bins.join(' and ')} bins go out tonight`}>${icon('bin', 20)}<span>Bins tonight</span>${this._binDots(bn.bins)}<span>${bn.bins.join(' + ')}</span></span>`]); }
+    if (bn && sameDay(bn.night, this._now) && bn.bins.length) { const p = this._now.getHours() >= 16 ? 3.2 : 5; chips.push([p, html`<span class="cap" data-kind="bin" data-p=${p < 4 ? 3 : 5} role="img" aria-label=${`Bin night: ${bn.bins.join(' and ')} bins go out tonight`}>${icon('bin', 20)}<span>Bins tonight</span>${this._binDots(bn.bins)}<span>${bn.bins.join(' + ')}</span></span>`]); }
     const now = Date.now();
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title));
     if (next) {
@@ -1487,17 +1511,33 @@ export class FamilyHubCard extends LitElement {
     }
     const m = c.music_player ? this.hass?.states[c.music_player] : undefined;
     if (m?.state === 'playing' && this._page !== 'music' && this._page !== 'planner') chips.push([6, html`<button class="cap tap" data-kind="music" data-p="6" aria-label=${`Playing: ${m.attributes.media_title ?? 'music'}. Open Music`} @click=${() => { this._page = 'music'; }}>${icon('music', 20)}<span class="ell">${m.attributes.media_title ?? 'Playing'}</span></button>`]);
-    // at most two chips, most urgent first; _fitHeader then takes out whole chips that do not fit the row
-    // the header says two things at most: the one most urgent thing (medicine, the timer, someone asking for a chat, the bins, a message, the music) and what is next on the calendar
-    const nextUp = chips.find((x) => x[0] === 3), urgent = chips.filter((x) => x[0] !== 3).sort((x, y) => x[0] - y[0])[0];
-    return html`<div class="capsule" aria-live="polite">${[urgent, nextUp].filter((x): x is [number, TemplateResult] => !!x).map((x) => x[1])}</div>`;
+    // the header says two things at most, the first two in the one order; _fitHeader then takes out whole chips that do not fit the row
+    return html`<div class="capsule" aria-live="polite">${chips.sort((x, y) => x[0] - y[0]).slice(0, 2).map((x) => x[1])}</div>`;
+  }
+  /** The kitchen timer's chip: red and breathing in its last minute. */
+  private _timerChip(left: number): TemplateResult {
+    const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
+    return html`<button class="cap tap ${left < 60000 ? 'hot' : ''}" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${mm} minutes ${ss} seconds left" @click=${() => { this._sheet = 'timer'; }}>${art('stopwatch', 24)}<b>${mm}:${String(ss).padStart(2, '0')}</b></button>`;
+  }
+  /** The warnings sensor (weather.ts finds it as the Weather page does); looked for again at most once a minute while there is none. */
+  private _warnIdV = ''; private _warnIdAt = 0; private _warnIdFor?: object;
+  private _warnId(): string {
+    const c = this._config;
+    if (!c?.weather || c.weather_page === false || !this.hass) return '';
+    if (this._warnIdFor !== c || (!this._warnIdV && Date.now() - this._warnIdAt > 60_000)) { this._warnIdFor = c; this._warnIdAt = Date.now(); this._warnIdV = warnSensor(this.hass, c.weather, c.weather_page); }
+    return this._warnIdV;
+  }
+  /** The Bureau warning in force now, if any: its short title (the first, when there are several). */
+  private _warning(): string {
+    const w = activeWarnings(this.hass, this._warnId())[0];
+    return w ? (w.short_title ?? w.title ?? 'Weather warning') : '';
   }
 
-  /** On a child's page: only his own next event (and the kitchen timer in its last minute). */
+  /** On a child's page: the kitchen timer while it runs (second review, item 3: it outranks the next event), then only his own next event. */
   private _kidCapsule(k: KidConfig): TemplateResult {
     const line = this._houseLine(); if (line) return line;
     const now = Date.now(), chips: TemplateResult[] = [], left = this._timerLeft();
-    if (left !== null && left < 60000) chips.push(html`<button class="cap tap hot" data-kind="timer" data-p="1" aria-label="Kitchen timer, ${Math.floor(left / 1000)} seconds left" @click=${() => { this._sheet = 'timer'; }}>${art('stopwatch', 24)}<b>0:${String(Math.floor(left / 1000)).padStart(2, '0')}</b></button>`);
+    if (left !== null) chips.push(this._timerChip(left));
     const n = k.name.toLowerCase();
     const next = this._soon.find((e) => !e.allDay && e.start.getTime() > now && e.start.getTime() - now < 12 * 3_600_000 && !this._private(e.title) && (e.who === k.name || e.title.toLowerCase().includes(n)));
     if (next) {
@@ -1517,6 +1557,8 @@ export class FamilyHubCard extends LitElement {
     const wx = night ? { ...this._wx, uv: undefined, max: undefined } : this._wx;
     // who-is-home only knows about people Home Assistant tracks
     const tracked = (c.people ?? []).filter((p) => p.entity);
+    // a Bureau warning in force takes the weather chip (second review, item 3): its words in place of the sky, no UV or Hot badge
+    const warn = w && !kid ? this._warning() : '';
     return html`
       <header>
         <div class="clock">
@@ -1527,6 +1569,13 @@ export class FamilyHubCard extends LitElement {
         ${kid ? this._kidCapsule(kid) : this._capsule()}
         <div class="right" @click=${this._btnJust}>
           ${w && !kid ? html`
+            ${warn ? html`<button class="glass weather tap" data-warn aria-label=${`Weather warning: ${warn}. Open Weather`} @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
+              <span class="wwi" aria-hidden="true">${icon('alert', 30)}</span>
+              <span style="display:flex;flex-direction:column;line-height:1.15;min-width:0">
+                <b class="wwt">${warn}</b>
+                <span class="muted wsub" style="font-size:var(--fs-1);font-weight:var(--w-semi, 600)">${temp !== undefined ? `${Math.round(temp)}° · ` : ''}${night && w.state === 'sunny' ? 'Clear' : COND[w.state] ?? w.state}</span>
+              </span>
+            </button>` : html`
             <button class="glass weather tap" aria-label="Weather" @click=${() => { if (c.weather_page !== false) this._page = 'weather'; }}>
               ${art('cloud', 34, this._artData(false))}
               <span style="display:flex;flex-direction:column;line-height:1.15">
@@ -1536,7 +1585,7 @@ export class FamilyHubCard extends LitElement {
               ${lookArt(this._lk, 'wx', { wx: { state: w.state, uv: wx.uv, rain: wx.rain, max: wx.max } })}
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${art('uv', 17)}UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
-            </button>` : nothing}
+            </button>`}` : nothing}
           ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${art('bell', 26)}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
           ${c.chat?.agent && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`
