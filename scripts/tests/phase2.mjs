@@ -188,7 +188,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   await C(page).locator('.chatsheet').getByRole('button', { name: 'Close' }).click(); await page.waitForTimeout(400); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
   ok('second use today: not again', (await said(page)).filter((x) => x === NOTE).length === 1);
   await page.close();
-  page = await open('look=glass&page=planner', '2026-11-11T07:10:00+08:00', { ctx }); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
+  /* 8:10, not 7:10: since 0.38.26 a school morning has no Ask until the last child leaves */ page = await open('look=glass&page=planner', '2026-11-11T08:10:00+08:00', { ctx }); await C(page).locator('header [data-act="ask"]').click(); await page.waitForTimeout(600);
   ok('the next day: read aloud again', (await said(page)).filter((x) => x === NOTE).length === 1, await said(page));
   await page.close();
   // by child: each hears it on his own first use
