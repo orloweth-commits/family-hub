@@ -11,6 +11,7 @@ import { changed, FitController, hm, inTime, minsNow, parseChore, say, sfx, Slow
 import { followList, houseUp } from './house';
 import { picFor } from './kid';
 import { spark } from './sparks';
+import { icon } from './icons';
 
 const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 /** Is this event on that day? The planner's own rule, so an event that began yesterday and is still running (a camp) shows here too. */
@@ -148,7 +149,7 @@ export class FhMorning extends LitElement {
     ${unsafeCSS(fxCss)}
   `];
   static properties = { hass: { attribute: false }, kids: { attribute: false }, dinner: {}, events: { attribute: false }, leaveBy: {}, asks: { attribute: false }, rules: { attribute: false },
-    privateWords: { attribute: false }, uv: { type: Number }, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true }, _cheer: { state: true }, _just: { state: true }, _msg: { state: true } };
+    privateWords: { attribute: false }, uv: { type: Number }, warning: {}, termLabel: {}, travel: { type: Number }, _items: { state: true }, _now: { state: true }, _cheer: { state: true }, _just: { state: true }, _msg: { state: true } };
   hass?: Hass;
   kids: KidConfig[] = [];
   events: CalEvent[] = [];
@@ -160,6 +161,8 @@ export class FhMorning extends LitElement {
   rules: BringRule[] = [];
   privateWords: string[] = [];
   uv = 0;
+  /** a Bureau warning in force (its short title), '' when none: it takes the UV's place on the line under the title (second review, item 3) */
+  warning = '';
   termLabel = '';
   travel = 15;
   private _items: Record<string, ParsedChore[]> = {};
@@ -308,7 +311,7 @@ export class FhMorning extends LitElement {
     return html`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
-          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}${this.dinner ? html` · <span data-part="dinner">Dinner tonight: ${this.dinner}</span>` : nothing}</span></div>
+          <span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">${this.termLabel}${this.warning ? html` · <b class="mwarn" data-part="warn">${icon('alert', 18)}${this.warning}</b>` : this.uv >= 3 ? ` · UV ${Math.round(this.uv)} – hats and sunscreen` : ''}${this.dinner ? html` · <span data-part="dinner">Dinner tonight: ${this.dinner}</span>` : nothing}</span></div>
         ${team.total ? html`<div class="team" data-part="team" role="img" aria-label=${ready ? 'Morning jobs: all done' : `Morning jobs to go: ${togo.map((g) => `${g.k.name} ${g.n}`).join(', ')}`}>
           ${ready ? nothing : html`<div class="faces" aria-hidden="true">${togo.map((g) => g.n > 1
             ? html`<span class="fc" data-who=${g.k.name} data-n=${g.n}>${face(g.k)}<b>${g.n}</b></span>`

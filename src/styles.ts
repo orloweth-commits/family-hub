@@ -136,7 +136,14 @@ export const styles = css`
   .fh:not([data-compact]) .right > .round.hb > svg.pic2 { width: 26px; height: 26px; }
   /* when the row is too full the weather chip and who-is-home give way, a step at a time (data-fit is set after measuring) */
   header[data-fit~='nobadge'] .weather .badge, header[data-fit~='slim'] .weather .wsub, header[data-fit~='slim'] .weather .wtop { display: none; }
-  header[data-fit~='nowho'] .presence, header[data-fit~='nowx'] .weather { display: none; }
+  header[data-fit~='nowho'] .presence, header[data-fit~='nowx'] .weather:not([data-warn]) { display: none; }
+  /* a Bureau warning in force takes the weather chip (second review, item 3): a filled warning mark and its words, which never give way; the sky's line under them can */
+  .weather[data-warn] .wwi { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; background: var(--danger, #c81e1e); color: var(--on-danger, #fff); }
+  .weather[data-warn] .wwi svg { width: 24px; height: 24px; }
+  .weather .wwt { font-size: var(--fs-3); font-weight: var(--w-bold, 700); white-space: nowrap; }
+  /* the same warning on the morning board's line under its title, in the UV's place */
+  .mwarn { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); font-weight: var(--w-bold, 700); vertical-align: bottom; }
+  .mwarn svg { color: var(--danger, #c81e1e); flex-shrink: 0; }
   /* while a medication chip is showing, the round pill button (it opens the same sheet) makes room */
   header[data-medchip] .right > [data-act='meds'] { display: none; }
   .weather { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 16px; border-radius: 999px; text-align: left; white-space: nowrap; }
@@ -157,6 +164,9 @@ export const styles = css`
   /* still waiting after the first hour: amber, steady (no breathing ring), dark ink that reads on it in every look */
   .cap[data-warm] { background: #f5b301; color: #2a1a00; border-color: #f5b301; }
   .cap.ok { background: color-mix(in srgb, var(--ok) 25%, var(--glass)); }
+  /* a dose not recorded, after its amber hours (0.38.25): plain, on two short lines */
+  .cap .mq { display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.15; min-width: 0; }
+  .cap .mq b { font-size: var(--fs-2); } .cap .mq span { font-size: var(--fs-1); font-weight: var(--w-semi, 600); }
   /* Home Assistant out of reach (house.ts): the one line, in place of the chips. It may take two lines rather than lose its end */
   .cap.house { flex: 0 1 auto; min-width: 0; max-width: none; border-radius: 26px; height: auto; min-height: 52px; padding: 6px 18px; white-space: normal; text-align: left; line-height: 1.2; cursor: pointer; color: inherit; font-family: inherit; }
   .cap.house > span { overflow: visible; text-overflow: clip; }
@@ -571,6 +581,7 @@ export const styles = css`
   :host([data-dark]) .mstate[data-late] { background: #f5b301; color: #1f1400 !important; padding: 2px 9px; border-radius: 999px; }
   /* the emergency card: still red and still the first thing on the sheet: a deep red panel, lighter than the sheet and edged in red, with pale words (the bright solid red is the button beside it) */
   /* an overdue medicine that has been seen: deep amber glass with amber words in the dark, not a full-strength yellow pill (the brightest thing on a dark page at 9:30 pm, batch 5) */
+  :host([data-dark]) .mwarn svg { color: #ff8a7a; }
   :host([data-dark]) .cap[data-warm] { background: color-mix(in srgb, #f5b301 24%, var(--ring-halo)); color: #ffd98a; border-color: color-mix(in srgb, #f5b301 75%, transparent); }
   :host([data-dark]) .sos000 { background: color-mix(in srgb, #b91c1c 50%, var(--ring-halo)); color: #ffe9e6; box-shadow: inset 0 0 0 2px #f87171; }
   /* a text field being typed in keeps an edge that can be seen (the halo alone is the sheet's own colour here) */
@@ -672,6 +683,8 @@ export const styles = css`
   :host([data-phone]) .right > .round .rl { display: none !important; }
   :host([data-phone]) .weather { padding: 0 12px; height: 44px; }
   :host([data-phone]) .weather .wsub, :host([data-phone]) .weather .wtop { display: none; }
+  :host([data-phone]) .weather .wwt { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+  :host([data-phone]) .cap .mq span { display: none; }
   :host([data-phone]) .weather .badge, :host([data-phone]) .presence { display: none; }
   :host([data-phone]) header { flex-wrap: wrap; }
   :host([data-phone]) .capsule { height: auto; min-height: 0; flex-wrap: wrap; flex-basis: 100%; gap: 8px; }

@@ -144,8 +144,8 @@ await dd('.down').first().click(); await page.waitForTimeout(300); console.log('
 await dd('.clearall').click(); await page.waitForTimeout(300); console.log('doodle: after taking all down:', await dd('.snap').count());
 await page.close();
 
-// 11. the medication pill and record; bin night
-page = await open('look=glass', '19:40');
+// 11. the medication pill and record; bin night (since 0.38.25 the chip is off the header after noon: opened at 9:10 am, while it is the plain "not recorded" line)
+page = await open('look=glass', '09:10');
 console.log('bins:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); const f = (y, m, d) => { const r = c._bins(new Date(y, m, d)); return r.night.toDateString().slice(0, 10) + '=' + r.bins.join('+'); }; return [f(2026, 10, 9), f(2026, 10, 12), f(2026, 10, 16), f(2026, 10, 23), f(2026, 10, 3)].join(' | '); }));
 console.log('meds: round pill button hidden beside the chip:', await page.locator('family-hub-card header [data-act=meds]').isHidden());
 await page.locator('family-hub-card .capsule .cap[data-kind=med]').click(); await page.waitForTimeout(300);
@@ -1233,7 +1233,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const p = await ope
   console.log('D18 chosen against not chosen: view chip', r.seg + ':1', '| today’s outline', r.todayOutline, r.today + ':1 against the next column', '| this page in the dock', r.dock + ':1', r.dockLine, '| Add is', r.add, ok(r.seg >= 3 && r.today >= 3 && r.todayW && r.dock >= 3 && r.add === 'rgb(255, 214, 10)')); await p.context().close(); }
 
 // leftovers: the Orbit medication chip says how many and names nobody at 1024 x 768 (0.30.0: names are inside the sheet); the Sports timer pills keep "+10 min" on one line there
-{ for (const v of ['day', 'week']) { const p = await openAt(1024, 768, 'look=orbit&page=planner&view=' + v);
+{ for (const v of ['day', 'week']) { const p = await openAt(1024, 768, 'look=orbit&page=planner&view=' + v, '08:00'); // (0.38.25: the chip is amber "2 overdue" to 8:30 am, off the header after noon)
     const r = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('.cap[data-kind="med"]'); return m ? { text: m.textContent.replace(/\s+/g, ' ').trim(), label: m.getAttribute('aria-label'), cut: m.scrollWidth > m.clientWidth + 1, capCut: m.parentElement.scrollWidth > m.parentElement.clientWidth + 1 } : null; });
     console.log(`leftover: Orbit medication chip at 1024 x 768 (${v}):`, JSON.stringify(r), ok(!!r && r.text === '2 overdue' && !/Riley|Charlie/.test(r.text + r.label) && !r.cut && !r.capCut)); await p.context().close(); }
   const p = await openAt(1024, 768, 'look=sports&page=planner');

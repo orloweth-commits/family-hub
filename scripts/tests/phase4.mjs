@@ -21,7 +21,8 @@ const head = (page) => page.evaluate(() => { const r = document.querySelector('f
     h: Math.round(Math.max(...[...r.querySelectorAll('header .right > .hb')].map((e) => e.getBoundingClientRect().height)) / z), sheet: document.querySelector('family-hub-card')._sheet || (document.querySelector('family-hub-card')._pinAsk ? 'pin:' + document.querySelector('family-hub-card')._pinAsk.reason : '') }; });
 
 // 1. the header
-for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner`); const h = await head(page);
+// (since 0.38.25 the medicine chip is amber to 8:30 am and off the header after noon: the urgent one is looked at at 8 am)
+for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner&timer=0`, '08:00'); const h = await head(page);
   ok(`${look}: beside the weather the header keeps Ask and More, and nothing else`, h.right.join(',') === 'weather,ask,more', h.right);
   ok(`${look}: two things at most in the middle: the most urgent, and what is next`, h.chips.join(',') === 'med,next', h.chips);
   ok(`${look}: the header's parts are still 52 px high`, h.h <= 52, h.h);
@@ -29,7 +30,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
 const noMeds = async (page) => { await page.evaluate(async () => { const c = document.querySelector('family-hub-card'); const { meds, med_log, ...rest } = c._config; c.setConfig(rest); await c.updateComplete; }); await page.waitForTimeout(300); };
 { let page = await open('look=glass&page=groceries'); await noMeds(page); let h = await head(page);
   ok('with no medicine due the timer takes the urgent place', h.chips.join(',') === 'timer,next', h.chips);
-  { const mp = await open('look=glass&page=groceries', '07:10'); const mh = await head(mp); ok('a dose that is due outranks a running timer (unless the timer is in its last minute)', mh.chips.join(',') === 'med,next', mh.chips); await mp.context().close(); } await page.context().close();
+  { const mp = await open('look=glass&page=groceries', '07:10'); const mh = await head(mp); ok('0.38.25 (the second review, item 3): a running timer outranks a dose that is due, and both outrank the next event', mh.chips.join(',') === 'timer,med', mh.chips); await mp.context().close(); } await page.context().close();
   page = await open('look=glass&page=planner&timer=0'); await noMeds(page); h = await head(page);
   ok('with nothing urgent, what is next stands alone (or with the next most useful thing)', h.chips.includes('next') && h.chips.length <= 2 && !h.chips.includes('timer'), h.chips); await page.context().close(); }
 

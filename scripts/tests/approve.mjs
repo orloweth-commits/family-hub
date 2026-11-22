@@ -228,11 +228,15 @@ else {
   ok('the bell counts it', await bell.count() === 1 && /1 waiting for a parent/.test(await bell.getAttribute('aria-label') ?? ''));
   ok('the header shows the count only: no name', !/Charlie/.test(await C.locator('header').innerText()), await C.locator('header').innerText());
   await bell.click(); await page.waitForTimeout(300); for (const d of '1234') await C.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
-  const rowW = C.locator('.sheet[data-sheet="waiting"] .waitrow');
-  ok('behind the PIN the sheet names him, with one button, Seen', await rowW.count() === 1 && /Charlie/.test(await rowW.innerText()) && await rowW.locator('button').count() === 1 && (await rowW.locator('button').innerText()).trim() === 'Seen', await rowW.innerText().catch(() => ''));
+  const rowW = C.locator('.sheet[data-sheet="waiting"] .waitrow'), priv = C.locator('.sheet[data-sheet="waiting"] .waitgrp[data-kind="private"]');
+  // second review, item 2: on the wall a chat asked for is one line, with no name, face or Seen; a phone-sized screen (a parent's own) shows the row
+  ok('0.38.25: behind the PIN, on the wall, the sheet says "1 private message, on your phone": no name, no face, no Seen', await rowW.count() === 0 && await priv.count() === 1 && /^1 private message, on your phone/.test((await priv.innerText()).trim()) && !/Charlie/.test(await C.locator('.sheet[data-sheet="waiting"]').innerText()) && await C.locator('.sheet[data-sheet="waiting"] .wface').count() === 0 && await C.locator('.sheet [data-act="wait-seen"]').count() === 0, await C.locator('.sheet[data-sheet="waiting"]').innerText().catch(() => ''));
+  await page.setViewportSize({ width: 390, height: 844 }); await rowW.waitFor({ timeout: 4000 }).catch(() => {});
+  ok('on a phone-sized screen the sheet names him, with one button, Seen', await rowW.count() === 1 && await priv.count() === 0 && /Charlie/.test(await rowW.innerText()) && await rowW.locator('button').count() === 1 && (await rowW.locator('button').innerText()).trim() === 'Seen', await rowW.innerText().catch(() => ''));
   await rowW.locator('[data-act="wait-seen"]').click(); await page.waitForTimeout(900);
   items = await list(page, ASKS);
   ok('Seen answers it as a phone would, the bell goes, and no points move', (await calls(page, /^api\.event FH_OK_a[a-z0-9]+$/)).length === 1 && await bell.count() === 0 && items[0]?.description.startsWith('ok ') && (await calls(page, /fh_add_points/)).length === 0 && await state(page, 'input_number.charlie_points') === before, items);
+  await page.setViewportSize({ width: 1920, height: 1080 }); await page.waitForTimeout(600);
   await C.locator('nav.dock .item').filter({ hasText: /Charlie$/ }).first().click(); await told(page, /seen your note/);
   ok('his page tells him once that a parent has seen it, and clears the line', /^A parent has seen your note\.$/.test(await msg(page)) && (await list(page, ASKS)).length === 0, await msg(page));
   await page.context().close(); }
