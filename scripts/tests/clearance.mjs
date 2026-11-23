@@ -22,7 +22,7 @@ const PAGES = (process.env.PAGES || ['planner', 'planner&view=day', 'planner&vie
   'weather', 'home', 'morning@07:10', 'planner&sheet=add', 'planner&sheet=themes', 'planner&sheet=meds', 'planner&sheet=sitter', 'planner&sheet=timer', 'planner&sheet=chat', 'planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house',
   'planner&sheet=settings&pane=pictures&artn=3', 'planner&sheet=settings&pane=rewards',
   // (23 Nov) the bell with something waiting and its sheet, a parent's note and its sheet (backlog 71, 79), and the planner and Groceries as the house has them
-  'planner&house=1&asks=reward,job,chat', 'planner&asks=reward,job,chat&sheet=waiting', 'kid&kid=0&note=You helped Max without being asked.', 'kid&kid=0&sheet=noticed', 'groceries&house=1', 'planner&art=1&artn=3', 'planner&night=1@22:30'].join(',')).split(',');
+  'planner&house=1&asks=reward-job-chat', 'planner&asks=reward-job-chat&sheet=waiting', 'kid&kid=0&note=You helped Max without being asked.', 'kid&kid=0&sheet=noticed', 'groceries&house=1', 'planner&art=1&artn=3', 'planner&night=1@22:30'].join(',')).split(',');
 const STRESS = !!process.env.STRESS, SHOW = (process.env.SHOW || '').split(',');
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
 const found = new Map(); const errs = []; const again = { looks: new Set(), vp: new Set(), pages: new Set() };

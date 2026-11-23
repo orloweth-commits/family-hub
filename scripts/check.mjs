@@ -93,7 +93,7 @@ const RULES = [
 ];
 // the fit check walks pages, so it is narrowed to the pages the changed files draw; the shared styles and looks mean every page
 const PAGES = [
-  [src(`${SHELL}|approve`), ['planner&house=1&asks=reward,job,chat', 'planner&asks=reward,job,chat&sheet=waiting']], [src('noticed|kid'), ['kid&kid=0&note=You helped Max without being asked.', 'kid&kid=0&sheet=noticed']], [src('groceries'), ['groceries&house=1']],
+  [src(`${SHELL}|approve`), ['planner&house=1&asks=reward-job-chat', 'planner&asks=reward-job-chat&sheet=waiting']], [src('noticed|kid'), ['kid&kid=0&note=You helped Max without being asked.', 'kid&kid=0&sheet=noticed']], [src('groceries'), ['groceries&house=1']],
   [src(`${LOOKS}|keys|icons|art|sparks`), null], // null: every page
   [src(SHELL), ['planner', 'planner&view=day', 'planner&view=month', 'planner&events=many', 'planner&sheet=themes', 'planner&sheet=meds', 'planner&sheet=sitter', 'planner&sheet=timer', 'planner&art=1&artn=3', 'planner&night=1@22:30']],
   [src('kid|avatar|studio|wardrobe|rewards|util'), ['kid&kid=0', 'kid&kid=1', 'kid&kid=2', 'kid&kid=0&studio=1', 'kid&kid=0&painted=1&studio=1', 'kid&kid=2&painted=1']],
@@ -102,7 +102,7 @@ const PAGES = [
   [src('groceries'), ['groceries', 'groceries&long=1']], [src('doodle'), ['doodle']], [src('weather|radar'), ['weather']], [src('home'), ['home']],
   [src('morning'), ['morning@07:10']], [src('chat'), ['planner&sheet=chat']], [src('addevent|repeat'), ['planner&sheet=add']], [src('artmode|artlib'), ['planner&art=1&artn=3']],
 ];
-const ALL = ['click-base-shell', 'click-base-kid', 'click-base-planner', 'click-base-pages', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark', 'offline', 'hadown', 'watchdog', 'health'];
+const ALL = ['click-base-shell', 'click-base-kid', 'click-base-planner', 'click-base-pages', 'click-music', 'events', 'phone', 'phase1', 'phase2', 'phase3', 'phase4', 'buttons', 'ask', 'trust', 'voice', 'settings', 'art', 'screensaver', 'music-f2', 'digest', 'approve', 'noticed', 'cues', 'f5', 'obsidian', 'dark', 'offline', 'hadown', 'watchdog', 'health', 'sports']; // (sports since 23 Nov: it passes, so a red sports means something)
 
 let pages = null, byHand = false;
 if (typeof arg('pages') === 'string') { pages = arg('pages').split(','); byHand = true; }
@@ -127,7 +127,7 @@ if (fit && (FULL || pages === null || pages.length)) {
 console.log(`${FULL ? 'Full check' : BATCH ? `Batch check (${pages ? '1920 x 1080 and the iPad' : '1920 x 1080'}, five looks, Glass in light and in dark)` : 'Check sized to the change'} against ${BASE}`);
 console.log(`Changed: ${changed.length ? changed.join(', ') : 'nothing'}`);
 console.log(`Running: ${plan.map((p) => p.name).join(', ') || 'only the build'}`);
-if (!FULL) console.log(`Left out (their files did not change): ${left.join(', ') || 'none'}${pages ? `\nFit check on ${pages.length} of 43 pages${byHand ? ', narrowed by hand' : ''}; ordinary ${BATCH ? 'and long ' : ''}words` : ''}${BATCH ? `\nLeft to the full check: the fit check at ${pages ? 'a phone\'s size' : 'the iPad\'s and a phone\'s sizes'}` : ''}${fitChanged ? '\nThe fit check itself changed: every page' : ''}`);
+if (!FULL) console.log(`Left out (their files did not change): ${left.join(', ') || 'none'}${pages ? `\nFit check on ${pages.length} of 43 pages${byHand ? ', narrowed by hand' : ''}; ordinary ${BATCH ? 'and long ' : ''}words` : ''}${BATCH ? `\nLeft to the full check: the fit check at ${pages ? 'a phone\'s size' : 'the iPad\'s and a phone\'s sizes'}` : ''}${fitChanged && !byHand && !FULL ? '\nThe fit check itself changed: every page' : ''}`);
 if (arg('list')) process.exit(0);
 
 /* ---------------- run ---------------- */

@@ -324,7 +324,7 @@ if ((q.get('approve') && q.get('approve') !== 'nolist') || q.get('notes') || q.g
 // &note=<words>: a parent's note waiting over Riley's page (79). Lines as approve.ts and noticed.ts write them
 if (q.get('asks') || q.get('note')) { const t0 = Date.now() - 600000, L = store['todo.family_hub_asks'];
   const ask = (id, k, extra) => L.push({ uid: 'u-' + id, summary: `${extra.who}: ${extra.name}`, status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k, t: t0, ...extra }) });
-  for (const k of (q.get('asks') || '').split(',').filter(Boolean)) {
+  for (const k of (q.get('asks') || '').split(/[,-]/).filter(Boolean)) { // (reward-job-chat as well as reward,job,chat: the fit check's page lists are split on commas)
     if (k === 'reward') ask('apre01', 'reward', { kid: 'riley', who: 'Riley', name: 'Pick the family movie', cost: 100 });
     if (k === 'job') ask('apjb01', 'job', { kid: 'charlie', who: 'Charlie', name: 'Mow the lawn', cost: 20, list: 'todo.charlie_chores', uid: 'c-9' });
     if (k === 'chat') ask('apch01', 'chat', { kid: 'max', who: 'Max', name: 'would like a chat', cost: 0 }); }
