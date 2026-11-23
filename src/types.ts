@@ -89,7 +89,7 @@ export interface KidConfig {
   calm?: boolean;
   /** interface sounds on his page: full (default) | soft | off */
   sound_level?: 'full' | 'soft' | 'off';
-  /** one job at a time (Now / Next, with "Show all" one tap away); default true for every child */
+  /** one job at a time (Now / Next, with "Show all" one tap away); default true for every child. Only the job list: whether the style studio waits for jobs is `studio_after_jobs`, one rule for every child (0.38.31) */
   focus?: boolean;
   /** older mode: a plainer page for a child who has outgrown stars and ranks. No rank names, no pictures on his jobs, his week first, and a private "ask for a chat" in place of the feelings faces */
   older?: boolean;
@@ -191,6 +191,8 @@ export interface FamilyHubConfig {
   public_holidays?: string[];
   morning?: { start?: string; end?: string; leave_by?: string; /** minutes to leave before a child's first morning event */ travel?: number };
   bring_rules?: BringRule[];
+  /** the style studio ("My look" for a child who reads pictures) opens once the day's jobs are done; one rule for every child (0.38.31: it had followed each child's `focus`, so one brother's opened early). Default true; false opens it any time (the evening's wind-down still shuts it) */
+  studio_after_jobs?: boolean;
   jar?: { target?: number; reward?: string; script?: string; /** end of term: this many unspent points become one marble (term.ts). Absent or 0 = off */ term_points?: number };
   /** the PIN pad puts its digits in a new order each time it opens, so the PIN cannot be learnt by watching where a finger goes (default true) */
   pin_shuffle?: boolean;

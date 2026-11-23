@@ -348,7 +348,7 @@ export class FhKid extends LitElement {
   private _nowUid = '';
   static properties = {
     hass: { attribute: false }, kid: { attribute: false }, art: { attribute: false }, familyCalendars: { attribute: false }, calRules: { attribute: false }, pin: {}, owed: {}, asks: { attribute: false }, notes: {}, _notes: { state: true }, _asked: { state: true }, jarTarget: { type: Number }, jarReward: {},
-    privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
+    privateWords: { attribute: false }, quiet: { type: Boolean }, ask: { type: Boolean }, oneAtATime: { type: Boolean }, studioWait: { type: Boolean }, _showAll: { state: true }, _tabPicked: { state: true },
     _chores: { state: true }, _noList: { state: true }, _events: { state: true }, _saving: { state: true }, _jump: { state: true }, _bursts: { state: true }, _confetti: { state: true },
     _studio: { state: true }, _celebrate: { state: true }, _pinAsk: { state: true }, _msg: { state: true }, _practice: { state: true }, _now: { state: true }, _feel: { state: true }, _tab: { state: true }, _days: { state: true },
     _drawn: { state: true }, _spend: { state: true }, _held: { state: true }, _owed: { state: true }, _lines: { state: true }, _spentN: { state: true }, _jarBase: { state: true }, _jarOpen: { state: true }
@@ -375,6 +375,8 @@ export class FhKid extends LitElement {
   ask = false;
   /** one job at a time: Now / Next / Later, and "first jobs, then studio" */
   oneAtATime = false;
+  /** the style studio waits for the day's jobs (the card's `studio_after_jobs`, one rule for every child: 0.38.31) */
+  studioWait = true;
   private _showAll = false;
   private _tabPicked = false;
   private _chores: ParsedChore[] = [];
@@ -943,7 +945,7 @@ export class FhKid extends LitElement {
       ${this.kid.special_time && !this._picMode ? html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-semi, 600)">💛 Your time: ${this.kid.special_time}</span>` : nothing}
       ${this._wind && this._picMode && this.ask ? html`<div class="lowrow" style="margin-top:auto"><button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => { this._sound('tap'); this.dispatchEvent(new CustomEvent('ask', { bubbles: true, composed: true })); }}>${icon('ask', 40)}<span>Ask</span></button></div>` : nothing /* in the evening the studio is shut, but his Ask button stays where he can reach it */}
       ${this._wind ? nothing : (() => {
-        const left = this._block().todo.length, wait = this.oneAtATime && left > 0;
+        const left = this._block().todo.length, wait = this.studioWait && left > 0; // one rule for every child, not his "one job at a time" (0.38.31)
         // a child who cannot read reaches the helper from his own page: one big picture button, low enough for a four-year-old at the wall
         const askOn = this._picMode && this.ask;
         return html`${wait ? html`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? 'my look' : 'studio'}</span>` : nothing}

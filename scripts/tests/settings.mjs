@@ -339,7 +339,8 @@ ok('PIN fields get number keys', await S(page).locator('.skeys .sdig .key').coun
 await page.close();
 
 // 20. the children's own say: the style studio opens from a child's page without the PIN, and nothing in Settings stands in its way
-page = await open('look=glass&page=kid&kid=0');
+// (since 0.38.31 the studio waits for the day's jobs for every child, and the eldest has jobs left at 4:20 pm: &studiowait=0 opens it any time)
+page = await open('look=glass&page=kid&kid=0&studiowait=0');
 await page.locator('fh-kid .studio').click(); await page.waitForTimeout(500);
 ok('a child opens the style studio with no PIN', await page.locator('fh-studio').count() === 1 && await page.locator('fh-pin').count() === 0);
 ok('a child’s page has no way into Settings', await page.getByRole('button', { name: 'House info' }).count() === 0 && await S(page).count() === 0);
@@ -397,6 +398,26 @@ for (const [w, h] of [[1920, 1080], [1312, 668], [1024, 768], [768, 1024], [390,
   const o = await S(page).locator('.sft [data-act="save"]').evaluate((b) => { b.getAnimations().forEach((a) => a.finish()); return [b.disabled, Number(getComputedStyle(b).opacity), b.getAnimations().map((a) => a.transitionProperty ?? a.animationName)]; });
   ok('once something changes Save is whole again (142)', o[0] === false && o[1] === 1, o);
   await page.close(); }
+
+// 24. the style studio waits for the day's jobs, one rule for every child (0.38.31, Oliver's bug of 23 Nov: it had followed each child's
+// "One job at a time", so the eldest's opened with jobs left and his brother's did not). Settings, Rewards has the one switch
+{ let page = await open('look=glass&sheet=settings&pane=rewards'); const sw = S(page).getByRole('switch', { name: 'Style studio opens once the day’s jobs are done' });
+  ok('Settings, Rewards: the studio switch is there, on by default, for every child', (await sw.count()) === 1 && (await sw.getAttribute('aria-checked')) === 'true' && (await S(page).locator('[data-card="studio"]').innerText()).includes('the same for every child'));
+  await sw.click(); await save(page);
+  ok('switched off, it saves studio_after_jobs: false', await cfg(page, '(c) => c.studio_after_jobs') === false && await dashCard(page, '(c) => c.studio_after_jobs') === false, await cfg(page, '(c) => c.studio_after_jobs'));
+  await sw.click(); await save(page);
+  ok('switched on again, the key goes (the default)', await cfg(page, '(c) => c.studio_after_jobs') === undefined && await dashCard(page, '(c) => c.studio_after_jobs') === undefined);
+  await page.close();
+  // every child alike: the eldest with "One job at a time" off (the preview's default for him, as the house's eldest had it) and his brothers with it on
+  const lock = async (qs) => { const p = await open('look=glass&page=kid&' + qs); const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'), b = k.shadowRoot.querySelector('.studio'); return { left: k._block().todo.length, locked: b.hasAttribute('data-locked'), one: k.oneAtATime }; }); await p.close(); return r; };
+  const on = [await lock('kid=0'), await lock('kid=1'), await lock('kid=2')], off = [await lock('kid=0&studiowait=0'), await lock('kid=1&studiowait=0'), await lock('kid=2&studiowait=0')];
+  ok('with jobs left every child’s studio waits, whatever his “One job at a time” (the eldest’s is off)', on.every((r) => r.left > 0 && r.locked) && on[0].one === false && on[1].one === true, on);
+  ok('switched off, every child’s studio opens with jobs left', off.every((r) => r.left > 0 && !r.locked), off);
+  // and the eldest's own "One job at a time" switched on, on this screen, still changes only his list
+  const p = await open('look=glass&page=kid&kid=0&studiowait=0', '16:20', ); await p.evaluate(() => { localStorage.setItem('family-hub-kid-riley', JSON.stringify({ focus: true })); }); await p.reload(); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(500);
+  const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'); return { one: k.oneAtATime, locked: k.shadowRoot.querySelector('.studio').hasAttribute('data-locked') }; });
+  ok('a child’s “One job at a time” no longer moves his studio', r.one === true && r.locked === false, r);
+  await p.evaluate(() => localStorage.removeItem('family-hub-kid-riley')); await p.close(); }
 
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ':\n - ' + fails.join('\n - ') : ''}`);
 console.log('errors:', errs.length ? [...new Set(errs)].join('\n') : 'none');
