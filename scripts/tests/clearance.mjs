@@ -20,7 +20,9 @@ const VP = (process.env.VP || 'wall:1920x1080,ipad:1180x820,phone:390x844').spli
 const PAGES = (process.env.PAGES || ['planner', 'planner&view=day', 'planner&view=month', 'planner&events=many', 'kid&kid=0', 'kid&kid=1', 'kid&kid=2', 'kid&kid=0&studio=1', 'kid&kid=0&painted=1&studio=1', 'kid&kid=2&painted=1',
   'groceries', 'groceries&long=1', 'doodle', 'music', 'music&mview=scene', 'music&mview=dial', 'music&mview=desk', 'music&mview=cables', 'music&mview=list', 'music&mtab=shelves', 'music&mtab=juke&juke=1', 'music&mtab=radio', 'music&mtab=call',
   'weather', 'home', 'morning@07:10', 'planner&sheet=add', 'planner&sheet=themes', 'planner&sheet=meds', 'planner&sheet=sitter', 'planner&sheet=timer', 'planner&sheet=chat', 'planner&sheet=settings&pane=children', 'planner&sheet=settings&pane=house',
-  'planner&sheet=settings&pane=pictures&artn=3', 'planner&art=1&artn=3', 'planner&night=1@22:30'].join(',')).split(',');
+  'planner&sheet=settings&pane=pictures&artn=3', 'planner&sheet=settings&pane=rewards',
+  // (23 Nov) the bell with something waiting and its sheet, a parent's note and its sheet (backlog 71, 79), and the planner and Groceries as the house has them
+  'planner&house=1&asks=reward-job-chat', 'planner&asks=reward-job-chat&sheet=waiting', 'kid&kid=0&note=You helped Max without being asked.', 'kid&kid=0&sheet=noticed', 'groceries&house=1', 'planner&art=1&artn=3', 'planner&night=1@22:30'].join(',')).split(',');
 const STRESS = !!process.env.STRESS, SHOW = (process.env.SHOW || '').split(',');
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox'] });
 const found = new Map(); const errs = []; const again = { looks: new Set(), vp: new Set(), pages: new Set() };
@@ -90,7 +92,9 @@ for (const look of LOOKS) for (const v of VP) {
         const small = b.height < 26; /* a letter in a little round chip: a pixel is its room */
         if (c.l < minX || (oneLine && c.r < minX) || c.t < (small ? 1 : minY) || c.b < (small ? 1 : minY)) { const k = `TIGHT|${nm(box)}|${word}`; if (!seen.has(k)) { seen.add(k); out.push(k + `|l${round(c.l)} r${round(c.r)} t${round(c.t)} b${round(c.b)}`); } }
         // meant to be in the middle
-        const only = box.textContent.trim() === t.nodeValue.trim() && !box.querySelector('svg, img, fh-pic, i, input') && box.getAttribute('role') !== 'switch' && getComputedStyle(box, '::before').content === 'none' && getComputedStyle(box, '::after').content === 'none';
+        // (a tick-box button: its empty box sits before the words, so the words are not meant to be in the middle; backlog 93)
+        const beside = [...box.querySelectorAll('*')].some((x) => !x.contains(t) && shown(x) && x.getBoundingClientRect().width > 2);
+        const only = box.textContent.trim() === t.nodeValue.trim() && !beside && !box.querySelector('svg, img, fh-pic, i, input') && box.getAttribute('role') !== 'switch' && getComputedStyle(box, '::before').content === 'none' && getComputedStyle(box, '::after').content === 'none';
         if (only && oneLine && b.width <= 200 && (bcs.textAlign === 'center' || (/flex|grid/.test(bcs.display) && /center/.test(bcs.justifyContent + bcs.justifyItems + bcs.placeItems)))) {
           if (Math.abs(c.l - c.r) > 4 || (/center/.test(bcs.alignItems + bcs.placeItems) && Math.abs(c.t - c.b) > 4)) { const k = `OFF-CENTRE|${nm(box)}|${word}`; if (!seen.has(k)) { seen.add(k); out.push(k + `|l${round(c.l)} r${round(c.r)} t${round(c.t)} b${round(c.b)}`); } } }
       }
@@ -119,7 +123,7 @@ for (const look of LOOKS) for (const v of VP) {
       groups(card.shadowRoot);
       return out;
     }).catch((e) => [`ERROR|${String(e).slice(0, 120)}||`]);
-    for (const line of r) { const [kind, where, word, detail] = line.split('|'); if (kind === 'TRUNC' && !SHOW.includes('trunc')) continue; { const k = knownOf({ kind, where, word, look, vp: v.n, page: pg }); if (k) { k.n++; continue; } } again.looks.add(look); again.vp.add(`${v.n}:${v.w}x${v.h}`); again.pages.add(pg); const key = `${kind}|${where}`; const f = found.get(key) ?? found.set(key, { kind, where, n: 0, at: new Set(), eg: [] }).get(key); f.n++; f.at.add(`${look}/${v.n}/${pg.split('&sheet=').pop().slice(0, 28)}`); if (f.eg.length < 2) f.eg.push(`"${word}" ${detail}`); }
+    for (const line of r) { const [kind, where, word, detail] = line.split('|'); if (kind === 'TRUNC' && !SHOW.includes('trunc')) continue; { const k = knownOf({ kind, where, word, look, vp: v.n, page: pg }); if (k) { k.n++; continue; } } again.looks.add(look); again.vp.add(`${v.n}:${v.w}x${v.h}`); again.pages.add(pg0); /* with its @time, so a second look sees the same moment (0.38.25) */ const key = `${kind}|${where}`; const f = found.get(key) ?? found.set(key, { kind, where, n: 0, at: new Set(), eg: [] }).get(key); f.n++; f.at.add(`${look}/${v.n}/${pg.split('&sheet=').pop().slice(0, 28)}`); if (f.eg.length < 2) f.eg.push(`"${word}" ${detail}`); }
     await page.close();
   }
   await ctx.close();

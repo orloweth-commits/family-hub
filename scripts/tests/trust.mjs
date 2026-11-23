@@ -172,6 +172,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
     await page.waitForTimeout(500); await settle(page); await page.waitForTimeout(300);
     const adds = await calls(page, /script\.fh_add_points .*"jar":1/);
     ok('and adds exactly one marble', adds.length === 1 && await state(page, 'input_number.family_jar') === '85', adds);
+    await kid.locator('.marble.fly').first().waitFor({ state: 'detached', timeout: 4000 }).catch(() => {}); // (23 Nov: beside another suite its flight outran the fixed wait above)
     ok('the marble lands and is cleared away', await kid.locator('.marble.fly').count() === 0);
     const jar2 = (await kid.locator('section[aria-label="Family jar"]').innerText()).replace(/\s+/g, ' ').trim();
     ok('the jar card counts it: one fewer to go', /^35 marbles to a family treat$/i.test(jar2), jar2);

@@ -140,7 +140,7 @@ for (const [w, h] of [[1920, 1080], [1280, 800], [1024, 768]]) { const page = aw
   ok(`${w}x${h}: Coming up is pictures, not a list of words`, r.rows === 0 && r.pics.length === 3 && r.pics.every((p) => p.pic && p.pic !== '📅'), r.pics.map((p) => p.pic + ' ' + p.label));
   ok(`${w}x${h}: one moon for each sleep (a sun for today)`, r.pics.every((p) => { const n = Number(/(\d+) sleep/.exec(p.label)?.[1] ?? 0); return n ? p.moons === n && p.words === `${n} sleep${n > 1 ? 's' : ''}` : p.sun && p.words === 'Today'; }), r.pics.map((p) => `${p.words}:${p.moons}`));
   ok(`${w}x${h}: all three are in view, each big enough to tap`, r.pics.every((p) => p.inside && p.h >= 60 && p.w >= 60), r.pics.map((p) => `${p.w}x${p.h} ${p.inside}`));
-  if (w === 1920) { await K(page).locator('.soonpic').nth(1).click(); await page.waitForTimeout(250); const s = await said(page); ok('a tap reads it out', s.some((x) => /^Kindy\. 1 sleep\.$/.test(x)), s.slice(-2)); }
+  if (w === 1920) { await K(page).locator('.soonpic').nth(0).click(); /* (23 Nov: the preview's bin event is collection morning, gone by 4:20 pm, so Wednesday's Kindy is first) */ await page.waitForTimeout(250); const s = await said(page); ok('a tap reads it out', s.some((x) => /^Kindy\. 1 sleep\.$/.test(x)), s.slice(-2)); }
   await page.context().close(); }
 
 // 5. Ask by child

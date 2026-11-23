@@ -33,7 +33,7 @@ const lum = (hex) => { const n = parseInt(hex.slice(1), 16), f = (v) => { v /= 2
 
 /* ---------- 1. every page wears it, in every theme but Space ---------- */
 const PAGES = fs.readFileSync(new URL('./clearance.mjs', import.meta.url), 'utf8').match(/const PAGES = \(process\.env\.PAGES \|\| \[([\s\S]*?)\]\.join/)[1].match(/'[^']+'/g).map((s) => s.slice(1, -1));
-ok('the page list is the fit check\'s own 37', PAGES.length === 37, PAGES.length);
+ok('the page list is the fit check\'s own 43 (five added 23 Nov)', PAGES.length === 43, PAGES.length);
 /** A pale surface left from light mode: something painted, not small, nearly opaque and light, that is not one of the things meant to be light on a dark page. */
 const pale = (page) => page.evaluate(() => { const out = new Map();
   // meant to be light: the chosen segment and chip (pale fill, dark ink), the filled action, a switch's knob, paper to draw on, pictures and their plates, record covers and labels, a person's disc, the tick of the chosen card, keys' caps lock

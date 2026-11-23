@@ -36,7 +36,7 @@ const fly = (page, id) => page.evaluate(async (id) => {
   let overClock = 0, overDock = 0, seen = 0; const W = innerWidth, H = innerHeight;
   for (let i = 0; i < 10; i++) {
     for (const a of anims) { a.pause(); a.currentTime = Math.min(ms * (i + 0.5) / 10, a.effect.getComputedTiming().endTime - 1); }
-    for (const e of g.querySelectorAll('.gd-b svg, .gd-p svg')) { const r = drawn(e); if (r[2] > 0 && r[0] < W && r[3] > 0 && r[1] < H) seen++; if (hit(r, clock)) overClock++; if (buttons.some((b) => hit(r, b))) overDock++; }
+    for (const e of g.querySelectorAll('.gd-b svg, .gd-p svg')) { const r = drawn(e); if (r[2] > 0 && r[0] < W && r[3] > 0 && r[1] < H) seen++; if (hit(r, clock)) overClock++; if (buttons.some((b) => hit(r, b) && Math.min(r[3], b[3]) - Math.max(r[1], b[1]) > 6)) overDock++; /* (a lane visitor walks with its feet 4 px onto the dock's top edge: more than 6 px over a button is over it) */ }
   }
   const out = { guests: guests.length, front: root.host.front, masked: !!g.closest('.keep'), lane: !!g.closest('.lane'), anims: anims.length, props, overClock, overDock, seen, ms, buttons: buttons.length };
   for (const a of anims) a.cancel(); for (const a of ambs) a.demo = ''; return out;
@@ -44,8 +44,10 @@ const fly = (page, id) => page.evaluate(async (id) => {
 const guests = (page) => page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('fh-ambient')].flatMap((a) => [...a.shadowRoot.querySelectorAll('.guest')].map((g) => g.dataset.kind)));
 
 // 1. every visitor, at three sizes: transform and opacity only, clear of the clock and of the dock's buttons
+// (23 Nov, backlog 63: in the Sports look itself. Glass's frame since 0.38.21 leaves no gutter or corner beside its dock, so a lane visitor
+// there stood on the dock's buttons; in Home Ground the lane above the dock is 16 px)
 if (run('fly')) for (const [w, h] of [[1280, 800], [1920, 1080], [1312, 668], [1024, 768]]) {
-  const page = await open('look=glass&scene=sports&page=planner', { w, h });
+  const page = await open('look=sports&scene=sports&page=planner', { w, h });
   for (const id of [...BALLS, ...SURPRISES]) {
     const r = await fly(page, id), only = r.guests === 1 && r.props.every((p) => p === 'transform' || p === 'opacity');
     ok(only && r.anims > 0 && r.overClock === 0 && (r.front ? r.overDock === 0 && r.lane : r.masked) && r.seen > 0, `${w}x${h} ${id}`, JSON.stringify(r));
@@ -93,7 +95,7 @@ if (run('plan')) { const page = await open('look=glass&scene=sports&page=planner
   await page.close(); }
 
 // 6. surprises keep to their windows and limits: Saturday from 3.50 pm for three hours of wound-on time
-if (run('plan')) { const page = await open('look=glass&scene=sports&page=planner', { clock: 'run', time: '15:50', day: '2026-11-14' });
+if (run('plan')) { const page = await open('look=sports&scene=sports&page=planner', { clock: 'run', time: '15:50', day: '2026-11-14' }); // (in the look itself: see section 1)
   const at = []; let was = '';
   for (let s = 0; s < 3 * 1800; s++) { await page.clock.runFor(2000); const g = (await guests(page))[0] ?? ''; if (g && g !== was && SURPRISES.concat('sprinkler-pm').includes(g)) at.push([g, 15 * 60 + 50 + Math.round((s * 2) / 60)]); was = g; }
   const names = at.map((x) => x[0]), close = at.some((x, i) => i && x[1] - at[i - 1][1] < 10);
@@ -120,7 +122,7 @@ if (run('sound')) { const page = await open('look=glass&scene=sports&page=planne
 if (run('dock')) for (const [w, h] of [[1024, 768], [768, 1024], [820, 1180], [1180, 820]]) for (const time of ['16:20', '07:10']) { const page = await open('look=sports&page=planner', { w, h, time });
   const r = await page.evaluate(() => { const nav = document.querySelector('family-hub-card').shadowRoot.querySelector('nav.dock'), b = [...nav.querySelectorAll('.item, .cta')].map((e) => { const r = e.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(e.querySelector('.lb') || e); const t = g.getBoundingClientRect(); return { n: e.textContent.trim(), l: r.left, r: r.right, b: r.bottom, w: r.width, h: r.height, tl: t.left, tr: t.right }; });
     return { n: b.length, off: b.filter((x) => x.l < -0.5 || x.r > innerWidth + 0.5 || x.b > innerHeight + 0.5).map((x) => x.n), small: b.filter((x) => x.w < 43.5 || x.h < 43.5).map((x) => x.n), touch: b.filter((x, i) => i && x.tl < b[i - 1].tr + 1).map((x) => x.n), scrolls: nav.scrollWidth > nav.clientWidth + 1 }; });
-  ok(r.n >= (time === '07:10' ? 13 : 12) && !r.off.length && !r.small.length && !r.touch.length && !r.scrolls, `dock ${w}x${h} at ${time}: all ${r.n} places on the screen`, JSON.stringify(r));
+  ok(r.n === 10 /* since 0.38.26: three children and seven places; Morning takes Planner's place, All on and All off are gone */ && !r.off.length && !r.small.length && !r.touch.length && !r.scrolls, `dock ${w}x${h} at ${time}: all ${r.n} places on the screen`, JSON.stringify(r));
   await page.close(); }
 
 console.log('errors:', errs.length ? errs.join('\n') : 'none');

@@ -275,6 +275,22 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports', 'obsidian']) { const p
   ok('a usual ticked off into the trolley gets its plus back', u.find((x) => x.t.endsWith(off))?.on === false, u);
   await page.context().close(); }
 
+// 9. batch 5 (0.38.22): the wind's unit on Weather; Groceries' keys in five rows with "Send the list to" aside; the top bar after dark
+{ const page = await open('page=weather');
+  const w = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-weather').shadowRoot; return { wind: r.querySelectorAll('.hchart .wind').length, unit: [...r.querySelectorAll('.hchart .wunit')].map((e) => e.textContent.trim()) }; });
+  ok('each wind figure in the hours carries "km/h" under it (batch 5)', w.wind > 0 && w.unit.length === w.wind && w.unit.every((u) => u === 'km/h'), w);
+  await page.context().close(); }
+{ const page = await open('page=groceries');
+  await page.evaluate(() => { document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries')._keys = true; }); await page.waitForTimeout(500);
+  const g = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries').shadowRoot, rows = [...r.querySelectorAll('.tray .krow')], send = r.querySelector('.sendrow');
+    return { rows: rows.length, digits: rows[0]?.textContent.replace(/\s/g, '') ?? '', punct: [...r.querySelectorAll('.tray .key')].map((k) => k.textContent.trim()).filter((t) => /^[?!’,.]$/.test(t)).join(''), send: send ? getComputedStyle(send).display : 'none' }; });
+  ok('with the keys up Groceries has five rows of keys, numbers first, with ? ! ’ , . (batch 5)', g.rows === 5 && g.digits === '1234567890' && g.punct.length === 5, g);
+  ok('and "Send the list to" steps aside while typing', g.send === 'none', g);
+  await page.context().close(); }
+{ const page = await open('page=planner&sun=below', '2026-11-10T21:00:00+08:00');
+  const h = await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; return { sky: r.querySelector('header .wsub')?.textContent ?? '', uv: r.querySelectorAll('header .badge').length }; });
+  ok('after dark the top bar says "Clear", not "Sunny", with no UV badge or day\'s top (batch 5)', /Clear/.test(h.sky) && !/Sunny/.test(h.sky) && h.uv === 0, h);
+  await page.context().close(); }
 await browser.close(); srv.close();
 console.log(`\n${pass} passed, ${fails.length} failed${errs.length ? `, ${errs.length} page errors` : ''}`);
 for (const f of fails) console.log('FAILED: ' + f);

@@ -24,7 +24,7 @@ const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}
 const ev = (d, h, m, title, mins = 60, location, description) => ({ summary: title, location, description, start: { dateTime: at(d,h,m).toISOString() }, end: { dateTime: new Date(at(d,h,m).getTime() + mins*60000).toISOString() } });
 const allDay = (d, title) => ({ summary: title, start: { date: ymd(at(d,0)) }, end: { date: ymd(at(d+1,0)) } });
 const CAL = {
-  'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,19,0,'Bins out – recycling week',15)],
+  'calendar.family': [ev(4,18,30,'Pizza night'), ev(6,10,0,'Beach morning',120), ev(1,7,0,'Bin collection – recycling week',15)],
   'calendar.alex': [ev(0,8,30,'School drop-off',30), allDay(3,'Site visit'), ev(1,17,0,'Call the plumber',15)],
   'calendar.sam': [ev(0,18,30,'Netball'), ev(1,7,0,'Gym'), ev(2,12,30,'Book dentist',15)],
   'calendar.riley': [ev(1,16,0,'Swimming squad',90,'Aquatic centre, pool 2','Bring:<br>goggles and cap<br>towel<p>Meet at the far end of pool 2.</p>Timetable: https://example.org/squad'), ev(2,17,30,'Clarinet lesson',45,undefined,'Bring the blue book <img src=x onerror="window.__pwned=1"><script>window.__pwned=2<\/script> and a spare reed'), ev(5,8,0,'Swimming carnival',180), ev(3,8,30,'Sport uniform',15)],
@@ -105,7 +105,7 @@ const hass = {
     (q.get('timer') === '0' || q.get('art') || q.get('idle')) ? st('timer.kitchen', 'idle') : st('timer.kitchen', 'active', { finishes_at: new Date(Date.now() + (6*60+12)*1000).toISOString() }),
     st('input_number.family_jar', 84), st('input_text.fh_panel_message', ''), st('input_datetime.fh_panel_seen', 'x', { timestamp: 0 }), st('todo.family_hub_use', 0), st('todo.family_hub_backup', 0),
     st('calendar.family', 'off', { supported_features: q.get('calro') ? 0 : 3, friendly_name: 'Family' }), st('calendar.alex', 'off', { supported_features: q.get('calro') ? 0 : 7, friendly_name: 'Alex' }), st('calendar.sam', 'off', { supported_features: q.get('calro') ? 0 : 3, friendly_name: 'Sam' }),
-    st('todo.shopping_list', 8), st('todo.reminders', 3), st('todo.rewards_owed', 0),
+    st('todo.shopping_list', TODOS['todo.shopping_list'].filter((x) => (Array.isArray(x) ? x[1] ?? 'needs_action' : 'needs_action') === 'needs_action').length), st('todo.reminders', TODOS['todo.reminders'].length), st('todo.rewards_owed', 0),
     ...(q.get('nopainter') ? [] : [st('ai_task.demo_painter', 'unknown', { friendly_name: 'Demo painter' }), st('todo.family_hub_art', ARTN)]), st('binary_sensor.kitchen_presence', 'off', { friendly_name: 'Kitchen presence', device_class: 'occupancy' }), st('binary_sensor.front_door', 'off', { friendly_name: 'Front door', device_class: 'door' }), st('light.panel_backlight', 'on', { friendly_name: 'Panel backlight', brightness: 255 }),
     ...kidStates('riley', 120, 640, 'G------'), ...kidStates('charlie', 65, 310, 'G------'), ...kidStates('max', 80, 150, 'G------'),
     st('light.kitchen', 'on', { friendly_name: 'Kitchen bench', brightness: 200 }), st('light.kitchen_pendant', 'off', { friendly_name: 'Kitchen pendant' }), st('light.lounge', 'on', { friendly_name: 'Lounge lamp', brightness: 120 }),
@@ -164,7 +164,7 @@ const hass = {
       if (service === 'remove_completed_items') store[id] = store[id].filter((x) => x.status !== 'completed');
       if (service === 'remove_item') store[id] = store[id].filter((x) => ![].concat(data.item).includes(x.uid));
       if (service === 'add_item' && data.description) store[id][store[id].length - 1].description = data.description;
-      if (id === 'todo.family_hub_asks' && hass.states[id]) { hass.states[id] = { ...hass.states[id], state: String(store[id].filter((x) => x.status === 'needs_action').length), last_updated: new Date().toISOString() + Math.random() }; el.hass = { ...hass }; }
+      if (['todo.family_hub_asks', 'todo.shopping_list', 'todo.reminders'].includes(id) && hass.states[id]) { hass.states[id] = { ...hass.states[id], state: String(store[id].filter((x) => x.status === 'needs_action').length), last_updated: new Date().toISOString() + Math.random() }; el.hass = { ...hass }; }
       (subs[id] ?? []).forEach((cb) => cb({ items: store[id].map((x) => ({ ...x })) }));
     }
   },
@@ -245,6 +245,8 @@ window.__haDown = (down) => {
   if (!down) { if (window.__resubDies) for (const k of Object.keys(subs)) subs[k] = []; downWait.splice(0).forEach((r) => r()); }
   hass.connected = !down; el.hass = { ...hass };
 };
+// window.__remake(): the card made afresh with the same config and states, as Home Assistant's frontend does after a reconnect (backlog 124)
+window.__remake = () => { const cfg = el._config, old = el; el = document.createElement('family-hub-card'); el.setConfig(cfg); el.hass = { ...hass }; old.replaceWith(el); return el; };
 // (window.__restUp = true: the calendars' plain web requests still answer while the websocket is down, as when only the socket is lost)
 for (const fn of ['callService', 'callWS', 'callApi']) { const real = hass[fn]; hass[fn] = async (...a) => { if (window.__down && !(fn === 'callApi' && window.__restUp)) throw { code: 3, message: 'Connection lost' }; return real(...a); }; }
 { const today = new Date(), day = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return ymd(d); };
@@ -298,7 +300,7 @@ el.setConfig({
   // the evening digest is wired only with &digest=1 (one phone, the usual time); &digest=two names both phones, &dgtime=<HH:MM> sets the time. window.__autoFail = true makes Home Assistant refuse the automation
   ...(q.get('digest') ? { digest: { notify: q.get('digest') === 'two' ? ['notify.mobile_app_alex', 'notify.mobile_app_sam'] : ['notify.mobile_app_alex'], ...(q.get('dgtime') ? { time: q.get('dgtime') } : {}) } } : {}),
   // approving from a phone is wired only with &approve=1 (one phone; the asks list exists); &approve=nolist names the phone before Home Assistant has the list; &jobsfrom=<points> sets which jobs wait for a parent (15 unless set). An answer from the bell is acted on here as Home Assistant's automation would (a stand-in: the automation itself is tested by the suite). window.__notifyFail = true makes every phone refuse
-  ...(q.get('approve') ? { approve: { notify: ['notify.mobile_app_alex'], ...(q.get('jobsfrom') ? { jobs_from: Number(q.get('jobsfrom')) } : {}) } } : {}),
+  ...((q.get('approve') || q.get('asks')) ? { approve: { notify: ['notify.mobile_app_alex'], ...(q.get('jobsfrom') ? { jobs_from: Number(q.get('jobsfrom')) } : {}) } } : {}),
   // the house voice is wired only with &voice=1 (so the other suites speak as before): &vcap=<chars> sets the daily allowance, &vcount=1 shares the count through a helper,
   // &vfiles=none leaves the recordings out of the configuration, &vfiles=missing names recordings that are not there. window.__ttsFail = true makes the engine fail.
   ...(q.get('voice') ? { voice: { tts: 'tts.demo_voice', voice: 'demo-voice', language: 'en', ...(q.get('vfiles') === 'none' ? {} : { files: 'media-source://media_source/local/line-{line}.mp3' }), ...(q.get('vcap') ? { daily_chars: Number(q.get('vcap')) } : {}), ...(q.get('vcount') ? { count: 'input_number.fh_voice_chars' } : {}), ...(q.get('voices') ? { use: q.get('voices') === '1' ? 'Wren' : q.get('voices'), voices: [{ name: 'Wren', voice: 'demo-voice', files: 'media-source://media_source/local/line-{line}.mp3' }, { name: 'Robin', voice: 'demo-robin' }], sync: { voice: 'input_text.fh_voice_id', files: 'input_text.fh_voice_files', pipeline: true } } : {}) } } : {}),
@@ -317,7 +319,23 @@ if (q.get('slow') || q.get('fail')) for (const fn of ['callService', 'callWS']) 
 // (&cues=twin, or &twin=1: Home Assistant has Riley's speaker under a second name too, as one speaker often is: its own integration's and Music Assistant's)
 if (q.get('cues') === 'twin' || q.get('twin')) hass.states['media_player.rileys_rileys_homepod'] = { entity_id: 'media_player.rileys_rileys_homepod', state: 'idle', attributes: { friendly_name: 'Riley’s HomePod', volume_level: 0.3 } };
 // (&notes=1 gives the mock the asks list with no phone named: "I noticed" notes need the list, not a phone)
-if ((q.get('approve') && q.get('approve') !== 'nolist') || q.get('notes')) { store['todo.family_hub_asks'] = []; hass.states['todo.family_hub_asks'] = { entity_id: 'todo.family_hub_asks', state: '0', attributes: { friendly_name: 'Family Hub asks', supported_features: 15 } }; }
+if ((q.get('approve') && q.get('approve') !== 'nolist') || q.get('notes') || q.get('asks') || q.get('note')) { store['todo.family_hub_asks'] = []; hass.states['todo.family_hub_asks'] = { entity_id: 'todo.family_hub_asks', state: '0', attributes: { friendly_name: 'Family Hub asks', supported_features: 15 } }; }
+// &asks=reward,job,chat: something already waiting on the asks list, so a page opens with the bell and its sheet can be walked (backlog 71);
+// &note=<words>: a parent's note waiting over Riley's page (79). Lines as approve.ts and noticed.ts write them
+if (q.get('asks') || q.get('note')) { const t0 = Date.now() - 600000, L = store['todo.family_hub_asks'];
+  const ask = (id, k, extra) => L.push({ uid: 'u-' + id, summary: `${extra.who}: ${extra.name}`, status: 'needs_action', description: 'ask ' + JSON.stringify({ v: 1, id, k, t: t0, ...extra }) });
+  for (const k of (q.get('asks') || '').split(/[,-]/).filter(Boolean)) { // (reward-job-chat as well as reward,job,chat: the fit check's page lists are split on commas)
+    if (k === 'reward') ask('apre01', 'reward', { kid: 'riley', who: 'Riley', name: 'Pick the family movie', cost: 100 });
+    if (k === 'job') ask('apjb01', 'job', { kid: 'charlie', who: 'Charlie', name: 'Mow the lawn', cost: 20, list: 'todo.charlie_chores', uid: 'c-9' });
+    if (k === 'chat') ask('apch01', 'chat', { kid: 'max', who: 'Max', name: 'would like a chat', cost: 0 }); }
+  if (q.get('note')) L.push({ uid: 'u-npre01', summary: 'Riley: a note from a parent', status: 'needs_action', description: 'note ' + JSON.stringify({ v: 1, id: 'npre01', kid: 'riley', who: 'Riley', text: q.get('note'), t: t0 }) });
+  hass.states['todo.family_hub_asks'] = { ...hass.states['todo.family_hub_asks'], state: String(L.length), last_updated: new Date().toISOString() }; }
+// &house=1: the preview shaped as the house is (plan section 3, item 6): a private lock on every day, a full week, the house's eight short
+// usuals, a named treat in the jar, and the voices only as a list (the house has no voice.voice: 0.38.28)
+if (q.get('house')) { const c = el._config, mine = ['Physio', 'Dentist', 'Haircut', 'Accountant', 'Car service', 'Optometrist', 'Massage'];
+  for (let d = 0; d < 7; d++) CAL['calendar.family'].push(ev(d, 8 + (d % 3), 30, mine[d], 60), ev(d, 15, 45, ['Pick-up', 'Tennis', 'Homework club', 'Band practice', 'Scooter park', 'Birthday party', 'Lunch with Grandad'][d], 75), ev(d, 17, 30, ['FaceTime call with Charles and Andrea', 'Swimming lessons', 'Clarinet lesson', 'Trumpet lesson', 'Footy training', 'Grocery run', 'Church'][d], 45));
+  el.setConfig({ ...c, private: [...(c.private ?? []), ...mine], grocery_usuals: ['Milk', 'Bread', 'Eggs', 'Bananas', 'Apples', 'Cheese', 'Yoghurt', 'Coffee'], jar: { ...(c.jar ?? {}), reward: 'Afternoon tea at Yo-Chi' },
+    ...(c.voice ? { voice: (({ voice, ...v }) => v)(c.voice) } : {}) }); }
 el.hass = hass;
 document.body.appendChild(el);
 await el.updateComplete;
@@ -347,7 +365,7 @@ if (q.get('keep')) {
 if (q.get('guest') || q.get('ambient') === '0' || q.get('calm')) { el.setConfig({ ...el._config, ...(q.get('guest') ? { ambient_demo: q.get('guest') } : {}), ...(q.get('ambient') === '0' ? { ambient: false } : {}), ...(q.get('calm') ? { calm: true } : {}) }); }
 if (q.get('mviews') || ['dial', 'desk', 'cables', 'list'].includes(q.get('mview'))) { el.setConfig({ ...el._config, music_views: !q.get('mviews') || q.get('mviews') === 'all' ? ['dial', 'desk', 'cables', 'list'] : q.get('mviews').split(',') }); }
 if (q.get('mview')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) m._view = q.get('mview'); }
-if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
+if (q.get('mtab')) { await el.updateComplete; const m = el.shadowRoot.querySelector('fh-music'); if (m) { m._tab = q.get('mtab'); if (q.get('mtab') === 'shelves') { m._shelf = q.get('shelf') || 'Max'; m._loadShelves(); } if (q.get('mtab') === 'radio') m._loadRadio(); /* as the tab does (it looked nothing up from &mtab=radio until 23 Nov) */ if (q.get('mtab') === 'search' && q.get('find')) { m._text = q.get('find'); await m._search(); m._sel = m._hits[1].uri; } if (q.get('mtab') === 'juke') { m._saveJuke({ on: true, who: 'Charlie', picks: [{ name: 'Dance Mode', uri: 'demo://1', who: 'Max', t: 1, done: true, sub: 'Bluey' }, { name: 'Trumpet Voluntary', uri: 'demo://2', who: 'Charlie', t: 2 }, { name: 'Shake It Off', uri: 'demo://3', who: 'Sam', t: 3 }, { name: 'Minecraft', uri: 'demo://4', who: 'Riley', t: 4 }] }); } } }
 if (q.get('art')) { await el.updateComplete; el._art.enter(); }
 if (q.get('studio')) { await el.updateComplete; const k = el.shadowRoot.querySelector('fh-kid'); if (k) k._studio = true; }
 if (q.get('sheet') === 'settings') { el._sheet = 'settings'; await el.updateComplete; const sv = el.shadowRoot.querySelector('fh-settings'); if (sv) { if (q.get('pane')) sv._pane = q.get('pane'); if (q.get('skid')) sv._kid = Number(q.get('skid')); if (q.get('stab')) sv._ktab = q.get('stab'); if (q.get('keys')) sv.forceKeys = true; } }

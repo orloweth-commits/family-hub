@@ -8,7 +8,7 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/
 const PORT = Number(process.env.PORT || 4798);
 const srv = http.createServer((req, res) => { const u = new URL(req.url, 'http://x'); const p = u.pathname === '/' ? path.join(PREV, 'index.html') : path.join(ROOT, u.pathname.replace(/^\/preview\/\.\./, ''));
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'content-type': types[path.extname(p)] ?? 'application/octet-stream' }); res.end(b); }); }).listen(PORT);
-// --disable-smooth-scrolling: a drum rolls smoothly to a key's value and, from 600 ms after the key, takes its value from where it has rolled to.
+// --disable-smooth-scrolling (kept: section 22 holds a roll part-way by hand, which needs the scroll instant): a drum rolls smoothly to a key's value and, from 600 ms after the key, takes its value from where it has rolled to.
 // On a busy machine the roll started late and was read part-way, which put the hour back (the bedtime lines that failed beside other suites
 // and once alone, backlog 31 and 88; the drum's own race is backlog 152). With the roll instant the test reads only what the keys chose
 const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox', '--disable-smooth-scrolling'] });
@@ -28,16 +28,14 @@ const state = async (page) => (await S(page).locator('.sft .sstate').innerText()
 const toast = async (page) => ((await S(page).locator('.toast').count()) ? (await S(page).locator('.toast span').first().innerText()).trim() : '');
 const pin = async (page, digits) => { for (const d of digits) await page.locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(450); };
 /** Opens the time dial behind a time button and moves the hour by `dh` and the minutes by `dm` steps with the arrow keys. */
-// Opening the dial scrolls each drum to its value, and a scroll leaves a 90 ms wait before the drum reads its value from where it rests,
-// during which it is not moved to a key's choice: a key pressed then was undone (backlog 152). Wait for the drums to be still before
-// the keys, and again before Done
-const still = (page) => page.waitForTimeout(150).then(() => page.waitForFunction(() => { const st = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-settings'); return !!st && !st._spin?.h && !st._spin?.m; }, null, { timeout: 3000 }).catch(() => {}));
+// (until 23 Nov the dial waited for the drums to be still before the keys and before Done: since 0.38.24 the card keeps a key's value
+// through the drum's own roll (backlog 152), so the keys go straight in, as a person's would)
 const dial = async (page, button, dh = 0, dm = 0, half = '') => { await button.click(); await page.waitForTimeout(250);
-  const h = S(page).locator('.drum[data-d="h"]'), m = S(page).locator('.drum[data-d="m"]'); await h.waitFor(); await still(page);
+  const h = S(page).locator('.drum[data-d="h"]'), m = S(page).locator('.drum[data-d="m"]'); await h.waitFor();
   await h.focus(); for (let i = 0; i < Math.abs(dh); i++) await page.keyboard.press(dh < 0 ? 'ArrowUp' : 'ArrowDown');
   await m.focus(); for (let i = 0; i < Math.abs(dm); i++) await page.keyboard.press(dm < 0 ? 'ArrowUp' : 'ArrowDown');
   if (half) await S(page).locator('.sampm button', { hasText: half }).click();
-  await still(page); await S(page).locator('[data-act="time-done"]').click(); await page.waitForTimeout(250); };
+  await S(page).locator('[data-act="time-done"]').click(); await page.waitForTimeout(250); };
 
 // 1. the PIN gate: the cog on the house-info sheet asks for the PIN every time, except within a minute of the last time
 let page = await open('look=glass');
