@@ -10074,7 +10074,7 @@ const El = 15, g1 = (a) => {
   }
 }, Ur = class Ur extends Kt {
   constructor() {
-    super(...arguments), this.lookCtl = new ne(this), this.fitCtl = new De(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.notes = "", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._jarBase = 0, this._jarOpen = !1, this._jarShut = 0, this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._notes = [], this._notesSeen = "", this._noteSaid = "", this._asked = [], this._asksSeen = "", this._asking = !1, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "", this._noList = !1;
+    super(...arguments), this.lookCtl = new ne(this), this.fitCtl = new De(this), this._nowUid = "", this.art = {}, this.familyCalendars = [], this.calRules = [], this.pin = "", this.owed = "todo.rewards_owed", this.notes = "", this.jarTarget = 120, this.jarReward = "a family treat", this.privateWords = [], this.quiet = !1, this.ask = !1, this.oneAtATime = !1, this.studioWait = !0, this._showAll = !1, this._tabPicked = !1, this._chores = [], this._events = [], this._jump = 0, this._bursts = [], this._jarBase = 0, this._jarOpen = !1, this._jarShut = 0, this._confetti = 0, this._studio = !1, this._lookSaid = !1, this._celebrate = null, this._pinAsk = null, this._days = !1, this._drawn = !1, this._spend = "", this._held = "", this._heldAt = 0, this._owed = [], this._owedSeen = "", this._lines = [], this._spentN = 0, this._notes = [], this._notesSeen = "", this._noteSaid = "", this._asked = [], this._asksSeen = "", this._asking = !1, this._msg = "", this._practice = null, this._now = /* @__PURE__ */ new Date(), this._feel = "", this._tab = "rewards", this._subFor = "", this._subGen = 0, this._evFor = "", this._busy = /* @__PURE__ */ new Set(), this._pending = /* @__PURE__ */ new Map(), this._lookCache = null, this._drawWait = !1, this._redeeming = !1, this._saving = "", this._noList = !1;
   }
   async _loadOwed() {
     const t = this.owed, e = this.kid.name;
@@ -10662,7 +10662,7 @@ const El = 15, g1 = (a) => {
       this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
     }}>${U("ask", 40)}<span>Ask</span></button></div>` : u}
       ${this._wind ? u : (() => {
-      const o = this._block().todo.length, r = this.oneAtATime && o > 0, n = this._picMode && this.ask;
+      const o = this._block().todo.length, r = this.studioWait && o > 0, n = this._picMode && this.ask;
       return d`${r ? d`<span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700);margin-top:auto">First jobs, then ${this._picMode ? "my look" : "studio"}</span>` : u}
           <div class="lowrow" style=${r ? "" : "margin-top:auto"}>${n ? d`<button class="askbtn tap" data-act="ask" aria-label="Ask a question" @click=${() => {
         this._sound("tap"), this.dispatchEvent(new CustomEvent("ask", { bubbles: !0, composed: !0 }));
@@ -11186,6 +11186,7 @@ Ur.styles = [Et, st`
   quiet: { type: Boolean },
   ask: { type: Boolean },
   oneAtATime: { type: Boolean },
+  studioWait: { type: Boolean },
   _showAll: { state: !0 },
   _tabPicked: { state: !0 },
   _chores: { state: !0 },
@@ -17408,6 +17409,7 @@ ${t.rows.map((e) => `  [${e.mark}] ${e.name}: ${e.words}`).join(`
   const t = a.all_off_wait;
   if (t !== void 0 && !(typeof t == "number" && Number.isFinite(t) && t >= 0 && t <= 30)) return "Family Hub: all_off_wait should be a number of seconds, 0 to 30";
   if (a.pin_shuffle !== void 0 && typeof a.pin_shuffle != "boolean") return "Family Hub: pin_shuffle should be true or false";
+  if (a.studio_after_jobs !== void 0 && typeof a.studio_after_jobs != "boolean") return "Family Hub: studio_after_jobs should be true or false";
   if (a.parent_pin !== void 0 && !br(a.parent_pin)) return "Family Hub: parent_pin should be 4–8 digits (put it in quotes)";
   if (a.sounds !== void 0 && a.sounds !== !0 && a.sounds !== !1 && a.sounds !== "quiet") return "Family Hub: sounds should be true, false or quiet";
   const e = a.keep_on;
@@ -18603,6 +18605,11 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
     }))}${Wa(t) ? this._step("Points for one marble", Wa(t), (f) => this._edit((g) => {
       g.jar = { ...g.jar ?? {}, term_points: Math.max(1, f) };
     }), { min: 5, max: 100, step: 5, unit: "points" }) : u}`)}
+      </div>
+      <div class="scard" data-card="studio"><h3>${U("palette", 20)}Style studio <span class="muted">the same for every child</span></h3>
+        ${this._row("Opens once the day’s jobs are done", t.studio_after_jobs === !1 ? "Off: each child can open his studio any time (it still shuts for the night at wind-down)." : "Until then the button shows a padlock and how many jobs are left. It shuts for the night at wind-down either way.", this._sw("Style studio opens once the day’s jobs are done", t.studio_after_jobs !== !1, () => this._edit((f) => {
+      f.studio_after_jobs === !1 ? delete f.studio_after_jobs : f.studio_after_jobs = !1;
+    })))}
       </div>`;
   }
   _morning() {
@@ -19847,7 +19854,7 @@ const Pv = (a, t) => {
   { k: "reward", ic: "star", title: "Rewards asked for", say: "Approve takes the points. Not yet changes nothing." },
   { k: "job", ic: "check", title: "Jobs said done", say: "Approve ticks the job and gives its points. Not yet leaves it unticked." },
   { k: "chat", ic: "ask", title: "Asked for a chat", say: "Seen takes it off the list and tells him a parent has seen it." }
-], ny = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, jd = "0.38.30", V0 = "family-hub-theme", T0 = "family-hub-sounds", al = {
+], ny = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, jd = "0.38.31", V0 = "family-hub-theme", T0 = "family-hub-sounds", al = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -21219,7 +21226,7 @@ const Pv = (a, t) => {
         if (!i) break;
         const s = Fo(this._now, t.quiet?.start ?? "20:00", t.quiet?.end ?? "06:30");
         return d`<fh-kid .hass=${this.hass} .kid=${i} .art=${t.art ?? {}} .familyCalendars=${e} .calRules=${t.calendars ?? []} .pin=${String(t.parent_pin ?? "")} .owed=${"todo.rewards_owed"} .asks=${this._asksCfg()} .notes=${Bt(t)}
-          .jarTarget=${t.jar?.target ?? 120} .jarReward=${t.jar?.reward ?? "a family treat"} .privateWords=${t.private ?? []} .quiet=${s} .oneAtATime=${Er(i).focus} .ask=${!!t.chat?.agent && (!zo(t.kids) || ca(i).mode !== "off")} @ask=${() => this._openChat()} @song=${(o) => this._tidySong(i, o.detail.minutes)}></fh-kid>`;
+          .jarTarget=${t.jar?.target ?? 120} .jarReward=${t.jar?.reward ?? "a family treat"} .privateWords=${t.private ?? []} .quiet=${s} .oneAtATime=${Er(i).focus} .studioWait=${t.studio_after_jobs !== !1} .ask=${!!t.chat?.agent && (!zo(t.kids) || ca(i).mode !== "off")} @ask=${() => this._openChat()} @song=${(o) => this._tidySong(i, o.detail.minutes)}></fh-kid>`;
       }
       case "home":
         return d`<fh-home .hass=${this.hass} .pin=${String(t.parent_pin ?? "")} .kids=${t.kids ?? []} .me=${this._homeKid} .bedrooms=${t.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${t.home_hide ?? []} .hideScripts=${t.announce_script ? [t.announce_script] : []} .panelLight=${this._panelLight() ?? ""}

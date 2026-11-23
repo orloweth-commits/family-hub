@@ -31,6 +31,7 @@ export const configError = (config: FamilyHubConfig | null | undefined): string 
   const wait = (config as { all_off_wait?: unknown }).all_off_wait;
   if (wait !== undefined && !(typeof wait === 'number' && Number.isFinite(wait) && wait >= 0 && wait <= 30)) return 'Family Hub: all_off_wait should be a number of seconds, 0 to 30';
   if (config.pin_shuffle !== undefined && typeof config.pin_shuffle !== 'boolean') return 'Family Hub: pin_shuffle should be true or false';
+  if (config.studio_after_jobs !== undefined && typeof config.studio_after_jobs !== 'boolean') return 'Family Hub: studio_after_jobs should be true or false';
   if (config.parent_pin !== undefined && !isPin(config.parent_pin)) return 'Family Hub: parent_pin should be 4–8 digits (put it in quotes)';
   if (config.sounds !== undefined && config.sounds !== true && config.sounds !== false && config.sounds !== 'quiet') return 'Family Hub: sounds should be true, false or quiet';
   const keep = (config as { keep_on?: unknown }).keep_on;

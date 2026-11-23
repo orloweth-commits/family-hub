@@ -294,7 +294,7 @@ el.setConfig({
   // the dock's Dinner button is shown only with an announce script; &dinner=0 leaves it out
   ...(q.get('dinner') === '0' ? {} : { announce_script: 'script.dinner' }),
   // tests press All off and look at once: the three-second wait is on only with &offwait=<seconds>; &shuffle=0 keeps the PIN pad in its usual order
-  all_off_wait: Number(q.get('offwait') || 0), pin_shuffle: q.get('shuffle') !== '0',
+  all_off_wait: Number(q.get('offwait') || 0), pin_shuffle: q.get('shuffle') !== '0', ...(q.get('studiowait') === '0' ? { studio_after_jobs: false } : {}), /* &studiowait=0: the style studio opens any time (0.38.31) */
   // the trust guards (heartbeat, use counts, snapshots) are wired only with &trust=1, so the other suites see no extra calls; &calmin=<minutes> sets the stale limit; &bins=old saves the two colours that are not bins here
   ...(q.get('trust') ? { health: { heartbeat: 'input_datetime.fh_panel_seen', use_log: 'todo.family_hub_use', backup: 'todo.family_hub_backup', ...(q.get('calmin') ? { calendar_minutes: Number(q.get('calmin')) } : {}) } } : {}),
   // the evening digest is wired only with &digest=1 (one phone, the usual time); &digest=two names both phones, &dgtime=<HH:MM> sets the time. window.__autoFail = true makes Home Assistant refuse the automation
