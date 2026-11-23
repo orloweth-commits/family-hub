@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.29';
+const VERSION = '0.38.30';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -356,7 +356,7 @@ export class FamilyHubCard extends LitElement {
     if (!k) return html``;
     return html`${this._sheetHead(`A note for ${k.name}`, `It shows on ${k.name}’s page until ${k.name} taps Thanks. It gives no points.`, 'note')}
       <div class="noticed">
-        <div class="nsays" role="group" aria-label="Ready notes: tap one to leave it">${NOTICED.map((t) => html`<button class="nsay tap" data-act="note-say" ?disabled=${n.busy} @click=${() => void this._leaveNote(t)}><span class="nq" aria-hidden="true">“</span><span>${t}</span></button>`)}</div>
+        <div class="nsays" role="group" aria-label="Ready notes: tap one to leave it">${NOTICED.map((t) => html`<button class="nsay tap" data-act="note-say" ?disabled=${n.busy} @click=${() => void this._leaveNote(t)}><span class="nq" aria-hidden="true"></span><span>${t}</span></button>`)}</div>
         <span class="label">Or in your own words</span>
         <div class="nown"><input class="field" data-act="note-text" inputmode="none" maxlength=${NOTE_MAX} aria-label="Your note" placeholder="I noticed…" .value=${n.text} @input=${(e: Event) => set({ text: (e.target as HTMLInputElement).value })}>
           <button class="pill tap primary" data-act="note-send" ?disabled=${n.busy || !noteClean(n.text)} @click=${() => void this._leaveNote(n.text)}>Leave it</button></div>
@@ -534,7 +534,7 @@ export class FamilyHubCard extends LitElement {
   private _swallow = (e: Event): void => { if (this._wakeDown || Date.now() < this._swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); } };
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
   private _artBlocked(): boolean {
-    // a school morning, from the board's start to the last child's leaving time: the morning board stays in sight (the second review's cut, item 4)
+    // a school morning, from the board's start to the window's end: the morning board stays in sight (the second review's cut, item 4; to the window's end since 0.38.30)
     if (this._morningHold()) return true;
     if (this._timerLeft() !== null || this._dinner || this._off || this._alarm || this._sheet || this._pinAsk) return true;
     // someone choosing music is given longer, but only while something is actually playing
@@ -1023,13 +1023,11 @@ export class FamilyHubCard extends LitElement {
     return isSchoolDay(d, c.school_terms, c.public_holidays) && inWindow(d, m.start ?? '06:30', m.end ?? '08:45');
   }
   /**
-   * The school morning until the last child has left (his own leaving time, else the board's): no screensaver and no Ask, so the morning
-   * board is what the kitchen sees (0.38.26). The morning window itself (the board as the home page, Morning in the dock) runs to its end as before.
+   * The school morning: no screensaver and no Ask, so the morning board is what the kitchen sees (0.38.26). Since 0.38.30 (Oliver's answer
+   * to question 35) it lasts the whole morning window, to the board's end (8:30 on the live config), not only to the last child's leaving time.
    */
   private _morningHold(d = new Date()): boolean {
-    if (!this._morningWindow(d)) return false;
-    const c = this._config, last = Math.max(...(c.kids ?? []).map((k) => hm(k.leave_by ?? c.morning?.leave_by ?? '08:15')));
-    return minsNow(d) < last;
+    return this._morningWindow(d);
   }
   private _termLabel(d = new Date()): string {
     const s = ymd(d), terms = this._config.school_terms ?? [];

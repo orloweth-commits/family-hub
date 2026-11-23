@@ -90,7 +90,9 @@ for (const look of LOOKS) for (const v of VP) {
         // a line of words that fills a wrapping box touches the right edge by nature: only the left and a line that cannot wrap count there
         const oneLine = rects.length === 1;
         const small = b.height < 26; /* a letter in a little round chip: a pixel is its room */
-        if (c.l < minX || (oneLine && c.r < minX) || c.t < (small ? 1 : minY) || c.b < (small ? 1 : minY)) { const k = `TIGHT|${nm(box)}|${word}`; if (!seen.has(k)) { seen.add(k); out.push(k + `|l${round(c.l)} r${round(c.r)} t${round(c.t)} b${round(c.b)}`); } }
+        // words inside a box that scrolls up and down sit wherever the scroll leaves them: near (or across) its top or foot is not tight (backlog 164)
+        const scrollsY = /(auto|scroll)/.test(bcs.overflowY) && box.scrollHeight > box.clientHeight + 1;
+        if (c.l < minX || (oneLine && c.r < minX) || (!scrollsY && (c.t < (small ? 1 : minY) || c.b < (small ? 1 : minY)))) { const k = `TIGHT|${nm(box)}|${word}`; if (!seen.has(k)) { seen.add(k); out.push(k + `|l${round(c.l)} r${round(c.r)} t${round(c.t)} b${round(c.b)}`); } }
         // meant to be in the middle
         // (a tick-box button: its empty box sits before the words, so the words are not meant to be in the middle; backlog 93)
         const beside = [...box.querySelectorAll('*')].some((x) => !x.contains(t) && shown(x) && x.getBoundingClientRect().width > 2);

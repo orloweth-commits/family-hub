@@ -232,7 +232,9 @@ export class FhGroceries extends LitElement {
     const add = this.renderRoot.querySelector<HTMLElement>('.add'), hint = add?.querySelector<HTMLElement>('[data-keyhint]');
     if (!add || !hint) return;
     hint.style.display = '';
-    if (add.scrollHeight > add.clientHeight + 1) hint.style.display = 'none';
+    // it gives way where it does not fit whole, or would sit on the panel's foot (0.38.30, backlog 163: 4.8 px off it on the iPad in Sports with eight usuals)
+    const z = add.getBoundingClientRect().height / (add.offsetHeight || 1) || 1, room = (add.getBoundingClientRect().bottom - hint.getBoundingClientRect().bottom) / z;
+    if (add.scrollHeight > add.clientHeight + 1 || room < 8) hint.style.display = 'none';
   }
   connectedCallback(): void { super.connectedCallback(); document.fonts?.addEventListener?.('loadingdone', this._fontsIn); if (typeof ResizeObserver !== 'undefined') { this._hintRo ??= new ResizeObserver(() => this._fitHint()); this._hintRo.observe(this); } }
   disconnectedCallback(): void { super.disconnectedCallback(); this._hintRo?.disconnect(); document.fonts?.removeEventListener?.('loadingdone', this._fontsIn); this._hearing?.stop(); this._hearing = null; this._commitClear(); this._unsub?.(); this._unsub = undefined; this._subFor = ''; }

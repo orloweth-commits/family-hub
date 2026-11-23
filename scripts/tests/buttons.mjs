@@ -30,7 +30,7 @@ const C = (page) => page.locator('family-hub-card');
 // 1. drawings and hues, in every look
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner`, '07:10'); const b = await read(page);
   ok(`${look}: every dock button is a drawing of its own`, b.dock.length === 7 && new Set(b.dock.map((x) => x.ic)).size === 7 && b.dock.map((x) => x.ic).join(',') === 'morning,groceries,doodle,music,weather,home,dinner', b.dock.map((x) => x.ic));
-  // (since 0.38.26 a school morning before the last child leaves has no Ask: More alone; Ask's drawing is read at 4:20 pm below)
+  // (since 0.38.26 a school morning has no Ask, since 0.38.30 to the window's end: More alone; Ask's drawing is read at 4:20 pm below)
   ok(`${look}: More in the header is a drawing (a tray of tiles since 4e); on a school morning Ask stands down`, b.head.map((x) => x.id).join(',') === 'more' && b.head[0].ic === 'more', b.head.map((x) => `${x.id} ${x.ic}`));
   { const mp = await open(`look=${look}&page=planner&sheet=more`, '07:10'); ok(`${look}: More's buttons are drawings of their own`, (await mp.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.sheet[data-sheet="more"] .morebtn svg.pic2')].map((x) => x.dataset.ic))).join(',') === 'looks,medicine,info,night'); await mp.context().close(); }
   ok(`${look}: every button is still 44 px or more, and the header is no taller`, [...b.dock, ...b.head].filter((x) => x.w > 0).every((x) => x.w >= 44 && x.h >= 44) && b.head.every((x) => x.h <= 52), [...b.dock, ...b.head].map((x) => `${x.id} ${x.w}x${x.h}`));
@@ -58,7 +58,7 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await 
   ok('Glass, wide: header, page and dock share their left and right edges and meet with no gap (one frame)', new Set(a1.frame.left).size === 1 && new Set(a1.frame.right).size === 1 && Math.abs(a1.frame.joinTop) <= 1 && Math.abs(a1.frame.joinBottom) <= 1, a1.frame);
   for (const lk of ['fridge', 'orbit', 'sports']) { const o = await art(`look=${lk}&page=planner`); ok(`${lk}: keeps its own shell (the frame is Glass's)`, Math.abs(o.frame.joinTop) > 1 || new Set(o.frame.left).size > 1, o.frame); }
   const hp = await open('look=glass&page=planner', '07:10'), hb = await read(hp), h = (id) => by(hb.head, id);
-  ok('on a school morning before the last child leaves, the header has More and no Ask (0.38.26)', hb.head.map((x) => x.id).join(',') === 'more');
+  ok('on a school morning the header has More and no Ask (0.38.26)', hb.head.map((x) => x.id).join(',') === 'more');
   { const ap = await open('look=glass&page=planner'), ab = await read(ap); ok('by afternoon the header keeps Ask (a drawing) and More', ab.head.map((x) => x.id).join(',') === 'ask,more' && by(ab.head, 'ask').ic === 'ask'); await ap.context().close(); }
   await hp.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'more'; }); await hp.waitForTimeout(400);
   ok('Medicine is plain: no tile, no hue, the same colours as Looks beside it, and no moving part', await hp.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot, m = getComputedStyle(r.querySelector('.morebtn[data-act="meds"] svg')), l = getComputedStyle(r.querySelector('.morebtn[data-act="looks"] svg')); return m.backgroundColor === l.backgroundColor && m.color === l.color && r.querySelectorAll('.morebtn[data-act="meds"] svg [class*="p-"]').length === 0; }));

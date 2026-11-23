@@ -23,13 +23,15 @@ const shut = (page) => page.context().close();
 
 // 1. three minutes, every page, every look
 { const late = [], early = [];
-  for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const [pg, time] of [['planner'], ['kid&kid=0'], ['kid&kid=2'], ['groceries'], ['doodle'], ['music'], ['weather'], ['home'], ['morning', '08:00']]) { /* the morning board after the last child has left (since 0.38.26 it stays in sight before then: below) */
+  for (const look of ['glass', 'fridge', 'orbit', 'sports']) for (const [pg, time] of [['planner'], ['kid&kid=0'], ['kid&kid=2'], ['groceries'], ['doodle'], ['music'], ['weather'], ['home'], ['morning', '08:50']]) { /* the morning page after the morning window (since 0.38.26 the board stays in sight before then, since 0.38.30 to the window's end: below) */
     const page = await open(`look=${look}&page=${pg}&idle=3&artn=3`, { time: time ?? '16:20' });
     await ahead(page, '02:40'); if (await up(page)) early.push(`${look}/${pg}`);
     await ahead(page, '00:30'); if (!await up(page)) late.push(`${look}/${pg}`);
     await shut(page); }
   { const page = await open('look=glass&page=morning&idle=3&artn=3', { time: '07:10' }); await ahead(page, '03:30'); const u = await up(page); await shut(page);
     ok('0.38.26: on a school morning before the last child leaves, the morning board stays in sight (no screensaver at three minutes)', !u); }
+  { const page = await open('look=glass&page=morning&idle=3&artn=3', { time: '08:00' }); await ahead(page, '03:30'); const u = await up(page); await shut(page);
+    ok('0.38.30: after the last child has left but before the window ends (8:45 in the preview), still no screensaver', !u); }
   ok('not before three minutes, on any page in any look', !early.length, early);
   ok('up after three minutes on every page in every look (9 pages, 4 looks)', !late.length, late); }
 

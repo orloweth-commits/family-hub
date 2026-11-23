@@ -107,35 +107,5 @@
       "vp": "^(ipad|phone)$",
       "page": "pane=music"
     }
-  },
-  {
-    "name": "fit: a ready line's opening quote mark 3.6 px above its card's foot on the note sheet at the wall (backlog 162, 23 Nov: the sheet was first walked then; the card's, on main)",
-    "fit": {
-      "kind": "^TIGHT$",
-      "where": "^card button\\.nsay\\[note-say\\]$",
-      "word": "^“$",
-      "vp": "^wall$",
-      "page": "sheet=noticed"
-    }
-  },
-  {
-    "name": "fit: Groceries' hint 4.8 px above the panel's foot with the house's eight usuals on the iPad in Sports (backlog 163, 23 Nov: first walked then; the card's, on main)",
-    "fit": {
-      "kind": "^TIGHT$",
-      "where": "^fh-groceries section\\.add$",
-      "look": "^sports$",
-      "vp": "^ipad$",
-      "page": "house=1"
-    }
-  },
-  {
-    "name": "fit: the bell's sheet in Obsidian on a phone, its last row's name 1 px past the sheet's foot with three asks waiting (backlog 164, 23 Nov: the sheet was first walked then; the card's, on main)",
-    "fit": {
-      "kind": "^TIGHT$",
-      "where": "^card section\\.sheet$",
-      "look": "^obsidian$",
-      "vp": "^phone$",
-      "page": "sheet=waiting"
-    }
   }
 ]
