@@ -603,10 +603,6 @@ export const viewsCss = css`
   .jring i { position: absolute; right: 8%; top: 8%; width: 20%; height: 20%; border-radius: 50%; background: var(--track); box-shadow: inset 0 2px 3px rgba(0,0,0,.2); }
   .jog b { position: relative; font-size: clamp(15px, 5cqh, 20px); font-weight: var(--w-heavy, 800); font-variant-numeric: tabular-nums; }
   .pads { flex: 1; min-width: 0; min-height: 0; align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(44px, 1fr); gap: 8px; padding-bottom: 6px; }
-  .mpad { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; border-radius: 14px; background: var(--c); color: var(--on-person, #fff); font-size: var(--fs-2); font-weight: var(--w-bold, 700); line-height: 1.05; overflow-wrap: anywhere; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 6px 0 rgba(0,0,0,.22); transition: transform var(--mt-1, 80ms), box-shadow var(--m-1, 80ms); }
-  .mpad span { font-size: clamp(16px, 4.4cqh, 24px); line-height: 1; }
-  .mpad:active, .mpad[data-busy] { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
-  .mpad[data-on] { box-shadow: 0 6px 0 rgba(0,0,0,.22), 0 0 0 3px var(--chip-strong), 0 0 0 6px var(--c); animation: lamp2 .9s ease-in-out infinite alternate; animation-iteration-count: var(--loops, infinite); }
   @keyframes lamp2 { to { filter: brightness(1.15); } }
   .desk { container-type: size; flex: 1; min-height: 0; display: flex; gap: 6px; padding: 10px; border-radius: 22px; background: var(--chip); user-select: none; -webkit-user-select: none; }
   .strip { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; border-radius: 14px; --c: var(--stream, var(--primary)); }

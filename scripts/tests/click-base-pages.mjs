@@ -248,4 +248,24 @@ await section('D10. keep_on: All off leaves those on (and anything in a group na
   console.log('D10 every light that is on is kept:', t.toast, '| calls', t.n, ok(/^Nothing else to turn off \(4 things kept on\)$/.test(t.toast) && t.n === 0)); await p.context().close(); }
 });
 
+await section('D11. All off leaves the panel\'s own backlight alone (161)', async () => {
+// D11. art.backlight is a light (the preview's light.panel_backlight, on): All off neither switches it nor counts it, nor calls it kept
+{ const run = async (qs) => { const p = await openAt(1280, 800, 'look=glass&page=home' + qs);
+    const label = await p.locator('family-hub-card fh-home [data-act=alloff]').getAttribute('aria-label');
+    const head = await p.evaluate(() => (document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot.querySelector('.rooms .muted')?.textContent ?? '').replace(/\s+/g, ' ').trim());
+    await p.evaluate(() => { window.__calls = []; }); await p.locator('family-hub-card fh-home [data-act=alloff]').click(); await p.waitForTimeout(700);
+    const r = await p.evaluate(() => ({ off: (window.__calls || []).filter((c) => /^light\.turn_off/.test(c)).join(' || '), toast: (document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.innerText ?? '').replace(/\s+/g, ' ').trim() }));
+    await p.context().close(); return { label, head, ...r }; };
+  const before = await run(''), bl = await run('&backlight=1'), both = await run('&backlight=1&keep=1');
+  console.log('D11 no backlight set (as before): the backlight is a light like any other:', before.label, '|', before.off.slice(0, 140), ok(/4 lights on/.test(before.label) && /light\.panel_backlight/.test(before.off)));
+  console.log('D11 art.backlight set: All off counts and switches the others only:', bl.label, '|', bl.head, '|', bl.toast, '|', bl.off.slice(0, 140),
+    ok(/3 lights on/.test(bl.label) && !/light\.panel_backlight/.test(bl.off) && /light\.max/.test(bl.off) && /light\.kitchen/.test(bl.off) && /^Lights off/.test(bl.toast)));
+  console.log('D11 with keep_on as well: only the kept light is called kept:', both.toast, '|', both.off.slice(0, 140), ok(/^All off \(1 thing kept on\)/.test(both.toast) && !/light\.(panel_backlight|max)\b/.test(both.off)));
+  // Undo puts back only what All off switched
+  const p = await openAt(1280, 800, 'look=glass&page=home&backlight=1'); await p.locator('family-hub-card fh-home [data-act=alloff]').click(); await p.waitForTimeout(700);
+  await p.evaluate(() => { window.__calls = []; }); await p.getByRole('button', { name: 'Undo' }).click(); await p.waitForTimeout(500);
+  const on = await p.evaluate(() => (window.__calls || []).filter((c) => /^light\.turn_on/.test(c) && !/brightness_pct/.test(c)).join(' || '));
+  console.log('D11 Undo turns on what it turned off, not the backlight:', on.slice(0, 140), ok(/light\.max/.test(on) && !/panel_backlight/.test(on))); await p.context().close(); }
+});
+
 await finish();

@@ -97,10 +97,6 @@ const DRAW: Record<string, (d: ArtData) => string> = {
   morning: (d) => { const f = Math.max(0, Math.min(1, d.frac ?? 0.5)), cy = n1(27 - f * 11);
     return `<clipPath id="fhsky"><rect x="0" y="0" width="40" height="28"/></clipPath><g clip-path="url(#fhsky)">${sun(20, +cy, 9)}</g>
     <path d="M2 28c5-3.200 9.500-3.200 14.500-.6s9.800 2.700 14 .4 5.500-2.300 7.500-1.800v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z" fill="#6fbf73"/><path d="M2 28c5-3.200 9.500-3.200 14.500-.6s9.800 2.700 14 .4 5.500-2.300 7.500-1.800v2.600c-2-.5-3.300-.5-7.500 1.800s-9 2.200-14-.4-9.500-2.600-14.500.6z" fill="#9bdc8f"/>`; },
-  allon: () => `<g class="p-ray">${[-60, -30, 0, 30, 60].map((a) => `<rect x="18.700" y="1" width="2.600" height="4.600" rx="1.300" fill="#ffab1a" transform="rotate(${a} 20 18)"/>`).join('')}</g>
-    <path class="p-glow" d="M20 7.500a10.300 10.300 0 0 0-6.100 18.600c1 .8 1.600 1.900 1.700 3.100h8.800c.1-1.200.7-2.300 1.700-3.100A10.300 10.300 0 0 0 20 7.500z" fill="#ffd24a"/>${shine(20, 17, 9.5, 0.55)}
-    <path d="M17.300 22.500l2.700-4 2.700 4" fill="none" stroke="#e39a12" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="15.200" y="29.200" width="9.600" height="6" rx="2" fill="#8792a2"/><path d="M15.200 32.200h9.600" stroke="#5f6b7c" stroke-width="1.200"/><rect x="17.200" y="35.200" width="5.600" height="2.300" rx="1.150" fill="#5f6b7c"/>`,
   alloff: (d) => `<path class="p-bulb" d="M20 7.500a10.300 10.300 0 0 0-6.100 18.600c1 .8 1.600 1.900 1.700 3.100h8.800c.1-1.200.7-2.300 1.700-3.100A10.300 10.300 0 0 0 20 7.500z" fill="#aab5c4"/>${shine(20, 17, 9.5, 0.3)}
     <path d="M17.300 22.500l2.700-4 2.700 4" fill="none" stroke="#7b8799" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="15.200" y="29.200" width="9.600" height="6" rx="2" fill="#8792a2"/><path d="M15.200 32.200h9.600" stroke="#5f6b7c" stroke-width="1.200"/><rect x="17.200" y="35.200" width="5.600" height="2.300" rx="1.150" fill="#5f6b7c"/>
@@ -139,7 +135,7 @@ DRAW.bell = () => `<path class="p-ring" d="M6 9.500a15 15 0 0 1 4.500-4.800M34 9
 const PLAIN: Record<string, string> = { more: 'more', uv: 'sun', stopwatch: 'timer', lock: 'lock', bell: 'bell' };
 
 /** Which drawing stands for an outline icon's name (the names the dock and header already use). */
-const FOR: Record<string, string> = { sun: 'morning', calendar: 'planner', cart: 'groceries', pencil: 'doodle', music: 'music', cloud: 'weather', home: 'home', bulb: 'allon', bulbOff: 'alloff', megaphone: 'dinner', ask: 'ask', palette: 'looks', pill: 'medicine', info: 'info', moon: 'night' };
+const FOR: Record<string, string> = { sun: 'morning', calendar: 'planner', cart: 'groceries', pencil: 'doodle', music: 'music', cloud: 'weather', home: 'home', bulbOff: 'alloff', megaphone: 'dinner', ask: 'ask', palette: 'looks', pill: 'medicine', info: 'info', moon: 'night' };
 /** The inside of a drawing as SVG markup (the contact sheet uses this). */
 export const drawing = (name: string, data: ArtData = {}): string => (DRAW[FOR[name] ?? name] ?? (() => ''))(data);
 export const hasArt = (name: string): boolean => !!DRAW[FOR[name] ?? name];

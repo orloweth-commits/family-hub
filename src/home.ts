@@ -130,7 +130,7 @@ export class FhHome extends LitElement {
     .tipline { font-size: var(--fs-2); line-height: 1.35; }
   `];
 
-  static properties = { hass: { attribute: false }, pin: {}, kids: { attribute: false }, me: {}, bedrooms: { attribute: false }, sharers: { attribute: false }, _holding: { state: true }, hideScripts: { attribute: false }, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
+  static properties = { hass: { attribute: false }, pin: {}, kids: { attribute: false }, me: {}, bedrooms: { attribute: false }, sharers: { attribute: false }, _holding: { state: true }, hideScripts: { attribute: false }, panelLight: {}, hide: { attribute: false }, _unlocked: { state: true }, _askPin: { state: true }, _went: { state: true }, _all: { state: true }, _busy: { state: true }, _opt: { state: true }, _tick: { state: true } };
   hass?: Hass;
   pin = '';
   /** the children, for whose bedroom is whose (a room whose name has his name in it, or `bedrooms`: area id or name -> names) */
@@ -171,6 +171,8 @@ export class FhHome extends LitElement {
     this._tell(`Hold to switch that: it is ${whose}’s room.`); return false;
   }
   hideScripts: string[] = [];
+  /** the panel's own backlight (a `light.`), left out of the lights-on counts as All off leaves it alone (161) */
+  panelLight = '';
   hide: string[] = [];
   private _all = false;
   private _unlocked = 0;
@@ -306,8 +308,8 @@ export class FhHome extends LitElement {
     const labelled = (id: string): boolean => !!h.entities?.[id]?.labels?.includes('family_hub');
     const scripts = Object.values(h.states).filter((s) => s.entity_id.startsWith('script.') && !this.hideScripts.includes(s.entity_id) && labelled(s.entity_id));
     const autos = Object.values(h.states).filter((s) => s.entity_id.startsWith('automation.') && (this._all || labelled(s.entity_id)));
-    const lit = Object.values(h.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length;
-    const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on').length, 0);
+    const lit = Object.values(h.states).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on' && s.entity_id !== this.panelLight).length;
+    const litCount = rooms.reduce((n, r) => n + r.ents.filter((e) => e.entity_id.startsWith('light.') && e.state === 'on' && e.entity_id !== this.panelLight).length, 0);
     const lost = rooms.reduce((n, r) => n + r.ents.filter(gone).length, 0);
     const left = Math.max(0, Math.ceil((this._unlocked - Date.now()) / 1000));
     const cols = this._columns(rooms, shape === 'phone' ? 1 : shape === 'wide' && getNarrow() >= 2 ? 2 : getNarrow() >= 1 ? 3 : rooms.length > 9 ? 4 : 3);
