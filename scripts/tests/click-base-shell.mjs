@@ -3,12 +3,20 @@
 import fs from 'node:fs'; import path from 'node:path';
 import { browser, ctx, srv, errs, PORT, PREV, ROOT, HOME, MORE, open, openAt, shot, ok, calls, toastOf, sr, srStudio, ratio, section, finish } from './lib/click.mjs';
 let page;
+// Since 23 Nov (backlog 52) this part waits for the thing itself (a sheet, a toast, an attribute, a call in window.__calls), never a
+// fixed time, except open()'s and openAt()'s own (see lib/click.mjs) and the opening of a page written out for a phone's context. Not
+// "until nothing moves": under the fake clock that can be read before anything is drawn. A thing that does not come is let go after
+// `ms`, so the line after it still prints what it found (and its FAIL) rather than the section stopping.
+const until = (p, fn, arg, ms = 5000) => p.waitForFunction(fn, arg, { timeout: ms }).then(() => true, () => false);
+const shown = (loc, ms = 5000) => loc.first().waitFor({ timeout: ms }).then(() => true, () => false);
+const gone = (loc, ms = 5000) => loc.first().waitFor({ state: 'detached', timeout: ms }).then(() => true, () => false);
+const called = (p, re, ms = 5000) => until(p, (src) => (window.__calls ?? []).some((c) => new RegExp(src).test(c)), re.source, ms);
 
 await section('1. fonts load from beside the card, nothing from a font service', async () => {
 // 1. fonts load from beside the card, nothing from a font service
 let page = await open('look=fridge');
 const reqs = []; page.on('request', (r) => reqs.push(r.url()));
-await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(1500);
+await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForLoadState('networkidle'); await page.evaluate(() => document.fonts.ready); // the requests themselves, then the fonts
 console.log('font requests:', reqs.filter((u) => /woff2|googleapis|gstatic/.test(u)).map((u) => u.replace('http://localhost:' + PORT + '', '')).join(' '));
 console.log('fonts ready:', await page.evaluate(() => ['Inter', 'Bricolage Grotesque', 'Fredoka', 'Caveat'].map((f) => f + '=' + document.fonts.check(`16px "${f}"`)).join(' ')));
 await page.close();
@@ -18,10 +26,10 @@ await section('7. calm mode stops the avatar loops', async () => {
 page = await open('look=glass&page=kid&kid=1&calm=1');
 console.log('calm:', await page.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot; const fh = r.querySelector('.fh'); const bob = r.querySelector('fh-kid').shadowRoot.querySelector('.av-bob'); return fh.hasAttribute('data-calm') + ' bob loops=' + (bob ? getComputedStyle(bob).animationIterationCount : 'n/a'); }));
 // 8. month cell and presence labels, scroll cue
-await HOME(page); await page.getByRole('button', { name: 'Planner' }).click(); await page.getByRole('button', { name: 'Month' }).click(); await page.waitForTimeout(300);
+await HOME(page); await page.getByRole('button', { name: 'Planner' }).click(); await page.getByRole('button', { name: 'Month' }).click(); await shown(page.locator('family-hub-card .cell.today'));
 console.log('month label:', await page.locator('family-hub-card .cell.today').getAttribute('aria-label'));
 console.log('presence:', await page.locator('family-hub-card .presence .avatar').evaluateAll((els) => els.map((e) => e.textContent.trim() + ':' + e.getAttribute('aria-label')).join(' | ')));
-await HOME(page); await page.getByRole('button', { name: 'Groceries' }).click(); await page.waitForTimeout(400);
+await HOME(page); await page.getByRole('button', { name: 'Groceries' }).click(); await shown(page.locator('fh-groceries .row'));
 console.log('scroll cue on groceries:', await page.locator('fh-groceries .items').evaluate((e) => e.hasAttribute('data-more') + ' (' + e.scrollHeight + '>' + e.clientHeight + ')'));
 await page.close();
 });
@@ -60,7 +68,7 @@ await section('polish pass, looks: one grammar per look (every line below should
   console.log('looks: space family chip is AA, every theme has --danger:', await Q(o, `(() => { ${lum} const c = document.querySelector('family-hub-card').shadowRoot, i = c.querySelector('.legend .init'), cs = getComputedStyle(i); return CR(cs.backgroundColor, cs.color) >= 4.5 && getComputedStyle(c.querySelector('.fh')).getPropertyValue('--danger').trim() === '#ff8a7a'; })()`)); await o.close();
   // phone: the dock is a solid bar with labels, the page ends above it, and Orbit stacks the day ring over the list
   const ph = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'Australia/Perth', locale: 'en-AU' });
-  for (const look of ['fridge', 'orbit']) { const pg = await ph.newPage(); await pg.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await pg.goto(`http://localhost:${PORT}/?look=${look}&page=planner`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(700);
+  for (const look of ['fridge', 'orbit']) { const pg = await ph.newPage(); await pg.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await pg.goto(`http://localhost:${PORT}/?look=${look}&page=planner`); await pg.waitForFunction('window.__ready === true'); await pg.waitForTimeout(700); // open()'s own wait, written out for a phone's context
     console.log(`looks: ${look} phone dock is a solid bar with labels, nothing off the right:`, await Q(pg, `(() => { const c = document.querySelector('family-hub-card').shadowRoot, d = c.querySelector('.dock'), cs = getComputedStyle(d), it = d.querySelector(".item[data-nav='calendar']"), dial = c.querySelector('.ddial'), list = c.querySelector('.daylist'); const solid = !/rgba?\\(0, 0, 0, 0\\)/.test(cs.backgroundColor) && parseFloat(cs.borderTopWidth) >= 1; const label = parseFloat(getComputedStyle(it).fontSize) >= 14 && it.getBoundingClientRect().bottom <= innerHeight + 1 && it.scrollHeight <= it.clientHeight + 1; const stacked = !dial || (dial.getBoundingClientRect().bottom <= list.getBoundingClientRect().top + 1 && [...dial.querySelectorAll('text')].every((x) => parseFloat(getComputedStyle(x).fontSize) * dial.getBoundingClientRect().width / 200 >= 12)); const pad = parseFloat(getComputedStyle(c.querySelector('.fh')).paddingBottom) >= d.getBoundingClientRect().height / (Number(getComputedStyle(c.querySelector('.fh')).zoom) || 1); return solid && label && stacked && pad && document.documentElement.scrollWidth <= innerWidth + 2; })()`));
     await pg.close(); }
   await ph.close(); }
@@ -73,34 +81,40 @@ await section('motion (polish round 2)', async () => {
   // press feedback: a held header button (a .glass.tap) shrinks and dims in Glass and Fridge
   for (const look of ['glass', 'fridge']) { const p = await open(`look=${look}&page=planner`); const b = p.locator('family-hub-card header [data-act="more"]'), bb = await b.boundingBox();
     const idle = await b.evaluate((e) => getComputedStyle(e).transform + ' ' + getComputedStyle(e).opacity);
-    await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down(); await p.waitForTimeout(300);
-    const held = await b.evaluate((e) => { const cs = getComputedStyle(e), m = /matrix\(([^,]+)/.exec(cs.transform); return { scale: m ? Number(m[1]) : 1, opacity: Number(cs.opacity) }; });
+    await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down();
+    // held: the press's own movement has ended with the button smaller and dimmer
+    await until(p, (e) => { const cs = getComputedStyle(e), m = /matrix\(([^,]+)/.exec(cs.transform); return !!m && Number(m[1]) < 1 && Number(cs.opacity) < 1 && !e.getAnimations().length; }, await b.elementHandle(), 2000);
+    const held =await b.evaluate((e) => { const cs = getComputedStyle(e), m = /matrix\(([^,]+)/.exec(cs.transform); return { scale: m ? Number(m[1]) : 1, opacity: Number(cs.opacity) }; });
     await p.mouse.move(2, 2); await p.mouse.up(); // let go off the button: nothing is pressed
-    console.log(`press feedback (${look}): idle ${idle} | held 300 ms: scale ${held.scale.toFixed(3)} opacity ${held.opacity.toFixed(2)} (expect < 1 and < 1)`); await p.close(); }
+    console.log(`press feedback (${look}): idle ${idle} | held: scale ${held.scale.toFixed(3)} opacity ${held.opacity.toFixed(2)} (expect < 1 and < 1)`); await p.close(); }
   // page change: at most two animations per navigation (the page wrapper's fade and rise), none on the panels inside
   for (const look of ['glass', 'fridge', 'orbit']) { const p = await open(`look=${look}&page=planner`); await p.evaluate(deep); const out = [];
-    for (const nav of ['Groceries', 'Music', 'Home', 'Planner', 'Riley']) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim().endsWith(n)).click(), nav); await p.waitForTimeout(40); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`); await p.waitForTimeout(700); }
+    for (const [nav, pg] of [['Groceries', 'groceries'], ['Music', 'music'], ['Home', 'home'], ['Planner', 'planner'], ['Riley', 'kid']]) { await p.evaluate((n) => deepAll('nav button').find((x) => x.textContent.trim().endsWith(n)).click(), nav);
+      // the new page is there and its movements have started; then those movements have ended before the next
+      await until(p, (pg) => document.querySelector('family-hub-card')._page === pg && cssAnims().length > 0, pg, 2000); const a = await p.evaluate(() => cssAnims()); out.push(`${nav} ${a.length}${a.length > 2 ? ' [' + a.join(',') + ']' : ''}`);
+      await until(p, (a) => !cssAnims().some((n) => a.includes(n)), a, 3000); }
     console.log(`animations per navigation (${look}; expect the page’s two, plus since 0.32.1 the one movement of the dock button whose page opened: Music’s has two parts):`, out.join(' | '), '| page wrapper at rest: transform', await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform)); await p.close(); }
   // exits: a sheet, the PIN pad, a toast and the night screen fade out before they go
   // (timer=0: a running kitchen timer holds the screensaver back, so with the preview's sample timer "Night" was woken at once: NIGHT-WAKE, backlog 136)
-  { const p = await open('look=glass&page=planner&sheet=timer&timer=0'); await p.evaluate(deep); const at = async (sel, ms) => { await p.waitForTimeout(ms); return p.locator(sel).count(); };
+  { const p = await open('look=glass&page=planner&sheet=timer&timer=0'); await p.evaluate(deep);
     // timed inside the page, so the test's own round trips do not blur the 80 ms and 300 ms marks
     const timed = (act, sel) => p.evaluate(([act, sel]) => new Promise((done) => { const n = () => deepAll(sel).length, t0 = performance.now(); (0, eval)(act); const r = {};
       setTimeout(() => { r.at80 = n(); r.closing = deepAll(sel).filter((e) => e.hasAttribute('data-closing')).length; }, 80); setTimeout(() => { r.at300 = n(); r.ms = Math.round(performance.now() - t0); done(r); }, 300); }), [act, sel]);
     let r = await timed(`deepAll('.sheet .xbtn')[0].click()`, '.scrim'); console.log('sheet exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
-    await MORE(p); await p.locator('family-hub-card .sheet [data-act="looks"]').click(); await p.waitForTimeout(400); const pad = await p.locator('fh-pin').count();
+    await MORE(p); await p.locator('family-hub-card .sheet [data-act="looks"]').click(); await shown(p.locator('fh-pin')); const pad = await p.locator('fh-pin').count();
     r = await timed(`deepAll('fh-pin')[0].shadowRoot.querySelector('.grid button').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }))`, 'fh-pin'); console.log('PIN pad exit: open', pad, '| there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
-    await p.evaluate(() => document.querySelector('family-hub-card')._say('Test line')); await p.waitForTimeout(300);
+    await p.evaluate(() => document.querySelector('family-hub-card')._say('Test line')); await shown(p.locator('family-hub-card .toasts .toast'));
     r = await timed(`(() => { const c = document.querySelector('family-hub-card'); c._toast = ''; })()`, '.toasts .toast'); console.log('toast exit: there at 80 ms', r.at80, 'closing', r.closing, '| gone at 300 ms', r.at300 === 0);
-    await MORE(p); await p.locator('family-hub-card .sheet [data-act="night"]').click(); await p.waitForTimeout(600); await p.evaluate(deep); await p.locator('family-hub-card .artm').click({ timeout: 4000 }).catch(() => console.log('FAIL NIGHT-WAKE: “Night” did not bring up the screensaver here, so its wake was not tried (this line was edited for 0.33.5 and first run on 15 Nov)'));
+    await MORE(p); await p.locator('family-hub-card .sheet [data-act="night"]').click(); await until(p, () => document.querySelector('family-hub-card')._art?.on === true, null, 3000); await p.evaluate(deep); await p.locator('family-hub-card .artm').click({ timeout: 4000 }).catch(() => console.log('FAIL NIGHT-WAKE: “Night” did not bring up the screensaver here, so its wake was not tried (this line was edited for 0.33.5 and first run on 15 Nov)'));
     // (23 Nov: waits for the leaving layer itself, data-closing, rather than a fixed 60 ms, which a busy machine overran beside another suite in 0.38.30's batch check)
-    let n80 = 0, started = []; for (const t0 = Date.now(); Date.now() - t0 < 2000;) { const r = await p.evaluate(() => ({ n: deepAll('.artm[data-closing]').length, a: cssAnims() })); if (r.n) { n80 = r.n; started = r.a; break; } await p.waitForTimeout(10); }
-    const n600 = await at('family-hub-card .artm', 560);
+    // (and since the fixed waits went, polled in the page: the first moment the leaving layer is there, what has started with it)
+    const w = await p.waitForFunction(() => { const n = deepAll('.artm[data-closing]').length; return n ? { n, a: cssAnims() } : false; }, null, { timeout: 2000, polling: 10 }).then((h) => h.jsonValue(), () => ({ n: 0, a: [] }));
+    const n80 = w.n, started = w.a, n600 = (await gone(p.locator('family-hub-card .artm'), 2000)) ? 0 : 1;
     // (backlog 153, decided 23 Nov: the art layer's picture fade, afade, runs inside the leaving layer, so it is part of the way out, not a second movement)
-    console.log('night wake: the screensaver fading once touched', n80, '| animations started:', started.join(',') || 'none', '(expect fhout, and afade inside it) | gone 560 ms later', n600 === 0, ok(!!n80 && started.includes('fhout') && started.every((a) => a === 'fhout' || a === 'afade') && n600 === 0)); await p.close(); }
+    console.log('night wake: the screensaver fading once touched', n80, '| animations started:', started.join(',') || 'none', '(expect fhout, and afade inside it) | gone after it', n600 === 0, ok(!!n80 && started.includes('fhout') && started.every((a) => a === 'fhout' || a === 'afade') && n600 === 0)); await p.close(); }
   // calm mode: nothing travels on a page change, and looks' loops are stopped
   { const p = await open('look=fridge&page=planner&calm=1'); await p.evaluate(deep);
-    await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim().endsWith('Groceries')).click()); await p.waitForTimeout(40);
+    await p.evaluate(() => deepAll('nav button').find((x) => x.textContent.trim().endsWith('Groceries')).click()); await shown(p.locator('family-hub-card fh-groceries')); // the new page, just drawn
     const tf = await p.locator('family-hub-card .fh > .body').evaluate((e) => getComputedStyle(e).transform);
     console.log('calm page change: wrapper transform mid-entrance', tf, '(expect none or identity) | looping animations:', await p.evaluate(() => { const out = new Set(); const walk = (r) => { for (const a of r.getAnimations()) out.add(a); r.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) walk(e.shadowRoot); }); }; walk(document); return [...out].filter((a) => a.playState === 'running' && a.effect.getComputedTiming().iterations === Infinity).length; })); await p.close(); }
   // slow and failing calls: the control shows it is waiting after 250 ms, holds what was asked, and a failure puts it back with a calm line
@@ -110,24 +124,27 @@ await section('motion (polish round 2)', async () => {
     console.log('slow grocery tick: busy at 120 ms', g.at120, '(expect 0) | busy at 520 ms', g.at520, 'aria-busy', g.aria, '| still ticked while waiting', g.ticked, '| busy after the answer', g.after, '|', name);
     await p.close();
     p = await open('look=glass&page=groceries&slow=500&fail=1'); const r2 = p.locator('fh-groceries .row').first(), n2 = (await r2.locator('.strike').innerText()).trim();
-    await r2.click(); await p.waitForTimeout(200); const held = await p.locator('fh-groceries .row.done').filter({ hasText: n2 }).count(); await p.waitForTimeout(700);
+    const done2 = p.locator('fh-groceries .row.done').filter({ hasText: n2 });
+    await r2.click(); await shown(done2, 2000); const held = await done2.count(); await shown(p.locator('fh-groceries .toast')); await gone(done2, 2000);
     const said = await toast2(p, 'fh-groceries'); console.log('fail=1 grocery tick: held while out', held, '| put back', await p.locator('fh-groceries .row.done').filter({ hasText: n2 }).count() === 0, '| says:', said, '| raw error shown:', /did not answer|Error/.test(said));
     await p.close();
     p = await open('look=glass&page=planner&slow=5000'); await p.evaluate(deep);
     const rm = await p.evaluate(() => new Promise((done) => { const r = {}; deepAll('button.rem')[0].click(); const n = (s) => deepAll('button' + s).length;
       setTimeout(() => { r.busy = n('.rem[data-busy]'); }, 500); setTimeout(() => { r.held = n('.rem.done'); }, 4500); setTimeout(() => { r.gone = n('.rem.done') === 0; done(r); }, 5600); }));
     console.log('slow reminder (5 s): busy at 500 ms', rm.busy, '| still struck through at 4.5 s, past its four seconds, because the answer is not in', rm.held, '| gone once it is', rm.gone);
-    await p.evaluate(() => { document.querySelector('family-hub-card')._page = 'home'; }); await p.waitForTimeout(500);
-    await p.locator('family-hub-card fh-home [data-act="alloff"]').click(); await p.waitForTimeout(500); console.log('slow "All off": Home\'s All off scene busy', await p.locator('family-hub-card fh-home [data-act="alloff"][data-busy]').count());
+    await p.evaluate(() => { document.querySelector('family-hub-card')._page = 'home'; });
+    await p.locator('family-hub-card fh-home [data-act="alloff"]').click(); await shown(p.locator('family-hub-card fh-home [data-act="alloff"][data-busy]'), 2000); console.log('slow "All off": Home\'s All off scene busy', await p.locator('family-hub-card fh-home [data-act="alloff"][data-busy]').count());
     await p.close();
-    p = await open('look=glass&page=planner&slow=400&fail=1'); await p.locator('family-hub-card .rem').first().click(); await p.waitForTimeout(900);
+    p = await open('look=glass&page=planner&slow=400&fail=1'); await p.locator('family-hub-card .rem').first().click(); await shown(p.locator('family-hub-card .toast')); await gone(p.locator('family-hub-card .rem.done'), 2000);
     const ts = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 reminder: put back', await p.locator('family-hub-card .rem.done').count() === 0, '| says:', ts, '| raw error shown:', /did not answer|Error/.test(ts));
-    await p.locator('family-hub-card .tmr .quick, family-hub-card .tmr button').filter({ hasText: '+5' }).first().click(); await p.waitForTimeout(900); const tt = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 timer +5: says:', tt, '| raw error shown:', /did not answer|Error/.test(tt));
+    await p.locator('family-hub-card .tmr .quick, family-hub-card .tmr button').filter({ hasText: '+5' }).first().click();
+    await until(p, (was) => { const t = document.querySelector('family-hub-card').shadowRoot.querySelector('.toast'); return !!t && t.innerText.trim() !== was; }, ts); const tt = (await p.locator('family-hub-card .toast').innerText().catch(() => '')).trim(); console.log('fail=1 timer +5: says:', tt, '| raw error shown:', /did not answer|Error/.test(tt));
     await p.close();
-    p = await open('look=glass&page=home&slow=3000'); const sw = p.locator('fh-home .dev[role="switch"]').first(), was = await sw.getAttribute('aria-checked'); await sw.click(); await p.waitForTimeout(500);
-    console.log('slow Home switch: flips at once', (await sw.getAttribute('aria-checked')) !== was, '| busy at 500 ms', (await sw.getAttribute('data-busy')) !== null); await p.waitForTimeout(3000); console.log('  after the answer: stays flipped', (await sw.getAttribute('aria-checked')) !== was, '| busy', (await sw.getAttribute('data-busy')) !== null);
+    p = await open('look=glass&page=home&slow=3000'); const sw = p.locator('fh-home .dev[role="switch"]').first(), was = await sw.getAttribute('aria-checked'), swh = await sw.elementHandle(); await sw.click(); await until(p, (e) => e.hasAttribute('data-busy'), swh, 2000);
+    console.log('slow Home switch: flips at once', (await sw.getAttribute('aria-checked')) !== was, '| busy while it waits', (await sw.getAttribute('data-busy')) !== null); await until(p, (e) => !e.hasAttribute('data-busy'), swh, 6000); console.log('  after the answer: stays flipped', (await sw.getAttribute('aria-checked')) !== was, '| busy', (await sw.getAttribute('data-busy')) !== null);
     await p.close();
-    p = await open('look=glass&page=home&slow=400&fail=1'); const sw2 = p.locator('fh-home .dev[role="switch"]').first(), was2 = await sw2.getAttribute('aria-checked'); await sw2.click(); await p.waitForTimeout(150); const flipped = (await sw2.getAttribute('aria-checked')) !== was2; await p.waitForTimeout(700);
+    p = await open('look=glass&page=home&slow=400&fail=1'); const sw2 = p.locator('fh-home .dev[role="switch"]').first(), was2 = await sw2.getAttribute('aria-checked'), sw2h = await sw2.elementHandle(); await sw2.click();
+    await until(p, ([e, w]) => e.getAttribute('aria-checked') !== w, [sw2h, was2], 2000); const flipped = (await sw2.getAttribute('aria-checked')) !== was2; await until(p, ([e, w]) => e.getAttribute('aria-checked') === w, [sw2h, was2], 3000);
     console.log('fail=1 Home switch: flipped while out', flipped, '| put back', (await sw2.getAttribute('aria-checked')) === was2); await p.close(); }
 }
 });
@@ -147,15 +164,17 @@ await section('the timer’s digits roll and its ring sweeps when time is added;
 await section('robustness: a reward tapped three times spends once; a medicine with n', async () => {
 // robustness: a reward tapped three times spends once; a medicine with no time gives a readable error, not a blank panel; one odd calendar row does not lose the calendar; a phone on its side gets the phone arrangement
 page = await open('look=glass&page=kid&kid=0');
-await page.getByRole('button', { name: /Extra screen time/ }).click(); await page.waitForTimeout(250);
-{ const yes = page.locator('fh-kid').getByRole('button', { name: 'Yes' }); await yes.evaluate((b) => { b.click(); b.click(); b.click(); }); await page.waitForTimeout(600);
+await page.getByRole('button', { name: /Extra screen time/ }).click();
+{ const yes = page.locator('fh-kid').getByRole('button', { name: 'Yes' }); await shown(yes); await yes.evaluate((b) => { b.click(); b.click(); b.click(); }); await until(page, () => (window.__calls || []).some((c) => c.includes('fh_add_points') && c.includes('-50')), null, 3000);
   { const n = await page.evaluate(() => (window.__calls || []).filter((c) => c.includes('fh_add_points') && c.includes('-50')).length); console.log('reward tapped three times: spends', n, '(expect 1)', ok(n === 1)); } }
 console.log('medicine with no time:', await page.evaluate(() => { const c = document.querySelector('family-hub-card'); try { c.setConfig({ ...c._config, meds: [{ id: 'x', who: 'Riley', label: 'x' }] }); return 'ACCEPTED'; } catch (e) { return String(e.message); } }));
 console.log('odd calendar row:', await page.evaluate(async () => { const c = document.querySelector('family-hub-card'), real = c.hass.callApi; c.hass.callApi = async (m, p, b) => { const r = await real(m, p, b); return /calendars\/calendar.family/.test(p) ? [{ summary: 'No end', start: { dateTime: new Date().toISOString() } }, { summary: 'No start' }, ...r] : r; }; const a = new Date(); a.setHours(0, 0, 0, 0); const ev = await c._loadEvents(a, new Date(a.getTime() + 7 * 864e5)); c.hass.callApi = real; return ev.filter((e) => e.who === 'Family').map((e) => e.title).join(', '); }));
 await page.close();
-page = await open('look=glass'); await page.setViewportSize({ width: 844, height: 390 }); await page.waitForTimeout(500);
+page = await open('look=glass'); await page.setViewportSize({ width: 844, height: 390 });
+await until(page, () => document.querySelector('family-hub-card').hasAttribute('data-phone'), null, 3000); await page.evaluate(() => document.querySelector('family-hub-card').updateComplete);
 console.log('phone on its side: phone arrangement', await page.evaluate(() => document.querySelector('family-hub-card').hasAttribute('data-phone')), '| scale', await page.evaluate(() => getComputedStyle(document.querySelector('family-hub-card').shadowRoot.querySelector('.fh')).zoom));
-await page.setViewportSize({ width: 1280, height: 800 }); await page.waitForTimeout(400); console.log('back to a wide screen: view', await page.evaluate(() => document.querySelector('family-hub-card')._view));
+await page.setViewportSize({ width: 1280, height: 800 });
+await until(page, () => !document.querySelector('family-hub-card').hasAttribute('data-phone'), null, 3000); await page.evaluate(() => document.querySelector('family-hub-card').updateComplete); console.log('back to a wide screen: view', await page.evaluate(() => document.querySelector('family-hub-card')._view));
 await page.close();
 });
 await section('R4-1. the card is never scaled below 1: tablets reflow instead (and th', async () => {
@@ -171,23 +190,25 @@ for (const [w, h] of [[1024, 768], [1180, 820], [800, 600], [768, 1024], [820, 1
 await section('R4-5. leftovers: phone dock labels, the week initials, the shelf label', async () => {
 // R4-5. leftovers: phone dock labels, the week initials, the shelf labels, taps while a scene or "Whole house" is in flight
 for (const look of ['glass', 'fridge', 'orbit']) { const c = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage();
-  await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + `/?look=${look}&page=planner`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(800);
+  await p.clock.install({ time: new Date('2026-11-10T16:20:00+08:00') }); await p.goto('http://localhost:' + PORT + `/?look=${look}&page=planner`); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(800); // open()'s own wait, written out for a phone's context
   const fs = await p.evaluate(() => Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('nav.dock .item')].map((e) => parseFloat(getComputedStyle(e).fontSize))));
   console.log(`R4-5 phone dock labels in ${look}: ${fs}px (expect >= 13)`, ok(fs >= 13)); await c.close(); }
 { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=0');
-  await p.locator('family-hub-card fh-kid .tabs button', { hasText: 'My week' }).click(); await p.waitForTimeout(400);
+  await p.locator('family-hub-card fh-kid .tabs button', { hasText: 'My week' }).click(); await shown(p.locator('family-hub-card fh-kid .wk .init'));
   const wk = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; const a = [...r.querySelectorAll('.wk .init')]; return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cut: a.filter((e) => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1).length }; });
   console.log('R4-5 kid week initials:', JSON.stringify(wk), ok(wk.n > 0 && wk.fs >= 14 && !wk.cut)); await p.context().close(); }
-{ const p = await openAt(1280, 800, 'look=glass&page=music&mview=house'); await p.waitForTimeout(12600);
+{ const p = await openAt(1280, 800, 'look=glass&page=music&mview=house');
+  // the House's coach marks (three of 4 s, the first time Music is opened today) have gone and the shelf's records are drawn
+  await until(p, () => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music'); return !!m && !m._coach && !!m.shadowRoot.querySelector('.srec span'); }, null, 20000);
   const sh = await p.evaluate(() => { const r = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const a = [...r.querySelectorAll('.srec span')].filter((e) => e.offsetWidth); return { n: a.length, fs: Math.min(...a.map((e) => parseFloat(getComputedStyle(e).fontSize))), cutBelow: a.filter((e) => e.getBoundingClientRect().bottom > e.closest('.mshelf, .srecs').getBoundingClientRect().bottom + 1).length }; });
   console.log('R4-5 House shelf labels:', JSON.stringify(sh), ok(sh.n > 0 && sh.fs >= 14 && !sh.cutBelow));
   // All off (the first of Home's Scenes since 0.38.26): two taps in the same instant make one call
-  await p.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._page = 'home'; await c.updateComplete; }); await p.waitForTimeout(500);
-  await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot.querySelector('[data-act="alloff"]'); b.click(); b.click(); }); await p.waitForTimeout(600);
+  await p.evaluate(async () => { const c = document.querySelector('family-hub-card'); c._page = 'home'; await c.updateComplete; }); await shown(p.locator('family-hub-card fh-home [data-act="alloff"]'));
+  await p.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-home').shadowRoot.querySelector('[data-act="alloff"]'); b.click(); b.click(); }); await called(p, /^light\.turn_off/, 3000);
   { const n = await p.evaluate(() => window.__calls.filter((x) => /^light\.turn_off/.test(x)).length); console.log('R4-5 "All off" tapped twice at once: calls', n, '(expect 1)', ok(n === 1)); }
   await p.keyboard.press('Escape'); await p.context().close();
-  const d = await openAt(1280, 800, 'look=glass&page=music&mview=dial'); await d.waitForTimeout(600);
-  await d.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.wholeb'); b.click(); b.click(); b.click(); }); await d.waitForTimeout(900);
+  const d = await openAt(1280, 800, 'look=glass&page=music&mview=dial'); await shown(d.locator('fh-music .wholeb'));
+  await d.evaluate(() => { window.__calls = []; const b = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot.querySelector('.wholeb'); b.click(); b.click(); b.click(); }); await called(d, /^media_player\.join/, 3000);
   { const n = await d.evaluate(() => window.__calls.filter((x) => /^media_player\.join/.test(x)).length); console.log('R4-5 "Whole house" tapped three times at once: join calls', n, '(expect 1)', ok(n === 1)); }
   await d.context().close(); }
 { const p = await openAt(390, 844, 'look=fridge&page=planner&sheet=sitter');
@@ -209,15 +230,20 @@ await section('Round 5: the cold reviewers’ majors and minors', async () => {
   { const p = await openAt(1280, 800, 'look=fridge&page=planner&events=long'); const r = await p.evaluate(() => { const c = document.querySelector('family-hub-card').shadowRoot; const t = [...c.querySelectorAll('.col:not([data-tight]) .ev .content')]; return { clamp: t[0] ? getComputedStyle(t[0]).webkitLineClamp : '', most: Math.max(...t.map((e) => Math.round(e.offsetHeight / parseFloat(getComputedStyle(e).lineHeight)))), cutAtTwo: t.filter((e) => e.scrollHeight > e.clientHeight + 1 && Math.round(e.offsetHeight / parseFloat(getComputedStyle(e).lineHeight)) <= 2).length }; });
     console.log('R5-4 Fridge week titles:', JSON.stringify(r), ok(r.clamp === '4' && r.cutAtTwo === 0)); await p.context().close(); }
   // R5-7 the Ask sheet by keyboard: opened with Enter, typed into, sent with Enter, tabbed through, closed with Escape
-  { const p = await openAt(1280, 800, 'look=glass&page=planner'); await p.getByRole('button', { name: 'Ask a question' }).first().focus(); await p.keyboard.press('Enter'); await p.waitForTimeout(600);
-    const first = await deepFocus(p); await p.keyboard.type('why is the sky blue'); await p.keyboard.press('Enter'); await p.waitForTimeout(2500);
+  { const p = await openAt(1280, 800, 'look=glass&page=planner'); await p.getByRole('button', { name: 'Ask a question' }).first().focus(); await p.keyboard.press('Enter');
+    // the field has taken the focus; then the answer has come back (a bubble after the question, not the thinking dots)
+    await until(p, () => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.tagName === 'INPUT' || a?.tagName === 'TEXTAREA'; }, null, 3000);
+    const first = await deepFocus(p); await p.keyboard.type('why is the sky blue'); await p.keyboard.press('Enter'); await shown(p.locator('fh-chat .thread .bubble.asker + .bubble:not(.wait)'));
     const bub = await p.locator('fh-chat .thread .bubble').allInnerTexts(), open1 = await p.evaluate(`document.querySelector('family-hub-card')._sheet`);
     const seen = new Set(); for (let i = 0; i < 16; i++) { await p.keyboard.press('Tab'); seen.add(await deepFocus(p)); }
     const inert = await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => x.inert)`);
-    await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+    await p.keyboard.press('Escape'); await until(p, () => document.querySelector('family-hub-card')._sheet === '' && !document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet'), null, 3000);
+    await until(p, () => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.getAttribute('aria-label') === 'Ask a question'; }, null, 1000); // the focus handed back
     console.log('R5-7 Ask by keyboard: focus on open "' + first + '"', ok(first === 'Your question'), '| typed and sent with Enter:', ok(bub.some((b) => /why is the sky blue/.test(b)) && open1 === 'chat'), '| Tab reaches', seen.size, 'controls incl. Close, a starter and Send/Keyboard:', ok(seen.has('Close') && [...seen].some((x) => /Tell me a joke/.test(x)) && seen.has('Keyboard') && seen.has('For parents')), '| page behind is inert:', ok(inert), '| Escape closes, focus back on:', await deepFocus(p), ok((await p.evaluate(`document.querySelector('family-hub-card')._sheet`)) === '' && (await deepFocus(p)) === 'Ask a question'));
     console.log('R5-15 page no longer inert once the sheet has gone:', ok(await p.evaluate(`[...${SR}.querySelectorAll('.fh > header, .fh > .body, .fh > nav.dock')].every((x) => !x.inert)`))); await p.context().close(); }
-  { const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); await p.goto('http://localhost:' + PORT + '/?look=glass&page=planner&sheet=chat'); await p.waitForFunction('window.__ready === true'); await p.waitForTimeout(900);
+  { const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true, isMobile: true, timezoneId: 'Australia/Perth', locale: 'en-AU' }); const p = await c.newPage(); await p.goto('http://localhost:' + PORT + '/?look=glass&page=planner&sheet=chat'); await p.waitForFunction('window.__ready === true');
+    // the sheet has arrived (its entrance ended; this page has no fake clock), so a focus it would give the field has been given
+    await shown(p.locator('fh-chat .field')); await until(p, () => { const s = document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet'); return !!s && !s.getAnimations().length; }, null, 3000);
     console.log('R5-7 on a touch screen the field is not focused (no system keyboard):', ok(await p.evaluate(() => { let a = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement; return a?.tagName !== 'INPUT'; }))); await c.close(); }
   // R5-8 repeat taps while a call is out: Home scene, timer Cancel, a reminder and a grocery tick each send one call, and show they are waiting
   { const p = await openAt(1280, 800, 'look=glass&page=home&slow=1500');
@@ -233,7 +259,7 @@ await section('Round 5: the cold reviewers’ majors and minors', async () => {
     console.log('R5-8 grocery row tapped three times on a slow link:', JSON.stringify(r), ok(r.busy && r.calls === 1));
     const a = await p.evaluate(async () => { const g = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries'); window.__calls = []; g._add('Zucchini', null); g._add('Zucchini', null); await new Promise((r) => setTimeout(r, 380)); const row = g.shadowRoot.querySelector('.item.pending'); const got = { pendingBy400: !!row, says: row?.textContent.replace(/\s+/g, ' ').trim() }; await new Promise((r) => setTimeout(r, 2000)); got.calls = window.__calls.filter((x) => /^todo\.add_item/.test(x)).length; got.goneAfter = !g.shadowRoot.querySelector('.item.pending'); got.status = g.shadowRoot.querySelector('.says')?.getAttribute('role'); return got; });
     console.log('R5-14 grocery Add on a slow link:', JSON.stringify(a), ok(a.pendingBy400 && a.calls === 1 && a.goneAfter && a.status === 'status')); await p.context().close(); }
-  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=timer&slow=1200'); await p.evaluate(() => { const h = document.querySelector('family-hub-card').hass; h.states['timer.kitchen'] = { ...h.states['timer.kitchen'], state: 'active', attributes: { ...(h.states['timer.kitchen']?.attributes ?? {}), finishes_at: new Date(Date.now() + 300000).toISOString(), duration: '0:05:00' } }; document.querySelector('family-hub-card').hass = { ...h }; }); await p.waitForTimeout(300);
+  { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=timer&slow=1200'); await p.evaluate(() => { const h = document.querySelector('family-hub-card').hass; h.states['timer.kitchen'] = { ...h.states['timer.kitchen'], state: 'active', attributes: { ...(h.states['timer.kitchen']?.attributes ?? {}), finishes_at: new Date(Date.now() + 300000).toISOString(), duration: '0:05:00' } }; document.querySelector('family-hub-card').hass = { ...h }; }); await shown(p.locator('family-hub-card .sheet [aria-label="Cancel the kitchen timer"]:not([disabled])'), 2000);
     const heroes = await p.evaluate(`${SR}.querySelectorAll('.sheet .lead').length`), wraps = await p.evaluate(`[...${SR}.querySelectorAll('.sheet [data-act="plus"]')].filter((b) => b.offsetHeight > 62 || getComputedStyle(b).whiteSpace !== 'nowrap').length`);
     const r = await p.evaluate(async () => { const c = document.querySelector('family-hub-card').shadowRoot, b = c.querySelector('.sheet [aria-label="Cancel the kitchen timer"]'); if (!b || b.disabled) return { skipped: 'timer not running in the preview' }; window.__calls = []; b.click(); b.click(); b.click(); await new Promise((r) => setTimeout(r, 1700)); return { calls: window.__calls.filter((x) => /^timer\.cancel/.test(x)).length }; });
     console.log('R5-8 timer Cancel tapped three times on a slow link:', JSON.stringify(r), ok(r.skipped || r.calls === 1), '| R5-17 one hero on the timer sheet:', heroes, ok(heroes === 1), '| +N min buttons that could wrap:', wraps, ok(wraps === 0)); await p.context().close(); }
@@ -246,48 +272,55 @@ await section('Round 5: the cold reviewers’ majors and minors', async () => {
     const note = await p.evaluate(`(() => { const s = ${SR}.querySelector('.sheet'); return { label: [...s.querySelectorAll('.label')].map((x) => x.textContent.trim()), note: s.querySelector('[data-medlocal]')?.textContent.trim() ?? '' }; })()`);
     console.log('R5-10 no med_log: section label', JSON.stringify(note.label[1]), ok(note.label.includes('Kept on this screen only')), '| note in plain words (no setting names):', ok(!/med_log|card settings/.test(note.note) && /No other screen/.test(note.note) && /shared list/.test(note.note))); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds&slow=1200'); await p.evaluate(() => { document.querySelector('family-hub-card')._medOpen = true; }); await p.evaluate(() => { window.__calls = []; });
-    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await p.waitForTimeout(350);
-    const mid = await p.evaluate(`${SR}.querySelector('.sheet [data-saving]')?.textContent.trim() ?? ''`); await p.waitForTimeout(3200);
+    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await shown(p.locator('family-hub-card .sheet [data-saving]'), 2000);
+    const mid = await p.evaluate(`${SR}.querySelector('.sheet [data-saving]')?.textContent.trim() ?? ''`); await called(p, /^input_datetime\.set_datetime/, 6000);
     const order = await p.evaluate(() => window.__calls.filter((c) => /^input_(text|datetime)\./.test(c)).map((c) => c.split(' ')[0]));
     console.log('R5-13 slow link: row says', JSON.stringify(mid), ok(/Saving/.test(mid) && /Alex/.test(mid)), '| giver written before the time:', order.join(' > '), ok(order[0] === 'input_text.set_value' && order[1] === 'input_datetime.set_datetime')); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=meds'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._medOpen = true; const h = c.hass, real = h.callService; window.__calls2 = []; h.callService = async (d, s, data, t) => { window.__calls2.push(d + '.' + s + ' ' + JSON.stringify(data)); if (d === 'input_datetime' && window.__calls2.filter((x) => /^input_datetime/.test(x)).length === 1) throw new Error('refused'); return real(d, s, data, t); }; });
-    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`); await p.waitForTimeout(900);
+    await p.evaluate(`${SR}.querySelector('.sheet [data-act="given"]').click()`);
+    // the refusal has been answered: its line is on the screen and the giver's name has been written back
+    await until(p, () => /not recorded/.test(document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.textContent ?? '') && window.__calls2.filter((x) => /^input_text/.test(x)).length >= 2, null, 3000);
     const r = await p.evaluate(() => ({ calls: window.__calls2.map((x) => x.split(' ')[0]), lastBy: JSON.parse(window.__calls2.filter((x) => /^input_text/.test(x)).pop().split(' ').slice(1).join(' ')).value, row: document.querySelector('family-hub-card').shadowRoot.querySelector('.sheet .card b:last-of-type')?.textContent.trim(), toast: document.querySelector('family-hub-card').shadowRoot.querySelector('.toast')?.textContent.trim() }));
     console.log('R5-13 time write refused: the name is put back (' + r.lastBy + '), row not ticked, and it says so:', JSON.stringify(r.calls), '|', r.toast, ok(r.lastBy !== 'Alex' && /not recorded/.test(r.toast ?? '') && r.calls.filter((x) => /^input_text/.test(x)).length === 2)); await p.context().close(); }
-  { const p = await openAt(1280, 600, 'look=glass&page=planner&sheet=meds'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._medOpen = true; const now = Date.now(); localStorage.setItem('family-hub-med-log', JSON.stringify(Array.from({ length: 9 }, (_, i) => new Date(now - (i + 1) * 3600000).toISOString() + '|Riley|Paracetamol|Sam'))); return c._loadMedLog().then(() => c.requestUpdate()); }); await p.waitForTimeout(300);
-    await p.evaluate(`(() => { const c = document.querySelector('family-hub-card'); c._mx = { ...c._mx, what: 'Ibuprofen', who: 'Charlie', by: 'Alex' }; c.requestUpdate(); })()`); await p.waitForTimeout(200); await p.evaluate(`${SR}.querySelector('.sheet').scrollTop = 9999`); await p.evaluate(`${SR}.querySelector('.sheet [data-act="log"]').click()`); await p.waitForTimeout(1200);
-    const v = await p.evaluate(`(() => { const s = ${SR}.querySelector('.sheet'), row = [...s.querySelectorAll('.irow[data-at]')].find((x) => /Ibuprofen/.test(x.textContent)); if (!row) return null; const a = row.getBoundingClientRect(), b = s.getBoundingClientRect(); return a.top >= b.top - 1 && a.bottom <= b.bottom + 1; })()`);
+  { const p = await openAt(1280, 600, 'look=glass&page=planner&sheet=meds'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c._medOpen = true; const now = Date.now(); localStorage.setItem('family-hub-med-log', JSON.stringify(Array.from({ length: 9 }, (_, i) => new Date(now - (i + 1) * 3600000).toISOString() + '|Riley|Paracetamol|Sam'))); return c._loadMedLog().then(() => { c.requestUpdate(); return c.updateComplete; }); });
+    await p.evaluate(`(() => { const c = document.querySelector('family-hub-card'); c._mx = { ...c._mx, what: 'Ibuprofen', who: 'Charlie', by: 'Alex' }; c.requestUpdate(); return c.updateComplete; })()`); await p.evaluate(`${SR}.querySelector('.sheet').scrollTop = 9999`); await p.evaluate(`${SR}.querySelector('.sheet [data-act="log"]').click()`);
+    // the new record's row is there and has been scrolled into the sheet's view
+    const inView = `(() => { const s = ${SR}.querySelector('.sheet'), row = [...s.querySelectorAll('.irow[data-at]')].find((x) => /Ibuprofen/.test(x.textContent)); if (!row) return null; const a = row.getBoundingClientRect(), b = s.getBoundingClientRect(); return a.top >= b.top - 1 && a.bottom <= b.bottom + 1; })()`;
+    await until(p, inView, null, 3000); const v = await p.evaluate(inView);
     console.log('R5-13 a new record is scrolled into view:', v, ok(v === true)); await p.evaluate(() => localStorage.removeItem('family-hub-med-log')); await p.context().close(); }
   // R5-11 jobs left: "My look" answers with a wiggle of the padlock and, in picture mode, a spoken line; nothing red, no toast
   for (const k of [2, 0]) { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=' + k); await p.evaluate(() => { window.__said = []; const real = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = (u) => { window.__said.push(u.text); }; });
     const b = p.locator('fh-kid .studio'); const locked = await b.getAttribute('data-locked'); if (locked === null) { console.log('R5-11 kid', k, 'has no jobs left in the preview: not tested'); await p.context().close(); continue; }
-    await b.click(); await p.waitForTimeout(150);
+    await b.click(); await shown(p.locator('fh-kid .studio[data-nudge]'), 2000);
     const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid'), b = k.shadowRoot.querySelector('.studio'), sv = b.querySelector('svg'); return { nudge: b.hasAttribute('data-nudge'), anim: getComputedStyle(sv).animationName, toast: k.shadowRoot.querySelector('.toast')?.textContent ?? '', studio: k._studio, said: window.__said, pic: k._picMode }; });
     console.log('R5-11 kid', k, 'locked "My look":', JSON.stringify(r), ok(r.nudge && r.anim === 'lockwig' && !r.toast && !r.studio && (r.pic ? /One more job, then your look|jobs to go/.test(r.said.join(' ')) : r.said.length === 0))); await p.context().close(); }
   // R5-12 the youngest at the wall: feelings and its speaker in the lower half; faces under the records on his shelf and on his jukebox turn
   { const p = await openAt(1920, 1080, 'look=glass&page=kid&kid=2'); const r = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; const t = (s) => Math.round(k.querySelector(s).getBoundingClientRect().top); return { speaker: t('[aria-label="Read the question"]'), faces: t('.feel'), tabs: t('.tabs'), look: t('.studio') }; });
-    await p.evaluate(() => { window.__said = []; speechSynthesis.speak = (u) => { window.__said.push(u.text); }; }); await p.locator('fh-kid .feel button').first().click(); await p.waitForTimeout(200);
+    await p.evaluate(() => { window.__said = []; speechSynthesis.speak = (u) => { window.__said.push(u.text); }; }); await p.locator('fh-kid .feel button').first().click(); await shown(p.locator('fh-kid .feelcard span'), 2000);
     const f = await p.evaluate(() => { const k = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot; return { asked: k.querySelector('.feelcard span')?.textContent.trim(), said: window.__said.join(' | '), again: Math.round(k.querySelector('[aria-label="Read the question"]').getBoundingClientRect().top) }; });
-    await p.locator('fh-kid [aria-label="Read the question"]').click(); await p.waitForTimeout(100); const speaking = await p.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('[aria-label="Read the question"]').hasAttribute('data-speaking'));
+    await p.locator('fh-kid [aria-label="Read the question"]').click(); await shown(p.locator('fh-kid [aria-label="Read the question"][data-speaking]'), 2000); const speaking = await p.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('[aria-label="Read the question"]').hasAttribute('data-speaking'));
     console.log('R5-12 Max at 1920x1080 (tops, all > 540):', JSON.stringify(r), ok(Object.values(r).every((y) => y > 540)), '| R5-17 follow-up shown and spoken:', JSON.stringify(f.asked), ok(f.said.includes(f.asked) && f.again > 540), '| read-aloud button shows it is speaking:', ok(speaking)); await p.context().close(); }
-  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=shelves'); await p.locator('fh-music .dividers .pchip', { hasText: 'Max' }).click(); await p.waitForTimeout(500);
+  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=shelves'); await p.locator('fh-music .dividers .pchip', { hasText: 'Max' }).click(); await shown(p.locator('fh-music .dividers .pchip[aria-pressed="true"]', { hasText: 'Max' })); await shown(p.locator('fh-music .crate .covers .st'));
     const s = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const c = m.querySelector('.dividers').getBoundingClientRect(), t = [...m.querySelectorAll('.crate .covers .st')].map((x) => x.getBoundingClientRect()); return { chipsTop: Math.round(c.top), tilesTop: Math.round(Math.min(...t.map((x) => x.top))), tilesBottom: Math.round(Math.max(...t.map((x) => x.bottom))) }; });
-    await p.locator('fh-music .dividers .pchip', { hasText: 'Riley' }).click(); await p.waitForTimeout(400); const other = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return m.querySelector('.dividers').getBoundingClientRect().top < m.querySelector('.crate .covers, .crate .empty').getBoundingClientRect().top; });
+    await p.locator('fh-music .dividers .pchip', { hasText: 'Riley' }).click(); await shown(p.locator('fh-music .dividers .pchip[aria-pressed="true"]', { hasText: 'Riley' })); await shown(p.locator('fh-music .crate .covers, fh-music .crate .empty')); const other = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; return m.querySelector('.dividers').getBoundingClientRect().top < m.querySelector('.crate .covers, .crate .empty').getBoundingClientRect().top; });
     console.log('R5-12 Max’s shelf at the wall:', JSON.stringify(s), ok(s.chipsTop >= s.tilesBottom && s.tilesTop > 540), '| an older child’s shelf keeps its faces on top:', ok(other)); await p.context().close(); }
-  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=juke'); await p.locator('fh-music .coin', { hasText: 'Max' }).click(); await p.waitForTimeout(600);
+  { const p = await openAt(1920, 1080, 'look=glass&page=music&mtab=juke'); await p.locator('fh-music .coin', { hasText: 'Max' }).click(); await shown(p.locator('fh-music .banner')); await shown(p.locator('fh-music .jcovers .st'));
     const s = await p.evaluate(() => { const m = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-music').shadowRoot; const b = m.querySelector('.banner').getBoundingClientRect(), t = [...m.querySelectorAll('.jcovers .st')].map((x) => x.getBoundingClientRect()); return { bannerTop: Math.round(b.top), tiles: t.length, tilesTop: Math.round(Math.min(...t.map((x) => x.top))), tilesBottom: Math.round(Math.max(...t.map((x) => x.bottom))) }; });
     console.log('R5-12 Max’s jukebox turn at the wall:', JSON.stringify(s), ok(s.tiles > 0 && s.bannerTop >= s.tilesBottom && s.tilesTop > 500)); await p.context().close(); }
   // R5-14 a call that never answers is given up after 12 s: the tick goes back and a calm line says so; a failed clear stays until dismissed; a reward says "Saving…"
   { const p = await openAt(1280, 800, 'look=glass&page=groceries'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'); c.hass.callService = () => new Promise(() => {}); });
-    await p.locator('fh-groceries button.item').first().click(); await p.waitForTimeout(300); const held = await p.locator('fh-groceries button.item[aria-pressed="true"]').count(); await p.clock.fastForward(12500); // held counts the row just ticked with those already in the trolley await p.waitForTimeout(400);
+    const ticked = p.locator('fh-groceries button.item[aria-pressed="true"]'), before = await ticked.count();
+    // held counts the row just ticked with those already in the trolley; after 12 s the tick is given up and its line comes
+    await p.locator('fh-groceries button.item').first().click(); await until(p, (n) => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-groceries').shadowRoot.querySelectorAll('button.item[aria-pressed="true"]').length > n, before, 2000); const held = await ticked.count(); await p.clock.fastForward(12500); await shown(p.locator('fh-groceries .toast'), 3000);
     const r = { held, after: await p.locator('fh-groceries button.item[aria-pressed="true"]').count(), toast: (await p.locator('fh-groceries .toast').innerText().catch(() => '')).trim() };
     console.log('R5-14 grocery tick never answered:', JSON.stringify(r), ok(r.after === r.held - 1 && r.toast === 'Home Assistant is slow. Try again.')); await p.context().close(); }
   { const p = await openAt(1280, 800, 'look=glass&page=groceries&fail=1'); const g = p.locator('fh-groceries'); const has = await g.locator('.clear').count();
-    if (has) { await g.locator('.clear').click(); await p.clock.fastForward(6500); await p.waitForTimeout(600); const t1 = (await g.locator('.toast').innerText().catch(() => '')).replace(/\s+/g, ' ').trim(); await p.clock.fastForward(20000); await p.waitForTimeout(300); const still = await g.locator('.toast').count(); await g.locator('.toast button').click(); await p.waitForTimeout(500);
+    if (has) { await g.locator('.clear').click(); await p.clock.fastForward(6500); await shown(g.locator('.toast button', { hasText: 'OK' }), 3000); /* the failure's line (the Undo line comes first) */ const t1 = (await g.locator('.toast').innerText().catch(() => '')).replace(/\s+/g, ' ').trim();
+      await p.clock.fastForward(20000); await g.evaluate((e) => e.updateComplete); /* drawn after the 20 s: still there? */ const still = await g.locator('.toast').count(); await g.locator('.toast button').click(); await gone(g.locator('.toast:not([data-closing])'), 2000);
       console.log('R5-14 "Clear ticked" failed:', JSON.stringify(t1), '| still there 20 s later:', ok(still === 1), '| goes when OK is tapped:', ok((await g.locator('.toast:not([data-closing])').count()) === 0)); } else console.log('R5-14 "Clear ticked": nothing ticked in the preview, not tested'); await p.context().close(); }
-  { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=1&slow=1500'); const k = p.locator('fh-kid'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'), kid = c.shadowRoot.querySelector('fh-kid'), id = kid._e.points; c.hass = { ...c.hass, states: { ...c.hass.states, [id]: { ...c.hass.states[id], state: '500' } } }; kid._tab = 'rewards'; kid._tabPicked = true; kid.requestUpdate(); }); await p.waitForTimeout(300);
-    const can = k.locator('button.rw:has(.cost:not(.notyet))'); let asked = false; for (let i = 0; i < await can.count() && !asked; i++) { await can.nth(i).click(); await p.waitForTimeout(250); asked = (await k.locator('.rw.ask').count()) > 0; if (!asked) await p.keyboard.press('Escape'); }
-    if (asked) { await k.locator('.rw.ask button').first().click(); await p.waitForTimeout(380); const t = (await k.locator('.rw.ask button').first().innerText().catch(() => '')).trim(); console.log('R5-14 reward "Yes" on a slow link says within 400 ms:', JSON.stringify(t), ok(t === 'Saving…')); } else console.log('R5-14 reward Saving: no reward affordable in the preview, not tested');
+  { const p = await openAt(1280, 800, 'look=glass&page=kid&kid=1&slow=1500'); const k = p.locator('fh-kid'); await p.evaluate(() => { const c = document.querySelector('family-hub-card'), kid = c.shadowRoot.querySelector('fh-kid'), id = kid._e.points; c.hass = { ...c.hass, states: { ...c.hass.states, [id]: { ...c.hass.states[id], state: '500' } } }; kid._tab = 'rewards'; kid._tabPicked = true; kid.requestUpdate(); return kid.updateComplete; });
+    const can = k.locator('button.rw:has(.cost:not(.notyet))'); let asked = false; for (let i = 0; i < await can.count() && !asked; i++) { await can.nth(i).click(); asked = await shown(k.locator('.rw.ask'), 1000); if (!asked) await p.keyboard.press('Escape'); }
+    if (asked) { await k.locator('.rw.ask button').first().click(); await until(p, () => /Saving/.test(document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.rw.ask button')?.textContent ?? ''), null, 1000); const t = (await k.locator('.rw.ask button').first().innerText().catch(() => '')).trim(); console.log('R5-14 reward "Yes" on a slow link says while it waits:', JSON.stringify(t), ok(t === 'Saving…')); } else console.log('R5-14 reward Saving: no reward affordable in the preview, not tested');
     const flat = await p.evaluate(() => { const e = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.cost.notyet'); return e ? getComputedStyle(e).boxShadow : 'none-found'; }); console.log('R5-17 "N to go" is a flat tile (no outline):', flat, ok(flat === 'none' || flat === 'none-found')); await p.context().close(); }
   // R5-15 semantics: drums, value text, reminders' ring room, status regions
   { const p = await openAt(1280, 800, 'look=glass&page=planner&sheet=add'); const d = p.locator('fh-add-event .drum[data-d="h"]'), m = p.locator('fh-add-event .drum[data-d="m"]'); await d.focus(); const h0 = await d.getAttribute('aria-valuenow');
@@ -310,7 +343,7 @@ await section('Home Ground (the sports look): it can be chosen in the picker, th
 { let page = await open('look=glass&sheet=themes');
   const cards = page.locator('family-hub-card .looks .tcard');
   const count = await cards.count();
-  await cards.filter({ hasText: 'Home Ground' }).click(); await page.waitForTimeout(300);
+  await cards.filter({ hasText: 'Home Ground' }).click(); await until(page, () => document.querySelector('family-hub-card').getAttribute('data-look') === 'sports', null, 3000);
   console.log('HG1 picker: four looks', count === 4, '| choosing Home Ground sets the look', await page.evaluate(() => document.querySelector('family-hub-card').getAttribute('data-look') === 'sports' && localStorage.getItem('family-hub-look') === 'sports'),
     '| its card is the chosen one', await cards.filter({ hasText: 'Home Ground' }).getAttribute('aria-pressed') === 'true');
   await page.close();
@@ -340,11 +373,13 @@ await section('Home Ground (the sports look): it can be chosen in the picker, th
 });
 await section('R6-H9. Home Ground at 1024x768: a seven-letter name stays on one line ', async () => {
 // R6-H9. Home Ground at 1024x768: a seven-letter name stays on one line in the page title
-page = await open('look=sports&page=kid&kid=1'); await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(600);
+page = await open('look=sports&page=kid&kid=1'); await page.setViewportSize({ width: 1024, height: 768 });
+// the child's page has taken the narrower size (data-n2: under 1100 px) and drawn itself for it
+await until(page, () => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid')?.hasAttribute('data-n2'), null, 3000); await page.evaluate(() => document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').updateComplete);
 { const n = await page.evaluate(() => { const n = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-kid').shadowRoot.querySelector('.name'), g = document.createRange(); g.selectNodeContents(n); return new Set([...g.getClientRects()].map((r) => Math.round(r.top))).size; }); console.log('R6-H9 lines in the name (expect 1):', n, ok(n === 1)); }
 // R6-H10/H11. the same screen's rail: the small player's second line is not cut without an ellipsis, and "+10 min" keeps clear of its pill's edge
 // (the artist and room line is clamped to one line by design and ends in "…" when long: backlog 151, decided 22 Nov to accept it)
-await HOME(page); await page.getByRole('button', { name: 'Planner', exact: true }).click(); await page.waitForTimeout(700);
+await HOME(page); await page.getByRole('button', { name: 'Planner', exact: true }).click(); await shown(page.locator('family-hub-card .np .np-row span.muted')); await shown(page.locator('family-hub-card .quick'));
 { const cut = await page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.np .np-row span.muted')].filter((s) => { const c = getComputedStyle(s), ell = c.textOverflow === 'ellipsis' || (c.webkitLineClamp && c.webkitLineClamp !== 'none'); return (s.scrollWidth > s.clientWidth + 1 || s.scrollHeight > s.clientHeight + 1) && !ell; }).length);
   const room = await page.evaluate(() => Math.round(Math.min(...[...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('.quick')].filter((b) => b.getBoundingClientRect().width).map((b) => { const r = b.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(b); const t = g.getBoundingClientRect(); return Math.min(t.left - r.left, r.right - t.right); }))));
   console.log('R6-H10 small player lines cut without an ellipsis (expect 0):', cut, ok(cut === 0), '| R6-H11 least room beside a quick pill’s words (expect >= 6):', room, ok(room >= 6)); }
