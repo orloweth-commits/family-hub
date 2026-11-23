@@ -80,7 +80,7 @@ export const HOOKS: { roles: string[]; parts: Record<string, string[]> } = {
     'fh-groceries': ['list', 'items', 'tag', 'who', 'clear'],
     'fh-music': ['hpad', 'stage', 'deck', 'spk', 'focus', 'inmix', 'join', 'hit', 'st', 'pickrow', 'banner', 'mini', 'tog', 'mroom', 'mzone', 'mstairs', 'pool', 'puck', 'mshelf', 'wholeh',
       // other ways of seeing the rooms (musicviews.ts)
-      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'mpad', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
+      'viewbtn', 'vcard', 'dplate', 'dtrack', 'dknob', 'dcover', 'desk', 'strip', 'sname', 'lamp', 'fcap', 'slot', 'cab', 'sock', 'cdisc', 'cbox', 'ttable', 'tkey', 'ctab', 'jog', 'dart', 'sshelf', 'dcard', 'tuner', 'vscene', 'aname', 'ahull', 'aline', 'bigdial', 'rig', 'crate', 'presets', 'suntx'],
     'fh-home': ['rooms', 'room', 'lit', 'rh', 'dev', 'dicon', 'toggle', 'scene'],
     'fh-doodle': ['easel', 'pad', 'ink', 'gallery', 'snaps', 'snap', 'by'],
     'fh-studio': ['mirror', 'tile'],
@@ -810,7 +810,6 @@ const FRIDGE = `
   @F .fcap { border-radius: 4px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 rgba(0,0,0,.3); }
   @F .slot { background: var(--ink); --rail-w: 4px; } /* music polish: the rail's thickness is a token now (one slider family), not a width and an offset */
   @F .jog { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 #b9b2a2; }
-  @F .mpad { border-radius: 8px; box-shadow: inset 0 0 0 3px var(--ink), 0 6px 0 rgba(0,0,0,.28); }
   @F .dart { border-radius: 4px; box-shadow: 0 0 0 3px var(--ink), 0 5px 6px rgba(0,0,0,.2); }
   @F .cab { background: var(--paper); border-radius: 6px; box-shadow: inset 0 0 0 3px var(--ink), 0 4px 6px rgba(0,0,0,.2); } /* music polish: speaker tiles are the look's own paper, with ink text (was a dark slab with white text) */
   @F .sock { background: var(--magnet); box-shadow: inset 0 0 0 3px var(--ink); }
@@ -1106,7 +1105,6 @@ const ORBIT = `
   @O .fcap { background: color-mix(in srgb, var(--ink) 22%, var(--ground)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 55%, transparent); }
   @O .slot { --rail-w: 2px; } /* music polish: as above */
   @O .jog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
-  @O .mpad { box-shadow: none; }
   @O .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @O .sock { background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--ctl-line); }
   @O .sock[aria-pressed='true'] { background: var(--c); box-shadow: none; }
@@ -1546,7 +1544,6 @@ const SPORTS = `
   @S .fcap { background: var(--s-ball) center / 100% 100% no-repeat; box-shadow: none; }
   @S .slot { --rail-w: 5px; }
   @S .jog { background: var(--panel); box-shadow: inset 0 0 0 2px var(--ink), 0 4px 0 var(--ink); }
-  @S .mpad { border-radius: 10px; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--ink); }
   @S .dart { border-radius: 8px; box-shadow: 0 0 0 2px var(--ink); }
   @S .cab { background: var(--panel); color: var(--ink); border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--ink3); }
   @S .sock { background: var(--panel2); box-shadow: inset 0 0 0 2px var(--ink); }
@@ -1846,7 +1843,6 @@ const OBSIDIAN = `
   @B .fcap { background: #2a2c33; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.42); }
   @B .slot { --rail-w: 1px; }
   @B .jog { background: transparent; box-shadow: inset 0 0 0 1px var(--ctl-line); }
-  @B .mpad { box-shadow: inset 0 0 0 1px var(--glass-line); }
   @B .cab { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @B .sock { background: #000; box-shadow: inset 0 0 0 1px var(--ctl-line); }
   @B .sock[aria-pressed='true'] { background: var(--c); box-shadow: 0 0 14px -2px var(--c); }

@@ -93,7 +93,7 @@ export const styles = css`
   :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex='-1']), [role='slider'], [role='tab'], [role='switch'], [role='spinbutton']):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 3px var(--ring-halo, #fff); }
   /* the ring has two tones: ink, with a halo of the opposite tone inside it (--ring-halo), so it shows on any coloured surface.
      Rows and tiles that sit in a box that clips (lists that scroll, grids, the dock) carry the ring inside their own edge instead. */
-  :is(.ev, .dayrow, .rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .mpad, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
+  :is(.ev, .dayrow, .rem, .row, .job, .more, .dcoin, .pchip, .pic, .dev, .sw, .auto, .scene, .mz, .puck, .st, .snap, .tile, .heart, .hit, .spk .rsel, .who, .cap, .actor > svg, .sleeve, .coin, .item, .avbtn, .tabs > button):focus-visible:focus-visible:focus-visible { outline-offset: -3px; box-shadow: inset 0 0 0 5px var(--ring-halo, #fff); }
   input[type='range']:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 0 4px var(--ring-halo, #fff); }
   /* words waiting in an empty field read as text, in every theme */
   input::placeholder, textarea::placeholder { color: var(--ink2); opacity: 1; }
@@ -412,7 +412,6 @@ export const styles = css`
   @keyframes bDraw { from { stroke-dashoffset: 1; } }
   @keyframes bDrift { 50% { transform: translateX(calc(2.5px * var(--m-d, 1))); } }
   @keyframes bDoor { 50% { transform: scaleX(calc(1 - .7 * var(--m-d, 1))); } }
-  @keyframes bDim { 50% { opacity: .35; } }
   @keyframes bTurn { to { transform: rotate(calc(360deg * var(--m-d, 1))); } }
   /* pressed (data-just): the drawing answers the finger once. Medicine has no moving part */
   .hb[data-just] [data-ic='ask'] .p-star, .morebtn[data-just] [data-ic='night'] .p-star { animation: bTwinkle var(--mt-3) var(--e-spring); }

@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.28';
+const VERSION = '0.38.29';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -1309,16 +1309,21 @@ export class FamilyHubCard extends LitElement {
     const inside = (id: string): string[] => { const m = S[id]?.attributes.entity_id; return Array.isArray(m) ? m.filter((x): x is string => typeof x === 'string') : []; };
     const add = (id: string): void => { if (kept.has(id)) return; kept.add(id); inside(id).forEach(add); };
     (this._config.keep_on ?? []).forEach(add);
+    // the panel's own backlight, when it is a light (art.backlight): All off never darkens the screen it was pressed on (161)
+    const bl = this._panelLight(); if (bl) add(bl);
     if (!kept.size) return kept;
     // groups that hold something kept, however deep
     for (let grew = true; grew;) { grew = false; for (const id of Object.keys(S)) if (!kept.has(id) && inside(id).some((m) => kept.has(m))) { kept.add(id); grew = true; } }
     return kept;
   }
+  /** The panel's own backlight when it is a `light.` (`art.backlight`): never switched by All off, nor counted as a light on (backlog 161). */
+  private _panelLight(): string | undefined { const id = this._config?.art?.backlight; return id?.startsWith('light.') ? id : undefined; }
   private _off: { at: number; timer?: number } | null = null;
   private _offCancel(say = true): void { if (!this._off) return; clearTimeout(this._off.timer); this._off = null; if (say) this._say('Cancelled. The lights stay on.'); }
   private async _allOff(go = false): Promise<void> {
     if (this._sceneBusy) return;
-    const lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on'), kept = this._kept();
+    // the backlight is the screen, not a light of the house: not switched, not counted as kept (a group holding it is kept, by _kept)
+    const bl = this._panelLight(), lit = Object.values(this.hass?.states ?? {}).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on' && s.entity_id !== bl), kept = this._kept();
     const on = lit.filter((s) => !kept.has(s.entity_id)).map((s) => s.entity_id);
     // how many things stay on: the lights themselves, not the groups that only hold them
     const stay = lit.filter((s) => kept.has(s.entity_id)), leaves = stay.filter((s) => !Array.isArray(s.attributes.entity_id)), n = (leaves.length || stay.length);
@@ -1438,7 +1443,7 @@ export class FamilyHubCard extends LitElement {
         return html`<fh-kid .hass=${this.hass} .kid=${k} .art=${c.art ?? {}} .familyCalendars=${fam} .calRules=${c.calendars ?? []} .pin=${String(c.parent_pin ?? '')} .owed=${'todo.rewards_owed'} .asks=${this._asksCfg()} .notes=${askList(c)}
           .jarTarget=${c.jar?.target ?? 120} .jarReward=${c.jar?.reward ?? 'a family treat'} .privateWords=${c.private ?? []} .quiet=${quiet} .oneAtATime=${kidPrefs(k).focus} .ask=${!!c.chat?.agent && (!askByChild(c.kids) || askFor(k).mode !== 'off')} @ask=${() => this._openChat()} @song=${(e: CustomEvent<{ minutes: number }>) => this._tidySong(k, e.detail.minutes)}></fh-kid>`;
       }
-      case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .kids=${c.kids ?? []} .me=${this._homeKid} .bedrooms=${c.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []}
+      case 'home': return html`<fh-home .hass=${this.hass} .pin=${String(c.parent_pin ?? '')} .kids=${c.kids ?? []} .me=${this._homeKid} .bedrooms=${c.home_bedrooms ?? {}} .sharers=${this._sharers()} .hide=${c.home_hide ?? []} .hideScripts=${c.announce_script ? [c.announce_script] : []} .panelLight=${this._panelLight() ?? ''}
         @say=${(e: CustomEvent<string>) => this._say(e.detail)} @alloff=${() => void this._allOff()} @music=${(e: CustomEvent<string>) => { this._musicFocus = e.detail; this._page = 'music'; }}></fh-home>`;
       case 'music': return html`<fh-music .hass=${this.hass} .players=${c.music_players ?? []} .stations=${c.radio ?? []} .source=${c.radio_source ?? 'media-source://radio_browser/country/AU'} .preferred=${this._musicFocus || (c.music_player ?? '')}
         .kids=${c.kids ?? []} .people=${c.people ?? []} .pin=${String(c.parent_pin ?? '')} .quiet=${c.quiet ?? {}} .sleepMinutes=${c.music_sleep_minutes ?? 30} .map=${c.music_map ?? []} .hide=${c.music_hide ?? []} .moments=${c.music_moments ?? []} .lock=${c.music_lock !== false} .views=${c.music_views ?? []} .callVolume=${c.call_volume ?? 70} .callLanguage=${c.call_language ?? 'en-AU'} .callVoice=${c.call_voice ?? ''} .theme=${this._theme}></fh-music>`;
@@ -1790,7 +1795,7 @@ export class FamilyHubCard extends LitElement {
     const m0 = hm(c.morning?.start ?? '06:30'), m1 = hm(c.morning?.end ?? '08:45');
     return { day: now.getDate(), dow: now.toLocaleDateString('en-AU', { weekday: 'short' }), cond: w?.state, dark: !sunUp, playing,
       cover: pic ? (/^(https?:|data:)/.test(pic) ? pic : this.hass?.hassUrl ? this.hass.hassUrl(pic) : pic) : undefined,
-      count: Number.isFinite(g) ? g : undefined, lit: Object.values(st).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on').length,
+      count: Number.isFinite(g) ? g : undefined, lit: Object.values(st).filter((s) => s.entity_id.startsWith('light.') && s.state === 'on' && s.entity_id !== this._panelLight()).length,
       frac: (mins - m0) / Math.max(1, m1 - m0), moon: moonAge(now), south: (this.hass?.config?.latitude ?? -32) < 0 };
   }
   private _dock(): TemplateResult {
