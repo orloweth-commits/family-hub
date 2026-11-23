@@ -10,11 +10,6 @@
     "match": "D12 "
   },
   {
-    "name": "click-music: five printed values that may be old expectations, never judged by a person: the desk's master fader, a second tap on the tuner's stop, the jog wheel's tap, the tabs' line, the tab words on a wide screen (backlog 160, 23 Nov)",
-    "suite": "click-music",
-    "match": "FAIL (the desk’s master fader|the tuner: a second tap|the desk’s jog wheel|the tabs keep one line|the wide screen shows the tabs)"
-  },
-  {
     "name": "buttons: the empty grocery list, when another suite runs beside it (backlog 39)",
     "suite": "buttons",
     "match": "empty grocery list is an empty basket"
