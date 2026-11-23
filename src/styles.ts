@@ -471,6 +471,9 @@ export const styles = css`
   :host([data-phone]) .nsays { grid-template-columns: 1fr; }
   .nsay { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 16px 6px 10px; border-radius: 16px; background: var(--chip); color: var(--ink); text-align: left; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.25; }
   .nsay .nq { flex-shrink: 0; width: 22px; text-align: center; font-family: Georgia, 'Times New Roman', serif; font-size: var(--fs-6); font-weight: 700; line-height: .5; color: var(--accent); transform: translateY(6px); }
+  /* the mark is drawn as generated content (0.38.30, backlog 162): a tall serif quote's ink sits at the top of its glyph, and the glyph's empty
+     lower half ran past the button's foot, so as text it read as words 3.6 px from the edge; as decoration only the words are measured */
+  .nsay .nq::before { content: '“'; }
   .nown { display: flex; gap: 8px; }
   .nown .field { flex: 1; }
   .nown .pill { height: 48px; padding: 0 22px; }

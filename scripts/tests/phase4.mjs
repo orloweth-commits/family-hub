@@ -21,9 +21,10 @@ const head = (page) => page.evaluate(() => { const r = document.querySelector('f
     h: Math.round(Math.max(...[...r.querySelectorAll('header .right > .hb')].map((e) => e.getBoundingClientRect().height)) / z), sheet: document.querySelector('family-hub-card')._sheet || (document.querySelector('family-hub-card')._pinAsk ? 'pin:' + document.querySelector('family-hub-card')._pinAsk.reason : '') }; });
 
 // 1. the header
-// (since 0.38.25 the medicine chip is amber to 8:30 am and off the header after noon: the urgent one is looked at at 8 am)
+// (since 0.38.25 the medicine chip is amber to 8:30 am and off the header after noon: the urgent one is looked at at 8 am; since 0.38.30
+//  Ask is off the header until the morning window ends, 8:45 in the preview: it is read beside the weather at 8:46 in section 6)
 for (const look of ['glass', 'fridge', 'orbit', 'sports']) { const page = await open(`look=${look}&page=planner&timer=0`, '08:00'); const h = await head(page);
-  ok(`${look}: beside the weather the header keeps Ask and More, and nothing else`, h.right.join(',') === 'weather,ask,more', h.right);
+  ok(`${look}: beside the weather the header keeps More (Ask stands down on a school morning), and nothing else`, h.right.join(',') === 'weather,more', h.right);
   ok(`${look}: two things at most in the middle: the most urgent, and what is next`, h.chips.join(',') === 'med,next', h.chips);
   ok(`${look}: the header's parts are still 52 px high`, h.h <= 52, h.h);
   await page.context().close(); }
@@ -82,8 +83,9 @@ for (const [w, h, min] of [[1920, 1080, 30], [1180, 820, 14]]) { const page = aw
   await card.locator('.week').click({ position: { x: 5, y: 5 } }); await page.waitForTimeout(300); await page.clock.runFor(3000); await page.waitForTimeout(300); await page.clock.runFor(1000); const c = await cols();
   ok('a touch brings the whole week back', !c.rest && c.fade === '1' && Math.abs(c.today - a.today) <= 2, c);
   await page.context().close(); }
-// 6. 0.38.26 (the second review's cut, items 4 and 5): a school morning stays on the morning board until the last child leaves (no screensaver,
-//    no Ask); Morning takes Planner's place in the dock while the morning window lasts; All on is gone and All off is the first of Home's Scenes
+// 6. 0.38.26 (the second review's cut, items 4 and 5): a school morning stays on the morning board (no screensaver, no Ask; since 0.38.30
+//    to the window's end, 8:45 in the preview, not the last child's leaving time); Morning takes Planner's place in the dock while the morning
+//    window lasts; All on is gone and All off is the first of Home's Scenes
 { const dockOf = (page) => page.evaluate(() => [...document.querySelector('family-hub-card').shadowRoot.querySelectorAll('nav.dock .item:not(.kidbtn)')].map((b) => b.dataset.nav));
   const askOf = (page) => page.evaluate(() => !!document.querySelector('family-hub-card').shadowRoot.querySelector('header [data-act="ask"]'));
   const artUp = async (page) => { await page.evaluate(() => { document.querySelector('family-hub-card')._lastTouch = Date.now() - 200_000; }); for (let i = 0; i < 8; i++) { await page.clock.runFor(5000); await page.waitForTimeout(100); } return page.evaluate(() => !!document.querySelector('family-hub-card')._art.on); };
@@ -93,11 +95,17 @@ for (const [w, h, min] of [[1920, 1080, 30], [1180, 820, 14]]) { const page = aw
   ok('6 7:10: no Ask in the header', !(await askOf(page)));
   ok('6 7:10: left untouched past three minutes, the screensaver does not come up', !(await artUp(page)));
   await page.context().close();
-  page = await open('look=glass&page=kid&kid=0&calm=1', '07:49'); ok('6 7:49, a child\'s page: still no Ask (the last child leaves at 7:50)', !(await askOf(page))); await page.context().close();
+  page = await open('look=glass&page=kid&kid=0&calm=1', '07:49'); ok('6 7:49, a child\'s page: no Ask', !(await askOf(page))); await page.context().close();
   page = await open('look=glass&page=morning&art=1&artn=3&timer=0', '07:51');
-  ok('6 7:51, once the last child has left: Ask is back', await askOf(page));
+  ok('6 7:51, once the last child has left: still no Ask (0.38.30: the hold lasts the morning window)', !(await askOf(page)));
   d = await dockOf(page); ok('6 7:51: Morning still holds Planner\'s place while the morning window lasts', d[0] === 'sun' && !d.includes('calendar'), d);
-  ok('6 7:51: the screensaver comes up as usual', await artUp(page));
+  ok('6 7:51: still no screensaver (0.38.30)', !(await artUp(page)));
+  await page.context().close();
+  page = await open('look=glass&page=kid&kid=0&calm=1', '08:44'); ok('6 8:44, a child\'s page: still no Ask (the window ends at 8:45)', !(await askOf(page))); await page.context().close();
+  page = await open('look=glass&page=planner&art=1&artn=3&timer=0', '08:46');
+  ok('6 8:46, once the morning window has ended: Ask is back', await askOf(page));
+  d = await dockOf(page); ok('6 8:46: Planner is back in its place', d[0] === 'calendar' && !d.includes('sun'), d);
+  ok('6 8:46: the screensaver comes up as usual', await artUp(page));
   await page.context().close();
   page = await open('look=glass&page=planner&timer=0');
   d = await dockOf(page); ok('6 4:20 pm: Planner and no Morning; neither All on nor All off in the dock', d.join(',') === 'calendar,cart,pencil,music,cloud,home,dinner', d);

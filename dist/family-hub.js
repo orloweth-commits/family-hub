@@ -1542,21 +1542,21 @@ async function Lg(a, t) {
 const Qg = /^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)\s+(?=\S)/u, qf = (a) => {
   const t = a.description ?? "", e = /\+(\d+)/.exec(t) ?? /^(\d+)$/.exec(t.trim()), i = e ? Number(e[1]) : 0, s = /@grow/.test(t) ? "grow" : /@routine/.test(t) ? "routine" : /@job/.test(t) || i ? "job" : "routine", o = /@am/.test(t) ? "am" : /@after/.test(t) ? "after" : /@bed/.test(t) ? "bed" : "any", r = /(\d+)\s*min/i.exec(`${a.summary} ${t}`), n = Qg.exec(a.summary), l = /@icon[:=]\s*(\S+)/.exec(t);
   return { ...a, summary: n ? a.summary.slice(n[0].length) : a.summary, pic: l?.[1] ?? n?.[1], song: /@song/.test(t), lane: s, slot: o, pts: s === "grow" ? 0 : i, minutes: r ? Number(r[1]) : 0 };
-}, lt = (a) => {
+}, pt = (a) => {
   const [t, e] = String(a ?? "").split(":").map(Number);
   return (t || 0) * 60 + (e || 0);
-}, Et = (a = /* @__PURE__ */ new Date()) => a.getHours() * 60 + a.getMinutes(), Ep = (a = "20:00", t = /* @__PURE__ */ new Date()) => {
-  const e = Et(t);
-  return e < 720 ? "am" : e >= lt(a) - 60 ? "bed" : "after";
+}, re = (a = /* @__PURE__ */ new Date()) => a.getHours() * 60 + a.getMinutes(), Ep = (a = "20:00", t = /* @__PURE__ */ new Date()) => {
+  const e = re(t);
+  return e < 720 ? "am" : e >= pt(a) - 60 ? "bed" : "after";
 };
 let _f = 30;
 const Bg = (a) => {
   _f = Number.isFinite(a) ? Math.max(0, Math.min(180, Number(a))) : 30;
 }, $e = (a, t = /* @__PURE__ */ new Date()) => {
-  const e = lt(a ?? "20:00") + ([5, 6].includes(t.getDay()) ? _f : 0);
+  const e = pt(a ?? "20:00") + ([5, 6].includes(t.getDay()) ? _f : 0);
   return `${Math.floor(e / 60)}:${String(e % 60).padStart(2, "0")}`;
 }, ls = (a, t = /* @__PURE__ */ new Date()) => {
-  const e = Et(t), i = lt($e(a, t));
+  const e = re(t), i = pt($e(a, t));
   return e >= i - 60 || e < 300;
 }, Vr = (a, t, e) => {
   if (!a || !t) return !0;
@@ -1610,11 +1610,11 @@ const Nt = (a) => {
   const s = he(a);
   return e.includes(s) ? !1 : !t.length || t.some(([o, r]) => s >= o && s <= r);
 }, Fo = (a = /* @__PURE__ */ new Date(), t = "19:30", e = "07:00") => {
-  const i = Et(a), s = lt(t), o = lt(e);
+  const i = re(a), s = pt(t), o = pt(e);
   return s <= o ? i >= s && i < o : i >= s || i < o;
 }, Sf = (a = [], t = {}, e = /* @__PURE__ */ new Date()) => {
-  const i = Et(e), s = Math.max(300, lt(t.end ?? "06:30"));
-  return Fo(e, t.start ?? "20:00", t.end ?? "06:30") || a.some((o) => i >= lt($e(o.bedtime, e)) || i < s);
+  const i = re(e), s = Math.max(300, pt(t.end ?? "06:30"));
+  return Fo(e, t.start ?? "20:00", t.end ?? "06:30") || a.some((o) => i >= pt($e(o.bedtime, e)) || i < s);
 };
 let Ra, fe = null, Ro = 0, da = null;
 const Mf = () => {
@@ -4043,7 +4043,7 @@ const Zi = (a, t) => a.replace(/\/\*[\s\S]*?\*\//g, "").replace(/([^{}]+)\{([^{}
   return `${e} {${t(a.vars)}}
 ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 ` : ""}`;
-}, Ku = Lt(ku + vu + ua.map(yu).join("") + Zi(gu, "glass") + Zi(uu, "fridge") + Zi(bu, "orbit") + ou() + Zi(wu, "sports") + Zi(xu, "obsidian")), Xt = st`
+}, Ku = Lt(ku + vu + ua.map(yu).join("") + Zi(gu, "glass") + Zi(uu, "fridge") + Zi(bu, "orbit") + ou() + Zi(wu, "sports") + Zi(xu, "obsidian")), Et = st`
   :host { display: block; height: 100%;
     /* The type scale: six sizes for words and five for numerals and pictures. Every font-size in the card names a step
        (scripts/check-type.mjs keeps it that way), so a page never shows a seventh size by accident. */
@@ -4513,6 +4513,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   :host([data-phone]) .nsays { grid-template-columns: 1fr; }
   .nsay { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 16px 6px 10px; border-radius: 16px; background: var(--chip); color: var(--ink); text-align: left; font-size: var(--fs-2); font-weight: var(--w-semi, 600); line-height: 1.25; }
   .nsay .nq { flex-shrink: 0; width: 22px; text-align: center; font-family: Georgia, 'Times New Roman', serif; font-size: var(--fs-6); font-weight: 700; line-height: .5; color: var(--accent); transform: translateY(6px); }
+  /* the mark is drawn as generated content (0.38.30, backlog 162): a tall serif quote's ink sits at the top of its glyph, and the glyph's empty
+     lower half ran past the button's foot, so as text it read as words 3.6 px from the edge; as decoration only the words are measured */
+  .nsay .nq::before { content: '“'; }
   .nown { display: flex; gap: 8px; }
   .nown .field { flex: 1; }
   .nown .pill { height: 48px; padding: 0 22px; }
@@ -4780,12 +4783,12 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
 }, Ds = (a, t, e = 30) => x`<svg viewBox="0 0 46 16" width=${e}><path d="M1 12Q12-2 45 5Q22 18 1 12z" fill=${a}/><path d="M1 12Q22 9 45 5Q22 18 1 12z" fill=${t} opacity=".55"/><path d="M1 12Q20 8 45 5" stroke="#f0e6b8" stroke-width=".8" fill="none" opacity=".7"/></svg>`, ph = x`<svg viewBox="-10 -10 20 26" width="15"><path d="M0 0v13M0 0l-8-3M0 0l-6-7M0 0l-2-9M0 0l3-9M0 0l7-6M0 0l8-2" stroke="#fffdf2" stroke-width=".8" stroke-linecap="round" opacity=".9"/><ellipse cy="14" rx="1.2" ry="2.2" fill="#7a5c30"/></svg>`, hh = (a, t) => x`<svg viewBox="0 0 200 50" width=${a} fill=${t}><ellipse cx="70" cy="34" rx="68" ry="9"/><ellipse cx="126" cy="26" rx="70" ry="10"/><ellipse cx="60" cy="22" rx="30" ry="12"/><ellipse cx="104" cy="15" rx="36" ry="14"/><ellipse cx="146" cy="19" rx="24" ry="9"/></svg>`, op = (a, t, e, i) => {
   const s = Re(t);
   return Array.from({ length: a }, () => `${(s() * 100).toFixed(1)}vw ${(s() * i).toFixed(1)}vh 0 ${s() < 0.3 ? 1.5 : 0.7}px ${e}`).join(",");
-}, Au = op(26, 11, "rgba(255,250,228,.95)", 13), qu = op(20, 23, "rgba(226,236,255,.9)", 15), _u = op(22, 37, "rgba(255,246,214,.75)", 100), Su = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], Qt = (a, t, e) => x`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, te = (a, t, e, i = "") => x`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, Ot = (a, t, e, i = "linear", s = 0) => Lt(e.map(([o, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(o + s * t).toFixed(4)}) ${Math.round((r - o) / t)}`).join(",")), ve = [[0, 0.48], [0.82, 1.02]], Mu = [[0, 0.16], [0.36, 1.02]], $u = [[0, 1.02]], Is = (a, t, e) => Lt(
+}, Au = op(26, 11, "rgba(255,250,228,.95)", 13), qu = op(20, 23, "rgba(226,236,255,.9)", 15), _u = op(22, 37, "rgba(255,246,214,.75)", 100), Su = [[4, 84, 0], [95, 87, 3.1], [47, 6, 5.3], [13, 93, 7.9], [89, 95, 1.7], [31, 10, 9.4]], Qt = (a, t, e) => x`<linearGradient id=${a} x2="0" y2="1"><stop stop-color=${t}/><stop offset="1" stop-color=${e}/></linearGradient>`, Xt = (a, t, e, i = "") => x`<ellipse class=${i} cx=${a} cy=${t} rx=${e} ry="3.4" fill="#2e1408" opacity=".3"/>`, Ot = (a, t, e, i = "linear", s = 0) => Lt(e.map(([o, r]) => `${a} calc(var(--t)*${t}) ${i} calc(var(--t)*${(o + s * t).toFixed(4)}) ${Math.round((r - o) / t)}`).join(",")), ve = [[0, 0.48], [0.82, 1.02]], Mu = [[0, 0.16], [0.36, 1.02]], $u = [[0, 1.02]], Is = (a, t, e) => Lt(
   `.${a} .bush-la{animation:${Ot("bush-swa", t, e)}}.${a} .bush-lb{animation:${Ot("bush-swb", t, e)}}.${a} .bush-bb{animation:${Ot("bush-bob", t / 2, e, "ease-in-out")}}.${a} .bush-ct{animation:${Ot("bush-ctr", t, e, "ease-in-out")}}`
-), ri = (a) => a.tod !== "night", Ne = (a) => a.tod === "day", an = (a) => a.tod !== "day", ch = (a) => a.month === 12 || a.month <= 2, se = (a, t, e, i = 3.4, s = "") => x`<path class=${a} style=${s} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, _e = (a, t, e = 1.6, i = "#2a1a10") => x`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, sn = x`${se("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${se("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
+), ri = (a) => a.tod !== "night", Ne = (a) => a.tod === "day", an = (a) => a.tod !== "day", ch = (a) => a.month === 12 || a.month <= 2, ie = (a, t, e, i = 3.4, s = "") => x`<path class=${a} style=${s} d=${t} stroke=${e} stroke-width=${i} stroke-linecap="round" stroke-linejoin="round" fill="none"/>`, _e = (a, t, e = 1.6, i = "#2a1a10") => x`<circle cx=${a} cy=${t} r=${e} fill=${i}/><circle cx=${a} cy=${t} r=${e * 0.55} fill="#0e0907"/><circle cx=${a + e * 0.35} cy=${t - e * 0.4} r=${e * 0.28} fill="#fff" opacity=".85"/>`, sn = x`${ie("bush-lb", "M17 25L15 31L12 40", "#1c1512", 3.4)}${ie("bush-la", "M44 24L43 32L41 40", "#1c1512", 3.2)}
   <g class="bush-wag"><path d="M11 19Q3 19 1 28" stroke="#2a211d" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M4 22Q2 25 1 28" stroke="#4a3d36" stroke-width="1.2" stroke-linecap="round" fill="none"/></g>
   <path d="M9 21Q10 13 22 14L40 13Q48 14 49 21Q47 28 39 27Q28 23 19 27Q9 28 9 21z" fill="#2a211d"/><path d="M12 16Q26 12 45 14.5" stroke="#5d4f47" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".7"/><path d="M40 26Q47 26 49 20Q50 27 43 29z" fill="#b06e38"/><path d="M19 27Q28 23 39 27Q28 26 19 27z" fill="#120d0b"/>
-  ${se("bush-la", "M19 25L22 32L21 40", "#2a211d", 3.6)}<path class="bush-lb" d="M45 24L48 32L48 40" stroke="#9a5f30" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  ${ie("bush-la", "M19 25L22 32L21 40", "#2a211d", 3.6)}<path class="bush-lb" d="M45 24L48 32L48 40" stroke="#9a5f30" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <path d="M42 16L48 6Q52 2 55 6L61 10Q64 12 62 14.500L55 18L47 22z" fill="#2a211d"/><path d="M48 7L46.5-2L52.5 4z" fill="#1c1512"/><path d="M48.5 5L48-.5L51 3.500z" fill="#6b4a3a"/><path d="M55 12.500L62 13Q63 15 61 15.500L55 17.500z" fill="#b06e38"/><path d="M51 6.500l2-.8l1 1.300z" fill="#b06e38"/>
   ${_e(53.5, 8.8, 1.2, "#a8682c")}<ellipse cx="62.2" cy="13" rx="1.3" ry="1.1" fill="#0e0907"/><path d="M55.5 17q1 4.5 3 4.500q1.2-2 .2-5z" fill="#e8848e"/><circle class="bush-mb" cx="60" cy="16.5" r="4.4" fill="#cfe23a"/><path class="bush-mb" d="M57 14q3 2.5 0 5" stroke="#f4f7d8" stroke-width=".9" fill="none"/>`, Oi = (a, t, e = 11.7, i = 42) => Array.from({ length: Math.floor(164 / e) + 1 }, (s, o) => {
   const r = (-172 + o * e) * Math.PI / 180, n = o % 2 ? a : t;
@@ -5082,7 +5085,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   cast: [
     // --- on the ground --------------------------------------------------------------------------------------------------
     { id: "roo", ms: 16e3, move: "bush-far foot", weight: 3, art: d`<svg viewBox="0 -12 134 114" width="120"><defs>${Qt("bush-g-roo", "#a99d8e", "#74685d")}</defs>
-      ${te(58, 98, 40, "bush-rshd")}
+      ${Xt(58, 98, 40, "bush-rshd")}
       <g class="bush-p bush-roo">
       <g class="bush-p bush-rtl"><path d="M42 50Q20 58 6 84Q3 92 9 91Q28 78 46 72z" fill="url(#bush-g-roo)"/><path d="M40 56Q22 64 9 86" stroke="#bfb3a3" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/><path d="M12 78Q5 86 6 90Q8 92 11 90Q14 84 12 78z" fill="#4a4039"/></g>
       <g class="bush-p bush-joey"><path d="M74 60Q72 50 76 46Q79 50 78 58zM78 58Q80 49 85 47Q86 53 82 59z" fill="#857a6e"/><path d="M72 62Q76 56 84 58L92 63Q93 67 89 67L78 68Q72 67 72 62z" fill="#9a8e80"/><path d="M88 62.500l4 1q1 3-2 3.500z" fill="#4f453d"/>${_e(82, 61, 1.2)}</g>
@@ -5094,7 +5097,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
         <path d="M86 16Q96 8 105 15L115 23.500Q117 28 112 29.500L98 30Q88 28 86 16z" fill="url(#bush-g-roo)"/><path d="M92 27q8 3 17 2.500l-11 .5q-4-1-6-3z" fill="#d8ccba"/><path d="M110 21.500l5 2q2 5-3 6l-4 0q3.5-3 2-8z" fill="#4f453d"/>${_e(100.5, 18.6, 2, "#3a2416")}</g>
       <g class="bush-p bush-rarm"><path d="M73 44Q81 52 88 60Q91 66 86 65Q77 60 70 51z" fill="#7d7166"/><path d="M84.5 60q5 4 2 6l-4.5-3z" fill="#463c35"/></g></g></svg>` },
     { id: "emu", ms: 13e3, move: "bush-far foot", weight: 3, when: ri, art: d`<svg class="bush-gF" viewBox="0 -4 112 120" width="98"><defs>${Qt("bush-g-emu", "#75604e", "#3a2c23")}</defs>
-      ${te(46, 113, 30)}
+      ${Xt(46, 113, 30)}
       <g class="bush-bb" style="--bob:-3px">
       <path class="bush-lb" style="--sw:32deg" d="M48 72L55 92L51 111M51 111l9 2M51 111l7-2" stroke="#4a4034" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <path d="M16 52Q3 62 4 84Q10 86 16 78Q22 70 26 60z" fill="#33261e"/>
@@ -5105,9 +5108,9 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <g class="bush-p bush-epk"><g class="bush-ct" style="--ct:5deg;transform-origin:8% 100%"><path d="M62 47Q72 32 74 15" stroke="#3f3129" stroke-width="8.5" stroke-linecap="round" fill="none"/><path d="M66 40Q72 28 74 16" stroke="#7b93a6" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M68 34Q71 26 72.5 18" stroke="#a9bfcc" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/><path d="M58 50q5-10 10-13l-1 14z" fill="#4a3a2f"/>
         <g class="bush-ct" style="--ct:-6deg;transform-origin:20% 90%"><path d="M69 9Q73 2.5 81 5.500L85.5 9.500Q82 15 74 16Q68 14 69 9z" fill="#55687a"/><path d="M69 9Q73 2.5 81 5.500Q75 5.5 70.5 11z" fill="#241c18"/><path d="M83 7.500L96 11.500Q97 13.5 95.5 14L83.5 14.500z" fill="#2b2724"/><path d="M84 11.500l11 1.2" stroke="#5a544e" stroke-width=".7" fill="none"/>${_e(79, 9, 1.7, "#b4562a")}</g></g></g></g></svg>` },
     { id: "bobtail", ms: 36e3, move: "bush-near foot", weight: 3, when: Ne, art: d`<svg class="bush-gN" viewBox="0 0 124 44" width="112"><defs>${Qt("bush-g-bob", "#5b4434", "#2f2219")}<pattern id="bush-p-bob" width="7" height="6" patternUnits="userSpaceOnUse"><path d="M0 6q3.5-6 7 0" fill="none" stroke="#1f1610" stroke-width=".9" opacity=".7"/><path d="M-3.5 3q3.5-6 7 0M3.5 3q3.5-6 7 0" fill="none" stroke="#7a604c" stroke-width=".6" opacity=".6"/></pattern></defs>
-      ${te(52, 40, 46)}
+      ${Xt(52, 40, 46)}
       <g class="bush-bb" style="--bob:-1.2px">
-      ${se("bush-lb", "M28 30l-5 6l-2 4", "#241a13", 4.2, "--sw:30deg")}${se("bush-la", "M70 30l5 6l3 4", "#241a13", 4.2, "--sw:30deg")}
+      ${ie("bush-lb", "M28 30l-5 6l-2 4", "#241a13", 4.2, "--sw:30deg")}${ie("bush-la", "M70 30l5 6l3 4", "#241a13", 4.2, "--sw:30deg")}
       <g class="bush-p bush-tng"><path d="M90 21h24q8 4 0 8h-24z" fill="#2f6fd6"/><path d="M92 22.500h22q3 1 3 2.500h-25z" fill="#6aa0f0" opacity=".8"/></g>
       <g class="bush-p bush-brear">
       <path d="M4 25Q1 15 13 13Q26 6 48 6Q72 6 88 14L89 32Q66 38 44 37Q18 38 4 25z" fill="url(#bush-g-bob)"/><path d="M4 25Q1 15 13 13Q26 6 48 6Q72 6 88 14L89 32Q66 38 44 37Q18 38 4 25z" fill="url(#bush-p-bob)"/>
@@ -5115,18 +5118,18 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M14 14Q30 7 50 7.500Q70 8 86 15" stroke="#8d7460" stroke-width="1.6" fill="none" opacity=".55" stroke-linecap="round"/>
       <path d="M86 23L108 22.500Q104 32 87 32z" fill="#3a2a20"/><path d="M88 24h17q-3 5-16 6z" fill="#e39aa2"/>
       <g class="bush-p bush-jaw"><path d="M85 14Q98 10 109 21L87 24.500z" fill="#4a3628"/><path d="M88 15Q98 12.5 106 19" stroke="#7a604c" stroke-width="1.2" fill="none" opacity=".7"/>${_e(96, 17, 1.6, "#c9902c")}</g></g>
-      ${se("bush-la", "M34 31l-3 6l1 3.5", "#4a3628", 4.4, "--sw:30deg")}${se("bush-lb", "M64 31l4 6l4 3.5", "#4a3628", 4.4, "--sw:30deg")}</g></svg>` },
+      ${ie("bush-la", "M34 31l-3 6l1 3.5", "#4a3628", 4.4, "--sw:30deg")}${ie("bush-lb", "M64 31l4 6l4 3.5", "#4a3628", 4.4, "--sw:30deg")}</g></svg>` },
     { id: "echidna", ms: 2e4, move: "bush-dig foot", weight: 2, art: d`<svg class="bush-gD" viewBox="-14 -6 122 66" width="112"><defs>${Qt("bush-g-ech", "#5e4636", "#2e2018")}</defs>
-      ${te(42, 55, 36)}
+      ${Xt(42, 55, 36)}
       <g fill="#8a4f2e"><circle class="bush-p bush-clod" cx="14" cy="50" r="2.6" style="--cx:-24px"/><circle class="bush-p bush-clod" cx="66" cy="50" r="2.2" style="--cx:22px;animation-delay:calc(var(--t)*.69)"/><circle class="bush-p bush-clod" cx="24" cy="50" r="1.8" style="--cx:-12px;animation-delay:calc(var(--t)*.72)"/></g>
       <g class="bush-p bush-tuck"><path d="M64 36Q80 34 94 47L94 50L62 50z" fill="#6e5847"/><path d="M68 37Q80 37 92 46" stroke="#9a8472" stroke-width="1.2" fill="none" opacity=".7"/><ellipse cx="93.5" cy="48.3" rx="1.3" ry="1.5" fill="#1a120e"/>${_e(70, 39.5, 1.4)}</g>
       <g class="bush-p bush-eball"><path d=${Oi(33, 27)} stroke="#2a1d15" stroke-width="3.6" stroke-linecap="round"/><path d=${Oi(32, 26)} stroke="#e9d9aa" stroke-width="2.4" stroke-linecap="round"/><path d=${Oi(34, 28, 6)} stroke="#2a1d15" stroke-width=".1"/>
         <path d="M10 52Q6 27 40 25Q74 27 70 52z" fill="url(#bush-g-ech)"/><path d=${Oi(24, 18, 5.9, 44)} stroke="#f1e4bc" stroke-width="2.2" stroke-linecap="round"/><path d=${Oi(15, 10, 9, 47)} stroke="#d9c690" stroke-width="2" stroke-linecap="round"/></g>
-      ${se("bush-la", "M22 48l-2 6h7", "#2a1d15", 4.4)}${se("bush-lb", "M58 48l2 6h7", "#2a1d15", 4.4)}</svg>` },
+      ${ie("bush-la", "M22 48l-2 6h7", "#2a1d15", 4.4)}${ie("bush-lb", "M58 48l2 6h7", "#2a1d15", 4.4)}</svg>` },
     { id: "quokka", ms: 14e3, move: "bush-pop", weight: 3, when: (a) => !ch(a), art: fh(!1) },
     { id: "swimmer", ms: 14e3, move: "bush-pop", weight: 3, when: ch, art: fh(!0) },
     { id: "frilly", ms: 12e3, move: "bush-far foot", weight: 2, when: Ne, art: d`<svg class="bush-gF" viewBox="0 -8 126 98" width="110"><defs>${Qt("bush-g-fri", "#b9a078", "#73603f")}</defs>
-      ${te(56, 87, 26)}
+      ${Xt(56, 87, 26)}
       <g class="bush-bb" style="--bob:-3px">
       <g class="bush-ct" style="--ct:7deg;transform-origin:100% 40%"><path d="M50 54Q30 62 14 56Q6 52 1 42Q8 51 17 50Q32 52 49 45z" fill="url(#bush-g-fri)"/><path d="M38 51l1 7M29 53l0 6M20 51l-1 6M12 48l-2 5" stroke="#5e4a30" stroke-width="1.8" opacity=".55" fill="none"/></g>
       <path class="bush-lb" style="--sw:36deg" d="M53 57L63 67L55 82L66 84" stroke="#6b5638" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -5139,12 +5142,12 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M72 29Q82 19 98 24.500L102.5 28.500L74 34z" fill="#ab926c"/><path d="M76 27Q84 21 96 25" stroke="#d3c09c" stroke-width="1.3" fill="none" opacity=".7" stroke-linecap="round"/>${_e(87, 26.6, 1.6, "#c98a2c")}</g>
       <path class="bush-la" style="--sw:36deg" d="M48 58L55 70L50 84L63 86" stroke="#9a8460" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>` },
     { id: "devil", ms: 34e3, move: "bush-near foot", weight: 2, when: Ne, art: d`<svg class="bush-gN" viewBox="-2 0 116 52" width="112"><defs>${Qt("bush-g-dev", "#e6c684", "#a6722c")}</defs>
-      ${te(46, 48, 40)}
+      ${Xt(46, 48, 40)}
       <g fill="#33160f"><ellipse class="bush-ant" cx="97" cy="46" rx="2" ry="1.2"/><ellipse class="bush-ant" style="--d:calc(var(--t)*.04)" cx="102" cy="45.5" rx="2" ry="1.2"/><ellipse class="bush-ant" style="--d:calc(var(--t)*.08)" cx="107" cy="46.2" rx="2" ry="1.2"/></g>
       <g class="bush-p bush-rock">
       <g class="bush-p bush-dtg"><path d="M86 39.500L98 44.5" stroke="#e8848e" stroke-width="1.7" stroke-linecap="round"/></g>
       <g class="bush-bb" style="--bob:-1.6px">
-      ${se("bush-lb", "M30 35L24 41L24 47", "#7a5226", 3)}${se("bush-la", "M60 35L66 41L67 47", "#7a5226", 3)}
+      ${ie("bush-lb", "M30 35L24 41L24 47", "#7a5226", 3)}${ie("bush-la", "M60 35L66 41L67 47", "#7a5226", 3)}
       <path d="M21 33Q8 31 6 15Q11 27 23 26z" fill="url(#bush-g-dev)"/><path d="M6 20l-4.5-2l4.5-1.500zM9 27l-4.5 1l4 2.500zM14 31l-2.5 4.500l5.5-2.500z" fill="#f3e2b4"/>
       <path d="M18 25l2-10l4 7l3-11l4 9l4-11l4 10l4-11l4 10l4-10l4 10l3-9l4 10l3-7l3 9z" fill="#f3e2b4"/><path d="M20 15l1 9M27 11l1 12M35 9l1 13M43 8l1 13M51 8l0 13M58 9l0 12M65 12l0 10" stroke="#b08a4a" stroke-width="1" opacity=".7" fill="none"/>
       <path d="M14 32Q16 20 40 18Q62 18 70 28L71 37Q42 43 14 37z" fill="url(#bush-g-dev)"/>
@@ -5152,10 +5155,10 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M20 37l2 4.500l3-4.500l3 4.500l3-4.500l3 4.500l3-4.500l3 4.500l3-4.500l3 4.500l3-4.500l3 4.500l3-4.500l3 3.500l3-4.500z" fill="#d6ae62"/>
       <path d="M63 24q4-8 9-1z" fill="#c4904a"/><path d="M66 21l1-5l2.5 5z" fill="#f3e2b4"/>
       <path d="M68 27Q78 23 87.5 34Q85 41 70 40z" fill="#dab066"/><path d="M71 28Q78 26 85 33" stroke="#f3e2b4" stroke-width="1.1" fill="none" opacity=".8"/><path d="M73 26l-1-11l5.5 9zM79 27l3-10l2.5 11z" fill="#f3e2b4"/><path d="M73 26l-1-11l2 10z" fill="#b08a4a"/>${_e(79.5, 32, 1.3)}
-      ${se("bush-la", "M34 37L29 43L30 47.5", "#b88a44", 3.4)}${se("bush-lb", "M56 37L61 43L63 47.5", "#b88a44", 3.4)}</g></g></svg>` },
+      ${ie("bush-la", "M34 37L29 43L30 47.5", "#b88a44", 3.4)}${ie("bush-lb", "M56 37L61 43L63 47.5", "#b88a44", 3.4)}</g></g></svg>` },
     { id: "ute", ms: 13e3, move: "across foot", weight: 3, art: d`<svg viewBox="0 0 176 60" width="138"><defs>${Qt("bush-g-ute", "#fdfaf2", "#c4bcae")}</defs>
       <g fill="rgba(214,150,104,.6)"><circle class="bush-dst" cx="54" cy="46" r="9"/><circle class="bush-dst" style="--d:-.45s" cx="36" cy="42" r="12"/><circle class="bush-dst" style="--d:-.9s" cx="16" cy="38" r="10"/></g>
-      ${te(112, 55, 52)}
+      ${Xt(112, 55, 52)}
       <g class="bush-jig"><g transform="translate(64 -1) scale(.6)">${sn}</g>
       <path d="M60 25h53v16H60z" fill="url(#bush-g-ute)"/><path d="M60 19h53M61.5 25v-6M111.5 25v-12" stroke="#7d8388" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M60 29h53" stroke="#b3ab9e" stroke-width=".8"/>
       <path d="M113 41V20Q115 10 125 10h12q8 1 13 12l13 3q5 2 5 8v8z" fill="url(#bush-g-ute)"/><path d="M120 14h15q6 2 10 9.500h-25z" fill="#2c3e4c"/><path d="M122 15.500h8l-4 6.500h-4z" fill="#9dbdd0" opacity=".7"/><path d="M118 25v14M143 25v14" stroke="#aaa294" stroke-width=".8"/><path d="M137 28h4" stroke="#55504a" stroke-width="1.4" stroke-linecap="round"/>
@@ -5164,7 +5167,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M67 44a11 11 0 0 1 22 0zM135 44a11 11 0 0 1 22 0z" fill="#2a2522"/><circle cx="78" cy="46" r="8.6" fill="#1d1a18"/><circle cx="146" cy="46" r="8.6" fill="#1d1a18"/>
       <g class="bush-whl"><circle cx="78" cy="46" r="4.4" fill="#bdb7ae"/><path d="M78 42v8M74 46h8" stroke="#6a655e" stroke-width="1.2"/></g><g class="bush-whl"><circle cx="146" cy="46" r="4.4" fill="#bdb7ae"/><path d="M146 42v8M142 46h8" stroke="#6a655e" stroke-width="1.2"/></g></svg>` },
     { id: "roadtrain", ms: 24e3, move: "across foot", weight: 1.2, art: d`<svg viewBox="0 0 200 60" width="200"><defs>${Qt("bush-g-tnk", "#f3f6f8", "#87929b")}${Qt("bush-g-cab", "#d64a3c", "#86221a")}</defs>
-      <circle class="bush-dst" cx="8" cy="46" r="9" fill="rgba(214,150,104,.6)"/>${te(100, 55, 97)}
+      <circle class="bush-dst" cx="8" cy="46" r="9" fill="rgba(214,150,104,.6)"/>${Xt(100, 55, 97)}
       <g class="bush-jig"><path d="M4 41h50v3H4z" fill="#544e48"/>
       <path d="M13 41Q5 41 3 35Q10 36 15 33z" fill="#4f8a4a"/><path d="M12 41Q10 28 25 26Q39 26 41 37L41 41z" fill="#5e9a58"/><path d="M16 41Q16 33 26 32Q36 33 38 41z" fill="#8cc07e" opacity=".6"/><path d="M19 36v5h5.500v-5zM31 36v5h5.500v-5z" fill="#477f44"/>
       <g class="bush-p bush-sw1"><path d="M35 33Q44 22 44 10L48.5 10Q50 24 42 37z" fill="#5e9a58"/><path d="M43 11Q44 5 52 6Q56.5 8 54 11.500Q50 13 44 12.500z" fill="#6aa862"/><circle cx="50.5" cy="8.3" r=".9" fill="#14100c"/><path d="M38 30Q45 20 45.5 11" stroke="#9ad08c" stroke-width="1" fill="none" opacity=".7"/></g>
@@ -5173,7 +5176,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <path d="M162 44V15h14q9 2 11 15l9 2q2 1 2 4v8z" fill="url(#bush-g-cab)"/><path d="M177 18.500h5q3 4 4 10.500h-9z" fill="#2c3e4c"/><path d="M178 20h3l1 4h-4z" fill="#9dbdd0" opacity=".7"/><path d="M162 30h36" stroke="#f3e2c8" stroke-width="1.2" opacity=".7"/><path d="M166 15V3M170.5 15V6" stroke="#bcc4ca" stroke-width="2.4" stroke-linecap="round"/><path d="M198 33v11" stroke="#bcc4ca" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="171" cy="42" rx="6" ry="3" fill="#bcc4ca"/></g>
       <path d="M12 50h.1M22 50h.1M42 50h.1M64 50h.1M74 50h.1M90 50h.1M100 50h.1M116 50h.1M126 50h.1M142 50h.1M152 50h.1M168 50h.1M184 50h.1M193 50h.1" stroke="#1d1a18" stroke-width="9.5" stroke-linecap="round"/><path d="M12 50h.1M22 50h.1M42 50h.1M64 50h.1M74 50h.1M90 50h.1M100 50h.1M116 50h.1M126 50h.1M142 50h.1M152 50h.1M168 50h.1M184 50h.1M193 50h.1" stroke="#a9a49c" stroke-width="3.4" stroke-linecap="round"/></svg>` },
     { id: "scooter", ms: 15e3, move: "bush-far foot", weight: 2, when: ri, art: d`<svg class="bush-gF" viewBox="0 0 140 96" width="122">
-      ${te(104, 92, 30)}${te(30, 92, 24)}
+      ${Xt(104, 92, 30)}${Xt(30, 92, 24)}
       <g transform="translate(0 50)"><g class="bush-p bush-dj"><g class="bush-bb">${sn}</g></g></g>
       <circle cx="84" cy="87" r="4.6" fill="#221f1c"/><circle cx="126" cy="86.5" r="5" fill="#221f1c"/><circle cx="84" cy="87" r="1.6" fill="#c9c4bc"/><circle cx="126" cy="86.5" r="1.8" fill="#c9c4bc"/><path d="M82 83h36l6-2v3l-6 2h-36z" fill="#2a8f86"/><path d="M83 83.500h34" stroke="#6cc8be" stroke-width=".8"/><path d="M123 82L118 44" stroke="#c9ced2" stroke-width="2.6" stroke-linecap="round"/><path d="M113 44h10" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
       <g class="bush-kick"><path d="M95 58L88 73" stroke="#2c3a54" stroke-width="7.5" stroke-linecap="round"/><path d="M88 73L83 85" stroke="#c99672" stroke-width="4.4" stroke-linecap="round"/><path d="M78.5 85.500h8.500l1 3.500h-10z" fill="#e9e6de"/></g>
@@ -5181,7 +5184,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <g class="bush-p bush-kbd"><path d="M95 59Q96 44 103 36" stroke="#d98f2b" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M99 55Q100 45 105 38" stroke="#f4c064" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/><path d="M103 39L112 47L118 45" stroke="#e0ab84" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M103 39L108 43.5" stroke="#d98f2b" stroke-width="5.6" stroke-linecap="round"/>
         <circle cx="106" cy="27" r="7.2" fill="#e0ab84"/><path d="M112.5 26.500l2.6 2l-2.6 1z" fill="#e0ab84"/><path d="M98 27.500Q98 15 108 16Q115.5 18 114.5 25.500L106 24Q101 24 98 27.500z" fill="#c8352e"/><path d="M102 19.500q5-2.5 9.5 .5" stroke="#f08a80" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M104 24.500l2 9" stroke="#262626" stroke-width=".9"/><circle cx="110.8" cy="27" r=".8" fill="#2a1a10"/><path d="M110.5 31.200q1.8 .8 3-.5" stroke="#8a4a3a" stroke-width=".8" fill="none" stroke-linecap="round"/></g></svg>` },
     { id: "magpie", ms: 15e3, move: "bush-far foot", weight: 2, when: (a) => Ne(a) && a.month >= 8 && a.month <= 11, art: d`<svg class="bush-gF" viewBox="0 -8 96 94" width="88">
-      ${te(47, 82, 44)}
+      ${Xt(47, 82, 44)}
       <circle cx="20" cy="64" r="16" fill="none" stroke="#1c1a18" stroke-width="2.6"/><circle cx="74" cy="64" r="16" fill="none" stroke="#1c1a18" stroke-width="2.6"/><circle cx="20" cy="64" r="14" fill="none" stroke="#a9a9a9" stroke-width=".7"/><circle cx="74" cy="64" r="14" fill="none" stroke="#a9a9a9" stroke-width=".7"/>
       <g class="bush-wsp" stroke="#b9b9b9" stroke-width=".5"><path d="M6 64h28M20 50v28M10 54l20 20M30 54l-20 20"/></g><g class="bush-wsp" stroke="#b9b9b9" stroke-width=".5"><path d="M60 64h28M74 50v28M64 54l20 20M84 54l-20 20"/></g>
       <path class="bush-lb" style="--sw:13deg" d="M39 33L50 47L46 67" stroke="#14161c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -5193,7 +5196,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
       <svg class="bush-mag" viewBox="-5 -18 62 40" width="52"><path d="M8 12L-4 15L-3 19.500L10 15z" fill="#17161a"/><path d="M11 11L3 13L4 16.500L12 14.500z" fill="#f2f0ea"/><path d="M6 12Q16 4 32 6Q40 8 42 12Q34 18 20 17Q10 17 6 12z" fill="#17161a"/><path d="M12 14Q22 17.5 36 14" stroke="#3a3a46" stroke-width="1" fill="none"/><path d="M28 6Q34 5 38 9L32 11.500Q29 9 28 6z" fill="#f2f0ea"/>
         <path d="M36 6Q42 3 46 8Q46 12 41 13Q36 12 36 6z" fill="#17161a"/><path d="M45 8L55 10.500L45 12.200z" fill="#cfd6da"/><path d="M52 9.800l3 .7l-3 .6z" fill="#2a2a2a"/><circle cx="42.6" cy="8" r="1" fill="#a8442a"/>
         <g class="bush-wng" style="--wb:.3s"><path d="M14 11Q14-10 30-15Q36-4 34 10z" fill="#17161a"/><path d="M18 4Q22-4 30-8L32 0Q26 4 20 8z" fill="#f2f0ea"/></g></svg>` },
-    { id: "ball", ms: 14e3, move: "bush-far foot", weight: 1.6, when: ri, art: d`<svg class="bush-gF bush-dogb" viewBox="0 -4 68 48" width="78">${te(30, 41, 24)}<g class="bush-bb">${sn}</g></svg>
+    { id: "ball", ms: 14e3, move: "bush-far foot", weight: 1.6, when: ri, art: d`<svg class="bush-gF bush-dogb" viewBox="0 -4 68 48" width="78">${Xt(30, 41, 24)}<g class="bush-bb">${sn}</g></svg>
       <svg class="bush-tb" viewBox="0 0 16 16" width="17"><circle cx="8" cy="8" r="7.4" fill="#cfe23a"/><path d="M8 .6a7.4 7.4 0 0 1 0 14.800a9 9 0 0 0 0-14.800z" fill="#a9bc22" opacity=".7"/><path d="M3 2.600q5 5.4 0 10.8" stroke="#f4f7d8" stroke-width="1" fill="none"/></svg>` },
     { id: "ants", ms: 3e4, move: "across foot", weight: 2, art: d`<svg viewBox="0 0 176 34" width="176" stroke-linecap="round">
       ${[0, 1, 2, 3, 4, 5].map((a) => {
@@ -5205,7 +5208,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     })}</svg>` },
     { id: "mob", ms: 22e3, move: "across foot", weight: 2, when: an, art: d`<svg viewBox="0 0 200 40" width="200" fill="#5f4f46" opacity=".88">
       ${[[150, 1, 0], [112, 0.86, 0.21], [78, 0.94, 0.4], [40, 0.8, 0.13], [14, 0.5, 0.33]].map(([a, t, e]) => x`<ellipse cx=${a + 14 * t} cy="37.5" rx=${13 * t} ry="1.6" fill="#2e1408" opacity=".3"/><g transform="translate(${a} ${37 - 24 * t}) scale(${t})"><path class="bush-mh" style="--d:-${e}s" d="M0 17Q7 12 11 9Q15 5 20 5L23 1.500L24.5-1.500L25.5 2.500L28 4.500Q29.5 6.5 27 7L24 7.500Q23 12.5 19 15.500L22 21.500L26 22.500L26 24L18.5 24L15.5 18.500Q11 18.5 8 15.500Q4 15.5 0 17z"/></g>`)}</svg>` },
-    { id: "wren", ms: 14e3, move: "bush-wrn foot", weight: 2, when: Ne, art: d`<svg viewBox="0 -8 54 48" width="46">${te(24, 37, 10, "bush-wsh")}
+    { id: "wren", ms: 14e3, move: "bush-wrn foot", weight: 2, when: Ne, art: d`<svg viewBox="0 -8 54 48" width="46">${Xt(24, 37, 10, "bush-wsh")}
       <g class="bush-p bush-wtl"><path d="M14 22L3 1L8 0L19 20z" fill="#2b4aa8"/><path d="M14 22L3 1L5.5 .5z" fill="#6a90e8"/></g>
       <path d="M22 28L21 36M21 36l4 .6M26 28L27 36M27 36l4 .4" stroke="#3a2e28" stroke-width="1" fill="none" stroke-linecap="round"/>
       <path d="M12 22Q14 12 26 12Q36 13 36 22Q34 30 24 30Q14 30 12 22z" fill="#2f5fd0"/><path d="M15 26Q24 32 35 24Q33 30 24 30Q18 30 15 26z" fill="#86b6f4"/><path d="M15 20Q20 14 30 17Q27 25 18 25z" fill="#34509c"/><path d="M17 20Q22 16 29 18" stroke="#6a90e8" stroke-width=".9" fill="none"/><path d="M30 14Q36 18 35 24L32 22.500Q33 18 29 15z" fill="#141a2e"/>
@@ -5618,7 +5621,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   <path d="M40 10C36 4 28 1.6 22 2.6C16 3.6 12 7 9.5 9L9.5 11C12 13 16 16.4 22 17.4C28 18.4 36 16 40 10Z" fill="url(#${a})"/>
   ${s.stripe ? x`<path d="M37 9Q24 5.4 10 9.5L10 10.7Q24 8.6 37 10.5Z" fill=${s.stripe}/>` : u}
   <path d="M38 11.6Q28 16.6 12 11.6Q24 19.4 38 11.6Z" fill="#fff" opacity=".3"/><path d="M31.5 5.6Q29.6 10 31.5 14.8" stroke="#000" stroke-opacity=".2" stroke-width=".8" fill="none"/>
-  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${jt(35, 8.4, 1.7)}${s.extra ?? u}`, ee = (a, t, e, i) => x`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, Wu = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", Js = (a, t, e, i, s, o, r) => nt(t, e, i, x`${D(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${Wu} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${jt(17, 9, 1.9, "#e9d28a")}`), Es = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", le = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, rn = (a, t) => x`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, nn = (a, t, e) => x`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, _h = (a, t) => nt(a, t, 1, x`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), Sh = (a, t) => nt(a, t, 1, x`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), Mh = (a, t) => nt(a, t, 1, x`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), $h = (a) => x`${D(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${jt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Fh = (a, t, e) => x`${D(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${jt(93, 20.5, 1.4, "#3d5263")}`, Cu = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(Re(11)), Rh = (a, t, e) => {
+  <path d="M29 10.6q-6 .5-8 5q6 .5 9-2.5z" fill=${i} opacity=".75"/>${jt(35, 8.4, 1.7)}${s.extra ?? u}`, te = (a, t, e, i) => x`<circle class="reef-bub" style=${i} cx=${a} cy=${t} r=${e} fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.85)" stroke-width=${Math.max(1, e * 0.3)}/>`, Wu = "M10 4q8-4 12 4l8 3v3l-9 1q2 6-2 10q8 8 2 18q-4 8-12 6q-6-2-4-8q2-4 6-2q2 2 0 4q4 0 5-5q2-8-6-14q-8-8-4-20z", Js = (a, t, e, i, s, o, r) => nt(t, e, i, x`${D(a, s, o, 1, 0)}<path d="M8 5L4 0l8 3zM7 9l-5-2 4 5z" fill=${r}/><path class="reef-wa" style="transform-origin:100% 50%;--r:14deg;--d:.21s" d="M11 25q-9 1-9 8q7 2 10-3z" fill=${s} opacity=".8"/><path d=${Wu} fill="url(#${a})"/><path d="M12 15l8 1M11 20l9 1M12 25l9 2M14 30l9 1M17 35l7 0M18 40l5-1M15 45l5 0" stroke=${r} stroke-width="1" opacity=".65"/><path d="M11 6q6-2 9 3" stroke="#fff" stroke-width="1.4" fill="none" opacity=".35"/>${jt(17, 9, 1.9, "#e9d28a")}`), Es = "M128 30q-9-2-13 5q-5 11-20 13q-16 2-25 11q-10 9-26 8q-13-1-24 4", le = (a, t, e, i = 1) => x`<g transform="translate(${a} ${t}) rotate(${e}) scale(${i})"><path d="M0 0L-1-8" stroke="#8c7a2a" stroke-width="1.3"/><path d="M-1-7C-10-10-11-22-5-30C-2-27 1-28 3-32C8-24 7-12-1-7Z" fill="url(#rsdL)"/><path d="M-1-8Q-2-19-1-29M-1-14l-5-5M-1-18l4-5" stroke="#6f6a22" stroke-width=".7" fill="none" opacity=".7"/></g>`, rn = (a, t) => x`<g transform="translate(${a} ${t})"><ellipse cy="14" rx="10" ry="2.2" fill="#000" opacity=".16"/><path d="M-6 4l-5 4-1 6M-3 6l-2 4 0 4M3 6l2 4 0 4M6 4l5 4 1 6" stroke="#e9dcc2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M-11 8h.1M-5 10h.1M5 10h.1M11 8h.1" stroke="#7a4fa0" stroke-width="2.8" stroke-linecap="round"/><circle r="7.6" fill="url(#rscA)"/><path d="M-5-3q5-4 10 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5" stroke-linecap="round"/><path d="M-3 5q3 2 6 0" stroke="#5d86ad" stroke-width="1" fill="none"/><path d="M-2.4-6.5v-3M2.4-6.5v-3" stroke="#3c5a78" stroke-width="1.1"/><circle cx="-2.4" cy="-10" r="1.2" fill="#15171a"/><circle cx="2.4" cy="-10" r="1.2" fill="#15171a"/><path d="M-4 3l-2 5M4 3l2 5" stroke="#f3ead6" stroke-width="2.2" stroke-linecap="round"/></g>`, nn = (a, t, e) => x`<g transform="translate(${a} ${t})"><path d="M-4 7l-5 7 6-3zM4 7l5 7-6-3z" fill="#3a4750"/><path class="reef-fp" style="animation-delay:${e}s" d="M-5-4Q-12-12-17-11Q-14-5-9 0ZM5-4Q12-12 17-11Q14-5 9 0Z" fill="#46555f"/><path d="M-3-9Q0-15 3-9Q2-6 0-6Q-2-6-3-9Z" fill="#55666f"/><ellipse rx="6.6" ry="8.6" fill="url(#rhtA)"/><path d="M0-8v16M-5-3l5 3 5-3M-5 4l5-3 5 3" stroke="#8fa3ad" stroke-width=".7" fill="none" opacity=".8"/><ellipse rx="6.6" ry="8.6" fill="none" stroke="#b9c9d0" stroke-width=".9"/><circle cx="-1.6" cy="-10.5" r=".7" fill="#111"/><circle cx="1.6" cy="-10.5" r=".7" fill="#111"/></g>`, _h = (a, t) => nt(a, t, 1, x`<g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s"><path d="M-4 0l-5 6 1 7" stroke="#b5482a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="reef-wa" style="transform-origin:50% 0;--r:11deg;--d:.31s;--dl:-.31s"><path d="M3 1l3 6-2 6M9 0l6 5 0 7" stroke="#c9542f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`), Sh = (a, t) => nt(a, t, 1, x`<path d="M-6-2Q0-9 8-4Q10 2 4 5Q-4 6-6-2Z" fill="url(#rhcA)"/><path d="M5-1Q14-6 20 0Q21 4 16 5L12 3L15 8Q8 9 5 3Z" fill="url(#rhcA)"/><path d="M12 3L18 3" stroke="#7a2c16" stroke-width=".8"/><path d="M8-2q5-3 9 0" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`), Mh = (a, t) => nt(a, t, 1, x`<path d="M0 0L-1-9M6 0L8-8" stroke="#d9603a" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-1" cy="-10" rx="1.7" ry="2.2" fill="#15171a"/><ellipse cx="8.2" cy="-9" rx="1.7" ry="2.2" fill="#15171a"/><circle cx="-1.5" cy="-10.8" r=".6" fill="#fff"/><circle cx="7.7" cy="-9.8" r=".6" fill="#fff"/>`), $h = (a) => x`${D(a, "#2c4658", "#57768a")}<g class="reef-wa" style="transform-origin:100% 50%;--r:8deg;--d:3.7s"><path d="M78 53L58 57L78 67Z" fill="#35536a"/><path d="M62 58C50 46 34 40 16 42C26 48 30 54 30 60C28 68 20 76 12 82C30 82 50 74 62 62Z" fill="#2c4658"/><path d="M30 60q14-2 30 0" stroke="#fff" stroke-opacity=".12" stroke-width="2" fill="none"/></g><path d="M286 56C284 44 262 36 226 34C180 32 120 40 76 54C74 58 74 62 76 66C120 78 190 84 240 78C268 74 286 68 286 56Z" fill="url(#${a})"/><path d="M286 60C270 76 222 84 172 80C212 76 252 70 286 60Z" fill="#d3dfe5" opacity=".85"/><path d="M280 64Q240 76 190 77M276 68Q244 78 206 79M284 60Q250 70 200 73" stroke="#7f98a6" stroke-width=".9" fill="none"/><path d="M132 43q7-9 15-4l4 5z" fill="#2c4658"/><path d="M268 44h.1M260 41h.1M274 49h.1M252 39h.1M266 50h.1" stroke="#4d6b7f" stroke-width="3" stroke-linecap="round"/><path d="M110 46Q180 34 250 38" stroke="#fff" stroke-opacity=".14" stroke-width="4" fill="none" stroke-linecap="round"/>${jt(256, 56, 1.8, "#3a556a")}<g class="reef-wa" style="transform-origin:95% 0;--r:6deg;--d:4.3s"><path d="M214 68C208 92 188 108 160 113C157 106 168 98 178 86C184 78 190 70 198 65Z" fill="#dbe5ea"/><path d="M212 70C204 90 186 104 162 110" stroke="#9fb3bf" stroke-width="1.2" fill="none"/><path d="M214 68q-10-2-16-3" stroke="#35536a" stroke-width="2.4" fill="none"/></g>`, Fh = (a, t, e) => x`${D(a, t, e, 0, 1, t)}<g class="reef-wa" style="transform-origin:100% 40%;--r:13deg;--d:.62s"><path d="M26 24L14 28L24 34Z" fill=${t}/><path d="M16 29C10 22 4 20-4 21C2 25 3 28 2 31C0 36-2 40-6 44C4 43 12 38 16 32Z" fill=${t}/></g><path d="M112 23C108 21 104 20 100 20C96 14 88 10 76 9C72 9 68 9 64 10C60 4 54 1 46 0C50 5 50 9 48 12C34 16 22 22 14 28L24 33C40 38 60 38 76 34C92 30 104 27 112 23Z" fill="url(#${a})"/><path d="M24 33C40 38 60 38 76 34C90 30 102 27 110 24C92 27 60 33 24 33Z" fill="#eef3f6" opacity=".9"/><path d="M40 16Q64 8 96 19" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none" stroke-linecap="round"/><path class="reef-wa" style="transform-origin:100% 0;--r:9deg;--d:1.24s" d="M72 33C70 42 64 48 56 49C58 43 60 37 64 32Z" fill=${t}/><path d="M112 23q-7 2-12 1" stroke="#22323f" stroke-width=".8" fill="none"/>${jt(93, 20.5, 1.4, "#3d5263")}`, Cu = ((a) => Array.from({ length: 17 }, () => `M${(12 + a() * 104).toFixed(0)} ${(4 + a() * 46).toFixed(0)}q-4-3.6-9 0l-4-3q1.5 3 0 6l4-3q5 3.6 9 0z`).join(""))(Re(11)), Rh = (a, t, e) => {
   const i = Math.floor(a / 44);
   return x`<path d="M20 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke=${t} stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M19 ${a}${"q-15-22 0-44t0-44".repeat(i / 2)}" stroke="#fff" stroke-opacity=".14" stroke-width="1.6" fill="none"/>${Array.from({ length: i }, (s, o) => {
     const r = o % 2 === 0, n = r ? 12 : 28, l = a - 22 - o * 44;
@@ -5710,7 +5713,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "snorkel", ms: 28e3, move: "reef-go", weight: 1.5, y: [0, 1], when: (a) => a.tod === "day", art: d`<svg class="reef-s" viewBox="0 0 140 62" width="128"><g class="reef-up2">${D("rkA", "#e9b48a", "#c48a5e")}${D("rkB", "#e8504f", "#b3282e")}${D("rkC", "#b4ea6a", "#6fb83a")}
     ${[["-.75s", "-.95s", "#c48a5e", 35], ["0s", "-.2s", "url(#rkA)", 29]].map(([a, t, e, i]) => x`<g class="reef-wa" style="transform-origin:100% 50%;--r:9deg;--d:.75s;--dl:${a}"><path d="M60 ${i}Q46 ${i - 3} 34 ${i}" stroke=${e} stroke-width="7" stroke-linecap="round" fill="none"/><g class="reef-wa" style="transform-origin:100% 50%;--r:9deg;--d:.75s;--dl:${t}"><path d="M36 ${i - 3.4}L8 ${i - 9}Q4 ${i} 8 ${i + 9}L36 ${i + 3.4}Z" fill="url(#rkC)"/><path d="M34 ${i}L9 ${i - 5}M34 ${i}L9 ${i + 5}" stroke="#4d8f22" stroke-width=".9"/></g></g>`)}
     <path d="M52 23h14v19H52z" fill="#1d3557"/><path d="M52 23h14v6H52z" fill="#2c4a78"/><path d="M62 22h28q8 1 8 10t-8 10H62z" fill="url(#rkB)"/><path d="M70 22v20M78 22v20M86 22v20" stroke="#fbeee0" stroke-width="2.4" opacity=".9"/><path d="M62 38h30" stroke="#000" stroke-opacity=".14" stroke-width="5"/>
-    <path d="M113 42q-10 3-10-8V7" stroke="#f2a01e" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M103 9V5" stroke="#d9601a" stroke-width="4.4" stroke-linecap="round"/>${ee(103, 2, 2.6, "--by:-12px;--bx:-4px;--d:1.9s")}
+    <path d="M113 42q-10 3-10-8V7" stroke="#f2a01e" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M103 9V5" stroke="#d9601a" stroke-width="4.4" stroke-linecap="round"/>${te(103, 2, 2.6, "--by:-12px;--bx:-4px;--d:1.9s")}
     <ellipse cx="109" cy="31" rx="11.5" ry="12" fill="url(#rkA)"/><path d="M97 31q-3-15 11-14q7 0 11 5q-11-2-15 5q-4 0-7 4z" fill="#5b3a22"/><path d="M98 24q-7-3-12 1M99 28q-6 0-10 4" stroke="#5b3a22" stroke-width="2.2" stroke-linecap="round" fill="none"/>
     <path d="M98 29h12" stroke="#22262b" stroke-width="2.4"/><path d="M109 24h9q4 0 4 5.5t-4 5.5h-9z" fill="#bfe6f5" stroke="#22262b" stroke-width="2"/><path d="M111 26.5h6" stroke="#fff" stroke-width="1.4" opacity=".8" stroke-linecap="round"/><path d="M111 39q4 2 7-1" stroke="#22262b" stroke-width="2.6" stroke-linecap="round" fill="none"/>
     <g class="reef-wv" style="transform-origin:0 0"><path d="M90 35Q96 44 104 50" stroke="#c9363a" stroke-width="6.4" stroke-linecap="round" fill="none"/><ellipse cx="106.5" cy="52" rx="4" ry="4.6" fill="#e9b48a"/></g></g></svg>` },
@@ -5720,7 +5723,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     <path d="M48 0h52q6 14-4 16.5q-30 6-48-2z" fill="url(#rlA)"/><path d="M52 12q26 7 46 2" stroke="#000" stroke-opacity=".12" stroke-width="5" fill="none"/><path d="M44 0h21l-2 17q-10-1-17-4.5z" fill="#1d3557"/><path d="M56 0l-1.4 16" stroke="#39a0d0" stroke-width="2"/>
     <ellipse cx="110" cy="5" rx="10.5" ry="10" fill="url(#rlA)"/><path d="M100 2q10-13 21-1q-10-4-21 1z" fill="#f4d35e"/><path d="M101 7h18" stroke="#22262b" stroke-width="4.6" stroke-linecap="round"/><path d="M112 7h6" stroke="#58b8e0" stroke-width="2.8" stroke-linecap="round"/>
     <g class="reef-ar" style="transform-origin:0 0"><path d="M93 9Q98 20 100 33" stroke="#d9a074" stroke-width="6.4" stroke-linecap="round" fill="none"/><ellipse cx="100.6" cy="35" rx="3.2" ry="4.4" fill="#e9b48a"/></g>
-    ${ee(6, 12, 2.6, "--bx:-12px;--by:-7px;--d:.9s")}${ee(10, 18, 1.8, "--bx:-16px;--by:-3px;--d:.9s;--dl:-.4s")}
+    ${te(6, 12, 2.6, "--bx:-12px;--by:-7px;--d:.9s")}${te(10, 18, 1.8, "--bx:-16px;--by:-3px;--d:.9s;--dl:-.4s")}
     <g class="reef-nb">${nt(-26, 9, 0.6, Tt("rlB", "#c9972a", "#f6e7a8", "#d9a520", { d: ".2s" }))}</g></svg>` },
   // the little research submarine hums through, sweeping its searchlight; the beam finds one very surprised fish
   { id: "sub", ms: 32e3, move: "reef-go", weight: 1, y: [0, 0], art: d`<svg class="reef-s reef-dr" viewBox="0 0 170 96" width="124" style="--dd:4.7s;margin-top:-9px">${D("rbA", "#fbf7ec", "#bcb49e", 0, 1, "#efe9d8")}${D("rbB", "#ea6a3c", "#a8381a")}${zt("rbD", "#e6f6fb", "#8cc3d6", 0.35, 0.3)}
@@ -5733,7 +5736,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     <circle cx="108" cy="49" r="14.5" fill="url(#rbD)" stroke="#3a444d" stroke-width="3"/><path d="M100 60q8-14 17 0z" fill="#2a4a5a" opacity=".8"/><circle cx="108.5" cy="49" r="5" fill="#2a4a5a" opacity=".8"/><path d="M98 43q5-7 13-6" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".85"/>
     ${[74, 50].map((a) => x`<circle cx=${a} cy="47" r="6" fill="url(#rbD)" stroke="#3a444d" stroke-width="2.4"/><path d="M${a - 3} 44q3-3 6-1" stroke="#fff" stroke-width="1.4" fill="none" opacity=".8"/>`)}
     <path d="M38 88h68M50 78v10M92 78v10" stroke="#3a444d" stroke-width="3.4" stroke-linecap="round"/><circle cx="124" cy="63" r="4.6" fill="#ffe680" stroke="#3a444d" stroke-width="1.6"/>
-    ${ee(-4, 46, 4, "--bx:-18px;--by:-18px;--d:1.3s")}${ee(-2, 57, 2.6, "--bx:-24px;--by:-8px;--d:1.3s;--dl:-.6s")}${ee(-8, 52, 1.8, "--bx:-30px;--by:-14px;--d:1.3s;--dl:-.9s")}</svg>` },
+    ${te(-4, 46, 4, "--bx:-18px;--by:-18px;--d:1.3s")}${te(-2, 57, 2.6, "--bx:-24px;--by:-8px;--d:1.3s;--dl:-.6s")}${te(-8, 52, 1.8, "--bx:-30px;--by:-14px;--d:1.3s;--dl:-.9s")}</svg>` },
   // an old sea chest noses up out of the sand, the lid creaks open on gold and bubbles, a blenny pops up to see who is there, and it shuts and settles again
   { id: "chest", ms: 16e3, move: "reef-up", weight: 1.5, flip: !1, art: d`<svg class="reef-s" viewBox="0 0 80 66" width="76">${D("rxA", "#9a6a36", "#5e3b1a")}${D("rxB", "#f0d67a", "#a8842a", 1, 0, "#fff0b0")}${zt("rxC", "#ffe78a", "#c9962a")}${D("rxD", "#8a9a5a", "#c9c08a")}
     <path d="M10 36h60v-7H10z" fill="#2e1c0c"/><path d="M14 36q26-20 52 0z" fill="url(#rxC)"/><path d="M22 31a5 2.4 0 1 0 10 0a5 2.4 0 1 0-10 0M36 27a5 2.4 0 1 0 10 0a5 2.4 0 1 0-10 0M48 32a5 2.4 0 1 0 10 0a5 2.4 0 1 0-10 0" fill="#ffe98f" stroke="#b9892a" stroke-width=".8"/>
@@ -5761,7 +5764,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "band", ms: 3e4, move: "across", weight: 0.7, y: [0, 2], art: d`<svg class="reef-s reef-dr" style="--dd:5.1s" viewBox="0 0 236 78" width="212">${D("rbdA", "#6d93d8", "#3a5ca8")}${D("rbdB", "#f6dfb0", "#c98f4a", 1, 0)}${zt("rbdC", "#e9a07a", "#b9684a", 0.5, 0.2, 0.9)}
     <g transform="translate(38 28)"><path d="M2 14Q16 20 32 14L30 10L4 10Z" fill="#3a1f18"/><path d="M0 14Q0 32 17 32Q34 32 34 14Q30 18 25.5 14Q21 18 17 14Q13 18 8.5 14Q4 18 0 14Z" fill="#b9684a"/><path d="M17 31L5 17M17 31L13 17M17 31L21 17M17 31L29 17" stroke="#8a4630" stroke-width="1"/><path d="M4 12.6h.1M10 13.4h.1M17 13.6h.1M24 13.4h.1M30 12.6h.1" stroke="#4ab0f0" stroke-width="2.2" stroke-linecap="round"/><g class="reef-cp"><path d="M0 10Q0-9 17-9Q34-9 34 10Q30 6 25.5 10Q21 6 17 10Q13 6 8.5 10Q4 6 0 10Z" fill="url(#rbdC)"/><path d="M17-8L5 7M17-8L13 7M17-8L21 7M17-8L29 7" stroke="#a8523a" stroke-width="1"/><path d="M6-2Q16-8 28-2" stroke="#fff" stroke-width="1.6" fill="none" opacity=".35" stroke-linecap="round"/></g></g>
     <g class="reef-bo" style="--d:.6s"><path d="M123 41l15 21" stroke="#c98f4a" stroke-width="5.4" stroke-linecap="round"/><path d="M124 43l13 18" stroke="#f6dfb0" stroke-width="5" stroke-dasharray="1.6 3" fill="none" opacity=".8"/>${nt(84, 26, 1, Tt("rbdD", "#3f9a72", "#e6efc8", "#5ab48a", { stripe: "#f2e6a0" }))}</g>
-    <g class="reef-bo" style="--d:.6s;--dl:-.6s">${nt(138, 22, 1, Tt("rbdE", "#c9603a", "#f6dcc0", "#d9805a"))}<path d="M176 33.6L196 23Q201 33 197 44Z" fill="url(#rbdB)"/><path d="M196 23Q201 33 197 44" stroke="#a8703a" stroke-width="1.6" fill="none"/><path d="M182 31v6M187 28.6v10M192 26v14" stroke="#a8703a" stroke-width=".9" opacity=".8"/><path d="M178 33l-4 1" stroke="#c98f4a" stroke-width="2.4" stroke-linecap="round"/>${ee(202, 29, 3.2, "--bx:10px;--by:-20px;--d:1.2s")}${ee(203, 37, 2, "--bx:14px;--by:-12px;--d:1.2s;--dl:-.6s")}</g>
+    <g class="reef-bo" style="--d:.6s;--dl:-.6s">${nt(138, 22, 1, Tt("rbdE", "#c9603a", "#f6dcc0", "#d9805a"))}<path d="M176 33.6L196 23Q201 33 197 44Z" fill="url(#rbdB)"/><path d="M196 23Q201 33 197 44" stroke="#a8703a" stroke-width="1.6" fill="none"/><path d="M182 31v6M187 28.6v10M192 26v14" stroke="#a8703a" stroke-width=".9" opacity=".8"/><path d="M178 33l-4 1" stroke="#c98f4a" stroke-width="2.4" stroke-linecap="round"/>${te(202, 29, 3.2, "--bx:10px;--by:-20px;--d:1.2s")}${te(203, 37, 2, "--bx:14px;--by:-12px;--d:1.2s;--dl:-.6s")}</g>
     <g class="reef-bo" style="--d:1.2s;--b:2px"><path d="M199 49l-7 6-2 7M205 51l-2 7 1 6M213 51l3 7-1 6" stroke="#4a6fbe" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><g class="reef-wa" style="transform-origin:0 0;--r:16deg;--d:.4s"><path d="M219 48l7 5" stroke="#4a6fbe" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="229" cy="55.5" rx="4.4" ry="2.8" fill="#6d93d8" transform="rotate(35 229 55.5)"/></g>
       <path d="M189 42L181 44L189 47ZM223 42L231 44L223 47Z" fill="#3a5ca8"/><path d="M190 46Q190 35 206 35Q222 35 222 46Q214 52 206 52Q198 52 190 46Z" fill="url(#rbdA)"/><path d="M196 40q10-5 20 0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".35" stroke-linecap="round"/><path d="M198 45h.1M204 47h.1M210 46h.1M214 43h.1M201 41h.1" stroke="#e6eefc" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>
       <path d="M202 36v-5M210 36v-5" stroke="#4a6fbe" stroke-width="1.6"/><circle cx="202" cy="30" r="1.6" fill="#15171a"/><circle cx="210" cy="30" r="1.6" fill="#15171a"/><path d="M218 40Q226 36 228 26" stroke="#4a6fbe" stroke-width="3.2" stroke-linecap="round" fill="none"/><path d="M228 26l4-7M228 26l-2-8" stroke="#3a5ca8" stroke-width="2.2" stroke-linecap="round"/>
@@ -5778,7 +5781,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
   { id: "sleeper", ms: 44e3, move: "across", weight: 2.5, y: [0, 2], when: (a) => a.tod !== "day", art: d`<svg class="reef-s reef-dr" style="--dd:5.9s" viewBox="0 0 130 82" width="116">${D("rzA", "#2fa7a0", "#7fd6c0", 0, 1, "#3fc0b0")}${zt("rzB", "rgba(255,255,255,.05)", "rgba(255,255,255,.3)", 0.5, 0.5, 0.5)}
     <g class="reef-jig"><circle cx="50" cy="42" r="35" fill="url(#rzB)" stroke="rgba(255,255,255,.8)" stroke-width="1.3"/><path d="M26 22q10-13 24-14" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".65"/><path d="M70 66q8-6 11-16" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".35"/>
       <g transform="rotate(8 50 42)"><g class="reef-br"><path d="M30 44L17 32Q20 44 17 56Z" fill="#3a8fb8"/><path d="M40 30Q52 20 68 27L60 31Q50 27 40 33ZM44 56Q52 62 62 57L58 53Q50 56 44 53Z" fill="#3a8fb8"/><path d="M26 44C34 26 56 24 70 32C78 36 81 41 81 44C80 50 74 54 66 57C50 62 34 58 26 44Z" fill="url(#rzA)"/><path d="M34 50Q52 60 76 48Q62 60 46 59Q38 56 34 50Z" fill="#f29ab0"/><path d="M38 36q4 4 0 8M46 34q4 5 0 10M54 33q4 5 0 11M62 34q3 4 0 9M42 44q4 4 0 8M50 45q4 4 0 8M58 45q3 4 0 7" stroke="#e77f9a" stroke-width="1" fill="none" opacity=".8"/><path d="M36 34Q52 26 68 32" stroke="#fff" stroke-width="2" fill="none" opacity=".3" stroke-linecap="round"/><path d="M76 39Q83 40 82 45Q80 49 75 48Z" fill="#e9f3e0"/><path d="M76 43.6h6" stroke="#6f9a8a" stroke-width=".8"/><path d="M62 44q-6 0-8 6q6 1 9-2z" fill="#3a8fb8" opacity=".8"/><circle cx="68" cy="39" r="2.4" fill="#16181b" stroke="#f2c86a" stroke-width=".9"/><path d="M65.4 38.6q2.6-2 5.2 0" stroke="#2fa7a0" stroke-width="1.8" fill="none"/></g></g></g>
-    ${ee(86, 38, 3, "--bx:8px;--by:-22px;--d:3.3s")}${ee(88, 36, 2, "--bx:14px;--by:-28px;--d:3.3s;--dl:-1.6s")}<g class="reef-pok">${nt(110, 36, 0.5, Tt("rzC", "#c9972a", "#f6e7a8", "#d9a520", { d: ".22s" }), -1)}</g></svg>` },
+    ${te(86, 38, 3, "--bx:8px;--by:-22px;--d:3.3s")}${te(88, 36, 2, "--bx:14px;--by:-28px;--d:3.3s;--dl:-1.6s")}<g class="reef-pok">${nt(110, 36, 0.5, Tt("rzC", "#c9972a", "#f6e7a8", "#d9a520", { d: ".22s" }), -1)}</g></svg>` },
   // a dugong ambles by, a strand of seagrass trailing from its mouth and two golden trevally riding its bow wave; it stops for a good chew
   { id: "dugong", ms: 4e4, move: "reef-go", weight: 1.2, y: [0, 0], art: d`<svg class="reef-s reef-dr" style="--dd:5.3s" viewBox="0 0 212 90" width="186">${D("rduA", "#8a8474", "#cfc8b6", 0, 1, "#a39c8a")}
     <g class="reef-wa" style="transform-origin:100% 45%;--r:9deg;--d:1.9s"><path d="M56 34L36 40L56 50Z" fill="#8f8978"/><path d="M40 42C30 30 18 25 4 27C11 33 14 38 14 43C12 50 7 57 2 62C16 61 30 54 40 46Z" fill="#7f796a"/><path d="M14 43q12-3 26 0" stroke="#fff" stroke-opacity=".15" stroke-width="2" fill="none"/></g>
@@ -5794,7 +5797,7 @@ ${a.evening ? `${e}[data-tod='eve'], ${e}[data-tod='night'] {${t(a.evening)}}
     <path d="M10 24l-10-4q3 4 0 9z" fill="#c9a08a"/><path d="M62 24C58 14 46 10 34 11C22 12 12 17 8 24C12 31 22 36 34 37C46 38 58 34 62 24Z" fill="url(#rpgA)"/><path d="M60 26Q40 40 12 27Q30 39 46 36Q56 33 60 26Z" fill="#fff" opacity=".9"/><path d="M20 17Q36 10 54 17" stroke="#fff" stroke-width="2" fill="none" opacity=".25" stroke-linecap="round"/>
     <path d="M56 17Q64 14 68 20Q70 26 62 29Q56 26 56 17Z" fill="#3f5f80"/><path d="M67 21L76 23.4L67 26Z" fill="#2a2f36"/>${jt(63.4, 20.6, 1.3, "#cfd8e0")}
     <g class="reef-flap" style="transform-origin:90% 10%"><path d="M44 22C40 32 30 38 18 38C22 30 30 22 38 18Z" fill="#35526f"/><path d="M42 23C36 30 28 35 20 37" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" fill="none"/></g>
-    ${ee(2, 22, 2.6, "--bx:-22px;--by:-10px;--d:.7s")}${ee(0, 27, 1.8, "--bx:-30px;--by:-4px;--d:.7s;--dl:-.3s")}${ee(4, 18, 1.4, "--bx:-26px;--by:-16px;--d:.7s;--dl:-.5s")}
+    ${te(2, 22, 2.6, "--bx:-22px;--by:-10px;--d:.7s")}${te(0, 27, 1.8, "--bx:-30px;--by:-4px;--d:.7s;--dl:-.3s")}${te(4, 18, 1.4, "--bx:-26px;--by:-16px;--d:.7s;--dl:-.5s")}
     <g fill="#dfeaf0">${[[104, 12, 1], [118, 20, 2], [108, 28, 3], [124, 8, 4], [128, 30, 1], [114, 36, 3], [134, 18, 2]].map(([a, t, e]) => x`<g class="reef-ba${e}"><path transform="translate(${a} ${t})" d="M12 3q-4-4-9 0l-3-3q1 3 0 6l3-3q5 4 9 0z"/></g>`)}</g></svg>` },
   // an Australian sea lion barrels in, rolls right over for the fun of it, blows one fat bubble ring at you and is gone
   { id: "sealion", ms: 14e3, move: "reef-arc", weight: 1.2, y: [0, 0], art: d`<svg class="reef-s" viewBox="0 0 140 66" width="128">${D("rslA", "#8a7964", "#dccbaa", 0, 1, "#a8957a")}<ellipse class="reef-rng" cx="134" cy="24" rx="5" ry="9" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.2"/>
@@ -6449,7 +6452,7 @@ const Vf = {
 }, tr = (a, t) => {
   const e = 1 - t;
   return Ze([[e * e * e, a[0]], [3 * e * e * t, a[1]], [3 * e * t * t, a[2]], [t * t * t, a[3]]]);
-}, ut = (a, t, e = "") => `transform:translate(${Pt(a)},${Pt(t)})${e}`, ra = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${Q(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, ae = (a, t, e) => ra(a, e.map(([i, s, o]) => [i / t, s, o])), We = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Bh = "cubic-bezier(.333,.667,.667,1)", e2 = "cubic-bezier(.333,0,.667,.333)", mn = "cubic-bezier(.333,0,.667,1)", a2 = "cubic-bezier(.2,.8,.2,1)", i2 = "cubic-bezier(.2,1.4,.4,1)", s2 = "cubic-bezier(.4,0,1,1)", ni = "ease-in-out", Fe = { aw: 1 }, ys = { ah: 1 }, Qa = { at: 1 }, Va = { dt: 1 }, ds = { dl: 1 }, yi = B(Va, -5), Gh = [[Ze([[0.5, { dr: 1 }], [0.5, Fe]]), B(ys, 40)], [B(Fe, 30), { ah: 0.25 }], [{ aw: 0.77 }, Ht(-150)], [{ cx: 1 }, B(Qa, 70)]], Yh = [[B(Fe, 60), { at: 0.76 }], [{ aw: 0.86 }, Ht(-10)], [{ aw: 0.625 }, Ht(10)], [{ cx: 1 }, B(Qa, 120)]], gn = (a) => {
+}, ut = (a, t, e = "") => `transform:translate(${Pt(a)},${Pt(t)})${e}`, ra = (a, t) => `@keyframes ${a}{${t.map(([e, i, s]) => `${Q(e * 100)}%{${i}${s ? `;animation-timing-function:${s}` : ""}}`).join("")}}`, ee = (a, t, e) => ra(a, e.map(([i, s, o]) => [i / t, s, o])), We = (a) => Array.from({ length: a + 1 }, (t, e) => e / a), Bh = "cubic-bezier(.333,.667,.667,1)", e2 = "cubic-bezier(.333,0,.667,.333)", mn = "cubic-bezier(.333,0,.667,1)", a2 = "cubic-bezier(.2,.8,.2,1)", i2 = "cubic-bezier(.2,1.4,.4,1)", s2 = "cubic-bezier(.4,0,1,1)", ni = "ease-in-out", Fe = { aw: 1 }, ys = { ah: 1 }, Qa = { at: 1 }, Va = { dt: 1 }, ds = { dl: 1 }, yi = B(Va, -5), Gh = [[Ze([[0.5, { dr: 1 }], [0.5, Fe]]), B(ys, 40)], [B(Fe, 30), { ah: 0.25 }], [{ aw: 0.77 }, Ht(-150)], [{ cx: 1 }, B(Qa, 70)]], Yh = [[B(Fe, 60), { at: 0.76 }], [{ aw: 0.86 }, Ht(-10)], [{ aw: 0.625 }, Ht(10)], [{ cx: 1 }, B(Qa, 120)]], gn = (a) => {
   const t = 1 - Math.pow(1 - a, 1.2);
   return [tr(Yh.map((e) => e[0]), t), tr(Yh.map((e) => e[1]), t)];
 }, Tf = [[Ht(-20), B(Fe, 20), { aw: 0.47 }], [B(Fe, 20), Ht(-20), { aw: 0.59 }], [Ht(-20), B(Fe, 20), { aw: 0.37 }]], o2 = () => {
@@ -6474,35 +6477,35 @@ const Vf = {
     const [t, e] = gn(a), [i, s] = gn(Math.max(0, a - 0.01)), [o, r] = gn(Math.min(1, a + 0.01));
     return [a, ut(t, e, ` rotate(${Q(Math.atan2(fa(r) - fa(s), fa(o) - fa(i)) * 180 / Math.PI - 180, 1)}deg) scale(${Q(1.15 - 0.45 * a)})`)];
   })),
-  ae("gd-rally", 3300, Tf.flatMap(([a, t], e) => [[e * 1200, `transform:translateX(${Pt(a)})`], [e * 1200 + 900, `transform:translateX(${Pt(t)})`]])),
-  ae("gd-rally-y", 3300, o2()),
+  ee("gd-rally", 3300, Tf.flatMap(([a, t], e) => [[e * 1200, `transform:translateX(${Pt(a)})`], [e * 1200 + 900, `transform:translateX(${Pt(t)})`]])),
+  ee("gd-rally-y", 3300, o2()),
   ra("gd-skim", [[0, ut(Ht(-20), { sy: 1 }), Bh], [1, ut(B(Fe, 20), { sy: 1 })]]),
   ra("gd-float", [[0, ut({ aw: 0.93 }, Ht(-30), " scale(1)"), mn], [0.36, ut({ gx: 1 }, B(Qa, 40), " scale(.9)"), mn], [0.8, ut({ gx: 1 }, B({ ab: 1 }, -6), " scale(1.08)"), mn], [1, ut(B({ gx: 1 }, 108), Ze([[0.5, Va], [0.5, { db: 1 }]]), " scale(.94)")]]),
   /* the corner flag knocked by the last shot of a rally */
-  ae("gd-knock", 2300, [
+  ee("gd-knock", 2300, [
     ...We(5).map((a) => [650 * a, ut(Ze([[1, ds], [1, Ht(536 - 470 * a)]]), B(yi, -9 + 9 * a * a))]),
     ...We(6).slice(1).map((a) => [650 + 400 * a, ut(B(ds, 66 - 102 * a), B(yi, -50 * a + 77 * a * a))]),
     ...We(5).slice(1).map((a) => [1050 + 450 * a, ut(B(ds, -36 + 16 * a), B(yi, 27 + 112 * a * a))]),
     [2300, ut(B(ds, -20), B(yi, 139))]
   ]),
-  ae("gd-knock-sq", 2300, [[0, "transform:scale(1,1)"], [620, "transform:scale(1,1)"], [650, "transform:scale(1.08,.92)"], [720, "transform:scale(1,1)"], [2300, "transform:scale(1,1)"]]),
-  ae("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", a2], [1170, "transform:rotate(-16deg)", ni], [1420, "transform:rotate(10deg)", ni], [1660, "transform:rotate(-6deg)", ni], [1900, "transform:rotate(3deg)", ni], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
+  ee("gd-knock-sq", 2300, [[0, "transform:scale(1,1)"], [620, "transform:scale(1,1)"], [650, "transform:scale(1.08,.92)"], [720, "transform:scale(1,1)"], [2300, "transform:scale(1,1)"]]),
+  ee("gd-flag", 2300, [[0, "transform:rotate(0deg)"], [1050, "transform:rotate(0deg)", a2], [1170, "transform:rotate(-16deg)", ni], [1420, "transform:rotate(10deg)", ni], [1660, "transform:rotate(-6deg)", ni], [1900, "transform:rotate(3deg)", ni], [2100, "transform:rotate(0deg)"], [2300, "transform:rotate(0deg)"]]),
   /* the gull with a chip, and the ball that chases it */
-  ae("gd-gull", 2300, [...We(14).map((a) => {
+  ee("gd-gull", 2300, [...We(14).map((a) => {
     const [t, e] = Zh(a);
     return [2050 * a, ut(t, e)];
   }), [2300, ut(B({ cx: 1 }, -60), { at: 1.4 })]]),
-  ae("gd-chase", 2300, [[0, ut(B(Fe, 120), { at: 0.6 }, " scale(.6)")], ...We(18).map((a) => {
+  ee("gd-chase", 2300, [[0, ut(B(Fe, 120), { at: 0.6 }, " scale(.6)")], ...We(18).map((a) => {
     const [t, e] = Zh(a);
     return [250 + 2050 * a, ut(t, B(e, 8 - 16 * Math.abs(Math.sin(3 * Math.PI * a))), " scale(.6)")];
   })]),
   /* sprinkler, line marker, dog */
-  ae("gd-head", 2300, [[0, "transform:translateY(18px)", i2], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", s2], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
-  ae("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", ni], [1070, "transform:rotate(52deg)", ni], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
-  ae("gd-spray", 2300, [[0, "opacity:0"], [240, "opacity:0"], [340, "opacity:1"], [1900, "opacity:1"], [2050, "opacity:0"], [2300, "opacity:0"]]),
-  ae("gd-bow", 2300, [[0, "opacity:0"], [600, "opacity:0"], [1050, "opacity:.8"], [1650, "opacity:.8"], [2e3, "opacity:0"], [2300, "opacity:0"]]),
-  ae("gd-chalk", 2300, [[0, "transform:scaleX(0);opacity:1"], [190, "transform:scaleX(0);opacity:1"], [2e3, "transform:scaleX(.97);opacity:1"], [2300, "transform:scaleX(1);opacity:0"]]),
-  ae("gd-cart", 2300, [[0, `${ut(Ht(-44), B(Va, 3))};opacity:1`], [2e3, `${ut(B({ aw: 0.4 }, -20), B(Va, 3))};opacity:1`], [2300, `${ut(B({ aw: 0.4 }, 61), B(Va, 3))};opacity:0`]]),
+  ee("gd-head", 2300, [[0, "transform:translateY(18px)", i2], [240, "transform:translateY(0)"], [2050, "transform:translateY(0)", s2], [2250, "transform:translateY(18px)"], [2300, "transform:translateY(18px)"]]),
+  ee("gd-sweep", 2300, [[0, "transform:rotate(-52deg)"], [240, "transform:rotate(-52deg)", ni], [1070, "transform:rotate(52deg)", ni], [1900, "transform:rotate(-52deg)"], [2300, "transform:rotate(-52deg)"]]),
+  ee("gd-spray", 2300, [[0, "opacity:0"], [240, "opacity:0"], [340, "opacity:1"], [1900, "opacity:1"], [2050, "opacity:0"], [2300, "opacity:0"]]),
+  ee("gd-bow", 2300, [[0, "opacity:0"], [600, "opacity:0"], [1050, "opacity:.8"], [1650, "opacity:.8"], [2e3, "opacity:0"], [2300, "opacity:0"]]),
+  ee("gd-chalk", 2300, [[0, "transform:scaleX(0);opacity:1"], [190, "transform:scaleX(0);opacity:1"], [2e3, "transform:scaleX(.97);opacity:1"], [2300, "transform:scaleX(1);opacity:0"]]),
+  ee("gd-cart", 2300, [[0, `${ut(Ht(-44), B(Va, 3))};opacity:1`], [2e3, `${ut(B({ aw: 0.4 }, -20), B(Va, 3))};opacity:1`], [2300, `${ut(B({ aw: 0.4 }, 61), B(Va, 3))};opacity:0`]]),
   ra("gd-dog", [[0, ut(Ht(-60), B(Va, 4))], [1, ut(B(Fe, 60), B(Va, 4))]])
 ].join(""), Gt = "#2b2f36", ei = "#f6f3e7", zf = "#d9e63a", Vi = "#f47b20", d2 = "#f5c531", p2 = "#9aa5b1", At = (a, t, e = 32, i = 32) => `${Q(e + a * Math.cos(t * Math.PI / 180), 1)} ${Q(i + a * Math.sin(t * Math.PI / 180), 1)}`, zr = (a) => `<path d="M${At(a, -35)}A${a} ${a} 0 0 1 ${At(a, 145)}A${Q(a * 1.35, 1)} ${Q(a * 1.35, 1)} 0 0 0 ${At(a, -35)}z" opacity=".13"/>`, jf = (() => {
   const a = [];
@@ -6911,7 +6914,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
 .spk-orbit .spk-g{fill:var(--gd);stroke:var(--ac);stroke-width:1.3}
 .spk-sports .spk-f{stroke:var(--ink);stroke-width:1.1}
 .spk-sports .spk-l{stroke:var(--ink)}
-`, er = /* @__PURE__ */ new Set(), Dh = /* @__PURE__ */ new WeakMap(), X = (a, t) => a + Math.random() * (t - a), re = (a, t, e) => Math.max(t, Math.min(e, a)), z = (a) => a.map(([t, e, i, s]) => ({ transform: t, opacity: e, ...i != null ? { offset: i } : {}, ...s ? { easing: s } : {} })), tt = (a = 1) => [{ opacity: 0 }, { opacity: a, offset: 0.25 }, { opacity: a, offset: 0.7 }, { opacity: 0 }], Lf = () => {
+`, er = /* @__PURE__ */ new Set(), Dh = /* @__PURE__ */ new WeakMap(), X = (a, t) => a + Math.random() * (t - a), oe = (a, t, e) => Math.max(t, Math.min(e, a)), z = (a) => a.map(([t, e, i, s]) => ({ transform: t, opacity: e, ...i != null ? { offset: i } : {}, ...s ? { easing: s } : {} })), tt = (a = 1) => [{ opacity: 0 }, { opacity: a, offset: 0.25 }, { opacity: a, offset: 0.7 }, { opacity: 0 }], Lf = () => {
   let a = 0;
   for (const t of er)
     t.isConnected ? a += t.querySelectorAll("[data-p]").length : er.delete(t);
@@ -6968,7 +6971,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
     Ba(a);
     const { W: t, H: e, look: i } = a, s = !!a.o.soft;
     if (i === "fridge") {
-      const o = s ? 3 : 5, r = s ? 24 : re(e * 0.36, 26, 36);
+      const o = s ? 3 : 5, r = s ? 24 : oe(e * 0.36, 26, 36);
       for (let n = 0; n < o; n++) {
         const l = X(-20, 20), p = I(a, t * (n + 1) / (o + 1) - r / 2 + X(-5, 5), e / 2 - r / 2 + (n % 2 ? 1 : -1) * Math.min(7, e * 0.08), r, r, Hh(a)), h = (c, f) => `rotate(${l + c}deg) scale(${f})`;
         p.firstElementChild.setAttribute("viewBox", "-2 -2 24 25"), a.calm ? _(a, p, z([[h(0, "1"), 0], [h(0, "1"), 1, 0.25], [h(0, "1"), 1, 0.7], [h(0, "1"), 0]]), 800) : _(a, p, z([[h(14, "2.3"), 0], [h(10, "2.1"), 1, 0.07, Rt], [h(0, ".86,.9"), 1, 0.17, "ease-out"], [h(-2, "1.06"), 1, 0.25, "ease-in-out"], [h(0, "1"), 1, 0.33], [h(0, "1"), 1, 0.82], [h(0, "1"), 0]]), 1e3 - n * 105, n * 105 + X(0, 20));
@@ -6990,7 +6993,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
         jl(a, "background:var(--ok)", 0.18);
         return;
       }
-      const o = s ? 8 : 24, r = 0.66, n = re(e * 0.55, 26, 72);
+      const o = s ? 8 : 24, r = 0.66, n = oe(e * 0.55, 26, 72);
       for (let l = 0; l < o; l++) _(a, Ih(a, X(4, t - 14), X(-8, e * 0.28), l), oo(X(-34, 34), X(0, 26), 2 * n * X(0.55, 1) / (r * r), r, X(-260, 260), X(0.9, 1.7)), r * 1e3, X(0, 230));
     }
   },
@@ -7004,7 +7007,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
       }
       _(a, s, z([["translateY(-18px)", 0], ["translateY(-14px)", 1, 0.12, Rt], ["translateY(0)", 1, 0.36, "ease-out"], ["translateY(-5px)", 1, 0.52, "ease-in"], ["translateY(0)", 1, 0.66], ["translateY(0)", 1, 0.85], ["translateY(0)", 0]]), 720), [-1, 1].forEach((o) => _(a, P(a, `left:${t + o * 11 - 3.5}px;top:1px;width:7px;height:2.5px;border-radius:2px;background:var(--ink)`), z([[`rotate(${o * 25}deg) scaleX(.2)`, 0], [`rotate(${o * 25}deg) translateX(${o * 3}px) scaleX(1)`, 1, 0.4], [`rotate(${o * 25}deg) translateX(${o * 6}px) scaleX(.4)`, 0]]), 300, 250)), ps(a, [0, 1.6, -1.1, 0.5, 0], 440, 260);
     } else {
-      const s = re(Math.min(a.W, a.H) * 1.2, 38, 66), o = i === "orbit", r = o ? "border:1.5px solid var(--ac)" : "border:2px solid #fff;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent)";
+      const s = oe(Math.min(a.W, a.H) * 1.2, 38, 66), o = i === "orbit", r = o ? "border:1.5px solid var(--ac)" : "border:2px solid #fff;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--pr) 55%,transparent)";
       if (a.calm) {
         _(a, ct(a, t, e, s * 0.6, r), tt(), 600);
         return;
@@ -7060,7 +7063,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
       }
       return;
     }
-    const i = re(a.o.ms ?? 4200, 600, 2e4), s = 700 + i + 500, o = P(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(s / 1370)), n = P(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, ar(26, 34, B2), o, !1), l = I(a, 10.5, 33.5, 5, 13, G2, "transform-origin:50% 0", n, !1);
+    const i = oe(a.o.ms ?? 4200, 600, 2e4), s = 700 + i + 500, o = P(a, `left:${t - 13}px;top:-46px;width:26px;height:48px`), r = Math.max(2, Math.round(s / 1370)), n = P(a, `width:26px;height:48px;transform-origin:50% 100%;--c:${e}`, ar(26, 34, B2), o, !1), l = I(a, 10.5, 33.5, 5, 13, G2, "transform-origin:50% 0", n, !1);
     if (a.calm) {
       _(a, o, [{ opacity: 0 }, { opacity: 1, offset: 300 / s }, { opacity: 1, offset: 1 - 400 / s }, { opacity: 0 }], s);
       return;
@@ -7116,7 +7119,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
     [[10, -15, -14], [21, -6, 12], [15, -27, 4]].forEach(([g, m, k], b) => _(a, I(a, h, c, 10, 13, sb, `--c:${a.look === "fridge" ? "var(--ink)" : f[b]}`), z([["translate(0,0) scale(.3)", 0], [`translate(${e * g * 0.55}px,${m * 0.6}px) rotate(${k}deg) scale(1)`, 1, 0.35], [`translate(${e * g * 0.85}px,${m * 0.9}px) rotate(${k}deg) scale(1)`, 1, 0.7], [`translate(${e * g}px,${m - 4}px) rotate(${k * 1.4}deg) scale(.9)`, 0]]), 560, 250 + b * 130, xt));
   },
   bounce(a) {
-    const t = a.dir, e = re(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), s = P(a, `left:${i}px;top:-12px;width:14px;height:14px`), o = P(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", s, !1), r = I(a, 0, 0, 14, 14, Qf, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, s, !1);
+    const t = a.dir, e = oe(a.W * 0.5, 50, 96), i = t > 0 ? Math.max(4, a.W * 0.12) : Math.min(a.W - 18, a.W * 0.88 - 14), s = P(a, `left:${i}px;top:-12px;width:14px;height:14px`), o = P(a, "left:1px;top:12.5px;width:12px;height:3px;border-radius:50%;background:rgba(0,0,0,.22)", "", s, !1), r = I(a, 0, 0, 14, 14, Qf, `--c:${a.look === "orbit" ? "var(--gd)" : "#d7e63c"};transform-origin:50% 50%`, s, !1);
     if (a.look === "orbit" && (r.querySelector("circle").setAttribute("style", "--c:var(--ok)"), r.querySelectorAll("path").forEach((p) => p.setAttribute("stroke", "var(--ok)")), o.style.background = "var(--ok)", o.style.height = "1.5px"), a.calm) {
       _(a, s, tt(), 800);
       return;
@@ -7149,7 +7152,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
     }
   },
   salute(a) {
-    const t = a.dir, e = vn(a, re(a.W * (t > 0 ? 0.68 : 0.32) - 20, 0, Math.max(0, a.W - 40)), -32, 40, 32), i = P(a, `left:6px;width:28px;height:32px;${t < 0 ? "scale:-1 1" : ""}`, ar(28, 32, rb), e);
+    const t = a.dir, e = vn(a, oe(a.W * (t > 0 ? 0.68 : 0.32) - 20, 0, Math.max(0, a.W - 40)), -32, 40, 32), i = P(a, `left:6px;width:28px;height:32px;${t < 0 ? "scale:-1 1" : ""}`, ar(28, 32, rb), e);
     i.style.setProperty("--c", a.kid);
     const s = I(a, 19.5, 17.5, 5.4, 13.5, nb, "transform-origin:50% 2.5px", i, !1);
     if (a.calm) {
@@ -7177,7 +7180,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
     _(a, i, z([["translateY(8px) scale(.6)", 0, 0, Se], ["translateY(0) scale(1)", 1, 0.16], ["translateY(1px) scale(1.05,.95)", 1, 0.3], ["translateY(0) scale(1)", 1, 0.4], ["translateY(0) scale(1)", 1, 0.86], ["translateY(3px) scale(.9)", 0]]), 1100), s.forEach((o, r) => _(a, o, [{ transform: "scaleX(.06)" }, { transform: "scaleX(.06)", offset: 0.2 + r * 0.04, easing: Se }, { transform: "scaleX(1)", offset: 0.42 + r * 0.05 }, { transform: "scaleX(1)" }], 1100, 0, "linear", { fill: "both" })), [[-13, -24, 9], [2, -31, 12], [15, -22, 8]].forEach(([o, r, n], l) => _(a, I(a, e + 16 - n / 2, -8 - n / 2, 11, 11, _i + yn, `scale:${n / 11};transform-origin:50% 50%`), z([["translate(0,0) rotate(-40deg) scale(.2)", 0, 0, "ease-out"], [`translate(${o * 0.7}px,${r * 0.75}px) rotate(10deg) scale(1.15)`, 1, 0.4, "ease-in-out"], [`translate(${o * 0.95}px,${r}px) rotate(25deg) scale(.9)`, 1, 0.75], [`translate(${o}px,${r - 3}px) rotate(40deg) scale(.3)`, 0]]), 600, 400 + l * 95));
   },
   quokka(a) {
-    const t = a.dir, e = vn(a, re(a.W * (t > 0 ? 0.7 : 0.3) - 19, 0, Math.max(0, a.W - 38)), -27, 38, 27), i = I(a, 4, 1, 30, 26, H2, "--c:#9c7c5e;transform-origin:50% 100%", e);
+    const t = a.dir, e = vn(a, oe(a.W * (t > 0 ? 0.7 : 0.3) - 19, 0, Math.max(0, a.W - 38)), -27, 38, 27), i = I(a, 4, 1, 30, 26, H2, "--c:#9c7c5e;transform-origin:50% 100%", e);
     if (a.calm) {
       _(a, i, tt(), 1e3);
       return;
@@ -7236,7 +7239,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* a chalk ring where the new thing landed */
   add(a) {
-    const t = a.W / 2, e = a.H / 2, i = re(Math.min(a.W, a.H) * 1.1, 32, 56);
+    const t = a.W / 2, e = a.H / 2, i = oe(Math.min(a.W, a.H) * 1.1, 32, 56);
     if (a.calm) {
       _(a, ct(a, t, e, i * 0.6, Kn), tt(), 500);
       return;
@@ -7254,7 +7257,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* two whistle pips */
   ring(a) {
-    const t = a.W / 2, e = a.H / 2, i = re(a.H + 8, 40, 64), s = `border:3px solid var(--ac);box-shadow:0 0 0 1px ${Ks},inset 0 0 0 1px ${Ks}`;
+    const t = a.W / 2, e = a.H / 2, i = oe(a.H + 8, 40, 64), s = `border:3px solid var(--ac);box-shadow:0 0 0 1px ${Ks},inset 0 0 0 1px ${Ks}`;
     if (a.calm) {
       _(a, ct(a, t, e, i, s), [{ opacity: 0.6 }, { opacity: 0 }], 400);
       return;
@@ -7263,7 +7266,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* a hockey ball comes off the underside with a "tock" and skims away */
   sweep(a) {
-    const { W: t, H: e } = a, i = Math.min(t * 0.3, 120), s = re(t - i - 10, 30, 380), o = ct(a, i, e, 28, Kn);
+    const { W: t, H: e } = a, i = Math.min(t * 0.3, 120), s = oe(t - i - 10, 30, 380), o = ct(a, i, e, 28, Kn);
     if (a.calm) {
       _(a, o, [{ opacity: 0.85 }, { opacity: 0 }], 400);
       return;
@@ -7286,7 +7289,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* a floorball held up on a puff of air */
   puff(a) {
-    const t = re(a.W / 2, 12, Math.max(12, a.W - 12)), e = I(a, t - 9, -9, 18, 18, cb, "transform-origin:50% 50%");
+    const t = oe(a.W / 2, 12, Math.max(12, a.W - 12)), e = I(a, t - 9, -9, 18, 18, cb, "transform-origin:50% 50%");
     if (a.calm) {
       e.style.translate = "0 -12px", _(a, e, tt(), 900);
       return;
@@ -7296,7 +7299,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   /* streamers unroll over the jar */
   salute(a) {
     Ba(a);
-    const { W: t, H: e } = a, i = re(e * 0.85 / 88, 0.35, 1), s = ["var(--ac)", "var(--ok)", "#4f9bd9"], o = 2200, r = s.map((n, l) => I(a, t * (0.22 + 0.28 * l) - 8, -2, 16, 88, `<path d="M8 0q9 11 0 22t0 22 0 22 0 20" fill="none" stroke="${n}" stroke-width="6" stroke-linecap="round"/>`, `transform-origin:50% 0;scale:${i.toFixed(2)}`));
+    const { W: t, H: e } = a, i = oe(e * 0.85 / 88, 0.35, 1), s = ["var(--ac)", "var(--ok)", "#4f9bd9"], o = 2200, r = s.map((n, l) => I(a, t * (0.22 + 0.28 * l) - 8, -2, 16, 88, `<path d="M8 0q9 11 0 22t0 22 0 22 0 20" fill="none" stroke="${n}" stroke-width="6" stroke-linecap="round"/>`, `transform-origin:50% 0;scale:${i.toFixed(2)}`));
     if (a.calm) {
       r.forEach((n) => _(a, n, tt(), 1e3));
       return;
@@ -7309,7 +7312,7 @@ const C2 = 40, xt = "cubic-bezier(.2,.8,.2,1)", Se = "cubic-bezier(.2,1.4,.4,1)"
   },
   /* the timer is on: a tennis ball lands on the card's top edge, bounces twice and rolls off the end */
   rocket(a) {
-    const t = re(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = P(a, "left:-7px;top:-7px;width:14px;height:14px"), o = I(a, 0, 0, 14, 14, db, "transform-origin:50% 50%", s, !1);
+    const t = oe(a.W * 0.2, 12, 60), e = Math.max(40, a.W - t - 4), i = -7, s = P(a, "left:-7px;top:-7px;width:14px;height:14px"), o = I(a, 0, 0, 14, 14, db, "transform-origin:50% 50%", s, !1);
     if (a.calm) {
       s.style.translate = `${t + e * 0.5}px ${i}px`, _(a, s, tt(), 800);
       return;
@@ -8004,7 +8007,7 @@ const Bf = {
     </div>`;
   }
 };
-xr.styles = [Xt, Ci, st`
+xr.styles = [Et, Ci, st`
     :host { display: flex; gap: 18px; flex: 1; min-height: 0; }
     .conv { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
     .thread { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 24px; background: var(--chip-soft, var(--chip)); overscroll-behavior: contain; }
@@ -8190,7 +8193,10 @@ const zb = d`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke=
   }
   _fitHint() {
     const t = this.renderRoot.querySelector(".add"), e = t?.querySelector("[data-keyhint]");
-    !t || !e || (e.style.display = "", t.scrollHeight > t.clientHeight + 1 && (e.style.display = "none"));
+    if (!t || !e) return;
+    e.style.display = "";
+    const i = t.getBoundingClientRect().height / (t.offsetHeight || 1) || 1, s = (t.getBoundingClientRect().bottom - e.getBoundingClientRect().bottom) / i;
+    (t.scrollHeight > t.clientHeight + 1 || s < 8) && (e.style.display = "none");
   }
   connectedCallback() {
     super.connectedCallback(), document.fonts?.addEventListener?.("loadingdone", this._fontsIn), typeof ResizeObserver < "u" && (this._hintRo ??= new ResizeObserver(() => this._fitHint()), this._hintRo.observe(this));
@@ -8462,7 +8468,7 @@ const zb = d`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke=
     </button>`;
   }
 };
-kr.styles = [Xt, Ci, st`
+kr.styles = [Et, Ci, st`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     /* the list has the room (0.38.3): it keeps its full width whether the keys are up or away, so nothing moves under a finger; the narrow panel beside it holds the box and the usuals */
     .list { flex: 1 1 0; min-width: 0; border-radius: 28px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; }
@@ -9064,9 +9070,9 @@ const Li = `
   @keyframes shimmer { 60%, 100% { transform: translateX(100%); } }
   .xp { height: 10px; border-radius: 5px; background: var(--track); overflow: hidden; }
   .xp > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--mark, var(--primary)), var(--mark, var(--accent))); transition: width var(--mt-5, 900ms) cubic-bezier(.2,.8,.2,1); }
-`, bc = 864e5, mt = (a) => new Date(a.getFullYear(), a.getMonth(), a.getDate()), pt = (a, t) => new Date(a.getFullYear(), a.getMonth(), a.getDate() + t), dt = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), fs = (a) => {
+`, bc = 864e5, mt = (a) => new Date(a.getFullYear(), a.getMonth(), a.getDate()), dt = (a, t) => new Date(a.getFullYear(), a.getMonth(), a.getDate() + t), lt = (a, t) => a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth() && a.getDate() === t.getDate(), fs = (a) => {
   const t = mt(a), e = (t.getDay() + 6) % 7;
-  return pt(t, -e);
+  return dt(t, -e);
 }, wc = (a) => fs(new Date(a.getFullYear(), a.getMonth(), 1)), Da = "en-AU", ot = (a) => a.toLocaleTimeString(Da, { hour: "numeric", minute: "2-digit", hour12: !0 }).replace(/\s?([ap])\.?m\.?/i, " $1m").toLowerCase(), xc = (a) => {
   const t = a.getHours();
   return { hm: `${t % 12 || 12}:${String(a.getMinutes()).padStart(2, "0")}`, ampm: t < 12 ? "am" : "pm" };
@@ -9080,7 +9086,7 @@ const Li = `
   }, o = s(t), r = s(e);
   return o <= r ? i >= o && i < r : i >= o || i < r;
 }, Me = (a, t) => {
-  const e = mt(t).getTime(), i = pt(t, 1).getTime();
+  const e = mt(t).getTime(), i = dt(t, 1).getTime();
   if (a.allDay) {
     const s = Math.max(1, Math.round((a.end.getTime() - a.start.getTime()) / bc));
     return { label: s > 1 ? `Day ${Math.min(s, Math.max(1, Math.round((e - mt(a.start).getTime()) / bc) + 1))} of ${s}` : "All day", sort: -2 };
@@ -9088,13 +9094,13 @@ const Li = `
   return a.start.getTime() >= e ? { label: ot(a.start), sort: a.start.getTime() - e } : a.end.getTime() < i ? { label: `until ${ot(a.end)}`, sort: 0 } : a.end.getTime() === i ? { label: "until midnight", sort: 0 } : { label: "continues", sort: -1 };
 }, sw = (a) => {
   if (a.allDay) {
-    const t = pt(a.end, -1);
+    const t = dt(a.end, -1);
     return t.getTime() > mt(a.start).getTime() ? `All day, ${ms(a.start)} to ${ms(t)}` : "All day";
   }
-  return dt(a.start, a.end) || a.end.getTime() === pt(a.start, 1).getTime() ? `${ot(a.start)} to ${ot(a.end)}` : `${ms(a.start)} ${ot(a.start)} to ${ms(a.end)} ${ot(a.end)}`;
+  return lt(a.start, a.end) || a.end.getTime() === dt(a.start, 1).getTime() ? `${ot(a.start)} to ${ot(a.end)}` : `${ms(a.start)} ${ot(a.start)} to ${ms(a.end)} ${ot(a.end)}`;
 }, e1 = (a = /* @__PURE__ */ new Date()) => {
   const t = mt(a);
-  return pt(t, -((t.getDay() + 6) % 7)).getTime();
+  return dt(t, -((t.getDay() + 6) % 7)).getTime();
 }, vc = (a = /* @__PURE__ */ new Date()) => "Monday", a1 = (a) => `fh-spent-${a}`, i1 = (a) => {
   try {
     const t = JSON.parse(localStorage.getItem(a1(a)) || "[]");
@@ -9663,7 +9669,7 @@ const Aw = async (a, t, e) => {
     </div>`;
   }
 };
-yr.styles = [Xt, st`
+yr.styles = [Et, st`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; min-width: 0; position: relative; }
     .mirror { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; overflow: hidden; }
     .mirror::before { content: ''; position: absolute; inset: auto -30% -30%; height: 60%; background: radial-gradient(closest-side, color-mix(in srgb, var(--kid) 40%, transparent), transparent); }
@@ -9852,7 +9858,7 @@ const Sw = (a) => {
     </div>`;
   }
 };
-Kr.styles = [Xt, st`
+Kr.styles = [Et, st`
     :host([data-phone]) { position: fixed !important; }
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; padding: 12px; background: var(--scrim, rgba(6,16,28,.52)); }
     .pad { border-radius: 32px; padding: 20px 28px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 340px; max-width: 100%; max-height: 100%; overflow: visible; animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
@@ -10052,7 +10058,7 @@ const El = 15, g1 = (a) => {
   [/sport|training|carnival|gym/i, "🏅"],
   [/paint|art|craft/i, "🎨"]
 ], Lw = (a) => Cw.find(([t]) => t.test(a))?.[1] ?? "📅", qc = (a) => {
-  const t = lt(a), e = Math.floor(t / 60) % 24;
+  const t = pt(a), e = Math.floor(t / 60) % 24;
   return `${e % 12 || 12}:${String(t % 60).padStart(2, "0")} ${e < 12 ? "am" : "pm"}`;
 }, _c = { am: "Morning", after: "After school", bed: "Bedtime", any: "Any time" }, Qw = [["😄", "great"], ["🙂", "good"], ["😐", "okay"], ["😟", "worried"], ["😢", "sad"]], Bw = [["😄", "happy"], ["😐", "okay"], ["😢", "sad"]], Sc = (a) => ["great", "good", "happy"].includes(a) ? "up" : a === "okay" ? "mid" : "down", Gw = 10 * 6e4, $n = [{ name: "Pick the family movie", cost: 100 }, { name: "Choose Friday dinner", cost: 80 }], Mc = ["🎬", "🍕", "🎈", "🍦", "🧩", "🚲", "🎨", "⚽"], di = (a, t = 20) => d`<svg class="sstar ${a ? "lit" : ""}" viewBox="0 0 24 24" width=${t} height=${t} aria-hidden="true"><path d="M12 2.800l2.850 5.900 6.450.900-4.700 4.550 1.150 6.450L12 17.500l-5.750 3.100 1.150-6.450L2.700 9.600l6.450-.900z"></path></svg>`, co = (a = 16) => d`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.500l4.500 4.500L19 7.500"></path></svg>`, $c = d`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>`, Yw = (a = 26) => d`<svg viewBox="0 0 24 24" width=${a} height=${a} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.500h3.500L12 5.500v13l-4.500-4H4z" fill="currentColor"></path><path d="M15.500 9a4.500 4.500 0 0 1 0 6M18 6.500a8 8 0 0 1 0 11"></path></svg>`, Zw = d`<svg viewBox="0 0 48 48" width="56" height="56" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="5" fill="#fff" stroke="#3d4a5c" stroke-width="2.500"></rect><path d="M14 16l3 3 5-6M14 27l3 3 5-6" stroke="#15803d" stroke-width="3.500"></path><path d="M27 17h8M27 28h8M15 37h20" stroke="#3d4a5c" stroke-width="2.500"></path></svg>`, Ue = (a, t) => {
   try {
@@ -10061,7 +10067,7 @@ const El = 15, g1 = (a) => {
   } catch {
     return t;
   }
-}, Fc = 2, Rc = { up: "Lovely! Want to tell someone about it?", mid: "Thanks for telling me. Anything you need?", down: "Thanks for telling me. That sounds hard. A hug or a chat might help." }, ie = (a, t) => {
+}, Fc = 2, Rc = { up: "Lovely! Want to tell someone about it?", mid: "Thanks for telling me. Anything you need?", down: "Thanks for telling me. That sounds hard. A hug or a chat might help." }, ae = (a, t) => {
   try {
     localStorage.setItem(a, JSON.stringify(t));
   } catch {
@@ -10158,7 +10164,7 @@ const El = 15, g1 = (a) => {
       if (e === "ok") {
         if (this._jump++, this._sound("coin"), t.uid) {
           const s = Ue("fh-ticks", {});
-          s[t.uid] = Date.now(), ie("fh-ticks", s);
+          s[t.uid] = Date.now(), ae("fh-ticks", s);
         }
       } else this._sound("tap");
       const i = e === "ok" ? `A parent said yes: ${t.name}.` : e === "no" ? `Not yet for ${t.name}. Have another go, then tick it again.` : `${t.name} could not be ticked. Ask a parent.`;
@@ -10167,7 +10173,7 @@ const El = 15, g1 = (a) => {
     }
     if (e === "ok") {
       const i = (this.kid.rewards ?? $n).find((s) => s.name === t.name);
-      i?.weekly && (yc(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), i && (i.dj ?? /\bdj\b|dinner music/i.test(i.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && O(`Yes! ${t.name}!`), this._say(`A parent said yes: ${t.name}.`);
+      i?.weekly && (yc(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), i && (i.dj ?? /\bdj\b|dinner music/i.test(i.name)) && ae("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && O(`Yes! ${t.name}!`), this._say(`A parent said yes: ${t.name}.`);
     } else {
       this._sound("tap");
       const i = e === "no" ? `Not yet for ${t.name}. Your ${this._picMode ? "stars" : "points"} are safe.` : `Not enough ${this._picMode ? "stars" : "points"} for ${t.name} now. Nothing was spent.`;
@@ -10267,7 +10273,7 @@ const El = 15, g1 = (a) => {
   }
   /** After midnight and before 5 am: the page is still quiet, but last night's bedtime (its clock, its jobs) is over and the morning's jobs have not begun. */
   get _night() {
-    return Et(this._now) < 300;
+    return re(this._now) < 300;
   }
   shouldUpdate(t) {
     if (t.size === 1 && t.has("hass") && this.kid) {
@@ -10335,7 +10341,7 @@ const El = 15, g1 = (a) => {
     if (this._celebrate || !this.hass?.states[this._e.lifetime]) return;
     const t = this._life, e = this._grow, i = this._e.slug, s = Ue(`family-hub-seen-${i}`, null), o = Ue(`family-hub-seen-grow-${i}`, null);
     if (s === null || o === null) {
-      ie(`family-hub-seen-${i}`, Math.max(s ?? 0, t)), ie(`family-hub-seen-grow-${i}`, Math.max(o ?? 0, e));
+      ae(`family-hub-seen-${i}`, Math.max(s ?? 0, t)), ae(`family-hub-seen-grow-${i}`, Math.max(o ?? 0, e));
       return;
     }
     const r = p1(!!this.kid.sheet), n = [...Ib(s, t, r), ...Jb(o, e, r)];
@@ -10346,11 +10352,11 @@ const El = 15, g1 = (a) => {
   }
   _closeCelebrate(t) {
     const e = this._e.slug;
-    ie(`family-hub-seen-${e}`, Math.max(Ue(`family-hub-seen-${e}`, 0), this._life)), ie(`family-hub-seen-grow-${e}`, Math.max(Ue(`family-hub-seen-grow-${e}`, 0), this._grow)), this._celebrate = null, t && !this._wind && (this._studio = !0);
+    ae(`family-hub-seen-${e}`, Math.max(Ue(`family-hub-seen-${e}`, 0), this._life)), ae(`family-hub-seen-grow-${e}`, Math.max(Ue(`family-hub-seen-grow-${e}`, 0), this._grow)), this._celebrate = null, t && !this._wind && (this._studio = !0);
   }
   async _loadWeek() {
     if (!this.hass) return;
-    const t = mt(/* @__PURE__ */ new Date()), e = pt(t, 8), i = this.kid.name, s = [{ id: this._e.calendar, family: !1 }, ...this.familyCalendars.map((n) => ({ id: n, family: !0 }))].filter((n) => this.hass.states[n.id]), o = [], r = this.privateWords.map((n) => n.toLowerCase());
+    const t = mt(/* @__PURE__ */ new Date()), e = dt(t, 8), i = this.kid.name, s = [{ id: this._e.calendar, family: !1 }, ...this.familyCalendars.map((n) => ({ id: n, family: !0 }))].filter((n) => this.hass.states[n.id]), o = [], r = this.privateWords.map((n) => n.toLowerCase());
     await Promise.all(s.map(async (n) => {
       try {
         const l = await this.hass.callApi("GET", `calendars/${n.id}?start=${encodeURIComponent(t.toISOString())}&end=${encodeURIComponent(e.toISOString())}`);
@@ -10436,10 +10442,10 @@ const El = 15, g1 = (a) => {
     this._sound(e ? "untick" : t.lane === "job" ? "coin" : "tick");
     try {
       if (await et(this.hass.callService("todo", "update_item", { item: t.uid, status: r }, { entity_id: this._e.chores })), this._pending.delete(t.uid), await et(this._award(t, e ? -1 : 1)), e) {
-        delete i[t.uid], ie("fh-ticks", i);
+        delete i[t.uid], ae("fh-ticks", i);
         return;
       }
-      i[t.uid] = Date.now(), ie("fh-ticks", i), this._jump++;
+      i[t.uid] = Date.now(), ae("fh-ticks", i), this._jump++;
       const n = Date.now(), l = t.lane === "grow" ? "🌱" : t.pts && !this._wind ? this._picMode ? "★".repeat(Math.max(1, Math.round(t.pts / this._star))) : `+${t.pts}` : "✓";
       (this._picMode || !t.pts) && (this._bursts = [...this._bursts, { id: n, text: l }], setTimeout(() => {
         this._bursts = this._bursts.filter((p) => p.id !== n);
@@ -10457,18 +10463,18 @@ const El = 15, g1 = (a) => {
     if (!s.length || s.some((l) => l.status !== "completed") || this._block().todo.length) return;
     const o = `fh-alldone-${this._e.slug}-${(/* @__PURE__ */ new Date()).toDateString()}-${t}`;
     if (Ue(o, !1)) return;
-    ie(o, !0);
+    ae(o, !0);
     const r = this.kid.name, n = this.renderRoot.querySelector(".jobs");
     this._wind || (n ? (Wt("done", n), window.setTimeout(() => Wt(t === "bed" ? "moon" : "stomp", n), 700)) : this._confetti++, this._sound(this.kid.sound ?? "done"), setTimeout(() => this._sound("done"), 700)), this._picMode && O(t === "am" ? `You did your whole morning, ${r}!` : t === "bed" ? `All ready for bed, ${r}. Sleep well!` : `All done, ${r}!`), this._say(t === "bed" ? `All set for bed, ${r}. Sleep well.` : [`All done, ${r}. You stuck with it today.`, `That’s everything, ${r}. Nice and steady.`, `Legend effort, ${r}.`][Math.floor(Math.random() * 3)]);
   }
   /* ---------------- practice timer ---------------- */
   _startPractice(t) {
-    this._practice = { uid: t.uid, end: Date.now() + t.minutes * 6e4, mins: t.minutes }, ie(`fh-practice-${this._e.slug}`, this._practice), this._sound("tap"), this._say(t.song ? `${t.minutes} minutes of music. Go!` : `${t.minutes} minutes on the clock. You’ve got this.`), t.song && this._song(t.minutes);
+    this._practice = { uid: t.uid, end: Date.now() + t.minutes * 6e4, mins: t.minutes }, ae(`fh-practice-${this._e.slug}`, this._practice), this._sound("tap"), this._say(t.song ? `${t.minutes} minutes of music. Go!` : `${t.minutes} minutes on the clock. You’ve got this.`), t.song && this._song(t.minutes);
   }
   /** "Start with me" (F4): starting is harder than doing. Two minutes, visible on the job he is on now, and a sound at the end. It ticks nothing and gives nothing.
    *  A child whose spoken cues are on hears it start and end, on the screen he is standing at. */
   _startWedge(t) {
-    this._practice = { uid: t.uid, end: Date.now() + Fc * 6e4, mins: Fc, wedge: !0 }, ie(`fh-practice-${this._e.slug}`, this._practice), this._sound("tap");
+    this._practice = { uid: t.uid, end: Date.now() + Fc * 6e4, mins: Fc, wedge: !0 }, ae(`fh-practice-${this._e.slug}`, this._practice), this._sound("tap");
     const e = `Two minutes. Let’s start: ${t.summary}.`;
     this._say(e), this.kid.cues?.on && O(e);
   }
@@ -10477,7 +10483,7 @@ const El = 15, g1 = (a) => {
     this.dispatchEvent(new CustomEvent("song", { detail: { minutes: t }, bubbles: !0, composed: !0 }));
   }
   _stopPractice() {
-    this._chores.find((t) => t.uid === this._practice?.uid)?.song && this._song(0), this._practice = null, ie(`fh-practice-${this._e.slug}`, null);
+    this._chores.find((t) => t.uid === this._practice?.uid)?.song && this._song(0), this._practice = null, ae(`fh-practice-${this._e.slug}`, null);
   }
   _checkPractice() {
     const t = this._practice;
@@ -10551,7 +10557,7 @@ const El = 15, g1 = (a) => {
       }, 1500);
     }
     this.owed && this.hass.states[this.owed] && this.hass.callService("todo", "add_item", { item: `${this.kid.name}: ${t.name}`, description: `${(/* @__PURE__ */ new Date()).toLocaleDateString("en-AU")} · ${t.cost} pts${s && !this.pin ? " · needs a parent OK" : ""}` }, { entity_id: this.owed }).catch(() => {
-    }), t.weekly && (yc(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && ie("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && O(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A parent will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
+    }), t.weekly && (yc(this._e.slug, t.name), this._spentN++), this._confetti++, this._jump++, this._sound("unlock"), (t.dj ?? /\bdj\b|dinner music/i.test(t.name)) && ae("fh-dj", { kid: this.kid.name, day: (/* @__PURE__ */ new Date()).toDateString() }), this._picMode && O(`Yay! ${t.name}!`), this._say(s ? `Nice saving, ${this.kid.name}. A parent will sort out: ${t.name}.` : `Nice saving, ${this.kid.name}! ${t.name} – your pick.`), s && !this._owed.includes(t.name) && (this._owed = [...this._owed, t.name]);
   }
   _feelPick(t) {
     this._feel = t, this._sound("tap"), this._picMode && O(Rc[Sc(t)]);
@@ -10684,7 +10690,7 @@ const El = 15, g1 = (a) => {
       <div class="list"><div class="wind" data-act="nolist" role="status"><span style="color:var(--ink2)">${U("alert", 44)}</span><span>Your jobs can’t be read just now. They will come back by themselves.</span></div></div></section>`;
     const { bt: t, slot: e, routineNow: i, jobs: s, grow: o, later: r, visible: n, todo: l, done: p, total: h } = this._block();
     this._nowUid = l[0]?.uid ?? "";
-    const c = h - p, f = 2 * Math.PI * 22, g = h ? p / h : 0, m = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? c ? `Bedtime jobs: ${c} left · bed at ${qc(t)}` : "All set for bed. Sleep well 🌙" : c ? `${c} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, w = this._night ? 0 : Math.min(60, lt(t) - Et(this._now));
+    const c = h - p, f = 2 * Math.PI * 22, g = h ? p / h : 0, m = this._night ? "Morning jobs start when you get up 🌙" : this._wind ? c ? `Bedtime jobs: ${c} left · bed at ${qc(t)}` : "All set for bed. Sleep well 🌙" : c ? `${c} left ${e === "am" ? "this morning" : e === "after" ? "this afternoon" : "tonight"}` : r.length ? "All done for now 🎉" : "All done – fresh start tomorrow", k = this.oneAtATime && !this._showAll, b = !!this.kid.older, w = this._night ? 0 : Math.min(60, pt(t) - re(this._now));
     return d`<section class="glass jobs" aria-label="Jobs">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex:1"><h1 class="t-title">${this._night ? "Night time" : this._wind ? "Wind down" : this._picMode ? e === "am" ? "My morning" : e === "bed" ? "My bedtime" : "My jobs" : "Today"}</h1>
@@ -10854,7 +10860,7 @@ const El = 15, g1 = (a) => {
     }}>💬 Ask for a chat</button></section>`;
   }
   _weekBody() {
-    const t = /* @__PURE__ */ new Date(), e = (o) => o.end && !isNaN(o.end.getTime()) ? o.end.getTime() : o.start.getTime() + 36e5, i = this._events.filter((o) => o.allDay ? o.start >= mt(t) : e(o) > t.getTime()).slice(0, 5), s = (o) => dt(o, t) ? "Today" : Math.round((mt(o).getTime() - mt(t).getTime()) / 864e5) === 1 ? "Tomorrow" : Ki(o);
+    const t = /* @__PURE__ */ new Date(), e = (o) => o.end && !isNaN(o.end.getTime()) ? o.end.getTime() : o.start.getTime() + 36e5, i = this._events.filter((o) => o.allDay ? o.start >= mt(t) : e(o) > t.getTime()).slice(0, 5), s = (o) => lt(o, t) ? "Today" : Math.round((mt(o).getTime() - mt(t).getTime()) / 864e5) === 1 ? "Tomorrow" : Ki(o);
     if (this._picMode) {
       const o = (n) => Math.max(0, Math.round((mt(n).getTime() - mt(t).getTime()) / 864e5)), r = (n) => n === 0 ? "Today" : `${n} sleep${n > 1 ? "s" : ""}`;
       return d`${this._wind ? d`<span class="label">Coming up</span>` : u}
@@ -10888,7 +10894,7 @@ const El = 15, g1 = (a) => {
     </div>`;
   }
 };
-Ur.styles = [Xt, st`
+Ur.styles = [Et, st`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .hero { width: 330px; flex-shrink: 0; border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
     /* a short screen (a laptop inside Home Assistant): the hero card closes its gaps a little, so the studio button at its foot is never cut by the card's edge */
@@ -11345,8 +11351,8 @@ const Pw = { more: "more", uv: "sun", stopwatch: "timer", lock: "lock", bell: "b
   _guardOf(t) {
     const e = this._owners(t);
     if (!e.length || this.me && e.includes(this.me)) return "free";
-    const i = Et(/* @__PURE__ */ new Date());
-    return this.kids.some((o) => e.includes(o.name) && (i >= lt($e(o.bedtime)) || i < 300)) && this.pin ? "pin" : "hold";
+    const i = re(/* @__PURE__ */ new Date());
+    return this.kids.some((o) => e.includes(o.name) && (i >= pt($e(o.bedtime)) || i < 300)) && this.pin ? "pin" : "hold";
   }
   _holdStart(t, e) {
     clearTimeout(this._holdT), this._holding = t, this._held = "", this._holdT = window.setTimeout(() => {
@@ -11559,7 +11565,7 @@ const Pw = { more: "more", uv: "sun", stopwatch: "timer", lock: "lock", bell: "b
     }}></fh-pin>` : u}`;
   }
 };
-Ui.styles = [Xt, st`
+Ui.styles = [Et, st`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .rooms { flex: 1; min-width: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
     /* rooms are dealt into columns of even height (tallest first), so no column ends with a hole beside it */
@@ -13183,11 +13189,11 @@ const K1 = async (a) => {
   }
   /** Floors, top one first. Speakers the settings do not place go on a last row, so none can go missing. */
   get _floors() {
-    const t = this.hass, e = this._list, i = /* @__PURE__ */ new Set(), s = Et(), o = lt(this.quiet.end ?? "06:30"), r = (p) => {
+    const t = this.hass, e = this._list, i = /* @__PURE__ */ new Set(), s = re(), o = pt(this.quiet.end ?? "06:30"), r = (p) => {
       const h = Ce(t, e, p);
       return h && i.add(h.entity_id), h;
     }, n = this.map.map((p) => ({ name: p.name ?? "", rooms: (p.rooms ?? []).map((h) => {
-      const c = (h.zones ?? (h.player ? [{ player: h.player, name: h.name }] : [])).map((g) => ({ name: g.name ?? "", p: r(g.player) })).filter((g) => !!g.p).map((g) => ({ ...g, name: g.name || String(g.p.attributes.friendly_name ?? "") })), f = (h.kids ?? []).map((g) => this.kids.find((m) => m.name === g)).filter((g) => !!g).map((g) => lt($e(g.bedtime)));
+      const c = (h.zones ?? (h.player ? [{ player: h.player, name: h.name }] : [])).map((g) => ({ name: g.name ?? "", p: r(g.player) })).filter((g) => !!g.p).map((g) => ({ ...g, name: g.name || String(g.p.attributes.friendly_name ?? "") })), f = (h.kids ?? []).map((g) => this.kids.find((m) => m.name === g)).filter((g) => !!g).map((g) => pt($e(g.bedtime)));
       return { name: h.name ?? c[0]?.name ?? "", size: h.size ?? Math.max(1, c.length), stairs: !!h.stairs, asleep: f.length > 0 && (s >= Math.min(...f) || s < o), zones: c };
     }).filter((h) => h.stairs || h.zones.length) })).filter((p) => p.rooms.some((h) => h.zones.length)), l = e.filter((p) => !i.has(p.entity_id)).map((p) => ({ name: String(p.attributes.friendly_name ?? ""), size: 1, stairs: !1, asleep: !1, zones: [{ name: String(p.attributes.friendly_name ?? ""), p }] }));
     return l.length && n.push({ name: n.length ? "Other" : "", rooms: l }), n;
@@ -13499,8 +13505,8 @@ const K1 = async (a) => {
   /** A bedroom after its own child's bedtime: from the house map, or because it is that child's own speaker. */
   _abed(t) {
     if (this._asleep(t)) return !0;
-    const e = Et(), i = lt(this.quiet.end ?? "06:30");
-    return this.kids.some((s) => rd(this.hass, s, this._list)?.entity_id === t && (e >= lt($e(s.bedtime)) || e < i));
+    const e = re(), i = pt(this.quiet.end ?? "06:30");
+    return this.kids.some((s) => rd(this.hass, s, this._list)?.entity_id === t && (e >= pt($e(s.bedtime)) || e < i));
   }
   async _call(t = !1) {
     if (this._calling) return;
@@ -13899,7 +13905,7 @@ const K1 = async (a) => {
     }, !0)}</div>` : d`<span class="soft" style="font-size:var(--fs-2)">It is spoken over the music in that room, then the music carries on.</span>`}`;
   }
 };
-Ar.styles = [Xt, Ci, st`${Lt(Li)}`, yx, st`
+Ar.styles = [Et, Ci, st`${Lt(Li)}`, yx, st`
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .stage { width: 380px; flex-shrink: 0; border-radius: 28px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; color: #fff; background: #111; }
     /* the cover, blurred and darkened behind the player. The blur is a backdrop filter over the picture, so nothing hangs outside the player and white text keeps its contrast on a bright cover. */
@@ -14579,7 +14585,7 @@ const z1 = (a) => `${a} comes from the internet, which is not answering just now
       </div>` : u}`;
   }
 };
-qr.styles = [Xt, st`
+qr.styles = [Et, st`
     :host { position: absolute; inset: 0; display: block; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; background: var(--chip-soft); }
     :host(:active) { cursor: grabbing; }
     .layer { position: absolute; inset: 0; }
@@ -15005,7 +15011,7 @@ const ud = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", 
     }}>Try again</button></section>` : d`${this._now()}${this._maps()}${this._week()}${this._hoursChart()}`;
   }
 };
-_r.styles = [Xt, st`
+_r.styles = [Et, st`
     :host { display: grid; flex: 1; min-height: 0; gap: 16px; grid-template-columns: 330px minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr) auto; }
     section { border-radius: 28px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
     h2 { font-size: var(--fs-4); font-weight: var(--w-heavy, 800); }
@@ -15453,7 +15459,7 @@ const es = ["#1d1d1f", "#e63946", "#f77f00", "#fcbf49", "#2a9d8f", "#118ab2", "#
       ${t ? d`<div class="toast" role="status" ?data-closing=${e}>${t}</div>` : u}`;
   }
 };
-Sr.styles = [Xt, st`
+Sr.styles = [Et, st`
     ${Lt(Li)}
     :host { display: flex; gap: 16px; flex: 1; min-height: 0; position: relative; }
     .brushes { width: 132px; flex-shrink: 0; border-radius: 28px; padding: 14px 10px; display: grid; grid-template-columns: 1fr 1fr; justify-items: center; align-content: start; gap: 10px 6px; overflow: auto; }
@@ -15568,7 +15574,7 @@ Sr.styles = [Xt, st`
 let wd = Sr;
 customElements.get("fh-doodle") || customElements.define("fh-doodle", wd);
 const ak = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], t0 = (a, t) => {
-  const e = mt(t), i = pt(e, 1);
+  const e = mt(t), i = dt(e, 1);
   return a.start < i && a.end > e && !(a.allDay && a.end.getTime() === e.getTime());
 }, e0 = d`<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.500l4.500 4.500L19 7.500"></path></svg>`, ik = 5e3, sk = 1500, ok = (a) => a >= 60 && a % 60 === 0 ? `${a / 60} hour${a === 60 ? "" : "s"} later` : `${a} minute${a === 1 ? "" : "s"} later`, Bn = (a) => a.lane === "routine" && a.slot === "am", rk = [
   [/hat|cap/i, "🧢"],
@@ -15663,7 +15669,7 @@ const ak = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], t0 = (a, t) => {
   }
   /** Leave time in minutes since midnight: first own event before 10am minus travel, else the default. */
   _leave(t) {
-    const e = this._own(t).filter((o) => !o.allDay && dt(o.start, this._now) && o.start.getHours() < 10).sort((o, r) => o.start.getTime() - r.start.getTime())[0], i = lt(t.leave_by ?? this.leaveBy), s = e ? e.start.getHours() * 60 + e.start.getMinutes() - this.travel : 1 / 0;
+    const e = this._own(t).filter((o) => !o.allDay && lt(o.start, this._now) && o.start.getHours() < 10).sort((o, r) => o.start.getTime() - r.start.getTime())[0], i = pt(t.leave_by ?? this.leaveBy), s = e ? e.start.getHours() * 60 + e.start.getMinutes() - this.travel : 1 / 0;
     return s < i ? { at: s, why: e.title } : { at: i, why: "school" };
   }
   /** Everyone's morning steps, pooled. */
@@ -15746,7 +15752,7 @@ const ak = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], t0 = (a, t) => {
   }
   render() {
     if (!this.hass) return u;
-    const t = Et(this._now), e = this.kids.map((b) => ({ k: b, ...this._leave(b) })), i = e.filter((b) => b.at - t > -5).sort((b, w) => b.at - w.at)[0], s = i ? i.at - t : -99, o = (b) => ot(new Date(new Date(this._now).setHours(Math.floor(b / 60), b % 60, 0, 0))), r = i ? e.filter((b) => b.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((b) => b.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", l = this._now, p = this.privateWords.map((b) => b.toLowerCase()), h = this._team(), c = h.total > 0 && h.done === h.total, f = (b) => ft(this.hass.states[H(b).avatar]?.state, b.look ? ft(b.look) : {}), g = (b) => Jt(f(b), { size: 36, crop: "head", still: !0, age: b.age, ring: Z(b.colour), name: b.name }), m = this.kids.map((b) => ({ k: b, n: this._list(b).filter((w) => Bn(w) && w.status !== "completed").length })).filter((b) => b.n > 0), k = this.events.filter((b) => t0(b, l) && b.colour === "family" && !p.some((w) => b.title.toLowerCase().includes(w)) && !this.kids.some((w) => b.who === w.name || b.title.toLowerCase().includes(w.name.toLowerCase()))).map((b, w) => ({ ev: b, i: w, k: Me(b, l).sort })).sort((b, w) => b.k - w.k || b.i - w.i).map((b) => b.ev);
+    const t = re(this._now), e = this.kids.map((b) => ({ k: b, ...this._leave(b) })), i = e.filter((b) => b.at - t > -5).sort((b, w) => b.at - w.at)[0], s = i ? i.at - t : -99, o = (b) => ot(new Date(new Date(this._now).setHours(Math.floor(b / 60), b % 60, 0, 0))), r = i ? e.filter((b) => b.at === i.at) : [], n = i ? r.length === e.length ? "everyone leaves" : r.length > 1 ? `${r.map((b) => b.k.name).join(" & ")} leave` : `${r[0].k.name} leaves` : "", l = this._now, p = this.privateWords.map((b) => b.toLowerCase()), h = this._team(), c = h.total > 0 && h.done === h.total, f = (b) => ft(this.hass.states[H(b).avatar]?.state, b.look ? ft(b.look) : {}), g = (b) => Jt(f(b), { size: 36, crop: "head", still: !0, age: b.age, ring: Z(b.colour), name: b.name }), m = this.kids.map((b) => ({ k: b, n: this._list(b).filter((w) => Bn(w) && w.status !== "completed").length })).filter((b) => b.n > 0), k = this.events.filter((b) => t0(b, l) && b.colour === "family" && !p.some((w) => b.title.toLowerCase().includes(w)) && !this.kids.some((w) => b.who === w.name || b.title.toLowerCase().includes(w.name.toLowerCase()))).map((b, w) => ({ ev: b, i: w, k: Me(b, l).sort })).sort((b, w) => b.k - w.k || b.i - w.i).map((b) => b.ev);
     return d`
       <section class="glass board">
         <div style="flex:1"><h1 class="t-title">Out the door</h1>
@@ -15788,7 +15794,7 @@ const ak = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], t0 = (a, t) => {
       ${this._cheer ? ba(this._cheer, hp(this._cheer)) : u}`;
   }
 };
-Mr.styles = [Xt, st`
+Mr.styles = [Et, st`
     :host { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; position: relative; }
     .board { border-radius: 26px; padding: 12px 20px; display: flex; align-items: center; gap: 18px; }
     .team { flex: 1.4; display: flex; flex-direction: column; gap: 4px; align-items: center; }
@@ -15983,7 +15989,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
   connectedCallback() {
     super.connectedCallback();
     const t = /* @__PURE__ */ new Date(), e = (t.getHours() + 1) % 24;
-    this._pm = e >= 12, this._h = e % 12 || 12, this._m = 0, e === 0 && (this._date = pt(mt(t), 1));
+    this._pm = e >= 12, this._h = e % 12 || 12, this._m = 0, e === 0 && (this._date = dt(mt(t), 1));
     const i = this.edit;
     if (i && (this._t = i.title, this._loc = i.location ?? "", this._date = mt(i.start), this._all = i.allDay, this._cal = i.entity ?? "", this._notes = this._notes0 = (i.description ?? "").replace(/<br\s*\/?>|<\/p>|<\/div>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim(), this.scope === "future" && (this._rep = ck(i.rrule, this._date), this._rep ? this._custom = !this._presetOf(this._rep) : this._rawRule = i.rrule ?? ""), this._span = Math.max(1, Math.round((i.end.getTime() - i.start.getTime()) / 864e5)), !i.allDay)) {
       const s = i.start.getHours();
@@ -16167,7 +16173,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
           ${e.freq === "MONTHLY" ? d`<div class="rrow"><span class="sub">On</span><div class="rseg" role="radiogroup" aria-label="Which day of the month">${n(xo({ ...e, every: 1, end: "never", monthBy: "date" }, t).replace("Every month on ", ""), e.monthBy === "date", () => o({ monthBy: "date" }))}${n(xo({ ...e, every: 1, end: "never", monthBy: "weekday" }, t).replace("Every month on ", ""), e.monthBy === "weekday", () => o({ monthBy: "weekday" }))}</div></div>` : u}` : u}
         ${e ? d`<div class="rrow"><span class="sub">Ends</span><div class="rseg" role="radiogroup" aria-label="When it ends">
             ${n("Never", e.end === "never", () => o({ end: "never" }), "end-never")}${n("On a date", e.end === "on", () => {
-      o({ end: "on", until: e.until ?? ko(pt(t, 84)) });
+      o({ end: "on", until: e.until ?? ko(dt(t, 84)) });
     }, "end-on")}${n("After", e.end === "after", () => o({ end: "after", count: e.count ?? 10 }), "end-after")}</div>
             ${e.end === "on" && p ? d`<button class="tap calbtn" data-act="end-date" aria-haspopup="dialog" @click=${() => {
       this._shown = p, this._pickFor = "until", this._pick = !0;
@@ -16193,7 +16199,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
       return;
     }
     if (this._all)
-      s.start_date = ko(i), s.end_date = ko(pt(i, o?.allDay ? this._span : 1));
+      s.start_date = ko(i), s.end_date = ko(dt(i, o?.allDay ? this._span : 1));
     else {
       const c = new Date(i);
       c.setHours(this._hour24(), this._m, 0, 0), s.start_date_time = n0(c), s.end_date_time = n0(new Date(c.getTime() + this._dur * 6e4));
@@ -16229,7 +16235,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
     }
   }
   render() {
-    const t = mt(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = ip(this.calendars.map((h) => h.name ?? h.entity)), s = qt() === "phone", o = !Array.from({ length: 7 }, (h, c) => pt(t, c)).some((h) => vo(h, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), l = s || this._hardKeys, p = d`<button class="tap lead" style="height:60px;padding:0 26px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
+    const t = mt(/* @__PURE__ */ new Date()), e = this._cal || this.defaultCal || this.calendars[0]?.entity, i = ip(this.calendars.map((h) => h.name ?? h.entity)), s = qt() === "phone", o = !Array.from({ length: 7 }, (h, c) => dt(t, c)).some((h) => vo(h, this._date)), r = this._in === "where" ? this._found ?? (this._loc.trim().length < 3 ? this._zones() : []) : [], n = this._summary(), l = s || this._hardKeys, p = d`<button class="tap lead" style="height:60px;padding:0 26px;font-size:var(--fs-3)" ?disabled=${this._busy} @click=${() => this._save()}>${this._busy ? this.edit ? "Saving…" : "Adding…" : this.edit ? "Save" : "Add"}</button>`;
     return d`<div class="glass sheet box" tabindex="-1" role="dialog" aria-modal="true" aria-label=${this.edit ? "Change this event" : "Add to the calendar"} @click=${(h) => h.stopPropagation()} @keydown=${this._onKey}>
       <div style="display:flex;gap:12px;align-items:center">
         <h2 class="t-head" style="white-space:nowrap">${this.edit ? "Change this event" : "Add to the calendar"}</h2>
@@ -16276,7 +16282,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
     }}>${U("repeat", 22)}<span>${this._rule() ? this._repWords() : "Repeat"}</span></button>`}</div>
           <div class="chips days" role="group" aria-label="Which day">
             ${Array.from({ length: 7 }, (h, c) => {
-      const f = pt(t, c);
+      const f = dt(t, c);
       return d`<button class="tap" aria-pressed=${String(vo(f, this._date))} @click=${() => {
         this._date = f;
       }}>${c === 0 ? "Today" : c === 1 ? "Tomorrow" : `${Ki(f)} ${f.getDate()}`}</button>`;
@@ -16315,7 +16321,7 @@ const kd = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"], dk = ["Mon", "Tue", "Wed"
     </div>`;
   }
 };
-Ai.styles = [Xt, Ci, st`
+Ai.styles = [Et, Ci, st`
     /* the same scrim as every sheet. It never overlaps the dock; it sits under the header when there is room for that (data-under) */
     :host { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: var(--pad-y, 12px) var(--pad-x, 12px) var(--bot, 122px); background: var(--scrim, rgba(6,16,28,.52)); /* a look that blurs its sheets' backdrop (Obsidian's .scrim) blurs this one too: backlog 144 */ -webkit-backdrop-filter: var(--scrim-filter, none); backdrop-filter: var(--scrim-filter, none); }
     :host([data-under]) { padding-top: var(--top, 110px); }
@@ -16997,9 +17003,9 @@ const Zk = ["https://cdn.jsdelivr.net/", "https://api.rainviewer.com/"], Ok = 48
   const t = Date.parse(String(a?.last_updated ?? a?.last_changed ?? ""));
   return Number.isFinite(t) ? t : 0;
 }, On = (a, t) => String(a.states[t]?.attributes?.friendly_name ?? t.split(".")[1] ?? t), Bo = (a) => !a || a.state === "unavailable", aa = (a, t) => {
-  if (dt(a, t)) return "today";
+  if (lt(a, t)) return "today";
   const e = new Date(t);
-  return e.setDate(e.getDate() - 1), dt(a, e) ? "yesterday" : `${a.toLocaleDateString("en-AU", { weekday: "short" })} ${a.getDate()} ${a.toLocaleDateString("en-AU", { month: "short" })}`;
+  return e.setDate(e.getDate() - 1), lt(a, e) ? "yesterday" : `${a.toLocaleDateString("en-AU", { weekday: "short" })} ${a.getDate()} ${a.toLocaleDateString("en-AU", { month: "short" })}`;
 }, Uo = (a) => {
   const [t, e, i] = a.split("-").map(Number);
   return new Date(t, (e || 1) - 1, i || 1);
@@ -17098,7 +17104,7 @@ function x0(a) {
     ...a.self
   }, p = [], h = { id: "away", name: "Not checked", mark: "wait", words: "Can’t be checked while Home Assistant isn’t answering." }, c = !!t && l.up, f = Math.max(1, Math.round((r - l.heard) / 6e4)), g = t?.config?.version;
   p.push({ id: "house", title: "Home Assistant and the internet", rows: [
-    l.up ? { id: "ha", name: "Home Assistant", mark: "ok", words: `Answering${g ? ` (version ${g})` : ""}.` } : { id: "ha", name: "Home Assistant", mark: "bad", words: `Not answering since ${dt(new Date(l.heard), n) ? "" : `${aa(new Date(l.heard), n)} `}${ot(new Date(l.heard))} (${Ud(f)}). The panel shows what it last had, and reconnects by itself.` },
+    l.up ? { id: "ha", name: "Home Assistant", mark: "ok", words: `Answering${g ? ` (version ${g})` : ""}.` } : { id: "ha", name: "Home Assistant", mark: "bad", words: `Not answering since ${lt(new Date(l.heard), n) ? "" : `${aa(new Date(l.heard), n)} `}${ot(new Date(l.heard))} (${Ud(f)}). The panel shows what it last had, and reconnects by itself.` },
     i?.internet === void 0 ? { id: "net", name: "The internet", mark: "wait", words: "Checking…" } : i.internet ? { id: "net", name: "The internet", mark: "ok", words: "Answering." } : { id: "net", name: "The internet", mark: "bad", words: "Not answering. The rain radar, the wind map, the house voice, Ask and new builds need it; the rest of the panel does not." }
   ] });
   const m = [], k = (e.health?.calendar_minutes ?? 30) * 6e4;
@@ -17204,8 +17210,8 @@ ${t.rows.map((e) => `  [${e.mark}] ${e.name}: ${e.words}`).join(`
 }, I1 = (a) => (a?.kids ?? []).filter((t) => t.cues?.on === !0 && !_p(a, t)).map((t) => ({
   n: t.name,
   s: t.cues.speaker,
-  bed: lt(t.bedtime ?? "20:00"),
-  lv: lt(t.leave_by ?? a?.morning?.leave_by ?? "08:15"),
+  bed: pt(t.bedtime ?? "20:00"),
+  lv: pt(t.leave_by ?? a?.morning?.leave_by ?? "08:15"),
   m: t.cues.morning !== !1,
   l: t.cues.leave !== !1,
   w: t.cues.wind !== !1
@@ -17235,7 +17241,7 @@ ${t.rows.map((e) => `  [${e.mark}] ${e.name}: ${e.words}`).join(`
   const t = I1(a);
   if (!a || !t.length) return null;
   const e = Number.isFinite(Number(a.bedtime_weekend_extra ?? NaN)) ? Math.max(0, Math.min(180, Number(a.bedtime_weekend_extra))) : 30, i = /^script\.[a-z0-9_]+$/.test(String(a.cues?.script ?? "")) ? a.cues.script : nv, s = typeof a.cues?.volume == "number" && a.cues.volume >= 0 && a.cues.volume <= 1 ? a.cues.volume : lv, o = a.voice ? gf(a.voice) : void 0, r = o?.count && /^input_number\.[a-z0-9_]+$/.test(o.count) ? o.count : "", n = o && Number.isFinite(Number(o.daily_chars)) && Number(o.daily_chars) >= 0 ? Number(o.daily_chars) : uf, l = [];
-  t.some((h) => h.m) && l.push({ trigger: "time", at: rs(lt(a.morning?.start ?? "06:30")), id: "morning" }), t.forEach((h, c) => {
+  t.some((h) => h.m) && l.push({ trigger: "time", at: rs(pt(a.morning?.start ?? "06:30")), id: "morning" }), t.forEach((h, c) => {
     h.l && l.push({ trigger: "time", at: rs(h.lv - mr), id: `leave_${c}` }), h.w && (e ? l.push({ trigger: "time", at: rs(h.bed - 60), id: `wind_${c}_a` }, { trigger: "time", at: rs(h.bed + e - 60), id: `wind_${c}_b` }) : l.push({ trigger: "time", at: rs(h.bed - 60), id: `wind_${c}_x` }));
   });
   const p = (a.school_terms ?? []).map(([h, c]) => ({ a: h, z: c }));
@@ -17381,7 +17387,7 @@ ${t.rows.map((e) => `  [${e.mark}] ${e.name}: ${e.words}`).join(`
 }, mv = async (a, t) => {
   const e = Za(t), i = E1(a);
   return e ? (await a.callApi("POST", `config/automation/config/${gr}`, { id: gr, ...e }), i ? "updated" : "made") : i && a.states[i].state === "on" ? (await a.callService("automation", "turn_off", { stop_actions: !1 }, { entity_id: i }), "off") : "none";
-}, $d = /^\d{1,2}:\d{2}(:\d{2})?$/, oe = (a) => {
+}, $d = /^\d{1,2}:\d{2}(:\d{2})?$/, se = (a) => {
   if (!$d.test(String(a ?? ""))) return !1;
   const [t, e] = String(a).split(":").map(Number);
   return t < 24 && e < 60;
@@ -17435,7 +17441,7 @@ ${t.rows.map((e) => `  [${e.mark}] ${e.name}: ${e.words}`).join(`
   if (o !== void 0) {
     if (!o || typeof o != "object" || Array.isArray(o)) return "Family Hub: digest should be a group of options, e.g. digest: { notify: [notify.mobile_app_my_phone] }";
     if (o.notify !== void 0 && !(Array.isArray(o.notify) && o.notify.every((l) => /^notify\.[a-z0-9_]+$/.test(String(l))))) return "Family Hub: digest.notify should be a list of notify services, e.g. [notify.mobile_app_my_phone]";
-    if (o.time !== void 0 && !oe(o.time)) return 'Family Hub: digest.time should be a time like "19:30"';
+    if (o.time !== void 0 && !se(o.time)) return 'Family Hub: digest.time should be a time like "19:30"';
   }
   const r = a.cues;
   if (r !== void 0) {
@@ -17766,7 +17772,7 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
   }, i = /* @__PURE__ */ new Set();
   (a.kids ?? []).forEach((h, c) => {
     const f = (h.name ?? "").trim();
-    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${c + 1} needs a name.`), i.add(f.toLowerCase()), h.bedtime !== void 0 && !oe(h.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), h.leave_by !== void 0 && !oe(h.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (h.rewards ?? []).forEach((g) => {
+    f ? i.has(f.toLowerCase()) && e("children", `Two children are called ${f}. Each needs a different name.`) : e("children", `Child ${c + 1} needs a name.`), i.add(f.toLowerCase()), h.bedtime !== void 0 && !se(h.bedtime) && e("children", `${f || "A child"}’s bedtime is not a time. Use one like 19:30.`), h.leave_by !== void 0 && !se(h.leave_by) && e("morning", `${f || "A child"}’s leaving time is not a time. Use one like 07:50.`), (h.rewards ?? []).forEach((g) => {
       (g.name ?? "").trim() || e("rewards", `One of ${f}’s rewards has no name.`), (!Number.isFinite(g.cost) || g.cost < 0) && e("rewards", `“${g.name}” needs a cost of 0 or more.`);
     }), (h.rewards_draft ?? []).forEach((g) => {
       (g.name ?? "").trim() || e("rewards", `One of ${f}’s drafted rewards has no name.`), (!Number.isFinite(g.cost) || g.cost < 0) && e("rewards", `“${g.name}” needs a cost of 0 or more.`);
@@ -17775,18 +17781,18 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
   const s = a.art;
   s?.presence === "sensor" && !s.presence_entity && e("pictures", "Choose the sensor that tells the panel someone is there, or go back to touch only.");
   const o = a.morning ?? {};
-  for (const [h, c] of [["start", o.start], ["end", o.end], ["leaving time", o.leave_by]]) c !== void 0 && !oe(c) && e("morning", `The morning board’s ${h} is not a time. Use one like 06:30.`);
-  oe(o.start ?? "06:30") && oe(o.end ?? "08:45") && qo(o.end ?? "08:45") <= qo(o.start ?? "06:30") && e("morning", "The morning board has to end after it starts.");
+  for (const [h, c] of [["start", o.start], ["end", o.end], ["leaving time", o.leave_by]]) c !== void 0 && !se(c) && e("morning", `The morning board’s ${h} is not a time. Use one like 06:30.`);
+  se(o.start ?? "06:30") && se(o.end ?? "08:45") && qo(o.end ?? "08:45") <= qo(o.start ?? "06:30") && e("morning", "The morning board has to end after it starts.");
   for (const [h, c] of a.school_terms ?? []) (!h || !c || h > c) && e("morning", "A school term needs a first day and a later last day.");
   const r = /* @__PURE__ */ new Set();
   for (const h of a.meds ?? [])
-    (h.label ?? "").trim() || e("medicines", "Every medicine needs a name."), oe(h.time) || e("medicines", `${h.label || "A medicine"} needs a time like 06:30.`), /^[a-z0-9_]+$/.test(h.id ?? "") ? r.has(h.id) && e("medicines", "Two medicines share an id.") : e("medicines", `${h.label || "A medicine"} has an id Home Assistant cannot use.`), r.add(h.id);
+    (h.label ?? "").trim() || e("medicines", "Every medicine needs a name."), se(h.time) || e("medicines", `${h.label || "A medicine"} needs a time like 06:30.`), /^[a-z0-9_]+$/.test(h.id ?? "") ? r.has(h.id) && e("medicines", "Two medicines share an id.") : e("medicines", `${h.label || "A medicine"} has an id Home Assistant cannot use.`), r.add(h.id);
   a.parent_pin !== void 0 && !br(a.parent_pin) && e("pin", "A PIN is 4 to 8 digits.");
   const n = a.night;
-  n && (!oe(n.start) || !oe(n.end) ? e("house", "The night screen needs times like 21:00.") : qo(n.start) === qo(n.end) && e("house", "The night screen cannot start and end at the same time."));
+  n && (!se(n.start) || !se(n.end) ? e("house", "The night screen needs times like 21:00.") : qo(n.start) === qo(n.end) && e("house", "The night screen cannot start and end at the same time."));
   const l = a.quiet;
   if (l)
-    for (const h of [l.start, l.end]) h !== void 0 && !oe(h) && e("house", "Quiet hours need times like 20:00.");
+    for (const h of [l.start, l.end]) h !== void 0 && !se(h) && e("house", "Quiet hours need times like 20:00.");
   a.bins && !(Number.isInteger(a.bins.day) && a.bins.day >= 0 && a.bins.day <= 6) && e("house", "Bin night needs a day of the week."), (a.music_moments ?? []).forEach((h) => {
     (h.name ?? "").trim() ? !(h.find ?? "").trim() && !(h.uri ?? "").trim() && e("music", `“${h.name}” needs something to play.`) : e("music", "Every moment needs a name.");
   });
@@ -17820,7 +17826,7 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
   { id: "health", name: "Health", sub: "Whether everything the panel needs is answering", ic: "health" },
   { id: "advanced", name: "Advanced", sub: "What is wired up, and earlier versions", ic: "cog" }
 ], Cv = x`<path d="M12 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM5 20c.5-4 3.300-6 7-6s6.5 2 7 6"></path>`, Lv = x`<path d="M3 12.5h4l2.5-6 4 11 2.5-5H21"></path>`, M0 = (a, t = 22) => a === "kid" || a === "health" ? d`<svg class="i" aria-hidden="true" viewBox="0 0 24 24" style="--s:${t}px">${a === "kid" ? Cv : Lv}</svg>` : U(a, t), $0 = { house: "home", cals: "calendar", speakers: "music", voice: "megaphone", phones: "bell", backup: "repeat", screen: "dial", log: "list" }, bi = ["health", "advanced"], Qv = { ok: "check", warn: "alert", bad: "alert", wait: "timer" }, Bv = { ok: "Working", warn: "Worth a look", bad: "Not working", wait: "Checking or waiting" }, Xn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], Gv = [["mon", "Mon"], ["tue", "Tue"], ["wed", "Wed"], ["thu", "Thu"], ["fri", "Fri"]], ia = 44, _o = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], Ta = (a) => String(a).padStart(2, "0"), sa = (a) => {
-  if (!oe(a)) return a ? String(a) : "Not set";
+  if (!se(a)) return a ? String(a) : "Not set";
   const [t, e] = String(a).split(":").map(Number);
   return `${t % 12 || 12}:${Ta(e)} ${t < 12 ? "am" : "pm"}`;
 }, F0 = (a) => {
@@ -18236,7 +18242,7 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
   }
   _tm(t, e, i, s = "") {
     const o = e() ?? s;
-    return d`<button class="stime tap" aria-haspopup="dialog" aria-label=${`${t}: ${sa(o)}. Change`} aria-invalid=${o && !oe(o) ? "true" : "false"} @click=${() => {
+    return d`<button class="stime tap" aria-haspopup="dialog" aria-label=${`${t}: ${sa(o)}. Change`} aria-invalid=${o && !se(o) ? "true" : "false"} @click=${() => {
       this._kb = "", this._time = { title: t, get: () => e() ?? s, set: i };
     }}>${sa(o)}</button>`;
   }
@@ -18300,7 +18306,7 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
     }, 90));
   }
   _hmOf() {
-    const t = this._time?.get() ?? "", [e, i] = oe(t) ? t.split(":").map(Number) : [7, 0];
+    const t = this._time?.get() ?? "", [e, i] = se(t) ? t.split(":").map(Number) : [7, 0];
     return [e, i];
   }
   _mins(t) {
@@ -19351,7 +19357,7 @@ const _0 = () => Yo && Date.now() < Yo.until ? Yo : null, En = (a) => {
     </div>`;
   }
 };
-$r.styles = [Xt, Ci, st`
+$r.styles = [Et, Ci, st`
     :host { position: absolute; inset: 0; z-index: 30; display: flex; align-items: stretch; justify-content: center; padding: 16px; background: var(--scrim, rgba(6,16,28,.52)); /* a look that blurs its sheets' backdrop (Obsidian's .scrim) blurs this one too: backlog 144 */ -webkit-backdrop-filter: var(--scrim-filter, none); backdrop-filter: var(--scrim-filter, none); animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
     :host([data-closing]) { animation: fhout var(--m-2, 160ms) var(--e-in, ease-in) forwards; pointer-events: none; }
     :host([data-phone]) { position: fixed; padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)); }
@@ -19588,8 +19594,8 @@ let Td = $r;
 customElements.get("fh-settings") || customElements.define("fh-settings", Td);
 const Zv = (a = [], t = {}, e = /* @__PURE__ */ new Date()) => {
   if (!a.length) return !1;
-  const i = Et(e), s = Math.max(300, lt(t.end ?? "06:30"));
-  return i < s || a.some((o) => i >= lt($e(o.bedtime, e)));
+  const i = re(e), s = Math.max(300, pt(t.end ?? "06:30"));
+  return i < s || a.some((o) => i >= pt($e(o.bedtime, e)));
 }, Ov = (a) => {
   const t = a.getHours() * 60 + a.getMinutes() + a.getSeconds() / 60;
   return [0.5 + 0.5 * Math.sin(t / 9), 0.5 + 0.5 * Math.cos(t / 14)];
@@ -19841,7 +19847,7 @@ const Pv = (a, t) => {
   { k: "reward", ic: "star", title: "Rewards asked for", say: "Approve takes the points. Not yet changes nothing." },
   { k: "job", ic: "check", title: "Jobs said done", say: "Approve ticks the job and gives its points. Not yet leaves it unticked." },
   { k: "chat", ic: "ask", title: "Asked for a chat", say: "Seen takes it off the list and tells him a parent has seen it." }
-], ny = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, jd = "0.38.29", V0 = "family-hub-theme", T0 = "family-hub-sounds", al = {
+], ny = d`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`, jd = "0.38.30", V0 = "family-hub-theme", T0 = "family-hub-sounds", al = {
   "clear-night": "Clear",
   cloudy: "Cloudy",
   exceptional: "Wild weather",
@@ -20147,7 +20153,7 @@ const Pv = (a, t) => {
     };
     return t ? d`${this._sheetHead(`A note for ${t.name}`, `It shows on ${t.name}’s page until ${t.name} taps Thanks. It gives no points.`, "note")}
       <div class="noticed">
-        <div class="nsays" role="group" aria-label="Ready notes: tap one to leave it">${Vw.map((s) => d`<button class="nsay tap" data-act="note-say" ?disabled=${e.busy} @click=${() => void this._leaveNote(s)}><span class="nq" aria-hidden="true">“</span><span>${s}</span></button>`)}</div>
+        <div class="nsays" role="group" aria-label="Ready notes: tap one to leave it">${Vw.map((s) => d`<button class="nsay tap" data-act="note-say" ?disabled=${e.busy} @click=${() => void this._leaveNote(s)}><span class="nq" aria-hidden="true"></span><span>${s}</span></button>`)}</div>
         <span class="label">Or in your own words</span>
         <div class="nown"><input class="field" data-act="note-text" inputmode="none" maxlength=${ed} aria-label="Your note" placeholder="I noticed…" .value=${e.text} @input=${(s) => i({ text: s.target.value })}>
           <button class="pill tap primary" data-act="note-send" ?disabled=${e.busy || !Ts(e.text)} @click=${() => void this._leaveNote(e.text)}>Leave it</button></div>
@@ -20252,7 +20258,7 @@ const Pv = (a, t) => {
   /** The one plain line while Home Assistant is away, in place of the header's chips (on every page, a child's included). */
   _houseLine() {
     if (bt() || rg() < Zp) return null;
-    const t = new Date(og()), e = dt(t, /* @__PURE__ */ new Date()) ? ot(t) : `${Ki(t)} ${ot(t)}`;
+    const t = new Date(og()), e = lt(t, /* @__PURE__ */ new Date()) ? ot(t) : `${Ki(t)} ${ot(t)}`;
     return d`<div class="capsule" aria-live="polite"><button class="cap tap house" data-kind="house" data-p="0" @click=${() => this._say(dg, 9e3)}>${U("alert", 20)}<span>${lg(e)}</span></button></div>`;
   }
   /** True while the artwork must not come up (or must give way): something is counting, sounding, being asked or being typed. */
@@ -20267,16 +20273,16 @@ const Pv = (a, t) => {
   _artLines() {
     const t = this._config, e = this._now, i = e.getTime(), s = [];
     if (this._morningWindow(e)) {
-      const l = Et(e), p = [...new Set((t.kids ?? []).map((h) => lt(h.leave_by ?? t.morning?.leave_by ?? "08:15")))].filter((h) => h > l && h - l <= 90).sort((h, c) => h - c)[0];
+      const l = re(e), p = [...new Set((t.kids ?? []).map((h) => pt(h.leave_by ?? t.morning?.leave_by ?? "08:15")))].filter((h) => h > l && h - l <= 90).sort((h, c) => h - c)[0];
       p !== void 0 && s.push(p - l === 1 ? "Leave in 1 minute" : `Leave in ${p - l} minutes`);
     }
     const o = this._soon.find((l) => !l.allDay && l.start.getTime() > i && l.start.getTime() - i < 18 * 36e5 && !this._private(l.title));
     if (o) {
       const l = Math.round((o.start.getTime() - i) / 6e4);
-      s.push(l <= 45 ? `${o.title} in ${l} min` : `${dt(o.start, e) ? "" : "Tomorrow: "}${o.title} at ${ot(o.start)}`);
+      s.push(l <= 45 ? `${o.title} in ${l} min` : `${lt(o.start, e) ? "" : "Tomorrow: "}${o.title} at ${ot(o.start)}`);
     }
     const r = this._bins(e);
-    r && r.bins.length && (dt(r.night, e) || dt(r.night, pt(e, 1))) && s.push(`${dt(r.night, e) ? "Bins out tonight" : "Bins out tomorrow night"}: ${r.bins.join(" and ")}`);
+    r && r.bins.length && (lt(r.night, e) || lt(r.night, dt(e, 1))) && s.push(`${lt(r.night, e) ? "Bins out tonight" : "Bins out tomorrow night"}: ${r.bins.join(" and ")}`);
     const n = this.hass?.states[t.weather ?? ""];
     if (n) {
       const l = Number(n.attributes.temperature), p = this._wx.max;
@@ -20499,14 +20505,14 @@ const Pv = (a, t) => {
   _range() {
     if (this._view === "day") {
       const i = mt(this._anchor);
-      return [i, pt(i, 1)];
+      return [i, dt(i, 1)];
     }
     if (this._view === "month") {
       const i = wc(this._anchor);
-      return [i, pt(i, 42)];
+      return [i, dt(i, 42)];
     }
     const t = this._span, e = t < 7 ? mt(this._anchor) : fs(this._anchor);
-    return [e, pt(e, t)];
+    return [e, dt(e, t)];
   }
   /** How many days the week view shows: all seven where they fit, five or three on a narrower tablet (then starting from the chosen day, not from Monday). */
   get _span() {
@@ -20523,7 +20529,7 @@ const Pv = (a, t) => {
     }), this._loadWeather(), this._loadReminders(), (s || !this._soon.length) && this._loadSoon(), this._config.photos && !this._photos.length && !this._photoTimer && this._loadPhotos();
   }
   async _loadSoon() {
-    const t = mt(/* @__PURE__ */ new Date()), e = await this._loadEvents(t, pt(t, 3), !0);
+    const t = mt(/* @__PURE__ */ new Date()), e = await this._loadEvents(t, dt(t, 3), !0);
     e && (this._soon = e);
   }
   async _loadPhotos() {
@@ -20666,7 +20672,7 @@ const Pv = (a, t) => {
     return (this._config.private ?? []).some((i) => e.includes(i.toLowerCase()));
   }
   _eventsOn(t, e = this._events) {
-    const i = mt(t), s = pt(i, 1);
+    const i = mt(t), s = dt(i, 1);
     return e.filter((o) => o.start < s && o.end > i && !(o.allDay && o.end.getTime() === i.getTime())).map((o, r) => ({ ev: o, i: r, k: Me(o, i).sort })).sort((o, r) => o.k - r.k || o.i - r.i).map((o) => o.ev);
   }
   _openEvent(t, e) {
@@ -20750,13 +20756,11 @@ const Pv = (a, t) => {
     return !i || !e.kids?.length ? !1 : Xp(t, e.school_terms, e.public_holidays) && kc(t, i.start ?? "06:30", i.end ?? "08:45");
   }
   /**
-   * The school morning until the last child has left (his own leaving time, else the board's): no screensaver and no Ask, so the morning
-   * board is what the kitchen sees (0.38.26). The morning window itself (the board as the home page, Morning in the dock) runs to its end as before.
+   * The school morning: no screensaver and no Ask, so the morning board is what the kitchen sees (0.38.26). Since 0.38.30 (Oliver's answer
+   * to question 35) it lasts the whole morning window, to the board's end (8:30 on the live config), not only to the last child's leaving time.
    */
   _morningHold(t = /* @__PURE__ */ new Date()) {
-    if (!this._morningWindow(t)) return !1;
-    const e = this._config, i = Math.max(...(e.kids ?? []).map((s) => lt(s.leave_by ?? e.morning?.leave_by ?? "08:15")));
-    return Et(t) < i;
+    return this._morningWindow(t);
   }
   _termLabel(t = /* @__PURE__ */ new Date()) {
     const e = he(t), i = this._config.school_terms ?? [], s = i.findIndex(([l, p]) => e >= l && e <= p);
@@ -20866,7 +20870,7 @@ const Pv = (a, t) => {
    * afternoon one, midnight for an evening one), then nothing on the header: the 7:30 pm digest names it. The sheet still says Overdue all day.
    */
   _medStatus(t, e) {
-    const i = this.hass?.states[`input_datetime.fh_med_${t}`], s = this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", o = ["unknown", "unavailable"].includes(s) ? "" : s, r = i?.attributes.timestamp ? new Date(i.attributes.timestamp * 1e3) : null, n = !!r && !o && r.getHours() === 0 && r.getMinutes() === 0 && r.getSeconds() === 0, l = r && !n && dt(r, /* @__PURE__ */ new Date()) ? r : null, p = Et(this._now), h = lt(e), c = Math.max(h + el, sy(h));
+    const i = this.hass?.states[`input_datetime.fh_med_${t}`], s = this.hass?.states[`input_text.fh_med_${t}_by`]?.state ?? "", o = ["unknown", "unavailable"].includes(s) ? "" : s, r = i?.attributes.timestamp ? new Date(i.attributes.timestamp * 1e3) : null, n = !!r && !o && r.getHours() === 0 && r.getMinutes() === 0 && r.getSeconds() === 0, l = r && !n && lt(r, /* @__PURE__ */ new Date()) ? r : null, p = re(this._now), h = pt(e), c = Math.max(h + el, sy(h));
     return {
       given: l,
       by: o,
@@ -20980,7 +20984,7 @@ const Pv = (a, t) => {
   _bins(t) {
     const e = this._config.bins;
     if (!e) return null;
-    const i = pt(t, (e.day - t.getDay() + 7) % 7), s = (e.alternate ?? []).filter(ma);
+    const i = dt(t, (e.day - t.getDay() + 7) % 7), s = (e.alternate ?? []).filter(ma);
     let o = [];
     if (s.length) {
       const r = e.anchor ? /* @__PURE__ */ new Date(`${e.anchor}T00:00:00`) : new Date(2026, 0, 5), n = Math.round((new Date(i.getFullYear(), i.getMonth(), i.getDate()).getTime() - r.getTime()) / (7 * 864e5));
@@ -21066,7 +21070,7 @@ const Pv = (a, t) => {
   }
   _shift(t) {
     const e = this._anchor;
-    this._anchor = this._view === "day" ? pt(e, t) : this._view === "week" ? pt(e, this._span * t) : new Date(e.getFullYear(), e.getMonth() + t, 1);
+    this._anchor = this._view === "day" ? dt(e, t) : this._view === "week" ? dt(e, this._span * t) : new Date(e.getFullYear(), e.getMonth() + t, 1);
   }
   /**
    * What "All off" leaves alone: everything named in `keep_on`, anything inside a group named there, and any group that has one of
@@ -21282,7 +21286,7 @@ const Pv = (a, t) => {
       } else if (f.length && !b)
         i.push([2, d`<button class="cap tap" data-kind="med" data-p="2" aria-label=${`Medicine: ${f.length} due`} @click=${k}>${Mt("pill", 22)}<span style="white-space:nowrap">${f.length} due</span></button>`]);
       else if (g.length && !b) {
-        const w = oy(lt(g[0].m.time)), y = `${g.length === 1 ? `${w} dose` : `${g.length} ${w.toLowerCase()} doses`} not recorded`;
+        const w = oy(pt(g[0].m.time)), y = `${g.length === 1 ? `${w} dose` : `${g.length} ${w.toLowerCase()} doses`} not recorded`;
         i.push([3.5, d`<button class="cap tap" data-kind="med" data-quiet data-p="3" aria-label=${`Medicine: ${y}: check before giving`} @click=${k}>${Mt("pill", 22)}<span class="mq"><b>${y}</b><span>Check before giving</span></span></button>`]);
       } else !c.length && !f.length && !g.length && m.length && this._now.getHours() < 12 && i.push([5, d`<button class="cap tap ok" data-kind="med" data-p="5" aria-label=${`Medication given${m.length === 1 ? ` at ${ot(m[0].s.given)}` : `: ${m.length}`}`} @click=${k}>${Mt("pill", 22)}${U("check", 18)}<span>${m.length === 1 ? ot(m[0].s.given) : `${m.length} given`}</span></button>`]);
     }
@@ -21290,13 +21294,13 @@ const Pv = (a, t) => {
       this._wantsChat = this._wantsChat.filter((c) => c !== h);
     }}>${U("ask", 20)}<span>${h} would like a chat</span></button>`]);
     const r = this._bins(this._now);
-    if (r && dt(r.night, this._now) && r.bins.length) {
+    if (r && lt(r.night, this._now) && r.bins.length) {
       const h = this._now.getHours() >= 16 ? 3.2 : 5;
       i.push([h, d`<span class="cap" data-kind="bin" data-p=${h < 4 ? 3 : 5} role="img" aria-label=${`Bin night: ${r.bins.join(" and ")} bins go out tonight`}>${U("bin", 20)}<span>Bins tonight</span>${this._binDots(r.bins)}<span>${r.bins.join(" + ")}</span></span>`]);
     }
     const n = Date.now(), l = this._soon.find((h) => !h.allDay && h.start.getTime() > n && h.start.getTime() - n < 12 * 36e5 && !this._private(h.title));
     if (l) {
-      const h = Math.round((l.start.getTime() - n) / 6e4), c = h < 60 ? `in ${h} min` : `${dt(l.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${ot(l.start)}`;
+      const h = Math.round((l.start.getTime() - n) / 6e4), c = h < 60 ? `in ${h} min` : `${lt(l.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${ot(l.start)}`;
       i.push([3, d`<button class="cap evcap tap" data-kind="next" data-p="3" aria-label=${`Next: ${this._evName(l, l.start)}`} @click=${() => this._openEvent(l, l.start)}>${this._chip(l.who, l.colour)}<span class="ell">${l.title}</span><span style="white-space:nowrap">· ${c}</span></button>`]);
     }
     const p = e.music_player ? this.hass?.states[e.music_player] : void 0;
@@ -21328,7 +21332,7 @@ const Pv = (a, t) => {
     o !== null && s.push(this._timerChip(o));
     const r = t.name.toLowerCase(), n = this._soon.find((l) => !l.allDay && l.start.getTime() > i && l.start.getTime() - i < 12 * 36e5 && !this._private(l.title) && (l.who === t.name || l.title.toLowerCase().includes(r)));
     if (n) {
-      const l = Math.round((n.start.getTime() - i) / 6e4), p = l < 60 ? `in ${l} min` : `${dt(n.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${ot(n.start)}`;
+      const l = Math.round((n.start.getTime() - i) / 6e4), p = l < 60 ? `in ${l} min` : `${lt(n.start, /* @__PURE__ */ new Date()) ? "" : "Tomorrow "}${ot(n.start)}`;
       s.push(d`<button class="cap evcap tap" data-kind="next" data-p="3" aria-label=${`Next: ${this._evName(n, n.start)}`} @click=${() => this._openEvent(n, n.start)}>${this._chip(t.name, t.colour)}<span class="ell">Next: ${n.title}</span><span style="white-space:nowrap">· ${p}</span></button>`);
     }
     return d`<div class="capsule" aria-live="polite">${s}</div>`;
@@ -21375,8 +21379,8 @@ const Pv = (a, t) => {
       </header>`;
   }
   _planner() {
-    const t = this._view, [e, i] = this._range(), s = t === "week" ? ["This week", aw(e, pt(i, -1))] : t === "day" ? [dt(e, /* @__PURE__ */ new Date()) ? "Today" : Ki(e), Ei(e)] : [this._anchor.toLocaleDateString("en-AU", { month: "long" }), String(this._anchor.getFullYear())];
-    t === "week" && this._span < 7 ? s[0] = dt(e, /* @__PURE__ */ new Date()) ? `Next ${this._span} days` : `${this._span} days` : t === "week" && !dt(fs(/* @__PURE__ */ new Date()), e) && (s[0] = "Week of");
+    const t = this._view, [e, i] = this._range(), s = t === "week" ? ["This week", aw(e, dt(i, -1))] : t === "day" ? [lt(e, /* @__PURE__ */ new Date()) ? "Today" : Ki(e), Ei(e)] : [this._anchor.toLocaleDateString("en-AU", { month: "long" }), String(this._anchor.getFullYear())];
+    t === "week" && this._span < 7 ? s[0] = lt(e, /* @__PURE__ */ new Date()) ? `Next ${this._span} days` : `${this._span} days` : t === "week" && !lt(fs(/* @__PURE__ */ new Date()), e) && (s[0] = "Week of");
     const o = this._config.calendars ?? [];
     return d`
       <section class="glass planner" aria-label="Family planner">
@@ -21446,10 +21450,10 @@ const Pv = (a, t) => {
     </button>`;
   }
   _week(t) {
-    const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (n, l) => pt(t, l)), s = this._idle && i.some((n) => dt(n, e)) && !this._sheet, o = i.map((n) => dt(n, e) ? s ? "2.3fr" : "1.4fr" : "1fr").join(" "), r = this._evKey === this._fetchedKey && !this._events.length;
+    const e = /* @__PURE__ */ new Date(), i = Array.from({ length: this._span }, (n, l) => dt(t, l)), s = this._idle && i.some((n) => lt(n, e)) && !this._sheet, o = i.map((n) => lt(n, e) ? s ? "2.3fr" : "1.4fr" : "1fr").join(" "), r = this._evKey === this._fetchedKey && !this._events.length;
     return d`<div class="weekwrap"><div class="week" ?data-rest=${s} style="grid-template-columns:${o}">
       ${i.map((n) => {
-      const l = this._eventsOn(n), p = dt(n, e), h = l.filter((b) => !this._private(b.title)), c = l.filter((b) => this._private(b.title)), f = he(n), g = this._clip[f] ?? 0, m = this._bins(n), k = !!m && dt(m.night, n) && m.bins.length > 0;
+      const l = this._eventsOn(n), p = lt(n, e), h = l.filter((b) => !this._private(b.title)), c = l.filter((b) => this._private(b.title)), f = he(n), g = this._clip[f] ?? 0, m = this._bins(n), k = !!m && lt(m.night, n) && m.bins.length > 0;
       return d`<div class="col ${p ? "today" : ""}">
           <div class="dayhead"><span class="muted" style="font-size:var(--fs-2);font-weight:var(--w-bold, 700)">${Ki(n)}</span><span class="num">${n.getDate()}</span>${ce(this._lk, "day", { now: n, arcs: this._arcs(h) })}${c.length ? d`<span class="pchip" role="img" aria-label="Private reminder" title="Private reminder">${Mt("lock", 17)}</span>` : u}${k ? d`<span class="binmk" data-act="bin-night" role="img" aria-label=${`Bin night: the ${m.bins.join(" and ")} bin${m.bins.length > 1 ? "s go" : " goes"} out`} title="Bin night">${U("bin", 16)}${this._binDots(m.bins)}</span>` : u}</div>
           <div class="evs" data-day=${f}>${h.map((b) => this._evCard(b, n))}</div>
@@ -21461,7 +21465,7 @@ const Pv = (a, t) => {
     </div>${r ? d`<div class="quiet"><span>${this._span < 7 ? "Nothing planned" : "Nothing planned this week"}</span></div>` : u}</div>`;
   }
   _day(t) {
-    const e = this._eventsOn(t), i = dt(t, /* @__PURE__ */ new Date()), s = d`<div class="daylist scrolly" data-fits @scroll=${Nt}>
+    const e = this._eventsOn(t), i = lt(t, /* @__PURE__ */ new Date()), s = d`<div class="daylist scrolly" data-fits @scroll=${Nt}>
       ${e.length ? e.map((r) => this._private(r.title) ? d`<div class="dayrow"><span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-semi, 600)" class="muted">${Me(r, t).label}</span><span class="muted" style="font-size:var(--fs-3);display:inline-flex;align-items:center;gap:8px">${Mt("lock", 20)}Private</span></div>` : d`
         <button class="dayrow tap ${this._evState(r)}" style="--c:${Z(r.colour)}" aria-label=${this._evName(r, t)} @click=${() => this._openEvent(r, t)}>
           <span style="width:90px;font-size:var(--fs-3);font-weight:var(--w-bold, 700)" class="muted dwhen">${Me(r, t).label}</span>
@@ -21475,10 +21479,10 @@ const Pv = (a, t) => {
   _month() {
     const t = wc(this._anchor), e = this._anchor.getMonth(), i = /* @__PURE__ */ new Date();
     return d`<div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:6px">
-      <div class="mhead">${Array.from({ length: 7 }, (s, o) => d`<span>${Ki(pt(t, o))}</span>`)}</div>
+      <div class="mhead">${Array.from({ length: 7 }, (s, o) => d`<span>${Ki(dt(t, o))}</span>`)}</div>
       <div class="month">
-        ${Array.from({ length: 42 }, (s, o) => pt(t, o)).map((s) => {
-      const o = this._eventsOn(s).filter((n) => !this._private(n.title)), r = dt(s, i);
+        ${Array.from({ length: 42 }, (s, o) => dt(t, o)).map((s) => {
+      const o = this._eventsOn(s).filter((n) => !this._private(n.title)), r = lt(s, i);
       return d`<button class="cell tap ${s.getMonth() !== e ? "out" : ""} ${r ? "today" : ""}" style="text-align:left" aria-label="${Ei(s)}${r ? ", today" : ""}, ${o.length ? `${o.length} event${o.length > 1 ? "s" : ""}` : "nothing on"}" @click=${(n) => {
         const l = n.target.closest?.(".mev[data-i]"), p = l ? o[Number(l.getAttribute("data-i"))] : void 0;
         p ? this._openEvent(p, s) : (this._anchor = s, this._view = "day");
@@ -21564,7 +21568,7 @@ const Pv = (a, t) => {
     return t["sun.sun"] ? t["sun.sun"].state === "above_horizon" : e.getHours() >= 6 && e.getHours() < 19;
   }
   _artData(t) {
-    const e = this._config, i = this.hass?.states ?? {}, s = this._now, o = s.getHours() * 60 + s.getMinutes(), r = e.weather ? i[e.weather] : void 0, n = e.music_player ? i[e.music_player] : void 0, l = this._sunUp(), p = t ? n?.attributes.entity_picture : void 0, h = e.groceries ? Number(i[e.groceries]?.state) : NaN, c = lt(e.morning?.start ?? "06:30"), f = lt(e.morning?.end ?? "08:45");
+    const e = this._config, i = this.hass?.states ?? {}, s = this._now, o = s.getHours() * 60 + s.getMinutes(), r = e.weather ? i[e.weather] : void 0, n = e.music_player ? i[e.music_player] : void 0, l = this._sunUp(), p = t ? n?.attributes.entity_picture : void 0, h = e.groceries ? Number(i[e.groceries]?.state) : NaN, c = pt(e.morning?.start ?? "06:30"), f = pt(e.morning?.end ?? "08:45");
     return {
       day: s.getDate(),
       dow: s.toLocaleDateString("en-AU", { weekday: "short" }),
@@ -21911,7 +21915,7 @@ const Pv = (a, t) => {
       const [w, y] = b.split(":").map(Number);
       return `${w % 12 || 12}:${String(y).padStart(2, "0")} ${w < 12 ? "am" : "pm"}`;
     }, c = (b) => d`<span class="label">${b}</span>`, f = this._bins(s), g = (t.people ?? []).some((b) => b.entity), m = [];
-    r.length && m.push(d`${c("Who to ring")}${r.map((b) => d`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && m.push(d`${c("Bedtimes tonight")}${l.map((b) => d`<div class="irow"><b>${b.name}</b><span>${h(b.at)}</span></div>`)}`), p.length && m.push(d`${c("Still on today")}${p.map((b) => d`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Me(b, s).label}</span></div>`)}`), f && m.push(d`${c("Bin night")}<div class="irow"><b>${dt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night, ${f.night.toLocaleDateString("en-AU", { day: "numeric", month: "short" }).replace(" ", " ")}`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(d`${c("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? d`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? d`<b>${e.wifi.password}</b>` : d`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${U("lock", 16)}Show</button>`}</div>` : u}`), g && m.push(d`${c("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(d`${c("Good to know")}${n.map((b) => d`<div class="iline">${b}</div>`)}`);
+    r.length && m.push(d`${c("Who to ring")}${r.map((b) => d`<a class="irow tap" href=${`tel:${b.phone.replace(/[^\d+]/g, "")}`} aria-label=${`Ring ${b.name} on ${b.phone}`}><b>${b.name}</b><span class="display" style="font-size:var(--fs-4);font-variant-numeric:tabular-nums">${b.phone}</span></a>`)}`), l.length && m.push(d`${c("Bedtimes tonight")}${l.map((b) => d`<div class="irow"><b>${b.name}</b><span>${h(b.at)}</span></div>`)}`), p.length && m.push(d`${c("Still on today")}${p.map((b) => d`<div class="irow"><b class="ell">${b.title}</b><span style="white-space:nowrap">${Me(b, s).label}</span></div>`)}`), f && m.push(d`${c("Bin night")}<div class="irow"><b>${lt(f.night, s) ? "Tonight" : `${f.night.toLocaleDateString("en-AU", { weekday: "long" })} night, ${f.night.toLocaleDateString("en-AU", { day: "numeric", month: "short" }).replace(" ", " ")}`}</b><span style="display:inline-flex;align-items:center;gap:6px">${this._binDots(f.bins)}${f.bins.join(" + ")}</span></div>`), e.wifi && m.push(d`${c("Wi-Fi")}<div class="irow"><span>Network</span><b>${e.wifi.name}</b></div>${e.wifi.password ? d`<div class="irow" data-act="wifi-pw" style="align-items:center"><span>Password</span>${!t.parent_pin || Date.now() < this._wifiUntil ? d`<b>${e.wifi.password}</b>` : d`<button class="pill tap" data-act="wifi-show" aria-label="Show the Wi-Fi password. Needs the parents’ PIN" @click=${() => this._wifiAsk()}>${U("lock", 16)}Show</button>`}</div>` : u}`), g && m.push(d`${c("Who is home")}<div class="iline">${this._whoHome()}</div>`), n.length && m.push(d`${c("Good to know")}${n.map((b) => d`<div class="iline">${b}</div>`)}`);
     const k = d`<button class="round tap" style="width:52px;height:52px;flex-shrink:0" data-act="settings" aria-label="Settings, for parents" @click=${() => this._openSettings()}>${U("cog", 22)}</button>`;
     return d`${this._sheetHead(e.title ?? "House info", "For babysitters, grandparents and visitors", "info", k)}
       <div class="sos">
@@ -21929,7 +21933,7 @@ const Pv = (a, t) => {
       <div class="info2">${m.map((b) => d`<div class="icol">${b}</div>`)}</div>`;
   }
 };
-$t.styles = [Xt, Ci, st`${Lt(Li)}`, st`${Lt(Jv)}`], $t.properties = {
+$t.styles = [Et, Ci, st`${Lt(Li)}`, st`${Lt(Jv)}`], $t.properties = {
   hass: { attribute: !1 },
   _config: { state: !0 },
   _view: { state: !0 },
