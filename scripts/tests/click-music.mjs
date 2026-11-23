@@ -122,7 +122,7 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
       console.log(out2);
       // the master fader moves every room with music by the same amount (backlog 160, 23 Nov: it always did. This line came after the moment pads' pages,
       // and Playwright's clock belongs to the browser context, so the page opened at 20:10 for the bedroom pad moved this page into the night as well:
-      // the night screensaver came up over the desk and the drag only woke it. So it is tried here, before any other page is opened.)
+      // the night screensaver came up over the desk and the drag only woke it. That page has a context of its own now, and the fader is tried before any other page.)
       await v.evaluate(() => { window.__calls.length = 0; }); const liveRooms = await M(v).locator('.strip[data-live][data-zone]').count();
       const m = await M(v).locator('.strip.master .fcap').boundingBox(); await v.mouse.move(m.x + 20, m.y + 10); await v.mouse.down(); await v.mouse.move(m.x + 20, m.y - 20, { steps: 4 }); await v.mouse.up(); await v.waitForTimeout(300);
       const moved = await v.evaluate(() => [...new Set(window.__calls.filter((c) => /volume_set/.test(c)).map((c) => c.split(' ')[1]))]);
@@ -139,8 +139,11 @@ if (process.env.ONLY === 'polish') { await polish(); console.log('errors:', errs
       await pv.evaluate(() => { window.__calls.length = 0; }); await M(pv).locator('.hpad', { hasText: 'Tidy-up' }).click(); await pv.waitForTimeout(700);
       console.log('pad in every room:', await pv.evaluate(() => window.__calls.filter((c) => /play_media|media_player\.join/.test(c)).map((c) => c.slice(0, 190)).join(' || ')));
       await pv.close();
-      const nv = await open('look=glass&page=music&mview=house&moments=1', '20:10'); await M(nv).locator('.hpad', { hasText: 'Wind down' }).click(); await nv.waitForTimeout(500);
-      console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nv.close();
+      // (a context of its own: Playwright's clock belongs to the context, so a page opened at 20:10 in this one put the desk page, still open, into the night too, and its night screensaver came up over the desk; backlog 160, 23 Nov)
+      const nctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, timezoneId: 'Australia/Perth', locale: 'en-AU' }), nv = await nctx.newPage(); nv.on('pageerror', (e) => errs.push(String(e)));
+      await nv.clock.install({ time: new Date('2026-11-10T20:10:00+08:00') }); await nv.goto('http://localhost:' + PORT + '/?look=glass&page=music&mview=house&moments=1&mviews=all'); await nv.waitForFunction('window.__ready === true'); await nv.waitForTimeout(700);
+      await M(nv).locator('.hpad', { hasText: 'Wind down' }).click(); await nv.waitForTimeout(500);
+      console.log('bedroom pad asks first at night:', await M(nv).locator('fh-pin').count() === 1, '| nothing played yet:', !(await calls(nv, /play_media/))); await nctx.close();
       }
     await M(v).getByRole('button', { name: 'Change the view', exact: true }).click(); await v.waitForTimeout(200);
     if (view === 'dial') {
