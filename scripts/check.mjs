@@ -24,6 +24,11 @@
 // hand; the summary says so)   --list (show the plan and stop)   --jobs <n>   --nobuild   --sizes more (the fit check also walks 1280 x 800,
 // 1312 x 668 and 1024 x 768: backlog 35)   --help (this comment, and stop)
 //
+// One check per piece (23 Nov): run `--batch` once when the piece is ready, not a narrowed check first and the batch check after (the batch
+// check runs the same suites again; it already reruns a failure alone). While working, run the one suite being changed by hand.
+// The full check once on a release candidate, not twice: a second full run repeats 80 minutes to catch what "again, alone" already catches.
+// Since 23 Nov: watchdog and screensaver follow a change to family-hub.ts only where its changed lines touch what they test (`shell` in RULES).
+//
 // Since 23 Nov: a batch's fit check walks the iPad as well as the wall when it is narrowed to the pages a change draws (the full check found
 // two iPad faults older than four batches); a change to the fit check itself (clearance.mjs, or a "fit" entry in known.json) walks every page;
 // click-base is four parts by page (click-base-shell, -kid, -planner, -pages), each run like any other suite.
@@ -44,6 +49,9 @@ const changed = [...new Set([...sh(`git diff --name-only ${BASE}...HEAD`).split(
   // every release changes the version line in the shell, and the shell calls nine suites: a change that is only that line does not count
   .filter((f) => f !== 'src/family-hub.ts' || sh(`git diff -U0 ${BASE} -- src/family-hub.ts`).split('\n').filter((l) => /^[+-][^+-]/.test(l)).some((l) => !/const VERSION = /.test(l)));
 const hit = (re) => changed.some((f) => re.test(f));
+// the shell's changed lines, for a suite that follows only part of it (`shell` in RULES)
+const shellLines = sh(`git diff -U0 ${BASE} -- src/family-hub.ts`).split('\n').filter((l) => /^[+-][^+-]/.test(l)).join('\n');
+const hitRule = (r) => !r.shell ? hit(r.when) : changed.some((f) => f !== 'src/family-hub.ts' && r.when.test(f)) || (changed.includes('src/family-hub.ts') && r.shell.test(shellLines));
 const FIVE = 'glass,glass-dark,fridge,orbit,sports,obsidian' /* five looks, Glass in light and in dark */, WALL = 'wall:1920x1080', IPAD = 'ipad:1180x820';
 const MORE_SIZES = arg('sizes') === 'more' ? ',small:1280x800,short:1312x668,tab:1024x768' : '';
 // a change to the fit check itself, or to what it sets aside, is checked on every page (a change to test files only gave it none: backlog 106)
@@ -81,13 +89,15 @@ const RULES = [
   { suite: 'f5', when: src('groceries|weather|home|dinner|term|chat|morning|settings') },
   { suite: 'settings', when: src('settings|settings-store|validate|types') },
   { suite: 'art', when: src('artmode|artlib|nightly|presence|studio|avatar') },
-  { suite: 'screensaver', when: src(`artmode|artlib|${SHELL}`) },
+  // (screensaver and watchdog follow the shell only where its change touches what they test: the screensaver's layer, touches, the morning
+  // hold, the house link, reloads. Until 23 Nov they ran on any change to family-hub.ts, 17 minutes, and 5 of the 6 pieces before touched none of it)
+  { suite: 'screensaver', when: src(`artmode|artlib|${SHELL}`), shell: /_art\b|_art\.|_artBlocked|_lastTouch|_morningHold|_onTick|_nightManual|idle|screensaver/ },
   { suite: 'sounds', when: src('sound|soundtrim') },
   { suite: 'sports', when: /^src\/scenes\//, },
   { suite: 'dark', when: src(`${LOOKS}|settings|ambient|weather|radar|${SHELL}`) },
   { suite: 'offline', when: src(`online|radar|weather|voice|util|music|fonts`) },
   { suite: 'hadown', when: src(`house|util|kid|morning|groceries|weather|${SHELL}`) },
-  { suite: 'watchdog', when: src(`watchdog|house|artmode|trust|${SHELL}`) },
+  { suite: 'watchdog', when: src(`watchdog|house|artmode|trust|${SHELL}`), shell: /_art\b|_art\.|_artBlocked|_lastTouch|_morningHold|houseUp|_houseEval|shouldUpdate|watchdog|reload|idle/ },
   { suite: 'health', when: src(`health|watchdog|house|settings|trust|voice|online|types`) },
   { suite: 'obsidian', when: src(`${LOOKS}|art|avatar|music|musicviews|scenes/obsidian|${SHELL}`) },
 ];
@@ -114,7 +124,7 @@ for (const s of FULL ? ALL : RULES.map((r) => r.suite)) { const r = RULES.find((
   if (!exists(s)) continue;
   // (until 23 Nov a batch left click-base, 19 minutes in one, to the full check; its four parts run like any other suite)
   const ownFile = changed.includes(`scripts/tests/${s}.mjs`) || (r.lib && changed.includes(`scripts/tests/lib/${r.lib}.mjs`));
-  if (only ? only.includes(s) : FULL || hit(r.when) || (BROAD && r.long) || ownFile) plan.push({ name: s, file: s, alone: !!r.alone, env: {} }); else left.push(s); }
+  if (only ? only.includes(s) : FULL || hitRule(r) || (BROAD && r.long) || ownFile) plan.push({ name: s, file: s, alone: !!r.alone, env: {} }); else left.push(s); }
 const fit = !only || only.includes('clearance');
 if (fit && (FULL || pages === null || pages.length)) {
   // a batch walks the wall, and the iPad too where it is narrowed to a change's pages; every page in six walks stays at the wall (time)
