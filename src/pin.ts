@@ -10,6 +10,31 @@ const LOCK = { misses: 0, until: 0 };
 /** Whether the digits take a new order each time a pad opens (the card sets this from `pin_shuffle`; on unless that is false). */
 let SHUFFLE = true;
 export const setPinShuffle = (on: boolean): void => { SHUFFLE = on; };
+
+/* ---------- a parent stays unlocked for a few minutes (0.38.32, asked for on 25 Nov: the parents enter the PIN a lot) ----------
+ * One right PIN on any pad unlocks every parent control on this screen for `pin_minutes` (default 5; 0 asks every time): a pad
+ * opened meanwhile passes at once, unseen. The card shows an open padlock with the minutes left in the header (a tap locks again)
+ * and locks when the screensaver comes up. "A parent's own device" (Settings, This screen; kept in this browser, never on the wall
+ * panel) is unlocked for good: a parent's phone has its own lock. Wrong tries still count and rest the pad as before. */
+const UNLOCK = { until: 0, minutes: 5 };
+const OWN_KEY = 'fh-parent-device';
+const unlockSubs = new Set<() => void>();
+const told = (): void => unlockSubs.forEach((f) => f());
+/** Minutes a right PIN keeps this screen unlocked (the card sets it from `pin_minutes`). */
+export const setUnlockMinutes = (n: number): void => { UNLOCK.minutes = Math.max(0, Math.min(60, Math.round(n))); if (!UNLOCK.minutes && UNLOCK.until) { UNLOCK.until = 0; told(); } };
+const wallHere = (): boolean => { try { return JSON.parse(localStorage.getItem('fh-wall') || 'false') === true; } catch { return false; } };
+/** This screen is a parent's own phone or tablet (never the wall panel, whatever is stored). */
+export const ownDevice = (): boolean => { try { return localStorage.getItem(OWN_KEY) === '1' && !wallHere(); } catch { return false; } };
+export const setOwnDevice = (on: boolean): void => { try { if (on) localStorage.setItem(OWN_KEY, '1'); else localStorage.removeItem(OWN_KEY); } catch { /* storage unavailable */ } told(); };
+/** Whether a pad would pass at once on this screen now. */
+export const parentUnlocked = (): boolean => ownDevice() || Date.now() < UNLOCK.until;
+/** Milliseconds left in the window (0 when locked; a parent's own device has no window: 0). */
+export const unlockLeft = (): number => Math.max(0, UNLOCK.until - Date.now());
+/** Starts (or restarts) the window, as a right PIN does. */
+export const unlockNow = (): void => { if (UNLOCK.minutes > 0) { UNLOCK.until = Date.now() + UNLOCK.minutes * 60_000; told(); } };
+/** Ends the window at once (the header's padlock, the screensaver). */
+export const lockNow = (): void => { if (UNLOCK.until) { UNLOCK.until = 0; told(); } };
+export const onUnlock = (f: () => void): (() => void) => { unlockSubs.add(f); return () => unlockSubs.delete(f); };
 const ORDER = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 /** The ten digits for one opening of the pad: shuffled, and never left in the usual order. */
 const deal = (): string[] => {
@@ -21,6 +46,8 @@ export class FhPin extends LitElement {
   readonly lookCtl = new LookController(this);
   static styles = [styles, css`
     :host([data-phone]) { position: fixed !important; }
+    /* unlocked: the pad passes at once and is never seen (0.38.32) */
+    :host([data-pass]) { display: none !important; }
     :host { position: absolute; inset: 0; z-index: 35; display: flex; align-items: center; justify-content: center; padding: 12px; background: var(--scrim, rgba(6,16,28,.52)); }
     .pad { border-radius: 32px; padding: 20px 28px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; width: 340px; max-width: 100%; max-height: 100%; overflow: visible; animation: sheet var(--m-3, 240ms) var(--e-spring, ease) backwards; }
     :host { animation: scrimin var(--m-2, 160ms) var(--e-out, ease) backwards; }
@@ -56,8 +83,10 @@ export class FhPin extends LitElement {
   private _tick = 0;
   private _digits: string[] = ORDER;
 
+  private _pass = false;
   connectedCallback(): void {
     super.connectedCallback();
+    if (parentUnlocked()) { this._pass = true; this.setAttribute('data-pass', ''); window.setTimeout(() => { if (this.isConnected) this.dispatchEvent(new CustomEvent('ok')); }, 0); return; }
     // remember what had focus, so it can go back there when the pad closes
     let a: Element | null = document.activeElement; while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement;
     this._from = a as HTMLElement | null;
@@ -67,8 +96,8 @@ export class FhPin extends LitElement {
     // typed digits, Backspace and Escape work wherever focus happens to be while the pad is open
     window.addEventListener('keydown', this._keys, true);
   }
-  disconnectedCallback(): void { super.disconnectedCallback(); clearInterval(this._tick); window.removeEventListener('keydown', this._keys, true); const f = this._from; if (f?.isConnected) window.setTimeout(() => f.focus({ preventScroll: true }), 0); }
-  firstUpdated(): void { (this.renderRoot.querySelector('.grid button') as HTMLElement | null)?.focus({ preventScroll: true }); }
+  disconnectedCallback(): void { super.disconnectedCallback(); if (this._pass) return; clearInterval(this._tick); window.removeEventListener('keydown', this._keys, true); const f = this._from; if (f?.isConnected) window.setTimeout(() => f.focus({ preventScroll: true }), 0); }
+  firstUpdated(): void { if (this._pass) return; (this.renderRoot.querySelector('.grid button') as HTMLElement | null)?.focus({ preventScroll: true }); }
 
   private _key(k: string): void {
     if (this._wait) return;
@@ -77,7 +106,7 @@ export class FhPin extends LitElement {
     // every digit sounds the same, so the PIN cannot be learnt by ear
     this._typed += k; this._note = ''; if (this._typed.length < this.pin.length) sfx('pin');
     if (this._typed.length >= this.pin.length) {
-      if (this._typed === this.pin) { LOCK.misses = 0; sfx('pinok'); this._leave('ok'); }
+      if (this._typed === this.pin) { LOCK.misses = 0; sfx('pinok'); unlockNow(); this._leave('ok'); }
       else {
         LOCK.misses += 1; this._bad = true; sfx('pinno');
         // three wrong tries: the pad rests for a minute, so it cannot be guessed by mashing
@@ -106,6 +135,7 @@ export class FhPin extends LitElement {
     e.preventDefault(); e.stopPropagation();
   };
   render() {
+    if (this._pass) return html``;
     return html`<div class="glass sheet pad ${this._bad ? 'bad' : ''}" role="dialog" aria-modal="true" aria-label=${`${this.reason} Enter the parent PIN.`} @click=${(e: Event) => e.stopPropagation()}>
       <div style="display:flex;width:100%;align-items:center;gap:10px"><span style="line-height:0;color:var(--accent)">${icon('lock', 24)}</span><h2 class="t-sub" style="flex:1">${this.reason}</h2>
         <button class="round tap" style="width:52px;height:52px;margin-right:-10px" aria-label="Cancel" @click=${() => this._leave('cancel')}>${icon('close', 20)}</button></div>
