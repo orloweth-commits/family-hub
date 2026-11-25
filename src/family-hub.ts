@@ -15,7 +15,7 @@ import './doodle';
 import './morning';
 import { art, moonAge, type ArtData } from './art';
 import './addevent';
-import { setPinShuffle } from './pin';
+import { setPinShuffle, setUnlockMinutes, unlockLeft, lockNow, onUnlock } from './pin';
 import './chat';
 import { AI_NOTE } from './chat';
 import './settings';
@@ -70,7 +70,7 @@ const WAIT_KINDS: { k: 'reward' | 'job' | 'chat'; ic: string; title: string; say
 /** the dinner line's mark in the Reminders card: a plate seen from above, with a fork and a knife */
 const PLATE = html`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="6.2"></circle><circle cx="12" cy="12" r="3.4" opacity=".55"></circle><path d="M3 6.5v4.2M3 8.6h0M4.6 6.5v3.4a1.6 1.6 0 0 1-3.2 0V6.5M3 10.6v7M21.2 6.5c-1.4.8-1.8 2.6-1.8 4.6h1.8v6.5"></path></svg>`;
 type Sheet = '' | 'dinner' | 'noticed' | 'waiting' | 'more' | 'themes' | 'kidprefs' | 'meds' | 'add' | 'sitter' | 'timer' | 'chat' | 'event' | 'settings';
-const VERSION = '0.38.31';
+const VERSION = '0.38.32';
 const THEME_KEY = 'family-hub-theme';
 const SOUNDS_KEY = 'family-hub-sounds';
 const COND: Record<string, string> = {
@@ -383,7 +383,7 @@ export class FamilyHubCard extends LitElement {
     if (this._page === 'kid' && !(config.kids ?? [])[this._kid]) this._page = 'planner';
     setWeekendExtra(config.bedtime_weekend_extra);
     setVoice(config.voice, () => this.hass); forgetLines(); this._voiceSynced = false; this._cuesWarmed = false;
-    setPinShuffle(config.pin_shuffle !== false);
+    setPinShuffle(config.pin_shuffle !== false); setUnlockMinutes(config.pin_minutes ?? 5);
     this._config = config;
     let snd: string | null = null;
     try { snd = localStorage.getItem(SOUNDS_KEY); } catch { /* storage unavailable */ }
@@ -410,6 +410,7 @@ export class FamilyHubCard extends LitElement {
     this.addEventListener('click', this._tapMark, true); this.addEventListener('click', this._tapSfx);
     loadFonts('Inter', 'Bricolage Grotesque');
     this._tick = window.setInterval(() => this._onTick(), 1000);
+    this._unlockOff = onUnlock(() => { this._lockMins = Math.ceil(unlockLeft() / 60_000); this.requestUpdate(); });
     // Settings was open when the dashboard drew the card again (it does after a save): it comes back open, on the same pane
     if (resumeNow()) this._sheet = 'settings';
     this._poll = window.setInterval(() => { this._fetchedKey = ''; this._refresh(); this._loadSoon(); }, 5 * 60_000);
@@ -460,7 +461,7 @@ export class FamilyHubCard extends LitElement {
   private _viewWas: '' | 'week' = '';
   private _ro?: ResizeObserver;
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback(); this._unlockOff?.();
     this.removeEventListener('click', this._swallow, true); window.removeEventListener('pointerup', this._wakeUp, true); window.removeEventListener('pointercancel', this._wakeUp, true); this._art.dispose();
     this.removeEventListener('click', this._tapMark, true); this.removeEventListener('click', this._tapSfx);
     window.removeEventListener('resize', this._onResize); this._ro?.disconnect(); window.removeEventListener('keydown', this._keys);
@@ -560,8 +561,11 @@ export class FamilyHubCard extends LitElement {
     return out.filter(Boolean).slice(0, 2);
   }
 
+  /** the header's padlock: minutes left in a parent's unlock (0.38.32), redrawn when the minute changes */
+  private _lockMins = 0; private _unlockOff?: () => void;
   private _onTick(): void {
     const now = new Date(), timerOn = this._timerLeft() !== null;
+    { const m = Math.ceil(unlockLeft() / 60_000); if (m && this._art.on) lockNow(); /* the screensaver locks a parent's unlock (0.38.32) */ else if (m !== this._lockMins) { this._lockMins = m; this.requestUpdate(); } }
     if (this._config) this._dkEval();
     if (this._config) {
       const was = this._art.on;
@@ -1585,6 +1589,7 @@ export class FamilyHubCard extends LitElement {
               ${(wx.uv ?? 0) >= 3 ? html`<span class="badge" title="UV ${wx.uv}">${art('uv', 17)}UV ${Math.round(wx.uv!)}</span>` : nothing}
               ${(wx.max ?? 0) >= 35 ? html`<span class="badge hot">${icon('thermo', 14)}Hot</span>` : nothing}
             </button>`}` : nothing}
+          ${c.parent_pin && this._lockMins > 0 ? html`<button class="glass tap round hb" data-act="lock" aria-label=${`Unlocked for parents, ${this._lockMins} minute${this._lockMins === 1 ? '' : 's'} left. Lock now`} @click=${() => { lockNow(); this._say('Locked. The PIN is needed again.'); }}>${art('unlock', 26)}<span class="rl" aria-hidden="true">${this._lockMins} min</span></button>` : nothing /* a parent's unlock, 0.38.32: a tap locks again */}
           ${this._waiting.length && !this._kidOn ? html`<button class="glass tap round hb" data-act="bell" aria-haspopup="dialog" aria-label=${`${this._waiting.length} waiting for a parent`} @click=${() => this._openWaiting()}>${art('bell', 26)}<span class="rl" aria-hidden="true">${this._waiting.length} waiting</span></button>` : nothing}
           ${c.chat?.agent && !this._morningHold(this._now) && !(this._kidOn && askByChild(c.kids) && askFor(this._kidOn).mode === 'off') ? html`<button class="glass tap round hb" data-act="ask" aria-label="Ask a question" @click=${() => this._openChat()}>${art('ask', 24)}<span class="rl" aria-hidden="true">Ask</span></button>` : nothing}
           ${kid ? html`<button class="glass tap round hb" data-act="looks" aria-label=${`${kid.name}’s settings`} @click=${() => this._openLooks()}>${icon('cog')}<span class="rl" aria-hidden="true">Settings</span></button>`

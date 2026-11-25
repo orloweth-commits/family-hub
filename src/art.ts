@@ -132,7 +132,10 @@ DRAW.bell = () => `<path class="p-ring" d="M6 9.500a15 15 0 0 1 4.500-4.800M34 9
     <g class="p-bell"><circle cx="20" cy="34" r="3.600" fill="#8a5a00"/><path d="M20 6.500c-6.100 0-10 4.700-10 10.800v6.400l-3.200 4.300a1.300 1.300 0 0 0 1 2.100h24.400a1.300 1.300 0 0 0 1-2.100L30 23.700v-6.400c0-6.100-3.900-10.800-10-10.800z" fill="#ffc933"/>
     <path d="M13.400 12.500c1.400-2.300 3.600-3.600 6.200-3.800" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/><rect x="18.300" y="3.500" width="3.400" height="4.500" rx="1.700" fill="#e0a82e"/><path d="M7 28.800h26" stroke="#e0a82e" stroke-width="1.400"/></g>`;
 /** a drawing with no outline icon behind it in FOR: the line icon a plain look (Obsidian) draws in its place */
-const PLAIN: Record<string, string> = { more: 'more', uv: 'sun', stopwatch: 'timer', lock: 'lock', bell: 'bell' };
+/** a parent's unlock in the header (0.38.32): the same brass padlock, its shackle lifted and swung open */
+DRAW.unlock = () => `<path d="M12.500 18V9a7.500 7.500 0 0 1 15 0v1.500" fill="none" stroke="#8792a2" stroke-width="3.400" stroke-linecap="round"/><rect x="7.500" y="18.500" width="25" height="18" rx="4.500" fill="#0b1f44" opacity=".16"/>
+    <rect x="7.500" y="17" width="25" height="18" rx="4.500" fill="#e0a82e"/><rect x="7.500" y="17" width="25" height="5" rx="2.500" fill="#fff" opacity=".22"/><circle cx="20" cy="25" r="2.600" fill="#5a3e08"/><rect x="18.900" y="25.500" width="2.200" height="5.400" rx="1.100" fill="#5a3e08"/>`;
+const PLAIN: Record<string, string> = { more: 'more', uv: 'sun', stopwatch: 'timer', lock: 'lock', bell: 'bell', unlock: 'lock' };
 
 /** Which drawing stands for an outline icon's name (the names the dock and header already use). */
 const FOR: Record<string, string> = { sun: 'morning', calendar: 'planner', cart: 'groceries', pencil: 'doodle', music: 'music', cloud: 'weather', home: 'home', bulbOff: 'alloff', megaphone: 'dinner', ask: 'ask', palette: 'looks', pill: 'medicine', info: 'info', moon: 'night' };

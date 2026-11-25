@@ -196,6 +196,8 @@ export interface FamilyHubConfig {
   jar?: { target?: number; reward?: string; script?: string; /** end of term: this many unspent points become one marble (term.ts). Absent or 0 = off */ term_points?: number };
   /** the PIN pad puts its digits in a new order each time it opens, so the PIN cannot be learnt by watching where a finger goes (default true) */
   pin_shuffle?: boolean;
+  /** after a right PIN, every parent control on that screen stays unlocked this many minutes (0.38.32; default 5; 0 asks every time) */
+  pin_minutes?: number;
   /** seconds "All off" (the first of Home's Scenes since 0.38.26) waits, with a Cancel button, before the lights go out (default 3; 0 = at once) */
   all_off_wait?: number;
   /** lights "All on" switched: unused since 0.38.26, when All on left the dock (kept so an older config still loads) */

@@ -213,6 +213,66 @@ for (const look of ['glass', 'fridge', 'orbit', 'sports']) {
   ok('with no painter set up it says nothing about paints', !/paints? left/.test(await C(np).locator('fh-kid fh-studio .pnote').innerText()));
   await np.context().close(); }
 
+// 10. a parent stays unlocked (0.38.32, asked for on 25 Nov: the parents enter the PIN a lot): one right PIN unlocks every parent control on
+//     this screen for pin_minutes (the house's 5; the preview asks every time unless &unlock=); an open padlock in the header counts down and
+//     locks on a tap; the window ends by itself; the screensaver locks it; a parent's own device never asks, the wall panel always does
+{ const lock = (page) => C(page).locator('header [data-act="lock"]');
+  const sheetIs = (page) => page.evaluate(() => document.querySelector('family-hub-card')._sheet);
+  const padShown = (page) => page.evaluate(() => { const p = document.querySelector('family-hub-card').shadowRoot.querySelector('fh-pin'); return !!p && !p.hasAttribute('data-pass'); });
+  const looks = async (page) => { await page.evaluate(() => { document.querySelector('family-hub-card')._sheet = 'more'; }); await C(page).locator('.sheet[data-sheet="more"] [data-act="looks"]').waitFor(); await C(page).locator('.sheet[data-sheet="more"] [data-act="looks"]').click(); await page.waitForTimeout(400); };
+  const bell = async (page) => { await C(page).locator('header [data-act="bell"]').click(); await page.waitForTimeout(400); };
+  const close = async (page) => { await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c._pinAsk = null; c._sheet = ''; }); await page.waitForTimeout(300); };
+  let page = await open('look=glass&page=planner&timer=0&unlock=5&asks=reward,job,chat');
+  ok('unlock: before any PIN there is no padlock in the header', await lock(page).count() === 0);
+  await bell(page);
+  ok('unlock: the bell asks for the PIN', await padShown(page));
+  for (const d of '9999') await C(page).locator('fh-pin').getByRole('button', { name: d, exact: true }).click(); await page.waitForTimeout(600);
+  ok('unlock: a wrong PIN unlocks nothing', await padShown(page) && await lock(page).count() === 0);
+  await pin(page);
+  const l1 = (await lock(page).innerText().catch(() => '')).replace(/\s+/g, ' ').trim(), a1 = await lock(page).getAttribute('aria-label').catch(() => '');
+  ok('unlock: the right PIN opens the bell\'s sheet and an open padlock reads "5 min"', await sheetIs(page) === 'waiting' && l1 === '5 min' && /^Unlocked for parents, 5 minutes left\. Lock now$/.test(a1), { l1, a1 });
+  ok('unlock: the padlock is the open one (its own drawing)', await lock(page).locator('svg.pic2[data-ic="unlock"]').count() === 1);
+  await close(page); await looks(page);
+  ok('unlock: while unlocked the next gate (the look) opens with no pad', !(await padShown(page)) && await sheetIs(page) === 'themes', await sheetIs(page));
+  const passed = await page.evaluate(() => new Promise((res) => { const p = document.createElement('fh-pin'); p.pin = '1234'; p.addEventListener('ok', () => { res(p.hasAttribute('data-pass') && getComputedStyle(p).display === 'none'); p.remove(); }, { once: true }); document.body.append(p); setTimeout(() => res('no ok'), 1500); }));
+  ok('unlock: a pad opened by any part of the card passes at once, unseen', passed === true, passed);
+  await close(page); await page.clock.runFor(125_000); await page.waitForTimeout(400);
+  ok('unlock: two minutes on the padlock reads "3 min"', (await lock(page).innerText()).replace(/\s+/g, ' ').trim() === '3 min', await lock(page).innerText());
+  await lock(page).click(); await page.waitForTimeout(400);
+  ok('unlock: a tap on the padlock locks: it goes, and the panel says so', await lock(page).count() === 0 && /^Locked/.test(await toast(page)), await toast(page));
+  await bell(page);
+  ok('unlock: once locked the bell asks again', await padShown(page));
+  await pin(page); await close(page);
+  await page.clock.runFor(5 * 60_000 + 2000); await page.waitForTimeout(400);
+  ok('unlock: five minutes on the window ends by itself: no padlock, the PIN asked again', await lock(page).count() === 0 && (await bell(page), await padShown(page)));
+  await page.context().close();
+  // the screensaver locks it (through the bell: a page that has opened Looks keeps the screensaver back afterwards, on main too)
+  page = await open('look=glass&page=planner&timer=0&unlock=5&art=1&artn=3&idle=3&asks=reward,job,chat');
+  const awake = async () => { await page.evaluate(() => { const c = document.querySelector('family-hub-card'); c._lastTouch = Date.now(); if (c._art.on) c._art.wake(); }); await C(page).locator('.artm').waitFor({ state: 'detached', timeout: 4000 }).catch(() => {}); };
+  await awake(); await bell(page); await pin(page); await close(page);
+  ok('unlock (screensaver): unlocked after the PIN', await lock(page).count() === 1);
+  await page.evaluate(() => { document.querySelector('family-hub-card')._lastTouch = Date.now() - 200_000; });
+  for (let i = 0; i < 8; i++) { await page.clock.runFor(5000); await page.waitForTimeout(100); }
+  const up = await page.evaluate(() => document.querySelector('family-hub-card')._art.on);
+  await awake();
+  ok('unlock (screensaver): the screensaver coming up locks it', up && await lock(page).count() === 0 && (await bell(page), await padShown(page)), { up });
+  await page.context().close();
+  // the preview's own default, pin_minutes 0: asked every time, no padlock
+  page = await open('look=glass&page=planner&timer=0');
+  await looks(page); await pin(page); await close(page); await looks(page);
+  ok('unlock: with pin_minutes 0 the PIN is asked every time and no padlock shows', await padShown(page) && await lock(page).count() === 0);
+  await page.context().close();
+  // a parent's own device: never asked, no padlock; the wall panel always asks, whatever is stored
+  page = await open('look=glass&page=planner&timer=0&unlock=5');
+  await page.evaluate(() => localStorage.setItem('fh-parent-device', '1')); await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(600);
+  await looks(page);
+  ok('own device: the look opens with no pad, and no padlock (nothing to count down)', !(await padShown(page)) && await sheetIs(page) === 'themes' && await lock(page).count() === 0, await sheetIs(page));
+  await page.evaluate(() => localStorage.setItem('fh-wall', 'true')); await page.reload(); await page.waitForFunction('window.__ready === true'); await page.waitForTimeout(600);
+  await looks(page);
+  ok('own device: on a screen that is the wall panel the PIN is asked all the same', await padShown(page));
+  await page.evaluate(() => { localStorage.removeItem('fh-parent-device'); localStorage.removeItem('fh-wall'); });
+  await page.context().close(); }
+
 console.log('errors:', errs.length ? errs.join('\n') : 'none');
 console.log(fails.length ? `\n${fails.length} FAILED` : `\nall ${pass} passed`);
 await browser.close(); srv.close(); process.exit(fails.length || errs.length ? 1 : 0);

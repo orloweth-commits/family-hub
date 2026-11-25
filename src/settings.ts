@@ -9,6 +9,7 @@ import { THEMES } from './themes';
 import { icon } from './icons';
 import { keyboard, keysCss, typeKey } from './keys';
 import { isWall, setWall } from './trust';
+import { ownDevice, setOwnDevice } from './pin';
 import { APPROVE_ID, JOBS_FROM, approveEntity, approveOn, askList, haApprove, syncApprove } from './approve';
 import { haTerm, syncTerm, termEnds, termRate } from './term';
 import { CUES_ID, CUE_LEAVE, cueBlock, cuesEntity, haCues, ownRoom, ownSpeakers, sameCues, syncCues, warmCues } from './cues';
@@ -937,6 +938,7 @@ export class FhSettings extends LitElement {
         <span class="shint">The PIN is kept in the card’s configuration, where it already lives. Anyone who can edit the dashboard can read it.</span>
       </div>
       ${has ? html`<div class="scard"><h3>What the PIN guards</h3>
+        ${this._row('Stays unlocked after the PIN', (d.pin_minutes ?? 5) ? `One right PIN unlocks every parent control on that screen for ${d.pin_minutes ?? 5} minute${(d.pin_minutes ?? 5) === 1 ? '' : 's'}. An open padlock in the header shows the minutes left; a tap on it locks again, and so does the screensaver.` : 'Off: the PIN is asked for every time.', this._step('Minutes the panel stays unlocked after the PIN', d.pin_minutes ?? 5, (v) => this._edit((x) => { if (v === 5) delete x.pin_minutes; else x.pin_minutes = v; }), { min: 0, max: 15, step: 1, unit: 'min', say: (v) => (v ? `${v} min` : 'Every time') }))}
         ${this._row('Numbers move on the PIN pad', 'The digits take a new order each time the pad opens, so the PIN cannot be learnt by watching where a finger goes.', this._sw('Numbers move on the PIN pad', d.pin_shuffle !== false, () => this._edit((x) => { if (x.pin_shuffle === false) delete x.pin_shuffle; else x.pin_shuffle = false; })))}
         ${this._row('Recording medicine', 'Ask for the PIN before a medicine is recorded or a record is removed.', this._sw('PIN for recording medicine', d.meds_pin !== false, () => this._edit((x) => { if (x.meds_pin === false) delete x.meds_pin; else x.meds_pin = false; })))}
         ${d.chat?.agent ? this._row(`${d.chat.name || 'Ask'} after bedtime`, 'After any child’s bedtime and in quiet hours, the helper opens only with the PIN.', this._sw('PIN for Ask after bedtime', d.chat.pin_after_bedtime !== false, () => this._edit((x) => { if (x.chat!.pin_after_bedtime === false) delete x.chat!.pin_after_bedtime; else x.chat!.pin_after_bedtime = false; }))) : nothing}
@@ -978,6 +980,7 @@ export class FhSettings extends LitElement {
       </div>
       <div class="scard" data-screen><h3>${icon('home', 20)}This screen</h3>
         ${this._row('Light and dark', 'Used only when this screen wears the Glass look; the other looks keep their own colours. Auto goes dark at sunset and light at sunrise, and dark in a dim room where the screen has a room-light reading. Kept on this screen, not saved with the rest.', this._seg<DarkMode>('Light and dark', getDarkMode(), DARK_MODES, (v) => { setDarkMode(v); sfx('set'); this.requestUpdate(); }))}
+        ${this.config.parent_pin && !isWall() ? this._row('A parent’s own phone or tablet', 'No PIN on this screen: the phone’s own lock keeps the children out. Never for the wall panel or a tablet the children use. Kept on this screen, not saved with the rest.', this._sw('This screen is a parent’s own: no PIN here', ownDevice(), () => { setOwnDevice(!ownDevice()); sfx('set'); this.requestUpdate(); })) : nothing}
         ${!hc?.heartbeat ? nothing : this._row('This is the wall panel', 'Only the wall panel tells Home Assistant it is still running, so a parent can be told if it stops. Kept on this screen, not saved with the rest.', this._sw('This screen is the wall panel', isWall(), () => { setWall(!isWall()); sfx('set'); this.requestUpdate(); }))}
       </div>
       <div class="scard"><h3>${icon('bin', 20)}Bin night</h3>

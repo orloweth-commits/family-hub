@@ -419,6 +419,29 @@ for (const [w, h] of [[1920, 1080], [1312, 668], [1024, 768], [768, 1024], [390,
   ok('a child’s “One job at a time” no longer moves his studio', r.one === true && r.locked === false, r);
   await p.evaluate(() => localStorage.removeItem('family-hub-kid-riley')); await p.close(); }
 
+// 25. a parent stays unlocked (0.38.32): Settings, the PIN pane sets the minutes (absent is the house's 5; the preview's 0 asks every time), and
+// This screen has "A parent's own phone or tablet" (kept in this browser), never offered on the wall panel
+{ let page = await open('look=glass&sheet=settings&pane=pin');
+  const step = S(page).getByRole('button', { name: 'Minutes the panel stays unlocked after the PIN: more' });
+  ok('the PIN pane offers the minutes, the preview at 0 ("Every time")', (await step.count()) === 1 && /Off: the PIN is asked for every time/.test(await S(page).locator('.srow', { hasText: 'Stays unlocked after the PIN' }).innerText()));
+  for (let i = 0; i < 5; i++) await step.click();
+  await save(page);
+  ok('five more and Save: pin_minutes leaves the config (5 is the default)', await cfg(page, '(c) => c.pin_minutes') === undefined && await dashCard(page, '(c) => c.pin_minutes') === undefined, await cfg(page, '(c) => c.pin_minutes'));
+  await step.click(); await save(page);
+  ok('six saves pin_minutes: 6', await cfg(page, '(c) => c.pin_minutes') === 6);
+  await page.close();
+  page = await open('look=glass&sheet=settings&pane=house');
+  const own = S(page).getByRole('switch', { name: 'This screen is a parent’s own: no PIN here' });
+  ok('This screen offers "A parent’s own phone or tablet", off', (await own.count()) === 1 && (await own.getAttribute('aria-checked')) === 'false');
+  await own.click(); await page.waitForTimeout(200);
+  ok('switched on, it is kept in this browser, not in the config', await page.evaluate(() => localStorage.getItem('fh-parent-device')) === '1' && await cfg(page, '(c) => JSON.stringify(c).includes("parent-device")') === false && (await own.getAttribute('aria-checked')) === 'true');
+  await own.click(); await page.waitForTimeout(200);
+  ok('and off again', await page.evaluate(() => localStorage.getItem('fh-parent-device')) === null);
+  await page.evaluate(() => localStorage.setItem('fh-wall', 'true')); await page.close();
+  page = await open('look=glass&sheet=settings&pane=house');
+  ok('on the wall panel the switch is not offered', await S(page).getByRole('switch', { name: 'This screen is a parent’s own: no PIN here' }).count() === 0);
+  await page.evaluate(() => localStorage.removeItem('fh-wall')); await page.close(); }
+
 console.log(`\n${pass} passed, ${fails.length} failed${fails.length ? ':\n - ' + fails.join('\n - ') : ''}`);
 console.log('errors:', errs.length ? [...new Set(errs)].join('\n') : 'none');
 await browser.close(); srv.close();
